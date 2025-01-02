@@ -1,0 +1,23 @@
+import 'package:drift/drift.dart';
+import 'package:my_dic/_Framework_Driver/Database/drift/Entity/idioms.dart';
+import 'package:my_dic/_Framework_Driver/Database/drift/database_provider.dart';
+part '../../../../__generated/_Framework_Driver/Database/drift/DAO/idiom_dao.g.dart';
+
+@DriftAccessor(tables: [Idioms])
+class IdiomDao extends DatabaseAccessor<DatabaseProvider> with _$IdiomDaoMixin {
+  IdiomDao(super.database);
+
+  Future<Idiom?> getIdiomById(int id) {
+    return (select(idioms)..where((tbl) => tbl.idiomId.equals(id)))
+        .getSingleOrNull();
+  }
+
+  Future<void> insertIdiom(Insertable<Idiom> tableName) =>
+      into(idioms).insert(tableName);
+
+  Future<void> updateIdiom(Insertable<Idiom> tableName) =>
+      update(idioms).replace(tableName);
+
+  Future<void> deleteIdiom(Insertable<Idiom> tableName) =>
+      delete(idioms).delete(tableName);
+}
