@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_dic/_View/search_fragment.dart';
 import 'package:my_dic/_View/word_page_fragment.dart';
 
 class MainActivity extends StatefulWidget {
@@ -18,7 +19,8 @@ class _MainActivityState extends State<MainActivity> {
         title: Text(widget.title),
       ),
       body: Container(
-        child: WordPageFragment(),
+        //child: WordPageFragment(),
+        child: SearchFragment(),
       ),
 
       /* floatingActionButton: FloatingActionButton(

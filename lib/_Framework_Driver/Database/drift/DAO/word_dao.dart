@@ -20,4 +20,8 @@ class WordDao extends DatabaseAccessor<DatabaseProvider> with _$WordDaoMixin {
 
   Future<void> deleteWord(Insertable<Word> tableName) =>
       delete(words).delete(tableName);
+
+  Future<List<Word>?> getWordsByWord(String searchWord) async {
+    return (select(words)..where((tbl) => tbl.word.like('$searchWord%'))).get();
+  }
 }

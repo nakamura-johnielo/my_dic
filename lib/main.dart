@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_View/main_activity.dart';
 
@@ -11,8 +12,8 @@ void main() {
 
   //DI注入
   setupLocator();
-
-  runApp(const MyApp());
+  runApp(const ProviderScope(child: MyApp()));
+  //runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false, //debug banner非表示
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
