@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_View/main_activity.dart';
+import 'package:my_dic/router.dart';
 
 // 1. エントリーポイントのmain関数
 void main() {
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MainActivity(title: 'Flutter Demo Home Page'),
+      home: const MainActivity(),
     );
   }
 }
