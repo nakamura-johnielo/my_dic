@@ -1,9 +1,94 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_dic/Components/bottom_bar.dart';
+import 'package:my_dic/Constants/tab.dart';
+import 'package:my_dic/_View/note_fragment.dart';
+import 'package:my_dic/_View/ranking_fragment.dart';
 import 'package:my_dic/_View/search_fragment.dart';
 import 'package:my_dic/_View/word_page_fragment.dart';
 
+final rootNavigatorKey = GlobalKey<NavigatorState>();
+final searchNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'search');
+final noteNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'note');
+final rankingNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'ranking');
+
 final goRouter = GoRouter(
+    navigatorKey: rootNavigatorKey,
+    //home
+    initialLocation: '/${ScreenTab.search}',
+    routes: [
+      StatefulShellRoute.indexedStack(
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state, navigationShell) {
+            //navbarのデザイン
+            return BottomNavBar(navigationShell: navigationShell);
+          },
+          branches: [
+            // noteブランチ
+            StatefulShellBranch(
+              navigatorKey: noteNavigatorKey,
+              routes: [
+                GoRoute(
+                  path: '/${ScreenTab.note}',
+                  pageBuilder: (context, state) => NoTransitionPage(
+                    key: state.pageKey,
+                    child: NoteFragment(),
+                  ),
+                ),
+              ],
+            ),
+
+            // search
+            StatefulShellBranch(
+              navigatorKey: searchNavigatorKey,
+              routes: [
+                GoRoute(
+                  path: '/${ScreenTab.search}',
+                  pageBuilder: (context, state) => NoTransitionPage(
+                    key: state.pageKey,
+                    child: SearchFragment(),
+                  ),
+                  routes: [
+                    GoRoute(
+                      path: 'detail',
+                      parentNavigatorKey: searchNavigatorKey,
+                      pageBuilder: (context, state) {
+                        final int wordId = state.extra as int;
+                        return MaterialPage(
+                            child: WordPageFragment(
+                          wordId: wordId,
+                        ));
+                      },
+                    )
+                  ],
+                ),
+              ],
+            ),
+
+            // rankingランチ
+            StatefulShellBranch(
+              navigatorKey: rankingNavigatorKey,
+              routes: [
+                GoRoute(
+                  path: '/${ScreenTab.ranking}',
+                  pageBuilder: (context, state) => NoTransitionPage(
+                    key: state.pageKey,
+                    child: RankingFragment(),
+                  ),
+                ),
+              ],
+            ),
+          ]),
+    ]);
+
+
+
+
+
+
+
+
+/* final goRouter = GoRouter(
   // アプリが起動した時
   initialLocation: '/',
   // パスと画面の組み合わせ
@@ -41,3 +126,4 @@ final goRouter = GoRouter(
     ),
   ),
 );
+ */

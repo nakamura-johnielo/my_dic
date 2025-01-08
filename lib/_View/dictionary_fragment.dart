@@ -1,9 +1,11 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:my_dic/Constants/test.dart';
+import 'package:my_dic/Constants/ui.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/dictionary/esj_dictionary.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esj_dictionary_repository.dart';
+import 'package:my_dic/html_style_kotobank.dart';
 //import 'package:my_dic/Infrastracture/DAO/kotobank_dictionary_dao.dart';
 
 class DictionaryFragment extends StatelessWidget {
@@ -37,21 +39,32 @@ class DictionaryFragment extends StatelessWidget {
                 );
               } else {
                 // データが見つかった場合
-                log('dic: ${data.word}');
-                log('headword: ${data.headword}');
-                return Column(
-                  children: [
-                    Text(
-                      //'Word: ${data['word']}',
-                      'Word: ${data.word}',
-                      style: TextStyle(fontSize: 24),
-                    ),
-                    Text(
-                      //'Word: ${data['word']}',
-                      '${data.content}',
-                      style: TextStyle(fontSize: 24),
-                    ),
-                  ],
+                //log('dic: ${data.word}');
+                //log('headword: ${data.headword}');
+                return SingleChildScrollView(
+                  child: Container(
+                      margin: const EdgeInsets.only(
+                          top: MARGIN_TOP_SCROLLABLE_CHILD,
+                          bottom: MARGIN_BOTTOM_SCROLLABLE_CHILD),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: PADDING_X_DISPLAY),
+                      child: Column(
+                        children: [
+                          Text(
+                            //'Word: ${data['word']}',
+                            'Word: ${data.word}',
+                            style: TextStyle(fontSize: 24),
+                          ),
+                          Html(
+                            data: data.headword,
+                            style: htmlStyles,
+                          ),
+                          Html(
+                            data: data.content,
+                            style: htmlStyles,
+                          ),
+                        ],
+                      )),
                 );
               }
             } else {

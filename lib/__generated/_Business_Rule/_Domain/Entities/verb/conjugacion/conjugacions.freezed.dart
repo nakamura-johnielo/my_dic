@@ -16,7 +16,7 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$Conjugacions {
-  int get conjugacionId => throw _privateConstructorUsedError;
+//required int conjugacionId,
   int get wordId => throw _privateConstructorUsedError;
   Map<MoodTense, TenseConjugacion> get conjugacions =>
       throw _privateConstructorUsedError;
@@ -34,10 +34,7 @@ abstract class $ConjugacionsCopyWith<$Res> {
           Conjugacions value, $Res Function(Conjugacions) then) =
       _$ConjugacionsCopyWithImpl<$Res, Conjugacions>;
   @useResult
-  $Res call(
-      {int conjugacionId,
-      int wordId,
-      Map<MoodTense, TenseConjugacion> conjugacions});
+  $Res call({int wordId, Map<MoodTense, TenseConjugacion> conjugacions});
 }
 
 /// @nodoc
@@ -55,15 +52,10 @@ class _$ConjugacionsCopyWithImpl<$Res, $Val extends Conjugacions>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? conjugacionId = null,
     Object? wordId = null,
     Object? conjugacions = null,
   }) {
     return _then(_value.copyWith(
-      conjugacionId: null == conjugacionId
-          ? _value.conjugacionId
-          : conjugacionId // ignore: cast_nullable_to_non_nullable
-              as int,
       wordId: null == wordId
           ? _value.wordId
           : wordId // ignore: cast_nullable_to_non_nullable
@@ -84,10 +76,7 @@ abstract class _$$ConjugacionsImplCopyWith<$Res>
       __$$ConjugacionsImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {int conjugacionId,
-      int wordId,
-      Map<MoodTense, TenseConjugacion> conjugacions});
+  $Res call({int wordId, Map<MoodTense, TenseConjugacion> conjugacions});
 }
 
 /// @nodoc
@@ -103,15 +92,10 @@ class __$$ConjugacionsImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? conjugacionId = null,
     Object? wordId = null,
     Object? conjugacions = null,
   }) {
     return _then(_$ConjugacionsImpl(
-      conjugacionId: null == conjugacionId
-          ? _value.conjugacionId
-          : conjugacionId // ignore: cast_nullable_to_non_nullable
-              as int,
       wordId: null == wordId
           ? _value.wordId
           : wordId // ignore: cast_nullable_to_non_nullable
@@ -128,13 +112,11 @@ class __$$ConjugacionsImplCopyWithImpl<$Res>
 
 class _$ConjugacionsImpl implements _Conjugacions {
   const _$ConjugacionsImpl(
-      {required this.conjugacionId,
-      required this.wordId,
+      {required this.wordId,
       required final Map<MoodTense, TenseConjugacion> conjugacions})
       : _conjugacions = conjugacions;
 
-  @override
-  final int conjugacionId;
+//required int conjugacionId,
   @override
   final int wordId;
   final Map<MoodTense, TenseConjugacion> _conjugacions;
@@ -147,7 +129,7 @@ class _$ConjugacionsImpl implements _Conjugacions {
 
   @override
   String toString() {
-    return 'Conjugacions(conjugacionId: $conjugacionId, wordId: $wordId, conjugacions: $conjugacions)';
+    return 'Conjugacions(wordId: $wordId, conjugacions: $conjugacions)';
   }
 
   @override
@@ -155,16 +137,14 @@ class _$ConjugacionsImpl implements _Conjugacions {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$ConjugacionsImpl &&
-            (identical(other.conjugacionId, conjugacionId) ||
-                other.conjugacionId == conjugacionId) &&
             (identical(other.wordId, wordId) || other.wordId == wordId) &&
             const DeepCollectionEquality()
                 .equals(other._conjugacions, _conjugacions));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, conjugacionId, wordId,
-      const DeepCollectionEquality().hash(_conjugacions));
+  int get hashCode => Object.hash(
+      runtimeType, wordId, const DeepCollectionEquality().hash(_conjugacions));
 
   /// Create a copy of Conjugacions
   /// with the given fields replaced by the non-null parameter values.
@@ -177,13 +157,11 @@ class _$ConjugacionsImpl implements _Conjugacions {
 
 abstract class _Conjugacions implements Conjugacions {
   const factory _Conjugacions(
-          {required final int conjugacionId,
-          required final int wordId,
+          {required final int wordId,
           required final Map<MoodTense, TenseConjugacion> conjugacions}) =
       _$ConjugacionsImpl;
 
-  @override
-  int get conjugacionId;
+//required int conjugacionId,
   @override
   int get wordId;
   @override

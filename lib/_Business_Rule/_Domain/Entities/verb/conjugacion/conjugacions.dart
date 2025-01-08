@@ -12,7 +12,7 @@ part '../../../../../__generated/_Business_Rule/_Domain/Entities/verb/conjugacio
 class Conjugacions with _$Conjugacions {
   // プロパティを指定
   const factory Conjugacions({
-    required int conjugacionId,
+    //required int conjugacionId,
     required int wordId,
     required Map<MoodTense, TenseConjugacion> conjugacions,
     // デフォルト値は「@Default([デフォルト値]])」の形式で指定可能

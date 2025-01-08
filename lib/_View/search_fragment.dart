@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:my_dic/Constants/tab.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/buffer_controller.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/search_view_model.dart';
@@ -14,7 +16,7 @@ class SearchFragment extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('ViewModel Example'),
+        title: Text('search'),
       ),
       body: Column(
         children: [
@@ -39,7 +41,10 @@ class SearchFragment extends ConsumerWidget {
                   title: Text(viewModel.filteredItems.isNotEmpty
                       ? viewModel.filteredItems[index].word
                       : 'No data available'),
-
+                  onTap: () {
+                    context.push('/${ScreenTab.search}/detail',
+                        extra: viewModel.filteredItems[index].wordId);
+                  },
                   //title: Text(viewModel.filteredItems[index].word if itemCount!=0 else 'No data available'),
                 );
               },

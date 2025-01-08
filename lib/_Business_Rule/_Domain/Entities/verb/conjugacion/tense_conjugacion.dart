@@ -19,8 +19,8 @@ class TenseConjugacion with _$TenseConjugacion {
     required String yo,
     required String tu,
     required String el,
-    required String nosotoros,
-    required String vosotoros,
+    required String nosotros,
+    required String vosotros,
     required String ellos,
     // デフォルト値は「@Default([デフォルト値]])」の形式で指定可能
   }) = _TenseConjugacion;

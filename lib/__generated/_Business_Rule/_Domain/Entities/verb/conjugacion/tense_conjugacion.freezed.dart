@@ -19,8 +19,8 @@ mixin _$TenseConjugacion {
   String get yo => throw _privateConstructorUsedError;
   String get tu => throw _privateConstructorUsedError;
   String get el => throw _privateConstructorUsedError;
-  String get nosotoros => throw _privateConstructorUsedError;
-  String get vosotoros => throw _privateConstructorUsedError;
+  String get nosotros => throw _privateConstructorUsedError;
+  String get vosotros => throw _privateConstructorUsedError;
   String get ellos => throw _privateConstructorUsedError;
 
   /// Create a copy of TenseConjugacion
@@ -40,8 +40,8 @@ abstract class $TenseConjugacionCopyWith<$Res> {
       {String yo,
       String tu,
       String el,
-      String nosotoros,
-      String vosotoros,
+      String nosotros,
+      String vosotros,
       String ellos});
 }
 
@@ -63,8 +63,8 @@ class _$TenseConjugacionCopyWithImpl<$Res, $Val extends TenseConjugacion>
     Object? yo = null,
     Object? tu = null,
     Object? el = null,
-    Object? nosotoros = null,
-    Object? vosotoros = null,
+    Object? nosotros = null,
+    Object? vosotros = null,
     Object? ellos = null,
   }) {
     return _then(_value.copyWith(
@@ -80,13 +80,13 @@ class _$TenseConjugacionCopyWithImpl<$Res, $Val extends TenseConjugacion>
           ? _value.el
           : el // ignore: cast_nullable_to_non_nullable
               as String,
-      nosotoros: null == nosotoros
-          ? _value.nosotoros
-          : nosotoros // ignore: cast_nullable_to_non_nullable
+      nosotros: null == nosotros
+          ? _value.nosotros
+          : nosotros // ignore: cast_nullable_to_non_nullable
               as String,
-      vosotoros: null == vosotoros
-          ? _value.vosotoros
-          : vosotoros // ignore: cast_nullable_to_non_nullable
+      vosotros: null == vosotros
+          ? _value.vosotros
+          : vosotros // ignore: cast_nullable_to_non_nullable
               as String,
       ellos: null == ellos
           ? _value.ellos
@@ -108,8 +108,8 @@ abstract class _$$TenseConjugacionImplCopyWith<$Res>
       {String yo,
       String tu,
       String el,
-      String nosotoros,
-      String vosotoros,
+      String nosotros,
+      String vosotros,
       String ellos});
 }
 
@@ -129,8 +129,8 @@ class __$$TenseConjugacionImplCopyWithImpl<$Res>
     Object? yo = null,
     Object? tu = null,
     Object? el = null,
-    Object? nosotoros = null,
-    Object? vosotoros = null,
+    Object? nosotros = null,
+    Object? vosotros = null,
     Object? ellos = null,
   }) {
     return _then(_$TenseConjugacionImpl(
@@ -146,13 +146,13 @@ class __$$TenseConjugacionImplCopyWithImpl<$Res>
           ? _value.el
           : el // ignore: cast_nullable_to_non_nullable
               as String,
-      nosotoros: null == nosotoros
-          ? _value.nosotoros
-          : nosotoros // ignore: cast_nullable_to_non_nullable
+      nosotros: null == nosotros
+          ? _value.nosotros
+          : nosotros // ignore: cast_nullable_to_non_nullable
               as String,
-      vosotoros: null == vosotoros
-          ? _value.vosotoros
-          : vosotoros // ignore: cast_nullable_to_non_nullable
+      vosotros: null == vosotros
+          ? _value.vosotros
+          : vosotros // ignore: cast_nullable_to_non_nullable
               as String,
       ellos: null == ellos
           ? _value.ellos
@@ -169,8 +169,8 @@ class _$TenseConjugacionImpl implements _TenseConjugacion {
       {required this.yo,
       required this.tu,
       required this.el,
-      required this.nosotoros,
-      required this.vosotoros,
+      required this.nosotros,
+      required this.vosotros,
       required this.ellos});
 
   @override
@@ -180,15 +180,15 @@ class _$TenseConjugacionImpl implements _TenseConjugacion {
   @override
   final String el;
   @override
-  final String nosotoros;
+  final String nosotros;
   @override
-  final String vosotoros;
+  final String vosotros;
   @override
   final String ellos;
 
   @override
   String toString() {
-    return 'TenseConjugacion(yo: $yo, tu: $tu, el: $el, nosotoros: $nosotoros, vosotoros: $vosotoros, ellos: $ellos)';
+    return 'TenseConjugacion(yo: $yo, tu: $tu, el: $el, nosotros: $nosotros, vosotros: $vosotros, ellos: $ellos)';
   }
 
   @override
@@ -199,16 +199,16 @@ class _$TenseConjugacionImpl implements _TenseConjugacion {
             (identical(other.yo, yo) || other.yo == yo) &&
             (identical(other.tu, tu) || other.tu == tu) &&
             (identical(other.el, el) || other.el == el) &&
-            (identical(other.nosotoros, nosotoros) ||
-                other.nosotoros == nosotoros) &&
-            (identical(other.vosotoros, vosotoros) ||
-                other.vosotoros == vosotoros) &&
+            (identical(other.nosotros, nosotros) ||
+                other.nosotros == nosotros) &&
+            (identical(other.vosotros, vosotros) ||
+                other.vosotros == vosotros) &&
             (identical(other.ellos, ellos) || other.ellos == ellos));
   }
 
   @override
   int get hashCode =>
-      Object.hash(runtimeType, yo, tu, el, nosotoros, vosotoros, ellos);
+      Object.hash(runtimeType, yo, tu, el, nosotros, vosotros, ellos);
 
   /// Create a copy of TenseConjugacion
   /// with the given fields replaced by the non-null parameter values.
@@ -225,8 +225,8 @@ abstract class _TenseConjugacion implements TenseConjugacion {
       {required final String yo,
       required final String tu,
       required final String el,
-      required final String nosotoros,
-      required final String vosotoros,
+      required final String nosotros,
+      required final String vosotros,
       required final String ellos}) = _$TenseConjugacionImpl;
 
   @override
@@ -236,9 +236,9 @@ abstract class _TenseConjugacion implements TenseConjugacion {
   @override
   String get el;
   @override
-  String get nosotoros;
+  String get nosotros;
   @override
-  String get vosotoros;
+  String get vosotros;
   @override
   String get ellos;
 
