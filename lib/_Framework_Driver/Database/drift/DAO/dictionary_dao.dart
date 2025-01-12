@@ -13,9 +13,9 @@ class DictionaryDao extends DatabaseAccessor<DatabaseProvider>
   DictionaryDao(super.database);
 
   // 特定のword_idに基づいてエントリを取得するメソッド
-  Future<Dictionary?> getDictionaryByWordId(int wordId) {
+  Future<List<Dictionary>> getDictionaryByWordId(int wordId) {
     return (select(dictionaries)..where((tbl) => tbl.wordId.equals(wordId)))
-        .getSingleOrNull();
+        .get();
   }
 
   // 結合クエリを使用して特定の単語に関連する例文を取得するメソッド

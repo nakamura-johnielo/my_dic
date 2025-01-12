@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_dic/Components/search_card.dart';
 import 'package:my_dic/Constants/tab.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/buffer_controller.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/search_view_model.dart';
+import 'package:my_dic/_View/word_page/word_page_fragment.dart';
 
 class SearchFragment extends ConsumerWidget {
   SearchFragment({super.key});
@@ -28,7 +30,6 @@ class SearchFragment extends ConsumerWidget {
                 border: OutlineInputBorder(),
               ),
               onChanged: (value) {
-                //viewModel.query = value;
                 _bufferController.searchWord(value);
               },
             ),
@@ -37,19 +38,25 @@ class SearchFragment extends ConsumerWidget {
             child: ListView.builder(
               itemCount: viewModel.filteredItems.length,
               itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(viewModel.filteredItems.isNotEmpty
-                      ? viewModel.filteredItems[index].word
-                      : 'No data available'),
+                return SearchCard(
+                  word: viewModel.filteredItems[index].word,
+                  //meaning: viewModel.filteredItems[index].meaning,
+                  partOfSpeech: viewModel.filteredItems[index].partOfSpeech,
                   onTap: () {
                     context.push('/${ScreenTab.search}/detail',
-                        extra: viewModel.filteredItems[index].wordId);
+                        extra: WordPageFragmentInput(
+                            wordId: viewModel.filteredItems[index].wordId,
+                            isVerb: viewModel.filteredItems[index].hasVerb()));
                   },
-                  //title: Text(viewModel.filteredItems[index].word if itemCount!=0 else 'No data available'),
                 );
               },
             ),
           ),
+
+          /* Row(children: [
+            SizedBox(width: 16),
+            SizedBox(width: 16),
+          ]), */
         ],
       ),
     );

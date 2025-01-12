@@ -12,6 +12,13 @@ class IdiomDao extends DatabaseAccessor<DatabaseProvider> with _$IdiomDaoMixin {
         .getSingleOrNull();
   }
 
+  Future<List<Idiom?>> getExampleByDictionaryId(int id) {
+    return (select(idioms)
+          ..where((tbl) => tbl.dictionaryId.equals(id))
+          ..orderBy([(tbl) => OrderingTerm(expression: tbl.idiomId)]))
+        .get();
+  }
+
   Future<void> insertIdiom(Insertable<Idiom> tableName) =>
       into(idioms).insert(tableName);
 

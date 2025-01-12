@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Constants/enviroment.dart';
 import 'package:my_dic/DI/product.dart';
-import 'package:my_dic/_View/main_activity.dart';
+//import 'package:my_dic/_View/main_activity.dart';
 import 'package:my_dic/router.dart';
 
 // 1. エントリーポイントのmain関数

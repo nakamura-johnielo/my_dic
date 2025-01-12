@@ -47,8 +47,14 @@ final excf = Style(
   padding: HtmlPaddings.only(bottom: 50),
 );
 
+final headword = Style(
+    margin: Margins.only(top: 0, left: 0),
+    fontWeight: FontWeight.bold,
+    fontSize: FontSize(22));
+
 final Map<String, Style> htmlStyles = {
   '*': base,
+  "[flutter=head-word]": headword,
   "[data-orgtag=meaning]": meaning,
   "[type=補足]": supplement,
   "[type=' 補足']": supplement,

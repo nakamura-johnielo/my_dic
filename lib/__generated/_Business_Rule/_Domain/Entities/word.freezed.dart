@@ -18,7 +18,7 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$Word {
   int get wordId => throw _privateConstructorUsedError;
   String get word => throw _privateConstructorUsedError;
-  PartOfSpeech get partOfSpeech => throw _privateConstructorUsedError;
+  List<PartOfSpeech> get partOfSpeech => throw _privateConstructorUsedError;
 
   /// Create a copy of Word
   /// with the given fields replaced by the non-null parameter values.
@@ -31,7 +31,7 @@ abstract class $WordCopyWith<$Res> {
   factory $WordCopyWith(Word value, $Res Function(Word) then) =
       _$WordCopyWithImpl<$Res, Word>;
   @useResult
-  $Res call({int wordId, String word, PartOfSpeech partOfSpeech});
+  $Res call({int wordId, String word, List<PartOfSpeech> partOfSpeech});
 }
 
 /// @nodoc
@@ -65,7 +65,7 @@ class _$WordCopyWithImpl<$Res, $Val extends Word>
       partOfSpeech: null == partOfSpeech
           ? _value.partOfSpeech
           : partOfSpeech // ignore: cast_nullable_to_non_nullable
-              as PartOfSpeech,
+              as List<PartOfSpeech>,
     ) as $Val);
   }
 }
@@ -77,7 +77,7 @@ abstract class _$$WordImplCopyWith<$Res> implements $WordCopyWith<$Res> {
       __$$WordImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int wordId, String word, PartOfSpeech partOfSpeech});
+  $Res call({int wordId, String word, List<PartOfSpeech> partOfSpeech});
 }
 
 /// @nodoc
@@ -106,25 +106,34 @@ class __$$WordImplCopyWithImpl<$Res>
           : word // ignore: cast_nullable_to_non_nullable
               as String,
       partOfSpeech: null == partOfSpeech
-          ? _value.partOfSpeech
+          ? _value._partOfSpeech
           : partOfSpeech // ignore: cast_nullable_to_non_nullable
-              as PartOfSpeech,
+              as List<PartOfSpeech>,
     ));
   }
 }
 
 /// @nodoc
 
-class _$WordImpl implements _Word {
+class _$WordImpl extends _Word {
   const _$WordImpl(
-      {required this.wordId, required this.word, required this.partOfSpeech});
+      {required this.wordId,
+      required this.word,
+      required final List<PartOfSpeech> partOfSpeech})
+      : _partOfSpeech = partOfSpeech,
+        super._();
 
   @override
   final int wordId;
   @override
   final String word;
+  final List<PartOfSpeech> _partOfSpeech;
   @override
-  final PartOfSpeech partOfSpeech;
+  List<PartOfSpeech> get partOfSpeech {
+    if (_partOfSpeech is EqualUnmodifiableListView) return _partOfSpeech;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_partOfSpeech);
+  }
 
   @override
   String toString() {
@@ -138,12 +147,13 @@ class _$WordImpl implements _Word {
             other is _$WordImpl &&
             (identical(other.wordId, wordId) || other.wordId == wordId) &&
             (identical(other.word, word) || other.word == word) &&
-            (identical(other.partOfSpeech, partOfSpeech) ||
-                other.partOfSpeech == partOfSpeech));
+            const DeepCollectionEquality()
+                .equals(other._partOfSpeech, _partOfSpeech));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, wordId, word, partOfSpeech);
+  int get hashCode => Object.hash(runtimeType, wordId, word,
+      const DeepCollectionEquality().hash(_partOfSpeech));
 
   /// Create a copy of Word
   /// with the given fields replaced by the non-null parameter values.
@@ -154,18 +164,19 @@ class _$WordImpl implements _Word {
       __$$WordImplCopyWithImpl<_$WordImpl>(this, _$identity);
 }
 
-abstract class _Word implements Word {
+abstract class _Word extends Word {
   const factory _Word(
       {required final int wordId,
       required final String word,
-      required final PartOfSpeech partOfSpeech}) = _$WordImpl;
+      required final List<PartOfSpeech> partOfSpeech}) = _$WordImpl;
+  const _Word._() : super._();
 
   @override
   int get wordId;
   @override
   String get word;
   @override
-  PartOfSpeech get partOfSpeech;
+  List<PartOfSpeech> get partOfSpeech;
 
   /// Create a copy of Word
   /// with the given fields replaced by the non-null parameter values.

@@ -13,6 +13,13 @@ class SupplementDao extends DatabaseAccessor<DatabaseProvider>
         .getSingleOrNull();
   }
 
+  Future<List<Supplement?>> getExampleByDictionaryId(int id) {
+    return (select(supplements)
+          ..where((tbl) => tbl.dictionaryId.equals(id))
+          ..orderBy([(tbl) => OrderingTerm(expression: tbl.supplementId)]))
+        .get();
+  }
+
   Future<void> insertSupplement(Insertable<Supplement> tableName) =>
       into(supplements).insert(tableName);
 

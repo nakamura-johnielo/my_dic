@@ -7,6 +7,11 @@ class Word with _$Word {
   const factory Word({
     required int wordId,
     required String word,
-    required PartOfSpeech partOfSpeech,
+    required List<PartOfSpeech> partOfSpeech,
   }) = _Word;
+
+  const Word._();
+  bool hasVerb() {
+    return partOfSpeech.contains(PartOfSpeech.verb);
+  }
 }

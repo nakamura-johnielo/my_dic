@@ -11,11 +11,12 @@ enum PartOfSpeech {
   pronoun,
   conjunction,
   article,
-  auxiliaryVerb
+  auxiliaryVerb,
+  none
 }
 
 extension PartOfSpeechExtension on PartOfSpeech {
-  String get name {
+  String get japName {
     switch (this) {
       case PartOfSpeech.noun:
         return '名詞';
@@ -43,6 +44,8 @@ extension PartOfSpeechExtension on PartOfSpeech {
         return '冠詞';
       case PartOfSpeech.auxiliaryVerb:
         return '助動詞';
+      case PartOfSpeech.none:
+        return '品詞ナシ';
     }
   }
 }

@@ -5,7 +5,7 @@ import 'package:my_dic/Constants/tab.dart';
 import 'package:my_dic/_View/note_fragment.dart';
 import 'package:my_dic/_View/ranking_fragment.dart';
 import 'package:my_dic/_View/search_fragment.dart';
-import 'package:my_dic/_View/word_page_fragment.dart';
+import 'package:my_dic/_View/word_page/word_page_fragment.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 final searchNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'search');
@@ -53,10 +53,11 @@ final goRouter = GoRouter(
                       path: 'detail',
                       parentNavigatorKey: searchNavigatorKey,
                       pageBuilder: (context, state) {
-                        final int wordId = state.extra as int;
+                        final WordPageFragmentInput input =
+                            state.extra as WordPageFragmentInput;
                         return MaterialPage(
                             child: WordPageFragment(
-                          wordId: wordId,
+                          input: input,
                         ));
                       },
                     )

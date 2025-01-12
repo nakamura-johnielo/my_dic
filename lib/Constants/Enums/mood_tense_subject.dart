@@ -9,14 +9,14 @@ class MoodTenseSubject {
 
   @override
   String toString() {
-    return '${tense.name} - ${subject.name}';
+    return '${tense.jap} - ${subject.name}';
   }
 
   String toColumnString() {
-    return '${tense.name} - ${subject.name}';
+    return '${tense.jap} - ${subject.name}';
   }
 
   String toConjCol(MoodTense tense, Subject subject) {
-    return tense.columnName + subject.name;
+    return tense.shorten + subject.name;
   }
 }

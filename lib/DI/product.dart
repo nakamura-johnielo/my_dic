@@ -45,7 +45,12 @@ void setupLocator() {
 
   //repository
   DI.registerFactory<IEsjDictionaryRepository>(
-      () => DriftEsjDictionaryRepository(DI<DictionaryDao>()));
+      () => DriftEsjDictionaryRepository(
+            DI<DictionaryDao>(),
+            DI<ExampleDao>(),
+            DI<IdiomDao>(),
+            DI<SupplementDao>(),
+          ));
   DI.registerFactory<IEsjWordRepository>(
       () => DriftEsjWordRepository(DI<WordDao>()));
   DI.registerFactory<IConjugacionsRepository>(

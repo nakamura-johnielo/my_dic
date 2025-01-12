@@ -8,6 +8,14 @@ class PartOfSpeechListDao extends DatabaseAccessor<DatabaseProvider>
     with _$PartOfSpeechListDaoMixin {
   PartOfSpeechListDao(super.database);
 
+  Future<List<String>?> getPartOfSpeechListByWordId(int id) {
+    return (select(partOfSpeechLists)
+          ..addColumns([partOfSpeechLists.partOfSpeech])
+          ..where((tbl) => tbl.wordId.equals(id)))
+        .map((row) => row.partOfSpeech)
+        .get();
+  }
+
   Future<PartOfSpeechList?> getPartOfSpeechListById(int id) {
     return (select(partOfSpeechLists)..where((tbl) => tbl.wordId.equals(id)))
         .getSingleOrNull();

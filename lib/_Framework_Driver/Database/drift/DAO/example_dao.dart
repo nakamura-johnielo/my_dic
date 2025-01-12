@@ -13,6 +13,13 @@ class ExampleDao extends DatabaseAccessor<DatabaseProvider>
         .getSingleOrNull();
   }
 
+  Future<List<Example?>> getExampleByDictionaryId(int id) {
+    return (select(examples)
+          ..where((tbl) => tbl.dictionaryId.equals(id))
+          ..orderBy([(tbl) => OrderingTerm(expression: tbl.exampleId)]))
+        .get();
+  }
+
   Future<void> insertExample(Insertable<Example> tableName) =>
       into(examples).insert(tableName);
 

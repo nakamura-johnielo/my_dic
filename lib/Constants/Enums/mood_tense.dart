@@ -10,7 +10,7 @@ enum MoodTense {
 }
 
 extension MoodTenseExtension on MoodTense {
-  String get name {
+  String get jap {
     switch (this) {
       case MoodTense.indicativePresent:
         return '直接法現在';
@@ -33,7 +33,7 @@ extension MoodTenseExtension on MoodTense {
 }
 
 extension MoodTenseColumnExtension on MoodTense {
-  String get columnName {
+  String get shorten {
     switch (this) {
       case MoodTense.indicativePresent:
         return '直現在';
@@ -69,7 +69,7 @@ extension TenseExtension on MoodTense {
       case MoodTense.indicativeConditional:
         return '過去未来';
       case MoodTense.imperative: //!todo 命令はなし？？？
-        return '--';
+        return '';
       case MoodTense.subjunctivePresent:
         return '現在';
       case MoodTense.subjunctivePast:
