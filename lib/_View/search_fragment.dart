@@ -43,7 +43,7 @@ class SearchFragment extends ConsumerWidget {
                   //meaning: viewModel.filteredItems[index].meaning,
                   partOfSpeech: viewModel.filteredItems[index].partOfSpeech,
                   onTap: () {
-                    context.push('/${ScreenTab.search}/detail',
+                    context.push('/${ScreenTab.search}/${ScreenPage.detail}',
                         extra: WordPageFragmentInput(
                             wordId: viewModel.filteredItems[index].wordId,
                             isVerb: viewModel.filteredItems[index].hasVerb()));

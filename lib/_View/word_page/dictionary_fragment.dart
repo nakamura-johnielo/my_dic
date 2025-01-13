@@ -89,7 +89,7 @@ class DicSection extends StatelessWidget {
           style: TextStyle(fontSize: 24),
         ), */
         Html(
-          data: '<p flutter="head-word">${dictionary.headword}</p>',
+          data: '<p class="hw">${dictionary.headword}</p>',
           style: htmlStyles,
         ),
         Html(

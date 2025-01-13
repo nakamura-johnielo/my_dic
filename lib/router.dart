@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:my_dic/Components/bottom_bar.dart';
 import 'package:my_dic/Constants/tab.dart';
 import 'package:my_dic/_View/note_fragment.dart';
-import 'package:my_dic/_View/ranking_fragment.dart';
+import 'package:my_dic/_View/ranking/ranking_fragment.dart';
 import 'package:my_dic/_View/search_fragment.dart';
 import 'package:my_dic/_View/word_page/word_page_fragment.dart';
 
@@ -50,7 +50,7 @@ final goRouter = GoRouter(
                   ),
                   routes: [
                     GoRoute(
-                      path: 'detail',
+                      path: '/${ScreenTab.search}/${ScreenPage.detail}',
                       parentNavigatorKey: searchNavigatorKey,
                       pageBuilder: (context, state) {
                         final WordPageFragmentInput input =
@@ -66,6 +66,25 @@ final goRouter = GoRouter(
               ],
             ),
 
+            /* // detil
+            StatefulShellBranch(
+              navigatorKey: searchNavigatorKey,
+              routes: [
+                GoRoute(
+                  path: '/${ScreenPage.detail}',
+                  parentNavigatorKey: searchNavigatorKey,
+                  pageBuilder: (context, state) {
+                    final WordPageFragmentInput input =
+                        state.extra as WordPageFragmentInput;
+                    return MaterialPage(
+                        child: WordPageFragment(
+                      input: input,
+                    ));
+                  },
+                )
+              ],
+            ),
+ */
             // rankingランチ
             StatefulShellBranch(
               navigatorKey: rankingNavigatorKey,
@@ -76,6 +95,20 @@ final goRouter = GoRouter(
                     key: state.pageKey,
                     child: RankingFragment(),
                   ),
+                  routes: [
+                    GoRoute(
+                      path: '/${ScreenTab.ranking}/${ScreenPage.detail}',
+                      parentNavigatorKey: rankingNavigatorKey,
+                      pageBuilder: (context, state) {
+                        final WordPageFragmentInput input =
+                            state.extra as WordPageFragmentInput;
+                        return MaterialPage(
+                            child: WordPageFragment(
+                          input: input,
+                        ));
+                      },
+                    )
+                  ],
                 ),
               ],
             ),

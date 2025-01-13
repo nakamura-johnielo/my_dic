@@ -24,3 +24,12 @@ enum ScreenTab {
   final IconData icon;
   //final root;
 }
+
+enum ScreenPage {
+  detail('単語詳細');
+
+  const ScreenPage(this.label);
+  //const ScreenTab(this.label, this.icon,this.root);
+  final String label;
+  //final root;
+}

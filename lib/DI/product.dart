@@ -20,6 +20,7 @@ import 'package:my_dic/_Framework_Driver/Repository/drift_conjugacion_repository
 import 'package:my_dic/_Framework_Driver/Repository/drift_esj_dictionary_repository.dart';
 import 'package:my_dic/_Framework_Driver/Repository/drift_esj_word_repository.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/search_word_presenter_impl.dart';
+import 'package:my_dic/_Interface_Adapter/ViewModel/ranking_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/search_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/buffer_controller.dart';
 
@@ -71,4 +72,5 @@ void setupLocator() {
   //viewmodel
   //singleton
   DI.registerLazySingleton<SearchViewModel>(() => SearchViewModel());
+  DI.registerLazySingleton<RankingViewModel>(() => RankingViewModel());
 }

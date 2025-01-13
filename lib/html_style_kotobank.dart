@@ -54,7 +54,7 @@ final headword = Style(
 
 final Map<String, Style> htmlStyles = {
   '*': base,
-  "[flutter=head-word]": headword,
+  ".hw": headword,
   "[data-orgtag=meaning]": meaning,
   "[type=補足]": supplement,
   "[type=' 補足']": supplement,
