@@ -29,19 +29,19 @@ class RankingCard extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(left: 16, right: 16),
         padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-        decoration: BoxDecoration(
+        /* decoration: BoxDecoration(
           border: Border(
             //top: BorderSide(width: 2.0, color: Colors.black), // 上ボーダー
             bottom: BorderSide(
                 width: 1,
                 color: const Color.fromARGB(255, 157, 157, 157)), // 下ボーダー
           ),
-        ),
+        ), */
         child: Card(
-          color: const Color.fromARGB(255, 212, 212, 212),
+          color: const Color.fromARGB(255, 234, 234, 234),
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(6),
           ),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(15, 4, 15, 4),

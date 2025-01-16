@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/Components/bottom_bar.dart';
 import 'package:my_dic/Constants/tab.dart';
+import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_View/note_fragment.dart';
 import 'package:my_dic/_View/ranking/ranking_fragment.dart';
 import 'package:my_dic/_View/search_fragment.dart';
@@ -50,7 +51,7 @@ final goRouter = GoRouter(
                   ),
                   routes: [
                     GoRoute(
-                      path: '/${ScreenTab.search}/${ScreenPage.detail}',
+                      path: '${ScreenPage.detail}',
                       parentNavigatorKey: searchNavigatorKey,
                       pageBuilder: (context, state) {
                         final WordPageFragmentInput input =
@@ -93,11 +94,11 @@ final goRouter = GoRouter(
                   path: '/${ScreenTab.ranking}',
                   pageBuilder: (context, state) => NoTransitionPage(
                     key: state.pageKey,
-                    child: RankingFragment(),
+                    child: DI<RankingFragment>(),
                   ),
                   routes: [
                     GoRoute(
-                      path: '/${ScreenTab.ranking}/${ScreenPage.detail}',
+                      path: '${ScreenPage.detail}',
                       parentNavigatorKey: rankingNavigatorKey,
                       pageBuilder: (context, state) {
                         final WordPageFragmentInput input =

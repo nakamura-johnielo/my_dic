@@ -13,6 +13,13 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
         .getSingleOrNull();
   }
 
+  Future<List<Ranking>?> getRankingListByPage(int page, int size) {
+    return (select(rankings)
+          ..limit(size, offset: size * page)
+          ..orderBy([(tbl) => OrderingTerm(expression: tbl.rankingId)]))
+        .get();
+  }
+
   Future<void> insertRanking(Insertable<Ranking> tableName) =>
       into(rankings).insert(tableName);
 
