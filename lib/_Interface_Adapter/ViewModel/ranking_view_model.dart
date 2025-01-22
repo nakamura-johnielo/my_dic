@@ -6,19 +6,18 @@ import 'package:my_dic/Constants/Enums/feature_tag.dart';
 import 'package:my_dic/Constants/Enums/part_of_speech.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/ranking.dart';
-import 'package:my_dic/_Interface_Adapter/Controller/ranking_controller.dart';
 
 /// ViewModelをプロバイダーで提供
 final rankingViewModelProvider =
     ChangeNotifierProvider((ref) => DI<RankingViewModel>());
 
 class RankingViewModel extends ChangeNotifier {
+  int page = 0; //現在のページネーションのページ
+  final int size = 100; //ページごとに取得してくるデータ数
   List<Ranking> _items = [];
-  int page = 0;
-  final int size = 100;
-  Set<FeatureTag> featureTagFilters = FeatureTag.values.toSet();
-  Set<PartOfSpeech> partOfSpeechFilters =
-      PartOfSpeech.values.toSet(); // <PartOfSpeech>{};
+
+  Set<FeatureTag> featureTagFilters = {}; // FeatureTag.values.toSet();
+  Set<PartOfSpeech> partOfSpeechFilters = {}; // PartOfSpeech.values.toSet();
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -52,7 +51,7 @@ class RankingViewModel extends ChangeNotifier {
   }
 
   void addPartOfSpeechFilter(value) {
-    //log("addfilter");
+    log("addfilter");
     partOfSpeechFilters.add(value);
     //log(partOfSpeechFilters.toString());
     //partOfSpeechFilters = Set.from(partOfSpeechFilters);
@@ -60,8 +59,24 @@ class RankingViewModel extends ChangeNotifier {
   }
 
   void deletePartOfSpeechFilter(value) {
-    //log("deletefilter");
+    log("deletefilter");
     partOfSpeechFilters.remove(value);
+    //log(partOfSpeechFilters.toString());
+    //partOfSpeechFilters = Set.from(partOfSpeechFilters);
+    notifyListeners();
+  }
+
+  void addFeatureTagFilter(value) {
+    log("addfilter2");
+    featureTagFilters.add(value);
+    //log(partOfSpeechFilters.toString());
+    //partOfSpeechFilters = Set.from(partOfSpeechFilters);
+    notifyListeners();
+  }
+
+  void deleteFeatureTagFilter(value) {
+    log("deletefilter2");
+    featureTagFilters.remove(value);
     //log(partOfSpeechFilters.toString());
     //partOfSpeechFilters = Set.from(partOfSpeechFilters);
     notifyListeners();

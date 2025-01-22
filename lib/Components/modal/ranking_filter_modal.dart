@@ -88,7 +88,7 @@ class FilterSection<ChipsEnum extends DisplayEnumMixin>
               selected: filters.contains(chip),
               onSelected: (bool selected) {
                 if (selected) {
-                  rankingController.addFilter(chip, 0, viewModel.size);
+                  rankingController.addFilter(chip);
                   //filters.add(chip);
                   //viewModel.addPartOfSpeechFilter(chip);
                 } else {

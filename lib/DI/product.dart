@@ -14,6 +14,12 @@ import 'package:my_dic/_Business_Rule/Usecase/load_rankings/load_rankings_intera
 import 'package:my_dic/_Business_Rule/Usecase/search_word/i_search_word_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/search_word/i_search_word_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/search_word/search_word_interactor.dart';
+import 'package:my_dic/_Business_Rule/Usecase/set_ranking_items/i_set_ranking_items_presenter.dart';
+import 'package:my_dic/_Business_Rule/Usecase/set_ranking_items/i_set_ranking_items_use_case.dart';
+import 'package:my_dic/_Business_Rule/Usecase/set_ranking_items/set_ranking_items_interactor.dart';
+import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/i_update_ranking_filter_presenter.dart';
+import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/i_update_ranking_filter_use_case.dart';
+import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/update_ranking_filter_interactor.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_conjugation_repository.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esj_dictionary_repository.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esj_word_repository.dart';
@@ -36,6 +42,8 @@ import 'package:my_dic/_Interface_Adapter/Presenter/add_filter_presenter_impl.da
 import 'package:my_dic/_Interface_Adapter/Presenter/delete_filter_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/load_ranking_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/search_word_presenter_impl.dart';
+import 'package:my_dic/_Interface_Adapter/Presenter/set_ranking_items_presenter_impl.dart';
+import 'package:my_dic/_Interface_Adapter/Presenter/update_ranking_filter_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/ranking_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/search_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/buffer_controller.dart';
@@ -76,39 +84,44 @@ void setupLocator() {
 
   DI.registerFactory<IEspRankingRepository>(
       () => WikiEspRankingRepository(DI<RankingDao>()));
-
+  //
+  //
+  //
+/*============Ranking ======================================================= */
   //presenter
-  DI.registerFactory<ISearchWordPresenter>(
-      () => SearchWordPresenterImpl(DI<SearchViewModel>()));
   DI.registerFactory<ILoadRankingsPresenter>(
       () => LoadRankingPresenterImpl(DI<RankingViewModel>()));
-  DI.registerFactory<IAddFilterPresenter>(
+  DI.registerFactory<ISetRankingItemsPresenter>(
+      () => SetRankingItemsPresenterImpl(DI<RankingViewModel>()));
+  DI.registerFactory<IUpdateRankingFilterPresenter>(
+      () => UpdateRankingFilterPresenterImpl(DI<RankingViewModel>()));
+  /* DI.registerFactory<IAddFilterPresenter>(
       () => AddFilterPresenterImpl(DI<RankingViewModel>()));
   DI.registerFactory<IDeleteFilterPresenter>(
-      () => DeleteFilterPresenterImpl(DI<RankingViewModel>()));
+      () => DeleteFilterPresenterImpl(DI<RankingViewModel>())); */
 
   //usecase
-  DI.registerFactory<ISearchWordUseCase>(() => SearchWordInteractor(
-      DI<IEsjWordRepository>(), DI<ISearchWordPresenter>()));
   DI.registerFactory<ILoadRankingsUseCase>(() => LoadRankingsInteractor(
       DI<IEspRankingRepository>(), DI<ILoadRankingsPresenter>()));
-  DI.registerFactory<IAddFilterUseCase>(() => AddFilterInteractor(
+  DI.registerFactory<ISetRankingItemsUseCase>(() => SetRankingItemsInteractor(
+      DI<ISetRankingItemsPresenter>(), DI<IEspRankingRepository>()));
+  DI.registerFactory<IUpdateRankingFilterUseCase>(
+      () => UpdateRankingFilterInteractor(DI<IUpdateRankingFilterPresenter>()));
+  /* DI.registerFactory<IAddFilterUseCase>(() => AddFilterInteractor(
       DI<IAddFilterPresenter>(), DI<IEspRankingRepository>()));
   DI.registerFactory<IDeleteFilterUseCase>(
-      () => DeleteFilterInteractor(DI<IDeleteFilterPresenter>()));
+      () => DeleteFilterInteractor(DI<IDeleteFilterPresenter>())); */
 
   //controller
-  DI.registerFactory<BufferController>(
-      () => BufferController(DI<ISearchWordUseCase>()));
   DI.registerFactory<RankingController>(() => RankingController(
         DI<ILoadRankingsUseCase>(),
-        DI<IAddFilterUseCase>(),
-        DI<IDeleteFilterUseCase>(),
+        DI<RankingViewModel>(),
+        DI<ISetRankingItemsUseCase>(),
+        DI<IUpdateRankingFilterUseCase>(),
       ));
 
   //viewmodel
   //singleton
-  DI.registerLazySingleton<SearchViewModel>(() => SearchViewModel());
   DI.registerLazySingleton<RankingViewModel>(() => RankingViewModel());
 
   //UI
@@ -116,4 +129,30 @@ void setupLocator() {
       () => RankingFragment(DI<RankingController>()));
   DI.registerFactory<RankingFilterModal>(
       () => RankingFilterModal(DI<RankingController>()));
+/*============Ranking ================================================= */
+  //
+  //
+
+  //
+/*===========Search =====================================================-====== */
+  //presenter
+  DI.registerFactory<ISearchWordPresenter>(
+      () => SearchWordPresenterImpl(DI<SearchViewModel>()));
+
+  //usecase
+  DI.registerFactory<ISearchWordUseCase>(() => SearchWordInteractor(
+      DI<IEsjWordRepository>(), DI<ISearchWordPresenter>()));
+
+  //controller
+  DI.registerFactory<BufferController>(
+      () => BufferController(DI<ISearchWordUseCase>()));
+
+  //viewmodel
+  //singleton
+  DI.registerLazySingleton<SearchViewModel>(() => SearchViewModel());
+/*===========Search =====================================================-====== */
+  //
+  //
+
+  //
 }

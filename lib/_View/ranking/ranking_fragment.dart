@@ -36,6 +36,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
   void _onScroll() {
     final viewModel = ref.read(rankingViewModelProvider);
     // 最大スクロール位置の80%を計算
+    //listviewのbottom padding引いてる240
     final threshold = _scrollController.position.maxScrollExtent * 0.8;
 
     if (_scrollController.position.pixels >= threshold &&
@@ -43,6 +44,14 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
         !viewModel.isLoading) {
       widget._rankingController.loadNext(viewModel.page, viewModel.size);
     }
+  }
+
+  void _scrollToTop() {
+    _scrollController.animateTo(
+      0.0, // 初期値 (一番上) の位置
+      duration: Duration(milliseconds: 200), // アニメーションの時間
+      curve: Curves.easeInOut, // アニメーションの曲線
+    );
   }
 
   @override
@@ -67,11 +76,12 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
             height: 12,
           ),
           Header(margin: margin),
-          SizedBox(
+          /* SizedBox(
             height: 2,
-          ),
+          ), */
           Expanded(
             child: ListView.builder(
+              padding: EdgeInsets.only(top: 4, bottom: 240),
               controller: _scrollController,
               itemCount: viewModel.items.length,
               itemBuilder: (context, index) {

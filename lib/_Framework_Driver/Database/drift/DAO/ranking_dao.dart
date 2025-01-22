@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:drift/drift.dart';
 import 'package:my_dic/Constants/Enums/feature_tag.dart';
 import 'package:my_dic/Constants/Enums/i_enum.dart';
@@ -29,8 +31,10 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
       int size,
       Set<PartOfSpeech> partOfSpeechFilters,
       Set<FeatureTag> featureTagFilters) async {
+    //where句生成
     final whereQuery = _getEqualsQuery(partOfSpeechFilters, "part_of_speech");
 
+    //log("query: $whereQuery");$whereQuery
     final mainQuery = customSelect(
       '''
         with filtered_partofspeech as(
@@ -43,7 +47,7 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
 
         select r.* 
         from filtered_partofspeech f
-        join rankings r on f.word_id = r.word_id
+        inner join rankings r on f.word_id = r.word_id
         order by r.ranking_no
         limit $size offset ${size * page};
       ''',
@@ -56,6 +60,10 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
     /* if (res.isEmpty) {
       return null;
     } */
+
+    for (int i = 0; i < 10; i++) {
+      //log("raw word: ${res[i].read<String?>('word')}");
+    }
 
     return res.map((row) {
       return Ranking(
