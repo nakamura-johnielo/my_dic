@@ -36,7 +36,7 @@ List<PartOfSpeech> _convertPartOfSpeech(String? data) {
 
 PartOfSpeech _fromString(String value) {
   return PartOfSpeech.values.firstWhere(
-    (e) => e.japName == value,
+    (e) => e.display == value,
     orElse: () => PartOfSpeech.none,
   );
 }

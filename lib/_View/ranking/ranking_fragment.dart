@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_dic/Components/modal/ranking_filter_modal.dart';
 import 'package:my_dic/Components/ranking_card.dart';
 import 'package:my_dic/Constants/tab.dart';
 import 'package:my_dic/DI/product.dart';
@@ -52,29 +55,137 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
   Widget build(BuildContext context) {
     final viewModel = ref.watch(rankingViewModelProvider);
     //widget._rankingController.loadNext(viewModel.page, viewModel.size);
+    const margin = EdgeInsets.symmetric(vertical: 1, horizontal: 16);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Ranking'),
       ),
-      body: ListView.builder(
-        controller: _scrollController,
-        itemCount: viewModel.items.length,
-        itemBuilder: (context, index) {
-          final ranking = viewModel.items[index];
+      body: Column(
+        children: [
+          SizedBox(
+            height: 12,
+          ),
+          Header(margin: margin),
+          SizedBox(
+            height: 2,
+          ),
+          Expanded(
+            child: ListView.builder(
+              controller: _scrollController,
+              itemCount: viewModel.items.length,
+              itemBuilder: (context, index) {
+                final ranking = viewModel.items[index];
 
-          return RankingCard(
-            word: ranking.rankedWord,
-            original: ranking.lemma,
-            no: ranking.rank,
-            onTap: () {
-              context.push('/${ScreenTab.ranking}/${ScreenPage.detail}',
-                  extra: WordPageFragmentInput(
-                      wordId: ranking.wordId, isVerb: true));
-            },
-          );
-        },
+                return RankingCard(
+                  word: ranking.rankedWord,
+                  original: ranking.lemma,
+                  no: ranking.rank,
+                  margin: margin,
+                  onTap: () {
+                    context.push('/${ScreenTab.ranking}/${ScreenPage.detail}',
+                        extra: WordPageFragmentInput(
+                            wordId: ranking.wordId, isVerb: true));
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
+      floatingActionButton: FilterButton(),
+    );
+  }
+}
+
+class Header extends StatelessWidget {
+  const Header({super.key, required this.margin});
+  final EdgeInsetsGeometry margin;
+
+  @override
+  Widget build(BuildContext context) {
+    const Color textColor = Colors.black;
+
+    return Card(
+      margin: margin,
+      color: const Color.fromARGB(255, 234, 234, 234),
+      elevation: 0,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(6.0),
+          topRight: Radius.circular(6.0),
+          bottomLeft: Radius.circular(0.0),
+          bottomRight: Radius.circular(0.0),
+        ),
+      ),
+      child: Container(
+        margin: const EdgeInsets.all(0),
+        padding: const EdgeInsets.all(0),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: const Color.fromARGB(255, 183, 183, 183),
+              width: 2.0,
+            ),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 11),
+          child: Row(children: [
+            SizedBox(
+              width: 45,
+              child: const Text(
+                "No.",
+                style: TextStyle(fontSize: 15, color: textColor),
+                textAlign: TextAlign.left,
+              ),
+            ),
+            const SizedBox(width: 15),
+            SizedBox(
+              width: 160,
+              child: const Text(
+                "単語",
+                style: TextStyle(fontSize: 14, color: textColor),
+                textAlign: TextAlign.left,
+              ),
+            ),
+            const SizedBox(width: 15),
+            SizedBox(
+              width: 160,
+              child: const Text(
+                "原形",
+                style: TextStyle(fontSize: 15, color: textColor),
+                textAlign: TextAlign.left,
+              ),
+            ),
+          ]),
+        ),
+      ),
+    );
+  }
+}
+
+class FilterButton extends StatelessWidget {
+  const FilterButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () {
+        // ボタンが押された時のアクション
+        showModalBottomSheet<void>(
+            context: context,
+            backgroundColor: Colors.transparent,
+            isScrollControlled: true,
+            enableDrag: true,
+            //showDragHandle: true,
+            barrierColor: Colors.black.withValues(alpha: .5),
+            builder: (context) {
+              return DI<RankingFilterModal>();
+            });
+      },
+      backgroundColor: Colors.blue,
+      child: Icon(Icons.filter_alt_rounded),
     );
   }
 }

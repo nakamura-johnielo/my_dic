@@ -2,6 +2,8 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/Constants/Enums/feature_tag.dart';
+import 'package:my_dic/Constants/Enums/part_of_speech.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/ranking.dart';
 
@@ -12,7 +14,10 @@ final rankingViewModelProvider =
 class RankingViewModel extends ChangeNotifier {
   List<Ranking> _items = [];
   int page = 0;
-  int size = 100;
+  final int size = 100;
+  Set<FeatureTag> featureTagFilters = FeatureTag.values.toSet();
+  Set<PartOfSpeech> partOfSpeechFilters =
+      PartOfSpeech.values.toSet(); // <PartOfSpeech>{};
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -42,6 +47,22 @@ class RankingViewModel extends ChangeNotifier {
       hasNext = false;
     }
     log("${_items.length} additems======================");
+    notifyListeners();
+  }
+
+  void addPartOfSpeechFilter(value) {
+    //log("addfilter");
+    partOfSpeechFilters.add(value);
+    //log(partOfSpeechFilters.toString());
+    //partOfSpeechFilters = Set.from(partOfSpeechFilters);
+    notifyListeners();
+  }
+
+  void deletePartOfSpeechFilter(value) {
+    //log("deletefilter");
+    partOfSpeechFilters.remove(value);
+    //log(partOfSpeechFilters.toString());
+    //partOfSpeechFilters = Set.from(partOfSpeechFilters);
     notifyListeners();
   }
 }

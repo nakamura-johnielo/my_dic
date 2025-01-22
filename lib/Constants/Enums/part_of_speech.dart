@@ -1,4 +1,6 @@
-enum PartOfSpeech {
+import 'package:my_dic/Constants/Enums/i_enum.dart';
+
+enum PartOfSpeech with DisplayEnumMixin {
   noun,
   abbreviation,
   preposition,
@@ -12,11 +14,16 @@ enum PartOfSpeech {
   conjunction,
   article,
   auxiliaryVerb,
-  none
+  none;
+
+  @override
+  String get display {
+    return _japName;
+  }
 }
 
 extension PartOfSpeechExtension on PartOfSpeech {
-  String get japName {
+  String get _japName {
     switch (this) {
       case PartOfSpeech.noun:
         return '名詞';

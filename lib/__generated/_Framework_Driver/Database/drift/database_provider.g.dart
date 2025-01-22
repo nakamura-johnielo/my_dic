@@ -5049,6 +5049,10 @@ abstract class _$DatabaseProvider extends GeneratedDatabase {
   late final $RankingsTable rankings = $RankingsTable(this);
   late final $SupplementsTable supplements = $SupplementsTable(this);
   late final $WordsTable words = $WordsTable(this);
+  late final WordDao wordDao = WordDao(this as DatabaseProvider);
+  late final RankingDao rankingDao = RankingDao(this as DatabaseProvider);
+  late final PartOfSpeechListDao partOfSpeechListDao =
+      PartOfSpeechListDao(this as DatabaseProvider);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();

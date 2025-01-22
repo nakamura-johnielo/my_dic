@@ -7,6 +7,7 @@ class RankingCard extends StatelessWidget {
       //required this.meaning,
       // required this.partOfSpeech,
       this.onTap,
+      this.margin = const EdgeInsets.symmetric(vertical: 1, horizontal: 16),
       required this.no,
       required this.original});
 
@@ -16,6 +17,7 @@ class RankingCard extends StatelessWidget {
   //final String meaning;
   // final List<PartOfSpeech> partOfSpeech;
   final VoidCallback? onTap;
+  final EdgeInsetsGeometry? margin;
 
   static const Color hinshiColor = Color.fromARGB(255, 40, 40, 40);
   static const Color wordColor = Colors.black;
@@ -26,17 +28,61 @@ class RankingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(left: 16, right: 16),
-        padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-        /* decoration: BoxDecoration(
-          border: Border(
-            //top: BorderSide(width: 2.0, color: Colors.black), // 上ボーダー
-            bottom: BorderSide(
-                width: 1,
-                color: const Color.fromARGB(255, 157, 157, 157)), // 下ボーダー
-          ),
-        ), */
+      child: Card(
+        margin: margin,
+        color: const Color.fromARGB(255, 234, 234, 234),
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 11),
+          child: Row(children: [
+            SizedBox(
+              width: 45,
+              child: Text(
+                no.toString(),
+                style: TextStyle(fontSize: 15, color: rankingColor),
+                textAlign: TextAlign.left,
+              ),
+            ),
+            SizedBox(width: 15),
+            SizedBox(
+              width: 160,
+              child: Text(
+                word,
+                style: TextStyle(fontSize: 15, color: wordColor),
+                textAlign: TextAlign.left,
+              ),
+            ),
+            SizedBox(width: 15),
+            SizedBox(
+              width: 160,
+              child: Text(
+                original,
+                style: TextStyle(fontSize: 15, color: hinshiColor),
+                textAlign: TextAlign.left,
+              ),
+            ),
+          ]),
+          /* Text(
+                  meaning,
+                  style: TextStyle(fontSize: 11, color: meaningColor),
+                  textAlign: TextAlign.left,
+                ), */
+        ),
+      ),
+    );
+  }
+}
+
+
+/* 
+Container(
+      margin: const EdgeInsets.only(left: 16, right: 16),
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: GestureDetector(
+        onTap: onTap,
         child: Card(
           color: const Color.fromARGB(255, 234, 234, 234),
           elevation: 0,
@@ -72,5 +118,5 @@ class RankingCard extends StatelessWidget {
         ),
       ),
     );
-  }
-}
+
+ */

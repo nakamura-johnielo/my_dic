@@ -54,7 +54,7 @@ class SearchCard extends StatelessWidget {
                 ),
                 SizedBox(width: 15),
                 Text(
-                  partOfSpeech.map((p) => p.japName).join(','),
+                  partOfSpeech.map((p) => p.display).join(','),
                   style: TextStyle(fontSize: 12, color: hinshiColor),
                   textAlign: TextAlign.left,
                 ),
