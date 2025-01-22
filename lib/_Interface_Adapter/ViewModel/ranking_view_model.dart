@@ -6,6 +6,7 @@ import 'package:my_dic/Constants/Enums/feature_tag.dart';
 import 'package:my_dic/Constants/Enums/part_of_speech.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/ranking.dart';
+import 'package:my_dic/_Interface_Adapter/Controller/ranking_controller.dart';
 
 /// ViewModelをプロバイダーで提供
 final rankingViewModelProvider =
