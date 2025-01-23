@@ -2,21 +2,21 @@
 
 import 'package:get_it/get_it.dart';
 import 'package:my_dic/Components/modal/ranking_filter_modal.dart';
-import 'package:my_dic/_Business_Rule/Usecase/add_filter/add_filter_interactor.dart';
+/* import 'package:my_dic/_Business_Rule/Usecase/add_filter/add_filter_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/add_filter/i_add_filter_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/add_filter/i_add_filter_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/delete_filter/delete_filter_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/delete_filter/i_delete_filter_presenter.dart';
-import 'package:my_dic/_Business_Rule/Usecase/delete_filter/i_delete_filter_use_case.dart';
-import 'package:my_dic/_Business_Rule/Usecase/load_rankings/i_load_rankings_presenter.dart';
-import 'package:my_dic/_Business_Rule/Usecase/load_rankings/i_load_rankings_use_case.dart';
-import 'package:my_dic/_Business_Rule/Usecase/load_rankings/load_rankings_interactor.dart';
+import 'package:my_dic/_Business_Rule/Usecase/delete_filter/i_delete_filter_use_case.dart'; */
+/* import 'package:my_dic/_Business_Rule/Usecase/load_rankings22/i_load_rankings_presenter.dart';
+import 'package:my_dic/_Business_Rule/Usecase/load_rankings22/i_load_rankings_use_case.dart';
+import 'package:my_dic/_Business_Rule/Usecase/load_rankings22/load_rankings_interactor.dart'; */
 import 'package:my_dic/_Business_Rule/Usecase/search_word/i_search_word_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/search_word/i_search_word_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/search_word/search_word_interactor.dart';
-import 'package:my_dic/_Business_Rule/Usecase/set_ranking_items/i_set_ranking_items_presenter.dart';
-import 'package:my_dic/_Business_Rule/Usecase/set_ranking_items/i_set_ranking_items_use_case.dart';
-import 'package:my_dic/_Business_Rule/Usecase/set_ranking_items/set_ranking_items_interactor.dart';
+import 'package:my_dic/_Business_Rule/Usecase/load_rankings/i_load_rankings_presenter.dart';
+import 'package:my_dic/_Business_Rule/Usecase/load_rankings/i_load_rankings_use_case.dart';
+import 'package:my_dic/_Business_Rule/Usecase/load_rankings/load_rankings_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/i_update_ranking_filter_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/i_update_ranking_filter_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/update_ranking_filter_interactor.dart';
@@ -40,9 +40,9 @@ import 'package:my_dic/_Framework_Driver/Repository/wiki_esp_ranking_repository.
 import 'package:my_dic/_Interface_Adapter/Controller/ranking_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/add_filter_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/delete_filter_presenter_impl.dart';
-import 'package:my_dic/_Interface_Adapter/Presenter/load_ranking_presenter_impl.dart';
+import 'package:my_dic/_Interface_Adapter/Presenter/22load_ranking_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/search_word_presenter_impl.dart';
-import 'package:my_dic/_Interface_Adapter/Presenter/set_ranking_items_presenter_impl.dart';
+import 'package:my_dic/_Interface_Adapter/Presenter/load_rankings_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/update_ranking_filter_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/ranking_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/search_view_model.dart';
@@ -89,10 +89,10 @@ void setupLocator() {
   //
 /*============Ranking ======================================================= */
   //presenter
+  /* DI.registerFactory<ILoadRankingsPresenter>(
+      () => LoadRankingPresenterImpl(DI<RankingViewModel>())); */
   DI.registerFactory<ILoadRankingsPresenter>(
-      () => LoadRankingPresenterImpl(DI<RankingViewModel>()));
-  DI.registerFactory<ISetRankingItemsPresenter>(
-      () => SetRankingItemsPresenterImpl(DI<RankingViewModel>()));
+      () => LoadRankingsPresenterImpl(DI<RankingViewModel>()));
   DI.registerFactory<IUpdateRankingFilterPresenter>(
       () => UpdateRankingFilterPresenterImpl(DI<RankingViewModel>()));
   /* DI.registerFactory<IAddFilterPresenter>(
@@ -101,10 +101,10 @@ void setupLocator() {
       () => DeleteFilterPresenterImpl(DI<RankingViewModel>())); */
 
   //usecase
+  /* DI.registerFactory<ILoadRankingsUseCase>(() => LoadRankingsInteractor(
+      DI<IEspRankingRepository>(), DI<ILoadRankingsPresenter>())); */
   DI.registerFactory<ILoadRankingsUseCase>(() => LoadRankingsInteractor(
-      DI<IEspRankingRepository>(), DI<ILoadRankingsPresenter>()));
-  DI.registerFactory<ISetRankingItemsUseCase>(() => SetRankingItemsInteractor(
-      DI<ISetRankingItemsPresenter>(), DI<IEspRankingRepository>()));
+      DI<ILoadRankingsPresenter>(), DI<IEspRankingRepository>()));
   DI.registerFactory<IUpdateRankingFilterUseCase>(
       () => UpdateRankingFilterInteractor(DI<IUpdateRankingFilterPresenter>()));
   /* DI.registerFactory<IAddFilterUseCase>(() => AddFilterInteractor(
@@ -114,9 +114,9 @@ void setupLocator() {
 
   //controller
   DI.registerFactory<RankingController>(() => RankingController(
-        DI<ILoadRankingsUseCase>(),
+        //DI<ILoadRankingsUseCase>(),
         DI<RankingViewModel>(),
-        DI<ISetRankingItemsUseCase>(),
+        DI<ILoadRankingsUseCase>(),
         DI<IUpdateRankingFilterUseCase>(),
       ));
 

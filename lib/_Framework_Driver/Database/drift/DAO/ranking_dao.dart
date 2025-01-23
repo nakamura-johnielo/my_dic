@@ -27,7 +27,7 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
   }
 
   Future<List<Ranking>?> getFilteredRankingListByPage(
-      int page,
+      int requiredPage,
       int size,
       Set<PartOfSpeech> partOfSpeechFilters,
       Set<FeatureTag> featureTagFilters) async {
@@ -49,7 +49,7 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
         from filtered_partofspeech f
         inner join rankings r on f.word_id = r.word_id
         order by r.ranking_no
-        limit $size offset ${size * page};
+        limit $size offset ${size * requiredPage};
       ''',
       //, f.part_of_speech_id,f.word_id,f.part_of_speech
       // 取得データrankingのみ

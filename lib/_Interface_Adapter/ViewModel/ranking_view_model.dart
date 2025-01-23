@@ -12,12 +12,15 @@ final rankingViewModelProvider =
     ChangeNotifierProvider((ref) => DI<RankingViewModel>());
 
 class RankingViewModel extends ChangeNotifier {
-  int page = 0; //現在のページネーションのページ
+  //現在のページネーションのページ
+  //itemsに入っていいる　0-最小のページ , 1-最大のページ
+  List<int> currentPage = [-1, -1];
   final int size = 100; //ページごとに取得してくるデータ数
   List<Ranking> _items = [];
 
   Set<FeatureTag> featureTagFilters = {}; // FeatureTag.values.toSet();
   Set<PartOfSpeech> partOfSpeechFilters = {}; // PartOfSpeech.values.toSet();
+  int PagenationFilter = 0;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -33,6 +36,10 @@ class RankingViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool hasPrevious() {
+    return currentPage[0] > 0;
+  }
+
   List<Ranking> get items => _items;
   set items(List<Ranking> value) {
     _items = value;
@@ -41,7 +48,9 @@ class RankingViewModel extends ChangeNotifier {
 
   void addItems(List<Ranking> l) {
     _items = [..._items, ...l];
-    page = page + 1;
+    //itemが正常に追加されてからpage数更新
+    //初期化時は-1
+    currentPage[1] = currentPage[1] + 1;
     isLoading = false;
     if (l.length < size) {
       hasNext = false;

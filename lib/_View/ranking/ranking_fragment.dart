@@ -30,7 +30,8 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
     super.initState();
     _scrollController.addListener(_onScroll);
     final viewModel = ref.read(rankingViewModelProvider);
-    widget._rankingController.loadNext(viewModel.page, viewModel.size);
+    widget._rankingController
+        .loadNext(viewModel.currentPage[1], viewModel.size);
   }
 
   void _onScroll() {
@@ -42,7 +43,8 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
     if (_scrollController.position.pixels >= threshold &&
         viewModel.hasNext &&
         !viewModel.isLoading) {
-      widget._rankingController.loadNext(viewModel.page, viewModel.size);
+      widget._rankingController
+          .loadNext(viewModel.currentPage[1], viewModel.size);
     }
   }
 

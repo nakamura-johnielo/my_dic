@@ -5,7 +5,7 @@ import 'package:my_dic/Constants/Enums/feature_tag.dart';
 import 'package:my_dic/Constants/Enums/part_of_speech.dart';
 import 'package:my_dic/_Business_Rule/Usecase/add_filter/add_filter_input_data.dart';
 import 'package:my_dic/_Business_Rule/Usecase/add_filter/add_filter_repository_input_data.dart';
-import 'package:my_dic/_Business_Rule/Usecase/set_ranking_items/filtered_ranking_list_input_data.dart';
+import 'package:my_dic/_Business_Rule/Usecase/load_rankings/filtered_ranking_list_input_data.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/ranking.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esp_ranking_repository.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/ranking_dao.dart';
@@ -36,8 +36,11 @@ class WikiEspRankingRepository implements IEspRankingRepository {
   @override
   Future<List<Ranking>> getRankingListByFilters(
       FilteredRankingListInputData input) async {
-    final rankings = await _rankingDao.getFilteredRankingListByPage(input.page,
-        input.size, input.partOfSpeechFilters, input.featureTagFilters);
+    final rankings = await _rankingDao.getFilteredRankingListByPage(
+        input.requiredPage,
+        input.size,
+        input.partOfSpeechFilters,
+        input.featureTagFilters);
 
     if (rankings == null || rankings.isEmpty) {
       List<Ranking> res = [];

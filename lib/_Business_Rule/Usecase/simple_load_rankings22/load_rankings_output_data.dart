@@ -1,7 +1,6 @@
 import 'package:my_dic/_Business_Rule/_Domain/Entities/ranking.dart';
 
 class LoadRankingsOutputData {
-  List<Ranking> items;
-  int requiredPage;
-  LoadRankingsOutputData(this.items, this.requiredPage);
+  List<Ranking> rankingList;
+  LoadRankingsOutputData(this.rankingList);
 }
