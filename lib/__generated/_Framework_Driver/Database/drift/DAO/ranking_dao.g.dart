@@ -7,4 +7,5 @@ mixin _$RankingDaoMixin on DatabaseAccessor<DatabaseProvider> {
   $RankingsTable get rankings => attachedDatabase.rankings;
   $PartOfSpeechListsTable get partOfSpeechLists =>
       attachedDatabase.partOfSpeechLists;
+  $WordStatusTable get wordStatus => attachedDatabase.wordStatus;
 }

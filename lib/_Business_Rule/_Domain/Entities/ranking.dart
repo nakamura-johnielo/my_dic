@@ -10,5 +10,6 @@ class Ranking with _$Ranking {
     required int wordId,
     @Default(false) bool isLearned,
     @Default(false) bool isBookmarked,
+    @Default(false) bool hasNote,
   }) = _Ranking;
 }

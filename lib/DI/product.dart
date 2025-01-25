@@ -2,6 +2,9 @@
 
 import 'package:get_it/get_it.dart';
 import 'package:my_dic/Components/modal/ranking_filter_modal.dart';
+import 'package:my_dic/_Business_Rule/Usecase/locate_ranking_pagenation/i_locate_ranking_pagenation_presenter.dart';
+import 'package:my_dic/_Business_Rule/Usecase/locate_ranking_pagenation/i_locate_ranking_pagenation_use_case.dart';
+import 'package:my_dic/_Business_Rule/Usecase/locate_ranking_pagenation/locate_ranking_pagenation_interactor.dart';
 /* import 'package:my_dic/_Business_Rule/Usecase/add_filter/add_filter_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/add_filter/i_add_filter_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/add_filter/i_add_filter_use_case.dart';
@@ -41,6 +44,7 @@ import 'package:my_dic/_Interface_Adapter/Controller/ranking_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/add_filter_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/delete_filter_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/22load_ranking_presenter_impl.dart';
+import 'package:my_dic/_Interface_Adapter/Presenter/locate_ranking_pagenation_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/search_word_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/load_rankings_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/update_ranking_filter_presenter_impl.dart';
@@ -95,6 +99,8 @@ void setupLocator() {
       () => LoadRankingsPresenterImpl(DI<RankingViewModel>()));
   DI.registerFactory<IUpdateRankingFilterPresenter>(
       () => UpdateRankingFilterPresenterImpl(DI<RankingViewModel>()));
+  DI.registerFactory<ILocateRankingPagenationPresenter>(
+      () => LocateRankingPagenationPresenterImpl(DI<RankingViewModel>()));
   /* DI.registerFactory<IAddFilterPresenter>(
       () => AddFilterPresenterImpl(DI<RankingViewModel>()));
   DI.registerFactory<IDeleteFilterPresenter>(
@@ -107,6 +113,9 @@ void setupLocator() {
       DI<ILoadRankingsPresenter>(), DI<IEspRankingRepository>()));
   DI.registerFactory<IUpdateRankingFilterUseCase>(
       () => UpdateRankingFilterInteractor(DI<IUpdateRankingFilterPresenter>()));
+  DI.registerFactory<ILocateRankingPagenationUseCase>(() =>
+      LocateRankingPagenationInteractor(
+          DI<ILocateRankingPagenationPresenter>()));
   /* DI.registerFactory<IAddFilterUseCase>(() => AddFilterInteractor(
       DI<IAddFilterPresenter>(), DI<IEspRankingRepository>()));
   DI.registerFactory<IDeleteFilterUseCase>(
@@ -118,6 +127,7 @@ void setupLocator() {
         DI<RankingViewModel>(),
         DI<ILoadRankingsUseCase>(),
         DI<IUpdateRankingFilterUseCase>(),
+        DI<ILocateRankingPagenationUseCase>(),
       ));
 
   //viewmodel

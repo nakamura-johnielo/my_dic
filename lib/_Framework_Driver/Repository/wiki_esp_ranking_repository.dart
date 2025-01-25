@@ -16,7 +16,7 @@ class WikiEspRankingRepository implements IEspRankingRepository {
 
   @override
   Future<List<Ranking>> getRankingList(int page, int size) async {
-    log("############################################ranking dao");
+    //log("############################################ranking dao");
     final res =
         await _rankingDao.getRankingListByPage(page = page, size = size);
     if (res == null) {
@@ -33,7 +33,7 @@ class WikiEspRankingRepository implements IEspRankingRepository {
     }).toList();
   }
 
-  @override
+  /* @override
   Future<List<Ranking>> getRankingListByFilters(
       FilteredRankingListInputData input) async {
     final rankings = await _rankingDao.getFilteredRankingListByPage(
@@ -56,6 +56,36 @@ class WikiEspRankingRepository implements IEspRankingRepository {
         rankedWord: ranking.word ?? "",
         lemma: ranking.wordOrigin ?? "",
         wordId: ranking.wordId ?? -1,
+      );
+    }).toList();
+  }
+ */
+  @override
+  Future<List<Ranking>> getRankingListByFilters(
+      FilteredRankingListInputData input) async {
+    final resp = await _rankingDao.getFilteredRankingWithStatusByPage(
+        input.requiredPage,
+        input.size,
+        input.partOfSpeechFilters,
+        input.featureTagFilters);
+
+    if (resp == null || resp.isEmpty) {
+      List<Ranking> res = [];
+      return res;
+    }
+
+    /* for (int i = 0; i < 20; i++) {
+      log("word: ${rankings[i]}");
+    } */
+    return resp.map((data) {
+      return Ranking(
+        rank: data.item1.rankingNo,
+        rankedWord: data.item1.word ?? "",
+        lemma: data.item1.wordOrigin ?? "",
+        wordId: data.item1.wordId ?? -1,
+        isLearned: data.item2.isLearned == 1,
+        isBookmarked: data.item2.isBookmarked == 1,
+        hasNote: data.item2.hasNote == 1,
       );
     }).toList();
   }

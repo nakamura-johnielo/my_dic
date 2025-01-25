@@ -5037,6 +5037,271 @@ class WordsCompanion extends UpdateCompanion<Word> {
   }
 }
 
+class $WordStatusTable extends WordStatus
+    with TableInfo<$WordStatusTable, WordStatusData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $WordStatusTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _wordIdMeta = const VerificationMeta('wordId');
+  @override
+  late final GeneratedColumn<int> wordId = GeneratedColumn<int>(
+      'word_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _isLearnedMeta =
+      const VerificationMeta('isLearned');
+  @override
+  late final GeneratedColumn<int> isLearned = GeneratedColumn<int>(
+      'is_learned', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _isBookmarkedMeta =
+      const VerificationMeta('isBookmarked');
+  @override
+  late final GeneratedColumn<int> isBookmarked = GeneratedColumn<int>(
+      'is_bookmarked', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _hasNoteMeta =
+      const VerificationMeta('hasNote');
+  @override
+  late final GeneratedColumn<int> hasNote = GeneratedColumn<int>(
+      'has_note', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [wordId, isLearned, isBookmarked, hasNote];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'word_status';
+  @override
+  VerificationContext validateIntegrity(Insertable<WordStatusData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('word_id')) {
+      context.handle(_wordIdMeta,
+          wordId.isAcceptableOrUnknown(data['word_id']!, _wordIdMeta));
+    }
+    if (data.containsKey('is_learned')) {
+      context.handle(_isLearnedMeta,
+          isLearned.isAcceptableOrUnknown(data['is_learned']!, _isLearnedMeta));
+    }
+    if (data.containsKey('is_bookmarked')) {
+      context.handle(
+          _isBookmarkedMeta,
+          isBookmarked.isAcceptableOrUnknown(
+              data['is_bookmarked']!, _isBookmarkedMeta));
+    }
+    if (data.containsKey('has_note')) {
+      context.handle(_hasNoteMeta,
+          hasNote.isAcceptableOrUnknown(data['has_note']!, _hasNoteMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {wordId};
+  @override
+  WordStatusData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return WordStatusData(
+      wordId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}word_id'])!,
+      isLearned: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}is_learned']),
+      isBookmarked: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}is_bookmarked']),
+      hasNote: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}has_note']),
+    );
+  }
+
+  @override
+  $WordStatusTable createAlias(String alias) {
+    return $WordStatusTable(attachedDatabase, alias);
+  }
+}
+
+class WordStatusData extends DataClass implements Insertable<WordStatusData> {
+  final int wordId;
+  final int? isLearned;
+  final int? isBookmarked;
+  final int? hasNote;
+  const WordStatusData(
+      {required this.wordId, this.isLearned, this.isBookmarked, this.hasNote});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['word_id'] = Variable<int>(wordId);
+    if (!nullToAbsent || isLearned != null) {
+      map['is_learned'] = Variable<int>(isLearned);
+    }
+    if (!nullToAbsent || isBookmarked != null) {
+      map['is_bookmarked'] = Variable<int>(isBookmarked);
+    }
+    if (!nullToAbsent || hasNote != null) {
+      map['has_note'] = Variable<int>(hasNote);
+    }
+    return map;
+  }
+
+  WordStatusCompanion toCompanion(bool nullToAbsent) {
+    return WordStatusCompanion(
+      wordId: Value(wordId),
+      isLearned: isLearned == null && nullToAbsent
+          ? const Value.absent()
+          : Value(isLearned),
+      isBookmarked: isBookmarked == null && nullToAbsent
+          ? const Value.absent()
+          : Value(isBookmarked),
+      hasNote: hasNote == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hasNote),
+    );
+  }
+
+  factory WordStatusData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return WordStatusData(
+      wordId: serializer.fromJson<int>(json['wordId']),
+      isLearned: serializer.fromJson<int?>(json['isLearned']),
+      isBookmarked: serializer.fromJson<int?>(json['isBookmarked']),
+      hasNote: serializer.fromJson<int?>(json['hasNote']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'wordId': serializer.toJson<int>(wordId),
+      'isLearned': serializer.toJson<int?>(isLearned),
+      'isBookmarked': serializer.toJson<int?>(isBookmarked),
+      'hasNote': serializer.toJson<int?>(hasNote),
+    };
+  }
+
+  WordStatusData copyWith(
+          {int? wordId,
+          Value<int?> isLearned = const Value.absent(),
+          Value<int?> isBookmarked = const Value.absent(),
+          Value<int?> hasNote = const Value.absent()}) =>
+      WordStatusData(
+        wordId: wordId ?? this.wordId,
+        isLearned: isLearned.present ? isLearned.value : this.isLearned,
+        isBookmarked:
+            isBookmarked.present ? isBookmarked.value : this.isBookmarked,
+        hasNote: hasNote.present ? hasNote.value : this.hasNote,
+      );
+  WordStatusData copyWithCompanion(WordStatusCompanion data) {
+    return WordStatusData(
+      wordId: data.wordId.present ? data.wordId.value : this.wordId,
+      isLearned: data.isLearned.present ? data.isLearned.value : this.isLearned,
+      isBookmarked: data.isBookmarked.present
+          ? data.isBookmarked.value
+          : this.isBookmarked,
+      hasNote: data.hasNote.present ? data.hasNote.value : this.hasNote,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WordStatusData(')
+          ..write('wordId: $wordId, ')
+          ..write('isLearned: $isLearned, ')
+          ..write('isBookmarked: $isBookmarked, ')
+          ..write('hasNote: $hasNote')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(wordId, isLearned, isBookmarked, hasNote);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is WordStatusData &&
+          other.wordId == this.wordId &&
+          other.isLearned == this.isLearned &&
+          other.isBookmarked == this.isBookmarked &&
+          other.hasNote == this.hasNote);
+}
+
+class WordStatusCompanion extends UpdateCompanion<WordStatusData> {
+  final Value<int> wordId;
+  final Value<int?> isLearned;
+  final Value<int?> isBookmarked;
+  final Value<int?> hasNote;
+  const WordStatusCompanion({
+    this.wordId = const Value.absent(),
+    this.isLearned = const Value.absent(),
+    this.isBookmarked = const Value.absent(),
+    this.hasNote = const Value.absent(),
+  });
+  WordStatusCompanion.insert({
+    this.wordId = const Value.absent(),
+    this.isLearned = const Value.absent(),
+    this.isBookmarked = const Value.absent(),
+    this.hasNote = const Value.absent(),
+  });
+  static Insertable<WordStatusData> custom({
+    Expression<int>? wordId,
+    Expression<int>? isLearned,
+    Expression<int>? isBookmarked,
+    Expression<int>? hasNote,
+  }) {
+    return RawValuesInsertable({
+      if (wordId != null) 'word_id': wordId,
+      if (isLearned != null) 'is_learned': isLearned,
+      if (isBookmarked != null) 'is_bookmarked': isBookmarked,
+      if (hasNote != null) 'has_note': hasNote,
+    });
+  }
+
+  WordStatusCompanion copyWith(
+      {Value<int>? wordId,
+      Value<int?>? isLearned,
+      Value<int?>? isBookmarked,
+      Value<int?>? hasNote}) {
+    return WordStatusCompanion(
+      wordId: wordId ?? this.wordId,
+      isLearned: isLearned ?? this.isLearned,
+      isBookmarked: isBookmarked ?? this.isBookmarked,
+      hasNote: hasNote ?? this.hasNote,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (wordId.present) {
+      map['word_id'] = Variable<int>(wordId.value);
+    }
+    if (isLearned.present) {
+      map['is_learned'] = Variable<int>(isLearned.value);
+    }
+    if (isBookmarked.present) {
+      map['is_bookmarked'] = Variable<int>(isBookmarked.value);
+    }
+    if (hasNote.present) {
+      map['has_note'] = Variable<int>(hasNote.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WordStatusCompanion(')
+          ..write('wordId: $wordId, ')
+          ..write('isLearned: $isLearned, ')
+          ..write('isBookmarked: $isBookmarked, ')
+          ..write('hasNote: $hasNote')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$DatabaseProvider extends GeneratedDatabase {
   _$DatabaseProvider(QueryExecutor e) : super(e);
   $DatabaseProviderManager get managers => $DatabaseProviderManager(this);
@@ -5049,6 +5314,7 @@ abstract class _$DatabaseProvider extends GeneratedDatabase {
   late final $RankingsTable rankings = $RankingsTable(this);
   late final $SupplementsTable supplements = $SupplementsTable(this);
   late final $WordsTable words = $WordsTable(this);
+  late final $WordStatusTable wordStatus = $WordStatusTable(this);
   late final WordDao wordDao = WordDao(this as DatabaseProvider);
   late final RankingDao rankingDao = RankingDao(this as DatabaseProvider);
   late final PartOfSpeechListDao partOfSpeechListDao =
@@ -5065,7 +5331,8 @@ abstract class _$DatabaseProvider extends GeneratedDatabase {
         partOfSpeechLists,
         rankings,
         supplements,
-        words
+        words,
+        wordStatus
       ];
 }
 
@@ -7247,6 +7514,157 @@ typedef $$WordsTableProcessedTableManager = ProcessedTableManager<
     (Word, BaseReferences<_$DatabaseProvider, $WordsTable, Word>),
     Word,
     PrefetchHooks Function()>;
+typedef $$WordStatusTableCreateCompanionBuilder = WordStatusCompanion Function({
+  Value<int> wordId,
+  Value<int?> isLearned,
+  Value<int?> isBookmarked,
+  Value<int?> hasNote,
+});
+typedef $$WordStatusTableUpdateCompanionBuilder = WordStatusCompanion Function({
+  Value<int> wordId,
+  Value<int?> isLearned,
+  Value<int?> isBookmarked,
+  Value<int?> hasNote,
+});
+
+class $$WordStatusTableFilterComposer
+    extends Composer<_$DatabaseProvider, $WordStatusTable> {
+  $$WordStatusTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get wordId => $composableBuilder(
+      column: $table.wordId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get isLearned => $composableBuilder(
+      column: $table.isLearned, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get isBookmarked => $composableBuilder(
+      column: $table.isBookmarked, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get hasNote => $composableBuilder(
+      column: $table.hasNote, builder: (column) => ColumnFilters(column));
+}
+
+class $$WordStatusTableOrderingComposer
+    extends Composer<_$DatabaseProvider, $WordStatusTable> {
+  $$WordStatusTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get wordId => $composableBuilder(
+      column: $table.wordId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get isLearned => $composableBuilder(
+      column: $table.isLearned, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get isBookmarked => $composableBuilder(
+      column: $table.isBookmarked,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get hasNote => $composableBuilder(
+      column: $table.hasNote, builder: (column) => ColumnOrderings(column));
+}
+
+class $$WordStatusTableAnnotationComposer
+    extends Composer<_$DatabaseProvider, $WordStatusTable> {
+  $$WordStatusTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get wordId =>
+      $composableBuilder(column: $table.wordId, builder: (column) => column);
+
+  GeneratedColumn<int> get isLearned =>
+      $composableBuilder(column: $table.isLearned, builder: (column) => column);
+
+  GeneratedColumn<int> get isBookmarked => $composableBuilder(
+      column: $table.isBookmarked, builder: (column) => column);
+
+  GeneratedColumn<int> get hasNote =>
+      $composableBuilder(column: $table.hasNote, builder: (column) => column);
+}
+
+class $$WordStatusTableTableManager extends RootTableManager<
+    _$DatabaseProvider,
+    $WordStatusTable,
+    WordStatusData,
+    $$WordStatusTableFilterComposer,
+    $$WordStatusTableOrderingComposer,
+    $$WordStatusTableAnnotationComposer,
+    $$WordStatusTableCreateCompanionBuilder,
+    $$WordStatusTableUpdateCompanionBuilder,
+    (
+      WordStatusData,
+      BaseReferences<_$DatabaseProvider, $WordStatusTable, WordStatusData>
+    ),
+    WordStatusData,
+    PrefetchHooks Function()> {
+  $$WordStatusTableTableManager(_$DatabaseProvider db, $WordStatusTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$WordStatusTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$WordStatusTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$WordStatusTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> wordId = const Value.absent(),
+            Value<int?> isLearned = const Value.absent(),
+            Value<int?> isBookmarked = const Value.absent(),
+            Value<int?> hasNote = const Value.absent(),
+          }) =>
+              WordStatusCompanion(
+            wordId: wordId,
+            isLearned: isLearned,
+            isBookmarked: isBookmarked,
+            hasNote: hasNote,
+          ),
+          createCompanionCallback: ({
+            Value<int> wordId = const Value.absent(),
+            Value<int?> isLearned = const Value.absent(),
+            Value<int?> isBookmarked = const Value.absent(),
+            Value<int?> hasNote = const Value.absent(),
+          }) =>
+              WordStatusCompanion.insert(
+            wordId: wordId,
+            isLearned: isLearned,
+            isBookmarked: isBookmarked,
+            hasNote: hasNote,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$WordStatusTableProcessedTableManager = ProcessedTableManager<
+    _$DatabaseProvider,
+    $WordStatusTable,
+    WordStatusData,
+    $$WordStatusTableFilterComposer,
+    $$WordStatusTableOrderingComposer,
+    $$WordStatusTableAnnotationComposer,
+    $$WordStatusTableCreateCompanionBuilder,
+    $$WordStatusTableUpdateCompanionBuilder,
+    (
+      WordStatusData,
+      BaseReferences<_$DatabaseProvider, $WordStatusTable, WordStatusData>
+    ),
+    WordStatusData,
+    PrefetchHooks Function()>;
 
 class $DatabaseProviderManager {
   final _$DatabaseProvider _db;
@@ -7267,4 +7685,6 @@ class $DatabaseProviderManager {
       $$SupplementsTableTableManager(_db, _db.supplements);
   $$WordsTableTableManager get words =>
       $$WordsTableTableManager(_db, _db.words);
+  $$WordStatusTableTableManager get wordStatus =>
+      $$WordStatusTableTableManager(_db, _db.wordStatus);
 }

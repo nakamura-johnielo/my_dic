@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -24,27 +25,63 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
   final ScrollController _scrollController = ScrollController();
   /* final RankingController _rankingController;
    _RankingFragmentState(this._rankingController); */
+  /* Timer? _nextThrottle;
+  Timer? _previousThrottle; */
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    final viewModel = ref.read(rankingViewModelProvider);
-    widget._rankingController
-        .loadNext(viewModel.currentPage[1], viewModel.size);
+    //final viewModel = ref.read(rankingViewModelProvider);
+
+    /* LoadRankingsControllerInputData inputLoadItems =
+        LoadRankingsControllerInputData(
+            viewModel.partOfSpeechFilters,
+            viewModel.featureTagFilters,
+            viewModel.currentPage[1],
+            viewModel.size); */
+    widget._rankingController.loadNext();
   }
 
   void _onScroll() {
     final viewModel = ref.read(rankingViewModelProvider);
     // 最大スクロール位置の80%を計算
     //listviewのbottom padding引いてる240
-    final threshold = _scrollController.position.maxScrollExtent * 0.8;
+    //final threshold = _scrollController.position.maxScrollExtent * 0.8 - 240;
+    final threshold = _scrollController.position.maxScrollExtent - 540;
 
-    if (_scrollController.position.pixels >= threshold &&
-        viewModel.hasNext &&
-        !viewModel.isLoading) {
-      widget._rankingController
-          .loadNext(viewModel.currentPage[1], viewModel.size);
+    if ( //(!(_nextThrottle?.isActive ?? false)) &&
+        _scrollController.position.pixels >= threshold &&
+            viewModel.hasNext &&
+            !viewModel.isNextLoading) {
+      /* LoadRankingsControllerInputData inputLoadItems =
+          LoadRankingsControllerInputData(
+              viewModel.partOfSpeechFilters,
+              viewModel.featureTagFilters,
+              viewModel.currentPage[1],
+              viewModel.size); */
+
+      viewModel.isNextLoading = true;
+      /* _nextThrottle = Timer(Duration(milliseconds: 1200), () {
+        //２００ｍｓ以内は受け付けない
+      }); */
+      widget._rankingController.loadNext();
+    }
+
+    final thresholdPre = _scrollController.position.maxScrollExtent * 0.2;
+    if ( //(_previousThrottle?.isActive ?? false) &&
+        _scrollController.position.pixels <= thresholdPre &&
+            viewModel.hasPrevious() &&
+            !viewModel.isPreLoading) {
+      //_previousThrottle = Timer(Duration(milliseconds: 200), () {});
+      /* LoadRankingsControllerInputData inputLoadItems =
+          LoadRankingsControllerInputData(
+              viewModel.partOfSpeechFilters,
+              viewModel.featureTagFilters,
+              viewModel.currentPage[1],
+              viewModel.size); */
+      viewModel.isPreLoading = true;
+      //widget._rankingController.loadPrevious();
     }
   }
 
@@ -59,6 +96,8 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
   @override
   void dispose() {
     _scrollController.dispose();
+    //_nextThrottle?.cancel();
+    //_previousThrottle?.cancel();
     super.dispose();
   }
 
@@ -81,28 +120,36 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
           /* SizedBox(
             height: 2,
           ), */
-          Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.only(top: 4, bottom: 240),
-              controller: _scrollController,
-              itemCount: viewModel.items.length,
-              itemBuilder: (context, index) {
-                final ranking = viewModel.items[index];
+          if (viewModel.items.isEmpty)
+            Expanded(
+                child: Center(
+              child: Text("No data exist"),
+            ))
+          else
+            Expanded(
+              child: ListView.builder(
+                padding: EdgeInsets.only(top: 4, bottom: 240),
+                controller: _scrollController,
+                itemCount: viewModel.items.length,
+                itemBuilder: (context, index) {
+                  final ranking = viewModel.items[index];
 
-                return RankingCard(
-                  word: ranking.rankedWord,
-                  original: ranking.lemma,
-                  no: ranking.rank,
-                  margin: margin,
-                  onTap: () {
-                    context.push('/${ScreenTab.ranking}/${ScreenPage.detail}',
-                        extra: WordPageFragmentInput(
-                            wordId: ranking.wordId, isVerb: true));
-                  },
-                );
-              },
+                  return RankingCard(
+                    word: ranking.rankedWord,
+                    original: ranking.lemma,
+                    no: ranking.rank,
+                    margin: margin,
+                    onTap: () {
+                      context.push('/${ScreenTab.ranking}/${ScreenPage.detail}',
+                          extra: WordPageFragmentInput(
+                              wordId: ranking.wordId, isVerb: true));
+                    },
+                    isBookmarked: ranking.isBookmarked,
+                    isLearned: ranking.isLearned,
+                  );
+                },
+              ),
             ),
-          ),
         ],
       ),
       floatingActionButton: FilterButton(),

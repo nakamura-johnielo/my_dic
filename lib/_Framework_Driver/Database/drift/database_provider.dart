@@ -13,6 +13,7 @@ import 'package:my_dic/_Framework_Driver/Database/drift/Entity/idioms.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/Entity/part_of_speech_lists.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/Entity/rankings.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/Entity/supplements.dart';
+import 'package:my_dic/_Framework_Driver/Database/drift/Entity/word_status.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/Entity/words.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
@@ -31,7 +32,8 @@ part '../../../__generated/_Framework_Driver/Database/drift/database_provider.g.
   PartOfSpeechLists,
   Rankings,
   Supplements,
-  Words
+  Words,
+  WordStatus
 ], daos: [
   WordDao,
   RankingDao,

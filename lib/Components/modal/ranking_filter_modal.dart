@@ -19,7 +19,7 @@ class RankingFilterModal extends ConsumerWidget {
       widthFactor: 1,
       child: Container(
         margin: EdgeInsets.all(0),
-        padding: EdgeInsets.all(20),
+        padding: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 0),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.only(
@@ -38,12 +38,31 @@ class RankingFilterModal extends ConsumerWidget {
             SizedBox(
               height: 20,
             ),
-            FilterSection(
-              label: "品詞",
-              filters: viewModel.partOfSpeechFilters,
-              chipsEnum: PartOfSpeech.values,
-              rankingController: _rankingController,
-              viewModel: viewModel,
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    FilterSection(
+                      label: "品詞",
+                      filters: viewModel.partOfSpeechFilters,
+                      chipsEnum: PartOfSpeech.values,
+                      rankingController: _rankingController,
+                      viewModel: viewModel,
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    PagenationFilterSection(
+                      label: "ページ",
+                      rankingController: _rankingController,
+                      pagenationFilter: viewModel.pagenationFilter,
+                    ),
+                    SizedBox(
+                      height: 40,
+                    ),
+                  ],
+                ),
+              ),
             )
           ],
         ),
@@ -89,12 +108,79 @@ class FilterSection<ChipsEnum extends DisplayEnumMixin>
               onSelected: (bool selected) {
                 if (selected) {
                   rankingController.addFilter(chip);
+                  /* LoadRankingsControllerInputData inputLoadItems =
+                      LoadRankingsControllerInputData(
+                          viewModel.partOfSpeechFilters,
+                          viewModel.featureTagFilters,
+                          viewModel.currentPage[1],
+                          viewModel.size);
+                  rankingController.loadNext(inputLoadItems); */
                   //filters.add(chip);
                   //viewModel.addPartOfSpeechFilter(chip);
                 } else {
                   //viewModel.deletePartOfSpeechFilter(chip);
                   rankingController.deleteFilter(chip);
+                  /* LoadRankingsControllerInputData inputLoadItems =
+                      LoadRankingsControllerInputData(
+                          viewModel.partOfSpeechFilters,
+                          viewModel.featureTagFilters,
+                          viewModel.currentPage[1],
+                          viewModel.size);
+                  rankingController.loadNext(inputLoadItems); */
                   //filters.remove(chip);
+                }
+              },
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+}
+
+class PagenationFilterSection extends StatelessWidget {
+  const PagenationFilterSection(
+      {super.key,
+      required this.label,
+      required this.rankingController,
+      required this.pagenationFilter});
+
+  final String label; //Enum
+  final RankingController rankingController;
+  final int pagenationFilter;
+
+  @override
+  Widget build(BuildContext context) {
+    int size = 100;
+    int max = 10000;
+    int pageTotal = max ~/ size;
+    List<int> pageNum = [];
+    for (int i = 0; i < pageTotal; i++) {
+      pageNum.add(i);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "$label:",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        SizedBox(
+          height: 6,
+        ),
+        Wrap(
+          spacing: 5.0,
+          runSpacing: 5,
+          children: pageNum.map((int page) {
+            return FilterChip(
+              label: Text(page.toString()),
+              selected: pagenationFilter == page,
+              onSelected: (bool selected) {
+                if (selected) {
+                  rankingController.locatePage(page);
+                } else {
+                  //rankingController.deleteFilter(chip);
                 }
               },
             );

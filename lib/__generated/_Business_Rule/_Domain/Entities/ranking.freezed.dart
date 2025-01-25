@@ -22,6 +22,7 @@ mixin _$Ranking {
   int get wordId => throw _privateConstructorUsedError;
   bool get isLearned => throw _privateConstructorUsedError;
   bool get isBookmarked => throw _privateConstructorUsedError;
+  bool get hasNote => throw _privateConstructorUsedError;
 
   /// Create a copy of Ranking
   /// with the given fields replaced by the non-null parameter values.
@@ -40,7 +41,8 @@ abstract class $RankingCopyWith<$Res> {
       String lemma,
       int wordId,
       bool isLearned,
-      bool isBookmarked});
+      bool isBookmarked,
+      bool hasNote});
 }
 
 /// @nodoc
@@ -64,6 +66,7 @@ class _$RankingCopyWithImpl<$Res, $Val extends Ranking>
     Object? wordId = null,
     Object? isLearned = null,
     Object? isBookmarked = null,
+    Object? hasNote = null,
   }) {
     return _then(_value.copyWith(
       rank: null == rank
@@ -90,6 +93,10 @@ class _$RankingCopyWithImpl<$Res, $Val extends Ranking>
           ? _value.isBookmarked
           : isBookmarked // ignore: cast_nullable_to_non_nullable
               as bool,
+      hasNote: null == hasNote
+          ? _value.hasNote
+          : hasNote // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
@@ -107,7 +114,8 @@ abstract class _$$RankingImplCopyWith<$Res> implements $RankingCopyWith<$Res> {
       String lemma,
       int wordId,
       bool isLearned,
-      bool isBookmarked});
+      bool isBookmarked,
+      bool hasNote});
 }
 
 /// @nodoc
@@ -129,6 +137,7 @@ class __$$RankingImplCopyWithImpl<$Res>
     Object? wordId = null,
     Object? isLearned = null,
     Object? isBookmarked = null,
+    Object? hasNote = null,
   }) {
     return _then(_$RankingImpl(
       rank: null == rank
@@ -155,6 +164,10 @@ class __$$RankingImplCopyWithImpl<$Res>
           ? _value.isBookmarked
           : isBookmarked // ignore: cast_nullable_to_non_nullable
               as bool,
+      hasNote: null == hasNote
+          ? _value.hasNote
+          : hasNote // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -168,7 +181,8 @@ class _$RankingImpl implements _Ranking {
       required this.lemma,
       required this.wordId,
       this.isLearned = false,
-      this.isBookmarked = false});
+      this.isBookmarked = false,
+      this.hasNote = false});
 
   @override
   final int rank;
@@ -186,10 +200,13 @@ class _$RankingImpl implements _Ranking {
   @override
   @JsonKey()
   final bool isBookmarked;
+  @override
+  @JsonKey()
+  final bool hasNote;
 
   @override
   String toString() {
-    return 'Ranking(rank: $rank, rankedWord: $rankedWord, lemma: $lemma, wordId: $wordId, isLearned: $isLearned, isBookmarked: $isBookmarked)';
+    return 'Ranking(rank: $rank, rankedWord: $rankedWord, lemma: $lemma, wordId: $wordId, isLearned: $isLearned, isBookmarked: $isBookmarked, hasNote: $hasNote)';
   }
 
   @override
@@ -205,12 +222,13 @@ class _$RankingImpl implements _Ranking {
             (identical(other.isLearned, isLearned) ||
                 other.isLearned == isLearned) &&
             (identical(other.isBookmarked, isBookmarked) ||
-                other.isBookmarked == isBookmarked));
+                other.isBookmarked == isBookmarked) &&
+            (identical(other.hasNote, hasNote) || other.hasNote == hasNote));
   }
 
   @override
-  int get hashCode => Object.hash(
-      runtimeType, rank, rankedWord, lemma, wordId, isLearned, isBookmarked);
+  int get hashCode => Object.hash(runtimeType, rank, rankedWord, lemma, wordId,
+      isLearned, isBookmarked, hasNote);
 
   /// Create a copy of Ranking
   /// with the given fields replaced by the non-null parameter values.
@@ -228,7 +246,8 @@ abstract class _Ranking implements Ranking {
       required final String lemma,
       required final int wordId,
       final bool isLearned,
-      final bool isBookmarked}) = _$RankingImpl;
+      final bool isBookmarked,
+      final bool hasNote}) = _$RankingImpl;
 
   @override
   int get rank;
@@ -242,6 +261,8 @@ abstract class _Ranking implements Ranking {
   bool get isLearned;
   @override
   bool get isBookmarked;
+  @override
+  bool get hasNote;
 
   /// Create a copy of Ranking
   /// with the given fields replaced by the non-null parameter values.

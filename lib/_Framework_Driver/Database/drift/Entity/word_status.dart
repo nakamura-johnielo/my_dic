@@ -1,0 +1,15 @@
+import 'package:drift/drift.dart';
+
+class WordStatus extends Table {
+  IntColumn get wordId => integer().named('word_id')();
+  IntColumn get isLearned => integer().named('is_learned').nullable()();
+  IntColumn get isBookmarked => integer().named('is_bookmarked').nullable()();
+  IntColumn get hasNote => integer().named('has_note').nullable()();
+
+  @override
+  Set<Column> get primaryKey => {wordId};
+
+  @override
+  List<String> get customConstraints =>
+      ['FOREIGN KEY(word_id) REFERENCES words(word_id)'];
+}

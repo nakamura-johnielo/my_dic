@@ -34,7 +34,7 @@ class UpdateRankingFilterPresenterImpl
   }
 
   void _resetPage() {
-    log("updatefilter in presenter");
-    _rankingViewModel.currentPage = [-1, -1];
+    //log("updatefilter in presenter");
+    _rankingViewModel.resetCurrrentPage();
   }
 }

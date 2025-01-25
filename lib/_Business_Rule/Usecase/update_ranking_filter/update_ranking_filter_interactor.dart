@@ -18,7 +18,7 @@ class UpdateRankingFilterInteractor implements IUpdateRankingFilterUseCase {
     bool isAdd = input.isAdd;
 
     if (data is PartOfSpeech) {
-      log("updatefilter: ${data.display}");
+      //log("updatefilter: ${data.display}");
       //filter type
       if (isAdd) {
         // add or delete

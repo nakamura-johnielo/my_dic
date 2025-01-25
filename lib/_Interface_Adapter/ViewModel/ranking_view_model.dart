@@ -20,13 +20,19 @@ class RankingViewModel extends ChangeNotifier {
 
   Set<FeatureTag> featureTagFilters = {}; // FeatureTag.values.toSet();
   Set<PartOfSpeech> partOfSpeechFilters = {}; // PartOfSpeech.values.toSet();
-  int PagenationFilter = 0;
 
-  bool _isLoading = false;
-  bool get isLoading => _isLoading;
-  set isLoading(bool value) {
-    _isLoading = value;
+  int _pagenationFilter = 0;
+  int get pagenationFilter => _pagenationFilter;
+  set pagenationFilter(int page) {
+    _pagenationFilter = page;
     notifyListeners();
+  }
+
+  bool _isNextLoading = false;
+  bool get isNextLoading => _isNextLoading;
+  set isNextLoading(bool value) {
+    _isNextLoading = value;
+    //notifyListeners();
   }
 
   bool _hasNext = true;
@@ -34,6 +40,13 @@ class RankingViewModel extends ChangeNotifier {
   set hasNext(bool value) {
     _hasNext = value;
     notifyListeners();
+  }
+
+  bool _isPreLoading = false;
+  bool get isPreLoading => _isPreLoading;
+  set isPreLoading(bool value) {
+    _isPreLoading = value;
+    //notifyListeners();
   }
 
   bool hasPrevious() {
@@ -46,46 +59,75 @@ class RankingViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addItems(List<Ranking> l) {
+  void clearItems() {
+    items.clear();
+    notifyListeners();
+  }
+
+  void resetCurrrentPage() {
+    currentPage = [-1, -1];
+  }
+
+  void addItemsInTail(List<Ranking> l, List<int> requiredPage) {
     _items = [..._items, ...l];
     //itemが正常に追加されてからpage数更新
     //初期化時は-1
-    currentPage[1] = currentPage[1] + 1;
-    isLoading = false;
+    currentPage = requiredPage;
+    isNextLoading = false;
     if (l.length < size) {
       hasNext = false;
     }
-    log("${_items.length} additems======================");
+    log("item length: ${_items.length} ");
+    log("added: ${l.length}");
+    log("currentPage: ${currentPage} ");
+    log("isloadig: ${isNextLoading}");
+    notifyListeners();
+  }
+
+  void addItemsInHead(List<Ranking> l, List<int> requiredPage) {
+    _items = [...l, ..._items];
+    //itemが正常に追加されてからpage数更新
+    //初期化時は-1
+    currentPage = requiredPage;
+    isPreLoading = false;
+    log("item length: ${_items.length} ");
+    log("added: ${l.length}");
+    log("currentPage: ${currentPage} ");
+    log("isloadig: ${isNextLoading}");
     notifyListeners();
   }
 
   void addPartOfSpeechFilter(value) {
-    log("addfilter");
+    //log("addfilter");
     partOfSpeechFilters.add(value);
+    hasNext = true;
     //log(partOfSpeechFilters.toString());
     //partOfSpeechFilters = Set.from(partOfSpeechFilters);
     notifyListeners();
   }
 
   void deletePartOfSpeechFilter(value) {
-    log("deletefilter");
+    //log("deletefilter");
     partOfSpeechFilters.remove(value);
+    hasNext = true;
     //log(partOfSpeechFilters.toString());
     //partOfSpeechFilters = Set.from(partOfSpeechFilters);
     notifyListeners();
   }
 
   void addFeatureTagFilter(value) {
-    log("addfilter2");
+    //log("addfilter2");
     featureTagFilters.add(value);
+    hasNext = true;
     //log(partOfSpeechFilters.toString());
     //partOfSpeechFilters = Set.from(partOfSpeechFilters);
     notifyListeners();
   }
 
   void deleteFeatureTagFilter(value) {
-    log("deletefilter2");
+    //log("deletefilter2");
     featureTagFilters.remove(value);
+    hasNext = true;
     //log(partOfSpeechFilters.toString());
     //partOfSpeechFilters = Set.from(partOfSpeechFilters);
     notifyListeners();
