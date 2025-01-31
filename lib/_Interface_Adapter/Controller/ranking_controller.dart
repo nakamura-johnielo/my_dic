@@ -17,6 +17,8 @@ import 'package:my_dic/_Business_Rule/Usecase/locate_ranking_pagenation/locate_r
 import 'package:my_dic/_Business_Rule/Usecase/load_rankings22/load_rankings_input_data.dart'; */
 import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/i_update_ranking_filter_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/update_ranking_filter_input_data.dart';
+import 'package:my_dic/_Business_Rule/Usecase/update_status/i_update_status_use_case.dart';
+import 'package:my_dic/_Business_Rule/Usecase/update_status/update_status_input_data.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/ranking_view_model.dart';
 
 class LoadRankingsControllerInputData {
@@ -37,15 +39,14 @@ class RankingController {
   final IUpdateRankingFilterUseCase _updateRankingFilterInteractor;
   final ILocateRankingPagenationUseCase _locateRankingPagenationInteractor;
   final RankingViewModel _rankingViewModel;
+  final IUpdateStatusUseCase _updateStatusInteractor;
 
   RankingController(
-      //this._loadRankingsInteractor,
-      /* this._addFilterInteractor,
-      this._deleteFilterInteractor, */
       this._rankingViewModel,
       this._loadRankingsInteractor,
       this._updateRankingFilterInteractor,
-      this._locateRankingPagenationInteractor);
+      this._locateRankingPagenationInteractor,
+      this._updateStatusInteractor);
 
   void locatePage(int page) {
     LocateRankingPagenationInputData input =
@@ -55,43 +56,40 @@ class RankingController {
   }
 
   void loadNext() {
-    //log("load:${input.currentPage}");
-    /* LoadRankingsInputData input = LoadRankingsInputData(page, size);
-    _loadRankingsInteractor.execute(input); */
-    /* LoadRankingsInputData inputLoadItems = LoadRankingsInputData(
-        input.partOfSpeechFilters,
-        input.featureTagFilters,
-        input.currentPage,
-        input.size);
-    _loadRankingsInteractor.execute(inputLoadItems); */
     _loadItemsByFilters();
   }
 
-  void loadPrevious(/* LoadRankingsControllerInputData input */) {
-    //log("load:${input.currentPage}");
-    /* LoadRankingsInputData input = LoadRankingsInputData(page, size);
-    _loadRankingsInteractor.execute(input); */
-    /*  LoadRankingsInputData inputLoadItems = LoadRankingsInputData(
-        input.partOfSpeechFilters,
-        input.featureTagFilters,
-        input.currentPage,
-        input.size);
-    _loadRankingsInteractor.execute(inputLoadItems); */
+  void loadPrevious() {
     _loadItemsByFilters(isNext: false);
   }
 
-  void addFilter(DisplayEnumMixin data) {
-    bool isAdd = true;
-    _updateFilter(data, isAdd); //データ取得しなおすから始めから presenter内でpage=0もセット済み
+  void updateWordStatus(
+    int index,
+    int wordId,
+    bool isBookmarked,
+    bool isLearned,
+    bool hasNote,
+  ) {
+    log("updatecontroller");
+
+    Set<FeatureTag> status = {
+      if (isBookmarked) FeatureTag.isBookmarked,
+      if (isLearned) FeatureTag.isLearned,
+      if (hasNote) FeatureTag.hasNote,
+    };
+    UpdateStatusInputData input = UpdateStatusInputData(wordId, status, index);
+    _updateStatusInteractor.execute(input);
+  }
+
+  void addFilter(DisplayEnumMixin data, int filterType) {
+    _updateFilter(data, filterType); //データ取得しなおすから始めから presenter内でpage=0もセット済み
     _loadItemsByFilters();
   }
 
-  void deleteFilter(DisplayEnumMixin data) {
-    bool isAdd = false;
-    _updateFilter(data, isAdd); //データ取得しなおすから始めから presenter内でpage=0もセット済み
+  void deleteFilter(DisplayEnumMixin data, int filterType) {
+    filterType = 0;
+    _updateFilter(data, filterType); //データ取得しなおすから始めから presenter内でpage=0もセット済み
     _loadItemsByFilters();
-    /* DeleteFilterInputData input = DeleteFilterInputData(data);
-    _deleteFilterInteractor.execute(input); */
   }
 
   void _loadItemsByFilters({bool isNext = true}) {
@@ -111,17 +109,10 @@ class RankingController {
     _loadRankingsInteractor.execute(inputLoadItems);
   }
 
-  void _updateFilter(DisplayEnumMixin data, bool isAdd) {
+  void _updateFilter(DisplayEnumMixin data, int filterType) {
     //viewmodel.page=[-1,-1];をセット
     UpdateRankingFilterInputData input =
-        UpdateRankingFilterInputData(data, isAdd);
+        UpdateRankingFilterInputData(data, filterType);
     _updateRankingFilterInteractor.execute(input);
-
-    /* LoadRankingsInputData inputLoadItems = LoadRankingsInputData(
-        loadInput.partOfSpeechFilters,
-        loadInput.featureTagFilters,
-        loadInput.currentPage,
-        loadInput.size);
-    _loadRankingsInteractor.execute(inputLoadItems); */
   }
 }

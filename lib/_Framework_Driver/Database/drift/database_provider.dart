@@ -51,7 +51,24 @@ class DatabaseProvider extends _$DatabaseProvider {
     return _instance ??= DatabaseProvider._internal();
   }
 
-  int get schemaVersion => 1;
+  @override
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onUpgrade: (migrator, from, to) async {
+          if (from < to) {
+            // スキーマバージョン1からのアップグレード
+            _setDatabase(DB_NAME);
+          }
+        },
+        beforeOpen: (details) async {
+          if (details.wasCreated || details.hadUpgrade) {
+            // 新しいデータベースを上書きする
+            // 必要な初期データの挿入など
+          }
+        },
+      );
 }
 
 LazyDatabase _openConnection() {
@@ -70,6 +87,7 @@ Future<String> getDatabasePath(String dbName) async {
   final folderPath = join(documentsDirectory.path, "${APP_NAME}_DB");
   // 新しいフォルダが存在しない場合は作成
   final folder = Directory(folderPath);
+  //await folder.create(recursive: false);
   if (!await folder.exists()) {
     await folder.create(recursive: true);
     log("Folder created at: $folderPath");
@@ -85,7 +103,35 @@ Future<String> getDatabasePath(String dbName) async {
     List<int> bytes =
         data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
     await File(dbPath).writeAsBytes(bytes);
+    return dbPath;
   }
 
+  /* ByteData data = await rootBundle.load('assets/$dbName');
+  List<int> bytes =
+      data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+  await File(dbPath).writeAsBytes(bytes); */
   return dbPath;
+}
+
+void _setDatabase(String dbName) async {
+  final documentsDirectory = await getApplicationDocumentsDirectory();
+
+  // 新しいフォルダのパスを作成
+  final folderPath = join(documentsDirectory.path, "${APP_NAME}_DB");
+  // 新しいフォルダが存在しない場合は作成
+  final folder = Directory(folderPath);
+  if (!await folder.exists()) {
+    await folder.create(recursive: true);
+    log("Folder created at: $folderPath");
+  } else {
+    log("Folder already exists at: $folderPath");
+  }
+
+  // データベースファイルのパスを作成
+  final dbPath = join(folder.path, dbName);
+  // データベースが存在しない場合にコピー
+  ByteData data = await rootBundle.load('assets/$dbName');
+  List<int> bytes =
+      data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+  await File(dbPath).writeAsBytes(bytes);
 }

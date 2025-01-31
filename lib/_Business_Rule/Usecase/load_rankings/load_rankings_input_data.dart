@@ -5,8 +5,8 @@ class LoadRankingsInputData {
   List<int> currentPage;
   int pagenation;
   int size;
-  Set<PartOfSpeech> partOfSpeechFilters;
-  Set<FeatureTag> featureTagFilters;
+  Map<PartOfSpeech, int> partOfSpeechFilters;
+  Map<FeatureTag, int> featureTagFilters;
   bool isNext;
 
   LoadRankingsInputData(this.partOfSpeechFilters, this.featureTagFilters,

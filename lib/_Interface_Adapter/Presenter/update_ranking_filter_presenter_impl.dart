@@ -10,27 +10,27 @@ class UpdateRankingFilterPresenterImpl
   UpdateRankingFilterPresenterImpl(this._rankingViewModel);
 
   @override
-  void addFeatureTagFilter(AddFeatureTagFilterOutputData input) {
+  void setFeatureTagFilter(AddFeatureTagFilterOutputData input) {
     _resetPage();
-    _rankingViewModel.addFeatureTagFilter(input.data);
+    _rankingViewModel.setFeatureTagFilter(input.data, input.filterType);
   }
 
   @override
-  void addPartOfSpeechFilter(AddPartOfSpeechFilterOutputData input) {
+  void setPartOfSpeechFilter(AddPartOfSpeechFilterOutputData input) {
     _resetPage();
-    _rankingViewModel.addPartOfSpeechFilter(input.data);
+    _rankingViewModel.setPartOfSpeechFilter(input.data, input.filterType);
   }
 
   @override
   void deleteFeatureTagFilter(DeleteFeatureTagFilterOutputData input) {
     _resetPage();
-    _rankingViewModel.deleteFeatureTagFilter(input.data);
+    _rankingViewModel.setFeatureTagFilter(input.data, input.filterType);
   }
 
   @override
   void deletePartOfSpeechFilter(DeletePartOfSpeechFilterOutputData input) {
     _resetPage();
-    _rankingViewModel.deletePartOfSpeechFilter(input.data);
+    _rankingViewModel.setPartOfSpeechFilter(input.data, input.filterType);
   }
 
   void _resetPage() {

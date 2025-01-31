@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/Components/modal/ranking_filter_modal.dart';
 import 'package:my_dic/Components/ranking_card.dart';
+import 'package:my_dic/Constants/Enums/ranking_card_click_listener.dart';
 import 'package:my_dic/Constants/tab.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/ranking.dart';
@@ -27,11 +28,12 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
    _RankingFragmentState(this._rankingController); */
   /* Timer? _nextThrottle;
   Timer? _previousThrottle; */
-
+  late final RankingController _rankingController;
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+
     //final viewModel = ref.read(rankingViewModelProvider);
 
     /* LoadRankingsControllerInputData inputLoadItems =
@@ -40,6 +42,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
             viewModel.featureTagFilters,
             viewModel.currentPage[1],
             viewModel.size); */
+    _rankingController = widget._rankingController;
     widget._rankingController.loadNext();
   }
 
@@ -133,19 +136,36 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
                 itemCount: viewModel.items.length,
                 itemBuilder: (context, index) {
                   final ranking = viewModel.items[index];
+                  Map<RankingCardClickListener, VoidCallback>? clickListeners =
+                      {
+                    RankingCardClickListener.bookmark: () {
+                      _rankingController.updateWordStatus(
+                          index,
+                          ranking.wordId,
+                          !ranking.isBookmarked,
+                          ranking.isLearned,
+                          ranking.hasNote);
+                    },
+                    RankingCardClickListener.learned: () {
+                      _rankingController.updateWordStatus(
+                          index,
+                          ranking.wordId,
+                          ranking.isBookmarked,
+                          !ranking.isLearned,
+                          ranking.hasNote);
+                    },
+                    RankingCardClickListener.note: () => print("note clicked"),
+                  };
 
                   return RankingCard(
-                    word: ranking.rankedWord,
-                    original: ranking.lemma,
-                    no: ranking.rank,
+                    ranking: ranking,
                     margin: margin,
                     onTap: () {
                       context.push('/${ScreenTab.ranking}/${ScreenPage.detail}',
                           extra: WordPageFragmentInput(
-                              wordId: ranking.wordId, isVerb: true));
+                              wordId: ranking.wordId, isVerb: ranking.hasConj));
                     },
-                    isBookmarked: ranking.isBookmarked,
-                    isLearned: ranking.isLearned,
+                    clickListeners: clickListeners,
                   );
                 },
               ),

@@ -4191,9 +4191,15 @@ class $RankingsTable extends Rankings with TableInfo<$RankingsTable, Ranking> {
   late final GeneratedColumn<int> wordId = GeneratedColumn<int>(
       'word_id', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _hasConjMeta =
+      const VerificationMeta('hasConj');
+  @override
+  late final GeneratedColumn<int> hasConj = GeneratedColumn<int>(
+      'has_conj', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns =>
-      [rankingId, rankingNo, word, wordOrigin, wordId];
+      [rankingId, rankingNo, word, wordOrigin, wordId, hasConj];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -4228,6 +4234,10 @@ class $RankingsTable extends Rankings with TableInfo<$RankingsTable, Ranking> {
       context.handle(_wordIdMeta,
           wordId.isAcceptableOrUnknown(data['word_id']!, _wordIdMeta));
     }
+    if (data.containsKey('has_conj')) {
+      context.handle(_hasConjMeta,
+          hasConj.isAcceptableOrUnknown(data['has_conj']!, _hasConjMeta));
+    }
     return context;
   }
 
@@ -4247,6 +4257,8 @@ class $RankingsTable extends Rankings with TableInfo<$RankingsTable, Ranking> {
           .read(DriftSqlType.string, data['${effectivePrefix}word_origin']),
       wordId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}word_id']),
+      hasConj: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}has_conj']),
     );
   }
 
@@ -4262,12 +4274,14 @@ class Ranking extends DataClass implements Insertable<Ranking> {
   final String? word;
   final String? wordOrigin;
   final int? wordId;
+  final int? hasConj;
   const Ranking(
       {required this.rankingId,
       required this.rankingNo,
       this.word,
       this.wordOrigin,
-      this.wordId});
+      this.wordId,
+      this.hasConj});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -4282,6 +4296,9 @@ class Ranking extends DataClass implements Insertable<Ranking> {
     if (!nullToAbsent || wordId != null) {
       map['word_id'] = Variable<int>(wordId);
     }
+    if (!nullToAbsent || hasConj != null) {
+      map['has_conj'] = Variable<int>(hasConj);
+    }
     return map;
   }
 
@@ -4295,6 +4312,9 @@ class Ranking extends DataClass implements Insertable<Ranking> {
           : Value(wordOrigin),
       wordId:
           wordId == null && nullToAbsent ? const Value.absent() : Value(wordId),
+      hasConj: hasConj == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hasConj),
     );
   }
 
@@ -4307,6 +4327,7 @@ class Ranking extends DataClass implements Insertable<Ranking> {
       word: serializer.fromJson<String?>(json['word']),
       wordOrigin: serializer.fromJson<String?>(json['wordOrigin']),
       wordId: serializer.fromJson<int?>(json['wordId']),
+      hasConj: serializer.fromJson<int?>(json['hasConj']),
     );
   }
   @override
@@ -4318,6 +4339,7 @@ class Ranking extends DataClass implements Insertable<Ranking> {
       'word': serializer.toJson<String?>(word),
       'wordOrigin': serializer.toJson<String?>(wordOrigin),
       'wordId': serializer.toJson<int?>(wordId),
+      'hasConj': serializer.toJson<int?>(hasConj),
     };
   }
 
@@ -4326,13 +4348,15 @@ class Ranking extends DataClass implements Insertable<Ranking> {
           int? rankingNo,
           Value<String?> word = const Value.absent(),
           Value<String?> wordOrigin = const Value.absent(),
-          Value<int?> wordId = const Value.absent()}) =>
+          Value<int?> wordId = const Value.absent(),
+          Value<int?> hasConj = const Value.absent()}) =>
       Ranking(
         rankingId: rankingId ?? this.rankingId,
         rankingNo: rankingNo ?? this.rankingNo,
         word: word.present ? word.value : this.word,
         wordOrigin: wordOrigin.present ? wordOrigin.value : this.wordOrigin,
         wordId: wordId.present ? wordId.value : this.wordId,
+        hasConj: hasConj.present ? hasConj.value : this.hasConj,
       );
   Ranking copyWithCompanion(RankingsCompanion data) {
     return Ranking(
@@ -4342,6 +4366,7 @@ class Ranking extends DataClass implements Insertable<Ranking> {
       wordOrigin:
           data.wordOrigin.present ? data.wordOrigin.value : this.wordOrigin,
       wordId: data.wordId.present ? data.wordId.value : this.wordId,
+      hasConj: data.hasConj.present ? data.hasConj.value : this.hasConj,
     );
   }
 
@@ -4352,14 +4377,15 @@ class Ranking extends DataClass implements Insertable<Ranking> {
           ..write('rankingNo: $rankingNo, ')
           ..write('word: $word, ')
           ..write('wordOrigin: $wordOrigin, ')
-          ..write('wordId: $wordId')
+          ..write('wordId: $wordId, ')
+          ..write('hasConj: $hasConj')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode =>
-      Object.hash(rankingId, rankingNo, word, wordOrigin, wordId);
+      Object.hash(rankingId, rankingNo, word, wordOrigin, wordId, hasConj);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -4368,7 +4394,8 @@ class Ranking extends DataClass implements Insertable<Ranking> {
           other.rankingNo == this.rankingNo &&
           other.word == this.word &&
           other.wordOrigin == this.wordOrigin &&
-          other.wordId == this.wordId);
+          other.wordId == this.wordId &&
+          other.hasConj == this.hasConj);
 }
 
 class RankingsCompanion extends UpdateCompanion<Ranking> {
@@ -4377,12 +4404,14 @@ class RankingsCompanion extends UpdateCompanion<Ranking> {
   final Value<String?> word;
   final Value<String?> wordOrigin;
   final Value<int?> wordId;
+  final Value<int?> hasConj;
   const RankingsCompanion({
     this.rankingId = const Value.absent(),
     this.rankingNo = const Value.absent(),
     this.word = const Value.absent(),
     this.wordOrigin = const Value.absent(),
     this.wordId = const Value.absent(),
+    this.hasConj = const Value.absent(),
   });
   RankingsCompanion.insert({
     this.rankingId = const Value.absent(),
@@ -4390,6 +4419,7 @@ class RankingsCompanion extends UpdateCompanion<Ranking> {
     this.word = const Value.absent(),
     this.wordOrigin = const Value.absent(),
     this.wordId = const Value.absent(),
+    this.hasConj = const Value.absent(),
   }) : rankingNo = Value(rankingNo);
   static Insertable<Ranking> custom({
     Expression<int>? rankingId,
@@ -4397,6 +4427,7 @@ class RankingsCompanion extends UpdateCompanion<Ranking> {
     Expression<String>? word,
     Expression<String>? wordOrigin,
     Expression<int>? wordId,
+    Expression<int>? hasConj,
   }) {
     return RawValuesInsertable({
       if (rankingId != null) 'ranking_id': rankingId,
@@ -4404,6 +4435,7 @@ class RankingsCompanion extends UpdateCompanion<Ranking> {
       if (word != null) 'word': word,
       if (wordOrigin != null) 'word_origin': wordOrigin,
       if (wordId != null) 'word_id': wordId,
+      if (hasConj != null) 'has_conj': hasConj,
     });
   }
 
@@ -4412,13 +4444,15 @@ class RankingsCompanion extends UpdateCompanion<Ranking> {
       Value<int>? rankingNo,
       Value<String?>? word,
       Value<String?>? wordOrigin,
-      Value<int?>? wordId}) {
+      Value<int?>? wordId,
+      Value<int?>? hasConj}) {
     return RankingsCompanion(
       rankingId: rankingId ?? this.rankingId,
       rankingNo: rankingNo ?? this.rankingNo,
       word: word ?? this.word,
       wordOrigin: wordOrigin ?? this.wordOrigin,
       wordId: wordId ?? this.wordId,
+      hasConj: hasConj ?? this.hasConj,
     );
   }
 
@@ -4440,6 +4474,9 @@ class RankingsCompanion extends UpdateCompanion<Ranking> {
     if (wordId.present) {
       map['word_id'] = Variable<int>(wordId.value);
     }
+    if (hasConj.present) {
+      map['has_conj'] = Variable<int>(hasConj.value);
+    }
     return map;
   }
 
@@ -4450,7 +4487,8 @@ class RankingsCompanion extends UpdateCompanion<Ranking> {
           ..write('rankingNo: $rankingNo, ')
           ..write('word: $word, ')
           ..write('wordOrigin: $wordOrigin, ')
-          ..write('wordId: $wordId')
+          ..write('wordId: $wordId, ')
+          ..write('hasConj: $hasConj')
           ..write(')'))
         .toString();
   }
@@ -7044,6 +7082,7 @@ typedef $$RankingsTableCreateCompanionBuilder = RankingsCompanion Function({
   Value<String?> word,
   Value<String?> wordOrigin,
   Value<int?> wordId,
+  Value<int?> hasConj,
 });
 typedef $$RankingsTableUpdateCompanionBuilder = RankingsCompanion Function({
   Value<int> rankingId,
@@ -7051,6 +7090,7 @@ typedef $$RankingsTableUpdateCompanionBuilder = RankingsCompanion Function({
   Value<String?> word,
   Value<String?> wordOrigin,
   Value<int?> wordId,
+  Value<int?> hasConj,
 });
 
 class $$RankingsTableFilterComposer
@@ -7076,6 +7116,9 @@ class $$RankingsTableFilterComposer
 
   ColumnFilters<int> get wordId => $composableBuilder(
       column: $table.wordId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get hasConj => $composableBuilder(
+      column: $table.hasConj, builder: (column) => ColumnFilters(column));
 }
 
 class $$RankingsTableOrderingComposer
@@ -7101,6 +7144,9 @@ class $$RankingsTableOrderingComposer
 
   ColumnOrderings<int> get wordId => $composableBuilder(
       column: $table.wordId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get hasConj => $composableBuilder(
+      column: $table.hasConj, builder: (column) => ColumnOrderings(column));
 }
 
 class $$RankingsTableAnnotationComposer
@@ -7126,6 +7172,9 @@ class $$RankingsTableAnnotationComposer
 
   GeneratedColumn<int> get wordId =>
       $composableBuilder(column: $table.wordId, builder: (column) => column);
+
+  GeneratedColumn<int> get hasConj =>
+      $composableBuilder(column: $table.hasConj, builder: (column) => column);
 }
 
 class $$RankingsTableTableManager extends RootTableManager<
@@ -7156,6 +7205,7 @@ class $$RankingsTableTableManager extends RootTableManager<
             Value<String?> word = const Value.absent(),
             Value<String?> wordOrigin = const Value.absent(),
             Value<int?> wordId = const Value.absent(),
+            Value<int?> hasConj = const Value.absent(),
           }) =>
               RankingsCompanion(
             rankingId: rankingId,
@@ -7163,6 +7213,7 @@ class $$RankingsTableTableManager extends RootTableManager<
             word: word,
             wordOrigin: wordOrigin,
             wordId: wordId,
+            hasConj: hasConj,
           ),
           createCompanionCallback: ({
             Value<int> rankingId = const Value.absent(),
@@ -7170,6 +7221,7 @@ class $$RankingsTableTableManager extends RootTableManager<
             Value<String?> word = const Value.absent(),
             Value<String?> wordOrigin = const Value.absent(),
             Value<int?> wordId = const Value.absent(),
+            Value<int?> hasConj = const Value.absent(),
           }) =>
               RankingsCompanion.insert(
             rankingId: rankingId,
@@ -7177,6 +7229,7 @@ class $$RankingsTableTableManager extends RootTableManager<
             word: word,
             wordOrigin: wordOrigin,
             wordId: wordId,
+            hasConj: hasConj,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

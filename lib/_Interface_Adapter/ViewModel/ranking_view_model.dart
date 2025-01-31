@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Constants/Enums/feature_tag.dart';
+import 'package:my_dic/Constants/Enums/i_enum.dart';
 import 'package:my_dic/Constants/Enums/part_of_speech.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/ranking.dart';
@@ -18,8 +19,11 @@ class RankingViewModel extends ChangeNotifier {
   final int size = 100; //ページごとに取得してくるデータ数
   List<Ranking> _items = [];
 
-  Set<FeatureTag> featureTagFilters = {}; // FeatureTag.values.toSet();
-  Set<PartOfSpeech> partOfSpeechFilters = {}; // PartOfSpeech.values.toSet();
+  //filter
+  //0:ナシ 1:あり　-1:除外
+  Map<FeatureTag, int> featureTagFilters = {}; // FeatureTag.values.toSet();
+  Map<PartOfSpeech, int> partOfSpeechFilters =
+      {}; // PartOfSpeech.values.toSet();
 
   int _pagenationFilter = 0;
   int get pagenationFilter => _pagenationFilter;
@@ -68,6 +72,46 @@ class RankingViewModel extends ChangeNotifier {
     currentPage = [-1, -1];
   }
 
+  void updateWordStatus(
+      {required index,
+      required bool isBookmarked,
+      required bool isLearned,
+      required bool hasNote}) {
+    _items = [
+      for (int i = 0; i < _items.length; i++)
+        if (i == index)
+          _items[i].copyWith(
+              //rankedWord: "${_items[i].rankedWord} U",
+              isBookmarked: isBookmarked,
+              isLearned: isLearned,
+              hasNote: hasNote)
+        else
+          _items[i]
+    ];
+    notifyListeners();
+    log("${_items[index].rankedWord} Bookmark: ${_items[index].isBookmarked},learn: ${_items[index].isLearned}");
+  }
+
+  void updateAllWordStatus(
+      {required wordId,
+      required bool isBookmarked,
+      required bool isLearned,
+      required bool hasNote}) {
+    _items = [
+      for (int i = 0; i < _items.length; i++)
+        if (_items[i].wordId == wordId)
+          _items[i].copyWith(
+              //rankedWord: "${_items[i].rankedWord} U",
+              isBookmarked: isBookmarked,
+              isLearned: isLearned,
+              hasNote: hasNote)
+        else
+          _items[i]
+    ];
+    notifyListeners();
+    //log("${_items[wordId].rankedWord} Bookmark: ${_items[wordId].isBookmarked},learn: ${_items[wordId].isLearned}");
+  }
+
   void addItemsInTail(List<Ranking> l, List<int> requiredPage) {
     _items = [..._items, ...l];
     //itemが正常に追加されてからpage数更新
@@ -97,39 +141,15 @@ class RankingViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addPartOfSpeechFilter(value) {
-    //log("addfilter");
-    partOfSpeechFilters.add(value);
+  void setPartOfSpeechFilter(filter, int value) {
+    partOfSpeechFilters![filter] = value;
     hasNext = true;
-    //log(partOfSpeechFilters.toString());
-    //partOfSpeechFilters = Set.from(partOfSpeechFilters);
     notifyListeners();
   }
 
-  void deletePartOfSpeechFilter(value) {
-    //log("deletefilter");
-    partOfSpeechFilters.remove(value);
+  void setFeatureTagFilter(filter, int value) {
+    featureTagFilters![filter] = value;
     hasNext = true;
-    //log(partOfSpeechFilters.toString());
-    //partOfSpeechFilters = Set.from(partOfSpeechFilters);
-    notifyListeners();
-  }
-
-  void addFeatureTagFilter(value) {
-    //log("addfilter2");
-    featureTagFilters.add(value);
-    hasNext = true;
-    //log(partOfSpeechFilters.toString());
-    //partOfSpeechFilters = Set.from(partOfSpeechFilters);
-    notifyListeners();
-  }
-
-  void deleteFeatureTagFilter(value) {
-    //log("deletefilter2");
-    featureTagFilters.remove(value);
-    hasNext = true;
-    //log(partOfSpeechFilters.toString());
-    //partOfSpeechFilters = Set.from(partOfSpeechFilters);
     notifyListeners();
   }
 }

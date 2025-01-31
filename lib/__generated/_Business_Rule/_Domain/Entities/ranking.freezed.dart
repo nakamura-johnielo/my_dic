@@ -20,6 +20,7 @@ mixin _$Ranking {
   String get rankedWord => throw _privateConstructorUsedError; //ランクに選定されてる形の単語
   String get lemma => throw _privateConstructorUsedError; //原形
   int get wordId => throw _privateConstructorUsedError;
+  bool get hasConj => throw _privateConstructorUsedError;
   bool get isLearned => throw _privateConstructorUsedError;
   bool get isBookmarked => throw _privateConstructorUsedError;
   bool get hasNote => throw _privateConstructorUsedError;
@@ -40,6 +41,7 @@ abstract class $RankingCopyWith<$Res> {
       String rankedWord,
       String lemma,
       int wordId,
+      bool hasConj,
       bool isLearned,
       bool isBookmarked,
       bool hasNote});
@@ -64,6 +66,7 @@ class _$RankingCopyWithImpl<$Res, $Val extends Ranking>
     Object? rankedWord = null,
     Object? lemma = null,
     Object? wordId = null,
+    Object? hasConj = null,
     Object? isLearned = null,
     Object? isBookmarked = null,
     Object? hasNote = null,
@@ -85,6 +88,10 @@ class _$RankingCopyWithImpl<$Res, $Val extends Ranking>
           ? _value.wordId
           : wordId // ignore: cast_nullable_to_non_nullable
               as int,
+      hasConj: null == hasConj
+          ? _value.hasConj
+          : hasConj // ignore: cast_nullable_to_non_nullable
+              as bool,
       isLearned: null == isLearned
           ? _value.isLearned
           : isLearned // ignore: cast_nullable_to_non_nullable
@@ -113,6 +120,7 @@ abstract class _$$RankingImplCopyWith<$Res> implements $RankingCopyWith<$Res> {
       String rankedWord,
       String lemma,
       int wordId,
+      bool hasConj,
       bool isLearned,
       bool isBookmarked,
       bool hasNote});
@@ -135,6 +143,7 @@ class __$$RankingImplCopyWithImpl<$Res>
     Object? rankedWord = null,
     Object? lemma = null,
     Object? wordId = null,
+    Object? hasConj = null,
     Object? isLearned = null,
     Object? isBookmarked = null,
     Object? hasNote = null,
@@ -156,6 +165,10 @@ class __$$RankingImplCopyWithImpl<$Res>
           ? _value.wordId
           : wordId // ignore: cast_nullable_to_non_nullable
               as int,
+      hasConj: null == hasConj
+          ? _value.hasConj
+          : hasConj // ignore: cast_nullable_to_non_nullable
+              as bool,
       isLearned: null == isLearned
           ? _value.isLearned
           : isLearned // ignore: cast_nullable_to_non_nullable
@@ -180,6 +193,7 @@ class _$RankingImpl implements _Ranking {
       required this.rankedWord,
       required this.lemma,
       required this.wordId,
+      this.hasConj = false,
       this.isLearned = false,
       this.isBookmarked = false,
       this.hasNote = false});
@@ -196,6 +210,9 @@ class _$RankingImpl implements _Ranking {
   final int wordId;
   @override
   @JsonKey()
+  final bool hasConj;
+  @override
+  @JsonKey()
   final bool isLearned;
   @override
   @JsonKey()
@@ -206,7 +223,7 @@ class _$RankingImpl implements _Ranking {
 
   @override
   String toString() {
-    return 'Ranking(rank: $rank, rankedWord: $rankedWord, lemma: $lemma, wordId: $wordId, isLearned: $isLearned, isBookmarked: $isBookmarked, hasNote: $hasNote)';
+    return 'Ranking(rank: $rank, rankedWord: $rankedWord, lemma: $lemma, wordId: $wordId, hasConj: $hasConj, isLearned: $isLearned, isBookmarked: $isBookmarked, hasNote: $hasNote)';
   }
 
   @override
@@ -219,6 +236,7 @@ class _$RankingImpl implements _Ranking {
                 other.rankedWord == rankedWord) &&
             (identical(other.lemma, lemma) || other.lemma == lemma) &&
             (identical(other.wordId, wordId) || other.wordId == wordId) &&
+            (identical(other.hasConj, hasConj) || other.hasConj == hasConj) &&
             (identical(other.isLearned, isLearned) ||
                 other.isLearned == isLearned) &&
             (identical(other.isBookmarked, isBookmarked) ||
@@ -228,7 +246,7 @@ class _$RankingImpl implements _Ranking {
 
   @override
   int get hashCode => Object.hash(runtimeType, rank, rankedWord, lemma, wordId,
-      isLearned, isBookmarked, hasNote);
+      hasConj, isLearned, isBookmarked, hasNote);
 
   /// Create a copy of Ranking
   /// with the given fields replaced by the non-null parameter values.
@@ -245,6 +263,7 @@ abstract class _Ranking implements Ranking {
       required final String rankedWord,
       required final String lemma,
       required final int wordId,
+      final bool hasConj,
       final bool isLearned,
       final bool isBookmarked,
       final bool hasNote}) = _$RankingImpl;
@@ -257,6 +276,8 @@ abstract class _Ranking implements Ranking {
   String get lemma; //原形
   @override
   int get wordId;
+  @override
+  bool get hasConj;
   @override
   bool get isLearned;
   @override

@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import 'package:my_dic/Constants/Enums/feature_tag.dart';
 import 'package:my_dic/Constants/Enums/i_enum.dart';
 import 'package:my_dic/Constants/Enums/part_of_speech.dart';
+import 'package:my_dic/_Framework_Driver/Database/drift/Entity/conjugations.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/Entity/rankings.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/Entity/part_of_speech_lists.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/Entity/word_status.dart';
@@ -11,7 +12,7 @@ import 'package:my_dic/_Framework_Driver/Database/drift/database_provider.dart';
 import 'package:tuple/tuple.dart';
 part '../../../../__generated/_Framework_Driver/Database/drift/DAO/ranking_dao.g.dart';
 
-@DriftAccessor(tables: [Rankings, PartOfSpeechLists, WordStatus])
+@DriftAccessor(tables: [Rankings, PartOfSpeechLists, WordStatus, Conjugations])
 class RankingDao extends DatabaseAccessor<DatabaseProvider>
     with _$RankingDaoMixin {
   RankingDao(super.database);
@@ -84,37 +85,69 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
           int requiredPage,
           int size,
           Set<PartOfSpeech> partOfSpeechFilters,
-          Set<FeatureTag> featureTagFilters) async {
+          Set<FeatureTag> featureTagFilters,
+          Set<PartOfSpeech> partOfSpeechExcludeFilters,
+          Set<FeatureTag> featureTagExcludeFilters) async {
     //where句生成
-    final whereQuery = _getEqualsQuery(partOfSpeechFilters, "part_of_speech");
+    final speechWhereQuery = _getWhereQuery(
+        partOfSpeechFilters, partOfSpeechExcludeFilters, "part_of_speech");
+
+    final bool multiLemmaHidden =
+        featureTagFilters.contains(FeatureTag.multiLemma) ? true : false;
+    featureTagFilters.remove(FeatureTag.multiLemma);
+    final featureWhereQuery = _getWhereQueryWordStatus(
+        featureTagFilters, featureTagExcludeFilters, "part_of_speech");
 
     //log("query: $whereQuery");
     final mainQuery = customSelect(
       '''
-        with rankingtable as(
-            with filtered_partofspeech as(
-            select  min(part_of_speech_id) as part_of_speech_id ,part_of_speech,word_id
-            from part_of_speech_lists 
-            $whereQuery
-            group by word_id
-            order by part_of_speech_id asc
+        with rankingtable as(  
+            with rankingtable as(
+                with filtered_partofspeech as(
+                select  min(part_of_speech_id) as part_of_speech_id ,part_of_speech,word_id
+                from part_of_speech_lists 
+                $speechWhereQuery
+                group by word_id
+                
+                )
+
+                select r.* 
+                from filtered_partofspeech f
+                inner join rankings r on f.word_id = r.word_id
+                
             )
 
-            select r.* 
-            from filtered_partofspeech f
-            inner join rankings r on f.word_id = r.word_id
-            order by r.ranking_no
-            limit $size offset ${size * requiredPage}
+            select r.*, w.word_id as w_word_id,w.is_learned,w.is_bookmarked,w.has_note
+            from rankingtable r
+            inner join 
+            ( $featureWhereQuery
+            ) w 
+            on r.word_id=w.word_id
+            
         )
 
-        select *
+        select r.ranking_id , 
+                ${multiLemmaHidden ? "min (r.ranking_no) as ranking_no" : "r.ranking_no"}  , 
+                r.word, 
+                r.word_origin, 
+                r.word_id, 
+                r.w_word_id, 
+                r.is_learned, 
+                r.is_bookmarked, 
+                r.has_note,
+                CASE 
+                  WHEN EXISTS (SELECT 1 FROM conjugations c WHERE c.word_id = r.word_id)
+                  THEN 1 ELSE 0 
+                END AS has_conj
         from rankingtable r
-        left outer join word_status w on r.word_id=w.word_id
-        order by r.ranking_no;
+        ${multiLemmaHidden ? "group by r.word_id" : ""}
+        order by r.ranking_no
+
+                limit $size offset ${size * requiredPage}
       ''',
       //, f.part_of_speech_id,f.word_id,f.part_of_speech
       // 取得データrankingのみ
-      readsFrom: {rankings, partOfSpeechLists, wordStatus},
+      readsFrom: {rankings, partOfSpeechLists, wordStatus, conjugations},
     );
 
     final res = await mainQuery.get();
@@ -127,9 +160,10 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
         word: row.read<String?>('word'),
         wordOrigin: row.read<String?>('word_origin'),
         wordId: row.read<int?>('word_id'),
+        hasConj: row.read<int>('has_conj'),
       );
       final status = WordStatusData(
-        wordId: row.read<int?>('word_id') ?? -1,
+        wordId: row.read<int?>('w_word_id') ?? -1,
         isLearned: row.read<int?>('is_learned'),
         isBookmarked: row.read<int?>('is_bookmarked'),
         hasNote: row.read<int?>('has_note'),
@@ -207,24 +241,101 @@ final result = await query.get();
 }
 
 String _getEqualsQuery(Set<DisplayEnumMixin> data, String colName) {
-  String res = "where";
+  String res = "";
   if (data.isEmpty) {
     return "";
   }
-  /* for (int i = 0; i < data.length; i++) {
-    if (i > 0) {
-      res = "$res or ";
-    }
-    res = "$res part_of_speech = '${data[i].japName}'";
-  } */
 
   bool first = true;
-  for (var partOfSpeech in data) {
+  for (var d in data) {
     if (!first) {
       res = "$res or ";
     }
-    res = "$res $colName = '${partOfSpeech.display}'";
+    res = "$res $colName = '${d.display}'";
     first = false;
   }
+  return res;
+}
+
+String _getExcludeQuery(Set<DisplayEnumMixin> data, String colName) {
+  if (data.isEmpty) {
+    return "";
+  }
+
+  String res = """
+  word_id NOT IN (
+    SELECT word_id
+    FROM part_of_speech_lists
+    WHERE ${_getEqualsQuery(data, colName)}
+  )
+  """;
+  return res;
+}
+
+String _getEqualsQueryWordStatus(Set<DisplayEnumMixin> data) {
+  String res = "";
+  if (data.isEmpty) {
+    return "";
+  }
+
+  bool first = true;
+  for (var d in data) {
+    if (!first) {
+      res = "$res or ";
+    }
+    res = "$res ${d.dbColName} = 1 ";
+    first = false;
+  }
+  return res;
+}
+
+String _getWhereQuery(Set<DisplayEnumMixin> filter,
+    Set<DisplayEnumMixin> excludeFilter, String colName) {
+  String res = "where";
+
+  if (filter.isEmpty && excludeFilter.isEmpty) {
+    return "";
+  }
+
+  String where = _getEqualsQuery(filter, colName);
+  String notWhere = _getExcludeQuery(excludeFilter, colName);
+  if (filter.isNotEmpty && excludeFilter.isNotEmpty) {
+    res = "$res ($where) and $notWhere";
+    return res;
+  }
+  res = "$res $where $notWhere";
+  return res;
+}
+
+String _getExcludeQueryWordStatus(Set<DisplayEnumMixin> data) {
+  if (data.isEmpty) {
+    return "";
+  }
+
+  String res = """
+  word_id NOT IN (
+    SELECT word_id
+    FROM word_status
+    WHERE ${_getEqualsQueryWordStatus(data)}
+  )
+  """;
+  return res;
+}
+
+String _getWhereQueryWordStatus(Set<DisplayEnumMixin> filter,
+    Set<DisplayEnumMixin> excludeFilter, String colName) {
+  String res = "select  * from word_status";
+
+  if (filter.isEmpty && excludeFilter.isEmpty) {
+    return res;
+  }
+  res = "$res where ";
+  String where = _getEqualsQueryWordStatus(filter);
+  String notWhere = _getExcludeQueryWordStatus(excludeFilter);
+  if (filter.isNotEmpty && excludeFilter.isNotEmpty) {
+    res = "$res ($where) and $notWhere";
+    return res;
+  }
+  res = "$res $where $notWhere";
   return res;
 }

@@ -6,7 +6,14 @@ class FilteredRankingListInputData {
   int size;
   Set<PartOfSpeech> partOfSpeechFilters;
   Set<FeatureTag> featureTagFilters;
+  Set<PartOfSpeech> partOfSpeechExcludeFilters;
+  Set<FeatureTag> featureTagExcludeFilters;
 
-  FilteredRankingListInputData(this.partOfSpeechFilters, this.featureTagFilters,
-      this.requiredPage, this.size);
+  FilteredRankingListInputData(
+      this.partOfSpeechFilters,
+      this.featureTagFilters,
+      this.partOfSpeechExcludeFilters,
+      this.featureTagExcludeFilters,
+      this.requiredPage,
+      this.size);
 }

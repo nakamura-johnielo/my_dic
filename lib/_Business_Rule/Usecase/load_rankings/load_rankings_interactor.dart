@@ -1,4 +1,5 @@
-import 'package:my_dic/_Business_Rule/Usecase/add_filter/add_filter_repository_input_data.dart';
+import 'package:my_dic/Constants/Enums/feature_tag.dart';
+import 'package:my_dic/Constants/Enums/part_of_speech.dart';
 import 'package:my_dic/_Business_Rule/Usecase/load_rankings/filtered_ranking_list_input_data.dart';
 import 'package:my_dic/_Business_Rule/Usecase/load_rankings/load_rankings_input_data.dart';
 import 'package:my_dic/_Business_Rule/Usecase/load_rankings/load_rankings_output_data.dart';
@@ -50,10 +51,34 @@ class LoadRankingsInteractor implements ILoadRankingsUseCase {
         requiredPages[1] = offset;
       }
     } */
+    // 結果を格納するセット
+    Set<PartOfSpeech> partOfSpeechFilter = {};
+    Set<PartOfSpeech> partOfSpeechExcludeFilter = {};
+    // マップをループして分ける
+    input.partOfSpeechFilters.forEach((key, value) {
+      if (value == 1) {
+        partOfSpeechFilter.add(key);
+      } else if (value == -1) {
+        partOfSpeechExcludeFilter.add(key);
+      }
+    });
+    // 結果を格納するセット
+    Set<FeatureTag> featureTagFilter = {};
+    Set<FeatureTag> featureTagExcludeFilter = {};
+    // マップをループして分ける
+    input.featureTagFilters.forEach((key, value) {
+      if (value == 1) {
+        featureTagFilter.add(key);
+      } else if (value == -1) {
+        featureTagExcludeFilter.add(key);
+      }
+    });
 
     FilteredRankingListInputData inputData = FilteredRankingListInputData(
-        input.partOfSpeechFilters,
-        input.featureTagFilters,
+        partOfSpeechFilter,
+        featureTagFilter,
+        partOfSpeechExcludeFilter,
+        featureTagExcludeFilter,
         input.isNext
             ? requiredPages[1]
             : requiredPages[0], //current -> required

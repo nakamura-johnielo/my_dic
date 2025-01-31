@@ -20,6 +20,9 @@ enum PartOfSpeech with DisplayEnumMixin {
   String get display {
     return _japName;
   }
+
+  @override
+  String get dbColName => throw UnimplementedError();
 }
 
 extension PartOfSpeechExtension on PartOfSpeech {

@@ -23,6 +23,9 @@ import 'package:my_dic/_Business_Rule/Usecase/load_rankings/load_rankings_intera
 import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/i_update_ranking_filter_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/i_update_ranking_filter_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/update_ranking_filter_interactor.dart';
+import 'package:my_dic/_Business_Rule/Usecase/update_status/i_update_status_presenter.dart';
+import 'package:my_dic/_Business_Rule/Usecase/update_status/i_update_status_use_case.dart';
+import 'package:my_dic/_Business_Rule/Usecase/update_status/update_status_interactor.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_conjugation_repository.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esj_dictionary_repository.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esj_word_repository.dart';
@@ -35,19 +38,18 @@ import 'package:my_dic/_Framework_Driver/Database/drift/DAO/part_of_speech_list_
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/ranking_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/supplement_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/word_dao.dart';
+import 'package:my_dic/_Framework_Driver/Database/drift/DAO/word_status_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/database_provider.dart';
 import 'package:my_dic/_Framework_Driver/Repository/drift_conjugacion_repository.dart';
 import 'package:my_dic/_Framework_Driver/Repository/drift_esj_dictionary_repository.dart';
 import 'package:my_dic/_Framework_Driver/Repository/drift_esj_word_repository.dart';
 import 'package:my_dic/_Framework_Driver/Repository/wiki_esp_ranking_repository.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/ranking_controller.dart';
-import 'package:my_dic/_Interface_Adapter/Presenter/add_filter_presenter_impl.dart';
-import 'package:my_dic/_Interface_Adapter/Presenter/delete_filter_presenter_impl.dart';
-import 'package:my_dic/_Interface_Adapter/Presenter/22load_ranking_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/locate_ranking_pagenation_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/search_word_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/load_rankings_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/update_ranking_filter_presenter_impl.dart';
+import 'package:my_dic/_Interface_Adapter/Presenter/update_status_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/ranking_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/search_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/buffer_controller.dart';
@@ -72,6 +74,8 @@ void setupLocator() {
   DI.registerFactory<SupplementDao>(
       () => SupplementDao(DI<DatabaseProvider>()));
   DI.registerFactory<WordDao>(() => WordDao(DI<DatabaseProvider>()));
+  DI.registerFactory<WordStatusDao>(
+      () => WordStatusDao(DI<DatabaseProvider>()));
 
   //repository
   DI.registerFactory<IEsjDictionaryRepository>(
@@ -82,7 +86,7 @@ void setupLocator() {
             DI<SupplementDao>(),
           ));
   DI.registerFactory<IEsjWordRepository>(
-      () => DriftEsjWordRepository(DI<WordDao>()));
+      () => DriftEsjWordRepository(DI<WordDao>(), DI<WordStatusDao>()));
   DI.registerFactory<IConjugacionsRepository>(
       () => DriftConjugacionRepository(DI<ConjugationDao>()));
 
@@ -101,6 +105,9 @@ void setupLocator() {
       () => UpdateRankingFilterPresenterImpl(DI<RankingViewModel>()));
   DI.registerFactory<ILocateRankingPagenationPresenter>(
       () => LocateRankingPagenationPresenterImpl(DI<RankingViewModel>()));
+  DI.registerFactory<IUpdateStatusPresenter>(
+      () => UpdateStatusPresenterImpl(DI<RankingViewModel>()));
+
   /* DI.registerFactory<IAddFilterPresenter>(
       () => AddFilterPresenterImpl(DI<RankingViewModel>()));
   DI.registerFactory<IDeleteFilterPresenter>(
@@ -116,6 +123,9 @@ void setupLocator() {
   DI.registerFactory<ILocateRankingPagenationUseCase>(() =>
       LocateRankingPagenationInteractor(
           DI<ILocateRankingPagenationPresenter>()));
+  DI.registerFactory<IUpdateStatusUseCase>(() => UpdateStatusInteractor(
+      DI<IUpdateStatusPresenter>(), DI<IEsjWordRepository>()));
+
   /* DI.registerFactory<IAddFilterUseCase>(() => AddFilterInteractor(
       DI<IAddFilterPresenter>(), DI<IEspRankingRepository>()));
   DI.registerFactory<IDeleteFilterUseCase>(
@@ -128,6 +138,7 @@ void setupLocator() {
         DI<ILoadRankingsUseCase>(),
         DI<IUpdateRankingFilterUseCase>(),
         DI<ILocateRankingPagenationUseCase>(),
+        DI<IUpdateStatusUseCase>(),
       ));
 
   //viewmodel

@@ -98,8 +98,8 @@ class MyIconButton extends StatefulWidget {
 
 class _MyIconButtonState extends State<MyIconButton> {
   Future<void>? currentAction;
-  late final VoidCallback? onTap;
-  late final IconData defaultIcon;
+  late VoidCallback? onTap;
+  late IconData defaultIcon;
   late final IconData? pressedIcon;
   late final IconData? hoveredIcon;
   late final IconData? runnningIcon;
@@ -127,10 +127,25 @@ class _MyIconButtonState extends State<MyIconButton> {
   }
 
   @override
+  void didUpdateWidget(covariant MyIconButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.defaultIcon != widget.defaultIcon) {
+      setState(() {
+        defaultIcon = widget.defaultIcon; // 🔥 新しいアイコンに更新
+      });
+    }
+    if (oldWidget.onTap != widget.onTap) {
+      setState(() {
+        onTap = widget.onTap; // 🔥 新しいアイコンに更新
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: () async {
-        onTap;
+        onTap!();
         late final Future<void> thisAction;
         thisAction = Future<void>.delayed(const Duration(seconds: 1), () {
           if (currentAction == thisAction) {

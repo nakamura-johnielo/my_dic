@@ -6,6 +6,8 @@ class Rankings extends Table {
   TextColumn get word => text().nullable()();
   TextColumn get wordOrigin => text().named('word_origin').nullable()();
   IntColumn get wordId => integer().named('word_id').nullable()();
+  //conjuがあるかSQLで確認する。０，１
+  IntColumn get hasConj => integer().named('has_conj').nullable()();
 
   @override
   Set<Column> get primaryKey => {rankingId};

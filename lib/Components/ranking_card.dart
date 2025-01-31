@@ -1,28 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:my_dic/Components/button/my_icon_button.dart';
+import 'package:my_dic/Constants/Enums/feature_tag.dart';
+import 'package:my_dic/Constants/Enums/ranking_card_click_listener.dart';
+import 'package:my_dic/_Business_Rule/_Domain/Entities/ranking.dart';
+import 'package:my_dic/_Interface_Adapter/Controller/ranking_controller.dart';
 
 class RankingCard extends StatelessWidget {
   const RankingCard(
       {super.key,
-      required this.word,
+      required this.ranking,
       //required this.meaning,
       // required this.partOfSpeech,
       this.onTap,
       this.margin = const EdgeInsets.symmetric(vertical: 1, horizontal: 16),
+      /* required this.word,
       required this.no,
       required this.original,
       required this.isBookmarked,
-      required this.isLearned});
+      required this.isLearned, */
+      required this.clickListeners});
 
-  final String word;
-  final int no;
-  final String original;
+  final Ranking ranking;
+  //final String word;
+  //final int no;
+  //final String original;
   //final String meaning;
   // final List<PartOfSpeech> partOfSpeech;
   final VoidCallback? onTap;
   final EdgeInsetsGeometry? margin;
-  final bool isBookmarked;
-  final bool isLearned;
+  //final bool isBookmarked;
+  //final bool isLearned;
+  final Map<RankingCardClickListener, VoidCallback> clickListeners;
 
   static const Color hinshiColor = Color.fromARGB(255, 40, 40, 40);
   static const Color wordColor = Colors.black;
@@ -58,7 +66,7 @@ class RankingCard extends StatelessWidget {
             SizedBox(
               width: 45,
               child: Text(
-                no.toString(),
+                ranking.rank.toString(),
                 style: TextStyle(fontSize: 15, color: rankingColor),
                 textAlign: TextAlign.left,
               ),
@@ -73,7 +81,7 @@ class RankingCard extends StatelessWidget {
                   SizedBox(
                     width: 160,
                     child: Text(
-                      word,
+                      ranking.rankedWord,
                       style: TextStyle(fontSize: 15, color: wordColor),
                       textAlign: TextAlign.left,
                     ),
@@ -82,7 +90,7 @@ class RankingCard extends StatelessWidget {
                   SizedBox(
                     width: 160,
                     child: Text(
-                      original,
+                      ranking.lemma,
                       style: TextStyle(fontSize: 15, color: wordColor),
                       textAlign: TextAlign.left,
                     ),
@@ -92,22 +100,33 @@ class RankingCard extends StatelessWidget {
             ),
 
             SizedBox(width: 15),
-            Container(
-                //width: 34,
-                child: Icon(
-                    isLearned ? learnedIcon["true"] : learnedIcon["false"])),
-            SizedBox(width: 15),
-
             MyIconButton(
-              defaultIcon: Icons.check_circle_rounded,
-              hoveredIcon: Icons.check_circle_outline_rounded,
+              iconSize: 22,
+              defaultIcon: ranking.isLearned
+                  ? learnedIcon["true"] ?? Icons.error
+                  : learnedIcon["false"] ?? Icons.error,
+              hoveredIcon: ranking.isLearned
+                  ? learnedIcon["true"] ?? Icons.error
+                  : learnedIcon["false"] ?? Icons.error,
+              hoveredIconColor: const Color.fromARGB(255, 119, 119, 119),
+              onTap: () {
+                clickListeners[RankingCardClickListener.learned]!();
+              },
             ),
-
-            Container(
-                //width: 34,
-                child: Icon(isBookmarked
-                    ? bookmarkIcon["true"]
-                    : bookmarkIcon["false"])),
+            SizedBox(width: 10),
+            MyIconButton(
+              iconSize: 24,
+              defaultIcon: ranking.isBookmarked
+                  ? bookmarkIcon["true"] ?? Icons.error
+                  : bookmarkIcon["false"] ?? Icons.error,
+              hoveredIcon: ranking.isBookmarked
+                  ? bookmarkIcon["true"] ?? Icons.error
+                  : bookmarkIcon["false"] ?? Icons.error,
+              hoveredIconColor: const Color.fromARGB(255, 119, 119, 119),
+              onTap: () {
+                clickListeners[RankingCardClickListener.bookmark]!();
+              },
+            ),
           ]),
           /* Text(
                   meaning,

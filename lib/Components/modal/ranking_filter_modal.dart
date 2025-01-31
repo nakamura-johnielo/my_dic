@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/Constants/Enums/feature_tag.dart';
 import 'package:my_dic/Constants/Enums/part_of_speech.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/ranking_controller.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/ranking_view_model.dart';
@@ -41,11 +42,42 @@ class RankingFilterModal extends ConsumerWidget {
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     FilterSection(
                       label: "品詞",
                       filters: viewModel.partOfSpeechFilters,
                       chipsEnum: PartOfSpeech.values,
+                      rankingController: _rankingController,
+                      viewModel: viewModel,
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    FilterSection(
+                      label: "タグ",
+                      filters: viewModel.featureTagFilters,
+                      chipsEnum: FeatureTag.values,
+                      rankingController: _rankingController,
+                      viewModel: viewModel,
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    FilterExclusionSection(
+                      label: "品詞除外",
+                      filters: viewModel.partOfSpeechFilters,
+                      chipsEnum: PartOfSpeech.values,
+                      rankingController: _rankingController,
+                      viewModel: viewModel,
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    FilterExclusionSection(
+                      label: "タグ除外",
+                      filters: viewModel.featureTagFilters,
+                      chipsEnum: FeatureTag.values,
                       rankingController: _rankingController,
                       viewModel: viewModel,
                     ),
@@ -82,7 +114,7 @@ class FilterSection<ChipsEnum extends DisplayEnumMixin>
       required this.viewModel});
   final String label;
   final List<ChipsEnum> chipsEnum; //Enum
-  final Set<ChipsEnum> filters;
+  final Map<ChipsEnum, int> filters;
   final RankingController rankingController;
   final RankingViewModel viewModel;
 
@@ -104,10 +136,10 @@ class FilterSection<ChipsEnum extends DisplayEnumMixin>
           children: chipsEnum.map((ChipsEnum chip) {
             return FilterChip(
               label: Text(chip.display),
-              selected: filters.contains(chip),
+              selected: filters[chip] == 1,
               onSelected: (bool selected) {
                 if (selected) {
-                  rankingController.addFilter(chip);
+                  rankingController.addFilter(chip, 1);
                   /* LoadRankingsControllerInputData inputLoadItems =
                       LoadRankingsControllerInputData(
                           viewModel.partOfSpeechFilters,
@@ -119,7 +151,80 @@ class FilterSection<ChipsEnum extends DisplayEnumMixin>
                   //viewModel.addPartOfSpeechFilter(chip);
                 } else {
                   //viewModel.deletePartOfSpeechFilter(chip);
-                  rankingController.deleteFilter(chip);
+                  rankingController.deleteFilter(chip, 0);
+                  /* LoadRankingsControllerInputData inputLoadItems =
+                      LoadRankingsControllerInputData(
+                          viewModel.partOfSpeechFilters,
+                          viewModel.featureTagFilters,
+                          viewModel.currentPage[1],
+                          viewModel.size);
+                  rankingController.loadNext(inputLoadItems); */
+                  //filters.remove(chip);
+                }
+              },
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+}
+
+class FilterExclusionSection<ChipsEnum extends DisplayEnumMixin>
+    extends StatelessWidget {
+  const FilterExclusionSection(
+      {super.key,
+      required this.label,
+      required this.chipsEnum,
+      required this.filters,
+      required this.rankingController,
+      required this.viewModel});
+  final String label;
+  final List<ChipsEnum> chipsEnum; //Enum
+  final Map<ChipsEnum, int> filters;
+  final RankingController rankingController;
+  final RankingViewModel viewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "$label:",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        SizedBox(
+          height: 6,
+        ),
+        Wrap(
+          spacing: 5.0,
+          runSpacing: 5,
+          children: chipsEnum.map((ChipsEnum chip) {
+            if (chip == FeatureTag.multiLemma) {
+              return SizedBox(
+                width: 0,
+                height: 0,
+              );
+            }
+            return FilterChip(
+              label: Text(chip.display),
+              selected: filters[chip] == -1,
+              onSelected: (bool selected) {
+                if (selected) {
+                  rankingController.addFilter(chip, -1);
+                  /* LoadRankingsControllerInputData inputLoadItems =
+                      LoadRankingsControllerInputData(
+                          viewModel.partOfSpeechFilters,
+                          viewModel.featureTagFilters,
+                          viewModel.currentPage[1],
+                          viewModel.size);
+                  rankingController.loadNext(inputLoadItems); */
+                  //filters.add(chip);
+                  //viewModel.addPartOfSpeechFilter(chip);
+                } else {
+                  //viewModel.deletePartOfSpeechFilter(chip);
+                  rankingController.deleteFilter(chip, 0);
                   /* LoadRankingsControllerInputData inputLoadItems =
                       LoadRankingsControllerInputData(
                           viewModel.partOfSpeechFilters,

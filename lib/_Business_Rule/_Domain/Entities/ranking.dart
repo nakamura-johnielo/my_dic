@@ -8,6 +8,7 @@ class Ranking with _$Ranking {
     required String rankedWord, //ランクに選定されてる形の単語
     required String lemma, //原形
     required int wordId,
+    @Default(false) bool hasConj,
     @Default(false) bool isLearned,
     @Default(false) bool isBookmarked,
     @Default(false) bool hasNote,

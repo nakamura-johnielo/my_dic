@@ -3,15 +3,13 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:my_dic/Constants/Enums/feature_tag.dart';
 import 'package:my_dic/Constants/Enums/part_of_speech.dart';
-import 'package:my_dic/_Business_Rule/Usecase/add_filter/add_filter_input_data.dart';
-import 'package:my_dic/_Business_Rule/Usecase/add_filter/add_filter_repository_input_data.dart';
 import 'package:my_dic/_Business_Rule/Usecase/load_rankings/filtered_ranking_list_input_data.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/ranking.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esp_ranking_repository.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/ranking_dao.dart';
 
 class WikiEspRankingRepository implements IEspRankingRepository {
-  RankingDao _rankingDao;
+  final RankingDao _rankingDao;
   WikiEspRankingRepository(this._rankingDao);
 
   @override
@@ -67,7 +65,9 @@ class WikiEspRankingRepository implements IEspRankingRepository {
         input.requiredPage,
         input.size,
         input.partOfSpeechFilters,
-        input.featureTagFilters);
+        input.featureTagFilters,
+        input.partOfSpeechExcludeFilters,
+        input.featureTagExcludeFilters);
 
     if (resp == null || resp.isEmpty) {
       List<Ranking> res = [];
@@ -86,6 +86,7 @@ class WikiEspRankingRepository implements IEspRankingRepository {
         isLearned: data.item2.isLearned == 1,
         isBookmarked: data.item2.isBookmarked == 1,
         hasNote: data.item2.hasNote == 1,
+        hasConj: data.item1.hasConj == 1,
       );
     }).toList();
   }
