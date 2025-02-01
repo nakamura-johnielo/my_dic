@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:my_dic/Constants/Enums/feature_tag.dart';
 import 'package:my_dic/Constants/Enums/i_enum.dart';
 import 'package:my_dic/Constants/Enums/part_of_speech.dart';

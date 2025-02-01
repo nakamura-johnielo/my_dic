@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:my_dic/_Business_Rule/_Domain/Entities/dictionary/esj_dictionary.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/dictionary/sub/example/impl/example.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/dictionary/sub/idiom/impl/idiom.dart';
@@ -9,7 +7,6 @@ import 'package:my_dic/_Framework_Driver/Database/drift/DAO/dictionary_dao.dart'
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/example_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/idiom_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/supplement_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/Entity/supplements.dart';
 
 class DriftEsjDictionaryRepository implements IEsjDictionaryRepository {
   final DictionaryDao _dictionaryDao;

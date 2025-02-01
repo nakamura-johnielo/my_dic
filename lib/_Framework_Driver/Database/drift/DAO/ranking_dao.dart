@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:drift/drift.dart';
 import 'package:my_dic/Constants/Enums/feature_tag.dart';
 import 'package:my_dic/Constants/Enums/i_enum.dart';

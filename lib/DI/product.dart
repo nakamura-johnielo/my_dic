@@ -1,5 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:my_dic/Components/modal/ranking_filter_modal.dart';
 import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/fetch_conjugation_interactor.dart';
@@ -213,20 +214,20 @@ void setupLocator() {
   DI.registerLazySingleton<MainViewModel>(() => MainViewModel());
 
   //UI
-  DI.registerFactoryParam<DictionaryFragment, Tuple2<int, dynamic>, void>(
-      (value, _) =>
+  DI.registerFactoryParam<DictionaryFragment, WordPageChildInputData, void>(
+      (input, _) =>
           //wordId,key
           DictionaryFragment(
-              key: value.item2,
-              wordId: value.item1,
+              key: input.key,
+              wordId: input.wordId,
               wordPageController: DI<WordPageController>()));
 
-  DI.registerFactoryParam<ConjugacionFragment, Tuple2<int, dynamic>, void>(
-      (value, _) =>
+  DI.registerFactoryParam<ConjugacionFragment, WordPageChildInputData, void>(
+      (input, _) =>
           //wordId,key
           ConjugacionFragment(
-              key: value.item2,
-              wordId: value.item1,
+              key: input.key,
+              wordId: input.wordId,
               wordPageController: DI<WordPageController>()));
 
 /*===========wordPage =====================================================-====== */
@@ -234,4 +235,10 @@ void setupLocator() {
   //
 
   //
+}
+
+class WordPageChildInputData {
+  int wordId;
+  PageStorageKey? key;
+  WordPageChildInputData({required this.wordId, this.key});
 }
