@@ -1,13 +1,8 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/Constants/test.dart';
 import 'package:my_dic/Constants/ui.dart';
-import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/dictionary/esj_dictionary.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esj_dictionary_repository.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/word_page_controller.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/main_view_model.dart';
 import 'package:my_dic/html_style_kotobank.dart';

@@ -1,13 +1,8 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Components/conjugacion_card.dart';
-import 'package:my_dic/Constants/Enums/mood_tense.dart';
 import 'package:my_dic/Constants/ui.dart';
-import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/verb/conjugacion/conjugacions.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_conjugation_repository.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/word_page_controller.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/main_view_model.dart';
 

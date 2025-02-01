@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/i_update_ranking_filter_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/update_ranking_filter_output_data.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/ranking_view_model.dart';

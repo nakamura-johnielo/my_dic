@@ -1,8 +1,3 @@
-import 'dart:developer';
-
-import 'package:flutter/material.dart';
-import 'package:my_dic/Constants/Enums/feature_tag.dart';
-import 'package:my_dic/Constants/Enums/part_of_speech.dart';
 import 'package:my_dic/_Business_Rule/Usecase/load_rankings/filtered_ranking_list_input_data.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/ranking.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esp_ranking_repository.dart';

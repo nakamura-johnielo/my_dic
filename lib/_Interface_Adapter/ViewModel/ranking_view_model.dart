@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Constants/Enums/feature_tag.dart';
-import 'package:my_dic/Constants/Enums/i_enum.dart';
 import 'package:my_dic/Constants/Enums/part_of_speech.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/ranking.dart';
@@ -142,13 +141,13 @@ class RankingViewModel extends ChangeNotifier {
   }
 
   void setPartOfSpeechFilter(filter, int value) {
-    partOfSpeechFilters![filter] = value;
+    partOfSpeechFilters[filter] = value;
     hasNext = true;
     notifyListeners();
   }
 
   void setFeatureTagFilter(filter, int value) {
-    featureTagFilters![filter] = value;
+    featureTagFilters[filter] = value;
     hasNext = true;
     notifyListeners();
   }

@@ -127,7 +127,7 @@ Future<String> getDatabasePath(String dbName) async {
   return dbPath;
 }
 
-void _setDatabase(String dbName) async {
+/* void _setDatabase(String dbName) async {
   final documentsDirectory = await getApplicationDocumentsDirectory();
 
   // 新しいフォルダのパスを作成
@@ -149,3 +149,4 @@ void _setDatabase(String dbName) async {
       data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
   await File(dbPath).writeAsBytes(bytes);
 }
+ */

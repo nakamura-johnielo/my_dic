@@ -15,9 +15,9 @@ class LoadRankingsInteractor implements ILoadRankingsUseCase {
   LoadRankingsInteractor(
       this._loadRankingsPresenterImpl, this._wikiEspRankingRepository);
 
-  int _getOffset(int pagenation, int size) {
+/*   int _getOffset(int pagenation, int size) {
     return pagenation ~/ size; //商のみ
-  }
+  } */
 
   @override
   void execute(LoadRankingsInputData input) async {

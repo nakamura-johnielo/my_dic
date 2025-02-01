@@ -1,6 +1,3 @@
-import 'dart:async';
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,7 +6,6 @@ import 'package:my_dic/Components/ranking_card.dart';
 import 'package:my_dic/Constants/Enums/ranking_card_click_listener.dart';
 import 'package:my_dic/Constants/tab.dart';
 import 'package:my_dic/DI/product.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/ranking.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/ranking_controller.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/ranking_view_model.dart';
 import 'package:my_dic/_View/word_page/word_page_fragment.dart';
@@ -88,13 +84,13 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
     }
   }
 
-  void _scrollToTop() {
+  /*  void _scrollToTop() {
     _scrollController.animateTo(
       0.0, // 初期値 (一番上) の位置
       duration: Duration(milliseconds: 200), // アニメーションの時間
       curve: Curves.easeInOut, // アニメーションの曲線
     );
-  }
+  } */
 
   @override
   void dispose() {
