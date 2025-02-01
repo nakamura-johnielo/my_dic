@@ -2,6 +2,12 @@
 
 import 'package:get_it/get_it.dart';
 import 'package:my_dic/Components/modal/ranking_filter_modal.dart';
+import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/fetch_conjugation_interactor.dart';
+import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/i_fetch_conjugation_presenter.dart';
+import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/i_fetch_conjugation_use_case.dart';
+import 'package:my_dic/_Business_Rule/Usecase/fetch_dictionary/fetch_dictionary_interactor.dart';
+import 'package:my_dic/_Business_Rule/Usecase/fetch_dictionary/i_fetch_dictionary_presenter.dart';
+import 'package:my_dic/_Business_Rule/Usecase/fetch_dictionary/i_fetch_dictionary_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/locate_ranking_pagenation/i_locate_ranking_pagenation_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/locate_ranking_pagenation/i_locate_ranking_pagenation_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/locate_ranking_pagenation/locate_ranking_pagenation_interactor.dart';
@@ -45,15 +51,22 @@ import 'package:my_dic/_Framework_Driver/Repository/drift_esj_dictionary_reposit
 import 'package:my_dic/_Framework_Driver/Repository/drift_esj_word_repository.dart';
 import 'package:my_dic/_Framework_Driver/Repository/wiki_esp_ranking_repository.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/ranking_controller.dart';
+import 'package:my_dic/_Interface_Adapter/Controller/word_page_controller.dart';
+import 'package:my_dic/_Interface_Adapter/Presenter/conjugacion_presenter.dart';
+import 'package:my_dic/_Interface_Adapter/Presenter/dictionary_presenter.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/locate_ranking_pagenation_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/search_word_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/load_rankings_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/update_ranking_filter_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/update_status_presenter_impl.dart';
+import 'package:my_dic/_Interface_Adapter/ViewModel/main_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/ranking_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/search_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/buffer_controller.dart';
 import 'package:my_dic/_View/ranking/ranking_fragment.dart';
+import 'package:my_dic/_View/word_page/conjugacion_fragment.dart';
+import 'package:my_dic/_View/word_page/dictionary_fragment.dart';
+import 'package:tuple/tuple.dart';
 
 final DI = GetIt.instance;
 
@@ -172,6 +185,51 @@ void setupLocator() {
   //singleton
   DI.registerLazySingleton<SearchViewModel>(() => SearchViewModel());
 /*===========Search =====================================================-====== */
+  //
+  //
+
+  //
+
+  //
+/*===========wordPage =====================================================-====== */
+
+  //presenter
+  DI.registerFactory<IFetchConjugationPresenter>(
+      () => ConjugacionFragmentPresenterImpl(DI<MainViewModel>()));
+  DI.registerFactory<IFetchDictionaryPresenter>(
+      () => DictionaryFragmentPresenterImpl(DI<MainViewModel>()));
+
+  //usecase
+  DI.registerFactory<IFetchConjugationUseCase>(() => FetchConjugationInteractor(
+      DI<IFetchConjugationPresenter>(), DI<IConjugacionsRepository>()));
+  DI.registerFactory<IFetchDictionaryUseCase>(() => FetchDictionaryInteractor(
+      DI<IFetchDictionaryPresenter>(), DI<IEsjDictionaryRepository>()));
+
+  //controller
+  DI.registerFactory<WordPageController>(() => WordPageController(
+      DI<IFetchDictionaryUseCase>(), DI<IFetchConjugationUseCase>()));
+//viewmodel
+  //singleton
+  DI.registerLazySingleton<MainViewModel>(() => MainViewModel());
+
+  //UI
+  DI.registerFactoryParam<DictionaryFragment, Tuple2<int, dynamic>, void>(
+      (value, _) =>
+          //wordId,key
+          DictionaryFragment(
+              key: value.item2,
+              wordId: value.item1,
+              wordPageController: DI<WordPageController>()));
+
+  DI.registerFactoryParam<ConjugacionFragment, Tuple2<int, dynamic>, void>(
+      (value, _) =>
+          //wordId,key
+          ConjugacionFragment(
+              key: value.item2,
+              wordId: value.item1,
+              wordPageController: DI<WordPageController>()));
+
+/*===========wordPage =====================================================-====== */
   //
   //
 

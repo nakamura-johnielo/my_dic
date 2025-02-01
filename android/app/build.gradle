@@ -31,11 +31,25 @@ android {
     }
 
     buildTypes {
-        release {
+        /* release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.debug
+        } */
+        debug {
+            resValue "string", "app_name", "(d) my_dic"
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-d"
+            // 他のデバッグ特有の設定
         }
+        
+        release {
+            resValue "string", "app_name", "my_dic"
+            // 他のリリース特有の設定
+            minifyEnabled true  // プロガードを有効にしてコードを縮小
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+
     }
 }
 

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:my_dic/Components/button/my_icon_button.dart';
 import 'package:my_dic/Constants/Enums/feature_tag.dart';
@@ -6,6 +8,7 @@ import 'package:my_dic/_Business_Rule/_Domain/Entities/ranking.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/ranking_controller.dart';
 
 class RankingCard extends StatelessWidget {
+  //
   const RankingCard(
       {super.key,
       required this.ranking,
@@ -50,6 +53,7 @@ class RankingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    log("wordID: ${ranking.rankedWord}");
     return GestureDetector(
       onTap: onTap,
       child: Card(

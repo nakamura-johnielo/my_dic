@@ -28,6 +28,7 @@ dependencies:
   path:
   tuple:
   get_it:
+  uuid:
 
 dev_dependencies:
   flutter_test:

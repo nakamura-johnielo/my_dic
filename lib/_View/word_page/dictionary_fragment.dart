@@ -1,77 +1,66 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Constants/test.dart';
 import 'package:my_dic/Constants/ui.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/dictionary/esj_dictionary.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esj_dictionary_repository.dart';
+import 'package:my_dic/_Interface_Adapter/Controller/word_page_controller.dart';
+import 'package:my_dic/_Interface_Adapter/ViewModel/main_view_model.dart';
 import 'package:my_dic/html_style_kotobank.dart';
 //import 'package:my_dic/Infrastracture/DAO/kotobank_dictionary_dao.dart';
 
-class DictionaryFragment extends StatelessWidget {
+class DictionaryFragment extends ConsumerWidget {
   final int wordId;
-  DictionaryFragment({super.key, required this.wordId});
+  const DictionaryFragment(
+      {super.key, required this.wordId, required this.wordPageController});
   //final KotobankDictionaryDao _dao = KotobankDictionaryDao();
   //final DatabaseProvider db = DatabaseProvider();
-  final IEsjDictionaryRepository _esjDictionaryRepository =
-      DI<IEsjDictionaryRepository>();
+  final WordPageController wordPageController;
+  //=DI<IEsjDictionaryRepository>();
 
   //log("getwordbyid: ${result[]}");
   @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: FutureBuilder<List<EsjDictionary>>(
-        future: _esjDictionaryRepository.getDictionaryByWordId(wordId), // データ取得
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            // データ取得中の表示
-            return CircularProgressIndicator();
-          } else if (snapshot.hasData) {
-            final dictionaryList = snapshot.data;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mainViewModel = ref.watch(mainViewModelProvider);
+    if (!mainViewModel.dictionaryCache.containsKey(wordId)) {
+      wordPageController.fetchDictionaryById(wordId);
+      return Center(
+        child: Text("Loading..."),
+      );
+    }
+    final List<EsjDictionary>? dictionaries =
+        mainViewModel.dictionaryCache[wordId]!;
 
-            if (dictionaryList == null || dictionaryList.isEmpty) {
-              // データが見つからない場合
-              return Text(
-                'Word not found',
-                style: TextStyle(fontSize: 18),
-              );
-            }
-
-            if (dictionaryList.isNotEmpty) {
-              // データが見つかった場合
-              //log('dic: ${data.word}');
-              //log('headword: ${data.headword}');
-              return Container(
-                margin: const EdgeInsets.only(
-                    top: MARGIN_TOP_SCROLLABLE_CHILD,
-                    bottom: MARGIN_BOTTOM_SCROLLABLE_CHILD),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: PADDING_X_DISPLAY),
-                child: Column(
-                  children: [
-                    Text(
-                      //'Word: ${data['word']}',
-                      '${dictionaryList[0].word}',
-                      style: TextStyle(fontSize: 24),
-                    ),
-                    for (var item in dictionaryList) ...[
-                      DicSection(dictionary: item),
-                      SizedBox(height: 40),
-                    ],
-                  ],
-                ),
-              );
-            }
-          }
-
-          // データがない場合の表示
-          return Text(
+    return dictionaries == null
+        ? (Center(
+            child: Text(
             'No data available',
             style: TextStyle(fontSize: 24),
-          );
-        },
-      ),
-    );
+          )))
+        : (SingleChildScrollView(
+            child: Container(
+            margin: const EdgeInsets.only(
+                top: MARGIN_TOP_SCROLLABLE_CHILD,
+                bottom: MARGIN_BOTTOM_SCROLLABLE_CHILD),
+            padding: const EdgeInsets.symmetric(horizontal: PADDING_X_DISPLAY),
+            child: Column(
+              children: [
+                Text(
+                  //'Word: ${data['word']}',
+                  dictionaries[0].word,
+                  style: TextStyle(fontSize: 24),
+                ),
+                for (var item in dictionaries) ...[
+                  DicSection(dictionary: item),
+                  SizedBox(height: 40),
+                ],
+              ],
+            ),
+          )));
   }
 }
 

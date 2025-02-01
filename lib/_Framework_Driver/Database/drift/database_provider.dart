@@ -52,8 +52,22 @@ class DatabaseProvider extends _$DatabaseProvider {
   }
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 1;
 
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      onCreate: (Migrator m) async {
+        await m.createAll();
+      },
+      onUpgrade: (Migrator m, int from, int to) async {
+        if (from < 1) {
+          //await m.addColumn(todos, todos.content);
+        }
+      },
+    );
+  }
+/*
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onUpgrade: (migrator, from, to) async {
@@ -68,7 +82,7 @@ class DatabaseProvider extends _$DatabaseProvider {
             // 必要な初期データの挿入など
           }
         },
-      );
+      ); */
 }
 
 LazyDatabase _openConnection() {
