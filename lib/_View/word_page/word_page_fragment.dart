@@ -37,27 +37,29 @@ class WordPageWithTab extends StatefulWidget {
 class _WordPageWithTabState extends State<WordPageWithTab>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  late PageController _pageController;
-  late PageStorageBucket _bucket;
+  //late PageController _pageController;
+  final PageStorageBucket _bucket = PageStorageBucket();
   late WordPageFragmentInput input;
+
+  final String key0 = generateUUID();
+  final String key1 = generateUUID();
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _pageController = PageController();
-    _bucket = PageStorageBucket();
+    // _pageController = PageController();
     _tabController.addListener(_tabListener);
     input = widget.input;
   }
 
   void _tabListener() {
     if (_tabController.indexIsChanging) {
-      _pageController.animateToPage(
+      /* _pageController.animateToPage(
         _tabController.index,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
-      );
+      ); */
     }
     setState(() {});
   }
@@ -66,7 +68,7 @@ class _WordPageWithTabState extends State<WordPageWithTab>
   void dispose() {
     _tabController.removeListener(_tabListener);
     _tabController.dispose();
-    _pageController.dispose();
+    //_pageController.dispose();
     super.dispose();
   }
 
@@ -85,17 +87,24 @@ class _WordPageWithTabState extends State<WordPageWithTab>
       ),
       body: PageStorage(
         bucket: _bucket,
-        child: IndexedStack(
-          index: _tabController.index,
+        child: //IndexedStack(
+            TabBarView(
+          //index: _tabController.index,
           //コンテンツ内でpadding,margin調整
-          //controller: _tabController,
+          controller: _tabController,
           children: [
-            DI<DictionaryFragment>(
+            /* DI<DictionaryFragment>(
                 param1: WordPageChildInputData(
                     wordId: input.wordId, key: PageStorageKey(generateUUID()))),
             DI<ConjugacionFragment>(
                 param1: WordPageChildInputData(
-                    wordId: input.wordId, key: PageStorageKey(generateUUID()))),
+                    wordId: input.wordId, key: PageStorageKey(generateUUID()))), */
+            DI<DictionaryFragment>(
+                param1: WordPageChildInputData(
+                    wordId: input.wordId, key: PageStorageKey(key0))),
+            DI<ConjugacionFragment>(
+                param1: WordPageChildInputData(
+                    wordId: input.wordId, key: PageStorageKey(key1))),
           ],
         ),
       ),
