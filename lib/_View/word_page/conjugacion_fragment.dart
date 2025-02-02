@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Components/conjugacion_card.dart';
@@ -17,6 +19,7 @@ class ConjugacionFragment extends ConsumerWidget {
   //log("getwordbyid: ${result[]}");
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    log("conj key: $key");
     final mainViewModel = ref.watch(mainViewModelProvider);
     if (!mainViewModel.conjugacionCache.containsKey(wordId)) {
       wordPageController.fetchConjugacionById(wordId);

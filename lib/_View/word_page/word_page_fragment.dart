@@ -38,11 +38,8 @@ class _WordPageWithTabState extends State<WordPageWithTab>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   //late PageController _pageController;
-  final PageStorageBucket _bucket = PageStorageBucket();
+  //final PageStorageBucket _bucket = PageStorageBucket();
   late WordPageFragmentInput input;
-
-  final String key0 = generateUUID();
-  final String key1 = generateUUID();
 
   @override
   void initState() {
@@ -85,42 +82,20 @@ class _WordPageWithTabState extends State<WordPageWithTab>
           ],
         ),
       ),
-      body: PageStorage(
-        bucket: _bucket,
-        child: //IndexedStack(
-            TabBarView(
-          //index: _tabController.index,
-          //コンテンツ内でpadding,margin調整
-          controller: _tabController,
-          children: [
-            /* DI<DictionaryFragment>(
-                param1: WordPageChildInputData(
-                    wordId: input.wordId, key: PageStorageKey(generateUUID()))),
-            DI<ConjugacionFragment>(
-                param1: WordPageChildInputData(
-                    wordId: input.wordId, key: PageStorageKey(generateUUID()))), */
-            DI<DictionaryFragment>(
-                param1: WordPageChildInputData(
-                    wordId: input.wordId, key: PageStorageKey(key0))),
-            DI<ConjugacionFragment>(
-                param1: WordPageChildInputData(
-                    wordId: input.wordId, key: PageStorageKey(key1))),
-          ],
-        ),
+      body: TabBarView(
+        //index: _tabController.index,
+        //コンテンツ内でpadding,margin調整
+        controller: _tabController,
+        children: [
+          KeepAlivePage(
+              child: DI<DictionaryFragment>(
+                  param1: WordPageChildInputData(wordId: input.wordId))),
+          KeepAlivePage(
+            child: DI<ConjugacionFragment>(
+                param1: WordPageChildInputData(wordId: input.wordId)),
+          )
+        ],
       ),
-      /* Stack(
-          children: [
-            PageView(
-              controller: _pageController,
-              onPageChanged: (index) {
-                _tabController.animateTo(index);
-              },
-              children: [
-                Container(),
-                Container(),
-              ],
-            )
-          ],) */
     );
   }
 }
@@ -135,5 +110,25 @@ class WordPageWithoutTab extends StatelessWidget {
       body: DI<DictionaryFragment>(
           param1: WordPageChildInputData(wordId: input.wordId)),
     );
+  }
+}
+
+class KeepAlivePage extends StatefulWidget {
+  final Widget child;
+  const KeepAlivePage({super.key, required this.child});
+
+  @override
+  State<KeepAlivePage> createState() => KeepAlivePageState();
+}
+
+class KeepAlivePageState extends State<KeepAlivePage>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context); // Ensure super.build is called
+    return widget.child;
   }
 }

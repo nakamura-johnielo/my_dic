@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,9 +19,9 @@ class DictionaryFragment extends ConsumerWidget {
   final WordPageController wordPageController;
   //=DI<IEsjDictionaryRepository>();
 
-  //log("getwordbyid: ${result[]}");
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    log("dic key: $key");
     final mainViewModel = ref.watch(mainViewModelProvider);
     if (!mainViewModel.dictionaryCache.containsKey(wordId)) {
       wordPageController.fetchDictionaryById(wordId);
