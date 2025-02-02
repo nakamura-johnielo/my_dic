@@ -5340,6 +5340,222 @@ class WordStatusCompanion extends UpdateCompanion<WordStatusData> {
   }
 }
 
+class $MyWordsTable extends MyWords with TableInfo<$MyWordsTable, MyWord> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MyWordsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _myWordIdMeta =
+      const VerificationMeta('myWordId');
+  @override
+  late final GeneratedColumn<int> myWordId = GeneratedColumn<int>(
+      'my_word_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _wordMeta = const VerificationMeta('word');
+  @override
+  late final GeneratedColumn<String> word = GeneratedColumn<String>(
+      'word', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _contentsMeta =
+      const VerificationMeta('contents');
+  @override
+  late final GeneratedColumn<String> contents = GeneratedColumn<String>(
+      'contents', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [myWordId, word, contents];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'my_words';
+  @override
+  VerificationContext validateIntegrity(Insertable<MyWord> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('my_word_id')) {
+      context.handle(_myWordIdMeta,
+          myWordId.isAcceptableOrUnknown(data['my_word_id']!, _myWordIdMeta));
+    }
+    if (data.containsKey('word')) {
+      context.handle(
+          _wordMeta, word.isAcceptableOrUnknown(data['word']!, _wordMeta));
+    } else if (isInserting) {
+      context.missing(_wordMeta);
+    }
+    if (data.containsKey('contents')) {
+      context.handle(_contentsMeta,
+          contents.isAcceptableOrUnknown(data['contents']!, _contentsMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {myWordId};
+  @override
+  MyWord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MyWord(
+      myWordId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}my_word_id'])!,
+      word: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}word'])!,
+      contents: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}contents']),
+    );
+  }
+
+  @override
+  $MyWordsTable createAlias(String alias) {
+    return $MyWordsTable(attachedDatabase, alias);
+  }
+}
+
+class MyWord extends DataClass implements Insertable<MyWord> {
+  final int myWordId;
+  final String word;
+  final String? contents;
+  const MyWord({required this.myWordId, required this.word, this.contents});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['my_word_id'] = Variable<int>(myWordId);
+    map['word'] = Variable<String>(word);
+    if (!nullToAbsent || contents != null) {
+      map['contents'] = Variable<String>(contents);
+    }
+    return map;
+  }
+
+  MyWordsCompanion toCompanion(bool nullToAbsent) {
+    return MyWordsCompanion(
+      myWordId: Value(myWordId),
+      word: Value(word),
+      contents: contents == null && nullToAbsent
+          ? const Value.absent()
+          : Value(contents),
+    );
+  }
+
+  factory MyWord.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MyWord(
+      myWordId: serializer.fromJson<int>(json['myWordId']),
+      word: serializer.fromJson<String>(json['word']),
+      contents: serializer.fromJson<String?>(json['contents']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'myWordId': serializer.toJson<int>(myWordId),
+      'word': serializer.toJson<String>(word),
+      'contents': serializer.toJson<String?>(contents),
+    };
+  }
+
+  MyWord copyWith(
+          {int? myWordId,
+          String? word,
+          Value<String?> contents = const Value.absent()}) =>
+      MyWord(
+        myWordId: myWordId ?? this.myWordId,
+        word: word ?? this.word,
+        contents: contents.present ? contents.value : this.contents,
+      );
+  MyWord copyWithCompanion(MyWordsCompanion data) {
+    return MyWord(
+      myWordId: data.myWordId.present ? data.myWordId.value : this.myWordId,
+      word: data.word.present ? data.word.value : this.word,
+      contents: data.contents.present ? data.contents.value : this.contents,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MyWord(')
+          ..write('myWordId: $myWordId, ')
+          ..write('word: $word, ')
+          ..write('contents: $contents')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(myWordId, word, contents);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MyWord &&
+          other.myWordId == this.myWordId &&
+          other.word == this.word &&
+          other.contents == this.contents);
+}
+
+class MyWordsCompanion extends UpdateCompanion<MyWord> {
+  final Value<int> myWordId;
+  final Value<String> word;
+  final Value<String?> contents;
+  const MyWordsCompanion({
+    this.myWordId = const Value.absent(),
+    this.word = const Value.absent(),
+    this.contents = const Value.absent(),
+  });
+  MyWordsCompanion.insert({
+    this.myWordId = const Value.absent(),
+    required String word,
+    this.contents = const Value.absent(),
+  }) : word = Value(word);
+  static Insertable<MyWord> custom({
+    Expression<int>? myWordId,
+    Expression<String>? word,
+    Expression<String>? contents,
+  }) {
+    return RawValuesInsertable({
+      if (myWordId != null) 'my_word_id': myWordId,
+      if (word != null) 'word': word,
+      if (contents != null) 'contents': contents,
+    });
+  }
+
+  MyWordsCompanion copyWith(
+      {Value<int>? myWordId, Value<String>? word, Value<String?>? contents}) {
+    return MyWordsCompanion(
+      myWordId: myWordId ?? this.myWordId,
+      word: word ?? this.word,
+      contents: contents ?? this.contents,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (myWordId.present) {
+      map['my_word_id'] = Variable<int>(myWordId.value);
+    }
+    if (word.present) {
+      map['word'] = Variable<String>(word.value);
+    }
+    if (contents.present) {
+      map['contents'] = Variable<String>(contents.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MyWordsCompanion(')
+          ..write('myWordId: $myWordId, ')
+          ..write('word: $word, ')
+          ..write('contents: $contents')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$DatabaseProvider extends GeneratedDatabase {
   _$DatabaseProvider(QueryExecutor e) : super(e);
   $DatabaseProviderManager get managers => $DatabaseProviderManager(this);
@@ -5353,6 +5569,7 @@ abstract class _$DatabaseProvider extends GeneratedDatabase {
   late final $SupplementsTable supplements = $SupplementsTable(this);
   late final $WordsTable words = $WordsTable(this);
   late final $WordStatusTable wordStatus = $WordStatusTable(this);
+  late final $MyWordsTable myWords = $MyWordsTable(this);
   late final WordDao wordDao = WordDao(this as DatabaseProvider);
   late final RankingDao rankingDao = RankingDao(this as DatabaseProvider);
   late final PartOfSpeechListDao partOfSpeechListDao =
@@ -5370,7 +5587,8 @@ abstract class _$DatabaseProvider extends GeneratedDatabase {
         rankings,
         supplements,
         words,
-        wordStatus
+        wordStatus,
+        myWords
       ];
 }
 
@@ -7718,6 +7936,135 @@ typedef $$WordStatusTableProcessedTableManager = ProcessedTableManager<
     ),
     WordStatusData,
     PrefetchHooks Function()>;
+typedef $$MyWordsTableCreateCompanionBuilder = MyWordsCompanion Function({
+  Value<int> myWordId,
+  required String word,
+  Value<String?> contents,
+});
+typedef $$MyWordsTableUpdateCompanionBuilder = MyWordsCompanion Function({
+  Value<int> myWordId,
+  Value<String> word,
+  Value<String?> contents,
+});
+
+class $$MyWordsTableFilterComposer
+    extends Composer<_$DatabaseProvider, $MyWordsTable> {
+  $$MyWordsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get myWordId => $composableBuilder(
+      column: $table.myWordId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get word => $composableBuilder(
+      column: $table.word, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get contents => $composableBuilder(
+      column: $table.contents, builder: (column) => ColumnFilters(column));
+}
+
+class $$MyWordsTableOrderingComposer
+    extends Composer<_$DatabaseProvider, $MyWordsTable> {
+  $$MyWordsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get myWordId => $composableBuilder(
+      column: $table.myWordId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get word => $composableBuilder(
+      column: $table.word, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get contents => $composableBuilder(
+      column: $table.contents, builder: (column) => ColumnOrderings(column));
+}
+
+class $$MyWordsTableAnnotationComposer
+    extends Composer<_$DatabaseProvider, $MyWordsTable> {
+  $$MyWordsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get myWordId =>
+      $composableBuilder(column: $table.myWordId, builder: (column) => column);
+
+  GeneratedColumn<String> get word =>
+      $composableBuilder(column: $table.word, builder: (column) => column);
+
+  GeneratedColumn<String> get contents =>
+      $composableBuilder(column: $table.contents, builder: (column) => column);
+}
+
+class $$MyWordsTableTableManager extends RootTableManager<
+    _$DatabaseProvider,
+    $MyWordsTable,
+    MyWord,
+    $$MyWordsTableFilterComposer,
+    $$MyWordsTableOrderingComposer,
+    $$MyWordsTableAnnotationComposer,
+    $$MyWordsTableCreateCompanionBuilder,
+    $$MyWordsTableUpdateCompanionBuilder,
+    (MyWord, BaseReferences<_$DatabaseProvider, $MyWordsTable, MyWord>),
+    MyWord,
+    PrefetchHooks Function()> {
+  $$MyWordsTableTableManager(_$DatabaseProvider db, $MyWordsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MyWordsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MyWordsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MyWordsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> myWordId = const Value.absent(),
+            Value<String> word = const Value.absent(),
+            Value<String?> contents = const Value.absent(),
+          }) =>
+              MyWordsCompanion(
+            myWordId: myWordId,
+            word: word,
+            contents: contents,
+          ),
+          createCompanionCallback: ({
+            Value<int> myWordId = const Value.absent(),
+            required String word,
+            Value<String?> contents = const Value.absent(),
+          }) =>
+              MyWordsCompanion.insert(
+            myWordId: myWordId,
+            word: word,
+            contents: contents,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$MyWordsTableProcessedTableManager = ProcessedTableManager<
+    _$DatabaseProvider,
+    $MyWordsTable,
+    MyWord,
+    $$MyWordsTableFilterComposer,
+    $$MyWordsTableOrderingComposer,
+    $$MyWordsTableAnnotationComposer,
+    $$MyWordsTableCreateCompanionBuilder,
+    $$MyWordsTableUpdateCompanionBuilder,
+    (MyWord, BaseReferences<_$DatabaseProvider, $MyWordsTable, MyWord>),
+    MyWord,
+    PrefetchHooks Function()>;
 
 class $DatabaseProviderManager {
   final _$DatabaseProvider _db;
@@ -7740,4 +8087,6 @@ class $DatabaseProviderManager {
       $$WordsTableTableManager(_db, _db.words);
   $$WordStatusTableTableManager get wordStatus =>
       $$WordStatusTableTableManager(_db, _db.wordStatus);
+  $$MyWordsTableTableManager get myWords =>
+      $$MyWordsTableTableManager(_db, _db.myWords);
 }

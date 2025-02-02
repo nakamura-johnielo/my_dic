@@ -1,4 +1,4 @@
-enum RankingCardClickListener {
+enum WordCardViewClickListener {
   bookmark,
   learned,
   note;

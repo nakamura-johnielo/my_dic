@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/Components/modal/ranking_filter_modal.dart';
 import 'package:my_dic/Components/ranking_card.dart';
-import 'package:my_dic/Constants/Enums/ranking_card_click_listener.dart';
+import 'package:my_dic/Constants/Enums/word_card_view_click_listener.dart';
 import 'package:my_dic/Constants/tab.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/ranking_controller.dart';
@@ -132,9 +132,9 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
                 itemCount: viewModel.items.length,
                 itemBuilder: (context, index) {
                   final ranking = viewModel.items[index];
-                  Map<RankingCardClickListener, VoidCallback>? clickListeners =
+                  Map<WordCardViewClickListener, VoidCallback>? clickListeners =
                       {
-                    RankingCardClickListener.bookmark: () {
+                    WordCardViewClickListener.bookmark: () {
                       _rankingController.updateWordStatus(
                           index,
                           ranking.wordId,
@@ -142,7 +142,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
                           ranking.isLearned,
                           ranking.hasNote);
                     },
-                    RankingCardClickListener.learned: () {
+                    WordCardViewClickListener.learned: () {
                       _rankingController.updateWordStatus(
                           index,
                           ranking.wordId,
@@ -150,7 +150,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
                           !ranking.isLearned,
                           ranking.hasNote);
                     },
-                    RankingCardClickListener.note: () => print("note clicked"),
+                    WordCardViewClickListener.note: () => print("note clicked"),
                   };
 
                   return RankingCard(

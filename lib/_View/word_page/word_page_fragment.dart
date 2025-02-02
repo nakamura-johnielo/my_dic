@@ -40,6 +40,7 @@ class _WordPageWithTabState extends State<WordPageWithTab>
   //late PageController _pageController;
   //final PageStorageBucket _bucket = PageStorageBucket();
   late WordPageFragmentInput input;
+  late List<Widget> _tabs;
 
   @override
   void initState() {
@@ -47,7 +48,19 @@ class _WordPageWithTabState extends State<WordPageWithTab>
     _tabController = TabController(length: 2, vsync: this);
     // _pageController = PageController();
     _tabController.addListener(_tabListener);
-    input = widget.input;
+    //input = widget.input;
+
+    //anti rebuild ↓
+    //! TODO ただ、isbookmarkedとかの更新に対応する必要あり
+    _tabs = [
+      KeepAlivePage(
+          child: DI<DictionaryFragment>(
+              param1: WordPageChildInputData(wordId: widget.input.wordId))),
+      KeepAlivePage(
+        child: DI<ConjugacionFragment>(
+            param1: WordPageChildInputData(wordId: widget.input.wordId)),
+      )
+    ];
   }
 
   void _tabListener() {
@@ -86,15 +99,7 @@ class _WordPageWithTabState extends State<WordPageWithTab>
         //index: _tabController.index,
         //コンテンツ内でpadding,margin調整
         controller: _tabController,
-        children: [
-          KeepAlivePage(
-              child: DI<DictionaryFragment>(
-                  param1: WordPageChildInputData(wordId: input.wordId))),
-          KeepAlivePage(
-            child: DI<ConjugacionFragment>(
-                param1: WordPageChildInputData(wordId: input.wordId)),
-          )
-        ],
+        children: _tabs,
       ),
     );
   }

@@ -19,6 +19,8 @@ class BottomNavBar extends StatelessWidget {
         selectedIndex: navigationShell.currentIndex,
         destinations: [
           NavigationDestination(
+              icon: Icon(ScreenTab.myword.icon), label: ScreenTab.myword.label),
+          NavigationDestination(
               icon: Icon(ScreenTab.note.icon), label: ScreenTab.note.label),
           NavigationDestination(
               icon: Icon(ScreenTab.search.icon), label: ScreenTab.search.label),

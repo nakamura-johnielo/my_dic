@@ -61,6 +61,7 @@ import 'package:my_dic/_Interface_Adapter/Presenter/load_rankings_presenter_impl
 import 'package:my_dic/_Interface_Adapter/Presenter/update_ranking_filter_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/update_status_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/main_view_model.dart';
+import 'package:my_dic/_Interface_Adapter/ViewModel/my_word_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/ranking_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/search_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/buffer_controller.dart';
@@ -229,6 +230,25 @@ void setupLocator() {
               key: input.key,
               wordId: input.wordId,
               wordPageController: DI<WordPageController>()));
+
+/*===========wordPage =====================================================-====== */
+  //
+  //
+
+  //
+/*===========wordPage =====================================================-====== */
+
+  //presenter
+
+  //usecase
+
+  //controller
+
+  //viewmodel
+  //singleton
+  DI.registerLazySingleton<MyWordViewModel>(() => MyWordViewModel());
+
+  //UI
 
 /*===========wordPage =====================================================-====== */
   //

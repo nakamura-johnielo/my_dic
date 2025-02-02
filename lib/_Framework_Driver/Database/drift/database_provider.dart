@@ -10,6 +10,7 @@ import 'package:my_dic/_Framework_Driver/Database/drift/Entity/conjugations.dart
 import 'package:my_dic/_Framework_Driver/Database/drift/Entity/dictionaries.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/Entity/examples.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/Entity/idioms.dart';
+import 'package:my_dic/_Framework_Driver/Database/drift/Entity/my_words.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/Entity/part_of_speech_lists.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/Entity/rankings.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/Entity/supplements.dart';
@@ -33,11 +34,12 @@ part '../../../__generated/_Framework_Driver/Database/drift/database_provider.g.
   Rankings,
   Supplements,
   Words,
-  WordStatus
+  WordStatus,
+  MyWords
 ], daos: [
   WordDao,
   RankingDao,
-  PartOfSpeechListDao
+  PartOfSpeechListDao,
 ])
 class DatabaseProvider extends _$DatabaseProvider {
   // シングルトンインスタンスを保持するフィールド

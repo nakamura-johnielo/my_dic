@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:my_dic/Components/bottom_bar.dart';
 import 'package:my_dic/Constants/tab.dart';
 import 'package:my_dic/DI/product.dart';
+import 'package:my_dic/_View/my_word/my_word_fragment.dart';
 import 'package:my_dic/_View/note_fragment.dart';
 import 'package:my_dic/_View/ranking/ranking_fragment.dart';
 import 'package:my_dic/_View/search_fragment.dart';
@@ -11,6 +12,7 @@ import 'package:my_dic/_View/word_page/word_page_fragment.dart';
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 final searchNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'search');
 final noteNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'note');
+final myWordNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'myword');
 final rankingNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'ranking');
 
 final goRouter = GoRouter(
@@ -25,6 +27,20 @@ final goRouter = GoRouter(
             return BottomNavBar(navigationShell: navigationShell);
           },
           branches: [
+            // mywordブランチ
+            StatefulShellBranch(
+              navigatorKey: myWordNavigatorKey,
+              routes: [
+                GoRoute(
+                  path: '/${ScreenTab.myword}',
+                  pageBuilder: (context, state) => NoTransitionPage(
+                    key: state.pageKey,
+                    child: MyWordFragment(),
+                  ),
+                ),
+              ],
+            ),
+
             // noteブランチ
             StatefulShellBranch(
               navigatorKey: noteNavigatorKey,
