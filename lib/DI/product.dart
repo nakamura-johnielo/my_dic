@@ -9,6 +9,9 @@ import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/i_fetch_conjugat
 import 'package:my_dic/_Business_Rule/Usecase/fetch_dictionary/fetch_dictionary_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/fetch_dictionary/i_fetch_dictionary_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/fetch_dictionary/i_fetch_dictionary_use_case.dart';
+import 'package:my_dic/_Business_Rule/Usecase/load_my_word/i_load_my_word_presenter.dart';
+import 'package:my_dic/_Business_Rule/Usecase/load_my_word/i_load_my_word_use_case.dart';
+import 'package:my_dic/_Business_Rule/Usecase/load_my_word/load_my_word_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/locate_ranking_pagenation/i_locate_ranking_pagenation_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/locate_ranking_pagenation/i_locate_ranking_pagenation_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/locate_ranking_pagenation/locate_ranking_pagenation_interactor.dart';
@@ -37,10 +40,12 @@ import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_conjugation_reposit
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esj_dictionary_repository.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esj_word_repository.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esp_ranking_repository.dart';
+import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_load_my_word_repository.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/conjugation_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/dictionary_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/example_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/idiom_dao.dart';
+import 'package:my_dic/_Framework_Driver/Database/drift/DAO/my_word_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/part_of_speech_list_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/ranking_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/supplement_dao.dart';
@@ -50,11 +55,14 @@ import 'package:my_dic/_Framework_Driver/Database/drift/database_provider.dart';
 import 'package:my_dic/_Framework_Driver/Repository/drift_conjugacion_repository.dart';
 import 'package:my_dic/_Framework_Driver/Repository/drift_esj_dictionary_repository.dart';
 import 'package:my_dic/_Framework_Driver/Repository/drift_esj_word_repository.dart';
+import 'package:my_dic/_Framework_Driver/Repository/drift_my_word_repository.dart';
 import 'package:my_dic/_Framework_Driver/Repository/wiki_esp_ranking_repository.dart';
+import 'package:my_dic/_Interface_Adapter/Controller/my_word_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/ranking_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/word_page_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/conjugacion_presenter.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/dictionary_presenter.dart';
+import 'package:my_dic/_Interface_Adapter/Presenter/load_my_word_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/locate_ranking_pagenation_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/search_word_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/load_rankings_presenter_impl.dart';
@@ -65,6 +73,7 @@ import 'package:my_dic/_Interface_Adapter/ViewModel/my_word_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/ranking_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/search_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/buffer_controller.dart';
+import 'package:my_dic/_View/my_word/my_word_fragment.dart';
 import 'package:my_dic/_View/ranking/ranking_fragment.dart';
 import 'package:my_dic/_View/word_page/conjugacion_fragment.dart';
 import 'package:my_dic/_View/word_page/dictionary_fragment.dart';
@@ -91,6 +100,7 @@ void setupLocator() {
   DI.registerFactory<WordDao>(() => WordDao(DI<DatabaseProvider>()));
   DI.registerFactory<WordStatusDao>(
       () => WordStatusDao(DI<DatabaseProvider>()));
+  DI.registerFactory<MyWordDao>(() => MyWordDao(DI<DatabaseProvider>()));
 
   //repository
   DI.registerFactory<IEsjDictionaryRepository>(
@@ -104,9 +114,10 @@ void setupLocator() {
       () => DriftEsjWordRepository(DI<WordDao>(), DI<WordStatusDao>()));
   DI.registerFactory<IConjugacionsRepository>(
       () => DriftConjugacionRepository(DI<ConjugationDao>()));
-
   DI.registerFactory<IEspRankingRepository>(
       () => WikiEspRankingRepository(DI<RankingDao>()));
+  DI.registerFactory<ILoadMyWordRepository>(
+      () => DriftMyWordRepository(DI<MyWordDao>()));
   //
   //
   //
@@ -236,21 +247,29 @@ void setupLocator() {
   //
 
   //
-/*===========wordPage =====================================================-====== */
+/*===========my word =====================================================-====== */
 
   //presenter
+  DI.registerFactory<ILoadMyWordPresenter>(
+      () => LoadMyWordPresenterImpl(DI<MyWordViewModel>()));
 
   //usecase
+  DI.registerFactory<ILoadMyWordUseCase>(() => LoadMyWordInteractor(
+      DI<ILoadMyWordPresenter>(), DI<ILoadMyWordRepository>()));
 
   //controller
+  DI.registerFactory<MyWordController>(
+      () => MyWordController(DI<ILoadMyWordUseCase>()));
 
   //viewmodel
   //singleton
   DI.registerLazySingleton<MyWordViewModel>(() => MyWordViewModel());
 
   //UI
+  DI.registerFactory<MyWordFragment>(
+      () => MyWordFragment(DI<MyWordController>()));
 
-/*===========wordPage =====================================================-====== */
+/*===========my word =====================================================-====== */
   //
   //
 

@@ -35,7 +35,7 @@ final goRouter = GoRouter(
                   path: '/${ScreenTab.myword}',
                   pageBuilder: (context, state) => NoTransitionPage(
                     key: state.pageKey,
-                    child: MyWordFragment(),
+                    child: DI<MyWordFragment>(),
                   ),
                 ),
               ],

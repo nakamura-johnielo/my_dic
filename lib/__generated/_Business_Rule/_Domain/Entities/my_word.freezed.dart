@@ -18,6 +18,7 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$MyWord {
   int get wordId => throw _privateConstructorUsedError;
   String get word => throw _privateConstructorUsedError;
+  String get contents => throw _privateConstructorUsedError;
   bool get isLearned => throw _privateConstructorUsedError;
   bool get isBookmarked => throw _privateConstructorUsedError;
 
@@ -32,7 +33,12 @@ abstract class $MyWordCopyWith<$Res> {
   factory $MyWordCopyWith(MyWord value, $Res Function(MyWord) then) =
       _$MyWordCopyWithImpl<$Res, MyWord>;
   @useResult
-  $Res call({int wordId, String word, bool isLearned, bool isBookmarked});
+  $Res call(
+      {int wordId,
+      String word,
+      String contents,
+      bool isLearned,
+      bool isBookmarked});
 }
 
 /// @nodoc
@@ -52,6 +58,7 @@ class _$MyWordCopyWithImpl<$Res, $Val extends MyWord>
   $Res call({
     Object? wordId = null,
     Object? word = null,
+    Object? contents = null,
     Object? isLearned = null,
     Object? isBookmarked = null,
   }) {
@@ -63,6 +70,10 @@ class _$MyWordCopyWithImpl<$Res, $Val extends MyWord>
       word: null == word
           ? _value.word
           : word // ignore: cast_nullable_to_non_nullable
+              as String,
+      contents: null == contents
+          ? _value.contents
+          : contents // ignore: cast_nullable_to_non_nullable
               as String,
       isLearned: null == isLearned
           ? _value.isLearned
@@ -83,7 +94,12 @@ abstract class _$$MyWordImplCopyWith<$Res> implements $MyWordCopyWith<$Res> {
       __$$MyWordImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int wordId, String word, bool isLearned, bool isBookmarked});
+  $Res call(
+      {int wordId,
+      String word,
+      String contents,
+      bool isLearned,
+      bool isBookmarked});
 }
 
 /// @nodoc
@@ -101,6 +117,7 @@ class __$$MyWordImplCopyWithImpl<$Res>
   $Res call({
     Object? wordId = null,
     Object? word = null,
+    Object? contents = null,
     Object? isLearned = null,
     Object? isBookmarked = null,
   }) {
@@ -112,6 +129,10 @@ class __$$MyWordImplCopyWithImpl<$Res>
       word: null == word
           ? _value.word
           : word // ignore: cast_nullable_to_non_nullable
+              as String,
+      contents: null == contents
+          ? _value.contents
+          : contents // ignore: cast_nullable_to_non_nullable
               as String,
       isLearned: null == isLearned
           ? _value.isLearned
@@ -131,6 +152,7 @@ class _$MyWordImpl implements _MyWord {
   const _$MyWordImpl(
       {required this.wordId,
       required this.word,
+      required this.contents,
       this.isLearned = false,
       this.isBookmarked = false});
 
@@ -138,6 +160,8 @@ class _$MyWordImpl implements _MyWord {
   final int wordId;
   @override
   final String word;
+  @override
+  final String contents;
   @override
   @JsonKey()
   final bool isLearned;
@@ -147,7 +171,7 @@ class _$MyWordImpl implements _MyWord {
 
   @override
   String toString() {
-    return 'MyWord(wordId: $wordId, word: $word, isLearned: $isLearned, isBookmarked: $isBookmarked)';
+    return 'MyWord(wordId: $wordId, word: $word, contents: $contents, isLearned: $isLearned, isBookmarked: $isBookmarked)';
   }
 
   @override
@@ -157,6 +181,8 @@ class _$MyWordImpl implements _MyWord {
             other is _$MyWordImpl &&
             (identical(other.wordId, wordId) || other.wordId == wordId) &&
             (identical(other.word, word) || other.word == word) &&
+            (identical(other.contents, contents) ||
+                other.contents == contents) &&
             (identical(other.isLearned, isLearned) ||
                 other.isLearned == isLearned) &&
             (identical(other.isBookmarked, isBookmarked) ||
@@ -165,7 +191,7 @@ class _$MyWordImpl implements _MyWord {
 
   @override
   int get hashCode =>
-      Object.hash(runtimeType, wordId, word, isLearned, isBookmarked);
+      Object.hash(runtimeType, wordId, word, contents, isLearned, isBookmarked);
 
   /// Create a copy of MyWord
   /// with the given fields replaced by the non-null parameter values.
@@ -180,6 +206,7 @@ abstract class _MyWord implements MyWord {
   const factory _MyWord(
       {required final int wordId,
       required final String word,
+      required final String contents,
       final bool isLearned,
       final bool isBookmarked}) = _$MyWordImpl;
 
@@ -187,6 +214,8 @@ abstract class _MyWord implements MyWord {
   int get wordId;
   @override
   String get word;
+  @override
+  String get contents;
   @override
   bool get isLearned;
   @override

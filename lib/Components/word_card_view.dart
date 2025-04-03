@@ -9,7 +9,7 @@ class WordCardView extends StatelessWidget {
       this.onTap,
       this.margin = const EdgeInsets.symmetric(vertical: 1, horizontal: 16),
       required this.clickListeners,
-      required this.cardColor,
+      this.cardColor = const Color.fromARGB(255, 132, 132, 132),
       this.cardShape,
       this.elevation = 0,
       this.cardPadding =
@@ -35,7 +35,7 @@ class WordCardView extends StatelessWidget {
   //final Ranking ranking;
   final VoidCallback? onTap;
   final EdgeInsetsGeometry? margin;
-  final Map<WordCardViewClickListener, VoidCallback> clickListeners;
+  final Map<WordCardViewButton, VoidCallback> clickListeners;
 
   /* static const Color hinshiColor = Color.fromARGB(255, 40, 40, 40);
   static const Color wordColor = Colors.black;
@@ -86,7 +86,7 @@ class WordCardView extends StatelessWidget {
                     : learnedIcon["false"] ?? Icons.error,
                 hoveredIconColor: const Color.fromARGB(255, 119, 119, 119),
                 onTap: () {
-                  clickListeners[WordCardViewClickListener.learned]!();
+                  clickListeners[WordCardViewButton.learned]!();
                 },
               ),
 
@@ -103,7 +103,7 @@ class WordCardView extends StatelessWidget {
                     : bookmarkIcon["false"] ?? Icons.error,
                 hoveredIconColor: const Color.fromARGB(255, 119, 119, 119),
                 onTap: () {
-                  clickListeners[WordCardViewClickListener.bookmark]!();
+                  clickListeners[WordCardViewButton.bookmark]!();
                 },
               ),
           ]),

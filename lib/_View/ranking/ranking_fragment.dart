@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -122,7 +124,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
           if (viewModel.items.isEmpty)
             Expanded(
                 child: Center(
-              child: Text("No data exist"),
+              child: Text("Loading..."),
             ))
           else
             Expanded(
@@ -132,9 +134,8 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
                 itemCount: viewModel.items.length,
                 itemBuilder: (context, index) {
                   final ranking = viewModel.items[index];
-                  Map<WordCardViewClickListener, VoidCallback>? clickListeners =
-                      {
-                    WordCardViewClickListener.bookmark: () {
+                  Map<WordCardViewButton, VoidCallback>? clickListeners = {
+                    WordCardViewButton.bookmark: () {
                       _rankingController.updateWordStatus(
                           index,
                           ranking.wordId,
@@ -142,7 +143,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
                           ranking.isLearned,
                           ranking.hasNote);
                     },
-                    WordCardViewClickListener.learned: () {
+                    WordCardViewButton.learned: () {
                       _rankingController.updateWordStatus(
                           index,
                           ranking.wordId,
@@ -150,7 +151,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
                           !ranking.isLearned,
                           ranking.hasNote);
                     },
-                    WordCardViewClickListener.note: () => print("note clicked"),
+                    WordCardViewButton.note: () => log("note clicked"),
                   };
 
                   return RankingCard(
@@ -173,7 +174,76 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
   }
 }
 
+//スマホ用
 class Header extends StatelessWidget {
+  const Header({super.key, required this.margin});
+  final EdgeInsetsGeometry margin;
+
+  @override
+  Widget build(BuildContext context) {
+    const Color textColor = Colors.black;
+
+    return Card(
+      margin: margin,
+      color: const Color.fromARGB(255, 234, 234, 234),
+      elevation: 0,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(6.0),
+          topRight: Radius.circular(6.0),
+          bottomLeft: Radius.circular(0.0),
+          bottomRight: Radius.circular(0.0),
+        ),
+      ),
+      child: Container(
+        margin: const EdgeInsets.all(0),
+        padding: const EdgeInsets.all(0),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: const Color.fromARGB(255, 183, 183, 183),
+              width: 2.0,
+            ),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 11),
+          child: Row(children: [
+            SizedBox(
+              width: 45,
+              child: const Text(
+                "No.",
+                style: TextStyle(fontSize: 15, color: textColor),
+                textAlign: TextAlign.left,
+              ),
+            ),
+            //const SizedBox(width: 15),
+            Expanded(
+              //width: 160,
+              child: const Text(
+                "単語",
+                style: TextStyle(fontSize: 14, color: textColor),
+                textAlign: TextAlign.left,
+              ),
+            ),
+            const SizedBox(width: 5),
+            Expanded(
+              //width: 160,
+              child: const Text(
+                "原形",
+                style: TextStyle(fontSize: 15, color: textColor),
+                textAlign: TextAlign.left,
+              ),
+            ),
+            const SizedBox(width: 54),
+          ]),
+        ),
+      ),
+    );
+  }
+}
+
+/* class Header extends StatelessWidget {
   const Header({super.key, required this.margin});
   final EdgeInsetsGeometry margin;
 
@@ -239,6 +309,7 @@ class Header extends StatelessWidget {
     );
   }
 }
+ */
 
 class FilterButton extends StatelessWidget {
   const FilterButton({super.key});

@@ -6,6 +6,7 @@ class MyWord with _$MyWord {
   const factory MyWord({
     required int wordId,
     required String word,
+    required String contents,
     @Default(false) bool isLearned,
     @Default(false) bool isBookmarked,
   }) = _MyWord;

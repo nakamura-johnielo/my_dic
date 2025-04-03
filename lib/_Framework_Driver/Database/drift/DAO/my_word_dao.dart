@@ -13,6 +13,13 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
         .getSingleOrNull();
   }
 
+  Future<List<MyWord>?> getFilteredMyWordByPage(int size, int offset) async {
+    return (select(myWords)
+          ..orderBy([(t) => OrderingTerm.desc(t.myWordId)])
+          ..limit(size, offset: offset))
+        .get();
+  }
+
   Future<void> insertMyWord(Insertable<MyWord> tableName) =>
       into(myWords).insert(tableName);
 
