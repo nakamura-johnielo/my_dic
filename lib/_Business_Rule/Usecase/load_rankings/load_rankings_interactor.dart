@@ -20,7 +20,7 @@ class LoadRankingsInteractor implements ILoadRankingsUseCase {
   } */
 
   @override
-  void execute(LoadRankingsInputData input) async {
+  Future<void> execute(LoadRankingsInputData input) async {
     List<int> requiredPages = [input.currentPage[0], input.currentPage[1]];
     int offset = input.pagenation; // getOffset(input.pagenation, input.size);
     /* if ((offset < requiredPages[0] || -1 == requiredPages[0]) ||

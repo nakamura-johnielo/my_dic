@@ -55,12 +55,13 @@ class RankingController {
     _loadItemsByFilters();
   }
 
-  void loadNext() {
-    _loadItemsByFilters();
+  Future<void> loadNext() async {
+    await _loadItemsByFilters();
+    //return true;
   }
 
-  void loadPrevious() {
-    _loadItemsByFilters(isNext: false);
+  Future<void> loadPrevious() async {
+    await _loadItemsByFilters(isNext: false);
   }
 
   void updateWordStatus(
@@ -92,7 +93,7 @@ class RankingController {
     _loadItemsByFilters();
   }
 
-  void _loadItemsByFilters({bool isNext = true}) {
+  Future<void> _loadItemsByFilters({bool isNext = true}) async {
     if (isNext) {
       _rankingViewModel.isNextLoading = true;
     } else {
@@ -106,7 +107,7 @@ class RankingController {
         isNext,
         _rankingViewModel.pagenationFilter);
 
-    _loadRankingsInteractor.execute(inputLoadItems);
+    await _loadRankingsInteractor.execute(inputLoadItems);
   }
 
   void _updateFilter(DisplayEnumMixin data, int filterType) {
