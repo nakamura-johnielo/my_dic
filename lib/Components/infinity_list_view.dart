@@ -3,8 +3,8 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class InfinityScrollListView extends ConsumerStatefulWidget {
-  const InfinityScrollListView({
+class RankingInfinityScrollListView extends ConsumerStatefulWidget {
+  const RankingInfinityScrollListView({
     super.key,
     this.scrollDirection = Axis.vertical,
     this.reverse = false,
@@ -14,21 +14,25 @@ class InfinityScrollListView extends ConsumerStatefulWidget {
     this.padding,
     this.itemExtent,
     this.size = 40,
+    //required this.isOnUpdatedFilter,
     required this.itemBuilder,
     required this.itemCount,
     /* required this.fragmentController,
     required this.viewModelProvider, */
     required this.loadNext,
     this.loadPrevious,
+    //required this.resetScroll
   });
 
   //original properties
   final int size;
+  // final bool isOnUpdatedFilter;
   /* final InfinityScrollableController fragmentController;
   final ChangeNotifierProvider<InfinityScrollableViewModel<ItemType>>
       viewModelProvider; */
   //loadNext 次も取得できるデータが存在している場合に返り値true
   final Future<void> Function() loadNext;
+  // final void Function() resetScroll;
   final Future<void> Function(int, List<int>)? loadPrevious;
 
   //listview properties
@@ -43,10 +47,12 @@ class InfinityScrollListView extends ConsumerStatefulWidget {
   final int itemCount;
 
   @override
-  ConsumerState<InfinityScrollListView> createState() => _InfinityScrollState();
+  ConsumerState<RankingInfinityScrollListView> createState() =>
+      _InfinityScrollState();
 }
 
-class _InfinityScrollState extends ConsumerState<InfinityScrollListView> {
+class _InfinityScrollState
+    extends ConsumerState<RankingInfinityScrollListView> {
   //state varables
   bool _isLoadingNext = false;
   bool _isLoadingPrevious = false;
@@ -91,6 +97,17 @@ class _InfinityScrollState extends ConsumerState<InfinityScrollListView> {
     widget.loadNext();
     //inicialize();
   }
+
+/*   @override
+  void didUpdateWidget(covariant RankingInfinityScrollListView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // oldWidget.titleとwidget.titleを比較
+    if (widget.isOnUpdatedFilter &&
+        oldWidget.isOnUpdatedFilter != widget.isOnUpdatedFilter) {
+      _scrollController.jumpTo(0.0); // 必要な処理を実行
+    }
+  } */
 
   void inicialize() async {
     await widget.loadNext();
@@ -198,9 +215,15 @@ class _InfinityScrollState extends ConsumerState<InfinityScrollListView> {
   @override
   Widget build(BuildContext context) {
     //final viewModel = ref.watch(_viewModelProvider);
+
     if (widget.itemCount == 0) {
+      if (_isLoadingNext || _isLoadingPrevious) {
+        return Center(
+          child: Text("Loading..."),
+        );
+      }
       return Center(
-        child: Text("Loading..."),
+        child: Text("No data available"),
       );
     }
 

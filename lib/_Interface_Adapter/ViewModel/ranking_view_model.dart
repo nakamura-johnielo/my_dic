@@ -19,6 +19,26 @@ class RankingViewModel extends ChangeNotifier {
   List<Ranking> _items = [];
 
   //filter
+  bool _isOnUpdatedFilter = false; //フィルタが更新されたかどうか
+  bool get isOnUpdatedFilter => _isOnUpdatedFilter;
+  set isOnUpdatedFilter(bool value) {
+    _isOnUpdatedFilter = value;
+    notifyListeners();
+  }
+
+  void resetIsOnUpdatedFilter() {
+    _isOnUpdatedFilter = false;
+    notifyListeners();
+  }
+
+  void checkUpdateFilter() async {
+    _isOnUpdatedFilter = true;
+    notifyListeners();
+    await Future.delayed(Duration(milliseconds: 1000));
+    _isOnUpdatedFilter = false;
+    notifyListeners();
+  }
+
   //0:ナシ 1:あり　-1:除外
   Map<FeatureTag, int> featureTagFilters = {}; // FeatureTag.values.toSet();
   Map<PartOfSpeech, int> partOfSpeechFilters =

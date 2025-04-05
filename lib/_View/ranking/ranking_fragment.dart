@@ -20,6 +20,7 @@ class RankingFragment extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final viewModel = ref.watch(rankingViewModelProvider);
+    //_rankingController.loadNext();
     const margin = EdgeInsets.symmetric(vertical: 1, horizontal: 16);
 
     return Scaffold(
@@ -42,7 +43,9 @@ class RankingFragment extends ConsumerWidget {
             ))
           else */
           Expanded(
-              child: InfinityScrollListView(
+              child: RankingInfinityScrollListView(
+            //resetScroll: viewModel.resetIsOnUpdatedFilter,
+            // isOnUpdatedFilter: viewModel.isOnUpdatedFilter,
             loadNext: _rankingController.loadNext,
             itemCount: viewModel.items.length,
             itemBuilder: (context, index) {

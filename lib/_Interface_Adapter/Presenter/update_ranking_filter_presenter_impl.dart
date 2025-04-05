@@ -34,5 +34,7 @@ class UpdateRankingFilterPresenterImpl
   void _resetPage() {
     //log("updatefilter in presenter");
     _rankingViewModel.resetCurrrentPage();
+    _rankingViewModel.isOnUpdatedFilter = true;
+    //_rankingViewModel.checkUpdateFilter();
   }
 }
