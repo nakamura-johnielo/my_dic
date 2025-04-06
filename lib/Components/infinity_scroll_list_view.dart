@@ -86,7 +86,10 @@ class _InfinityScrollState extends ConsumerState<InfinityScrollListView> {
     /* itemBuilder = widget.itemBuilder;
     itemCount = widget.itemCount; */
 
-    widget.loadNext(_size, currentPages);
+    /* widget.loadNext(_size, currentPages);
+    currentPages[0] = 0;
+    currentPages[1] = 0; */
+    loadNext();
   }
 
   void _onScroll() {
@@ -136,7 +139,10 @@ class _InfinityScrollState extends ConsumerState<InfinityScrollListView> {
     currentPages[1] = currentPages[1] + 1;
     //checkNext(_preItemLength);
     //_setStatePreItemLength(widget.itemCount);
-
+    _hasNext = false;
+    if (widget.itemCount % _size == 0) {
+      _hasNext = true;
+    }
     _isLoadingNext = false;
     setState(() {});
   }

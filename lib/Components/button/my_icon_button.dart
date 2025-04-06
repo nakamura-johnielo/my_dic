@@ -143,18 +143,23 @@ class _MyIconButtonState extends State<MyIconButton> {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: () async {
-        onTap!();
+        if (onTap != null) {
+          onTap!(); // Execute the callback
+        }
+
         late final Future<void> thisAction;
         thisAction = Future<void>.delayed(const Duration(seconds: 1), () {
-          if (currentAction == thisAction) {
+          if (mounted && currentAction == thisAction) {
             setState(() {
               currentAction = null;
             });
           }
         });
-        setState(() {
-          currentAction = thisAction;
-        });
+        if (mounted) {
+          setState(() {
+            currentAction = thisAction;
+          });
+        }
       },
       style: TextButton.styleFrom(
         minimumSize: Size(1, 1),

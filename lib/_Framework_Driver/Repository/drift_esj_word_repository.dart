@@ -38,6 +38,7 @@ class DriftEsjWordRepository implements IEsjWordRepository {
       isLearned: input.status.contains(FeatureTag.isLearned) ? 1 : 0,
       isBookmarked: input.status.contains(FeatureTag.isBookmarked) ? 1 : 0,
       hasNote: input.status.contains(FeatureTag.hasNote) ? 1 : 0,
+      editAt: input.editAt,
     );
 
     if (await _wordStatusDao.exist(input.wordId)) {

@@ -5104,9 +5104,14 @@ class $WordStatusTable extends WordStatus
   late final GeneratedColumn<int> hasNote = GeneratedColumn<int>(
       'has_note', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _editAtMeta = const VerificationMeta('editAt');
+  @override
+  late final GeneratedColumn<String> editAt = GeneratedColumn<String>(
+      'edit_at', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns =>
-      [wordId, isLearned, isBookmarked, hasNote];
+      [wordId, isLearned, isBookmarked, hasNote, editAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -5135,6 +5140,12 @@ class $WordStatusTable extends WordStatus
       context.handle(_hasNoteMeta,
           hasNote.isAcceptableOrUnknown(data['has_note']!, _hasNoteMeta));
     }
+    if (data.containsKey('edit_at')) {
+      context.handle(_editAtMeta,
+          editAt.isAcceptableOrUnknown(data['edit_at']!, _editAtMeta));
+    } else if (isInserting) {
+      context.missing(_editAtMeta);
+    }
     return context;
   }
 
@@ -5152,6 +5163,8 @@ class $WordStatusTable extends WordStatus
           .read(DriftSqlType.int, data['${effectivePrefix}is_bookmarked']),
       hasNote: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}has_note']),
+      editAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}edit_at'])!,
     );
   }
 
@@ -5166,8 +5179,13 @@ class WordStatusData extends DataClass implements Insertable<WordStatusData> {
   final int? isLearned;
   final int? isBookmarked;
   final int? hasNote;
+  final String editAt;
   const WordStatusData(
-      {required this.wordId, this.isLearned, this.isBookmarked, this.hasNote});
+      {required this.wordId,
+      this.isLearned,
+      this.isBookmarked,
+      this.hasNote,
+      required this.editAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -5181,6 +5199,7 @@ class WordStatusData extends DataClass implements Insertable<WordStatusData> {
     if (!nullToAbsent || hasNote != null) {
       map['has_note'] = Variable<int>(hasNote);
     }
+    map['edit_at'] = Variable<String>(editAt);
     return map;
   }
 
@@ -5196,6 +5215,7 @@ class WordStatusData extends DataClass implements Insertable<WordStatusData> {
       hasNote: hasNote == null && nullToAbsent
           ? const Value.absent()
           : Value(hasNote),
+      editAt: Value(editAt),
     );
   }
 
@@ -5207,6 +5227,7 @@ class WordStatusData extends DataClass implements Insertable<WordStatusData> {
       isLearned: serializer.fromJson<int?>(json['isLearned']),
       isBookmarked: serializer.fromJson<int?>(json['isBookmarked']),
       hasNote: serializer.fromJson<int?>(json['hasNote']),
+      editAt: serializer.fromJson<String>(json['editAt']),
     );
   }
   @override
@@ -5217,6 +5238,7 @@ class WordStatusData extends DataClass implements Insertable<WordStatusData> {
       'isLearned': serializer.toJson<int?>(isLearned),
       'isBookmarked': serializer.toJson<int?>(isBookmarked),
       'hasNote': serializer.toJson<int?>(hasNote),
+      'editAt': serializer.toJson<String>(editAt),
     };
   }
 
@@ -5224,13 +5246,15 @@ class WordStatusData extends DataClass implements Insertable<WordStatusData> {
           {int? wordId,
           Value<int?> isLearned = const Value.absent(),
           Value<int?> isBookmarked = const Value.absent(),
-          Value<int?> hasNote = const Value.absent()}) =>
+          Value<int?> hasNote = const Value.absent(),
+          String? editAt}) =>
       WordStatusData(
         wordId: wordId ?? this.wordId,
         isLearned: isLearned.present ? isLearned.value : this.isLearned,
         isBookmarked:
             isBookmarked.present ? isBookmarked.value : this.isBookmarked,
         hasNote: hasNote.present ? hasNote.value : this.hasNote,
+        editAt: editAt ?? this.editAt,
       );
   WordStatusData copyWithCompanion(WordStatusCompanion data) {
     return WordStatusData(
@@ -5240,6 +5264,7 @@ class WordStatusData extends DataClass implements Insertable<WordStatusData> {
           ? data.isBookmarked.value
           : this.isBookmarked,
       hasNote: data.hasNote.present ? data.hasNote.value : this.hasNote,
+      editAt: data.editAt.present ? data.editAt.value : this.editAt,
     );
   }
 
@@ -5249,13 +5274,15 @@ class WordStatusData extends DataClass implements Insertable<WordStatusData> {
           ..write('wordId: $wordId, ')
           ..write('isLearned: $isLearned, ')
           ..write('isBookmarked: $isBookmarked, ')
-          ..write('hasNote: $hasNote')
+          ..write('hasNote: $hasNote, ')
+          ..write('editAt: $editAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(wordId, isLearned, isBookmarked, hasNote);
+  int get hashCode =>
+      Object.hash(wordId, isLearned, isBookmarked, hasNote, editAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -5263,7 +5290,8 @@ class WordStatusData extends DataClass implements Insertable<WordStatusData> {
           other.wordId == this.wordId &&
           other.isLearned == this.isLearned &&
           other.isBookmarked == this.isBookmarked &&
-          other.hasNote == this.hasNote);
+          other.hasNote == this.hasNote &&
+          other.editAt == this.editAt);
 }
 
 class WordStatusCompanion extends UpdateCompanion<WordStatusData> {
@@ -5271,29 +5299,34 @@ class WordStatusCompanion extends UpdateCompanion<WordStatusData> {
   final Value<int?> isLearned;
   final Value<int?> isBookmarked;
   final Value<int?> hasNote;
+  final Value<String> editAt;
   const WordStatusCompanion({
     this.wordId = const Value.absent(),
     this.isLearned = const Value.absent(),
     this.isBookmarked = const Value.absent(),
     this.hasNote = const Value.absent(),
+    this.editAt = const Value.absent(),
   });
   WordStatusCompanion.insert({
     this.wordId = const Value.absent(),
     this.isLearned = const Value.absent(),
     this.isBookmarked = const Value.absent(),
     this.hasNote = const Value.absent(),
-  });
+    required String editAt,
+  }) : editAt = Value(editAt);
   static Insertable<WordStatusData> custom({
     Expression<int>? wordId,
     Expression<int>? isLearned,
     Expression<int>? isBookmarked,
     Expression<int>? hasNote,
+    Expression<String>? editAt,
   }) {
     return RawValuesInsertable({
       if (wordId != null) 'word_id': wordId,
       if (isLearned != null) 'is_learned': isLearned,
       if (isBookmarked != null) 'is_bookmarked': isBookmarked,
       if (hasNote != null) 'has_note': hasNote,
+      if (editAt != null) 'edit_at': editAt,
     });
   }
 
@@ -5301,12 +5334,14 @@ class WordStatusCompanion extends UpdateCompanion<WordStatusData> {
       {Value<int>? wordId,
       Value<int?>? isLearned,
       Value<int?>? isBookmarked,
-      Value<int?>? hasNote}) {
+      Value<int?>? hasNote,
+      Value<String>? editAt}) {
     return WordStatusCompanion(
       wordId: wordId ?? this.wordId,
       isLearned: isLearned ?? this.isLearned,
       isBookmarked: isBookmarked ?? this.isBookmarked,
       hasNote: hasNote ?? this.hasNote,
+      editAt: editAt ?? this.editAt,
     );
   }
 
@@ -5325,6 +5360,9 @@ class WordStatusCompanion extends UpdateCompanion<WordStatusData> {
     if (hasNote.present) {
       map['has_note'] = Variable<int>(hasNote.value);
     }
+    if (editAt.present) {
+      map['edit_at'] = Variable<String>(editAt.value);
+    }
     return map;
   }
 
@@ -5334,7 +5372,8 @@ class WordStatusCompanion extends UpdateCompanion<WordStatusData> {
           ..write('wordId: $wordId, ')
           ..write('isLearned: $isLearned, ')
           ..write('isBookmarked: $isBookmarked, ')
-          ..write('hasNote: $hasNote')
+          ..write('hasNote: $hasNote, ')
+          ..write('editAt: $editAt')
           ..write(')'))
         .toString();
   }
@@ -5350,7 +5389,11 @@ class $MyWordsTable extends MyWords with TableInfo<$MyWordsTable, MyWord> {
   @override
   late final GeneratedColumn<int> myWordId = GeneratedColumn<int>(
       'my_word_id', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: false);
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
   static const VerificationMeta _wordMeta = const VerificationMeta('word');
   @override
   late final GeneratedColumn<String> word = GeneratedColumn<String>(
@@ -5362,8 +5405,13 @@ class $MyWordsTable extends MyWords with TableInfo<$MyWordsTable, MyWord> {
   late final GeneratedColumn<String> contents = GeneratedColumn<String>(
       'contents', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _editAtMeta = const VerificationMeta('editAt');
   @override
-  List<GeneratedColumn> get $columns => [myWordId, word, contents];
+  late final GeneratedColumn<String> editAt = GeneratedColumn<String>(
+      'edit_at', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [myWordId, word, contents, editAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -5388,6 +5436,12 @@ class $MyWordsTable extends MyWords with TableInfo<$MyWordsTable, MyWord> {
       context.handle(_contentsMeta,
           contents.isAcceptableOrUnknown(data['contents']!, _contentsMeta));
     }
+    if (data.containsKey('edit_at')) {
+      context.handle(_editAtMeta,
+          editAt.isAcceptableOrUnknown(data['edit_at']!, _editAtMeta));
+    } else if (isInserting) {
+      context.missing(_editAtMeta);
+    }
     return context;
   }
 
@@ -5403,6 +5457,8 @@ class $MyWordsTable extends MyWords with TableInfo<$MyWordsTable, MyWord> {
           .read(DriftSqlType.string, data['${effectivePrefix}word'])!,
       contents: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}contents']),
+      editAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}edit_at'])!,
     );
   }
 
@@ -5416,7 +5472,12 @@ class MyWord extends DataClass implements Insertable<MyWord> {
   final int myWordId;
   final String word;
   final String? contents;
-  const MyWord({required this.myWordId, required this.word, this.contents});
+  final String editAt;
+  const MyWord(
+      {required this.myWordId,
+      required this.word,
+      this.contents,
+      required this.editAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -5425,6 +5486,7 @@ class MyWord extends DataClass implements Insertable<MyWord> {
     if (!nullToAbsent || contents != null) {
       map['contents'] = Variable<String>(contents);
     }
+    map['edit_at'] = Variable<String>(editAt);
     return map;
   }
 
@@ -5435,6 +5497,7 @@ class MyWord extends DataClass implements Insertable<MyWord> {
       contents: contents == null && nullToAbsent
           ? const Value.absent()
           : Value(contents),
+      editAt: Value(editAt),
     );
   }
 
@@ -5445,6 +5508,7 @@ class MyWord extends DataClass implements Insertable<MyWord> {
       myWordId: serializer.fromJson<int>(json['myWordId']),
       word: serializer.fromJson<String>(json['word']),
       contents: serializer.fromJson<String?>(json['contents']),
+      editAt: serializer.fromJson<String>(json['editAt']),
     );
   }
   @override
@@ -5454,23 +5518,27 @@ class MyWord extends DataClass implements Insertable<MyWord> {
       'myWordId': serializer.toJson<int>(myWordId),
       'word': serializer.toJson<String>(word),
       'contents': serializer.toJson<String?>(contents),
+      'editAt': serializer.toJson<String>(editAt),
     };
   }
 
   MyWord copyWith(
           {int? myWordId,
           String? word,
-          Value<String?> contents = const Value.absent()}) =>
+          Value<String?> contents = const Value.absent(),
+          String? editAt}) =>
       MyWord(
         myWordId: myWordId ?? this.myWordId,
         word: word ?? this.word,
         contents: contents.present ? contents.value : this.contents,
+        editAt: editAt ?? this.editAt,
       );
   MyWord copyWithCompanion(MyWordsCompanion data) {
     return MyWord(
       myWordId: data.myWordId.present ? data.myWordId.value : this.myWordId,
       word: data.word.present ? data.word.value : this.word,
       contents: data.contents.present ? data.contents.value : this.contents,
+      editAt: data.editAt.present ? data.editAt.value : this.editAt,
     );
   }
 
@@ -5479,54 +5547,66 @@ class MyWord extends DataClass implements Insertable<MyWord> {
     return (StringBuffer('MyWord(')
           ..write('myWordId: $myWordId, ')
           ..write('word: $word, ')
-          ..write('contents: $contents')
+          ..write('contents: $contents, ')
+          ..write('editAt: $editAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(myWordId, word, contents);
+  int get hashCode => Object.hash(myWordId, word, contents, editAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is MyWord &&
           other.myWordId == this.myWordId &&
           other.word == this.word &&
-          other.contents == this.contents);
+          other.contents == this.contents &&
+          other.editAt == this.editAt);
 }
 
 class MyWordsCompanion extends UpdateCompanion<MyWord> {
   final Value<int> myWordId;
   final Value<String> word;
   final Value<String?> contents;
+  final Value<String> editAt;
   const MyWordsCompanion({
     this.myWordId = const Value.absent(),
     this.word = const Value.absent(),
     this.contents = const Value.absent(),
+    this.editAt = const Value.absent(),
   });
   MyWordsCompanion.insert({
     this.myWordId = const Value.absent(),
     required String word,
     this.contents = const Value.absent(),
-  }) : word = Value(word);
+    required String editAt,
+  })  : word = Value(word),
+        editAt = Value(editAt);
   static Insertable<MyWord> custom({
     Expression<int>? myWordId,
     Expression<String>? word,
     Expression<String>? contents,
+    Expression<String>? editAt,
   }) {
     return RawValuesInsertable({
       if (myWordId != null) 'my_word_id': myWordId,
       if (word != null) 'word': word,
       if (contents != null) 'contents': contents,
+      if (editAt != null) 'edit_at': editAt,
     });
   }
 
   MyWordsCompanion copyWith(
-      {Value<int>? myWordId, Value<String>? word, Value<String?>? contents}) {
+      {Value<int>? myWordId,
+      Value<String>? word,
+      Value<String?>? contents,
+      Value<String>? editAt}) {
     return MyWordsCompanion(
       myWordId: myWordId ?? this.myWordId,
       word: word ?? this.word,
       contents: contents ?? this.contents,
+      editAt: editAt ?? this.editAt,
     );
   }
 
@@ -5542,6 +5622,9 @@ class MyWordsCompanion extends UpdateCompanion<MyWord> {
     if (contents.present) {
       map['contents'] = Variable<String>(contents.value);
     }
+    if (editAt.present) {
+      map['edit_at'] = Variable<String>(editAt.value);
+    }
     return map;
   }
 
@@ -5550,7 +5633,314 @@ class MyWordsCompanion extends UpdateCompanion<MyWord> {
     return (StringBuffer('MyWordsCompanion(')
           ..write('myWordId: $myWordId, ')
           ..write('word: $word, ')
-          ..write('contents: $contents')
+          ..write('contents: $contents, ')
+          ..write('editAt: $editAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MyWordStatusTable extends MyWordStatus
+    with TableInfo<$MyWordStatusTable, MyWordStatusData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MyWordStatusTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _myWordIdMeta =
+      const VerificationMeta('myWordId');
+  @override
+  late final GeneratedColumn<int> myWordId = GeneratedColumn<int>(
+      'my_word_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _isLearnedMeta =
+      const VerificationMeta('isLearned');
+  @override
+  late final GeneratedColumn<int> isLearned = GeneratedColumn<int>(
+      'is_learned', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _isBookmarkedMeta =
+      const VerificationMeta('isBookmarked');
+  @override
+  late final GeneratedColumn<int> isBookmarked = GeneratedColumn<int>(
+      'is_bookmarked', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _hasNoteMeta =
+      const VerificationMeta('hasNote');
+  @override
+  late final GeneratedColumn<int> hasNote = GeneratedColumn<int>(
+      'has_note', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _editAtMeta = const VerificationMeta('editAt');
+  @override
+  late final GeneratedColumn<String> editAt = GeneratedColumn<String>(
+      'edit_at', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [myWordId, isLearned, isBookmarked, hasNote, editAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'my_word_status';
+  @override
+  VerificationContext validateIntegrity(Insertable<MyWordStatusData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('my_word_id')) {
+      context.handle(_myWordIdMeta,
+          myWordId.isAcceptableOrUnknown(data['my_word_id']!, _myWordIdMeta));
+    }
+    if (data.containsKey('is_learned')) {
+      context.handle(_isLearnedMeta,
+          isLearned.isAcceptableOrUnknown(data['is_learned']!, _isLearnedMeta));
+    }
+    if (data.containsKey('is_bookmarked')) {
+      context.handle(
+          _isBookmarkedMeta,
+          isBookmarked.isAcceptableOrUnknown(
+              data['is_bookmarked']!, _isBookmarkedMeta));
+    }
+    if (data.containsKey('has_note')) {
+      context.handle(_hasNoteMeta,
+          hasNote.isAcceptableOrUnknown(data['has_note']!, _hasNoteMeta));
+    }
+    if (data.containsKey('edit_at')) {
+      context.handle(_editAtMeta,
+          editAt.isAcceptableOrUnknown(data['edit_at']!, _editAtMeta));
+    } else if (isInserting) {
+      context.missing(_editAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {myWordId};
+  @override
+  MyWordStatusData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MyWordStatusData(
+      myWordId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}my_word_id'])!,
+      isLearned: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}is_learned']),
+      isBookmarked: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}is_bookmarked']),
+      hasNote: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}has_note']),
+      editAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}edit_at'])!,
+    );
+  }
+
+  @override
+  $MyWordStatusTable createAlias(String alias) {
+    return $MyWordStatusTable(attachedDatabase, alias);
+  }
+}
+
+class MyWordStatusData extends DataClass
+    implements Insertable<MyWordStatusData> {
+  final int myWordId;
+  final int? isLearned;
+  final int? isBookmarked;
+  final int? hasNote;
+  final String editAt;
+  const MyWordStatusData(
+      {required this.myWordId,
+      this.isLearned,
+      this.isBookmarked,
+      this.hasNote,
+      required this.editAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['my_word_id'] = Variable<int>(myWordId);
+    if (!nullToAbsent || isLearned != null) {
+      map['is_learned'] = Variable<int>(isLearned);
+    }
+    if (!nullToAbsent || isBookmarked != null) {
+      map['is_bookmarked'] = Variable<int>(isBookmarked);
+    }
+    if (!nullToAbsent || hasNote != null) {
+      map['has_note'] = Variable<int>(hasNote);
+    }
+    map['edit_at'] = Variable<String>(editAt);
+    return map;
+  }
+
+  MyWordStatusCompanion toCompanion(bool nullToAbsent) {
+    return MyWordStatusCompanion(
+      myWordId: Value(myWordId),
+      isLearned: isLearned == null && nullToAbsent
+          ? const Value.absent()
+          : Value(isLearned),
+      isBookmarked: isBookmarked == null && nullToAbsent
+          ? const Value.absent()
+          : Value(isBookmarked),
+      hasNote: hasNote == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hasNote),
+      editAt: Value(editAt),
+    );
+  }
+
+  factory MyWordStatusData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MyWordStatusData(
+      myWordId: serializer.fromJson<int>(json['myWordId']),
+      isLearned: serializer.fromJson<int?>(json['isLearned']),
+      isBookmarked: serializer.fromJson<int?>(json['isBookmarked']),
+      hasNote: serializer.fromJson<int?>(json['hasNote']),
+      editAt: serializer.fromJson<String>(json['editAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'myWordId': serializer.toJson<int>(myWordId),
+      'isLearned': serializer.toJson<int?>(isLearned),
+      'isBookmarked': serializer.toJson<int?>(isBookmarked),
+      'hasNote': serializer.toJson<int?>(hasNote),
+      'editAt': serializer.toJson<String>(editAt),
+    };
+  }
+
+  MyWordStatusData copyWith(
+          {int? myWordId,
+          Value<int?> isLearned = const Value.absent(),
+          Value<int?> isBookmarked = const Value.absent(),
+          Value<int?> hasNote = const Value.absent(),
+          String? editAt}) =>
+      MyWordStatusData(
+        myWordId: myWordId ?? this.myWordId,
+        isLearned: isLearned.present ? isLearned.value : this.isLearned,
+        isBookmarked:
+            isBookmarked.present ? isBookmarked.value : this.isBookmarked,
+        hasNote: hasNote.present ? hasNote.value : this.hasNote,
+        editAt: editAt ?? this.editAt,
+      );
+  MyWordStatusData copyWithCompanion(MyWordStatusCompanion data) {
+    return MyWordStatusData(
+      myWordId: data.myWordId.present ? data.myWordId.value : this.myWordId,
+      isLearned: data.isLearned.present ? data.isLearned.value : this.isLearned,
+      isBookmarked: data.isBookmarked.present
+          ? data.isBookmarked.value
+          : this.isBookmarked,
+      hasNote: data.hasNote.present ? data.hasNote.value : this.hasNote,
+      editAt: data.editAt.present ? data.editAt.value : this.editAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MyWordStatusData(')
+          ..write('myWordId: $myWordId, ')
+          ..write('isLearned: $isLearned, ')
+          ..write('isBookmarked: $isBookmarked, ')
+          ..write('hasNote: $hasNote, ')
+          ..write('editAt: $editAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(myWordId, isLearned, isBookmarked, hasNote, editAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MyWordStatusData &&
+          other.myWordId == this.myWordId &&
+          other.isLearned == this.isLearned &&
+          other.isBookmarked == this.isBookmarked &&
+          other.hasNote == this.hasNote &&
+          other.editAt == this.editAt);
+}
+
+class MyWordStatusCompanion extends UpdateCompanion<MyWordStatusData> {
+  final Value<int> myWordId;
+  final Value<int?> isLearned;
+  final Value<int?> isBookmarked;
+  final Value<int?> hasNote;
+  final Value<String> editAt;
+  const MyWordStatusCompanion({
+    this.myWordId = const Value.absent(),
+    this.isLearned = const Value.absent(),
+    this.isBookmarked = const Value.absent(),
+    this.hasNote = const Value.absent(),
+    this.editAt = const Value.absent(),
+  });
+  MyWordStatusCompanion.insert({
+    this.myWordId = const Value.absent(),
+    this.isLearned = const Value.absent(),
+    this.isBookmarked = const Value.absent(),
+    this.hasNote = const Value.absent(),
+    required String editAt,
+  }) : editAt = Value(editAt);
+  static Insertable<MyWordStatusData> custom({
+    Expression<int>? myWordId,
+    Expression<int>? isLearned,
+    Expression<int>? isBookmarked,
+    Expression<int>? hasNote,
+    Expression<String>? editAt,
+  }) {
+    return RawValuesInsertable({
+      if (myWordId != null) 'my_word_id': myWordId,
+      if (isLearned != null) 'is_learned': isLearned,
+      if (isBookmarked != null) 'is_bookmarked': isBookmarked,
+      if (hasNote != null) 'has_note': hasNote,
+      if (editAt != null) 'edit_at': editAt,
+    });
+  }
+
+  MyWordStatusCompanion copyWith(
+      {Value<int>? myWordId,
+      Value<int?>? isLearned,
+      Value<int?>? isBookmarked,
+      Value<int?>? hasNote,
+      Value<String>? editAt}) {
+    return MyWordStatusCompanion(
+      myWordId: myWordId ?? this.myWordId,
+      isLearned: isLearned ?? this.isLearned,
+      isBookmarked: isBookmarked ?? this.isBookmarked,
+      hasNote: hasNote ?? this.hasNote,
+      editAt: editAt ?? this.editAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (myWordId.present) {
+      map['my_word_id'] = Variable<int>(myWordId.value);
+    }
+    if (isLearned.present) {
+      map['is_learned'] = Variable<int>(isLearned.value);
+    }
+    if (isBookmarked.present) {
+      map['is_bookmarked'] = Variable<int>(isBookmarked.value);
+    }
+    if (hasNote.present) {
+      map['has_note'] = Variable<int>(hasNote.value);
+    }
+    if (editAt.present) {
+      map['edit_at'] = Variable<String>(editAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MyWordStatusCompanion(')
+          ..write('myWordId: $myWordId, ')
+          ..write('isLearned: $isLearned, ')
+          ..write('isBookmarked: $isBookmarked, ')
+          ..write('hasNote: $hasNote, ')
+          ..write('editAt: $editAt')
           ..write(')'))
         .toString();
   }
@@ -5570,10 +5960,12 @@ abstract class _$DatabaseProvider extends GeneratedDatabase {
   late final $WordsTable words = $WordsTable(this);
   late final $WordStatusTable wordStatus = $WordStatusTable(this);
   late final $MyWordsTable myWords = $MyWordsTable(this);
+  late final $MyWordStatusTable myWordStatus = $MyWordStatusTable(this);
   late final WordDao wordDao = WordDao(this as DatabaseProvider);
   late final RankingDao rankingDao = RankingDao(this as DatabaseProvider);
   late final PartOfSpeechListDao partOfSpeechListDao =
       PartOfSpeechListDao(this as DatabaseProvider);
+  late final MyWordDao myWordDao = MyWordDao(this as DatabaseProvider);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5588,7 +5980,8 @@ abstract class _$DatabaseProvider extends GeneratedDatabase {
         supplements,
         words,
         wordStatus,
-        myWords
+        myWords,
+        myWordStatus
       ];
 }
 
@@ -7790,12 +8183,14 @@ typedef $$WordStatusTableCreateCompanionBuilder = WordStatusCompanion Function({
   Value<int?> isLearned,
   Value<int?> isBookmarked,
   Value<int?> hasNote,
+  required String editAt,
 });
 typedef $$WordStatusTableUpdateCompanionBuilder = WordStatusCompanion Function({
   Value<int> wordId,
   Value<int?> isLearned,
   Value<int?> isBookmarked,
   Value<int?> hasNote,
+  Value<String> editAt,
 });
 
 class $$WordStatusTableFilterComposer
@@ -7818,6 +8213,9 @@ class $$WordStatusTableFilterComposer
 
   ColumnFilters<int> get hasNote => $composableBuilder(
       column: $table.hasNote, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get editAt => $composableBuilder(
+      column: $table.editAt, builder: (column) => ColumnFilters(column));
 }
 
 class $$WordStatusTableOrderingComposer
@@ -7841,6 +8239,9 @@ class $$WordStatusTableOrderingComposer
 
   ColumnOrderings<int> get hasNote => $composableBuilder(
       column: $table.hasNote, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get editAt => $composableBuilder(
+      column: $table.editAt, builder: (column) => ColumnOrderings(column));
 }
 
 class $$WordStatusTableAnnotationComposer
@@ -7863,6 +8264,9 @@ class $$WordStatusTableAnnotationComposer
 
   GeneratedColumn<int> get hasNote =>
       $composableBuilder(column: $table.hasNote, builder: (column) => column);
+
+  GeneratedColumn<String> get editAt =>
+      $composableBuilder(column: $table.editAt, builder: (column) => column);
 }
 
 class $$WordStatusTableTableManager extends RootTableManager<
@@ -7895,24 +8299,28 @@ class $$WordStatusTableTableManager extends RootTableManager<
             Value<int?> isLearned = const Value.absent(),
             Value<int?> isBookmarked = const Value.absent(),
             Value<int?> hasNote = const Value.absent(),
+            Value<String> editAt = const Value.absent(),
           }) =>
               WordStatusCompanion(
             wordId: wordId,
             isLearned: isLearned,
             isBookmarked: isBookmarked,
             hasNote: hasNote,
+            editAt: editAt,
           ),
           createCompanionCallback: ({
             Value<int> wordId = const Value.absent(),
             Value<int?> isLearned = const Value.absent(),
             Value<int?> isBookmarked = const Value.absent(),
             Value<int?> hasNote = const Value.absent(),
+            required String editAt,
           }) =>
               WordStatusCompanion.insert(
             wordId: wordId,
             isLearned: isLearned,
             isBookmarked: isBookmarked,
             hasNote: hasNote,
+            editAt: editAt,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -7940,11 +8348,13 @@ typedef $$MyWordsTableCreateCompanionBuilder = MyWordsCompanion Function({
   Value<int> myWordId,
   required String word,
   Value<String?> contents,
+  required String editAt,
 });
 typedef $$MyWordsTableUpdateCompanionBuilder = MyWordsCompanion Function({
   Value<int> myWordId,
   Value<String> word,
   Value<String?> contents,
+  Value<String> editAt,
 });
 
 class $$MyWordsTableFilterComposer
@@ -7964,6 +8374,9 @@ class $$MyWordsTableFilterComposer
 
   ColumnFilters<String> get contents => $composableBuilder(
       column: $table.contents, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get editAt => $composableBuilder(
+      column: $table.editAt, builder: (column) => ColumnFilters(column));
 }
 
 class $$MyWordsTableOrderingComposer
@@ -7983,6 +8396,9 @@ class $$MyWordsTableOrderingComposer
 
   ColumnOrderings<String> get contents => $composableBuilder(
       column: $table.contents, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get editAt => $composableBuilder(
+      column: $table.editAt, builder: (column) => ColumnOrderings(column));
 }
 
 class $$MyWordsTableAnnotationComposer
@@ -8002,6 +8418,9 @@ class $$MyWordsTableAnnotationComposer
 
   GeneratedColumn<String> get contents =>
       $composableBuilder(column: $table.contents, builder: (column) => column);
+
+  GeneratedColumn<String> get editAt =>
+      $composableBuilder(column: $table.editAt, builder: (column) => column);
 }
 
 class $$MyWordsTableTableManager extends RootTableManager<
@@ -8030,21 +8449,25 @@ class $$MyWordsTableTableManager extends RootTableManager<
             Value<int> myWordId = const Value.absent(),
             Value<String> word = const Value.absent(),
             Value<String?> contents = const Value.absent(),
+            Value<String> editAt = const Value.absent(),
           }) =>
               MyWordsCompanion(
             myWordId: myWordId,
             word: word,
             contents: contents,
+            editAt: editAt,
           ),
           createCompanionCallback: ({
             Value<int> myWordId = const Value.absent(),
             required String word,
             Value<String?> contents = const Value.absent(),
+            required String editAt,
           }) =>
               MyWordsCompanion.insert(
             myWordId: myWordId,
             word: word,
             contents: contents,
+            editAt: editAt,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -8064,6 +8487,175 @@ typedef $$MyWordsTableProcessedTableManager = ProcessedTableManager<
     $$MyWordsTableUpdateCompanionBuilder,
     (MyWord, BaseReferences<_$DatabaseProvider, $MyWordsTable, MyWord>),
     MyWord,
+    PrefetchHooks Function()>;
+typedef $$MyWordStatusTableCreateCompanionBuilder = MyWordStatusCompanion
+    Function({
+  Value<int> myWordId,
+  Value<int?> isLearned,
+  Value<int?> isBookmarked,
+  Value<int?> hasNote,
+  required String editAt,
+});
+typedef $$MyWordStatusTableUpdateCompanionBuilder = MyWordStatusCompanion
+    Function({
+  Value<int> myWordId,
+  Value<int?> isLearned,
+  Value<int?> isBookmarked,
+  Value<int?> hasNote,
+  Value<String> editAt,
+});
+
+class $$MyWordStatusTableFilterComposer
+    extends Composer<_$DatabaseProvider, $MyWordStatusTable> {
+  $$MyWordStatusTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get myWordId => $composableBuilder(
+      column: $table.myWordId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get isLearned => $composableBuilder(
+      column: $table.isLearned, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get isBookmarked => $composableBuilder(
+      column: $table.isBookmarked, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get hasNote => $composableBuilder(
+      column: $table.hasNote, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get editAt => $composableBuilder(
+      column: $table.editAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$MyWordStatusTableOrderingComposer
+    extends Composer<_$DatabaseProvider, $MyWordStatusTable> {
+  $$MyWordStatusTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get myWordId => $composableBuilder(
+      column: $table.myWordId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get isLearned => $composableBuilder(
+      column: $table.isLearned, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get isBookmarked => $composableBuilder(
+      column: $table.isBookmarked,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get hasNote => $composableBuilder(
+      column: $table.hasNote, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get editAt => $composableBuilder(
+      column: $table.editAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$MyWordStatusTableAnnotationComposer
+    extends Composer<_$DatabaseProvider, $MyWordStatusTable> {
+  $$MyWordStatusTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get myWordId =>
+      $composableBuilder(column: $table.myWordId, builder: (column) => column);
+
+  GeneratedColumn<int> get isLearned =>
+      $composableBuilder(column: $table.isLearned, builder: (column) => column);
+
+  GeneratedColumn<int> get isBookmarked => $composableBuilder(
+      column: $table.isBookmarked, builder: (column) => column);
+
+  GeneratedColumn<int> get hasNote =>
+      $composableBuilder(column: $table.hasNote, builder: (column) => column);
+
+  GeneratedColumn<String> get editAt =>
+      $composableBuilder(column: $table.editAt, builder: (column) => column);
+}
+
+class $$MyWordStatusTableTableManager extends RootTableManager<
+    _$DatabaseProvider,
+    $MyWordStatusTable,
+    MyWordStatusData,
+    $$MyWordStatusTableFilterComposer,
+    $$MyWordStatusTableOrderingComposer,
+    $$MyWordStatusTableAnnotationComposer,
+    $$MyWordStatusTableCreateCompanionBuilder,
+    $$MyWordStatusTableUpdateCompanionBuilder,
+    (
+      MyWordStatusData,
+      BaseReferences<_$DatabaseProvider, $MyWordStatusTable, MyWordStatusData>
+    ),
+    MyWordStatusData,
+    PrefetchHooks Function()> {
+  $$MyWordStatusTableTableManager(
+      _$DatabaseProvider db, $MyWordStatusTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MyWordStatusTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MyWordStatusTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MyWordStatusTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> myWordId = const Value.absent(),
+            Value<int?> isLearned = const Value.absent(),
+            Value<int?> isBookmarked = const Value.absent(),
+            Value<int?> hasNote = const Value.absent(),
+            Value<String> editAt = const Value.absent(),
+          }) =>
+              MyWordStatusCompanion(
+            myWordId: myWordId,
+            isLearned: isLearned,
+            isBookmarked: isBookmarked,
+            hasNote: hasNote,
+            editAt: editAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> myWordId = const Value.absent(),
+            Value<int?> isLearned = const Value.absent(),
+            Value<int?> isBookmarked = const Value.absent(),
+            Value<int?> hasNote = const Value.absent(),
+            required String editAt,
+          }) =>
+              MyWordStatusCompanion.insert(
+            myWordId: myWordId,
+            isLearned: isLearned,
+            isBookmarked: isBookmarked,
+            hasNote: hasNote,
+            editAt: editAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$MyWordStatusTableProcessedTableManager = ProcessedTableManager<
+    _$DatabaseProvider,
+    $MyWordStatusTable,
+    MyWordStatusData,
+    $$MyWordStatusTableFilterComposer,
+    $$MyWordStatusTableOrderingComposer,
+    $$MyWordStatusTableAnnotationComposer,
+    $$MyWordStatusTableCreateCompanionBuilder,
+    $$MyWordStatusTableUpdateCompanionBuilder,
+    (
+      MyWordStatusData,
+      BaseReferences<_$DatabaseProvider, $MyWordStatusTable, MyWordStatusData>
+    ),
+    MyWordStatusData,
     PrefetchHooks Function()>;
 
 class $DatabaseProviderManager {
@@ -8089,4 +8681,6 @@ class $DatabaseProviderManager {
       $$WordStatusTableTableManager(_db, _db.wordStatus);
   $$MyWordsTableTableManager get myWords =>
       $$MyWordsTableTableManager(_db, _db.myWords);
+  $$MyWordStatusTableTableManager get myWordStatus =>
+      $$MyWordStatusTableTableManager(_db, _db.myWordStatus);
 }

@@ -17,6 +17,26 @@ class MyWordViewModel
     notifyListeners();
   }
 
+  void updateAllWordStatus({
+    required wordId,
+    required bool isBookmarked,
+    required bool isLearned, //required bool hasNote
+  }) {
+    _items = [
+      for (int i = 0; i < _items.length; i++)
+        if (_items[i].wordId == wordId)
+          _items[i].copyWith(
+            //rankedWord: "${_items[i].rankedWord} U",
+            isBookmarked: isBookmarked,
+            isLearned: isLearned, //hasNote: hasNote,
+          )
+        else
+          _items[i]
+    ];
+    notifyListeners();
+    //log("${_items[wordId].rankedWord} Bookmark: ${_items[wordId].isBookmarked},learn: ${_items[wordId].isLearned}");
+  }
+
   void addItemsInHead(List<MyWord> l) {
     _items = [...l, ..._items];
     //itemが正常に追加されてからpage数更新
@@ -26,6 +46,16 @@ class MyWordViewModel
 
   void addItemInHead(MyWord value) {
     _items.insert(0, value);
+    notifyListeners();
+  }
+
+  void replaceItem(MyWord value, int index) {
+    _items[index] = value;
+    notifyListeners();
+  }
+
+  void deleteItemWithIndex(int index) {
+    _items.removeAt(index);
     notifyListeners();
   }
 

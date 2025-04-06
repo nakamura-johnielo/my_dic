@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Components/infinity_scroll_list_view.dart';
 import 'package:my_dic/Components/my_word_card.dart';
+import 'package:my_dic/Components/my_word_card_modal.dart';
 import 'package:my_dic/Constants/Enums/word_card_view_click_listener.dart';
+import 'package:my_dic/DI/product.dart';
+import 'package:my_dic/_Business_Rule/_Domain/Entities/my_word.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/my_word_controller.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/my_word_view_model.dart';
 import 'package:my_dic/_View/my_word/create_word_modal.dart';
@@ -14,6 +17,7 @@ class MyWordFragment extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final myWordViewModel = ref.watch(myWordViewModelProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('My Word'),
@@ -29,20 +33,66 @@ class MyWordFragment extends ConsumerWidget {
             loadNext: _myWordController.loadNext,
             itemCount: myWordViewModel.items.length,
             itemBuilder: (context, index) {
-              return MyWordCard(
-                myWord: myWordViewModel.items[index],
-                clickListeners: {
-                  WordCardViewButton.bookmark: () {},
-                  WordCardViewButton.learned: () {},
+              final myword = myWordViewModel.items[index];
+
+              //!
+              //!TODO clicklisternerがmodalとリアルタイムで更新されない
+              //!
+
+              final clickListeners = {
+                WordCardViewButton.bookmark: () {
+                  _myWordController.updateWordStatus(
+                    index,
+                    myword.wordId,
+                    !myword.isBookmarked,
+                    myword.isLearned,
+                    //myword.hasNote
+                  );
                 },
+                WordCardViewButton.learned: () {
+                  _myWordController.updateWordStatus(
+                    index,
+                    myword.wordId,
+                    myword.isBookmarked,
+                    !myword.isLearned,
+                    //myword.hasNote
+                  );
+                },
+              };
+              return MyWordCard(
+                onTap: () {
+                  openDetailModal(context, clickListeners, index, myword);
+                },
+                myWord: myword,
+                clickListeners: clickListeners,
               );
             },
           )),
         ],
       )),
-      floatingActionButton: CreateButton(),
+      floatingActionButton: RegisterButton(),
     );
   }
+}
+
+void openDetailModal(
+    BuildContext context,
+    Map<WordCardViewButton, void Function()> clickListeners,
+    int index,
+    MyWord myword) {
+  showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      enableDrag: false,
+      //showDragHandle: true,
+      barrierColor: Colors.black.withValues(alpha: .5),
+      builder: (context) {
+        return Center(
+          child: MyWordCardModal(
+              myWord: myword, clickListeners: clickListeners, index: index),
+        );
+      });
 }
 
 /* class MyWordFragment extends ConsumerStatefulWidget {
@@ -151,8 +201,8 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
 }
  */
 
-class CreateButton extends StatelessWidget {
-  const CreateButton({super.key});
+class RegisterButton extends StatelessWidget {
+  const RegisterButton({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +217,7 @@ class CreateButton extends StatelessWidget {
             //showDragHandle: true,
             barrierColor: Colors.black.withValues(alpha: .5),
             builder: (context) {
-              return CreateWordModal();
+              return DI<WordRegistrationModal>();
             });
       },
       backgroundColor: Colors.blue,

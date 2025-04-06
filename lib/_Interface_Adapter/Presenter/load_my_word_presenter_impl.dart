@@ -10,6 +10,6 @@ class LoadMyWordPresenterImpl implements ILoadMyWordPresenter {
   @override
   void execute(LoadMyWordOutputData input) {
     _myWordViewModel.addItemsInHead(input.myWordList);
-    //_myWordViewModel.item = input.myWordList;
+    //_myWordViewModel.items = input.myWordList;
   }
 }

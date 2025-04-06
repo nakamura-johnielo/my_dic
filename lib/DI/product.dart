@@ -3,6 +3,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:my_dic/Components/modal/ranking_filter_modal.dart';
+import 'package:my_dic/Components/my_word_card_modal.dart';
 import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/fetch_conjugation_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/i_fetch_conjugation_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/i_fetch_conjugation_use_case.dart';
@@ -15,6 +16,15 @@ import 'package:my_dic/_Business_Rule/Usecase/load_my_word/load_my_word_interact
 import 'package:my_dic/_Business_Rule/Usecase/locate_ranking_pagenation/i_locate_ranking_pagenation_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/locate_ranking_pagenation/i_locate_ranking_pagenation_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/locate_ranking_pagenation/locate_ranking_pagenation_interactor.dart';
+import 'package:my_dic/_Business_Rule/Usecase/my_word/create/handle_word_registration/handle_word_registration_interactor.dart';
+import 'package:my_dic/_Business_Rule/Usecase/my_word/create/handle_word_registration/i_handle_word_registration_use_case.dart';
+import 'package:my_dic/_Business_Rule/Usecase/my_word/delete/delete_my_word/delete_my_word_interactor.dart';
+import 'package:my_dic/_Business_Rule/Usecase/my_word/delete/delete_my_word/i_delete_my_word_use_case.dart';
+import 'package:my_dic/_Business_Rule/Usecase/my_word/i_my_word_fragment_presenter.dart';
+import 'package:my_dic/_Business_Rule/Usecase/my_word/create/register_my_word/i_register_my_word_use_case.dart';
+import 'package:my_dic/_Business_Rule/Usecase/my_word/create/register_my_word/register_my_word_interactor.dart';
+import 'package:my_dic/_Business_Rule/Usecase/my_word/update/update_my_word/i_update_my_word_use_case.dart';
+import 'package:my_dic/_Business_Rule/Usecase/my_word/update/update_my_word/update_my_word_interactor.dart';
 /* import 'package:my_dic/_Business_Rule/Usecase/add_filter/add_filter_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/add_filter/i_add_filter_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/add_filter/i_add_filter_use_case.dart';
@@ -30,6 +40,9 @@ import 'package:my_dic/_Business_Rule/Usecase/search_word/search_word_interactor
 import 'package:my_dic/_Business_Rule/Usecase/load_rankings/i_load_rankings_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/load_rankings/i_load_rankings_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/load_rankings/load_rankings_interactor.dart';
+import 'package:my_dic/_Business_Rule/Usecase/update_my_word_status/i_update_my_word_status_presenter.dart';
+import 'package:my_dic/_Business_Rule/Usecase/update_my_word_status/i_update_my_word_status_use_case.dart';
+import 'package:my_dic/_Business_Rule/Usecase/update_my_word_status/update_my_word_status_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/i_update_ranking_filter_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/i_update_ranking_filter_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/update_ranking_filter_interactor.dart';
@@ -40,12 +53,13 @@ import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_conjugation_reposit
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esj_dictionary_repository.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esj_word_repository.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esp_ranking_repository.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_load_my_word_repository.dart';
+import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_my_word_repository.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/conjugation_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/dictionary_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/example_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/idiom_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/my_word_dao.dart';
+import 'package:my_dic/_Framework_Driver/Database/drift/DAO/my_word_status_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/part_of_speech_list_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/ranking_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/supplement_dao.dart';
@@ -64,8 +78,10 @@ import 'package:my_dic/_Interface_Adapter/Presenter/conjugacion_presenter.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/dictionary_presenter.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/load_my_word_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/locate_ranking_pagenation_presenter_impl.dart';
+import 'package:my_dic/_Interface_Adapter/Presenter/my_word_fragment_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/search_word_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/load_rankings_presenter_impl.dart';
+import 'package:my_dic/_Interface_Adapter/Presenter/update_my_word_status_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/update_ranking_filter_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/update_status_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/main_view_model.dart';
@@ -73,6 +89,7 @@ import 'package:my_dic/_Interface_Adapter/ViewModel/my_word_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/ranking_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/search_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/buffer_controller.dart';
+import 'package:my_dic/_View/my_word/create_word_modal.dart';
 import 'package:my_dic/_View/my_word/my_word_fragment.dart';
 import 'package:my_dic/_View/ranking/ranking_fragment.dart';
 import 'package:my_dic/_View/word_page/conjugacion_fragment.dart';
@@ -100,6 +117,8 @@ void setupLocator() {
   DI.registerFactory<WordDao>(() => WordDao(DI<DatabaseProvider>()));
   DI.registerFactory<WordStatusDao>(
       () => WordStatusDao(DI<DatabaseProvider>()));
+  DI.registerFactory<MyWordStatusDao>(
+      () => MyWordStatusDao(DI<DatabaseProvider>()));
   DI.registerFactory<MyWordDao>(() => MyWordDao(DI<DatabaseProvider>()));
 
   //repository
@@ -116,8 +135,8 @@ void setupLocator() {
       () => DriftConjugacionRepository(DI<ConjugationDao>()));
   DI.registerFactory<IEspRankingRepository>(
       () => WikiEspRankingRepository(DI<RankingDao>()));
-  DI.registerFactory<ILoadMyWordRepository>(
-      () => DriftMyWordRepository(DI<MyWordDao>()));
+  DI.registerFactory<IMyWordRepository>(
+      () => DriftMyWordRepository(DI<MyWordDao>(), DI<MyWordStatusDao>()));
   //
   //
   //
@@ -252,14 +271,35 @@ void setupLocator() {
   //presenter
   DI.registerFactory<ILoadMyWordPresenter>(
       () => LoadMyWordPresenterImpl(DI<MyWordViewModel>()));
+  DI.registerFactory<IUpdateMyWordStatusPresenter>(
+      () => UpdateMyWordStatusPresenterImpl(DI<MyWordViewModel>()));
+  DI.registerFactory<IMyWordFragmentPresenter>(
+      () => MyWordFragmentPresenterImpl(DI<MyWordViewModel>()));
 
   //usecase
   DI.registerFactory<ILoadMyWordUseCase>(() => LoadMyWordInteractor(
-      DI<ILoadMyWordPresenter>(), DI<ILoadMyWordRepository>()));
+      DI<ILoadMyWordPresenter>(), DI<IMyWordRepository>()));
+  DI.registerFactory<IUpdateMyWordStatusUseCase>(() =>
+      UpdateMyWordStatusInteractor(
+          DI<IUpdateMyWordStatusPresenter>(), DI<IMyWordRepository>()));
+  DI.registerFactory<IRegisterMyWordUseCase>(() => RegisterMyWordInteractor(
+      DI<IMyWordFragmentPresenter>(), DI<IMyWordRepository>()));
+  DI.registerFactory<IHandleWordRegistrationUseCase>(
+      () => HandleWordRegistrationInteractor());
+  DI.registerFactory<IUpdateMyWordUseCase>(() => UpdateMyWordInteractor(
+      DI<IMyWordFragmentPresenter>(), DI<IMyWordRepository>()));
+  DI.registerFactory<IDeleteMyWordUseCase>(() => DeleteMyWordInteractor(
+      DI<IMyWordFragmentPresenter>(), DI<IMyWordRepository>()));
 
   //controller
-  DI.registerFactory<MyWordController>(
-      () => MyWordController(DI<ILoadMyWordUseCase>()));
+  DI.registerFactory<MyWordController>(() => MyWordController(
+        DI<ILoadMyWordUseCase>(),
+        DI<IUpdateMyWordStatusUseCase>(),
+        DI<IRegisterMyWordUseCase>(),
+        DI<IHandleWordRegistrationUseCase>(),
+        DI<IUpdateMyWordUseCase>(),
+        DI<IDeleteMyWordUseCase>(),
+      ));
 
   //viewmodel
   //singleton
@@ -268,6 +308,10 @@ void setupLocator() {
   //UI
   DI.registerFactory<MyWordFragment>(
       () => MyWordFragment(DI<MyWordController>()));
+  DI.registerFactory<WordRegistrationModal>(
+      () => WordRegistrationModal(DI<MyWordController>()));
+  /* DI.registerFactory<MyWordCardModal>(
+      () => MyWordCardModal(DI<MyWordController>())); */
 
 /*===========my word =====================================================-====== */
   //

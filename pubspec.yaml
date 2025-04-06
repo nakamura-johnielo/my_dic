@@ -29,6 +29,7 @@ dependencies:
   tuple:
   get_it:
   uuid:
+  fluttertoast:
 
 dev_dependencies:
   flutter_test:

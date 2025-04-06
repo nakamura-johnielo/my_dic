@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:my_dic/Constants/enviroment.dart';
+import 'package:my_dic/_Framework_Driver/Database/drift/DAO/my_word_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/part_of_speech_list_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/ranking_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/word_dao.dart';
@@ -10,6 +11,7 @@ import 'package:my_dic/_Framework_Driver/Database/drift/Entity/conjugations.dart
 import 'package:my_dic/_Framework_Driver/Database/drift/Entity/dictionaries.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/Entity/examples.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/Entity/idioms.dart';
+import 'package:my_dic/_Framework_Driver/Database/drift/Entity/my_word_status.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/Entity/my_words.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/Entity/part_of_speech_lists.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/Entity/rankings.dart';
@@ -35,11 +37,13 @@ part '../../../__generated/_Framework_Driver/Database/drift/database_provider.g.
   Supplements,
   Words,
   WordStatus,
-  MyWords
+  MyWords,
+  MyWordStatus
 ], daos: [
   WordDao,
   RankingDao,
   PartOfSpeechListDao,
+  MyWordDao
 ])
 class DatabaseProvider extends _$DatabaseProvider {
   // シングルトンインスタンスを保持するフィールド

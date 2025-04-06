@@ -1,17 +1,37 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:my_dic/_Business_Rule/Usecase/my_word/create/register_my_word/i_register_my_word_use_case.dart';
+import 'package:my_dic/_Business_Rule/Usecase/my_word/create/register_my_word/register_my_word_input_data.dart';
+import 'package:my_dic/_Interface_Adapter/Controller/my_word_controller.dart';
 
-class CreateWordModal extends StatefulWidget {
-  const CreateWordModal({super.key});
+class WordRegistrationModal extends StatefulWidget {
+  const WordRegistrationModal(this._controller, {super.key});
+  final MyWordController _controller;
 
   @override
-  State<CreateWordModal> createState() => _CreateWordModalState();
+  State<WordRegistrationModal> createState() => _WordRegistrationModalState();
 }
 
-class _CreateWordModalState extends State<CreateWordModal> {
+class _WordRegistrationModalState extends State<WordRegistrationModal> {
   final headwordTextFieldController = TextEditingController();
   final descriptionTextFieldController = TextEditingController();
+  late final MyWordController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = widget._controller;
+  }
+
+  @override
+  void dispose() {
+    headwordTextFieldController.dispose();
+    descriptionTextFieldController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return FractionallySizedBox(
@@ -98,15 +118,40 @@ class _CreateWordModalState extends State<CreateWordModal> {
                                   const Color.fromARGB(255, 44, 110, 215),
                             ),
                             onPressed: () {
-                              log(headwordTextFieldController.text);
-                              log(descriptionTextFieldController.text);
+                              _controller.registerWord(
+                                  headword: headwordTextFieldController.text,
+                                  description:
+                                      descriptionTextFieldController.text,
+                                  onComplete: () {
+                                    //descriptionTextFieldController.clear();
+                                    //headwordTextFieldController.clear();
+                                    //モーダル閉じる
+                                    Navigator.of(context).pop();
+                                    //showToast("registered successfully!");
+                                  },
+                                  onError: () {
+                                    //showToast("なにかしらERROR");
+                                  },
+                                  onInvalid: () {
+                                    log("invalid input");
+                                    //showToast("入力してください");
+                                  });
                             },
                             child: const Text('登録'),
                           ),
                         )),
                         SizedBox(width: 20),
                       ],
-                    )
+                    ),
+                    /*  SizedBox(
+                      height: 20,
+                    ),
+                 Center(
+                      child: Text(
+                        "error",
+                        style: TextStyle(fontSize: 14, color: Colors.red),
+                      ),
+                    ) */
                   ]),
             )
           ],
@@ -114,6 +159,17 @@ class _CreateWordModalState extends State<CreateWordModal> {
       ),
     );
   }
+}
+
+void showToast(String message) {
+  Fluttertoast.showToast(
+    msg: message,
+    toastLength: Toast.LENGTH_SHORT, // 表示時間: SHORT or LONG
+    gravity: ToastGravity.BOTTOM, // 位置: BOTTOM, CENTER, TOP
+    backgroundColor: Color.fromARGB(131, 0, 0, 0), // 背景色
+    textColor: Colors.white, // テキスト色
+    fontSize: 16.0, // フォントサイズ
+  );
 }
 
 class CreateWordModal2 extends StatelessWidget {

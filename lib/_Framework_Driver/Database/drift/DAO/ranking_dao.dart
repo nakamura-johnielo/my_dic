@@ -165,6 +165,7 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
         isLearned: row.read<int?>('is_learned'),
         isBookmarked: row.read<int?>('is_bookmarked'),
         hasNote: row.read<int?>('has_note'),
+        editAt: '',
       );
       return Tuple2(ranking, status);
     }).toList();
