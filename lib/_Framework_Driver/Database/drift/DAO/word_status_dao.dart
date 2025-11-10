@@ -25,6 +25,11 @@ class WordStatusDao extends DatabaseAccessor<DatabaseProvider>
     await update(wordStatus).replace(data);
   }
 
+  Future<WordStatusData?> getStatusById(int wordId) {
+    return (select(wordStatus)..where((tbl) => tbl.wordId.equals(wordId)))
+        .getSingleOrNull();
+  }
+
   /* Future<void> insertStatus(
       int id, int isLearned, int isBookmarked, int hasNote) async {
     into(wordStatus).insert(WordStatusData(

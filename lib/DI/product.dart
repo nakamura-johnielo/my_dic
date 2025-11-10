@@ -4,6 +4,8 @@ import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:my_dic/Components/modal/ranking_filter_modal.dart';
 import 'package:my_dic/Components/my_word_card_modal.dart';
+import 'package:my_dic/Components/status_buttons.dart';
+import 'package:my_dic/_Business_Rule/Usecase/esp_jpn_status/esp_jpn_status_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/fetch_conjugation_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/i_fetch_conjugation_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/i_fetch_conjugation_use_case.dart';
@@ -395,6 +397,15 @@ void setupLocator() {
 /*===========note =====================================================-====== */
   //
   //
+
+  //
+  //
+  //
+  DI.registerFactory<EspJpnStatusInteractor>(
+      () => EspJpnStatusInteractor(DI<IEsjWordRepository>()));
+
+  DI.registerFactory<WordStatusViewModel>(
+      () => WordStatusViewModel(DI<EspJpnStatusInteractor>()));
 }
 
 class WordPageChildInputData {

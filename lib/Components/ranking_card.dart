@@ -1,13 +1,20 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_dic/Components/button/icon_button.dart';
 import 'package:my_dic/Components/button/my_icon_button.dart';
+import 'package:my_dic/Components/quiz_card.dart';
+import 'package:my_dic/Constants/Enums/cardState.dart';
 import 'package:my_dic/Constants/Enums/word_card_view_click_listener.dart';
+import 'package:my_dic/Constants/tab.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/ranking.dart';
+import 'package:my_dic/_Interface_Adapter/Controller/quiz_controller.dart';
+import 'package:my_dic/_View/quiz/quiz_game_fragment.dart';
 
 //スマホ用
-class RankingCard extends StatelessWidget {
+class RankingCard extends ConsumerWidget {
   //
   const RankingCard(
       {super.key,
@@ -52,7 +59,7 @@ class RankingCard extends StatelessWidget {
   //Future<void>? currentAction;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     log("wordID: ${ranking.rankedWord}");
     return GestureDetector(
       onTap: onTap,
@@ -110,6 +117,24 @@ class RankingCard extends StatelessWidget {
             ),
 
             SizedBox(width: 5),
+            if (ranking.hasConj)
+              MyIconButton(
+                iconSize: 22,
+                defaultIcon: Icons.handshake_rounded,
+                hoveredIconColor: const Color.fromARGB(255, 119, 119, 119),
+                onTap: () {
+                  ref.read(quizStateProvider.notifier).init();
+                  ref.read(quizCardStateProvider.notifier).state =
+                      QuizCardState.question;
+                  ref.read(quizWordProvider.notifier).state = ranking.lemma;
+                  context.push('/${ScreenTab.quiz}/${ScreenPage.quizDetail}',
+                      extra: QuizGameFragmentInput(
+                          wordId: ranking.wordId, word: ranking.lemma));
+                },
+              ),
+
+            if (ranking.hasConj) SizedBox(width: 3),
+
             MyIconButton(
               iconSize: 22,
               defaultIcon: ranking.isLearned

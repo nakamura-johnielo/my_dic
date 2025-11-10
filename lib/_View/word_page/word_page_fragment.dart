@@ -161,6 +161,15 @@ class WordPageWithoutTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Word Page'),
+        actions: [
+          StatusButtons(wordId: input.wordId),
+          SizedBox(
+            width: 14,
+          )
+        ],
+      ),
       body: DI<DictionaryFragment>(
           param1: WordPageChildInputData(wordId: input.wordId)),
     );

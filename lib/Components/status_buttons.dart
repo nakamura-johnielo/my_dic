@@ -4,38 +4,52 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Components/button/my_icon_button.dart';
+import 'package:my_dic/Constants/Enums/feature_tag.dart';
+import 'package:my_dic/DI/product.dart';
+import 'package:my_dic/_Business_Rule/Usecase/esp_jpn_status/esp_jpn_status_interactor.dart';
+import 'package:my_dic/_Business_Rule/_Domain/Entities/word/word_status.dart';
 //import 'package:my_dic/_Interface_Adapter/Controller/word_status_controller.dart';
 
-@immutable
-class WordStatus {
-  final bool isBookmarked;
-  final bool isLearned;
-  final bool hasNote;
+// @immutable
+// class WordStatus {
+//   final bool isBookmarked;
+//   final bool isLearned;
+//   final bool hasNote;
 
-  const WordStatus({
-    this.isBookmarked = false,
-    this.isLearned = false,
-    this.hasNote = false,
-  });
+//   const WordStatus({
+//     this.isBookmarked = false,
+//     this.isLearned = false,
+//     this.hasNote = false,
+//   });
 
-  WordStatus copyWith({
-    bool? isBookmarked,
-    bool? isLearned,
-    bool? hasNote,
-  }) {
-    return WordStatus(
-      isBookmarked: isBookmarked ?? this.isBookmarked,
-      isLearned: isLearned ?? this.isLearned,
-      hasNote: hasNote ?? this.hasNote,
-    );
-  }
-}
+//   WordStatus copyWith({
+//     bool? isBookmarked,
+//     bool? isLearned,
+//     bool? hasNote,
+//   }) {
+//     return WordStatus(
+//       isBookmarked: isBookmarked ?? this.isBookmarked,
+//       isLearned: isLearned ?? this.isLearned,
+//       hasNote: hasNote ?? this.hasNote,
+//     );
+//   }
+// }
 
 //!TODO DB操作add
 class WordStatusViewModel extends StateNotifier<Map<int, WordStatus>> {
-  WordStatusViewModel() : super(const {});
+  WordStatusViewModel(this._espJpnStatusInteractor) : super(const {});
+  final EspJpnStatusInteractor _espJpnStatusInteractor;
 
   WordStatus getStatus(int wordId) => state[wordId] ?? const WordStatus();
+
+  Future<void> init(int wordId) async {
+    if (state[wordId] == null) await fetchStatus(wordId);
+  }
+
+  Future<void> fetchStatus(int wordId) async {
+    final status = await _espJpnStatusInteractor.fetchWordStatus(wordId);
+    state = {...state, wordId: status};
+  }
 
   void setBookmark(int wordId, bool value) {
     final current = getStatus(wordId);
@@ -43,6 +57,16 @@ class WordStatusViewModel extends StateNotifier<Map<int, WordStatus>> {
       ...state,
       wordId: current.copyWith(isBookmarked: value),
     };
+    _espJpnStatusInteractor.updateWordStatus(
+      EsJUpdateStatusInputData(
+        wordId,
+        {
+          if (value) FeatureTag.isBookmarked,
+          if (state[wordId]?.hasNote ?? false) FeatureTag.hasNote,
+          if (state[wordId]?.isLearned ?? false) FeatureTag.isLearned,
+        },
+      ),
+    );
   }
 
   void toggleBookmark(int wordId) {
@@ -56,6 +80,16 @@ class WordStatusViewModel extends StateNotifier<Map<int, WordStatus>> {
       ...state,
       wordId: current.copyWith(isLearned: value),
     };
+    _espJpnStatusInteractor.updateWordStatus(
+      EsJUpdateStatusInputData(
+        wordId,
+        {
+          if (state[wordId]?.isBookmarked ?? false) FeatureTag.isBookmarked,
+          if (state[wordId]?.hasNote ?? false) FeatureTag.hasNote,
+          if (value) FeatureTag.isLearned,
+        },
+      ),
+    );
   }
 
   void toggleLearned(int wordId) {
@@ -69,6 +103,16 @@ class WordStatusViewModel extends StateNotifier<Map<int, WordStatus>> {
       ...state,
       wordId: current.copyWith(hasNote: value),
     };
+    _espJpnStatusInteractor.updateWordStatus(
+      EsJUpdateStatusInputData(
+        wordId,
+        {
+          if (state[wordId]?.isBookmarked ?? false) FeatureTag.isBookmarked,
+          if (value) FeatureTag.hasNote,
+          if (state[wordId]?.isLearned ?? false) FeatureTag.isLearned,
+        },
+      ),
+    );
   }
 
   void toggleHasNote(int wordId) {
@@ -79,15 +123,15 @@ class WordStatusViewModel extends StateNotifier<Map<int, WordStatus>> {
 
 final wordStatusProvider =
     StateNotifierProvider<WordStatusViewModel, Map<int, WordStatus>>(
-  (ref) => WordStatusViewModel(),
+  (ref) => DI<WordStatusViewModel>(),
 );
 
-final wordStatusByIdProvider = Provider.family<WordStatus, int>((ref, wordId) {
+final wordStatusByIdProvider = Provider.family<WordStatus?, int>((ref, wordId) {
   // 最小限の再ビルドにするためにselectで必要な要素のみ監視
   final status = ref.watch(
     wordStatusProvider.select((map) => map[wordId]),
   );
-  return status ?? const WordStatus();
+  return status; //?? const WordStatus();
 });
 
 /////////
@@ -113,16 +157,17 @@ class StatusButtons extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final wordStatus = ref.watch(wordStatusByIdProvider(wordId));
     final controller = ref.read(wordStatusProvider.notifier);
+    controller.init(wordId); //初期化
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         MyIconButton(
           iconSize: 22,
-          defaultIcon: wordStatus.isLearned
+          defaultIcon: wordStatus?.isLearned ?? false
               ? learnedIcon["true"] ?? Icons.error
               : learnedIcon["false"] ?? Icons.error,
-          hoveredIcon: wordStatus.isLearned
+          hoveredIcon: wordStatus?.isLearned ?? false
               ? learnedIcon["true"] ?? Icons.error
               : learnedIcon["false"] ?? Icons.error,
           hoveredIconColor: const Color.fromARGB(255, 119, 119, 119),
@@ -133,10 +178,10 @@ class StatusButtons extends ConsumerWidget {
         const SizedBox(width: 3),
         MyIconButton(
           iconSize: 24,
-          defaultIcon: wordStatus.isBookmarked
+          defaultIcon: wordStatus?.isBookmarked ?? false
               ? bookmarkIcon["true"] ?? Icons.error
               : bookmarkIcon["false"] ?? Icons.error,
-          hoveredIcon: wordStatus.isBookmarked
+          hoveredIcon: wordStatus?.isBookmarked ?? false
               ? bookmarkIcon["true"] ?? Icons.error
               : bookmarkIcon["false"] ?? Icons.error,
           hoveredIconColor: const Color.fromARGB(255, 119, 119, 119),

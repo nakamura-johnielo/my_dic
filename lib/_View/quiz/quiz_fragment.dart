@@ -61,6 +61,9 @@ class QuizFragment extends ConsumerWidget {
                       ref.read(quizStateProvider.notifier).init();
                       ref.read(quizCardStateProvider.notifier).state =
                           QuizCardState.question;
+
+                      ref.read(quizWordProvider.notifier).state =
+                          items[index].word;
                       // }
                       context.push(
                           '/${ScreenTab.quiz}/${ScreenPage.quizDetail}',
