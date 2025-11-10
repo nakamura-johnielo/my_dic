@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/Components/quiz_card.dart';
+import 'package:my_dic/Components/status_buttons.dart';
 import 'package:my_dic/Constants/Enums/cardState.dart';
 import 'package:my_dic/Constants/Enums/mood_tense.dart';
 import 'package:my_dic/Constants/Enums/subject.dart';
@@ -75,13 +76,20 @@ class QuizGameFragment extends ConsumerWidget {
                       style:
                           TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
                     ),
-                    TextButton(
-                      onPressed: () => context.push(
-                          '/${ScreenTab.search}/${ScreenPage.detail}',
-                          extra: WordPageFragmentInput(
-                              wordId: input.wordId, isVerb: true)),
-                      child: Text("> 辞書確認"),
-                    )
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: 20,
+                      children: [
+                        TextButton(
+                          onPressed: () => context.push(
+                              '/${ScreenTab.search}/${ScreenPage.detail}',
+                              extra: WordPageFragmentInput(
+                                  wordId: input.wordId, isVerb: true)),
+                          child: Text("> 辞書確認"),
+                        ),
+                        StatusButtons(wordId: input.wordId),
+                      ],
+                    ),
                   ],
                 ),
                 Row(spacing: 10, mainAxisSize: MainAxisSize.min, children: [

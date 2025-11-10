@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/Components/quiz_card.dart';
+import 'package:my_dic/Components/status_buttons.dart';
 import 'package:my_dic/Constants/Enums/cardState.dart';
 import 'package:my_dic/Constants/tab.dart';
 import 'package:my_dic/DI/product.dart';
@@ -102,6 +103,12 @@ class _WordPageWithTabState extends ConsumerState<WordPageWithTab>
     return Scaffold(
       appBar: AppBar(
         title: Text('Word Page'),
+        actions: [
+          StatusButtons(wordId: widget.input.wordId),
+          SizedBox(
+            width: 14,
+          )
+        ],
         bottom: TabBar(
           controller: _tabController,
           tabs: const [

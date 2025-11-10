@@ -10,25 +10,30 @@ import 'package:my_dic/Components/button/my_icon_button.dart';
 class WordStatus {
   final bool isBookmarked;
   final bool isLearned;
+  final bool hasNote;
 
   const WordStatus({
     this.isBookmarked = false,
     this.isLearned = false,
+    this.hasNote = false,
   });
 
   WordStatus copyWith({
     bool? isBookmarked,
     bool? isLearned,
+    bool? hasNote,
   }) {
     return WordStatus(
       isBookmarked: isBookmarked ?? this.isBookmarked,
       isLearned: isLearned ?? this.isLearned,
+      hasNote: hasNote ?? this.hasNote,
     );
   }
 }
 
-class WordStatusController extends StateNotifier<Map<int, WordStatus>> {
-  WordStatusController() : super(const {});
+//!TODO DB操作add
+class WordStatusViewModel extends StateNotifier<Map<int, WordStatus>> {
+  WordStatusViewModel() : super(const {});
 
   WordStatus getStatus(int wordId) => state[wordId] ?? const WordStatus();
 
@@ -57,11 +62,24 @@ class WordStatusController extends StateNotifier<Map<int, WordStatus>> {
     final current = getStatus(wordId);
     setLearned(wordId, !current.isLearned);
   }
+
+  void setHasNote(int wordId, bool value) {
+    final current = getStatus(wordId);
+    state = {
+      ...state,
+      wordId: current.copyWith(hasNote: value),
+    };
+  }
+
+  void toggleHasNote(int wordId) {
+    final current = getStatus(wordId);
+    setHasNote(wordId, !current.hasNote);
+  }
 }
 
 final wordStatusProvider =
-    StateNotifierProvider<WordStatusController, Map<int, WordStatus>>(
-  (ref) => WordStatusController(),
+    StateNotifierProvider<WordStatusViewModel, Map<int, WordStatus>>(
+  (ref) => WordStatusViewModel(),
 );
 
 final wordStatusByIdProvider = Provider.family<WordStatus, int>((ref, wordId) {
@@ -93,17 +111,18 @@ class StatusButtons extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(wordStatusByIdProvider(wordId));
+    final wordStatus = ref.watch(wordStatusByIdProvider(wordId));
     final controller = ref.read(wordStatusProvider.notifier);
 
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         MyIconButton(
           iconSize: 22,
-          defaultIcon: status.isLearned
+          defaultIcon: wordStatus.isLearned
               ? learnedIcon["true"] ?? Icons.error
               : learnedIcon["false"] ?? Icons.error,
-          hoveredIcon: status.isLearned
+          hoveredIcon: wordStatus.isLearned
               ? learnedIcon["true"] ?? Icons.error
               : learnedIcon["false"] ?? Icons.error,
           hoveredIconColor: const Color.fromARGB(255, 119, 119, 119),
@@ -114,10 +133,10 @@ class StatusButtons extends ConsumerWidget {
         const SizedBox(width: 3),
         MyIconButton(
           iconSize: 24,
-          defaultIcon: status.isBookmarked
+          defaultIcon: wordStatus.isBookmarked
               ? bookmarkIcon["true"] ?? Icons.error
               : bookmarkIcon["false"] ?? Icons.error,
-          hoveredIcon: status.isBookmarked
+          hoveredIcon: wordStatus.isBookmarked
               ? bookmarkIcon["true"] ?? Icons.error
               : bookmarkIcon["false"] ?? Icons.error,
           hoveredIconColor: const Color.fromARGB(255, 119, 119, 119),
