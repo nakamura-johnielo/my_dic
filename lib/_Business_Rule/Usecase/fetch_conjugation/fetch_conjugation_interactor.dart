@@ -22,4 +22,12 @@ class FetchConjugationInteractor implements IFetchConjugationUseCase {
         FetchConjugationOutputData(data, input.wordId);
     _conjugationFragmentPresenterImpl.execute(output);
   }
+
+  @override
+  Future<Conjugacions?> executeReturn(FetchConjugationInputData input) async {
+    //FetchConjugationRepositoryInputData repositoryInput=FetchConjugationRepositoryInputData();
+    Conjugacions? data =
+        await _conjugacionRepository.getConjugacionByWordId(input.wordId);
+    return data;
+  }
 }

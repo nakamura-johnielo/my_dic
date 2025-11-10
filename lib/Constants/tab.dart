@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 
 enum ScreenTab {
   note('メモ', Icons.note),
+  quiz('Quiz', Icons.handshake),
   search('検索', Icons.search),
   ranking('頻度別', Icons.assessment),
   myword('My Word', Icons.tag_faces);
@@ -27,7 +28,9 @@ enum ScreenTab {
 }
 
 enum ScreenPage {
-  detail('単語詳細');
+  detail('単語詳細'),
+  jpnEspDetail('単語詳細'),
+  quizDetail('Quiz!');
 
   const ScreenPage(this.label);
   //const ScreenTab(this.label, this.icon,this.root);

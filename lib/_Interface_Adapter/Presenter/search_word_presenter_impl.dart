@@ -8,7 +8,32 @@ class SearchWordPresenterImpl implements ISearchWordPresenter {
   SearchWordPresenterImpl(this._searchViewModel);
 
   @override
-  void execute(SearchWordOutputData input) {
-    _searchViewModel.filteredItems = input.wordList;
+  void executInicialEspJpn(SearchWordOutputData input) {
+    _searchViewModel.inicializeEspJpnItems(input.wordList);
+  }
+
+  @override
+  void executNextEspJpn(SearchWordOutputData input) {
+    _searchViewModel.setEspJpnItemsInTail(input.wordList);
+  }
+
+  @override
+  void executeInicialJpnEsp(SearchJpnEspWordOutputData input) {
+    _searchViewModel.inicializeJpnEspItems(input.wordList);
+  }
+
+  @override
+  void executeNextJpnEsp(SearchJpnEspWordOutputData input) {
+    _searchViewModel.setJpnEspItemsInTail(input.wordList);
+  }
+
+  @override
+  void executInicialConjugacion(SearchConjugacionOutputData input) {
+    _searchViewModel.inicializeConjugacionItems(input.wordList);
+  }
+
+  @override
+  void executNextConjugacion(SearchConjugacionOutputData input) {
+    _searchViewModel.setConjugacionItemsInTail(input.wordList);
   }
 }

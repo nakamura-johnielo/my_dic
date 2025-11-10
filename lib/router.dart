@@ -5,13 +5,17 @@ import 'package:my_dic/Constants/tab.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_View/my_word/my_word_fragment.dart';
 import 'package:my_dic/_View/note_fragment.dart';
+import 'package:my_dic/_View/quiz/quiz_fragment.dart';
+import 'package:my_dic/_View/quiz/quiz_game_fragment.dart';
 import 'package:my_dic/_View/ranking/ranking_fragment.dart';
-import 'package:my_dic/_View/search_fragment.dart';
+import 'package:my_dic/_View/search/search_fragment.dart';
+import 'package:my_dic/_View/word_page/jpn_esp/jpn_esp_word_page_fragment.dart';
 import 'package:my_dic/_View/word_page/word_page_fragment.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 final searchNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'search');
-final noteNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'note');
+// final noteNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'note');
+final quizNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'quiz');
 final myWordNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'myword');
 final rankingNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'ranking');
 
@@ -42,16 +46,43 @@ final goRouter = GoRouter(
             ),
 
             // noteブランチ
+            // StatefulShellBranch(
+            //   navigatorKey: noteNavigatorKey,
+            //   routes: [
+            //     GoRoute(
+            //       path: '/${ScreenTab.note}',
+            //       pageBuilder: (context, state) => NoTransitionPage(
+            //         key: state.pageKey,
+            //         child: NoteFragment(),
+            //       ),
+            //     ),
+            //   ],
+            // ),
+
+            // quizブランチ
             StatefulShellBranch(
-              navigatorKey: noteNavigatorKey,
+              navigatorKey: quizNavigatorKey,
               routes: [
                 GoRoute(
-                  path: '/${ScreenTab.note}',
-                  pageBuilder: (context, state) => NoTransitionPage(
-                    key: state.pageKey,
-                    child: NoteFragment(),
-                  ),
-                ),
+                    path: '/${ScreenTab.quiz}',
+                    pageBuilder: (context, state) => NoTransitionPage(
+                          key: state.pageKey,
+                          child: QuizFragment(),
+                        ),
+                    routes: [
+                      GoRoute(
+                        path: '${ScreenPage.quizDetail}',
+                        parentNavigatorKey: quizNavigatorKey,
+                        pageBuilder: (context, state) {
+                          final QuizGameFragmentInput input =
+                              state.extra as QuizGameFragmentInput;
+                          return MaterialPage(
+                              child: QuizGameFragment(
+                            input: input,
+                          ));
+                        },
+                      ),
+                    ]),
               ],
             ),
 
@@ -74,6 +105,18 @@ final goRouter = GoRouter(
                             state.extra as WordPageFragmentInput;
                         return MaterialPage(
                             child: WordPageFragment(
+                          input: input,
+                        ));
+                      },
+                    ),
+                    GoRoute(
+                      path: '${ScreenPage.jpnEspDetail}',
+                      parentNavigatorKey: searchNavigatorKey,
+                      pageBuilder: (context, state) {
+                        final JpnEspWordPageFragmentInput input =
+                            state.extra as JpnEspWordPageFragmentInput;
+                        return MaterialPage(
+                            child: JpnEspWordPageFragment(
                           input: input,
                         ));
                       },

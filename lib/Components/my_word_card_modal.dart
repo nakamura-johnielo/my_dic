@@ -187,7 +187,8 @@ class _MyWordCardModalState extends State<MyWordCardModal> {
                     ),
 
                     // SizedBox(width: 15),
-                    ButtonSection(
+                    //TODO 一旦status更新ナシ
+                    /* ButtonSection(
                         //
                         clickListeners: widget.clickListeners,
                         isFlags: {
@@ -198,7 +199,7 @@ class _MyWordCardModalState extends State<MyWordCardModal> {
                         iconSizes: {
                           WordCardViewButton.learned: 22,
                           WordCardViewButton.bookmark: 24
-                        }),
+                        }), */
                   ]),
               SizedBox(
                 height: 30,

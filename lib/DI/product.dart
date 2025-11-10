@@ -10,6 +10,11 @@ import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/i_fetch_conjugat
 import 'package:my_dic/_Business_Rule/Usecase/fetch_dictionary/fetch_dictionary_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/fetch_dictionary/i_fetch_dictionary_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/fetch_dictionary/i_fetch_dictionary_use_case.dart';
+import 'package:my_dic/_Business_Rule/Usecase/fetch_jpn_esp_dictionary/fetch_jpn_esp_dictionary_interactor.dart';
+import 'package:my_dic/_Business_Rule/Usecase/fetch_jpn_esp_dictionary/i_fetch_jpn_esp_dictionary_presenter.dart';
+import 'package:my_dic/_Business_Rule/Usecase/fetch_jpn_esp_dictionary/i_fetch_jpn_esp_dictionary_use_case.dart';
+import 'package:my_dic/_Business_Rule/Usecase/judge_search_word/i_judge_search_word_use_case.dart';
+import 'package:my_dic/_Business_Rule/Usecase/judge_search_word/judge_search_word_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/load_my_word/i_load_my_word_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/load_my_word/i_load_my_word_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/load_my_word/load_my_word_interactor.dart';
@@ -53,11 +58,17 @@ import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_conjugation_reposit
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esj_dictionary_repository.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esj_word_repository.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esp_ranking_repository.dart';
+import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_jpn_esp_dictionary_repository.dart';
+import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_jpn_esp_word_repository.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_my_word_repository.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/conjugation_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/dictionary_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/example_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/idiom_dao.dart';
+import 'package:my_dic/_Framework_Driver/Database/drift/DAO/jpn_esp/jpn_esp_dictionary_dao.dart';
+import 'package:my_dic/_Framework_Driver/Database/drift/DAO/jpn_esp/jpn_esp_example_dao.dart';
+import 'package:my_dic/_Framework_Driver/Database/drift/DAO/jpn_esp/jpn_esp_word_dao.dart';
+import 'package:my_dic/_Framework_Driver/Database/drift/DAO/jpn_esp/jpn_esp_word_status_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/my_word_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/my_word_status_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/part_of_speech_list_dao.dart';
@@ -69,13 +80,17 @@ import 'package:my_dic/_Framework_Driver/Database/drift/database_provider.dart';
 import 'package:my_dic/_Framework_Driver/Repository/drift_conjugacion_repository.dart';
 import 'package:my_dic/_Framework_Driver/Repository/drift_esj_dictionary_repository.dart';
 import 'package:my_dic/_Framework_Driver/Repository/drift_esj_word_repository.dart';
+import 'package:my_dic/_Framework_Driver/Repository/drift_jpn_esp_dictionary_repository.dart';
+import 'package:my_dic/_Framework_Driver/Repository/drift_jpn_esp_word_repository.dart';
 import 'package:my_dic/_Framework_Driver/Repository/drift_my_word_repository.dart';
 import 'package:my_dic/_Framework_Driver/Repository/wiki_esp_ranking_repository.dart';
+import 'package:my_dic/_Interface_Adapter/Controller/jpn_esp_word_page_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/my_word_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/ranking_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/word_page_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/conjugacion_presenter.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/dictionary_presenter.dart';
+import 'package:my_dic/_Interface_Adapter/Presenter/jpn_esp_word_page_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/load_my_word_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/locate_ranking_pagenation_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/my_word_fragment_presenter_impl.dart';
@@ -84,8 +99,10 @@ import 'package:my_dic/_Interface_Adapter/Presenter/load_rankings_presenter_impl
 import 'package:my_dic/_Interface_Adapter/Presenter/update_my_word_status_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/update_ranking_filter_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/update_status_presenter_impl.dart';
+import 'package:my_dic/_Interface_Adapter/ViewModel/jpn_esp_word_page_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/main_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/my_word_view_model.dart';
+import 'package:my_dic/_Interface_Adapter/ViewModel/note_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/ranking_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/search_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/buffer_controller.dart';
@@ -94,6 +111,7 @@ import 'package:my_dic/_View/my_word/my_word_fragment.dart';
 import 'package:my_dic/_View/ranking/ranking_fragment.dart';
 import 'package:my_dic/_View/word_page/conjugacion_fragment.dart';
 import 'package:my_dic/_View/word_page/dictionary_fragment.dart';
+import 'package:my_dic/_View/word_page/jpn_esp/jpn_esp_dictionary_fragment.dart';
 import 'package:tuple/tuple.dart';
 
 final DI = GetIt.instance;
@@ -120,6 +138,14 @@ void setupLocator() {
   DI.registerFactory<MyWordStatusDao>(
       () => MyWordStatusDao(DI<DatabaseProvider>()));
   DI.registerFactory<MyWordDao>(() => MyWordDao(DI<DatabaseProvider>()));
+  DI.registerFactory<JpnEspWordDao>(
+      () => JpnEspWordDao(DI<DatabaseProvider>()));
+  DI.registerFactory<JpnEspExampleDao>(
+      () => JpnEspExampleDao(DI<DatabaseProvider>()));
+  DI.registerFactory<JpnEspWordStatusDao>(
+      () => JpnEspWordStatusDao(DI<DatabaseProvider>()));
+  DI.registerFactory<JpnEspDictionaryDao>(
+      () => JpnEspDictionaryDao(DI<DatabaseProvider>()));
 
   //repository
   DI.registerFactory<IEsjDictionaryRepository>(
@@ -137,6 +163,12 @@ void setupLocator() {
       () => WikiEspRankingRepository(DI<RankingDao>()));
   DI.registerFactory<IMyWordRepository>(
       () => DriftMyWordRepository(DI<MyWordDao>(), DI<MyWordStatusDao>()));
+  DI.registerFactory<IJpnEspWordRepository>(() => DriftJpnEspWordRepository(
+      DI<JpnEspWordDao>(), DI<JpnEspDictionaryDao>()));
+  DI.registerFactory<IJpnEspDictionaryRepository>(() =>
+      DriftJpnEspDictionaryRepository(
+          DI<JpnEspDictionaryDao>(), DI<JpnEspExampleDao>()));
+
   //
   //
   //
@@ -205,13 +237,18 @@ void setupLocator() {
   DI.registerFactory<ISearchWordPresenter>(
       () => SearchWordPresenterImpl(DI<SearchViewModel>()));
 
-  //usecase
+  //usecase IJudgeSearchWordUseCase
   DI.registerFactory<ISearchWordUseCase>(() => SearchWordInteractor(
-      DI<IEsjWordRepository>(), DI<ISearchWordPresenter>()));
+      DI<IEsjWordRepository>(),
+      DI<ISearchWordPresenter>(),
+      DI<IJpnEspWordRepository>(),
+      DI<IConjugacionsRepository>()));
+  DI.registerFactory<IJudgeSearchWordUseCase>(
+      () => JudgeSearchWordInteractor());
 
   //controller
-  DI.registerFactory<BufferController>(
-      () => BufferController(DI<ISearchWordUseCase>()));
+  DI.registerFactory<BufferController>(() => BufferController(
+      DI<ISearchWordUseCase>(), DI<IJudgeSearchWordUseCase>()));
 
   //viewmodel
   //singleton
@@ -230,19 +267,32 @@ void setupLocator() {
       () => ConjugacionFragmentPresenterImpl(DI<MainViewModel>()));
   DI.registerFactory<IFetchDictionaryPresenter>(
       () => DictionaryFragmentPresenterImpl(DI<MainViewModel>()));
+  DI.registerFactory<IFetchJpnEspDictionaryPresenter>(
+      () => JpnEspWordPagePresenterImpl(DI<JpnEspWordPageViewModel>()));
 
   //usecase
   DI.registerFactory<IFetchConjugationUseCase>(() => FetchConjugationInteractor(
       DI<IFetchConjugationPresenter>(), DI<IConjugacionsRepository>()));
   DI.registerFactory<IFetchDictionaryUseCase>(() => FetchDictionaryInteractor(
       DI<IFetchDictionaryPresenter>(), DI<IEsjDictionaryRepository>()));
+  DI.registerFactory<IFetchJpnEspDictionaryUseCase>(() =>
+      FetchJpnEspDictionaryInteractor(DI<IFetchJpnEspDictionaryPresenter>(),
+          DI<IJpnEspDictionaryRepository>()));
 
   //controller
   DI.registerFactory<WordPageController>(() => WordPageController(
-      DI<IFetchDictionaryUseCase>(), DI<IFetchConjugationUseCase>()));
+      DI<IFetchDictionaryUseCase>(),
+      DI<IFetchConjugationUseCase>(),
+      DI<IUpdateStatusUseCase>()));
+
+  DI.registerFactory<JpnEspWordPageController>(
+      () => JpnEspWordPageController(DI<IFetchJpnEspDictionaryUseCase>()));
+
 //viewmodel
   //singleton
   DI.registerLazySingleton<MainViewModel>(() => MainViewModel());
+  DI.registerLazySingleton<JpnEspWordPageViewModel>(
+      () => JpnEspWordPageViewModel());
 
   //UI
   DI.registerFactoryParam<DictionaryFragment, WordPageChildInputData, void>(
@@ -260,6 +310,14 @@ void setupLocator() {
               key: input.key,
               wordId: input.wordId,
               wordPageController: DI<WordPageController>()));
+
+  DI.registerFactoryParam<JpnEspDictionaryFragment, WordPageChildInputData, void>(
+      (input, _) =>
+          //wordId,key
+          JpnEspDictionaryFragment(
+              key: input.key,
+              wordId: input.wordId,
+              wordPageController: DI<JpnEspWordPageController>()));
 
 /*===========wordPage =====================================================-====== */
   //
@@ -317,6 +375,25 @@ void setupLocator() {
   //
   //
 
+  //
+/*===========note =====================================================-====== */
+  //presenter
+  /* DI.registerFactory<ISearchWordPresenter>(
+      () => SearchWordPresenterImpl(DI<SearchViewModel>())); */
+
+  //usecase
+  /* DI.registerFactory<ISearchWordUseCase>(() => SearchWordInteractor(
+      DI<IEsjWordRepository>(), DI<ISearchWordPresenter>())); */
+
+  //controller
+  /* DI.registerFactory<BufferController>(
+      () => BufferController(DI<ISearchWordUseCase>())); */
+
+  //viewmodel
+  //singleton
+  DI.registerLazySingleton<NoteViewModel>(() => NoteViewModel());
+/*===========note =====================================================-====== */
+  //
   //
 }
 

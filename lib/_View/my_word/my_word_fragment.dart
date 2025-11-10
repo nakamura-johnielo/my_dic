@@ -27,7 +27,6 @@ class MyWordFragment extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         //mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Text('This is my word screen'),
           Expanded(
               child: InfinityScrollListView(
             loadNext: _myWordController.loadNext,

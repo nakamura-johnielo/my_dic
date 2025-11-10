@@ -20,8 +20,10 @@ class BottomNavBar extends StatelessWidget {
         destinations: [
           NavigationDestination(
               icon: Icon(ScreenTab.myword.icon), label: ScreenTab.myword.label),
+          // NavigationDestination(
+          //     icon: Icon(ScreenTab.note.icon), label: ScreenTab.note.label),
           NavigationDestination(
-              icon: Icon(ScreenTab.note.icon), label: ScreenTab.note.label),
+              icon: Icon(ScreenTab.quiz.icon), label: ScreenTab.quiz.label),
           NavigationDestination(
               icon: Icon(ScreenTab.search.icon), label: ScreenTab.search.label),
           NavigationDestination(

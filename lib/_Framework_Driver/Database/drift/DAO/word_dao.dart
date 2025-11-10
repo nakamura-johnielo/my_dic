@@ -24,4 +24,14 @@ class WordDao extends DatabaseAccessor<DatabaseProvider> with _$WordDaoMixin {
   Future<List<Word>?> getWordsByWord(String searchWord) async {
     return (select(words)..where((tbl) => tbl.word.like('$searchWord%'))).get();
   }
+
+  Future<List<Word>?> getWordsByWordByPage(
+      String searchWord, int size, int currentPage) async {
+    final int offset = size * currentPage; // ページ番号に基づいてスキップする件数を計算
+
+    return (select(words)
+          ..where((tbl) => tbl.word.like('$searchWord%'))
+          ..limit(size, offset: offset)) // limit と offset を追加
+        .get();
+  }
 }

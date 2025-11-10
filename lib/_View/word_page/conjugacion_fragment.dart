@@ -3,10 +3,12 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Components/conjugacion_card.dart';
+import 'package:my_dic/Constants/Enums/mood_tense.dart';
 import 'package:my_dic/Constants/ui.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/verb/conjugacion/conjugacions.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/word_page_controller.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/main_view_model.dart';
+import 'package:my_dic/_Interface_Adapter/ViewModel/search_view_model.dart';
 
 class ConjugacionFragment extends ConsumerWidget {
   const ConjugacionFragment(
@@ -29,6 +31,8 @@ class ConjugacionFragment extends ConsumerWidget {
     }
     final Conjugacions? conjugacions = mainViewModel.conjugacionCache[wordId]!;
 
+    final query = ref.watch(searchViewModelProvider).query;
+
     return conjugacions == null
         ? (Center(
             child: Text(
@@ -44,8 +48,16 @@ class ConjugacionFragment extends ConsumerWidget {
             children: conjugacions.conjugacions.entries.map((entry) {
               final moodTense = entry.key;
               final conjugation = entry.value;
+              if (moodTense == MoodTense.participlePresent ||
+                  moodTense == MoodTense.participlePast) {
+                return ParticipleCard(
+                    moodTense: moodTense, conjugacion: conjugation.yo);
+              }
               return ConjugacionCard(
-                  moodTense: moodTense, conjugacion: conjugation);
+                moodTense: moodTense,
+                conjugacion: conjugation,
+                query: query,
+              );
             }).toList(),
           ));
   }

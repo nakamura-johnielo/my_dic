@@ -1,7 +1,15 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:my_dic/Components/quiz_card.dart';
+import 'package:my_dic/Constants/Enums/cardState.dart';
+import 'package:my_dic/Constants/tab.dart';
 import 'package:my_dic/DI/product.dart';
+import 'package:my_dic/_Interface_Adapter/Controller/quiz_controller.dart';
+import 'package:my_dic/_Interface_Adapter/ViewModel/main_view_model.dart';
+import 'package:my_dic/_View/quiz/quiz_game_fragment.dart';
 import 'package:my_dic/_View/word_page/conjugacion_fragment.dart';
 import 'package:my_dic/_View/word_page/dictionary_fragment.dart';
 import 'package:my_dic/utils/random.dart';
@@ -27,14 +35,14 @@ class WordPageFragment extends StatelessWidget {
   }
 }
 
-class WordPageWithTab extends StatefulWidget {
+class WordPageWithTab extends ConsumerStatefulWidget {
   const WordPageWithTab({super.key, required this.input});
   final WordPageFragmentInput input;
   @override
-  State<WordPageWithTab> createState() => _WordPageWithTabState();
+  ConsumerState<WordPageWithTab> createState() => _WordPageWithTabState();
 }
 
-class _WordPageWithTabState extends State<WordPageWithTab>
+class _WordPageWithTabState extends ConsumerState<WordPageWithTab>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   //late PageController _pageController;
@@ -61,6 +69,13 @@ class _WordPageWithTabState extends State<WordPageWithTab>
             param1: WordPageChildInputData(wordId: widget.input.wordId)),
       )
     ];
+
+    // final dictionaries =
+    //     ref.watch(mainViewModelProvider).dictionaryCache[widget.input.wordId]!;
+    // if (dictionaries != null && dictionaries.isNotEmpty) {
+    //   //!TODO
+    //   ref.read(quizWordProvider.notifier).state = dictionaries[0].word;
+    // }
   }
 
   void _tabListener() {
@@ -85,22 +100,49 @@ class _WordPageWithTabState extends State<WordPageWithTab>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(kToolbarHeight),
-        child: TabBar(
+      appBar: AppBar(
+        title: Text('Word Page'),
+        bottom: TabBar(
           controller: _tabController,
-          tabs: [
+          tabs: const [
             Tab(text: 'Dictionary'),
             Tab(text: 'Conjugacion'),
           ],
         ),
       ),
+      // PreferredSize(
+      //   preferredSize: Size.fromHeight(kToolbarHeight),
+      //   child: TabBar(
+      //     controller: _tabController,
+      //     tabs: [
+      //       Tab(text: 'Dictionary'),
+      //       Tab(text: 'Conjugacion'),
+      //     ],
+      //   ),
+      // ),
       body: TabBarView(
         //index: _tabController.index,
         //コンテンツ内でpadding,margin調整
         controller: _tabController,
         children: _tabs,
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          ref.read(quizStateProvider.notifier).init();
+          ref.read(quizCardStateProvider.notifier).state =
+              QuizCardState.question;
+          context.push('/${ScreenTab.quiz}/${ScreenPage.quizDetail}',
+              extra: QuizGameFragmentInput(
+                  wordId: widget.input.wordId,
+                  word: widget.input.wordId.toString()));
+
+          // int newIndex = RandomUtils.nextInt(0, 2);
+          // log('FAB pressed, switching to tab $newIndex');
+          // _tabController.animateTo(newIndex);
+        },
+        child: const Icon(Icons.handshake_rounded),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
     );
   }
 }

@@ -3,5 +3,9 @@ import 'package:my_dic/_Business_Rule/_Domain/Entities/word.dart';
 
 abstract class IEsjWordRepository {
   Future<List<Word>> getWordsByWord(String word);
+  Future<List<Word>> getWordsByWordByPage(
+      String word, int size, int currentPage, bool forQuiz);
+  Future<List<Word>> getQuizWordsByWordByPage(
+      String word, int size, int currentPage);
   void updateStatus(UpdateStatusRepositoryInputData input);
 }

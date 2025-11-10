@@ -26,6 +26,12 @@ class MainViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Map<int, List<EsjDictionary>> get dictionaryCache => _dictionaryCache;
+  // setDictionaryCache(int wordId, List<EsjDictionary> value) {
+  //   _dictionaryCache[wordId] = value;
+  //   notifyListeners();
+  // }
+
   removeData(int wordId) {
     _dictionaryCache.remove(wordId);
     _conjugacionCache.remove(wordId);

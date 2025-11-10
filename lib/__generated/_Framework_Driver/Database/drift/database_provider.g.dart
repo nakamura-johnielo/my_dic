@@ -879,7 +879,7 @@ class Conjugation extends DataClass implements Insertable<Conjugation> {
   final String word;
   final String? meaning;
   final String? presentParticiple;
-  final String? prastParticiple;
+  final String? prastParticiple; //!TODO 誤字直す
   final String? indicativePresentYo;
   final String? indicativePresentTu;
   final String? indicativePresentEl;
@@ -5946,6 +5946,1219 @@ class MyWordStatusCompanion extends UpdateCompanion<MyWordStatusData> {
   }
 }
 
+class $JpnEspWordsTable extends JpnEspWords
+    with TableInfo<$JpnEspWordsTable, JpnEspWord> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $JpnEspWordsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _wordIdMeta = const VerificationMeta('wordId');
+  @override
+  late final GeneratedColumn<int> wordId = GeneratedColumn<int>(
+      'jpn_esp_word_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _wordMeta = const VerificationMeta('word');
+  @override
+  late final GeneratedColumn<String> word = GeneratedColumn<String>(
+      'word', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [wordId, word];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'jpn_esp_words';
+  @override
+  VerificationContext validateIntegrity(Insertable<JpnEspWord> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('jpn_esp_word_id')) {
+      context.handle(_wordIdMeta,
+          wordId.isAcceptableOrUnknown(data['jpn_esp_word_id']!, _wordIdMeta));
+    }
+    if (data.containsKey('word')) {
+      context.handle(
+          _wordMeta, word.isAcceptableOrUnknown(data['word']!, _wordMeta));
+    } else if (isInserting) {
+      context.missing(_wordMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {wordId};
+  @override
+  JpnEspWord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return JpnEspWord(
+      wordId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}jpn_esp_word_id'])!,
+      word: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}word'])!,
+    );
+  }
+
+  @override
+  $JpnEspWordsTable createAlias(String alias) {
+    return $JpnEspWordsTable(attachedDatabase, alias);
+  }
+}
+
+class JpnEspWord extends DataClass implements Insertable<JpnEspWord> {
+  final int wordId;
+  final String word;
+  const JpnEspWord({required this.wordId, required this.word});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['jpn_esp_word_id'] = Variable<int>(wordId);
+    map['word'] = Variable<String>(word);
+    return map;
+  }
+
+  JpnEspWordsCompanion toCompanion(bool nullToAbsent) {
+    return JpnEspWordsCompanion(
+      wordId: Value(wordId),
+      word: Value(word),
+    );
+  }
+
+  factory JpnEspWord.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return JpnEspWord(
+      wordId: serializer.fromJson<int>(json['wordId']),
+      word: serializer.fromJson<String>(json['word']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'wordId': serializer.toJson<int>(wordId),
+      'word': serializer.toJson<String>(word),
+    };
+  }
+
+  JpnEspWord copyWith({int? wordId, String? word}) => JpnEspWord(
+        wordId: wordId ?? this.wordId,
+        word: word ?? this.word,
+      );
+  JpnEspWord copyWithCompanion(JpnEspWordsCompanion data) {
+    return JpnEspWord(
+      wordId: data.wordId.present ? data.wordId.value : this.wordId,
+      word: data.word.present ? data.word.value : this.word,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('JpnEspWord(')
+          ..write('wordId: $wordId, ')
+          ..write('word: $word')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(wordId, word);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is JpnEspWord &&
+          other.wordId == this.wordId &&
+          other.word == this.word);
+}
+
+class JpnEspWordsCompanion extends UpdateCompanion<JpnEspWord> {
+  final Value<int> wordId;
+  final Value<String> word;
+  const JpnEspWordsCompanion({
+    this.wordId = const Value.absent(),
+    this.word = const Value.absent(),
+  });
+  JpnEspWordsCompanion.insert({
+    this.wordId = const Value.absent(),
+    required String word,
+  }) : word = Value(word);
+  static Insertable<JpnEspWord> custom({
+    Expression<int>? wordId,
+    Expression<String>? word,
+  }) {
+    return RawValuesInsertable({
+      if (wordId != null) 'jpn_esp_word_id': wordId,
+      if (word != null) 'word': word,
+    });
+  }
+
+  JpnEspWordsCompanion copyWith({Value<int>? wordId, Value<String>? word}) {
+    return JpnEspWordsCompanion(
+      wordId: wordId ?? this.wordId,
+      word: word ?? this.word,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (wordId.present) {
+      map['jpn_esp_word_id'] = Variable<int>(wordId.value);
+    }
+    if (word.present) {
+      map['word'] = Variable<String>(word.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('JpnEspWordsCompanion(')
+          ..write('wordId: $wordId, ')
+          ..write('word: $word')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $JpnEspWordStatusTable extends JpnEspWordStatus
+    with TableInfo<$JpnEspWordStatusTable, JpnEspWordStatusData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $JpnEspWordStatusTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _wordIdMeta = const VerificationMeta('wordId');
+  @override
+  late final GeneratedColumn<int> wordId = GeneratedColumn<int>(
+      'jpn_esp_word_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _isLearnedMeta =
+      const VerificationMeta('isLearned');
+  @override
+  late final GeneratedColumn<int> isLearned = GeneratedColumn<int>(
+      'is_learned', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _isBookmarkedMeta =
+      const VerificationMeta('isBookmarked');
+  @override
+  late final GeneratedColumn<int> isBookmarked = GeneratedColumn<int>(
+      'is_bookmarked', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _hasNoteMeta =
+      const VerificationMeta('hasNote');
+  @override
+  late final GeneratedColumn<int> hasNote = GeneratedColumn<int>(
+      'has_note', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _editAtMeta = const VerificationMeta('editAt');
+  @override
+  late final GeneratedColumn<String> editAt = GeneratedColumn<String>(
+      'edit_at', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [wordId, isLearned, isBookmarked, hasNote, editAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'jpn_esp_word_status';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<JpnEspWordStatusData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('jpn_esp_word_id')) {
+      context.handle(_wordIdMeta,
+          wordId.isAcceptableOrUnknown(data['jpn_esp_word_id']!, _wordIdMeta));
+    }
+    if (data.containsKey('is_learned')) {
+      context.handle(_isLearnedMeta,
+          isLearned.isAcceptableOrUnknown(data['is_learned']!, _isLearnedMeta));
+    }
+    if (data.containsKey('is_bookmarked')) {
+      context.handle(
+          _isBookmarkedMeta,
+          isBookmarked.isAcceptableOrUnknown(
+              data['is_bookmarked']!, _isBookmarkedMeta));
+    }
+    if (data.containsKey('has_note')) {
+      context.handle(_hasNoteMeta,
+          hasNote.isAcceptableOrUnknown(data['has_note']!, _hasNoteMeta));
+    }
+    if (data.containsKey('edit_at')) {
+      context.handle(_editAtMeta,
+          editAt.isAcceptableOrUnknown(data['edit_at']!, _editAtMeta));
+    } else if (isInserting) {
+      context.missing(_editAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {wordId};
+  @override
+  JpnEspWordStatusData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return JpnEspWordStatusData(
+      wordId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}jpn_esp_word_id'])!,
+      isLearned: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}is_learned']),
+      isBookmarked: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}is_bookmarked']),
+      hasNote: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}has_note']),
+      editAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}edit_at'])!,
+    );
+  }
+
+  @override
+  $JpnEspWordStatusTable createAlias(String alias) {
+    return $JpnEspWordStatusTable(attachedDatabase, alias);
+  }
+}
+
+class JpnEspWordStatusData extends DataClass
+    implements Insertable<JpnEspWordStatusData> {
+  final int wordId;
+  final int? isLearned;
+  final int? isBookmarked;
+  final int? hasNote;
+  final String editAt;
+  const JpnEspWordStatusData(
+      {required this.wordId,
+      this.isLearned,
+      this.isBookmarked,
+      this.hasNote,
+      required this.editAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['jpn_esp_word_id'] = Variable<int>(wordId);
+    if (!nullToAbsent || isLearned != null) {
+      map['is_learned'] = Variable<int>(isLearned);
+    }
+    if (!nullToAbsent || isBookmarked != null) {
+      map['is_bookmarked'] = Variable<int>(isBookmarked);
+    }
+    if (!nullToAbsent || hasNote != null) {
+      map['has_note'] = Variable<int>(hasNote);
+    }
+    map['edit_at'] = Variable<String>(editAt);
+    return map;
+  }
+
+  JpnEspWordStatusCompanion toCompanion(bool nullToAbsent) {
+    return JpnEspWordStatusCompanion(
+      wordId: Value(wordId),
+      isLearned: isLearned == null && nullToAbsent
+          ? const Value.absent()
+          : Value(isLearned),
+      isBookmarked: isBookmarked == null && nullToAbsent
+          ? const Value.absent()
+          : Value(isBookmarked),
+      hasNote: hasNote == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hasNote),
+      editAt: Value(editAt),
+    );
+  }
+
+  factory JpnEspWordStatusData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return JpnEspWordStatusData(
+      wordId: serializer.fromJson<int>(json['wordId']),
+      isLearned: serializer.fromJson<int?>(json['isLearned']),
+      isBookmarked: serializer.fromJson<int?>(json['isBookmarked']),
+      hasNote: serializer.fromJson<int?>(json['hasNote']),
+      editAt: serializer.fromJson<String>(json['editAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'wordId': serializer.toJson<int>(wordId),
+      'isLearned': serializer.toJson<int?>(isLearned),
+      'isBookmarked': serializer.toJson<int?>(isBookmarked),
+      'hasNote': serializer.toJson<int?>(hasNote),
+      'editAt': serializer.toJson<String>(editAt),
+    };
+  }
+
+  JpnEspWordStatusData copyWith(
+          {int? wordId,
+          Value<int?> isLearned = const Value.absent(),
+          Value<int?> isBookmarked = const Value.absent(),
+          Value<int?> hasNote = const Value.absent(),
+          String? editAt}) =>
+      JpnEspWordStatusData(
+        wordId: wordId ?? this.wordId,
+        isLearned: isLearned.present ? isLearned.value : this.isLearned,
+        isBookmarked:
+            isBookmarked.present ? isBookmarked.value : this.isBookmarked,
+        hasNote: hasNote.present ? hasNote.value : this.hasNote,
+        editAt: editAt ?? this.editAt,
+      );
+  JpnEspWordStatusData copyWithCompanion(JpnEspWordStatusCompanion data) {
+    return JpnEspWordStatusData(
+      wordId: data.wordId.present ? data.wordId.value : this.wordId,
+      isLearned: data.isLearned.present ? data.isLearned.value : this.isLearned,
+      isBookmarked: data.isBookmarked.present
+          ? data.isBookmarked.value
+          : this.isBookmarked,
+      hasNote: data.hasNote.present ? data.hasNote.value : this.hasNote,
+      editAt: data.editAt.present ? data.editAt.value : this.editAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('JpnEspWordStatusData(')
+          ..write('wordId: $wordId, ')
+          ..write('isLearned: $isLearned, ')
+          ..write('isBookmarked: $isBookmarked, ')
+          ..write('hasNote: $hasNote, ')
+          ..write('editAt: $editAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(wordId, isLearned, isBookmarked, hasNote, editAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is JpnEspWordStatusData &&
+          other.wordId == this.wordId &&
+          other.isLearned == this.isLearned &&
+          other.isBookmarked == this.isBookmarked &&
+          other.hasNote == this.hasNote &&
+          other.editAt == this.editAt);
+}
+
+class JpnEspWordStatusCompanion extends UpdateCompanion<JpnEspWordStatusData> {
+  final Value<int> wordId;
+  final Value<int?> isLearned;
+  final Value<int?> isBookmarked;
+  final Value<int?> hasNote;
+  final Value<String> editAt;
+  const JpnEspWordStatusCompanion({
+    this.wordId = const Value.absent(),
+    this.isLearned = const Value.absent(),
+    this.isBookmarked = const Value.absent(),
+    this.hasNote = const Value.absent(),
+    this.editAt = const Value.absent(),
+  });
+  JpnEspWordStatusCompanion.insert({
+    this.wordId = const Value.absent(),
+    this.isLearned = const Value.absent(),
+    this.isBookmarked = const Value.absent(),
+    this.hasNote = const Value.absent(),
+    required String editAt,
+  }) : editAt = Value(editAt);
+  static Insertable<JpnEspWordStatusData> custom({
+    Expression<int>? wordId,
+    Expression<int>? isLearned,
+    Expression<int>? isBookmarked,
+    Expression<int>? hasNote,
+    Expression<String>? editAt,
+  }) {
+    return RawValuesInsertable({
+      if (wordId != null) 'jpn_esp_word_id': wordId,
+      if (isLearned != null) 'is_learned': isLearned,
+      if (isBookmarked != null) 'is_bookmarked': isBookmarked,
+      if (hasNote != null) 'has_note': hasNote,
+      if (editAt != null) 'edit_at': editAt,
+    });
+  }
+
+  JpnEspWordStatusCompanion copyWith(
+      {Value<int>? wordId,
+      Value<int?>? isLearned,
+      Value<int?>? isBookmarked,
+      Value<int?>? hasNote,
+      Value<String>? editAt}) {
+    return JpnEspWordStatusCompanion(
+      wordId: wordId ?? this.wordId,
+      isLearned: isLearned ?? this.isLearned,
+      isBookmarked: isBookmarked ?? this.isBookmarked,
+      hasNote: hasNote ?? this.hasNote,
+      editAt: editAt ?? this.editAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (wordId.present) {
+      map['jpn_esp_word_id'] = Variable<int>(wordId.value);
+    }
+    if (isLearned.present) {
+      map['is_learned'] = Variable<int>(isLearned.value);
+    }
+    if (isBookmarked.present) {
+      map['is_bookmarked'] = Variable<int>(isBookmarked.value);
+    }
+    if (hasNote.present) {
+      map['has_note'] = Variable<int>(hasNote.value);
+    }
+    if (editAt.present) {
+      map['edit_at'] = Variable<String>(editAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('JpnEspWordStatusCompanion(')
+          ..write('wordId: $wordId, ')
+          ..write('isLearned: $isLearned, ')
+          ..write('isBookmarked: $isBookmarked, ')
+          ..write('hasNote: $hasNote, ')
+          ..write('editAt: $editAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $JpnEspDictionariesTable extends JpnEspDictionaries
+    with TableInfo<$JpnEspDictionariesTable, JpnEspDictionary> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $JpnEspDictionariesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _dictionaryIdMeta =
+      const VerificationMeta('dictionaryId');
+  @override
+  late final GeneratedColumn<int> dictionaryId = GeneratedColumn<int>(
+      'jpn_esp_dictionary_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _wordIdMeta = const VerificationMeta('wordId');
+  @override
+  late final GeneratedColumn<int> wordId = GeneratedColumn<int>(
+      'jpn_esp_word_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _wordMeta = const VerificationMeta('word');
+  @override
+  late final GeneratedColumn<String> word = GeneratedColumn<String>(
+      'word', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _excfMeta = const VerificationMeta('excf');
+  @override
+  late final GeneratedColumn<int> excf = GeneratedColumn<int>(
+      'excf', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _headwordMeta =
+      const VerificationMeta('headword');
+  @override
+  late final GeneratedColumn<String> headword = GeneratedColumn<String>(
+      'headword', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _contentMeta =
+      const VerificationMeta('content');
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+      'content', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _htmlRawMeta =
+      const VerificationMeta('htmlRaw');
+  @override
+  late final GeneratedColumn<String> htmlRaw = GeneratedColumn<String>(
+      'html_raw', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [dictionaryId, wordId, word, excf, headword, content, htmlRaw];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'jpn_esp_dictionaries';
+  @override
+  VerificationContext validateIntegrity(Insertable<JpnEspDictionary> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('jpn_esp_dictionary_id')) {
+      context.handle(
+          _dictionaryIdMeta,
+          dictionaryId.isAcceptableOrUnknown(
+              data['jpn_esp_dictionary_id']!, _dictionaryIdMeta));
+    }
+    if (data.containsKey('jpn_esp_word_id')) {
+      context.handle(_wordIdMeta,
+          wordId.isAcceptableOrUnknown(data['jpn_esp_word_id']!, _wordIdMeta));
+    } else if (isInserting) {
+      context.missing(_wordIdMeta);
+    }
+    if (data.containsKey('word')) {
+      context.handle(
+          _wordMeta, word.isAcceptableOrUnknown(data['word']!, _wordMeta));
+    } else if (isInserting) {
+      context.missing(_wordMeta);
+    }
+    if (data.containsKey('excf')) {
+      context.handle(
+          _excfMeta, excf.isAcceptableOrUnknown(data['excf']!, _excfMeta));
+    } else if (isInserting) {
+      context.missing(_excfMeta);
+    }
+    if (data.containsKey('headword')) {
+      context.handle(_headwordMeta,
+          headword.isAcceptableOrUnknown(data['headword']!, _headwordMeta));
+    } else if (isInserting) {
+      context.missing(_headwordMeta);
+    }
+    if (data.containsKey('content')) {
+      context.handle(_contentMeta,
+          content.isAcceptableOrUnknown(data['content']!, _contentMeta));
+    } else if (isInserting) {
+      context.missing(_contentMeta);
+    }
+    if (data.containsKey('html_raw')) {
+      context.handle(_htmlRawMeta,
+          htmlRaw.isAcceptableOrUnknown(data['html_raw']!, _htmlRawMeta));
+    } else if (isInserting) {
+      context.missing(_htmlRawMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {dictionaryId};
+  @override
+  JpnEspDictionary map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return JpnEspDictionary(
+      dictionaryId: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}jpn_esp_dictionary_id'])!,
+      wordId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}jpn_esp_word_id'])!,
+      word: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}word'])!,
+      excf: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}excf'])!,
+      headword: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}headword'])!,
+      content: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}content'])!,
+      htmlRaw: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}html_raw'])!,
+    );
+  }
+
+  @override
+  $JpnEspDictionariesTable createAlias(String alias) {
+    return $JpnEspDictionariesTable(attachedDatabase, alias);
+  }
+}
+
+class JpnEspDictionary extends DataClass
+    implements Insertable<JpnEspDictionary> {
+  final int dictionaryId;
+  final int wordId;
+  final String word;
+  final int excf;
+  final String headword;
+  final String content;
+  final String htmlRaw;
+  const JpnEspDictionary(
+      {required this.dictionaryId,
+      required this.wordId,
+      required this.word,
+      required this.excf,
+      required this.headword,
+      required this.content,
+      required this.htmlRaw});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['jpn_esp_dictionary_id'] = Variable<int>(dictionaryId);
+    map['jpn_esp_word_id'] = Variable<int>(wordId);
+    map['word'] = Variable<String>(word);
+    map['excf'] = Variable<int>(excf);
+    map['headword'] = Variable<String>(headword);
+    map['content'] = Variable<String>(content);
+    map['html_raw'] = Variable<String>(htmlRaw);
+    return map;
+  }
+
+  JpnEspDictionariesCompanion toCompanion(bool nullToAbsent) {
+    return JpnEspDictionariesCompanion(
+      dictionaryId: Value(dictionaryId),
+      wordId: Value(wordId),
+      word: Value(word),
+      excf: Value(excf),
+      headword: Value(headword),
+      content: Value(content),
+      htmlRaw: Value(htmlRaw),
+    );
+  }
+
+  factory JpnEspDictionary.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return JpnEspDictionary(
+      dictionaryId: serializer.fromJson<int>(json['dictionaryId']),
+      wordId: serializer.fromJson<int>(json['wordId']),
+      word: serializer.fromJson<String>(json['word']),
+      excf: serializer.fromJson<int>(json['excf']),
+      headword: serializer.fromJson<String>(json['headword']),
+      content: serializer.fromJson<String>(json['content']),
+      htmlRaw: serializer.fromJson<String>(json['htmlRaw']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'dictionaryId': serializer.toJson<int>(dictionaryId),
+      'wordId': serializer.toJson<int>(wordId),
+      'word': serializer.toJson<String>(word),
+      'excf': serializer.toJson<int>(excf),
+      'headword': serializer.toJson<String>(headword),
+      'content': serializer.toJson<String>(content),
+      'htmlRaw': serializer.toJson<String>(htmlRaw),
+    };
+  }
+
+  JpnEspDictionary copyWith(
+          {int? dictionaryId,
+          int? wordId,
+          String? word,
+          int? excf,
+          String? headword,
+          String? content,
+          String? htmlRaw}) =>
+      JpnEspDictionary(
+        dictionaryId: dictionaryId ?? this.dictionaryId,
+        wordId: wordId ?? this.wordId,
+        word: word ?? this.word,
+        excf: excf ?? this.excf,
+        headword: headword ?? this.headword,
+        content: content ?? this.content,
+        htmlRaw: htmlRaw ?? this.htmlRaw,
+      );
+  JpnEspDictionary copyWithCompanion(JpnEspDictionariesCompanion data) {
+    return JpnEspDictionary(
+      dictionaryId: data.dictionaryId.present
+          ? data.dictionaryId.value
+          : this.dictionaryId,
+      wordId: data.wordId.present ? data.wordId.value : this.wordId,
+      word: data.word.present ? data.word.value : this.word,
+      excf: data.excf.present ? data.excf.value : this.excf,
+      headword: data.headword.present ? data.headword.value : this.headword,
+      content: data.content.present ? data.content.value : this.content,
+      htmlRaw: data.htmlRaw.present ? data.htmlRaw.value : this.htmlRaw,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('JpnEspDictionary(')
+          ..write('dictionaryId: $dictionaryId, ')
+          ..write('wordId: $wordId, ')
+          ..write('word: $word, ')
+          ..write('excf: $excf, ')
+          ..write('headword: $headword, ')
+          ..write('content: $content, ')
+          ..write('htmlRaw: $htmlRaw')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(dictionaryId, wordId, word, excf, headword, content, htmlRaw);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is JpnEspDictionary &&
+          other.dictionaryId == this.dictionaryId &&
+          other.wordId == this.wordId &&
+          other.word == this.word &&
+          other.excf == this.excf &&
+          other.headword == this.headword &&
+          other.content == this.content &&
+          other.htmlRaw == this.htmlRaw);
+}
+
+class JpnEspDictionariesCompanion extends UpdateCompanion<JpnEspDictionary> {
+  final Value<int> dictionaryId;
+  final Value<int> wordId;
+  final Value<String> word;
+  final Value<int> excf;
+  final Value<String> headword;
+  final Value<String> content;
+  final Value<String> htmlRaw;
+  const JpnEspDictionariesCompanion({
+    this.dictionaryId = const Value.absent(),
+    this.wordId = const Value.absent(),
+    this.word = const Value.absent(),
+    this.excf = const Value.absent(),
+    this.headword = const Value.absent(),
+    this.content = const Value.absent(),
+    this.htmlRaw = const Value.absent(),
+  });
+  JpnEspDictionariesCompanion.insert({
+    this.dictionaryId = const Value.absent(),
+    required int wordId,
+    required String word,
+    required int excf,
+    required String headword,
+    required String content,
+    required String htmlRaw,
+  })  : wordId = Value(wordId),
+        word = Value(word),
+        excf = Value(excf),
+        headword = Value(headword),
+        content = Value(content),
+        htmlRaw = Value(htmlRaw);
+  static Insertable<JpnEspDictionary> custom({
+    Expression<int>? dictionaryId,
+    Expression<int>? wordId,
+    Expression<String>? word,
+    Expression<int>? excf,
+    Expression<String>? headword,
+    Expression<String>? content,
+    Expression<String>? htmlRaw,
+  }) {
+    return RawValuesInsertable({
+      if (dictionaryId != null) 'jpn_esp_dictionary_id': dictionaryId,
+      if (wordId != null) 'jpn_esp_word_id': wordId,
+      if (word != null) 'word': word,
+      if (excf != null) 'excf': excf,
+      if (headword != null) 'headword': headword,
+      if (content != null) 'content': content,
+      if (htmlRaw != null) 'html_raw': htmlRaw,
+    });
+  }
+
+  JpnEspDictionariesCompanion copyWith(
+      {Value<int>? dictionaryId,
+      Value<int>? wordId,
+      Value<String>? word,
+      Value<int>? excf,
+      Value<String>? headword,
+      Value<String>? content,
+      Value<String>? htmlRaw}) {
+    return JpnEspDictionariesCompanion(
+      dictionaryId: dictionaryId ?? this.dictionaryId,
+      wordId: wordId ?? this.wordId,
+      word: word ?? this.word,
+      excf: excf ?? this.excf,
+      headword: headword ?? this.headword,
+      content: content ?? this.content,
+      htmlRaw: htmlRaw ?? this.htmlRaw,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (dictionaryId.present) {
+      map['jpn_esp_dictionary_id'] = Variable<int>(dictionaryId.value);
+    }
+    if (wordId.present) {
+      map['jpn_esp_word_id'] = Variable<int>(wordId.value);
+    }
+    if (word.present) {
+      map['word'] = Variable<String>(word.value);
+    }
+    if (excf.present) {
+      map['excf'] = Variable<int>(excf.value);
+    }
+    if (headword.present) {
+      map['headword'] = Variable<String>(headword.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    if (htmlRaw.present) {
+      map['html_raw'] = Variable<String>(htmlRaw.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('JpnEspDictionariesCompanion(')
+          ..write('dictionaryId: $dictionaryId, ')
+          ..write('wordId: $wordId, ')
+          ..write('word: $word, ')
+          ..write('excf: $excf, ')
+          ..write('headword: $headword, ')
+          ..write('content: $content, ')
+          ..write('htmlRaw: $htmlRaw')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $JpnEspExamplesTable extends JpnEspExamples
+    with TableInfo<$JpnEspExamplesTable, JpnEspExample> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $JpnEspExamplesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _exampleIdMeta =
+      const VerificationMeta('exampleId');
+  @override
+  late final GeneratedColumn<int> exampleId = GeneratedColumn<int>(
+      'jpn_esp_example_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _dictionaryIdMeta =
+      const VerificationMeta('dictionaryId');
+  @override
+  late final GeneratedColumn<int> dictionaryId = GeneratedColumn<int>(
+      'jpn_esp_dictionary_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _exampleNoMeta =
+      const VerificationMeta('exampleNo');
+  @override
+  late final GeneratedColumn<int> exampleNo = GeneratedColumn<int>(
+      'example_no', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _japaneseTextMeta =
+      const VerificationMeta('japaneseText');
+  @override
+  late final GeneratedColumn<String> japaneseText = GeneratedColumn<String>(
+      'japanese_text', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _espanolHtmlMeta =
+      const VerificationMeta('espanolHtml');
+  @override
+  late final GeneratedColumn<String> espanolHtml = GeneratedColumn<String>(
+      'espanol_html', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _espanolTextMeta =
+      const VerificationMeta('espanolText');
+  @override
+  late final GeneratedColumn<String> espanolText = GeneratedColumn<String>(
+      'espanol_txt', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        exampleId,
+        dictionaryId,
+        exampleNo,
+        japaneseText,
+        espanolHtml,
+        espanolText
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'jpn_esp_examples';
+  @override
+  VerificationContext validateIntegrity(Insertable<JpnEspExample> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('jpn_esp_example_id')) {
+      context.handle(
+          _exampleIdMeta,
+          exampleId.isAcceptableOrUnknown(
+              data['jpn_esp_example_id']!, _exampleIdMeta));
+    }
+    if (data.containsKey('jpn_esp_dictionary_id')) {
+      context.handle(
+          _dictionaryIdMeta,
+          dictionaryId.isAcceptableOrUnknown(
+              data['jpn_esp_dictionary_id']!, _dictionaryIdMeta));
+    } else if (isInserting) {
+      context.missing(_dictionaryIdMeta);
+    }
+    if (data.containsKey('example_no')) {
+      context.handle(_exampleNoMeta,
+          exampleNo.isAcceptableOrUnknown(data['example_no']!, _exampleNoMeta));
+    } else if (isInserting) {
+      context.missing(_exampleNoMeta);
+    }
+    if (data.containsKey('japanese_text')) {
+      context.handle(
+          _japaneseTextMeta,
+          japaneseText.isAcceptableOrUnknown(
+              data['japanese_text']!, _japaneseTextMeta));
+    } else if (isInserting) {
+      context.missing(_japaneseTextMeta);
+    }
+    if (data.containsKey('espanol_html')) {
+      context.handle(
+          _espanolHtmlMeta,
+          espanolHtml.isAcceptableOrUnknown(
+              data['espanol_html']!, _espanolHtmlMeta));
+    } else if (isInserting) {
+      context.missing(_espanolHtmlMeta);
+    }
+    if (data.containsKey('espanol_txt')) {
+      context.handle(
+          _espanolTextMeta,
+          espanolText.isAcceptableOrUnknown(
+              data['espanol_txt']!, _espanolTextMeta));
+    } else if (isInserting) {
+      context.missing(_espanolTextMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {exampleId};
+  @override
+  JpnEspExample map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return JpnEspExample(
+      exampleId: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}jpn_esp_example_id'])!,
+      dictionaryId: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}jpn_esp_dictionary_id'])!,
+      exampleNo: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}example_no'])!,
+      japaneseText: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}japanese_text'])!,
+      espanolHtml: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}espanol_html'])!,
+      espanolText: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}espanol_txt'])!,
+    );
+  }
+
+  @override
+  $JpnEspExamplesTable createAlias(String alias) {
+    return $JpnEspExamplesTable(attachedDatabase, alias);
+  }
+}
+
+class JpnEspExample extends DataClass implements Insertable<JpnEspExample> {
+  final int exampleId;
+  final int dictionaryId;
+  final int exampleNo;
+  final String japaneseText;
+  final String espanolHtml;
+  final String espanolText;
+  const JpnEspExample(
+      {required this.exampleId,
+      required this.dictionaryId,
+      required this.exampleNo,
+      required this.japaneseText,
+      required this.espanolHtml,
+      required this.espanolText});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['jpn_esp_example_id'] = Variable<int>(exampleId);
+    map['jpn_esp_dictionary_id'] = Variable<int>(dictionaryId);
+    map['example_no'] = Variable<int>(exampleNo);
+    map['japanese_text'] = Variable<String>(japaneseText);
+    map['espanol_html'] = Variable<String>(espanolHtml);
+    map['espanol_txt'] = Variable<String>(espanolText);
+    return map;
+  }
+
+  JpnEspExamplesCompanion toCompanion(bool nullToAbsent) {
+    return JpnEspExamplesCompanion(
+      exampleId: Value(exampleId),
+      dictionaryId: Value(dictionaryId),
+      exampleNo: Value(exampleNo),
+      japaneseText: Value(japaneseText),
+      espanolHtml: Value(espanolHtml),
+      espanolText: Value(espanolText),
+    );
+  }
+
+  factory JpnEspExample.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return JpnEspExample(
+      exampleId: serializer.fromJson<int>(json['exampleId']),
+      dictionaryId: serializer.fromJson<int>(json['dictionaryId']),
+      exampleNo: serializer.fromJson<int>(json['exampleNo']),
+      japaneseText: serializer.fromJson<String>(json['japaneseText']),
+      espanolHtml: serializer.fromJson<String>(json['espanolHtml']),
+      espanolText: serializer.fromJson<String>(json['espanolText']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'exampleId': serializer.toJson<int>(exampleId),
+      'dictionaryId': serializer.toJson<int>(dictionaryId),
+      'exampleNo': serializer.toJson<int>(exampleNo),
+      'japaneseText': serializer.toJson<String>(japaneseText),
+      'espanolHtml': serializer.toJson<String>(espanolHtml),
+      'espanolText': serializer.toJson<String>(espanolText),
+    };
+  }
+
+  JpnEspExample copyWith(
+          {int? exampleId,
+          int? dictionaryId,
+          int? exampleNo,
+          String? japaneseText,
+          String? espanolHtml,
+          String? espanolText}) =>
+      JpnEspExample(
+        exampleId: exampleId ?? this.exampleId,
+        dictionaryId: dictionaryId ?? this.dictionaryId,
+        exampleNo: exampleNo ?? this.exampleNo,
+        japaneseText: japaneseText ?? this.japaneseText,
+        espanolHtml: espanolHtml ?? this.espanolHtml,
+        espanolText: espanolText ?? this.espanolText,
+      );
+  JpnEspExample copyWithCompanion(JpnEspExamplesCompanion data) {
+    return JpnEspExample(
+      exampleId: data.exampleId.present ? data.exampleId.value : this.exampleId,
+      dictionaryId: data.dictionaryId.present
+          ? data.dictionaryId.value
+          : this.dictionaryId,
+      exampleNo: data.exampleNo.present ? data.exampleNo.value : this.exampleNo,
+      japaneseText: data.japaneseText.present
+          ? data.japaneseText.value
+          : this.japaneseText,
+      espanolHtml:
+          data.espanolHtml.present ? data.espanolHtml.value : this.espanolHtml,
+      espanolText:
+          data.espanolText.present ? data.espanolText.value : this.espanolText,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('JpnEspExample(')
+          ..write('exampleId: $exampleId, ')
+          ..write('dictionaryId: $dictionaryId, ')
+          ..write('exampleNo: $exampleNo, ')
+          ..write('japaneseText: $japaneseText, ')
+          ..write('espanolHtml: $espanolHtml, ')
+          ..write('espanolText: $espanolText')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(exampleId, dictionaryId, exampleNo,
+      japaneseText, espanolHtml, espanolText);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is JpnEspExample &&
+          other.exampleId == this.exampleId &&
+          other.dictionaryId == this.dictionaryId &&
+          other.exampleNo == this.exampleNo &&
+          other.japaneseText == this.japaneseText &&
+          other.espanolHtml == this.espanolHtml &&
+          other.espanolText == this.espanolText);
+}
+
+class JpnEspExamplesCompanion extends UpdateCompanion<JpnEspExample> {
+  final Value<int> exampleId;
+  final Value<int> dictionaryId;
+  final Value<int> exampleNo;
+  final Value<String> japaneseText;
+  final Value<String> espanolHtml;
+  final Value<String> espanolText;
+  const JpnEspExamplesCompanion({
+    this.exampleId = const Value.absent(),
+    this.dictionaryId = const Value.absent(),
+    this.exampleNo = const Value.absent(),
+    this.japaneseText = const Value.absent(),
+    this.espanolHtml = const Value.absent(),
+    this.espanolText = const Value.absent(),
+  });
+  JpnEspExamplesCompanion.insert({
+    this.exampleId = const Value.absent(),
+    required int dictionaryId,
+    required int exampleNo,
+    required String japaneseText,
+    required String espanolHtml,
+    required String espanolText,
+  })  : dictionaryId = Value(dictionaryId),
+        exampleNo = Value(exampleNo),
+        japaneseText = Value(japaneseText),
+        espanolHtml = Value(espanolHtml),
+        espanolText = Value(espanolText);
+  static Insertable<JpnEspExample> custom({
+    Expression<int>? exampleId,
+    Expression<int>? dictionaryId,
+    Expression<int>? exampleNo,
+    Expression<String>? japaneseText,
+    Expression<String>? espanolHtml,
+    Expression<String>? espanolText,
+  }) {
+    return RawValuesInsertable({
+      if (exampleId != null) 'jpn_esp_example_id': exampleId,
+      if (dictionaryId != null) 'jpn_esp_dictionary_id': dictionaryId,
+      if (exampleNo != null) 'example_no': exampleNo,
+      if (japaneseText != null) 'japanese_text': japaneseText,
+      if (espanolHtml != null) 'espanol_html': espanolHtml,
+      if (espanolText != null) 'espanol_txt': espanolText,
+    });
+  }
+
+  JpnEspExamplesCompanion copyWith(
+      {Value<int>? exampleId,
+      Value<int>? dictionaryId,
+      Value<int>? exampleNo,
+      Value<String>? japaneseText,
+      Value<String>? espanolHtml,
+      Value<String>? espanolText}) {
+    return JpnEspExamplesCompanion(
+      exampleId: exampleId ?? this.exampleId,
+      dictionaryId: dictionaryId ?? this.dictionaryId,
+      exampleNo: exampleNo ?? this.exampleNo,
+      japaneseText: japaneseText ?? this.japaneseText,
+      espanolHtml: espanolHtml ?? this.espanolHtml,
+      espanolText: espanolText ?? this.espanolText,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (exampleId.present) {
+      map['jpn_esp_example_id'] = Variable<int>(exampleId.value);
+    }
+    if (dictionaryId.present) {
+      map['jpn_esp_dictionary_id'] = Variable<int>(dictionaryId.value);
+    }
+    if (exampleNo.present) {
+      map['example_no'] = Variable<int>(exampleNo.value);
+    }
+    if (japaneseText.present) {
+      map['japanese_text'] = Variable<String>(japaneseText.value);
+    }
+    if (espanolHtml.present) {
+      map['espanol_html'] = Variable<String>(espanolHtml.value);
+    }
+    if (espanolText.present) {
+      map['espanol_txt'] = Variable<String>(espanolText.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('JpnEspExamplesCompanion(')
+          ..write('exampleId: $exampleId, ')
+          ..write('dictionaryId: $dictionaryId, ')
+          ..write('exampleNo: $exampleNo, ')
+          ..write('japaneseText: $japaneseText, ')
+          ..write('espanolHtml: $espanolHtml, ')
+          ..write('espanolText: $espanolText')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$DatabaseProvider extends GeneratedDatabase {
   _$DatabaseProvider(QueryExecutor e) : super(e);
   $DatabaseProviderManager get managers => $DatabaseProviderManager(this);
@@ -5961,11 +7174,19 @@ abstract class _$DatabaseProvider extends GeneratedDatabase {
   late final $WordStatusTable wordStatus = $WordStatusTable(this);
   late final $MyWordsTable myWords = $MyWordsTable(this);
   late final $MyWordStatusTable myWordStatus = $MyWordStatusTable(this);
+  late final $JpnEspWordsTable jpnEspWords = $JpnEspWordsTable(this);
+  late final $JpnEspWordStatusTable jpnEspWordStatus =
+      $JpnEspWordStatusTable(this);
+  late final $JpnEspDictionariesTable jpnEspDictionaries =
+      $JpnEspDictionariesTable(this);
+  late final $JpnEspExamplesTable jpnEspExamples = $JpnEspExamplesTable(this);
   late final WordDao wordDao = WordDao(this as DatabaseProvider);
   late final RankingDao rankingDao = RankingDao(this as DatabaseProvider);
   late final PartOfSpeechListDao partOfSpeechListDao =
       PartOfSpeechListDao(this as DatabaseProvider);
   late final MyWordDao myWordDao = MyWordDao(this as DatabaseProvider);
+  late final JpnEspWordDao jpnEspWordDao =
+      JpnEspWordDao(this as DatabaseProvider);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5981,7 +7202,11 @@ abstract class _$DatabaseProvider extends GeneratedDatabase {
         words,
         wordStatus,
         myWords,
-        myWordStatus
+        myWordStatus,
+        jpnEspWords,
+        jpnEspWordStatus,
+        jpnEspDictionaries,
+        jpnEspExamples
       ];
 }
 
@@ -8657,6 +9882,686 @@ typedef $$MyWordStatusTableProcessedTableManager = ProcessedTableManager<
     ),
     MyWordStatusData,
     PrefetchHooks Function()>;
+typedef $$JpnEspWordsTableCreateCompanionBuilder = JpnEspWordsCompanion
+    Function({
+  Value<int> wordId,
+  required String word,
+});
+typedef $$JpnEspWordsTableUpdateCompanionBuilder = JpnEspWordsCompanion
+    Function({
+  Value<int> wordId,
+  Value<String> word,
+});
+
+class $$JpnEspWordsTableFilterComposer
+    extends Composer<_$DatabaseProvider, $JpnEspWordsTable> {
+  $$JpnEspWordsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get wordId => $composableBuilder(
+      column: $table.wordId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get word => $composableBuilder(
+      column: $table.word, builder: (column) => ColumnFilters(column));
+}
+
+class $$JpnEspWordsTableOrderingComposer
+    extends Composer<_$DatabaseProvider, $JpnEspWordsTable> {
+  $$JpnEspWordsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get wordId => $composableBuilder(
+      column: $table.wordId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get word => $composableBuilder(
+      column: $table.word, builder: (column) => ColumnOrderings(column));
+}
+
+class $$JpnEspWordsTableAnnotationComposer
+    extends Composer<_$DatabaseProvider, $JpnEspWordsTable> {
+  $$JpnEspWordsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get wordId =>
+      $composableBuilder(column: $table.wordId, builder: (column) => column);
+
+  GeneratedColumn<String> get word =>
+      $composableBuilder(column: $table.word, builder: (column) => column);
+}
+
+class $$JpnEspWordsTableTableManager extends RootTableManager<
+    _$DatabaseProvider,
+    $JpnEspWordsTable,
+    JpnEspWord,
+    $$JpnEspWordsTableFilterComposer,
+    $$JpnEspWordsTableOrderingComposer,
+    $$JpnEspWordsTableAnnotationComposer,
+    $$JpnEspWordsTableCreateCompanionBuilder,
+    $$JpnEspWordsTableUpdateCompanionBuilder,
+    (
+      JpnEspWord,
+      BaseReferences<_$DatabaseProvider, $JpnEspWordsTable, JpnEspWord>
+    ),
+    JpnEspWord,
+    PrefetchHooks Function()> {
+  $$JpnEspWordsTableTableManager(_$DatabaseProvider db, $JpnEspWordsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$JpnEspWordsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$JpnEspWordsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$JpnEspWordsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> wordId = const Value.absent(),
+            Value<String> word = const Value.absent(),
+          }) =>
+              JpnEspWordsCompanion(
+            wordId: wordId,
+            word: word,
+          ),
+          createCompanionCallback: ({
+            Value<int> wordId = const Value.absent(),
+            required String word,
+          }) =>
+              JpnEspWordsCompanion.insert(
+            wordId: wordId,
+            word: word,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$JpnEspWordsTableProcessedTableManager = ProcessedTableManager<
+    _$DatabaseProvider,
+    $JpnEspWordsTable,
+    JpnEspWord,
+    $$JpnEspWordsTableFilterComposer,
+    $$JpnEspWordsTableOrderingComposer,
+    $$JpnEspWordsTableAnnotationComposer,
+    $$JpnEspWordsTableCreateCompanionBuilder,
+    $$JpnEspWordsTableUpdateCompanionBuilder,
+    (
+      JpnEspWord,
+      BaseReferences<_$DatabaseProvider, $JpnEspWordsTable, JpnEspWord>
+    ),
+    JpnEspWord,
+    PrefetchHooks Function()>;
+typedef $$JpnEspWordStatusTableCreateCompanionBuilder
+    = JpnEspWordStatusCompanion Function({
+  Value<int> wordId,
+  Value<int?> isLearned,
+  Value<int?> isBookmarked,
+  Value<int?> hasNote,
+  required String editAt,
+});
+typedef $$JpnEspWordStatusTableUpdateCompanionBuilder
+    = JpnEspWordStatusCompanion Function({
+  Value<int> wordId,
+  Value<int?> isLearned,
+  Value<int?> isBookmarked,
+  Value<int?> hasNote,
+  Value<String> editAt,
+});
+
+class $$JpnEspWordStatusTableFilterComposer
+    extends Composer<_$DatabaseProvider, $JpnEspWordStatusTable> {
+  $$JpnEspWordStatusTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get wordId => $composableBuilder(
+      column: $table.wordId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get isLearned => $composableBuilder(
+      column: $table.isLearned, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get isBookmarked => $composableBuilder(
+      column: $table.isBookmarked, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get hasNote => $composableBuilder(
+      column: $table.hasNote, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get editAt => $composableBuilder(
+      column: $table.editAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$JpnEspWordStatusTableOrderingComposer
+    extends Composer<_$DatabaseProvider, $JpnEspWordStatusTable> {
+  $$JpnEspWordStatusTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get wordId => $composableBuilder(
+      column: $table.wordId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get isLearned => $composableBuilder(
+      column: $table.isLearned, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get isBookmarked => $composableBuilder(
+      column: $table.isBookmarked,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get hasNote => $composableBuilder(
+      column: $table.hasNote, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get editAt => $composableBuilder(
+      column: $table.editAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$JpnEspWordStatusTableAnnotationComposer
+    extends Composer<_$DatabaseProvider, $JpnEspWordStatusTable> {
+  $$JpnEspWordStatusTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get wordId =>
+      $composableBuilder(column: $table.wordId, builder: (column) => column);
+
+  GeneratedColumn<int> get isLearned =>
+      $composableBuilder(column: $table.isLearned, builder: (column) => column);
+
+  GeneratedColumn<int> get isBookmarked => $composableBuilder(
+      column: $table.isBookmarked, builder: (column) => column);
+
+  GeneratedColumn<int> get hasNote =>
+      $composableBuilder(column: $table.hasNote, builder: (column) => column);
+
+  GeneratedColumn<String> get editAt =>
+      $composableBuilder(column: $table.editAt, builder: (column) => column);
+}
+
+class $$JpnEspWordStatusTableTableManager extends RootTableManager<
+    _$DatabaseProvider,
+    $JpnEspWordStatusTable,
+    JpnEspWordStatusData,
+    $$JpnEspWordStatusTableFilterComposer,
+    $$JpnEspWordStatusTableOrderingComposer,
+    $$JpnEspWordStatusTableAnnotationComposer,
+    $$JpnEspWordStatusTableCreateCompanionBuilder,
+    $$JpnEspWordStatusTableUpdateCompanionBuilder,
+    (
+      JpnEspWordStatusData,
+      BaseReferences<_$DatabaseProvider, $JpnEspWordStatusTable,
+          JpnEspWordStatusData>
+    ),
+    JpnEspWordStatusData,
+    PrefetchHooks Function()> {
+  $$JpnEspWordStatusTableTableManager(
+      _$DatabaseProvider db, $JpnEspWordStatusTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$JpnEspWordStatusTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$JpnEspWordStatusTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$JpnEspWordStatusTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> wordId = const Value.absent(),
+            Value<int?> isLearned = const Value.absent(),
+            Value<int?> isBookmarked = const Value.absent(),
+            Value<int?> hasNote = const Value.absent(),
+            Value<String> editAt = const Value.absent(),
+          }) =>
+              JpnEspWordStatusCompanion(
+            wordId: wordId,
+            isLearned: isLearned,
+            isBookmarked: isBookmarked,
+            hasNote: hasNote,
+            editAt: editAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> wordId = const Value.absent(),
+            Value<int?> isLearned = const Value.absent(),
+            Value<int?> isBookmarked = const Value.absent(),
+            Value<int?> hasNote = const Value.absent(),
+            required String editAt,
+          }) =>
+              JpnEspWordStatusCompanion.insert(
+            wordId: wordId,
+            isLearned: isLearned,
+            isBookmarked: isBookmarked,
+            hasNote: hasNote,
+            editAt: editAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$JpnEspWordStatusTableProcessedTableManager = ProcessedTableManager<
+    _$DatabaseProvider,
+    $JpnEspWordStatusTable,
+    JpnEspWordStatusData,
+    $$JpnEspWordStatusTableFilterComposer,
+    $$JpnEspWordStatusTableOrderingComposer,
+    $$JpnEspWordStatusTableAnnotationComposer,
+    $$JpnEspWordStatusTableCreateCompanionBuilder,
+    $$JpnEspWordStatusTableUpdateCompanionBuilder,
+    (
+      JpnEspWordStatusData,
+      BaseReferences<_$DatabaseProvider, $JpnEspWordStatusTable,
+          JpnEspWordStatusData>
+    ),
+    JpnEspWordStatusData,
+    PrefetchHooks Function()>;
+typedef $$JpnEspDictionariesTableCreateCompanionBuilder
+    = JpnEspDictionariesCompanion Function({
+  Value<int> dictionaryId,
+  required int wordId,
+  required String word,
+  required int excf,
+  required String headword,
+  required String content,
+  required String htmlRaw,
+});
+typedef $$JpnEspDictionariesTableUpdateCompanionBuilder
+    = JpnEspDictionariesCompanion Function({
+  Value<int> dictionaryId,
+  Value<int> wordId,
+  Value<String> word,
+  Value<int> excf,
+  Value<String> headword,
+  Value<String> content,
+  Value<String> htmlRaw,
+});
+
+class $$JpnEspDictionariesTableFilterComposer
+    extends Composer<_$DatabaseProvider, $JpnEspDictionariesTable> {
+  $$JpnEspDictionariesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get dictionaryId => $composableBuilder(
+      column: $table.dictionaryId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get wordId => $composableBuilder(
+      column: $table.wordId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get word => $composableBuilder(
+      column: $table.word, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get excf => $composableBuilder(
+      column: $table.excf, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get headword => $composableBuilder(
+      column: $table.headword, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get content => $composableBuilder(
+      column: $table.content, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get htmlRaw => $composableBuilder(
+      column: $table.htmlRaw, builder: (column) => ColumnFilters(column));
+}
+
+class $$JpnEspDictionariesTableOrderingComposer
+    extends Composer<_$DatabaseProvider, $JpnEspDictionariesTable> {
+  $$JpnEspDictionariesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get dictionaryId => $composableBuilder(
+      column: $table.dictionaryId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get wordId => $composableBuilder(
+      column: $table.wordId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get word => $composableBuilder(
+      column: $table.word, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get excf => $composableBuilder(
+      column: $table.excf, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get headword => $composableBuilder(
+      column: $table.headword, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get content => $composableBuilder(
+      column: $table.content, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get htmlRaw => $composableBuilder(
+      column: $table.htmlRaw, builder: (column) => ColumnOrderings(column));
+}
+
+class $$JpnEspDictionariesTableAnnotationComposer
+    extends Composer<_$DatabaseProvider, $JpnEspDictionariesTable> {
+  $$JpnEspDictionariesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get dictionaryId => $composableBuilder(
+      column: $table.dictionaryId, builder: (column) => column);
+
+  GeneratedColumn<int> get wordId =>
+      $composableBuilder(column: $table.wordId, builder: (column) => column);
+
+  GeneratedColumn<String> get word =>
+      $composableBuilder(column: $table.word, builder: (column) => column);
+
+  GeneratedColumn<int> get excf =>
+      $composableBuilder(column: $table.excf, builder: (column) => column);
+
+  GeneratedColumn<String> get headword =>
+      $composableBuilder(column: $table.headword, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<String> get htmlRaw =>
+      $composableBuilder(column: $table.htmlRaw, builder: (column) => column);
+}
+
+class $$JpnEspDictionariesTableTableManager extends RootTableManager<
+    _$DatabaseProvider,
+    $JpnEspDictionariesTable,
+    JpnEspDictionary,
+    $$JpnEspDictionariesTableFilterComposer,
+    $$JpnEspDictionariesTableOrderingComposer,
+    $$JpnEspDictionariesTableAnnotationComposer,
+    $$JpnEspDictionariesTableCreateCompanionBuilder,
+    $$JpnEspDictionariesTableUpdateCompanionBuilder,
+    (
+      JpnEspDictionary,
+      BaseReferences<_$DatabaseProvider, $JpnEspDictionariesTable,
+          JpnEspDictionary>
+    ),
+    JpnEspDictionary,
+    PrefetchHooks Function()> {
+  $$JpnEspDictionariesTableTableManager(
+      _$DatabaseProvider db, $JpnEspDictionariesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$JpnEspDictionariesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$JpnEspDictionariesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$JpnEspDictionariesTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> dictionaryId = const Value.absent(),
+            Value<int> wordId = const Value.absent(),
+            Value<String> word = const Value.absent(),
+            Value<int> excf = const Value.absent(),
+            Value<String> headword = const Value.absent(),
+            Value<String> content = const Value.absent(),
+            Value<String> htmlRaw = const Value.absent(),
+          }) =>
+              JpnEspDictionariesCompanion(
+            dictionaryId: dictionaryId,
+            wordId: wordId,
+            word: word,
+            excf: excf,
+            headword: headword,
+            content: content,
+            htmlRaw: htmlRaw,
+          ),
+          createCompanionCallback: ({
+            Value<int> dictionaryId = const Value.absent(),
+            required int wordId,
+            required String word,
+            required int excf,
+            required String headword,
+            required String content,
+            required String htmlRaw,
+          }) =>
+              JpnEspDictionariesCompanion.insert(
+            dictionaryId: dictionaryId,
+            wordId: wordId,
+            word: word,
+            excf: excf,
+            headword: headword,
+            content: content,
+            htmlRaw: htmlRaw,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$JpnEspDictionariesTableProcessedTableManager = ProcessedTableManager<
+    _$DatabaseProvider,
+    $JpnEspDictionariesTable,
+    JpnEspDictionary,
+    $$JpnEspDictionariesTableFilterComposer,
+    $$JpnEspDictionariesTableOrderingComposer,
+    $$JpnEspDictionariesTableAnnotationComposer,
+    $$JpnEspDictionariesTableCreateCompanionBuilder,
+    $$JpnEspDictionariesTableUpdateCompanionBuilder,
+    (
+      JpnEspDictionary,
+      BaseReferences<_$DatabaseProvider, $JpnEspDictionariesTable,
+          JpnEspDictionary>
+    ),
+    JpnEspDictionary,
+    PrefetchHooks Function()>;
+typedef $$JpnEspExamplesTableCreateCompanionBuilder = JpnEspExamplesCompanion
+    Function({
+  Value<int> exampleId,
+  required int dictionaryId,
+  required int exampleNo,
+  required String japaneseText,
+  required String espanolHtml,
+  required String espanolText,
+});
+typedef $$JpnEspExamplesTableUpdateCompanionBuilder = JpnEspExamplesCompanion
+    Function({
+  Value<int> exampleId,
+  Value<int> dictionaryId,
+  Value<int> exampleNo,
+  Value<String> japaneseText,
+  Value<String> espanolHtml,
+  Value<String> espanolText,
+});
+
+class $$JpnEspExamplesTableFilterComposer
+    extends Composer<_$DatabaseProvider, $JpnEspExamplesTable> {
+  $$JpnEspExamplesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get exampleId => $composableBuilder(
+      column: $table.exampleId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get dictionaryId => $composableBuilder(
+      column: $table.dictionaryId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get exampleNo => $composableBuilder(
+      column: $table.exampleNo, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get japaneseText => $composableBuilder(
+      column: $table.japaneseText, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get espanolHtml => $composableBuilder(
+      column: $table.espanolHtml, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get espanolText => $composableBuilder(
+      column: $table.espanolText, builder: (column) => ColumnFilters(column));
+}
+
+class $$JpnEspExamplesTableOrderingComposer
+    extends Composer<_$DatabaseProvider, $JpnEspExamplesTable> {
+  $$JpnEspExamplesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get exampleId => $composableBuilder(
+      column: $table.exampleId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get dictionaryId => $composableBuilder(
+      column: $table.dictionaryId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get exampleNo => $composableBuilder(
+      column: $table.exampleNo, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get japaneseText => $composableBuilder(
+      column: $table.japaneseText,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get espanolHtml => $composableBuilder(
+      column: $table.espanolHtml, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get espanolText => $composableBuilder(
+      column: $table.espanolText, builder: (column) => ColumnOrderings(column));
+}
+
+class $$JpnEspExamplesTableAnnotationComposer
+    extends Composer<_$DatabaseProvider, $JpnEspExamplesTable> {
+  $$JpnEspExamplesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get exampleId =>
+      $composableBuilder(column: $table.exampleId, builder: (column) => column);
+
+  GeneratedColumn<int> get dictionaryId => $composableBuilder(
+      column: $table.dictionaryId, builder: (column) => column);
+
+  GeneratedColumn<int> get exampleNo =>
+      $composableBuilder(column: $table.exampleNo, builder: (column) => column);
+
+  GeneratedColumn<String> get japaneseText => $composableBuilder(
+      column: $table.japaneseText, builder: (column) => column);
+
+  GeneratedColumn<String> get espanolHtml => $composableBuilder(
+      column: $table.espanolHtml, builder: (column) => column);
+
+  GeneratedColumn<String> get espanolText => $composableBuilder(
+      column: $table.espanolText, builder: (column) => column);
+}
+
+class $$JpnEspExamplesTableTableManager extends RootTableManager<
+    _$DatabaseProvider,
+    $JpnEspExamplesTable,
+    JpnEspExample,
+    $$JpnEspExamplesTableFilterComposer,
+    $$JpnEspExamplesTableOrderingComposer,
+    $$JpnEspExamplesTableAnnotationComposer,
+    $$JpnEspExamplesTableCreateCompanionBuilder,
+    $$JpnEspExamplesTableUpdateCompanionBuilder,
+    (
+      JpnEspExample,
+      BaseReferences<_$DatabaseProvider, $JpnEspExamplesTable, JpnEspExample>
+    ),
+    JpnEspExample,
+    PrefetchHooks Function()> {
+  $$JpnEspExamplesTableTableManager(
+      _$DatabaseProvider db, $JpnEspExamplesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$JpnEspExamplesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$JpnEspExamplesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$JpnEspExamplesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> exampleId = const Value.absent(),
+            Value<int> dictionaryId = const Value.absent(),
+            Value<int> exampleNo = const Value.absent(),
+            Value<String> japaneseText = const Value.absent(),
+            Value<String> espanolHtml = const Value.absent(),
+            Value<String> espanolText = const Value.absent(),
+          }) =>
+              JpnEspExamplesCompanion(
+            exampleId: exampleId,
+            dictionaryId: dictionaryId,
+            exampleNo: exampleNo,
+            japaneseText: japaneseText,
+            espanolHtml: espanolHtml,
+            espanolText: espanolText,
+          ),
+          createCompanionCallback: ({
+            Value<int> exampleId = const Value.absent(),
+            required int dictionaryId,
+            required int exampleNo,
+            required String japaneseText,
+            required String espanolHtml,
+            required String espanolText,
+          }) =>
+              JpnEspExamplesCompanion.insert(
+            exampleId: exampleId,
+            dictionaryId: dictionaryId,
+            exampleNo: exampleNo,
+            japaneseText: japaneseText,
+            espanolHtml: espanolHtml,
+            espanolText: espanolText,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$JpnEspExamplesTableProcessedTableManager = ProcessedTableManager<
+    _$DatabaseProvider,
+    $JpnEspExamplesTable,
+    JpnEspExample,
+    $$JpnEspExamplesTableFilterComposer,
+    $$JpnEspExamplesTableOrderingComposer,
+    $$JpnEspExamplesTableAnnotationComposer,
+    $$JpnEspExamplesTableCreateCompanionBuilder,
+    $$JpnEspExamplesTableUpdateCompanionBuilder,
+    (
+      JpnEspExample,
+      BaseReferences<_$DatabaseProvider, $JpnEspExamplesTable, JpnEspExample>
+    ),
+    JpnEspExample,
+    PrefetchHooks Function()>;
 
 class $DatabaseProviderManager {
   final _$DatabaseProvider _db;
@@ -8683,4 +10588,12 @@ class $DatabaseProviderManager {
       $$MyWordsTableTableManager(_db, _db.myWords);
   $$MyWordStatusTableTableManager get myWordStatus =>
       $$MyWordStatusTableTableManager(_db, _db.myWordStatus);
+  $$JpnEspWordsTableTableManager get jpnEspWords =>
+      $$JpnEspWordsTableTableManager(_db, _db.jpnEspWords);
+  $$JpnEspWordStatusTableTableManager get jpnEspWordStatus =>
+      $$JpnEspWordStatusTableTableManager(_db, _db.jpnEspWordStatus);
+  $$JpnEspDictionariesTableTableManager get jpnEspDictionaries =>
+      $$JpnEspDictionariesTableTableManager(_db, _db.jpnEspDictionaries);
+  $$JpnEspExamplesTableTableManager get jpnEspExamples =>
+      $$JpnEspExamplesTableTableManager(_db, _db.jpnEspExamples);
 }

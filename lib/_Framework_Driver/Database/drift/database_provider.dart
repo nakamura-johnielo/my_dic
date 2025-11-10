@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:my_dic/Constants/enviroment.dart';
+import 'package:my_dic/_Framework_Driver/Database/drift/DAO/jpn_esp/jpn_esp_word_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/my_word_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/part_of_speech_list_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/ranking_dao.dart';
@@ -11,6 +12,10 @@ import 'package:my_dic/_Framework_Driver/Database/drift/Entity/conjugations.dart
 import 'package:my_dic/_Framework_Driver/Database/drift/Entity/dictionaries.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/Entity/examples.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/Entity/idioms.dart';
+import 'package:my_dic/_Framework_Driver/Database/drift/Entity/jpn-esp/jpn_esp_dictionaries.dart';
+import 'package:my_dic/_Framework_Driver/Database/drift/Entity/jpn-esp/jpn_esp_examples.dart';
+import 'package:my_dic/_Framework_Driver/Database/drift/Entity/jpn-esp/jpn_esp_word.dart';
+import 'package:my_dic/_Framework_Driver/Database/drift/Entity/jpn-esp/jpn_esp_word_status.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/Entity/my_word_status.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/Entity/my_words.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/Entity/part_of_speech_lists.dart';
@@ -38,12 +43,17 @@ part '../../../__generated/_Framework_Driver/Database/drift/database_provider.g.
   Words,
   WordStatus,
   MyWords,
-  MyWordStatus
+  MyWordStatus,
+  JpnEspWords,
+  JpnEspWordStatus,
+  JpnEspDictionaries,
+  JpnEspExamples
 ], daos: [
   WordDao,
   RankingDao,
   PartOfSpeechListDao,
-  MyWordDao
+  MyWordDao,
+  JpnEspWordDao
 ])
 class DatabaseProvider extends _$DatabaseProvider {
   // シングルトンインスタンスを保持するフィールド
@@ -101,7 +111,7 @@ LazyDatabase _openConnection() {
 }
 
 Future<String> getDatabasePath(String dbName) async {
-  final documentsDirectory = await getApplicationDocumentsDirectory();
+  final documentsDirectory = await getApplicationSupportDirectory();
 
   // 新しいフォルダのパスを作成
   final folderPath = join(documentsDirectory.path, "${APP_NAME}_DB");

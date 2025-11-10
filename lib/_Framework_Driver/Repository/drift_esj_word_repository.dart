@@ -47,6 +47,37 @@ class DriftEsjWordRepository implements IEsjWordRepository {
     }
     _wordStatusDao.insertStatus(data);
   }
+
+  @override
+  Future<List<Word>> getWordsByWordByPage(
+      String word, int size, int currentPage, bool forQuiz) async {
+    final words = await _wordDao.getWordsByWordByPage(word, size, currentPage);
+    if (words == null) return [];
+    //final partOfSpeech=await _pslDao.getPartOfSpeechListByWordId(word)
+    return words.map((word) {
+      return Word(
+        wordId: word.wordId,
+        word: word.word,
+        partOfSpeech: _convertPartOfSpeech(word.partOfSpeech),
+      );
+    }).toList();
+  }
+
+  @override //!TODO delete
+  Future<List<Word>> getQuizWordsByWordByPage(
+      String word, int size, int currentPage) async {
+//nashi
+    final words = await _wordDao.getWordsByWordByPage(word, size, currentPage);
+    if (words == null) return [];
+    //final partOfSpeech=await _pslDao.getPartOfSpeechListByWordId(word)
+    return words.map((word) {
+      return Word(
+        wordId: word.wordId,
+        word: word.word,
+        partOfSpeech: _convertPartOfSpeech(word.partOfSpeech),
+      );
+    }).toList();
+  }
 }
 
 List<PartOfSpeech> _convertPartOfSpeech(String? data) {

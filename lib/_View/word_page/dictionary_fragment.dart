@@ -5,6 +5,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Constants/ui.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/dictionary/esj_dictionary.dart';
+import 'package:my_dic/_Interface_Adapter/Controller/quiz_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/word_page_controller.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/main_view_model.dart';
 import 'package:my_dic/html_style_kotobank.dart';
@@ -31,6 +32,18 @@ class DictionaryFragment extends ConsumerWidget {
     }
     final List<EsjDictionary>? dictionaries =
         mainViewModel.dictionaryCache[wordId]!;
+    //     final dictionaries = ref.watch(mainViewModelProvider).dictionaryCache[wordId]!;
+    // if (dictionaries != null && dictionaries.isNotEmpty) {
+    //   //!TODO
+    //   ref.read(quizWordProvider.notifier).state = dictionaries[0].word;
+    // }
+    if (dictionaries != null &&
+        dictionaries.isNotEmpty &&
+        (ref.watch(quizWordProvider) != dictionaries[0].word)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(quizWordProvider.notifier).state = dictionaries[0].word;
+      });
+    }
 
     return dictionaries == null
         ? (Center(
