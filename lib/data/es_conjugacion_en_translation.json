@@ -1,0 +1,12 @@
+{
+  "MoodTense.participlePresent": "speaking",
+  "MoodTense.participlePast": "spoken",
+  "MoodTense.indicativePresent": "@ #",
+  "MoodTense.indicativePreterite": "@ # yesterday",
+  "MoodTense.indicativeImperfect": "@ used to #",
+  "MoodTense.indicativeFuture": "@ will #",
+  "MoodTense.indicativeConditional": "@ would #",
+  "MoodTense.imperative": "#! / Don’t #!",
+  "MoodTense.subjunctivePresent": "It's important that @ #",
+  "MoodTense.subjunctivePast": "If @ #"
+}

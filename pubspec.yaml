@@ -37,8 +37,18 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   build_runner:
   drift_dev:
+  flutter_launcher_icons:
 
 flutter:
   uses-material-design: true
   assets:
     - assets/kotobank.db
+
+flutter_icons:
+  android: true
+  adaptive_icon_foreground: "assets/icon/mydic_icon2_android.png"
+  adaptive_icon_background: "#1A4505"
+  image_path: "assets/icon/mydic_icon2.png"
+  windows:
+    generate: true
+    image_path: "assets/icon/mydic_icon2.png"
