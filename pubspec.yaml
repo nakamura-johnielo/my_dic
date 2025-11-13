@@ -43,6 +43,10 @@ flutter:
   uses-material-design: true
   assets:
     - assets/kotobank.db
+    - assets/mydic.db
+    - assets/es_en_conjugacions.db
+    - assets/data/be_conjugacion.json
+    - assets/data/es_conjugacion_en_translation.json
 
 flutter_icons:
   android: true

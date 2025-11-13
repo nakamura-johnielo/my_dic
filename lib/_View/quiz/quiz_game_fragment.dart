@@ -1,4 +1,3 @@
-//input data DS
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,12 +6,13 @@ import 'package:my_dic/Components/status_buttons.dart';
 import 'package:my_dic/Constants/Enums/cardState.dart';
 import 'package:my_dic/Constants/Enums/mood_tense.dart';
 import 'package:my_dic/Constants/Enums/subject.dart';
-//import 'package:my_dic/Constants/screen_tab.dart';
 import 'package:my_dic/Constants/tab.dart';
+import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/verb/conjugacion/conjugacions.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/verb/conjugacion/tense_conjugacion.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/quiz_controller.dart';
 import 'package:my_dic/_View/word_page/word_page_fragment.dart';
+import 'package:my_dic/utils/json.dart';
 
 class QuizGameFragmentInput {
   final int wordId;
@@ -20,18 +20,57 @@ class QuizGameFragmentInput {
   QuizGameFragmentInput({required this.wordId, required this.word});
 }
 
+final conjEnglishProvider = FutureProvider<Map<String, String>>((ref) async {
+  return await getConjEnglish();
+});
+
+final beConjProvider =
+    FutureProvider<Map<String, Map<String, String>>>((ref) async {
+  return await getBeConj();
+});
+
+// 追加: DBから英語活用を取得（wordIdごと）
+final englishConjByWordIdProvider =
+    FutureProvider.family<Map<String, String>, int>((ref, wordId) async {
+  final controller = DI<QuizController>();
+  return controller.fetchEnglishConj(wordId);
+});
+
+// ConsumerStatefulWidgetに変更
 class QuizGameFragment extends ConsumerWidget {
   const QuizGameFragment({super.key, required this.input});
   final QuizGameFragmentInput input;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final controller = DI<QuizController>();
+    //controller.fetchEnglishConj(input.wordId);
+    //活用の英訳の共有部のデータ読み込み
+    final conjEnglishAsync = ref.watch(conjEnglishProvider); //No usage
+    final beConjAsync = ref.watch(beConjProvider); //No usage
+    final englishConjAsync =
+        ref.watch(englishConjByWordIdProvider(input.wordId));
+
+    if (conjEnglishAsync.isLoading ||
+        beConjAsync.isLoading ||
+        englishConjAsync.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (conjEnglishAsync.hasError ||
+        beConjAsync.hasError ||
+        englishConjAsync.hasError) {
+      return const Center(child: Text('Load error'));
+    }
+
+    print("conjEnglishAsync");
+    print("beConjAsync");
+    final Map<String, String> englishSubMap = conjEnglishAsync.value!;
+    final Map<String, Map<String, String>> beConj = beConjAsync.value!;
+    final englishConj = englishConjAsync.value!;
+    //
     final quizState = ref.watch(quizStateProvider);
     final quizStateController = ref.read(quizStateProvider.notifier);
     final quizWord = ref.watch(quizWordProvider);
-    //final conjugaciones = ref.watch(quizConjugacionsProvider);
-    //quizStateController.quiz1Next();
-    //QuizController controller = QuizController();
     final conjugacionesAsync =
         ref.watch(quizConjugacionsProvider(input.wordId));
 
@@ -94,7 +133,6 @@ class QuizGameFragment extends ConsumerWidget {
                 ),
                 Row(spacing: 10, mainAxisSize: MainAxisSize.min, children: [
                   Text(
-                    //key: ValueKey( 'text${quizState.currentTense}-${quizState.currentSubject}'),
                     (quizState.currentIndex + 1).toString(),
                     style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
                   ),
@@ -108,12 +146,18 @@ class QuizGameFragment extends ConsumerWidget {
                   )
                 ]),
                 QuizCard(
-                    //key: ValueKey(  'card${quizState.currentTense}-${quizState.currentSubject}'),
-                    onSwipe: onSwipe,
-                    moodTense: quizState.currentTense,
-                    conjugacion: conjDisplayString(conjugaciones,
-                        quizState.currentSubject, quizState.currentTense),
-                    subject: quizState.currentSubject),
+                  onSwipe: onSwipe,
+                  moodTense: quizState.currentTense,
+                  conjugacion: conjDisplayString(conjugaciones,
+                      quizState.currentSubject, quizState.currentTense),
+                  subject: quizState.currentSubject,
+                  englishSub: controller.quiz1EnglishSub(
+                      englishSubMap,
+                      beConj,
+                      englishConj,
+                      quizState.currentTense,
+                      quizState.currentSubject),
+                ),
                 Row(spacing: 34, mainAxisSize: MainAxisSize.min, children: [
                   IconButton(
                       onPressed: () => onSwipe("left"),
@@ -168,7 +212,6 @@ String conjDisplayString(Conjugacions conjugaciones, Subject currentSubject,
     return 'N/A';
   }
 
-  //String val = "";
   switch (currentSubject) {
     case Subject.yo:
       return conj.yo;
@@ -183,4 +226,26 @@ String conjDisplayString(Conjugacions conjugaciones, Subject currentSubject,
     case Subject.ellos:
       return conj.ellos;
   }
+}
+
+Future<Map<String, String>> getConjEnglish() async {
+  print("==============-map");
+  const path = 'assets/data/es_conjugacion_en_translation.json';
+  final map = await readJsonFile(path); //as Map<String, String>;
+  // final s = map.map((k, v) => MapEntry(k, v.toString()));
+  // print(s.keys.take(5));
+  //print(map.keys);
+  //return map; //.map((k, v) => MapEntry(k, v.toString()));
+  return map.map((k, v) => MapEntry(k, v.toString()));
+}
+
+Future<Map<String, Map<String, String>>> getBeConj() async {
+  const path = 'assets/data/be_conjugacion.json';
+  final map = await readJsonFile(path);
+
+  return map.map((k, v) {
+    final innerMap =
+        (v as Map<String, dynamic>).map((s, t) => MapEntry(s, t.toString()));
+    return MapEntry(k, innerMap);
+  });
 }

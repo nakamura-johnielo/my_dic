@@ -7,8 +7,20 @@ import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/fetch_conjugation_input_data.dart';
 import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/i_fetch_conjugation_use_case.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/verb/conjugacion/conjugacions.dart';
+import 'package:my_dic/_Framework_Driver/Repository/drift_es_en_conjugacions_repository.dart';
 
 class QuizController {
+  final DriftEsEnConjugacionRepository _driftEsEnConjugacionRepository;
+  QuizController(this._driftEsEnConjugacionRepository);
+  //Map<String, String> englishConj = {};
+  Future<Map<String, String>> fetchEnglishConj(int wordId) async {
+    final englishConj =
+        await _driftEsEnConjugacionRepository.getEnglishConjById(wordId);
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!englishConj in QuizController");
+    print(englishConj);
+    return englishConj;
+  }
+
   Future<Conjugacions?> getConjugaciones(int wordId) async {
     // doneSet.clear();
     //Map<MoodTense, TenseConjugacion> conjugacions;
@@ -28,6 +40,71 @@ class QuizController {
     // }
     //conjugacions = res;
     //
+  }
+
+  String quiz1EnglishSub(
+      Map<String, String> englishSubMap,
+      Map<String, Map<String, String>> beConj,
+      Map<String, String> englishConj,
+      MoodTense moodTense,
+      Subject subject) {
+    String sub =
+        englishSubMap[moodTense.toString()]!; //"It's important that @ #"
+    print("sub: $sub");
+
+    EnglishSubject englishSubject = subject.equiEnglish;
+    sub = sub.replaceAll("@", englishSubject.name);
+    print("sub: $sub");
+
+    EnglishMoodTense englishMoodTense = moodTense.equiEnglish;
+    //@が主語
+    // #が動詞
+
+    print("=================beConj");
+    print(englishConj);
+    // beがaru場合==============
+    if (englishConj[EnglishMoodTense.indicativePresent.toString()] == "be") {
+      //Map<String, Map<String, String>> beConj = json;
+      if (moodTense == MoodTense.indicativeImperfect ||
+          moodTense == MoodTense.indicativeFuture ||
+          moodTense == MoodTense.indicativeConditional ||
+          moodTense == MoodTense.imperative) {
+        return sub.replaceAll("#", "be");
+      }
+      sub = sub.replaceAll("#",
+          beConj[englishMoodTense.toString()]![englishSubject.toString()]!);
+      print("BEsub: $sub");
+      return sub;
+    }
+    if (englishConj[EnglishMoodTense.indicativePresent.toString()]!
+        .contains("be ")) {
+      //Map<String, Map<String, String>> beConj = json;
+      if (moodTense == MoodTense.indicativeImperfect ||
+          moodTense == MoodTense.indicativeFuture ||
+          moodTense == MoodTense.indicativeConditional ||
+          moodTense == MoodTense.imperative) {
+        return sub.replaceAll(
+            "#", englishConj[EnglishMoodTense.indicativePresent.toString()]!);
+      }
+      final text = englishConj[EnglishMoodTense.indicativePresent.toString()]!
+          .replaceFirst("be",
+              beConj[englishMoodTense.toString()]![englishSubject.toString()]!);
+      sub = sub.replaceAll(
+        "#",
+        text,
+      );
+      print("BEsub: $sub");
+      return sub;
+    }
+
+    // beがない場合==============
+    if (englishSubject == EnglishSubject.he &&
+        englishMoodTense == EnglishMoodTense.indicativePresent) {
+      englishMoodTense = EnglishMoodTense.indicativePresent3rd;
+    }
+    sub = sub.replaceAll("#", englishConj[englishMoodTense.toString()]!);
+    print("sub: $sub");
+    return sub;
   }
 
   //String grammer() {}
@@ -50,7 +127,7 @@ class QuizController {
 final quizConjugacionsProvider =
     FutureProvider.autoDispose.family<Conjugacions?, int>(
   (ref, wordId) async {
-    final controller = QuizController();
+    final controller = DI<QuizController>();
     return await controller.getConjugaciones(wordId);
   },
 );

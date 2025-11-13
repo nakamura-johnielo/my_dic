@@ -22,6 +22,7 @@ class BufferController {
     //print("==============word: $word");
     //const size = 50;
     //const currentPage = 0;
+    //final requiredPage = currentPage + 1;
     final requiredPage = currentPage + 1;
 
     if (word.isEmpty) {

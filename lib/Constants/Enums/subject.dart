@@ -1,3 +1,5 @@
+enum EnglishSubject { I, you, he, we, they }
+
 enum Subject {
   yo,
   tu,
@@ -22,6 +24,23 @@ extension SubjectExtension on Subject {
         return "Vosotr@s";
       case Subject.ellos:
         return "Ell@s/Ustedes";
+    }
+  }
+
+  EnglishSubject get equiEnglish {
+    switch (this) {
+      case Subject.yo:
+        return EnglishSubject.I;
+      case Subject.tu:
+        return EnglishSubject.you;
+      case Subject.el:
+        return EnglishSubject.he;
+      case Subject.nosotros:
+        return EnglishSubject.we;
+      case Subject.vosotros:
+        return EnglishSubject.you;
+      case Subject.ellos:
+        return EnglishSubject.they;
     }
   }
   // String get displayJap {

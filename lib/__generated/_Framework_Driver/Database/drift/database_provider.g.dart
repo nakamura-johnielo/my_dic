@@ -879,7 +879,7 @@ class Conjugation extends DataClass implements Insertable<Conjugation> {
   final String word;
   final String? meaning;
   final String? presentParticiple;
-  final String? prastParticiple; //!TODO 誤字直す
+  final String? prastParticiple;
   final String? indicativePresentYo;
   final String? indicativePresentTu;
   final String? indicativePresentEl;
@@ -7159,6 +7159,383 @@ class JpnEspExamplesCompanion extends UpdateCompanion<JpnEspExample> {
   }
 }
 
+class $EsEnConjugacionsTable extends EsEnConjugacions
+    with TableInfo<$EsEnConjugacionsTable, EsEnConjugacion> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $EsEnConjugacionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _wordIdMeta = const VerificationMeta('wordId');
+  @override
+  late final GeneratedColumn<int> wordId = GeneratedColumn<int>(
+      'word_id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _wordMeta = const VerificationMeta('word');
+  @override
+  late final GeneratedColumn<String> word = GeneratedColumn<String>(
+      'word', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _englishMeta =
+      const VerificationMeta('english');
+  @override
+  late final GeneratedColumn<String> english = GeneratedColumn<String>(
+      'english', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _present3rdMeta =
+      const VerificationMeta('present3rd');
+  @override
+  late final GeneratedColumn<String> present3rd = GeneratedColumn<String>(
+      'present_3rd', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _presentPMeta =
+      const VerificationMeta('presentP');
+  @override
+  late final GeneratedColumn<String> presentP = GeneratedColumn<String>(
+      'present_p', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _pastMeta = const VerificationMeta('past');
+  @override
+  late final GeneratedColumn<String> past = GeneratedColumn<String>(
+      'past', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _pastPMeta = const VerificationMeta('pastP');
+  @override
+  late final GeneratedColumn<String> pastP = GeneratedColumn<String>(
+      'past_p', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [wordId, word, english, present3rd, presentP, past, pastP];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'es_en_conjugacions';
+  @override
+  VerificationContext validateIntegrity(Insertable<EsEnConjugacion> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('word_id')) {
+      context.handle(_wordIdMeta,
+          wordId.isAcceptableOrUnknown(data['word_id']!, _wordIdMeta));
+    }
+    if (data.containsKey('word')) {
+      context.handle(
+          _wordMeta, word.isAcceptableOrUnknown(data['word']!, _wordMeta));
+    }
+    if (data.containsKey('english')) {
+      context.handle(_englishMeta,
+          english.isAcceptableOrUnknown(data['english']!, _englishMeta));
+    }
+    if (data.containsKey('present_3rd')) {
+      context.handle(
+          _present3rdMeta,
+          present3rd.isAcceptableOrUnknown(
+              data['present_3rd']!, _present3rdMeta));
+    }
+    if (data.containsKey('present_p')) {
+      context.handle(_presentPMeta,
+          presentP.isAcceptableOrUnknown(data['present_p']!, _presentPMeta));
+    }
+    if (data.containsKey('past')) {
+      context.handle(
+          _pastMeta, past.isAcceptableOrUnknown(data['past']!, _pastMeta));
+    }
+    if (data.containsKey('past_p')) {
+      context.handle(
+          _pastPMeta, pastP.isAcceptableOrUnknown(data['past_p']!, _pastPMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {wordId};
+  @override
+  EsEnConjugacion map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return EsEnConjugacion(
+      wordId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}word_id'])!,
+      word: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}word']),
+      english: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}english']),
+      present3rd: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}present_3rd']),
+      presentP: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}present_p']),
+      past: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}past']),
+      pastP: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}past_p']),
+    );
+  }
+
+  @override
+  $EsEnConjugacionsTable createAlias(String alias) {
+    return $EsEnConjugacionsTable(attachedDatabase, alias);
+  }
+}
+
+class EsEnConjugacion extends DataClass implements Insertable<EsEnConjugacion> {
+  final int wordId;
+  final String? word;
+  final String? english;
+  final String? present3rd;
+  final String? presentP;
+  final String? past;
+  final String? pastP;
+  const EsEnConjugacion(
+      {required this.wordId,
+      this.word,
+      this.english,
+      this.present3rd,
+      this.presentP,
+      this.past,
+      this.pastP});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['word_id'] = Variable<int>(wordId);
+    if (!nullToAbsent || word != null) {
+      map['word'] = Variable<String>(word);
+    }
+    if (!nullToAbsent || english != null) {
+      map['english'] = Variable<String>(english);
+    }
+    if (!nullToAbsent || present3rd != null) {
+      map['present_3rd'] = Variable<String>(present3rd);
+    }
+    if (!nullToAbsent || presentP != null) {
+      map['present_p'] = Variable<String>(presentP);
+    }
+    if (!nullToAbsent || past != null) {
+      map['past'] = Variable<String>(past);
+    }
+    if (!nullToAbsent || pastP != null) {
+      map['past_p'] = Variable<String>(pastP);
+    }
+    return map;
+  }
+
+  EsEnConjugacionsCompanion toCompanion(bool nullToAbsent) {
+    return EsEnConjugacionsCompanion(
+      wordId: Value(wordId),
+      word: word == null && nullToAbsent ? const Value.absent() : Value(word),
+      english: english == null && nullToAbsent
+          ? const Value.absent()
+          : Value(english),
+      present3rd: present3rd == null && nullToAbsent
+          ? const Value.absent()
+          : Value(present3rd),
+      presentP: presentP == null && nullToAbsent
+          ? const Value.absent()
+          : Value(presentP),
+      past: past == null && nullToAbsent ? const Value.absent() : Value(past),
+      pastP:
+          pastP == null && nullToAbsent ? const Value.absent() : Value(pastP),
+    );
+  }
+
+  factory EsEnConjugacion.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return EsEnConjugacion(
+      wordId: serializer.fromJson<int>(json['wordId']),
+      word: serializer.fromJson<String?>(json['word']),
+      english: serializer.fromJson<String?>(json['english']),
+      present3rd: serializer.fromJson<String?>(json['present3rd']),
+      presentP: serializer.fromJson<String?>(json['presentP']),
+      past: serializer.fromJson<String?>(json['past']),
+      pastP: serializer.fromJson<String?>(json['pastP']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'wordId': serializer.toJson<int>(wordId),
+      'word': serializer.toJson<String?>(word),
+      'english': serializer.toJson<String?>(english),
+      'present3rd': serializer.toJson<String?>(present3rd),
+      'presentP': serializer.toJson<String?>(presentP),
+      'past': serializer.toJson<String?>(past),
+      'pastP': serializer.toJson<String?>(pastP),
+    };
+  }
+
+  EsEnConjugacion copyWith(
+          {int? wordId,
+          Value<String?> word = const Value.absent(),
+          Value<String?> english = const Value.absent(),
+          Value<String?> present3rd = const Value.absent(),
+          Value<String?> presentP = const Value.absent(),
+          Value<String?> past = const Value.absent(),
+          Value<String?> pastP = const Value.absent()}) =>
+      EsEnConjugacion(
+        wordId: wordId ?? this.wordId,
+        word: word.present ? word.value : this.word,
+        english: english.present ? english.value : this.english,
+        present3rd: present3rd.present ? present3rd.value : this.present3rd,
+        presentP: presentP.present ? presentP.value : this.presentP,
+        past: past.present ? past.value : this.past,
+        pastP: pastP.present ? pastP.value : this.pastP,
+      );
+  EsEnConjugacion copyWithCompanion(EsEnConjugacionsCompanion data) {
+    return EsEnConjugacion(
+      wordId: data.wordId.present ? data.wordId.value : this.wordId,
+      word: data.word.present ? data.word.value : this.word,
+      english: data.english.present ? data.english.value : this.english,
+      present3rd:
+          data.present3rd.present ? data.present3rd.value : this.present3rd,
+      presentP: data.presentP.present ? data.presentP.value : this.presentP,
+      past: data.past.present ? data.past.value : this.past,
+      pastP: data.pastP.present ? data.pastP.value : this.pastP,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EsEnConjugacion(')
+          ..write('wordId: $wordId, ')
+          ..write('word: $word, ')
+          ..write('english: $english, ')
+          ..write('present3rd: $present3rd, ')
+          ..write('presentP: $presentP, ')
+          ..write('past: $past, ')
+          ..write('pastP: $pastP')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(wordId, word, english, present3rd, presentP, past, pastP);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is EsEnConjugacion &&
+          other.wordId == this.wordId &&
+          other.word == this.word &&
+          other.english == this.english &&
+          other.present3rd == this.present3rd &&
+          other.presentP == this.presentP &&
+          other.past == this.past &&
+          other.pastP == this.pastP);
+}
+
+class EsEnConjugacionsCompanion extends UpdateCompanion<EsEnConjugacion> {
+  final Value<int> wordId;
+  final Value<String?> word;
+  final Value<String?> english;
+  final Value<String?> present3rd;
+  final Value<String?> presentP;
+  final Value<String?> past;
+  final Value<String?> pastP;
+  const EsEnConjugacionsCompanion({
+    this.wordId = const Value.absent(),
+    this.word = const Value.absent(),
+    this.english = const Value.absent(),
+    this.present3rd = const Value.absent(),
+    this.presentP = const Value.absent(),
+    this.past = const Value.absent(),
+    this.pastP = const Value.absent(),
+  });
+  EsEnConjugacionsCompanion.insert({
+    this.wordId = const Value.absent(),
+    this.word = const Value.absent(),
+    this.english = const Value.absent(),
+    this.present3rd = const Value.absent(),
+    this.presentP = const Value.absent(),
+    this.past = const Value.absent(),
+    this.pastP = const Value.absent(),
+  });
+  static Insertable<EsEnConjugacion> custom({
+    Expression<int>? wordId,
+    Expression<String>? word,
+    Expression<String>? english,
+    Expression<String>? present3rd,
+    Expression<String>? presentP,
+    Expression<String>? past,
+    Expression<String>? pastP,
+  }) {
+    return RawValuesInsertable({
+      if (wordId != null) 'word_id': wordId,
+      if (word != null) 'word': word,
+      if (english != null) 'english': english,
+      if (present3rd != null) 'present_3rd': present3rd,
+      if (presentP != null) 'present_p': presentP,
+      if (past != null) 'past': past,
+      if (pastP != null) 'past_p': pastP,
+    });
+  }
+
+  EsEnConjugacionsCompanion copyWith(
+      {Value<int>? wordId,
+      Value<String?>? word,
+      Value<String?>? english,
+      Value<String?>? present3rd,
+      Value<String?>? presentP,
+      Value<String?>? past,
+      Value<String?>? pastP}) {
+    return EsEnConjugacionsCompanion(
+      wordId: wordId ?? this.wordId,
+      word: word ?? this.word,
+      english: english ?? this.english,
+      present3rd: present3rd ?? this.present3rd,
+      presentP: presentP ?? this.presentP,
+      past: past ?? this.past,
+      pastP: pastP ?? this.pastP,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (wordId.present) {
+      map['word_id'] = Variable<int>(wordId.value);
+    }
+    if (word.present) {
+      map['word'] = Variable<String>(word.value);
+    }
+    if (english.present) {
+      map['english'] = Variable<String>(english.value);
+    }
+    if (present3rd.present) {
+      map['present_3rd'] = Variable<String>(present3rd.value);
+    }
+    if (presentP.present) {
+      map['present_p'] = Variable<String>(presentP.value);
+    }
+    if (past.present) {
+      map['past'] = Variable<String>(past.value);
+    }
+    if (pastP.present) {
+      map['past_p'] = Variable<String>(pastP.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EsEnConjugacionsCompanion(')
+          ..write('wordId: $wordId, ')
+          ..write('word: $word, ')
+          ..write('english: $english, ')
+          ..write('present3rd: $present3rd, ')
+          ..write('presentP: $presentP, ')
+          ..write('past: $past, ')
+          ..write('pastP: $pastP')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$DatabaseProvider extends GeneratedDatabase {
   _$DatabaseProvider(QueryExecutor e) : super(e);
   $DatabaseProviderManager get managers => $DatabaseProviderManager(this);
@@ -7180,6 +7557,8 @@ abstract class _$DatabaseProvider extends GeneratedDatabase {
   late final $JpnEspDictionariesTable jpnEspDictionaries =
       $JpnEspDictionariesTable(this);
   late final $JpnEspExamplesTable jpnEspExamples = $JpnEspExamplesTable(this);
+  late final $EsEnConjugacionsTable esEnConjugacions =
+      $EsEnConjugacionsTable(this);
   late final WordDao wordDao = WordDao(this as DatabaseProvider);
   late final RankingDao rankingDao = RankingDao(this as DatabaseProvider);
   late final PartOfSpeechListDao partOfSpeechListDao =
@@ -7187,6 +7566,8 @@ abstract class _$DatabaseProvider extends GeneratedDatabase {
   late final MyWordDao myWordDao = MyWordDao(this as DatabaseProvider);
   late final JpnEspWordDao jpnEspWordDao =
       JpnEspWordDao(this as DatabaseProvider);
+  late final EsEnConjugacionDao esEnConjugacionDao =
+      EsEnConjugacionDao(this as DatabaseProvider);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -7206,7 +7587,8 @@ abstract class _$DatabaseProvider extends GeneratedDatabase {
         jpnEspWords,
         jpnEspWordStatus,
         jpnEspDictionaries,
-        jpnEspExamples
+        jpnEspExamples,
+        esEnConjugacions
       ];
 }
 
@@ -10562,6 +10944,206 @@ typedef $$JpnEspExamplesTableProcessedTableManager = ProcessedTableManager<
     ),
     JpnEspExample,
     PrefetchHooks Function()>;
+typedef $$EsEnConjugacionsTableCreateCompanionBuilder
+    = EsEnConjugacionsCompanion Function({
+  Value<int> wordId,
+  Value<String?> word,
+  Value<String?> english,
+  Value<String?> present3rd,
+  Value<String?> presentP,
+  Value<String?> past,
+  Value<String?> pastP,
+});
+typedef $$EsEnConjugacionsTableUpdateCompanionBuilder
+    = EsEnConjugacionsCompanion Function({
+  Value<int> wordId,
+  Value<String?> word,
+  Value<String?> english,
+  Value<String?> present3rd,
+  Value<String?> presentP,
+  Value<String?> past,
+  Value<String?> pastP,
+});
+
+class $$EsEnConjugacionsTableFilterComposer
+    extends Composer<_$DatabaseProvider, $EsEnConjugacionsTable> {
+  $$EsEnConjugacionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get wordId => $composableBuilder(
+      column: $table.wordId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get word => $composableBuilder(
+      column: $table.word, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get english => $composableBuilder(
+      column: $table.english, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get present3rd => $composableBuilder(
+      column: $table.present3rd, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get presentP => $composableBuilder(
+      column: $table.presentP, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get past => $composableBuilder(
+      column: $table.past, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get pastP => $composableBuilder(
+      column: $table.pastP, builder: (column) => ColumnFilters(column));
+}
+
+class $$EsEnConjugacionsTableOrderingComposer
+    extends Composer<_$DatabaseProvider, $EsEnConjugacionsTable> {
+  $$EsEnConjugacionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get wordId => $composableBuilder(
+      column: $table.wordId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get word => $composableBuilder(
+      column: $table.word, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get english => $composableBuilder(
+      column: $table.english, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get present3rd => $composableBuilder(
+      column: $table.present3rd, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get presentP => $composableBuilder(
+      column: $table.presentP, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get past => $composableBuilder(
+      column: $table.past, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get pastP => $composableBuilder(
+      column: $table.pastP, builder: (column) => ColumnOrderings(column));
+}
+
+class $$EsEnConjugacionsTableAnnotationComposer
+    extends Composer<_$DatabaseProvider, $EsEnConjugacionsTable> {
+  $$EsEnConjugacionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get wordId =>
+      $composableBuilder(column: $table.wordId, builder: (column) => column);
+
+  GeneratedColumn<String> get word =>
+      $composableBuilder(column: $table.word, builder: (column) => column);
+
+  GeneratedColumn<String> get english =>
+      $composableBuilder(column: $table.english, builder: (column) => column);
+
+  GeneratedColumn<String> get present3rd => $composableBuilder(
+      column: $table.present3rd, builder: (column) => column);
+
+  GeneratedColumn<String> get presentP =>
+      $composableBuilder(column: $table.presentP, builder: (column) => column);
+
+  GeneratedColumn<String> get past =>
+      $composableBuilder(column: $table.past, builder: (column) => column);
+
+  GeneratedColumn<String> get pastP =>
+      $composableBuilder(column: $table.pastP, builder: (column) => column);
+}
+
+class $$EsEnConjugacionsTableTableManager extends RootTableManager<
+    _$DatabaseProvider,
+    $EsEnConjugacionsTable,
+    EsEnConjugacion,
+    $$EsEnConjugacionsTableFilterComposer,
+    $$EsEnConjugacionsTableOrderingComposer,
+    $$EsEnConjugacionsTableAnnotationComposer,
+    $$EsEnConjugacionsTableCreateCompanionBuilder,
+    $$EsEnConjugacionsTableUpdateCompanionBuilder,
+    (
+      EsEnConjugacion,
+      BaseReferences<_$DatabaseProvider, $EsEnConjugacionsTable,
+          EsEnConjugacion>
+    ),
+    EsEnConjugacion,
+    PrefetchHooks Function()> {
+  $$EsEnConjugacionsTableTableManager(
+      _$DatabaseProvider db, $EsEnConjugacionsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$EsEnConjugacionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$EsEnConjugacionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$EsEnConjugacionsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> wordId = const Value.absent(),
+            Value<String?> word = const Value.absent(),
+            Value<String?> english = const Value.absent(),
+            Value<String?> present3rd = const Value.absent(),
+            Value<String?> presentP = const Value.absent(),
+            Value<String?> past = const Value.absent(),
+            Value<String?> pastP = const Value.absent(),
+          }) =>
+              EsEnConjugacionsCompanion(
+            wordId: wordId,
+            word: word,
+            english: english,
+            present3rd: present3rd,
+            presentP: presentP,
+            past: past,
+            pastP: pastP,
+          ),
+          createCompanionCallback: ({
+            Value<int> wordId = const Value.absent(),
+            Value<String?> word = const Value.absent(),
+            Value<String?> english = const Value.absent(),
+            Value<String?> present3rd = const Value.absent(),
+            Value<String?> presentP = const Value.absent(),
+            Value<String?> past = const Value.absent(),
+            Value<String?> pastP = const Value.absent(),
+          }) =>
+              EsEnConjugacionsCompanion.insert(
+            wordId: wordId,
+            word: word,
+            english: english,
+            present3rd: present3rd,
+            presentP: presentP,
+            past: past,
+            pastP: pastP,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$EsEnConjugacionsTableProcessedTableManager = ProcessedTableManager<
+    _$DatabaseProvider,
+    $EsEnConjugacionsTable,
+    EsEnConjugacion,
+    $$EsEnConjugacionsTableFilterComposer,
+    $$EsEnConjugacionsTableOrderingComposer,
+    $$EsEnConjugacionsTableAnnotationComposer,
+    $$EsEnConjugacionsTableCreateCompanionBuilder,
+    $$EsEnConjugacionsTableUpdateCompanionBuilder,
+    (
+      EsEnConjugacion,
+      BaseReferences<_$DatabaseProvider, $EsEnConjugacionsTable,
+          EsEnConjugacion>
+    ),
+    EsEnConjugacion,
+    PrefetchHooks Function()>;
 
 class $DatabaseProviderManager {
   final _$DatabaseProvider _db;
@@ -10596,4 +11178,6 @@ class $DatabaseProviderManager {
       $$JpnEspDictionariesTableTableManager(_db, _db.jpnEspDictionaries);
   $$JpnEspExamplesTableTableManager get jpnEspExamples =>
       $$JpnEspExamplesTableTableManager(_db, _db.jpnEspExamples);
+  $$EsEnConjugacionsTableTableManager get esEnConjugacions =>
+      $$EsEnConjugacionsTableTableManager(_db, _db.esEnConjugacions);
 }

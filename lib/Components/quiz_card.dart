@@ -12,12 +12,14 @@ class QuizCard extends ConsumerWidget {
   final String conjugacion;
   final Subject subject;
   final Function onSwipe;
+  final String englishSub;
 
   static const Color subjectColor = Color.fromARGB(255, 62, 62, 62);
   static const Color conjColor = Color.fromARGB(255, 3, 159, 52);
   //final IconData icon;
   const QuizCard(
       {super.key,
+      required this.englishSub,
       required this.moodTense,
       required this.conjugacion,
       required this.subject,
@@ -50,12 +52,20 @@ class QuizCard extends ConsumerWidget {
           }
         }
       },
-      child: (moodTense == MoodTense.participlePast ||
-              moodTense == MoodTense.participlePresent)
-          ? ParticipleCard(
-              moodTense: moodTense, conjugacion: conjugacion, subject: subject)
-          : ConjCard(
-              moodTense: moodTense, conjugacion: conjugacion, subject: subject),
+      child:
+
+          // (moodTense == MoodTense.participlePast ||
+          //         moodTense == MoodTense.participlePresent)
+          //     ? ParticipleCard(
+          //         moodTense: moodTense, conjugacion: conjugacion, subject: subject)
+          //     :
+
+          ConjCard(
+        moodTense: moodTense,
+        conjugacion: conjugacion,
+        subject: subject,
+        englishSub: englishSub,
+      ),
     );
   }
 }
@@ -68,11 +78,13 @@ class ConjCard extends ConsumerWidget {
   final MoodTense moodTense;
   final String conjugacion;
   final Subject subject;
+  final String englishSub;
   const ConjCard(
       {super.key,
       required this.moodTense,
       required this.conjugacion,
-      required this.subject});
+      required this.subject,
+      required this.englishSub});
 
   static const Color subjectColor = Color.fromARGB(255, 62, 62, 62);
   static const Color conjColor = Color.fromARGB(255, 3, 159, 52);
@@ -89,14 +101,26 @@ class ConjCard extends ConsumerWidget {
         padding:
             const EdgeInsets.all(30), //EdgeInsets.fromLTRB(15, 10, 15, 15),
         child: Column(
-          spacing: 20,
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
+            if (moodTense == MoodTense.participlePast ||
+                moodTense == MoodTense.participlePresent)
+              Text(
+                moodTense.jap,
+                style: TextStyle(fontSize: 14),
+              )
+            else
+              Text(
+                "(${moodTense.moodName})  ${moodTense.tenseName}",
+                style: TextStyle(fontSize: 14),
+              ),
+            SizedBox(height: 12),
             Text(
-              "(${moodTense.moodName})  ${moodTense.tenseName}",
-              style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+              englishSub,
+              style: TextStyle(fontSize: 16),
             ),
+            SizedBox(height: 21),
             Row(
               spacing: 26,
               mainAxisSize: MainAxisSize.min,

@@ -1,6 +1,6 @@
 {
-  "MoodTense.participlePresent": "speaking",
-  "MoodTense.participlePast": "spoken",
+  "MoodTense.participlePresent": "# :V-ing",
+  "MoodTense.participlePast": "# :V-ed",
   "MoodTense.indicativePresent": "@ #",
   "MoodTense.indicativePreterite": "@ # yesterday",
   "MoodTense.indicativeImperfect": "@ used to #",

@@ -42,8 +42,8 @@ class DriftConjugacionRepository implements IConjugacionsRepository {
   @override
   Future<List<QuizSearchedItem>> getQuizConjugacionByWordWithPage(
       String word, int size, int currentPage) async {
-    final conjugaciones = await _conjugacionDao.getConjugationByWordWithPage(
-        word, size, currentPage);
+    final conjugaciones = await _conjugacionDao
+        .getConjugationInAllTableByWordWithPage(word, size, currentPage);
     List<QuizSearchedItem> res = [];
     if (conjugaciones == null) return res;
 

@@ -13,6 +13,14 @@
   過去        past
  */
 
+enum EnglishMoodTense {
+  participlePresent,
+  participlePast,
+  indicativePresent,
+  indicativePresent3rd,
+  indicativePast,
+}
+
 enum MoodTense {
   participlePresent,
   participlePast,
@@ -27,6 +35,31 @@ enum MoodTense {
 }
 
 extension MoodTenseExtension on MoodTense {
+  EnglishMoodTense get equiEnglish {
+    switch (this) {
+      case MoodTense.participlePresent:
+        return EnglishMoodTense.participlePresent;
+      case MoodTense.participlePast:
+        return EnglishMoodTense.participlePast;
+      case MoodTense.indicativePresent:
+        return EnglishMoodTense.indicativePresent;
+      case MoodTense.indicativePreterite:
+        return EnglishMoodTense.indicativePast;
+      case MoodTense.indicativeImperfect:
+        return EnglishMoodTense.indicativePresent;
+      case MoodTense.indicativeFuture:
+        return EnglishMoodTense.indicativePresent;
+      case MoodTense.indicativeConditional:
+        return EnglishMoodTense.indicativePresent;
+      case MoodTense.imperative:
+        return EnglishMoodTense.indicativePresent;
+      case MoodTense.subjunctivePresent:
+        return EnglishMoodTense.indicativePresent;
+      case MoodTense.subjunctivePast:
+        return EnglishMoodTense.participlePast;
+    }
+  }
+
   String get jap {
     switch (this) {
       case MoodTense.participlePresent:
@@ -51,9 +84,7 @@ extension MoodTenseExtension on MoodTense {
         return '接続法過去';
     }
   }
-}
 
-extension MoodTenseDBColExtension on MoodTense {
   String get column {
     switch (this) {
       case MoodTense.participlePresent:
@@ -78,9 +109,7 @@ extension MoodTenseDBColExtension on MoodTense {
         return 'subjunctive_past';
     }
   }
-}
 
-extension MoodTenseColumnExtension on MoodTense {
   String get shorten {
     switch (this) {
       case MoodTense.participlePresent:
@@ -105,9 +134,7 @@ extension MoodTenseColumnExtension on MoodTense {
         return '接過去';
     }
   }
-}
 
-extension TenseExtension on MoodTense {
   String get tenseName {
     switch (this) {
       case MoodTense.participlePresent:
@@ -132,9 +159,7 @@ extension TenseExtension on MoodTense {
         return '過去';
     }
   }
-}
 
-extension Mood on MoodTense {
   String get moodName {
     switch (this) {
       case MoodTense.participlePresent:

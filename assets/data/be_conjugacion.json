@@ -1,0 +1,31 @@
+{
+  "EnglishMoodTense.participlePresent": {
+    "EnglishSubject.I": "being",
+    "EnglishSubject.you": "being",
+    "EnglishSubject.he": "being",
+    "EnglishSubject.we": "being",
+    "EnglishSubject.they": "being"
+  },
+  "EnglishMoodTense.participlePast": {
+    "EnglishSubject.I": "been",
+    "EnglishSubject.you": "been",
+    "EnglishSubject.he": "been",
+    "EnglishSubject.we": "been",
+    "EnglishSubject.they": "been"
+  },
+  "EnglishMoodTense.indicativePresent": {
+    "EnglishSubject.I": "am",
+    "EnglishSubject.you": "are",
+    "EnglishSubject.he": "is",
+    "EnglishSubject.we": "are",
+    "EnglishSubject.they": "are"
+  },
+
+  "EnglishMoodTense.indicativePast": {
+    "EnglishSubject.I": "was",
+    "EnglishSubject.you": "were",
+    "EnglishSubject.he": "was",
+    "EnglishSubject.we": "were",
+    "EnglishSubject.they": "were"
+  }
+}

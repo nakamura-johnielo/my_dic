@@ -35,7 +35,6 @@ import 'package:my_dic/_Business_Rule/_Domain/Entities/word/word_status.dart';
 //   }
 // }
 
-//!TODO DB操作add
 class WordStatusViewModel extends StateNotifier<Map<int, WordStatus>> {
   WordStatusViewModel(this._espJpnStatusInteractor) : super(const {});
   final EspJpnStatusInteractor _espJpnStatusInteractor;

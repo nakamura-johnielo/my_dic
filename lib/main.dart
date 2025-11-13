@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Constants/enviroment.dart';
 import 'package:my_dic/DI/product.dart';
+import 'package:my_dic/_Framework_Driver/Database/drift/database_provider.dart';
 //import 'package:my_dic/_View/main_activity.dart';
 import 'package:my_dic/router.dart';
 
 // 1. エントリーポイントのmain関数
-void main() {
+void main() async {
   //dbのクロースのためのライフサイクル監視
   //AppLifecycleManager内でdbproviderインスタンス化済み
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,6 +15,11 @@ void main() {
 
   //DI注入
   setupLocator();
+
+  //DBチェック、アクティブ化
+  // 起動時にDBをオープンしてマイグレーションを実行
+  await DI<DatabaseProvider>().customSelect('SELECT 1').get();
+
   runApp(const ProviderScope(child: MyApp()));
   //runApp(const MyApp());
 }

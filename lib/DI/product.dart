@@ -65,6 +65,7 @@ import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_jpn_esp_word_reposi
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_my_word_repository.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/conjugation_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/dictionary_dao.dart';
+import 'package:my_dic/_Framework_Driver/Database/drift/DAO/es_en_conjugacion_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/example_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/idiom_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/jpn_esp/jpn_esp_dictionary_dao.dart';
@@ -80,6 +81,7 @@ import 'package:my_dic/_Framework_Driver/Database/drift/DAO/word_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/word_status_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/database_provider.dart';
 import 'package:my_dic/_Framework_Driver/Repository/drift_conjugacion_repository.dart';
+import 'package:my_dic/_Framework_Driver/Repository/drift_es_en_conjugacions_repository.dart';
 import 'package:my_dic/_Framework_Driver/Repository/drift_esj_dictionary_repository.dart';
 import 'package:my_dic/_Framework_Driver/Repository/drift_esj_word_repository.dart';
 import 'package:my_dic/_Framework_Driver/Repository/drift_jpn_esp_dictionary_repository.dart';
@@ -88,6 +90,7 @@ import 'package:my_dic/_Framework_Driver/Repository/drift_my_word_repository.dar
 import 'package:my_dic/_Framework_Driver/Repository/wiki_esp_ranking_repository.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/jpn_esp_word_page_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/my_word_controller.dart';
+import 'package:my_dic/_Interface_Adapter/Controller/quiz_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/ranking_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/word_page_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/conjugacion_presenter.dart';
@@ -121,6 +124,7 @@ final DI = GetIt.instance;
 void setupLocator() {
   //Database
   DI.registerSingleton<DatabaseProvider>(DatabaseProvider());
+  //await DI<DatabaseProvider>().customSelect('SELECT 1').get();
 
   //DAOにDatabase注入
   DI.registerFactory<ConjugationDao>(
@@ -148,6 +152,8 @@ void setupLocator() {
       () => JpnEspWordStatusDao(DI<DatabaseProvider>()));
   DI.registerFactory<JpnEspDictionaryDao>(
       () => JpnEspDictionaryDao(DI<DatabaseProvider>()));
+  DI.registerFactory<EsEnConjugacionDao>(
+      () => EsEnConjugacionDao(DI<DatabaseProvider>()));
 
   //repository
   DI.registerFactory<IEsjDictionaryRepository>(
@@ -170,6 +176,8 @@ void setupLocator() {
   DI.registerFactory<IJpnEspDictionaryRepository>(() =>
       DriftJpnEspDictionaryRepository(
           DI<JpnEspDictionaryDao>(), DI<JpnEspExampleDao>()));
+  DI.registerFactory<DriftEsEnConjugacionRepository>(
+      () => DriftEsEnConjugacionRepository(DI<EsEnConjugacionDao>()));
 
   //
   //
@@ -406,6 +414,12 @@ void setupLocator() {
 
   DI.registerFactory<WordStatusViewModel>(
       () => WordStatusViewModel(DI<EspJpnStatusInteractor>()));
+
+  //
+  //
+
+  DI.registerFactory<QuizController>(
+      () => QuizController(DI<DriftEsEnConjugacionRepository>()));
 }
 
 class WordPageChildInputData {
