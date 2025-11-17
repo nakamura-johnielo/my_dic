@@ -60,8 +60,8 @@ class QuizController {
     //@が主語
     // #が動詞
 
-    print("=================beConj");
-    print(englishConj);
+    //print("=================beConj");
+    //print(englishConj);
     // beがaru場合==============
     if (englishConj[EnglishMoodTense.indicativePresent.toString()] == "be") {
       //Map<String, Map<String, String>> beConj = json;
@@ -73,7 +73,7 @@ class QuizController {
       }
       sub = sub.replaceAll("#",
           beConj[englishMoodTense.toString()]![englishSubject.toString()]!);
-      print("BEsub: $sub");
+      // print("BEsub: $sub");
       return sub;
     }
     if (englishConj[EnglishMoodTense.indicativePresent.toString()]!
@@ -93,7 +93,7 @@ class QuizController {
         "#",
         text,
       );
-      print("BEsub: $sub");
+      //print("BEsub: $sub");
       return sub;
     }
 
@@ -103,7 +103,7 @@ class QuizController {
       englishMoodTense = EnglishMoodTense.indicativePresent3rd;
     }
     sub = sub.replaceAll("#", englishConj[englishMoodTense.toString()]!);
-    print("sub: $sub");
+    //rprint("sub: $sub");
     return sub;
   }
 
@@ -151,6 +151,12 @@ class QuizStateNotifier extends StateNotifier<QuizState> {
     state = state.copy();
   }
 
+  void setActiveItem(bool isActive, Enum item) {
+    state.setActiveItems(isActive, item);
+    state = state;
+    state = state.copy();
+  }
+
   // QuizStateのメソッドをラップして必要に応じてstateを更新
   void quiz1Next() {
     state.quiz1Next();
@@ -171,7 +177,7 @@ class QuizStateNotifier extends StateNotifier<QuizState> {
   }
 
   void clearDoneSet() {
-    state.doneSet.clear();
+    state.doneKeyOrder.clear();
     state = state;
     state = state.copy();
   }
@@ -180,28 +186,100 @@ class QuizStateNotifier extends StateNotifier<QuizState> {
 }
 
 class QuizState {
-  //Conjugacions? conjugacions;
-  final int _moodTenseLength = MoodTense.values.length;
-  final int _subjectLength = Subject.values.length;
   final _random = Random();
-  final int allLength =
-      Subject.values.length * (MoodTense.values.length - 2) + 2 - 1;
-  //Conjugacions doneItems;
-  int wordId = 0;
-  List<String> doneSet = [];
+
+  List<Subject> activeSubjects = []; //出題する主語
+  List<MoodTense> activeMoodTenses = []; //出題する時制
+  //int wordId = 0;
+  List<String> doneKeyOrder = []; //出題済みキーの順番
+  Set<String> nonExistKeys = {}; //存在しないキー
+  Set<String> waitingKeys = {}; //まだ出題されてないキー
+  Set<String> activeKeys = {}; //問題として出るキー
   int currentIndex = -1;
-  Set<String> nonexistSet = {};
   MoodTense currentTense = MoodTense.indicativePresent;
   Subject currentSubject = Subject.yo;
 
+  int get allLength => activeKeys.length;
+
+  void setActiveKeys() {
+    activeKeys.clear();
+    waitingKeys.clear();
+    for (var moodTense in activeMoodTenses) {
+      for (var subject in activeSubjects) {
+        String key = '$moodTense-$subject';
+        if (nonExistKeys.contains(key)) continue;
+        activeKeys.add(key);
+        waitingKeys.add(key);
+      }
+    }
+  }
+
+  void _setNonExistKeys() {
+    final int subLength = Subject.values.length;
+    //現在分詞
+    //yo以外削除
+    if (activeMoodTenses.contains(MoodTense.participlePresent)) {
+      MoodTense participlePresent = MoodTense.participlePresent;
+      for (int i = 0; i < subLength; i++) {
+        if (i == 0) continue;
+        Subject subject = Subject.values[i];
+        String key = '$participlePresent-$subject';
+        nonExistKeys.add(key);
+      }
+    }
+
+    //過去分詞
+    //yo以外削除
+    if (activeMoodTenses.contains(MoodTense.participlePast)) {
+      MoodTense participlePast = MoodTense.participlePast;
+      for (int i = 0; i < subLength; i++) {
+        if (i == 0) continue;
+        Subject subject = Subject.values[i];
+        String key = '$participlePast-$subject';
+        nonExistKeys.add(key);
+      }
+    }
+
+    //命令形
+    //yoのみ削除
+    if (activeMoodTenses.contains(MoodTense.imperative)) {
+      nonExistKeys.add('${MoodTense.imperative}-${Subject.yo}');
+    }
+  }
+
+  void setActiveItems(bool isActive, Enum item) {
+    if (item is Subject) {
+      if (isActive) {
+        if (!activeSubjects.contains(item)) {
+          activeSubjects.add(item);
+        }
+      } else {
+        activeSubjects.remove(item);
+      }
+    } else if (item is MoodTense) {
+      if (isActive) {
+        if (!activeMoodTenses.contains(item)) {
+          activeMoodTenses.add(item);
+        }
+      } else {
+        activeMoodTenses.remove(item);
+      }
+    }
+    setActiveKeys();
+  }
+
   QuizState copy() {
     final cloned = QuizState();
-    cloned.doneSet = List<String>.from(doneSet);
+    cloned.doneKeyOrder = List<String>.from(doneKeyOrder);
     cloned.currentIndex = currentIndex;
-    cloned.nonexistSet = Set<String>.from(nonexistSet);
+    cloned.nonExistKeys = Set<String>.from(nonExistKeys);
     cloned.currentTense = currentTense;
     cloned.currentSubject = currentSubject;
-    cloned.wordId = wordId;
+    cloned.activeKeys = Set<String>.from(activeKeys);
+    cloned.waitingKeys = Set<String>.from(waitingKeys);
+    cloned.activeSubjects = List<Subject>.from(activeSubjects);
+    cloned.activeMoodTenses = List<MoodTense>.from(activeMoodTenses);
+    //cloned.wordId = wordId;
     return cloned;
   }
 
@@ -210,22 +288,19 @@ class QuizState {
     currentSubject = Subject.yo;
     currentIndex = -1;
 
-    doneSet.clear();
-    nonexistSet.clear();
-    // 分詞はyoのみ
-    MoodTense moodTensePresent = MoodTense.participlePresent;
-    for (int i = 1; i < _subjectLength; i++) {
-      Subject subject = Subject.values[i];
-      String key = '$moodTensePresent-$subject';
-      nonexistSet.add(key);
-    }
-    MoodTense moodTensePast = MoodTense.participlePast;
-    for (int i = 1; i < _subjectLength; i++) {
-      Subject subject = Subject.values[i];
-      String key = '$moodTensePast-$subject';
-      nonexistSet.add(key);
-    }
-    nonexistSet.add('MoodTense.imperative-Subject.yo');
+    doneKeyOrder.clear();
+    nonExistKeys.clear();
+    activeKeys.clear();
+    waitingKeys.clear();
+    activeSubjects.clear();
+    activeMoodTenses.clear();
+
+    // init with all values
+    activeSubjects.addAll(Subject.values);
+    activeMoodTenses.addAll(MoodTense.values);
+    _setNonExistKeys();
+    setActiveKeys();
+
     quiz1Next();
   }
 
@@ -233,7 +308,7 @@ class QuizState {
     if (currentIndex > 0) {
       print("BAAAAAAAAAAAAAACK");
       currentIndex -= 1;
-      List<String> last = doneSet[currentIndex].split('-');
+      List<String> last = doneKeyOrder[currentIndex].split('-');
       currentTense =
           MoodTense.values.firstWhere((e) => e.toString() == last[0]);
       currentSubject =
@@ -260,53 +335,88 @@ class QuizState {
 
   // yo + future ->
   void quiz1Next() {
-    print("quiz1");
+    print("===========quiz1:${waitingKeys.length}");
+    print("waitingKeys: $waitingKeys");
     //主語＋時制
     //スペイン語を答える
-    currentIndex += 1;
-
-    if (currentIndex >= doneSet.length) {
-      print("===================quiz1Next");
-      // ランダムで時制と主語選定
-      String key = getRandomKey();
-      //currentTense = MoodTense.values[int.parse(key.split('-')[0])];
-
-      doneSet.add(key); // 出題済みに追加
+    if (activeKeys.length == currentIndex + 1) {
       return;
     }
-    print("===================quiz1Next recover");
+    currentIndex += 1;
 
-    List<String> last = doneSet[currentIndex].split('-');
+    if (currentIndex >= doneKeyOrder.length) {
+      //新規読み込み
+      //print("===================quiz1Next");
+      // ランダムで時制と主語選定
+      int randomInt = random(waitingKeys.length);
+      String key = waitingKeys.elementAt(randomInt);
+
+      waitingKeys.remove(key);
+      //currentTense = MoodTense.values[int.parse(key.split('-')[0])];
+
+      doneKeyOrder.add(key); // 出題済みに追加
+
+      //return;
+    }
+
+    //いったんBACKしていた状態から戻る
+    // print("===================quiz1Next recover");
+
+    List<String> last = doneKeyOrder[currentIndex].split('-');
     currentTense = MoodTense.values.firstWhere((e) => e.toString() == last[0]);
     currentSubject = Subject.values.firstWhere((e) => e.toString() == last[1]);
   }
 
-  String getRandomKey() {
-    // ランダムで時制と主語選定
+  // yo + future ->
+  // void quiz1Next() {
+  //   print("quiz1");
+  //   //主語＋時制
+  //   //スペイン語を答える
+  //   currentIndex += 1;
 
-    int moodTenseIndex = random(_moodTenseLength);
-    int subjectIndex = random(_subjectLength);
-    MoodTense moodTense = MoodTense.values[moodTenseIndex];
-    Subject subject = Subject.values[subjectIndex];
-    String key = '$moodTense-$subject';
+  //   if (currentIndex >= doneSet.length) {
+  //     print("===================quiz1Next");
+  //     // ランダムで時制と主語選定
+  //     String key = getRandomKey();
+  //     //currentTense = MoodTense.values[int.parse(key.split('-')[0])];
 
-    while (doneSet.contains(key) || nonexistSet.contains(key)) {
-      int moodTenseIndex = random(_moodTenseLength);
-      int subjectIndex = random(_subjectLength);
-      moodTense = MoodTense.values[moodTenseIndex];
-      subject = Subject.values[subjectIndex];
-      key = '$moodTense-$subject';
-    }
+  //     doneSet.add(key); // 出題済みに追加
+  //     return;
+  //   }
+  //   print("===================quiz1Next recover");
 
-    //doneSet.add(key); // 出題済みに追加
-    currentTense = moodTense;
-    currentSubject = subject;
+  //   List<String> last = doneSet[currentIndex].split('-');
+  //   currentTense = MoodTense.values.firstWhere((e) => e.toString() == last[0]);
+  //   currentSubject = Subject.values.firstWhere((e) => e.toString() == last[1]);
+  // }
 
-    return key;
-  }
+  // String getRandomKey() {
+  //   // ランダムで時制と主語選定
+
+  //   int moodTenseIndex = random(_moodTenseLength);
+  //   int subjectIndex = random(_subjectLength);
+  //   MoodTense moodTense = MoodTense.values[moodTenseIndex];
+  //   Subject subject = Subject.values[subjectIndex];
+  //   String key = '$moodTense-$subject';
+
+  //   while (doneSet.contains(key) || nonExistKeys.contains(key)) {
+  //     int moodTenseIndex = random(_moodTenseLength);
+  //     int subjectIndex = random(_subjectLength);
+  //     moodTense = MoodTense.values[moodTenseIndex];
+  //     subject = Subject.values[subjectIndex];
+  //     key = '$moodTense-$subject';
+  //   }
+
+  //   //doneSet.add(key); // 出題済みに追加
+  //   currentTense = moodTense;
+  //   currentSubject = subject;
+
+  //   return key;
+  // }
 
   int random(int max) {
-    int number = _random.nextInt(max - 1); // 0〜max-1の整数を返す
+    if (max <= 0) return 0;
+    int number = _random.nextInt(max); // 0〜max-1の整数を返す
     return number;
   }
 }

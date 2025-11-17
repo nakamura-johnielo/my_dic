@@ -1,5 +1,12 @@
 {
   "java.configuration.updateBuildConfiguration": "automatic",
   "editor.guides.bracketPairs": true,
-  "editor.bracketPairColorization.enabled": true
+  "editor.bracketPairColorization.enabled": true,
+  "files.watcherExclude": {
+    "**/.idea/**": true,
+    "**/.VSCodeCounter/**": true,
+    "**/android/**": true,
+    "**/windows/**": true,
+    "**/build/**": true
+  }
 }

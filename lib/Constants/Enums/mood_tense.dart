@@ -56,7 +56,7 @@ extension MoodTenseExtension on MoodTense {
       case MoodTense.subjunctivePresent:
         return EnglishMoodTense.indicativePresent;
       case MoodTense.subjunctivePast:
-        return EnglishMoodTense.participlePast;
+        return EnglishMoodTense.indicativePast;
     }
   }
 
