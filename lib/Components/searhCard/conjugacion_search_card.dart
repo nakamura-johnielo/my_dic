@@ -18,9 +18,9 @@ class ConjugacionSearchCard extends StatelessWidget {
   final Map<MoodTenseSubject, String> conjugacions;
   final VoidCallback? onTap;
 
-  static const Color hinshiColor = Color.fromARGB(255, 40, 40, 40);
-  static const Color wordColor = Colors.black;
-  static const Color meaningColor = Colors.black;
+  // static const Color hinshiColor = Color.fromARGB(255, 40, 40, 40);
+  // static const Color wordColor = Colors.black;
+  // static const Color meaningColor = Colors.black;
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +55,8 @@ class ConjugacionSearchCard extends StatelessWidget {
             Text(
               word,
               style: TextStyle(
-                  fontSize: 15, fontWeight: FontWeight.w500, color: wordColor),
+                fontSize: 15, fontWeight: FontWeight.w500, //color: wordColor
+              ),
               textAlign: TextAlign.left,
             ),
             SizedBox(width: 15),
@@ -102,6 +103,7 @@ class ConjMiniSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color color = Theme.of(context).colorScheme.onSurfaceVariant;
     String title =
         "${moodTenseSubject.moodTense.shorten}${moodTenseSubject.subject.name}:";
     if (moodTenseSubject.moodTense == MoodTense.participlePast ||
@@ -112,12 +114,12 @@ class ConjMiniSection extends StatelessWidget {
     return Row(spacing: 3, children: [
       Text(
         title,
-        style: TextStyle(fontSize: 12, color: Colors.black),
+        style: TextStyle(fontSize: 12, color: color),
         textAlign: TextAlign.left,
       ),
       Text(
         conjugacion,
-        style: TextStyle(fontSize: 12, color: Colors.black),
+        style: TextStyle(fontSize: 12, color: color),
         textAlign: TextAlign.left,
       )
     ]);

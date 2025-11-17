@@ -67,8 +67,8 @@ class _MyWordCardModalState extends State<MyWordCardModal> {
   late final TextEditingController descriptionTextFieldController;
   late final MyWordController _myWordController;
 
-  static const Color descriptionColor = Colors.black;
-  static const Color headwordColor = Colors.black;
+  // static const Color descriptionColor = Colors.black;
+  // static const Color headwordColor = Colors.black;
 
   bool _isOnEdit = false;
 
@@ -106,11 +106,13 @@ class _MyWordCardModalState extends State<MyWordCardModal> {
 
   @override
   Widget build(BuildContext context) {
+    Color descriptionColor = Theme.of(context).colorScheme.onSurfaceVariant;
+    Color headwordColor = Theme.of(context).colorScheme.onSurface;
     return GestureDetector(
       onTap: onTap,
       child: Card(
         margin: margin,
-        color: const Color.fromARGB(255, 234, 234, 234),
+        //color: const Color.fromARGB(255, 234, 234, 234),
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(6),
@@ -165,7 +167,9 @@ class _MyWordCardModalState extends State<MyWordCardModal> {
                               child: Text(
                                 myDescription,
                                 style: TextStyle(
-                                    fontSize: 15, color: descriptionColor),
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 15,
+                                    color: descriptionColor),
                                 textAlign: TextAlign.left,
                               ),
                             ),
@@ -244,7 +248,7 @@ class _MyWordCardModalState extends State<MyWordCardModal> {
                   children: [
                     SizedBox(width: 20),
                     Expanded(
-                        child: ElevatedButton(
+                        child: FilledButton(
                             onPressed: () {
                               _myWordController.updateWord(
                                   myWordId: widget.myWord.wordId,
@@ -262,10 +266,10 @@ class _MyWordCardModalState extends State<MyWordCardModal> {
                                     });
                                   });
                             },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue, // 背景色
-                              foregroundColor: Colors.white, // テキスト色
-                            ),
+                            // style: ElevatedButton.styleFrom(
+                            //   //backgroundColor: Colors.blue, // 背景色
+                            //   //foregroundColor: Colors.white, // テキスト色
+                            // ),
                             child: Text("save"))),
                     SizedBox(
                       width: 33,

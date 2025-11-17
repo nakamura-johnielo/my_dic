@@ -45,10 +45,10 @@ class MyWordCard extends StatelessWidget {
   //final bool isLearned;
   final Map<WordCardViewButton, VoidCallback> clickListeners;
 
-  static const Color hinshiColor = Color.fromARGB(255, 40, 40, 40);
-  static const Color wordColor = Colors.black;
-  static const Color headwordColor = Colors.black;
-  static const Color meaningColor = Colors.black;
+  // static const Color hinshiColor = Color.fromARGB(255, 40, 40, 40);
+  // static const Color wordColor = Colors.black;
+  // static const Color headwordColor = Colors.black;
+  // static const Color meaningColor = Colors.black;
 
   static const Map<String, IconData> bookmarkIcon = {
     "true": Icons.bookmark_rounded,
@@ -63,11 +63,13 @@ class MyWordCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Color descriptionColor = Theme.of(context).colorScheme.onSurfaceVariant;
+    Color headwordColor = Theme.of(context).colorScheme.onSurface;
     return GestureDetector(
       onTap: onTap,
       child: Card(
         margin: margin,
-        color: const Color.fromARGB(255, 234, 234, 234),
+        // color: const Color.fromARGB(255, 234, 234, 234),
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(6),
@@ -80,7 +82,7 @@ class MyWordCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Column(
-                    spacing: 0,
+                    spacing: 6,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       //No.
@@ -96,13 +98,16 @@ class MyWordCard extends StatelessWidget {
                         ),
                       ),
 
-                      //Word
+                      //description
                       Container(
                         //width: 160,
-                        padding: const EdgeInsets.only(left: 4),
+                        padding: const EdgeInsets.only(left: 0),
                         child: Text(
                           myWord.contents,
-                          style: TextStyle(fontSize: 15, color: wordColor),
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
+                              color: descriptionColor),
                           textAlign: TextAlign.left,
                         ),
                       ),

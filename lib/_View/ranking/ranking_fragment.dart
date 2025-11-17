@@ -120,7 +120,7 @@ class Header extends StatelessWidget {
 
     return Card(
       margin: margin,
-      color: const Color.fromARGB(255, 234, 234, 234),
+      //color: const Color.fromARGB(255, 234, 234, 234),
       elevation: 0,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
@@ -148,7 +148,9 @@ class Header extends StatelessWidget {
               width: 45,
               child: const Text(
                 "No.",
-                style: TextStyle(fontSize: 15, color: textColor),
+                style: TextStyle(
+                  fontSize: 15, //color: textColor
+                ),
                 textAlign: TextAlign.left,
               ),
             ),
@@ -157,7 +159,9 @@ class Header extends StatelessWidget {
               //width: 160,
               child: const Text(
                 "単語",
-                style: TextStyle(fontSize: 14, color: textColor),
+                style: TextStyle(
+                  fontSize: 14, // color: textColor
+                ),
                 textAlign: TextAlign.left,
               ),
             ),
@@ -166,7 +170,9 @@ class Header extends StatelessWidget {
               //width: 160,
               child: const Text(
                 "原形",
-                style: TextStyle(fontSize: 15, color: textColor),
+                style: TextStyle(
+                  fontSize: 15, //color: textColor
+                ),
                 textAlign: TextAlign.left,
               ),
             ),
@@ -265,7 +271,7 @@ class FilterButton extends StatelessWidget {
               return DI<RankingFilterModal>();
             });
       },
-      backgroundColor: Colors.blue,
+      //backgroundColor: Colors.blue,
       child: Icon(Icons.filter_alt_rounded),
     );
   }

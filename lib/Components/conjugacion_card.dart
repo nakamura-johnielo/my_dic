@@ -16,10 +16,12 @@ class ConjugacionCard extends StatelessWidget {
       required this.conjugacion,
       this.query = ""});
 
-  Widget _highlightMatch(String text, String query) {
+  Widget _highlightMatch(BuildContext context, String text, String query) {
     if (query.isEmpty) {
       return Text(text,
-          style: TextStyle(fontSize: 16, color: conjColor),
+          style: TextStyle(
+            fontSize: 16, //color: conjColor
+          ),
           textAlign: TextAlign.left);
     }
     final lowerText = text.toLowerCase();
@@ -27,23 +29,32 @@ class ConjugacionCard extends StatelessWidget {
     final start = lowerText.indexOf(lowerQuery);
     if (start < 0) {
       return Text(text,
-          style: TextStyle(fontSize: 16, color: conjColor),
+          style: TextStyle(
+            fontSize: 16, //color: conjColor
+          ),
           textAlign: TextAlign.left);
     }
     final end = start + query.length;
     //完全一致か部分一致か
     Color highlightColor = text.length == query.length
-        ? Colors.indigo[200]!
-        : const Color.fromARGB(255, 213, 216, 244);
+        ? Theme.of(context).colorScheme.primary //Colors.indigo[200]!
+        : Theme.of(context).colorScheme.primary.withOpacity(0.5);
+    Color? highlightTextColor = text.length == query.length
+        ? Theme.of(context).colorScheme.onPrimary //Colors.indigo[200]!
+        : null;
+    //Theme.of(context).colorScheme.onPrimary;
 
     return RichText(
       text: TextSpan(
-        style: TextStyle(fontSize: 16, color: conjColor),
+        style: TextStyle(
+          fontSize: 16, //color: conjColor
+        ),
         children: [
           TextSpan(text: text.substring(0, start)),
           TextSpan(
             text: text.substring(start, end),
-            style: TextStyle(backgroundColor: highlightColor),
+            style: TextStyle(
+                backgroundColor: highlightColor, color: highlightTextColor),
           ),
           TextSpan(text: text.substring(end)),
         ],
@@ -79,37 +90,49 @@ class ConjugacionCard extends StatelessWidget {
                     children: [
                       Text(
                         "Yo",
-                        style: TextStyle(fontSize: 16, color: subjectColor),
+                        style: TextStyle(
+                          fontSize: 16, //color: subjectColor
+                        ),
                         textAlign: TextAlign.left,
                       ),
                       SizedBox(height: 5),
                       Text(
                         "Tu",
-                        style: TextStyle(fontSize: 16, color: subjectColor),
+                        style: TextStyle(
+                          fontSize: 16, //color: subjectColor
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: 5),
                       Text(
                         "El",
-                        style: TextStyle(fontSize: 16, color: subjectColor),
+                        style: TextStyle(
+                          fontSize: 16, //color: subjectColor
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: 5),
                       Text(
                         "Nosotros",
-                        style: TextStyle(fontSize: 16, color: subjectColor),
+                        style: TextStyle(
+                          fontSize: 16, //color: subjectColor
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: 5),
                       Text(
                         "Vosotros",
-                        style: TextStyle(fontSize: 16, color: subjectColor),
+                        style: TextStyle(
+                          fontSize: 16, //color: subjectColor
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: 5),
                       Text(
                         "Ellos",
-                        style: TextStyle(fontSize: 16, color: subjectColor),
+                        style: TextStyle(
+                          fontSize: 16, //color: subjectColor
+                        ),
                         textAlign: TextAlign.center,
                       ),
                     ]),
@@ -117,17 +140,17 @@ class ConjugacionCard extends StatelessWidget {
               SizedBox(width: 20),
               // conjugacion
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                _highlightMatch(conjugacion.yo, query),
+                _highlightMatch(context, conjugacion.yo, query),
                 SizedBox(height: 5),
-                _highlightMatch(conjugacion.tu, query),
+                _highlightMatch(context, conjugacion.tu, query),
                 SizedBox(height: 5),
-                _highlightMatch(conjugacion.el, query),
+                _highlightMatch(context, conjugacion.el, query),
                 SizedBox(height: 5),
-                _highlightMatch(conjugacion.nosotros, query),
+                _highlightMatch(context, conjugacion.nosotros, query),
                 SizedBox(height: 5),
-                _highlightMatch(conjugacion.vosotros, query),
+                _highlightMatch(context, conjugacion.vosotros, query),
                 SizedBox(height: 5),
-                _highlightMatch(conjugacion.ellos, query),
+                _highlightMatch(context, conjugacion.ellos, query),
 
                 // Text(
                 //   conjugacion.yo,
@@ -207,7 +230,9 @@ class ParticipleCard extends StatelessWidget {
             ),
             Text(
               conjugacion,
-              style: TextStyle(fontSize: 16, color: conjColor),
+              style: TextStyle(
+                fontSize: 16, //color: conjColor
+              ),
               textAlign: TextAlign.left,
             ),
           ],

@@ -22,7 +22,7 @@ class RankingFilterModal extends ConsumerWidget {
         margin: EdgeInsets.all(0),
         padding: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 0),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(10),
             topRight: Radius.circular(10),

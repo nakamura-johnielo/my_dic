@@ -14,12 +14,15 @@ class SearchCard extends StatelessWidget {
   final List<PartOfSpeech> partOfSpeech;
   final VoidCallback? onTap;
 
-  static const Color hinshiColor = Color.fromARGB(255, 40, 40, 40);
-  static const Color wordColor = Colors.black;
-  static const Color meaningColor = Colors.black;
+  // static const Color hinshiColor = Color.fromARGB(255, 40, 40, 40);
+  // static const Color wordColor = Colors.black;
+  // static const Color meaningColor = Colors.black;
 
   @override
   Widget build(BuildContext context) {
+    final Color hinshiColor = Theme.of(context).colorScheme.onSurfaceVariant;
+    //final Color wordColor = Theme.of(context).colorScheme.onSurface;
+    //final Color meaningColor = Colors.black;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -47,9 +50,10 @@ class SearchCard extends StatelessWidget {
                 Text(
                   word,
                   style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                      color: wordColor),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    // color: wordColor
+                  ),
                   textAlign: TextAlign.left,
                 ),
                 SizedBox(width: 15),

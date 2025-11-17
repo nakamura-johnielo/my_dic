@@ -58,12 +58,15 @@ class MyWordFragment extends ConsumerWidget {
                   );
                 },
               };
-              return MyWordCard(
-                onTap: () {
-                  openDetailModal(context, clickListeners, index, myword);
-                },
-                myWord: myword,
-                clickListeners: clickListeners,
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 7.0),
+                child: MyWordCard(
+                  onTap: () {
+                    openDetailModal(context, clickListeners, index, myword);
+                  },
+                  myWord: myword,
+                  clickListeners: clickListeners,
+                ),
               );
             },
           )),
@@ -74,7 +77,42 @@ class MyWordFragment extends ConsumerWidget {
   }
 }
 
+// ...existing code...
 void openDetailModal(
+    BuildContext context,
+    Map<WordCardViewButton, void Function()> clickListeners,
+    int index,
+    MyWord myword) {
+  showDialog<void>(
+    context: context,
+    barrierDismissible: true, // カード外タップで閉じる
+    barrierColor: Colors.black.withOpacity(0.5),
+    builder: (context) {
+      return Center(
+        child: Padding(
+          // キーボード表示時の押し上げ対応
+          padding: MediaQuery.viewInsetsOf(context),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: 560, // 必要に応じて調整
+            ),
+            child: Material(
+              type: MaterialType.transparency,
+              child: MyWordCardModal(
+                myWord: myword,
+                clickListeners: clickListeners,
+                index: index,
+              ),
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+// ...existing code...
+
+void openDetailModal2(
     BuildContext context,
     Map<WordCardViewButton, void Function()> clickListeners,
     int index,
@@ -85,12 +123,10 @@ void openDetailModal(
       isScrollControlled: true,
       enableDrag: false,
       //showDragHandle: true,
-      barrierColor: Colors.black.withValues(alpha: .5),
+      //barrierColor: Colors.black.withValues(alpha: .5),
       builder: (context) {
-        return Center(
-          child: MyWordCardModal(
-              myWord: myword, clickListeners: clickListeners, index: index),
-        );
+        return MyWordCardModal(
+            myWord: myword, clickListeners: clickListeners, index: index);
       });
 }
 
@@ -200,6 +236,7 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
 }
  */
 
+// ...existing code...
 class RegisterButton extends StatelessWidget {
   const RegisterButton({super.key});
 
@@ -207,19 +244,52 @@ class RegisterButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FloatingActionButton(
       onPressed: () {
+        showDialog<void>(
+          context: context,
+          barrierDismissible: true,
+          barrierColor: Colors.black.withOpacity(0.5),
+          builder: (context) {
+            return Center(
+              child: Padding(
+                // キーボードで押し上げ
+                padding: MediaQuery.viewInsetsOf(context),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 560),
+                  child: Material(
+                    type: MaterialType.transparency, // Material 祖先を提供
+                    child: DI<WordRegistrationModal>(),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+      child: Icon(Icons.add),
+    );
+  }
+}
+// ...existing code...
+
+class RegisterButton2 extends StatelessWidget {
+  const RegisterButton2({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () {
         // ボタンが押された時のアクション
-        showModalBottomSheet<void>(
+        showDialog<void>(
             context: context,
-            backgroundColor: Colors.transparent,
-            isScrollControlled: true,
-            enableDrag: true,
+            barrierDismissible: true, // カード外タップで閉じる
+            // barrierColor: Colors.black.withOpacity(0.5),
             //showDragHandle: true,
-            barrierColor: Colors.black.withValues(alpha: .5),
+            //barrierColor: Colors.black.withValues(alpha: .5),
             builder: (context) {
               return DI<WordRegistrationModal>();
             });
       },
-      backgroundColor: Colors.blue,
+      //backgroundColor: Colors.blue,
       child: Icon(Icons.add),
     );
   }

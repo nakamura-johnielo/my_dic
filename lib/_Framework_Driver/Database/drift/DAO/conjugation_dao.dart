@@ -413,7 +413,7 @@ String getAllQueryWithWordColumn(String query) {
   //完全一致が先頭
   String res = "";
   res = '''
-SELECT word_id, word,
+SELECT word_id, word,meaning,
       CASE WHEN present_participle LIKE '$query%' THEN present_participle ELSE '' END AS 'present_participle',
       CASE WHEN past_participle LIKE '$query%' THEN past_participle ELSE '' END AS 'past_participle',
       CASE WHEN indicative_present_yo LIKE '$query%' THEN indicative_present_yo ELSE '' END AS 'indicative_present_yo',

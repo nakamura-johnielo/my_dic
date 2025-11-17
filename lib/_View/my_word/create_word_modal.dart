@@ -34,14 +34,15 @@ class _WordRegistrationModalState extends State<WordRegistrationModal> {
 
   @override
   Widget build(BuildContext context) {
+    final Color bg = Theme.of(context).colorScheme.surfaceContainer;
     return FractionallySizedBox(
-      heightFactor: 0.98,
-      widthFactor: 0.96,
+      heightFactor: 0.9,
+      widthFactor: 0.8,
       child: Container(
         margin: EdgeInsets.all(0),
         padding: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: bg,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(10),
             topRight: Radius.circular(10),
@@ -50,6 +51,7 @@ class _WordRegistrationModalState extends State<WordRegistrationModal> {
         //margin: EdgeInsets.only(top: 80),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          //mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               'My Word 登録',
@@ -108,14 +110,14 @@ class _WordRegistrationModalState extends State<WordRegistrationModal> {
                         Expanded(
                             child: Padding(
                           padding: EdgeInsets.symmetric(horizontal: 20),
-                          child: ElevatedButton(
+                          child: FilledButton(
                             style: ElevatedButton.styleFrom(
                               padding: EdgeInsets.symmetric(vertical: 20),
                               elevation: 0,
-                              foregroundColor:
-                                  const Color.fromARGB(255, 255, 255, 255),
-                              backgroundColor:
-                                  const Color.fromARGB(255, 44, 110, 215),
+                              // foregroundColor:
+                              //     const Color.fromARGB(255, 255, 255, 255),
+                              // backgroundColor:
+                              //     const Color.fromARGB(255, 44, 110, 215),
                             ),
                             onPressed: () {
                               _controller.registerWord(
@@ -166,8 +168,8 @@ void showToast(String message) {
     msg: message,
     toastLength: Toast.LENGTH_SHORT, // 表示時間: SHORT or LONG
     gravity: ToastGravity.BOTTOM, // 位置: BOTTOM, CENTER, TOP
-    backgroundColor: Color.fromARGB(131, 0, 0, 0), // 背景色
-    textColor: Colors.white, // テキスト色
+    // backgroundColor: Color.fromARGB(131, 0, 0, 0), // 背景色
+    // textColor: Colors.white, // テキスト色
     fontSize: 16.0, // フォントサイズ
   );
 }

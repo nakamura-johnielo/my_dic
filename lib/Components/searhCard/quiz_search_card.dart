@@ -9,12 +9,13 @@ class QuizSearchCard extends StatelessWidget {
   final String meaning;
   final VoidCallback? onTap;
 
-  static const Color hinshiColor = Color.fromARGB(255, 40, 40, 40);
-  static const Color wordColor = Colors.black;
-  static const Color meaningColor = Colors.black;
+  // static const Color hinshiColor = Color.fromARGB(255, 40, 40, 40);
+  // static const Color wordColor = Colors.black;
+  // static const Color meaningColor = Colors.black;
 
   @override
   Widget build(BuildContext context) {
+    final Color meaningColor = Theme.of(context).colorScheme.onSurfaceVariant;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -42,9 +43,10 @@ class QuizSearchCard extends StatelessWidget {
                 Text(
                   word,
                   style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                      color: wordColor),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    //color: wordColor
+                  ),
                   textAlign: TextAlign.left,
                 ),
                 SizedBox(width: 15),

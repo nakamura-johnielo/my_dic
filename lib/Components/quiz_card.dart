@@ -14,8 +14,8 @@ class QuizCard extends ConsumerWidget {
   final Function onSwipe;
   final String englishSub;
 
-  static const Color subjectColor = Color.fromARGB(255, 62, 62, 62);
-  static const Color conjColor = Color.fromARGB(255, 3, 159, 52);
+  // static const Color subjectColor = Color.fromARGB(255, 62, 62, 62);
+  // static const Color conjColor = Color.fromARGB(255, 3, 159, 52);
   //final IconData icon;
   const QuizCard(
       {super.key,
@@ -125,19 +125,23 @@ class ConjCard extends ConsumerWidget {
               spacing: 26,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  subject.displayEsp,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+                if (moodTense != MoodTense.participlePast &&
+                    moodTense != MoodTense.participlePresent)
+                  Text(
+                    subject.displayEsp,
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
                 Container(
                   //color: subjectColor,
                   padding:
                       const EdgeInsets.symmetric(vertical: 4.0, horizontal: 9),
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(2),
-                      color: isOnAnswer(cardState) ? null : subjectColor,
+                      color: isOnAnswer(cardState)
+                          ? null
+                          : Theme.of(context).colorScheme.primary,
                       border: Border.all(
-                          color: subjectColor,
+                          color: Theme.of(context).colorScheme.primary,
                           width:
                               2) //isOnAnswer(cardState) ? Border.all(color: subjectColor, width: 2): null,
                       ),
@@ -145,9 +149,7 @@ class ConjCard extends ConsumerWidget {
                     conjugacion,
                     style: TextStyle(
                       fontSize: 22,
-                      color: isOnAnswer(cardState)
-                          ? subjectColor
-                          : Colors.transparent,
+                      color: isOnAnswer(cardState) ? null : Colors.transparent,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -192,7 +194,7 @@ class ParticipleCard extends ConsumerWidget {
           children: <Widget>[
             Text(
               moodTense.jap,
-              style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
             ),
             Row(
               spacing: 26,
@@ -208,9 +210,11 @@ class ParticipleCard extends ConsumerWidget {
                       const EdgeInsets.symmetric(vertical: 4.0, horizontal: 9),
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(2),
-                      color: isOnAnswer(cardState) ? null : subjectColor,
+                      color: isOnAnswer(cardState)
+                          ? null
+                          : Theme.of(context).colorScheme.primary,
                       border: Border.all(
-                          color: subjectColor,
+                          color: Theme.of(context).colorScheme.primary,
                           width:
                               2) //isOnAnswer(cardState) ? Border.all(color: subjectColor, width: 2): null,
                       ),
@@ -218,9 +222,7 @@ class ParticipleCard extends ConsumerWidget {
                     conjugacion,
                     style: TextStyle(
                       fontSize: 22,
-                      color: isOnAnswer(cardState)
-                          ? subjectColor
-                          : Colors.transparent,
+                      color: isOnAnswer(cardState) ? null : Colors.transparent,
                     ),
                     textAlign: TextAlign.center,
                   ),

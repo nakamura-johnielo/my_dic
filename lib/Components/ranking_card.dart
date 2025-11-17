@@ -65,7 +65,7 @@ class RankingCard extends ConsumerWidget {
       onTap: onTap,
       child: Card(
         margin: margin,
-        color: const Color.fromARGB(255, 234, 234, 234),
+        //color: const Color.fromARGB(255, 234, 234, 234),
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(6),
@@ -78,7 +78,9 @@ class RankingCard extends ConsumerWidget {
               width: 45,
               child: Text(
                 ranking.rank.toString(),
-                style: TextStyle(fontSize: 15, color: rankingColor),
+                style: TextStyle(
+                  fontSize: 15, //color: rankingColor
+                ),
                 textAlign: TextAlign.left,
               ),
             ),
@@ -99,7 +101,9 @@ class RankingCard extends ConsumerWidget {
                     //width: 160,
                     child: Text(
                       ranking.rankedWord,
-                      style: TextStyle(fontSize: 15, color: wordColor),
+                      style: TextStyle(
+                        fontSize: 15, //color: wordColor
+                      ),
                       textAlign: TextAlign.left,
                     ),
                   ),
@@ -108,7 +112,9 @@ class RankingCard extends ConsumerWidget {
                     //width: 160,
                     child: Text(
                       ranking.lemma,
-                      style: TextStyle(fontSize: 15, color: wordColor),
+                      style: TextStyle(
+                        fontSize: 15, //color: wordColor
+                      ),
                       textAlign: TextAlign.left,
                     ),
                   ),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Constants/enviroment.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/database_provider.dart';
+import 'package:my_dic/_View/Themes/color_scheme.dart';
 //import 'package:my_dic/_View/main_activity.dart';
 import 'package:my_dic/router.dart';
 
@@ -39,8 +40,17 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false, //debug banner非表示
       title: APP_NAME,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: darkColorScheme,
+        //colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
+        // cardTheme: CardThemeData(
+        //   color: Theme.of(context).colorScheme.surfaceContainer,
+        // ),
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+          backgroundColor: Theme.of(context).colorScheme.surfaceDim,
+          unselectedItemColor:
+              Theme.of(context).colorScheme.onSurfaceVariant, //未選択時の色
+        ),
       ),
       //home: const MainActivity(),
     );

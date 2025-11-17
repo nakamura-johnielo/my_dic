@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:flutter/foundation.dart';
 import 'package:my_dic/Constants/enviroment.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/es_en_conjugacion_dao.dart';
 import 'package:my_dic/_Framework_Driver/Database/drift/DAO/jpn_esp/jpn_esp_word_dao.dart';
@@ -99,6 +100,16 @@ class DatabaseProvider extends _$DatabaseProvider {
           print("attached database at $attachDbPath");
 
           try {
+            // 挿入済みなら投入不要
+            final cnt = await customSelect(
+                    "SELECT COUNT(*) AS c FROM es_en_conjugacions;")
+                .getSingle();
+            final hasData = (cnt.data['c'] as int) > 0;
+            if (hasData) {
+              log("Skip seeding es_en_conjugacions (already populated).");
+              return;
+            }
+
             await transaction(() async {
               print("start transaction");
               await customStatement("""
@@ -114,6 +125,7 @@ class DatabaseProvider extends _$DatabaseProvider {
       },
       beforeOpen: (details) async {
         print("==== DB Migration beforeOpen ===");
+        print("==== DB version is ${details.versionNow} ===");
         if (details.wasCreated) {
           log("DatabaseProvider - Database was created");
         }
@@ -159,10 +171,19 @@ class DatabaseProvider extends _$DatabaseProvider {
       ); */
 }
 
+Future<String> getAppDir() async {
+  final documentsDirectory = await getApplicationSupportDirectory();
+  final path = kReleaseMode
+      ? join(documentsDirectory.path, "${APP_NAME}_DB")
+      : join(documentsDirectory.path, "DEBUG", "${APP_NAME}_DB");
+  return path;
+}
+
 // ...existing code...
 Future<void> deleteDatabaseFile(String dbName) async {
-  final documentsDirectory = await getApplicationSupportDirectory();
-  final folderPath = join(documentsDirectory.path, "${APP_NAME}_DB");
+  // final documentsDirectory = await getApplicationSupportDirectory();
+  // final folderPath = join(documentsDirectory.path, "${APP_NAME}_DB");
+  final folderPath = await getAppDir();
   final dbPath = join(folderPath, dbName);
   final dbFile = File(dbPath);
 
@@ -177,8 +198,9 @@ Future<void> deleteDatabaseFile(String dbName) async {
 Future<String> copyAssetDbOnce(String assetDbFileName,
     {String? destFileName}) async {
   // 保存先フォルダ（既存の getDatabasePath と同じ場所）
-  final documentsDirectory = await getApplicationSupportDirectory();
-  final folderPath = join(documentsDirectory.path, "${APP_NAME}_DB");
+  // final documentsDirectory = await getApplicationSupportDirectory();
+  // final folderPath = join(documentsDirectory.path, "${APP_NAME}_DB");
+  final folderPath = await getAppDir();
   final folder = Directory(folderPath);
   if (!await folder.exists()) {
     await folder.create(recursive: true);
@@ -211,10 +233,11 @@ LazyDatabase _openConnection() {
 }
 
 Future<String> getDatabasePath(String dbName) async {
-  final documentsDirectory = await getApplicationSupportDirectory();
+  // final documentsDirectory = await getApplicationSupportDirectory();
+  // // 新しいフォルダのパスを作成
+  // final folderPath = join(documentsDirectory.path, "${APP_NAME}_DB");
+  final folderPath = await getAppDir();
 
-  // 新しいフォルダのパスを作成
-  final folderPath = join(documentsDirectory.path, "${APP_NAME}_DB");
   // 新しいフォルダが存在しない場合は作成
   final folder = Directory(folderPath);
   //await folder.create(recursive: false);
