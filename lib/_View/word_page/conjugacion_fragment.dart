@@ -5,16 +5,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Components/conjugacion_card.dart';
 import 'package:my_dic/Constants/Enums/mood_tense.dart';
 import 'package:my_dic/Constants/ui.dart';
+import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/verb/conjugacion/conjugacions.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/word_page_controller.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/main_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/search_view_model.dart';
 
 class ConjugacionFragment extends ConsumerWidget {
-  const ConjugacionFragment(
-      {super.key, required this.wordId, required this.wordPageController});
+  const ConjugacionFragment({super.key, required this.wordId});
 
-  final WordPageController wordPageController;
+  //final WordPageController wordPageController;
   //=DI<IConjugacionsRepository>();
   final int wordId;
 
@@ -22,6 +22,7 @@ class ConjugacionFragment extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     log("conj key: $key");
+    final wordPageController = ref.read(wordPageControllerProvider);
     final mainViewModel = ref.watch(mainViewModelProvider);
     if (!mainViewModel.conjugacionCache.containsKey(wordId)) {
       wordPageController.fetchConjugacionById(wordId);

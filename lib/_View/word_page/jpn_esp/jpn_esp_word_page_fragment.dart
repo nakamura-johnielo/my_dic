@@ -13,7 +13,9 @@ class JpnEspWordPageFragment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DI<JpnEspDictionaryFragment>(
-        param1: WordPageChildInputData(wordId: input.wordId));
+    return JpnEspDictionaryFragment(
+        //param1: WordPageChildInputData(wordId:
+        wordId: input.wordId //)
+        );
   }
 }

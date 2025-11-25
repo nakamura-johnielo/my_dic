@@ -1,61 +1,38 @@
-// ignore_for_file: non_constant_identifier_names
-
-import 'package:flutter/widgets.dart';
-import 'package:get_it/get_it.dart';
-import 'package:my_dic/Components/modal/ranking_filter_modal.dart';
-import 'package:my_dic/Components/my_word_card_modal.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Components/status_buttons.dart';
 import 'package:my_dic/_Business_Rule/Usecase/esp_jpn_status/esp_jpn_status_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/fetch_conjugation_interactor.dart';
-import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/i_fetch_conjugation_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/i_fetch_conjugation_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/fetch_dictionary/fetch_dictionary_interactor.dart';
-import 'package:my_dic/_Business_Rule/Usecase/fetch_dictionary/i_fetch_dictionary_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/fetch_dictionary/i_fetch_dictionary_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/fetch_jpn_esp_dictionary/fetch_jpn_esp_dictionary_interactor.dart';
-import 'package:my_dic/_Business_Rule/Usecase/fetch_jpn_esp_dictionary/i_fetch_jpn_esp_dictionary_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/fetch_jpn_esp_dictionary/i_fetch_jpn_esp_dictionary_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/judge_search_word/i_judge_search_word_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/judge_search_word/judge_search_word_interactor.dart';
-import 'package:my_dic/_Business_Rule/Usecase/load_my_word/i_load_my_word_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/load_my_word/i_load_my_word_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/load_my_word/load_my_word_interactor.dart';
-import 'package:my_dic/_Business_Rule/Usecase/locate_ranking_pagenation/i_locate_ranking_pagenation_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/locate_ranking_pagenation/i_locate_ranking_pagenation_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/locate_ranking_pagenation/locate_ranking_pagenation_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/create/handle_word_registration/handle_word_registration_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/create/handle_word_registration/i_handle_word_registration_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/delete/delete_my_word/delete_my_word_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/delete/delete_my_word/i_delete_my_word_use_case.dart';
-import 'package:my_dic/_Business_Rule/Usecase/my_word/i_my_word_fragment_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/create/register_my_word/i_register_my_word_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/create/register_my_word/register_my_word_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/update/update_my_word/i_update_my_word_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/update/update_my_word/update_my_word_interactor.dart';
-/* import 'package:my_dic/_Business_Rule/Usecase/add_filter/add_filter_interactor.dart';
-import 'package:my_dic/_Business_Rule/Usecase/add_filter/i_add_filter_presenter.dart';
-import 'package:my_dic/_Business_Rule/Usecase/add_filter/i_add_filter_use_case.dart';
-import 'package:my_dic/_Business_Rule/Usecase/delete_filter/delete_filter_interactor.dart';
-import 'package:my_dic/_Business_Rule/Usecase/delete_filter/i_delete_filter_presenter.dart';
-import 'package:my_dic/_Business_Rule/Usecase/delete_filter/i_delete_filter_use_case.dart'; */
-/* import 'package:my_dic/_Business_Rule/Usecase/load_rankings22/i_load_rankings_presenter.dart';
-import 'package:my_dic/_Business_Rule/Usecase/load_rankings22/i_load_rankings_use_case.dart';
-import 'package:my_dic/_Business_Rule/Usecase/load_rankings22/load_rankings_interactor.dart'; */
-import 'package:my_dic/_Business_Rule/Usecase/search_word/i_search_word_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/search_word/i_search_word_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/search_word/search_word_interactor.dart';
-import 'package:my_dic/_Business_Rule/Usecase/load_rankings/i_load_rankings_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/load_rankings/i_load_rankings_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/load_rankings/load_rankings_interactor.dart';
-import 'package:my_dic/_Business_Rule/Usecase/update_my_word_status/i_update_my_word_status_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_my_word_status/i_update_my_word_status_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_my_word_status/update_my_word_status_interactor.dart';
-import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/i_update_ranking_filter_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/i_update_ranking_filter_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/update_ranking_filter_interactor.dart';
-import 'package:my_dic/_Business_Rule/Usecase/update_status/i_update_status_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_status/i_update_status_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_status/update_status_interactor.dart';
+import 'package:my_dic/_Business_Rule/_Domain/Entities/verb/conjugacion/conjugacions.dart';
+import 'package:my_dic/_Business_Rule/_Domain/Entities/word/word_status.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_conjugation_repository.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esj_dictionary_repository.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esj_word_repository.dart';
@@ -63,23 +40,23 @@ import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esp_ranking_reposit
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_jpn_esp_dictionary_repository.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_jpn_esp_word_repository.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_my_word_repository.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/conjugation_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/dictionary_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/es_en_conjugacion_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/example_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/idiom_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/jpn_esp/jpn_esp_dictionary_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/jpn_esp/jpn_esp_example_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/jpn_esp/jpn_esp_word_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/jpn_esp/jpn_esp_word_status_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/my_word_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/my_word_status_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/part_of_speech_list_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/ranking_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/supplement_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/word_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/word_status_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/database_provider.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/conjugation_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/dictionary_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/es_en_conjugacion_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/example_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/idiom_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/jpn_esp/jpn_esp_dictionary_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/jpn_esp/jpn_esp_example_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/jpn_esp/jpn_esp_word_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/jpn_esp/jpn_esp_word_status_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/my_word_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/my_word_status_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/part_of_speech_list_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/ranking_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/supplement_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/word_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/word_status_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart';
 import 'package:my_dic/_Framework_Driver/Repository/drift_conjugacion_repository.dart';
 import 'package:my_dic/_Framework_Driver/Repository/drift_es_en_conjugacions_repository.dart';
 import 'package:my_dic/_Framework_Driver/Repository/drift_esj_dictionary_repository.dart';
@@ -88,6 +65,7 @@ import 'package:my_dic/_Framework_Driver/Repository/drift_jpn_esp_dictionary_rep
 import 'package:my_dic/_Framework_Driver/Repository/drift_jpn_esp_word_repository.dart';
 import 'package:my_dic/_Framework_Driver/Repository/drift_my_word_repository.dart';
 import 'package:my_dic/_Framework_Driver/Repository/wiki_esp_ranking_repository.dart';
+import 'package:my_dic/_Interface_Adapter/Controller/buffer_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/jpn_esp_word_page_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/my_word_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/quiz_controller.dart';
@@ -110,320 +88,403 @@ import 'package:my_dic/_Interface_Adapter/ViewModel/my_word_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/note_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/ranking_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/search_view_model.dart';
-import 'package:my_dic/_Interface_Adapter/Controller/buffer_controller.dart';
-import 'package:my_dic/_View/my_word/create_word_modal.dart';
-import 'package:my_dic/_View/my_word/my_word_fragment.dart';
-import 'package:my_dic/_View/ranking/ranking_fragment.dart';
-import 'package:my_dic/_View/word_page/conjugacion_fragment.dart';
-import 'package:my_dic/_View/word_page/dictionary_fragment.dart';
-import 'package:my_dic/_View/word_page/jpn_esp/jpn_esp_dictionary_fragment.dart';
-import 'package:tuple/tuple.dart';
 
-final DI = GetIt.instance;
+// ============================================================================
+// Database & DAO Providers
+// ============================================================================
 
-void setupLocator() {
-  //Database
-  DI.registerSingleton<DatabaseProvider>(DatabaseProvider());
-  //await DI<DatabaseProvider>().customSelect('SELECT 1').get();
+final databaseProvider = Provider<DatabaseProvider>((ref) {
+  return DatabaseProvider();
+});
 
-  //DAOにDatabase注入
-  DI.registerFactory<ConjugationDao>(
-      () => ConjugationDao(DI<DatabaseProvider>()));
-  DI.registerFactory<DictionaryDao>(
-      () => DictionaryDao(DI<DatabaseProvider>()));
-  DI.registerFactory<ExampleDao>(() => ExampleDao(DI<DatabaseProvider>()));
-  DI.registerFactory<IdiomDao>(() => IdiomDao(DI<DatabaseProvider>()));
-  DI.registerFactory<PartOfSpeechListDao>(
-      () => PartOfSpeechListDao(DI<DatabaseProvider>()));
-  DI.registerFactory<RankingDao>(() => RankingDao(DI<DatabaseProvider>()));
-  DI.registerFactory<SupplementDao>(
-      () => SupplementDao(DI<DatabaseProvider>()));
-  DI.registerFactory<WordDao>(() => WordDao(DI<DatabaseProvider>()));
-  DI.registerFactory<WordStatusDao>(
-      () => WordStatusDao(DI<DatabaseProvider>()));
-  DI.registerFactory<MyWordStatusDao>(
-      () => MyWordStatusDao(DI<DatabaseProvider>()));
-  DI.registerFactory<MyWordDao>(() => MyWordDao(DI<DatabaseProvider>()));
-  DI.registerFactory<JpnEspWordDao>(
-      () => JpnEspWordDao(DI<DatabaseProvider>()));
-  DI.registerFactory<JpnEspExampleDao>(
-      () => JpnEspExampleDao(DI<DatabaseProvider>()));
-  DI.registerFactory<JpnEspWordStatusDao>(
-      () => JpnEspWordStatusDao(DI<DatabaseProvider>()));
-  DI.registerFactory<JpnEspDictionaryDao>(
-      () => JpnEspDictionaryDao(DI<DatabaseProvider>()));
-  DI.registerFactory<EsEnConjugacionDao>(
-      () => EsEnConjugacionDao(DI<DatabaseProvider>()));
+final conjugationDaoProvider = Provider<ConjugationDao>((ref) {
+  return ConjugationDao(ref.read(databaseProvider));
+});
 
-  //repository
-  DI.registerFactory<IEsjDictionaryRepository>(
-      () => DriftEsjDictionaryRepository(
-            DI<DictionaryDao>(),
-            DI<ExampleDao>(),
-            DI<IdiomDao>(),
-            DI<SupplementDao>(),
-          ));
-  DI.registerFactory<IEsjWordRepository>(
-      () => DriftEsjWordRepository(DI<WordDao>(), DI<WordStatusDao>()));
-  DI.registerFactory<IConjugacionsRepository>(
-      () => DriftConjugacionRepository(DI<ConjugationDao>()));
-  DI.registerFactory<IEspRankingRepository>(
-      () => WikiEspRankingRepository(DI<RankingDao>()));
-  DI.registerFactory<IMyWordRepository>(
-      () => DriftMyWordRepository(DI<MyWordDao>(), DI<MyWordStatusDao>()));
-  DI.registerFactory<IJpnEspWordRepository>(() => DriftJpnEspWordRepository(
-      DI<JpnEspWordDao>(), DI<JpnEspDictionaryDao>()));
-  DI.registerFactory<IJpnEspDictionaryRepository>(() =>
-      DriftJpnEspDictionaryRepository(
-          DI<JpnEspDictionaryDao>(), DI<JpnEspExampleDao>()));
-  DI.registerFactory<DriftEsEnConjugacionRepository>(
-      () => DriftEsEnConjugacionRepository(DI<EsEnConjugacionDao>()));
+final dictionaryDaoProvider = Provider<DictionaryDao>((ref) {
+  return DictionaryDao(ref.read(databaseProvider));
+});
 
-  //
-  //
-  //
-/*============Ranking ======================================================= */
-  //presenter
-  /* DI.registerFactory<ILoadRankingsPresenter>(
-      () => LoadRankingPresenterImpl(DI<RankingViewModel>())); */
-  DI.registerFactory<ILoadRankingsPresenter>(
-      () => LoadRankingsPresenterImpl(DI<RankingViewModel>()));
-  DI.registerFactory<IUpdateRankingFilterPresenter>(
-      () => UpdateRankingFilterPresenterImpl(DI<RankingViewModel>()));
-  DI.registerFactory<ILocateRankingPagenationPresenter>(
-      () => LocateRankingPagenationPresenterImpl(DI<RankingViewModel>()));
-  DI.registerFactory<IUpdateStatusPresenter>(
-      () => UpdateStatusPresenterImpl(DI<RankingViewModel>()));
+final exampleDaoProvider = Provider<ExampleDao>((ref) {
+  return ExampleDao(ref.read(databaseProvider));
+});
 
-  /* DI.registerFactory<IAddFilterPresenter>(
-      () => AddFilterPresenterImpl(DI<RankingViewModel>()));
-  DI.registerFactory<IDeleteFilterPresenter>(
-      () => DeleteFilterPresenterImpl(DI<RankingViewModel>())); */
+final idiomDaoProvider = Provider<IdiomDao>((ref) {
+  return IdiomDao(ref.read(databaseProvider));
+});
 
-  //usecase
-  /* DI.registerFactory<ILoadRankingsUseCase>(() => LoadRankingsInteractor(
-      DI<IEspRankingRepository>(), DI<ILoadRankingsPresenter>())); */
-  DI.registerFactory<ILoadRankingsUseCase>(() => LoadRankingsInteractor(
-      DI<ILoadRankingsPresenter>(), DI<IEspRankingRepository>()));
-  DI.registerFactory<IUpdateRankingFilterUseCase>(
-      () => UpdateRankingFilterInteractor(DI<IUpdateRankingFilterPresenter>()));
-  DI.registerFactory<ILocateRankingPagenationUseCase>(() =>
-      LocateRankingPagenationInteractor(
-          DI<ILocateRankingPagenationPresenter>()));
-  DI.registerFactory<IUpdateStatusUseCase>(() => UpdateStatusInteractor(
-      DI<IUpdateStatusPresenter>(), DI<IEsjWordRepository>()));
+final partOfSpeechListDaoProvider = Provider<PartOfSpeechListDao>((ref) {
+  return PartOfSpeechListDao(ref.read(databaseProvider));
+});
 
-  /* DI.registerFactory<IAddFilterUseCase>(() => AddFilterInteractor(
-      DI<IAddFilterPresenter>(), DI<IEspRankingRepository>()));
-  DI.registerFactory<IDeleteFilterUseCase>(
-      () => DeleteFilterInteractor(DI<IDeleteFilterPresenter>())); */
+final rankingDaoProvider = Provider<RankingDao>((ref) {
+  return RankingDao(ref.read(databaseProvider));
+});
 
-  //controller
-  DI.registerFactory<RankingController>(() => RankingController(
-        //DI<ILoadRankingsUseCase>(),
-        DI<RankingViewModel>(),
-        DI<ILoadRankingsUseCase>(),
-        DI<IUpdateRankingFilterUseCase>(),
-        DI<ILocateRankingPagenationUseCase>(),
-        DI<IUpdateStatusUseCase>(),
-      ));
+final supplementDaoProvider = Provider<SupplementDao>((ref) {
+  return SupplementDao(ref.read(databaseProvider));
+});
 
-  //viewmodel
-  //singleton
-  DI.registerLazySingleton<RankingViewModel>(() => RankingViewModel());
+final wordDaoProvider = Provider<WordDao>((ref) {
+  return WordDao(ref.read(databaseProvider));
+});
 
-  //UI
-  DI.registerFactory<RankingFragment>(
-      () => RankingFragment(DI<RankingController>()));
-  DI.registerFactory<RankingFilterModal>(
-      () => RankingFilterModal(DI<RankingController>()));
-/*============Ranking ================================================= */
-  //
-  //
+final localWordStatusDaoProvider = Provider<WordStatusDao>((ref) {
+  return WordStatusDao(ref.read(databaseProvider));
+});
 
-  //
-/*===========Search =====================================================-====== */
-  //presenter
-  DI.registerFactory<ISearchWordPresenter>(
-      () => SearchWordPresenterImpl(DI<SearchViewModel>()));
+final myWordStatusDaoProvider = Provider<MyWordStatusDao>((ref) {
+  return MyWordStatusDao(ref.read(databaseProvider));
+});
 
-  //usecase IJudgeSearchWordUseCase
-  DI.registerFactory<ISearchWordUseCase>(() => SearchWordInteractor(
-      DI<IEsjWordRepository>(),
-      DI<ISearchWordPresenter>(),
-      DI<IJpnEspWordRepository>(),
-      DI<IConjugacionsRepository>()));
-  DI.registerFactory<IJudgeSearchWordUseCase>(
-      () => JudgeSearchWordInteractor());
+final myWordDaoProvider = Provider<MyWordDao>((ref) {
+  return MyWordDao(ref.read(databaseProvider));
+});
 
-  //controller
-  DI.registerFactory<BufferController>(() => BufferController(
-      DI<ISearchWordUseCase>(), DI<IJudgeSearchWordUseCase>()));
+final jpnEspWordDaoProvider = Provider<JpnEspWordDao>((ref) {
+  return JpnEspWordDao(ref.read(databaseProvider));
+});
 
-  //viewmodel
-  //singleton
-  DI.registerLazySingleton<SearchViewModel>(() => SearchViewModel());
-/*===========Search =====================================================-====== */
-  //
-  //
+final jpnEspExampleDaoProvider = Provider<JpnEspExampleDao>((ref) {
+  return JpnEspExampleDao(ref.read(databaseProvider));
+});
 
-  //
+final jpnEspWordStatusDaoProvider = Provider<JpnEspWordStatusDao>((ref) {
+  return JpnEspWordStatusDao(ref.read(databaseProvider));
+});
 
-  //
-/*===========wordPage =====================================================-====== */
+final jpnEspDictionaryDaoProvider = Provider<JpnEspDictionaryDao>((ref) {
+  return JpnEspDictionaryDao(ref.read(databaseProvider));
+});
 
-  //presenter
-  DI.registerFactory<IFetchConjugationPresenter>(
-      () => ConjugacionFragmentPresenterImpl(DI<MainViewModel>()));
-  DI.registerFactory<IFetchDictionaryPresenter>(
-      () => DictionaryFragmentPresenterImpl(DI<MainViewModel>()));
-  DI.registerFactory<IFetchJpnEspDictionaryPresenter>(
-      () => JpnEspWordPagePresenterImpl(DI<JpnEspWordPageViewModel>()));
+final esEnConjugacionDaoProvider = Provider<EsEnConjugacionDao>((ref) {
+  return EsEnConjugacionDao(ref.read(databaseProvider));
+});
 
-  //usecase
-  DI.registerFactory<IFetchConjugationUseCase>(() => FetchConjugationInteractor(
-      DI<IFetchConjugationPresenter>(), DI<IConjugacionsRepository>()));
-  DI.registerFactory<IFetchDictionaryUseCase>(() => FetchDictionaryInteractor(
-      DI<IFetchDictionaryPresenter>(), DI<IEsjDictionaryRepository>()));
-  DI.registerFactory<IFetchJpnEspDictionaryUseCase>(() =>
-      FetchJpnEspDictionaryInteractor(DI<IFetchJpnEspDictionaryPresenter>(),
-          DI<IJpnEspDictionaryRepository>()));
+// ============================================================================
+// Repository Providers
+// ============================================================================
 
-  //controller
-  DI.registerFactory<WordPageController>(() => WordPageController(
-      DI<IFetchDictionaryUseCase>(),
-      DI<IFetchConjugationUseCase>(),
-      DI<IUpdateStatusUseCase>()));
+final esjDictionaryRepositoryProvider =
+    Provider<IEsjDictionaryRepository>((ref) {
+  return DriftEsjDictionaryRepository(
+    ref.read(dictionaryDaoProvider),
+    ref.read(exampleDaoProvider),
+    ref.read(idiomDaoProvider),
+    ref.read(supplementDaoProvider),
+  );
+});
 
-  DI.registerFactory<JpnEspWordPageController>(
-      () => JpnEspWordPageController(DI<IFetchJpnEspDictionaryUseCase>()));
+final esjWordRepositoryProvider = Provider<IEsjWordRepository>((ref) {
+  return DriftEsjWordRepository(
+    ref.read(wordDaoProvider),
+    ref.read(localWordStatusDaoProvider),
+  );
+});
 
-//viewmodel
-  //singleton
-  DI.registerLazySingleton<MainViewModel>(() => MainViewModel());
-  DI.registerLazySingleton<JpnEspWordPageViewModel>(
-      () => JpnEspWordPageViewModel());
+final conjugacionsRepositoryProvider = Provider<IConjugacionsRepository>((ref) {
+  return DriftConjugacionRepository(ref.read(conjugationDaoProvider));
+});
 
-  //UI
-  DI.registerFactoryParam<DictionaryFragment, WordPageChildInputData, void>(
-      (input, _) =>
-          //wordId,key
-          DictionaryFragment(
-              key: input.key,
-              wordId: input.wordId,
-              wordPageController: DI<WordPageController>()));
+final espRankingRepositoryProvider = Provider<IEspRankingRepository>((ref) {
+  return WikiEspRankingRepository(ref.read(rankingDaoProvider));
+});
 
-  DI.registerFactoryParam<ConjugacionFragment, WordPageChildInputData, void>(
-      (input, _) =>
-          //wordId,key
-          ConjugacionFragment(
-              key: input.key,
-              wordId: input.wordId,
-              wordPageController: DI<WordPageController>()));
+final myWordRepositoryProvider = Provider<IMyWordRepository>((ref) {
+  return DriftMyWordRepository(
+    ref.read(myWordDaoProvider),
+    ref.read(myWordStatusDaoProvider),
+  );
+});
 
-  DI.registerFactoryParam<JpnEspDictionaryFragment, WordPageChildInputData, void>(
-      (input, _) =>
-          //wordId,key
-          JpnEspDictionaryFragment(
-              key: input.key,
-              wordId: input.wordId,
-              wordPageController: DI<JpnEspWordPageController>()));
+final jpnEspWordRepositoryProvider = Provider<IJpnEspWordRepository>((ref) {
+  return DriftJpnEspWordRepository(
+    ref.read(jpnEspWordDaoProvider),
+    ref.read(jpnEspDictionaryDaoProvider),
+  );
+});
 
-/*===========wordPage =====================================================-====== */
-  //
-  //
+final jpnEspDictionaryRepositoryProvider =
+    Provider<IJpnEspDictionaryRepository>((ref) {
+  return DriftJpnEspDictionaryRepository(
+    ref.read(jpnEspDictionaryDaoProvider),
+    ref.read(jpnEspExampleDaoProvider),
+  );
+});
 
-  //
-/*===========my word =====================================================-====== */
+final esEnConjugacionRepositoryProvider =
+    Provider<DriftEsEnConjugacionRepository>((ref) {
+  return DriftEsEnConjugacionRepository(ref.read(esEnConjugacionDaoProvider));
+});
 
-  //presenter
-  DI.registerFactory<ILoadMyWordPresenter>(
-      () => LoadMyWordPresenterImpl(DI<MyWordViewModel>()));
-  DI.registerFactory<IUpdateMyWordStatusPresenter>(
-      () => UpdateMyWordStatusPresenterImpl(DI<MyWordViewModel>()));
-  DI.registerFactory<IMyWordFragmentPresenter>(
-      () => MyWordFragmentPresenterImpl(DI<MyWordViewModel>()));
+// ============================================================================
+// ViewModel Providers
+// ============================================================================
 
-  //usecase
-  DI.registerFactory<ILoadMyWordUseCase>(() => LoadMyWordInteractor(
-      DI<ILoadMyWordPresenter>(), DI<IMyWordRepository>()));
-  DI.registerFactory<IUpdateMyWordStatusUseCase>(() =>
-      UpdateMyWordStatusInteractor(
-          DI<IUpdateMyWordStatusPresenter>(), DI<IMyWordRepository>()));
-  DI.registerFactory<IRegisterMyWordUseCase>(() => RegisterMyWordInteractor(
-      DI<IMyWordFragmentPresenter>(), DI<IMyWordRepository>()));
-  DI.registerFactory<IHandleWordRegistrationUseCase>(
-      () => HandleWordRegistrationInteractor());
-  DI.registerFactory<IUpdateMyWordUseCase>(() => UpdateMyWordInteractor(
-      DI<IMyWordFragmentPresenter>(), DI<IMyWordRepository>()));
-  DI.registerFactory<IDeleteMyWordUseCase>(() => DeleteMyWordInteractor(
-      DI<IMyWordFragmentPresenter>(), DI<IMyWordRepository>()));
+final rankingViewModelProvider =
+    ChangeNotifierProvider<RankingViewModel>((ref) {
+  return RankingViewModel();
+});
 
-  //controller
-  DI.registerFactory<MyWordController>(() => MyWordController(
-        DI<ILoadMyWordUseCase>(),
-        DI<IUpdateMyWordStatusUseCase>(),
-        DI<IRegisterMyWordUseCase>(),
-        DI<IHandleWordRegistrationUseCase>(),
-        DI<IUpdateMyWordUseCase>(),
-        DI<IDeleteMyWordUseCase>(),
-      ));
+final searchViewModelProvider = ChangeNotifierProvider<SearchViewModel>((ref) {
+  return SearchViewModel();
+});
 
-  //viewmodel
-  //singleton
-  DI.registerLazySingleton<MyWordViewModel>(() => MyWordViewModel());
+final mainViewModelProvider = ChangeNotifierProvider<MainViewModel>((ref) {
+  return MainViewModel();
+});
 
-  //UI
-  DI.registerFactory<MyWordFragment>(
-      () => MyWordFragment(DI<MyWordController>()));
-  DI.registerFactory<WordRegistrationModal>(
-      () => WordRegistrationModal(DI<MyWordController>()));
-  /* DI.registerFactory<MyWordCardModal>(
-      () => MyWordCardModal(DI<MyWordController>())); */
+final jpnEspWordPageViewModelProvider =
+    ChangeNotifierProvider<JpnEspWordPageViewModel>((ref) {
+  return JpnEspWordPageViewModel();
+});
 
-/*===========my word =====================================================-====== */
-  //
-  //
+final myWordViewModelProvider = ChangeNotifierProvider<MyWordViewModel>((ref) {
+  return MyWordViewModel();
+});
 
-  //
-/*===========note =====================================================-====== */
-  //presenter
-  /* DI.registerFactory<ISearchWordPresenter>(
-      () => SearchWordPresenterImpl(DI<SearchViewModel>())); */
+final noteViewModelProvider = ChangeNotifierProvider<NoteViewModel>((ref) {
+  return NoteViewModel();
+});
 
-  //usecase
-  /* DI.registerFactory<ISearchWordUseCase>(() => SearchWordInteractor(
-      DI<IEsjWordRepository>(), DI<ISearchWordPresenter>())); */
+// ============================================================================
+// Presenter Providers
+// ============================================================================
 
-  //controller
-  /* DI.registerFactory<BufferController>(
-      () => BufferController(DI<ISearchWordUseCase>())); */
+final loadRankingsPresenterProvider = Provider((ref) {
+  return LoadRankingsPresenterImpl(ref.read(rankingViewModelProvider));
+});
 
-  //viewmodel
-  //singleton
-  DI.registerLazySingleton<NoteViewModel>(() => NoteViewModel());
-/*===========note =====================================================-====== */
-  //
-  //
+final updateRankingFilterPresenterProvider = Provider((ref) {
+  return UpdateRankingFilterPresenterImpl(ref.read(rankingViewModelProvider));
+});
 
-  //
-  //
-  //
-  DI.registerFactory<EspJpnStatusInteractor>(
-      () => EspJpnStatusInteractor(DI<IEsjWordRepository>()));
+final locateRankingPagenationPresenterProvider = Provider((ref) {
+  return LocateRankingPagenationPresenterImpl(
+      ref.read(rankingViewModelProvider));
+});
 
-  DI.registerFactory<WordStatusViewModel>(
-      () => WordStatusViewModel(DI<EspJpnStatusInteractor>()));
+final updateStatusPresenterProvider = Provider((ref) {
+  return UpdateStatusPresenterImpl(ref.read(rankingViewModelProvider));
+});
 
-  //
-  //
+final searchWordPresenterProvider = Provider((ref) {
+  return SearchWordPresenterImpl(ref.read(searchViewModelProvider));
+});
 
-  DI.registerFactory<QuizController>(
-      () => QuizController(DI<DriftEsEnConjugacionRepository>()));
-}
+final fetchConjugationPresenterProvider = Provider((ref) {
+  return ConjugacionFragmentPresenterImpl(ref.read(mainViewModelProvider));
+});
 
-class WordPageChildInputData {
-  int wordId;
-  PageStorageKey? key;
-  WordPageChildInputData({required this.wordId, this.key});
-}
+final fetchDictionaryPresenterProvider = Provider((ref) {
+  return DictionaryFragmentPresenterImpl(ref.read(mainViewModelProvider));
+});
+
+final fetchJpnEspDictionaryPresenterProvider = Provider((ref) {
+  return JpnEspWordPagePresenterImpl(ref.read(jpnEspWordPageViewModelProvider));
+});
+
+final loadMyWordPresenterProvider = Provider((ref) {
+  return LoadMyWordPresenterImpl(ref.read(myWordViewModelProvider));
+});
+
+final updateMyWordStatusPresenterProvider = Provider((ref) {
+  return UpdateMyWordStatusPresenterImpl(ref.read(myWordViewModelProvider));
+});
+
+final myWordFragmentPresenterProvider = Provider((ref) {
+  return MyWordFragmentPresenterImpl(ref.read(myWordViewModelProvider));
+});
+
+// ============================================================================
+// UseCase Providers
+// ============================================================================
+
+final loadRankingsUseCaseProvider = Provider<ILoadRankingsUseCase>((ref) {
+  return LoadRankingsInteractor(
+    ref.read(loadRankingsPresenterProvider),
+    ref.read(espRankingRepositoryProvider),
+  );
+});
+
+final updateRankingFilterUseCaseProvider =
+    Provider<IUpdateRankingFilterUseCase>((ref) {
+  return UpdateRankingFilterInteractor(
+      ref.read(updateRankingFilterPresenterProvider));
+});
+
+final locateRankingPagenationUseCaseProvider =
+    Provider<ILocateRankingPagenationUseCase>((ref) {
+  return LocateRankingPagenationInteractor(
+      ref.read(locateRankingPagenationPresenterProvider));
+});
+
+final updateStatusUseCaseProvider = Provider<IUpdateStatusUseCase>((ref) {
+  return UpdateStatusInteractor(
+    ref.read(updateStatusPresenterProvider),
+    ref.read(esjWordRepositoryProvider),
+  );
+});
+
+final searchWordUseCaseProvider = Provider<ISearchWordUseCase>((ref) {
+  return SearchWordInteractor(
+    ref.read(esjWordRepositoryProvider),
+    ref.read(searchWordPresenterProvider),
+    ref.read(jpnEspWordRepositoryProvider),
+    ref.read(conjugacionsRepositoryProvider),
+  );
+});
+
+final judgeSearchWordUseCaseProvider = Provider<IJudgeSearchWordUseCase>((ref) {
+  return JudgeSearchWordInteractor();
+});
+
+final fetchConjugationUseCaseProvider =
+    Provider<IFetchConjugationUseCase>((ref) {
+  return FetchConjugationInteractor(
+    ref.read(fetchConjugationPresenterProvider),
+    ref.read(conjugacionsRepositoryProvider),
+  );
+});
+
+final fetchDictionaryUseCaseProvider = Provider<IFetchDictionaryUseCase>((ref) {
+  return FetchDictionaryInteractor(
+    ref.read(fetchDictionaryPresenterProvider),
+    ref.read(esjDictionaryRepositoryProvider),
+  );
+});
+
+final fetchJpnEspDictionaryUseCaseProvider =
+    Provider<IFetchJpnEspDictionaryUseCase>((ref) {
+  return FetchJpnEspDictionaryInteractor(
+    ref.read(fetchJpnEspDictionaryPresenterProvider),
+    ref.read(jpnEspDictionaryRepositoryProvider),
+  );
+});
+
+final loadMyWordUseCaseProvider = Provider<ILoadMyWordUseCase>((ref) {
+  return LoadMyWordInteractor(
+    ref.read(loadMyWordPresenterProvider),
+    ref.read(myWordRepositoryProvider),
+  );
+});
+
+final updateMyWordStatusUseCaseProvider =
+    Provider<IUpdateMyWordStatusUseCase>((ref) {
+  return UpdateMyWordStatusInteractor(
+    ref.read(updateMyWordStatusPresenterProvider),
+    ref.read(myWordRepositoryProvider),
+  );
+});
+
+final registerMyWordUseCaseProvider = Provider<IRegisterMyWordUseCase>((ref) {
+  return RegisterMyWordInteractor(
+    ref.read(myWordFragmentPresenterProvider),
+    ref.read(myWordRepositoryProvider),
+  );
+});
+
+final handleWordRegistrationUseCaseProvider =
+    Provider<IHandleWordRegistrationUseCase>((ref) {
+  return HandleWordRegistrationInteractor();
+});
+
+final updateMyWordUseCaseProvider = Provider<IUpdateMyWordUseCase>((ref) {
+  return UpdateMyWordInteractor(
+    ref.read(myWordFragmentPresenterProvider),
+    ref.read(myWordRepositoryProvider),
+  );
+});
+
+final deleteMyWordUseCaseProvider = Provider<IDeleteMyWordUseCase>((ref) {
+  return DeleteMyWordInteractor(
+    ref.read(myWordFragmentPresenterProvider),
+    ref.read(myWordRepositoryProvider),
+  );
+});
+
+// ============================================================================
+// Controller Providers
+// ============================================================================
+
+final rankingControllerProvider = Provider<RankingController>((ref) {
+  return RankingController(
+    ref.read(rankingViewModelProvider),
+    ref.read(loadRankingsUseCaseProvider),
+    ref.read(updateRankingFilterUseCaseProvider),
+    ref.read(locateRankingPagenationUseCaseProvider),
+    ref.read(updateStatusUseCaseProvider),
+  );
+});
+
+final bufferControllerProvider = Provider<BufferController>((ref) {
+  return BufferController(
+    ref.read(searchWordUseCaseProvider),
+    ref.read(judgeSearchWordUseCaseProvider),
+  );
+});
+
+final wordPageControllerProvider = Provider<WordPageController>((ref) {
+  return WordPageController(
+    ref.read(fetchDictionaryUseCaseProvider),
+    ref.read(fetchConjugationUseCaseProvider),
+    ref.read(updateStatusUseCaseProvider),
+  );
+});
+
+final jpnEspWordPageControllerProvider =
+    Provider<JpnEspWordPageController>((ref) {
+  return JpnEspWordPageController(
+      ref.read(fetchJpnEspDictionaryUseCaseProvider));
+});
+
+final myWordControllerProvider = Provider<MyWordController>((ref) {
+  return MyWordController(
+    ref.read(loadMyWordUseCaseProvider),
+    ref.read(updateMyWordStatusUseCaseProvider),
+    ref.read(registerMyWordUseCaseProvider),
+    ref.read(handleWordRegistrationUseCaseProvider),
+    ref.read(updateMyWordUseCaseProvider),
+    ref.read(deleteMyWordUseCaseProvider),
+  );
+});
+
+final quizControllerProvider = Provider<QuizController>((ref) {
+  return QuizController(ref.read(esEnConjugacionRepositoryProvider),
+      ref.read(fetchConjugationUseCaseProvider));
+});
+
+final quizConjugacionsProvider =
+    FutureProvider.autoDispose.family<Conjugacions?, int>(
+  (ref, wordId) async {
+    final controller = ref.watch(quizControllerProvider);
+    return await controller.getConjugaciones(wordId);
+  },
+);
+
+final quizWordProvider = StateProvider<String>((ref) => "");
+
+// QuizStateをRiverpodで管理するProvider
+final quizStateProvider = StateNotifierProvider<QuizStateNotifier, QuizState>(
+  (ref) => QuizStateNotifier(),
+);
+// ============================================================================
+// Other Providers
+// ============================================================================
+
+final espJpnStatusInteractorProvider = Provider<EspJpnStatusInteractor>((ref) {
+  return EspJpnStatusInteractor(ref.read(esjWordRepositoryProvider));
+});
+
+final wordStatusViewModelProvider =
+    StateNotifierProvider<WordStatusViewModel, Map<int, WordStatus>>((ref) {
+  return WordStatusViewModel(ref.read(espJpnStatusInteractorProvider));
+});
+
+final wordStatusByIdProvider = Provider.family<WordStatus?, int>((ref, wordId) {
+  // 最小限の再ビルドにするためにselectで必要な要素のみ監視
+  final status = ref.watch(
+    wordStatusViewModelProvider.select((map) => map[wordId]),
+  );
+  return status; //?? const WordStatus();
+});

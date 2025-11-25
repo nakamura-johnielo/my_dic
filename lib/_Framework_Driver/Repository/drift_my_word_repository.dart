@@ -9,9 +9,9 @@ import 'package:my_dic/_Business_Rule/Usecase/update_my_word_status/update_my_wo
 import 'package:my_dic/_Business_Rule/_Domain/Entities/my_word.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_my_word_repository.dart';
 import 'package:my_dic/_Business_Rule/Usecase/load_my_word/load_my_word_repository_input_data.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/my_word_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/my_word_status_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/database_provider.dart'
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/my_word_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/my_word_status_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart'
     as db;
 
 class DriftMyWordRepository implements IMyWordRepository {

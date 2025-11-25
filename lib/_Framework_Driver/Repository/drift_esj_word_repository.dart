@@ -6,9 +6,9 @@ import 'package:my_dic/_Business_Rule/Usecase/update_status/update_status_reposi
 import 'package:my_dic/_Business_Rule/_Domain/Entities/word/word.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/word/word_status.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esj_word_repository.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/word_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/word_status_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/database_provider.dart'
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/word_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/word_status_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart'
     as db;
 
 class DriftEsjWordRepository implements IEsjWordRepository {
@@ -84,7 +84,7 @@ class DriftEsjWordRepository implements IEsjWordRepository {
   Future<WordStatus> getStatusById(int wordId) async {
     final status = await _wordStatusDao.getStatusById(wordId);
     return WordStatus(
-      //wordId: status?.wordId ?? wordId,
+      wordId: wordId,
       isLearned: status?.isLearned == 1,
       isBookmarked: status?.isBookmarked == 1,
       hasNote: status?.hasNote == 1,

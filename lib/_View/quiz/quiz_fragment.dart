@@ -22,7 +22,7 @@ class QuizFragment extends ConsumerWidget {
     final query = ref.watch(quizSearchQueryProvider);
     final items = ref.watch(quizSearchedItemsProvider);
     //final selectedId = ref.watch(quizSelectedWordIdProvider);
-    final bufferController = DI<BufferController>();
+    final bufferController = ref.read(bufferControllerProvider);
     return Scaffold(
         appBar: AppBar(
           title: const Text('Quiz'),

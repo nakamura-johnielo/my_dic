@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../../../../_Framework_Driver/Database/drift/database_provider.dart';
+part of '../../../../_Framework_Driver/local/drift/database_provider.dart';
 
 // ignore_for_file: type=lint
 class $ConjugationsTable extends Conjugations

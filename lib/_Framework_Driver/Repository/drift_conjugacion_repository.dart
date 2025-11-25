@@ -5,8 +5,8 @@ import 'package:my_dic/_Business_Rule/_Domain/Entities/verb/conjugacion/conjugac
 import 'package:my_dic/_Business_Rule/_Domain/Entities/verb/conjugacion/result_conjugacions.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/verb/conjugacion/tense_conjugacion.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_conjugation_repository.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/conjugation_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/database_provider.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/conjugation_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart';
 
 class DriftConjugacionRepository implements IConjugacionsRepository {
   final ConjugationDao _conjugacionDao;

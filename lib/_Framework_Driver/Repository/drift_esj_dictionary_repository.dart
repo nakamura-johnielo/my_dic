@@ -3,10 +3,10 @@ import 'package:my_dic/_Business_Rule/_Domain/Entities/dictionary/sub/example/im
 import 'package:my_dic/_Business_Rule/_Domain/Entities/dictionary/sub/idiom/impl/idiom.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/dictionary/sub/supplement.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esj_dictionary_repository.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/dictionary_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/example_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/idiom_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/supplement_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/dictionary_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/example_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/idiom_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/supplement_dao.dart';
 
 class DriftEsjDictionaryRepository implements IEsjDictionaryRepository {
   final DictionaryDao _dictionaryDao;

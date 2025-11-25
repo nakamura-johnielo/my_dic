@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/jpn_esp/jpn_esp_word.dart';
 
-final noteViewModelProvider =
-    ChangeNotifierProvider((ref) => DI<NoteViewModel>());
+// final noteViewModelProvider =
+//     ChangeNotifierProvider((ref) => DI<NoteViewModel>());
 
 class NoteViewModel extends ChangeNotifier {
   List<JpnEspWord> _items = [];

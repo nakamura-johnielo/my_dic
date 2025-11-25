@@ -11,11 +11,12 @@ import 'package:my_dic/_Interface_Adapter/ViewModel/my_word_view_model.dart';
 import 'package:my_dic/_View/my_word/create_word_modal.dart';
 
 class MyWordFragment extends ConsumerWidget {
-  const MyWordFragment(this._myWordController, {super.key});
-  final MyWordController _myWordController;
+  const MyWordFragment({super.key});
+  //final MyWordController myWordController;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final myWordController = ref.read(myWordControllerProvider);
     final myWordViewModel = ref.watch(myWordViewModelProvider);
 
     return Scaffold(
@@ -29,7 +30,7 @@ class MyWordFragment extends ConsumerWidget {
         children: [
           Expanded(
               child: InfinityScrollListView(
-            loadNext: _myWordController.loadNext,
+            loadNext: myWordController.loadNext,
             itemCount: myWordViewModel.items.length,
             itemBuilder: (context, index) {
               final myword = myWordViewModel.items[index];
@@ -40,7 +41,7 @@ class MyWordFragment extends ConsumerWidget {
 
               final clickListeners = {
                 WordCardViewButton.bookmark: () {
-                  _myWordController.updateWordStatus(
+                  myWordController.updateWordStatus(
                     index,
                     myword.wordId,
                     !myword.isBookmarked,
@@ -49,7 +50,7 @@ class MyWordFragment extends ConsumerWidget {
                   );
                 },
                 WordCardViewButton.learned: () {
-                  _myWordController.updateWordStatus(
+                  myWordController.updateWordStatus(
                     index,
                     myword.wordId,
                     myword.isBookmarked,
@@ -257,7 +258,7 @@ class RegisterButton extends StatelessWidget {
                   constraints: const BoxConstraints(maxWidth: 560),
                   child: Material(
                     type: MaterialType.transparency, // Material 祖先を提供
-                    child: DI<WordRegistrationModal>(),
+                    child: WordRegistrationModal(),
                   ),
                 ),
               ),
@@ -286,7 +287,7 @@ class RegisterButton2 extends StatelessWidget {
             //showDragHandle: true,
             //barrierColor: Colors.black.withValues(alpha: .5),
             builder: (context) {
-              return DI<WordRegistrationModal>();
+              return WordRegistrationModal();
             });
       },
       //backgroundColor: Colors.blue,

@@ -42,11 +42,12 @@ class MyTextField extends ConsumerWidget {
 }
 
 class SearchFragment extends ConsumerWidget {
-  SearchFragment({super.key});
-  final BufferController _bufferController = DI<BufferController>();
-
+  const SearchFragment({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final BufferController bufferController =
+        ref.read(bufferControllerProvider);
+
     final viewModel = ref.watch(searchViewModelProvider);
     log("0 Fragment in build");
 
@@ -150,7 +151,7 @@ class SearchFragment extends ConsumerWidget {
                           },
                         );
                       },
-                      loadNext: _bufferController.searchWord,
+                      loadNext: bufferController.searchWord,
                       query: viewModel.query)
                   : SearchInfinityListView(
                       size: 30,
@@ -195,7 +196,7 @@ class SearchFragment extends ConsumerWidget {
                           },
                         );
                       },
-                      loadNext: _bufferController.searchWord,
+                      loadNext: bufferController.searchWord,
                       query: viewModel.query)),
         ],
       ),

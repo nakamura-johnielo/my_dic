@@ -32,7 +32,7 @@ final beConjProvider =
 // 追加: DBから英語活用を取得（wordIdごと）
 final englishConjByWordIdProvider =
     FutureProvider.family<Map<String, String>, int>((ref, wordId) async {
-  final controller = DI<QuizController>();
+  final controller = ref.read(quizControllerProvider);
   return controller.fetchEnglishConj(wordId);
 });
 
@@ -43,7 +43,7 @@ class QuizGameFragment extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = DI<QuizController>();
+    final controller = ref.read(quizControllerProvider);
     //controller.fetchEnglishConj(input.wordId);
     //活用の英訳の共有部のデータ読み込み
     final conjEnglishAsync = ref.watch(conjEnglishProvider); //No usage

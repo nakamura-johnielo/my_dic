@@ -62,12 +62,10 @@ class _WordPageWithTabState extends ConsumerState<WordPageWithTab>
     //anti rebuild ↓
     //! TODO ただ、isbookmarkedとかの更新に対応する必要あり
     _tabs = [
+      KeepAlivePage(child: DictionaryFragment(wordId: widget.input.wordId)),
+      // param1: WordPageChildInputData(wordId: widget.input.wordId))),
       KeepAlivePage(
-          child: DI<DictionaryFragment>(
-              param1: WordPageChildInputData(wordId: widget.input.wordId))),
-      KeepAlivePage(
-        child: DI<ConjugacionFragment>(
-            param1: WordPageChildInputData(wordId: widget.input.wordId)),
+        child: ConjugacionFragment(wordId: widget.input.wordId),
       )
     ];
 
@@ -170,8 +168,7 @@ class WordPageWithoutTab extends StatelessWidget {
           )
         ],
       ),
-      body: DI<DictionaryFragment>(
-          param1: WordPageChildInputData(wordId: input.wordId)),
+      body: DictionaryFragment(wordId: input.wordId),
     );
   }
 }

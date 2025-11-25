@@ -5,8 +5,8 @@ import 'package:my_dic/_Business_Rule/_Domain/Entities/dictionary/esj_dictionary
 import 'package:my_dic/_Business_Rule/_Domain/Entities/verb/conjugacion/conjugacions.dart';
 
 /// ViewModelをプロバイダーで提供
-final mainViewModelProvider =
-    ChangeNotifierProvider((ref) => DI<MainViewModel>());
+// final mainViewModelProvider =
+//     ChangeNotifierProvider((ref) => DI<MainViewModel>());
 
 class MainViewModel extends ChangeNotifier {
   Map<int, List<EsjDictionary>> _dictionaryCache = {};

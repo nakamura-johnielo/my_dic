@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Components/button/my_icon_button.dart';
 import 'package:my_dic/Constants/Enums/my_icons.dart';
 import 'package:my_dic/Constants/Enums/word_card_view_click_listener.dart';
@@ -21,7 +22,7 @@ const Map<String, IconData> _learnedIcon = {
   "false": Icons.check_circle_outline_rounded
 };
 
-class MyWordCardModal extends StatefulWidget {
+class MyWordCardModal extends ConsumerStatefulWidget {
   const MyWordCardModal(
       {super.key,
       required this.myWord,
@@ -52,10 +53,10 @@ class MyWordCardModal extends StatefulWidget {
   final Map<WordCardViewButton, VoidCallback> clickListeners;
 
   @override
-  State<MyWordCardModal> createState() => _MyWordCardModalState();
+  ConsumerState<MyWordCardModal> createState() => _MyWordCardModalState();
 }
 
-class _MyWordCardModalState extends State<MyWordCardModal> {
+class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
   //late final MyWord myWord;
   late String myHeaderWord;
   late String myDescription;
@@ -65,7 +66,7 @@ class _MyWordCardModalState extends State<MyWordCardModal> {
 
   late final TextEditingController headwordTextFieldController;
   late final TextEditingController descriptionTextFieldController;
-  late final MyWordController _myWordController;
+  //late final MyWordController _myWordController;
 
   // static const Color descriptionColor = Colors.black;
   // static const Color headwordColor = Colors.black;
@@ -85,7 +86,7 @@ class _MyWordCardModalState extends State<MyWordCardModal> {
     headwordTextFieldController = TextEditingController();
     descriptionTextFieldController = TextEditingController();
     //_myWordController = widget._myWordController;
-    _myWordController = DI<MyWordController>();
+    //_myWordController = DI<MyWordController>();
   }
 
   void inicializeOnEdit() {
@@ -106,6 +107,7 @@ class _MyWordCardModalState extends State<MyWordCardModal> {
 
   @override
   Widget build(BuildContext context) {
+    final myWordController = ref.read(myWordControllerProvider);
     Color descriptionColor = Theme.of(context).colorScheme.onSurfaceVariant;
     Color headwordColor = Theme.of(context).colorScheme.onSurface;
     return GestureDetector(
@@ -231,7 +233,7 @@ class _MyWordCardModalState extends State<MyWordCardModal> {
                       defaultIconColor: const Color.fromARGB(255, 217, 60, 60),
                       hoveredIconColor: const Color.fromARGB(255, 255, 0, 106),
                       onTap: () {
-                        _myWordController.deleteWord(
+                        myWordController.deleteWord(
                             wordId: widget.myWord.wordId,
                             index: widget.index,
                             onComplete: () {
@@ -250,7 +252,7 @@ class _MyWordCardModalState extends State<MyWordCardModal> {
                     Expanded(
                         child: FilledButton(
                             onPressed: () {
-                              _myWordController.updateWord(
+                              myWordController.updateWord(
                                   myWordId: widget.myWord.wordId,
                                   headword: headwordTextFieldController.text,
                                   description:

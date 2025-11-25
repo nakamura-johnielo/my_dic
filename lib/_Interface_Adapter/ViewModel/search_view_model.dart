@@ -6,8 +6,8 @@ import 'package:my_dic/_Business_Rule/_Domain/Entities/verb/conjugacion/result_c
 import 'package:my_dic/_Business_Rule/_Domain/Entities/word/word.dart';
 
 /// ViewModelをプロバイダーで提供
-final searchViewModelProvider =
-    ChangeNotifierProvider((ref) => DI<SearchViewModel>());
+// final searchViewModelProvider =
+//     ChangeNotifierProvider((ref) => DI<SearchViewModel>());
 
 class SearchViewModel extends ChangeNotifier {
   List<Word> _filteredItems = [];

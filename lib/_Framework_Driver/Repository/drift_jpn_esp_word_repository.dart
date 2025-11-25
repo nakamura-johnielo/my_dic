@@ -7,11 +7,11 @@ import 'package:my_dic/_Business_Rule/_Domain/Entities/jpn_esp/jpn_esp_word.dart
 import 'package:my_dic/_Business_Rule/_Domain/Entities/word/word.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esj_word_repository.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_jpn_esp_word_repository.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/jpn_esp/jpn_esp_dictionary_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/jpn_esp/jpn_esp_word_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/word_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/word_status_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/database_provider.dart'
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/jpn_esp/jpn_esp_dictionary_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/jpn_esp/jpn_esp_word_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/word_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/word_status_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart'
     as db;
 
 class DriftJpnEspWordRepository implements IJpnEspWordRepository {

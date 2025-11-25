@@ -11,7 +11,10 @@ import 'package:my_dic/_Framework_Driver/Repository/drift_es_en_conjugacions_rep
 
 class QuizController {
   final DriftEsEnConjugacionRepository _driftEsEnConjugacionRepository;
-  QuizController(this._driftEsEnConjugacionRepository);
+  final IFetchConjugationUseCase _fetchConjugationInteractor;
+
+  QuizController(
+      this._driftEsEnConjugacionRepository, this._fetchConjugationInteractor);
   //Map<String, String> englishConj = {};
   Future<Map<String, String>> fetchEnglishConj(int wordId) async {
     final englishConj =
@@ -24,12 +27,12 @@ class QuizController {
   Future<Conjugacions?> getConjugaciones(int wordId) async {
     // doneSet.clear();
     //Map<MoodTense, TenseConjugacion> conjugacions;
-    final fetchconj = DI<IFetchConjugationUseCase>();
+    //final fetchconj = DI<IFetchConjugationUseCase>();
     final FetchConjugationInputData input = FetchConjugationInputData(wordId);
     final FetchConjugationInputData inputDef =
         FetchConjugationInputData(61663); //ser
-    final res = await fetchconj.executeReturn(input) ??
-        fetchconj.executeReturn(inputDef);
+    final res = await _fetchConjugationInteractor.executeReturn(input) ??
+        _fetchConjugationInteractor.executeReturn(inputDef);
     if (res is Conjugacions) {
       //conjugacions = res;
       return res;
@@ -112,32 +115,21 @@ class QuizController {
 
 /////
 //////
-///
 
-//final quizConjugacionsProvider = StateProvider<Conjugacions?>((ref) => null);
+// final quizConjugacionsProvider =
+//     FutureProvider.autoDispose.family<Conjugacions?, int>(
+//   (ref, wordId) async {
+//     final controller = ref.watch(quizControllerProvider);
+//     return await controller.getConjugaciones(wordId);
+//   },
+// );
 
-// final quizConjugacionsProvider = FutureProvider.autoDispose
-//     <Conjugacions?>((ref) async {
-//   final quizState = ref.watch(quizStateProvider);
-//   final controller = QuizController();
-//   // quizState.currentWordIdなど必要なIDを使う
-//   return await controller.getConjugaciones(quizState.currentWordId);
-// });
+// final quizWordProvider = StateProvider<String>((ref) => "");
 
-final quizConjugacionsProvider =
-    FutureProvider.autoDispose.family<Conjugacions?, int>(
-  (ref, wordId) async {
-    final controller = DI<QuizController>();
-    return await controller.getConjugaciones(wordId);
-  },
-);
-
-final quizWordProvider = StateProvider<String>((ref) => "");
-
-// QuizStateをRiverpodで管理するProvider
-final quizStateProvider = StateNotifierProvider<QuizStateNotifier, QuizState>(
-  (ref) => QuizStateNotifier(),
-);
+// // QuizStateをRiverpodで管理するProvider
+// final quizStateProvider = StateNotifierProvider<QuizStateNotifier, QuizState>(
+//   (ref) => QuizStateNotifier(),
+// );
 
 class QuizStateNotifier extends StateNotifier<QuizState> {
   QuizStateNotifier() : super(QuizState()) {

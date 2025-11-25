@@ -2,19 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Constants/Enums/feature_tag.dart';
 import 'package:my_dic/Constants/Enums/part_of_speech.dart';
+import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/ranking_controller.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/ranking_view_model.dart';
 import 'package:my_dic/Constants/Enums/i_enum.dart';
 
 class RankingFilterModal extends ConsumerWidget {
   //const RankingFilterModal({super.key, required this.viewModel});
-  const RankingFilterModal(this._rankingController, {super.key});
-  final RankingController _rankingController;
+  const RankingFilterModal({super.key});
+  //final RankingController rankingController;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final viewModel = ref.watch(rankingViewModelProvider);
-
+    final rankingController = ref.read(rankingControllerProvider);
     return FractionallySizedBox(
       heightFactor: 0.8,
       widthFactor: 1,
@@ -48,7 +49,7 @@ class RankingFilterModal extends ConsumerWidget {
                       label: "品詞",
                       filters: viewModel.partOfSpeechFilters,
                       chipsEnum: PartOfSpeech.values,
-                      rankingController: _rankingController,
+                      rankingController: rankingController,
                       viewModel: viewModel,
                     ),
                     SizedBox(
@@ -58,7 +59,7 @@ class RankingFilterModal extends ConsumerWidget {
                       label: "タグ",
                       filters: viewModel.featureTagFilters,
                       chipsEnum: FeatureTag.values,
-                      rankingController: _rankingController,
+                      rankingController: rankingController,
                       viewModel: viewModel,
                     ),
                     SizedBox(
@@ -68,7 +69,7 @@ class RankingFilterModal extends ConsumerWidget {
                       label: "品詞除外",
                       filters: viewModel.partOfSpeechFilters,
                       chipsEnum: PartOfSpeech.values,
-                      rankingController: _rankingController,
+                      rankingController: rankingController,
                       viewModel: viewModel,
                     ),
                     SizedBox(
@@ -78,7 +79,7 @@ class RankingFilterModal extends ConsumerWidget {
                       label: "タグ除外",
                       filters: viewModel.featureTagFilters,
                       chipsEnum: FeatureTag.values,
-                      rankingController: _rankingController,
+                      rankingController: rankingController,
                       viewModel: viewModel,
                     ),
                     SizedBox(
@@ -86,7 +87,7 @@ class RankingFilterModal extends ConsumerWidget {
                     ),
                     PagenationFilterSection(
                       label: "ページ",
-                      rankingController: _rankingController,
+                      rankingController: rankingController,
                       pagenationFilter: viewModel.pagenationFilter,
                     ),
                     SizedBox(

@@ -2,9 +2,9 @@ import 'package:my_dic/_Business_Rule/_Domain/Entities/jpn_esp/example/example.d
 import 'package:my_dic/_Business_Rule/_Domain/Entities/jpn_esp/jpn_esp_dictionary.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_jpn_esp_dictionary_repository.dart';
 import 'package:my_dic/_Business_Rule/Usecase/fetch_jpn_esp_dictionary/fetch_jpn_esp_dictionary_repository_input_data.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/jpn_esp/jpn_esp_dictionary_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/DAO/jpn_esp/jpn_esp_example_dao.dart';
-import 'package:my_dic/_Framework_Driver/Database/drift/database_provider.dart'
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/jpn_esp/jpn_esp_dictionary_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/jpn_esp/jpn_esp_example_dao.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart'
     as drift;
 
 class DriftJpnEspDictionaryRepository implements IJpnEspDictionaryRepository {

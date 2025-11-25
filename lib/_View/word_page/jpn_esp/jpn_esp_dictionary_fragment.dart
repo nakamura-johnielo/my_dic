@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Constants/ui.dart';
+import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/dictionary/esj_dictionary.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/jpn_esp/jpn_esp_dictionary.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/jpn_esp_word_page_controller.dart';
@@ -20,17 +21,17 @@ class JpnEspDictionaryFragmentInputData {
 
 class JpnEspDictionaryFragment extends ConsumerWidget {
   final int wordId;
-  const JpnEspDictionaryFragment(
-      {super.key, required this.wordId, required this.wordPageController});
+  const JpnEspDictionaryFragment({super.key, required this.wordId});
   //final KotobankDictionaryDao _dao = KotobankDictionaryDao();
   //final DatabaseProvider db = DatabaseProvider();
-  final JpnEspWordPageController wordPageController;
+  // final JpnEspWordPageController wordPageController;
   //=DI<IEsjDictionaryRepository>();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     log("dic key: $key");
-    final viewModel = ref.watch(JpnEspWordPageViewModelProvider);
+    final wordPageController = ref.read(jpnEspWordPageControllerProvider);
+    final viewModel = ref.watch(jpnEspWordPageViewModelProvider);
     if (!viewModel.dictionaryCache.containsKey(wordId)) {
       wordPageController.fetchDictionaryById(wordId);
       return Center(

@@ -5,8 +5,8 @@ import 'package:my_dic/_Business_Rule/_Domain/Entities/my_word.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/infinity_scrollable_viewmodel.dart';
 
 /// ViewModelをプロバイダーで提供
-final myWordViewModelProvider =
-    ChangeNotifierProvider((ref) => DI<MyWordViewModel>());
+// final myWordViewModelProvider =
+//     ChangeNotifierProvider((ref) => DI<MyWordViewModel>());
 
 class MyWordViewModel
     extends ChangeNotifier /* extends InfinityScrollableViewModel<MyWord> */ {

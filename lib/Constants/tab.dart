@@ -18,7 +18,8 @@ enum ScreenTab {
   quiz('Quiz', Icons.handshake),
   search('検索', Icons.search),
   ranking('頻度別', Icons.assessment),
-  myword('My Word', Icons.tag_faces);
+  myword('My Word', Icons.tag_faces),
+  profile('profile', Icons.person);
 
   const ScreenTab(this.label, this.icon);
   //const ScreenTab(this.label, this.icon,this.root);
@@ -30,7 +31,9 @@ enum ScreenTab {
 enum ScreenPage {
   detail('単語詳細'),
   jpnEspDetail('単語詳細'),
-  quizDetail('Quiz!');
+  quizDetail('Quiz!'),
+  unAuthorized('未承認'),
+  authorized('承認済み');
 
   const ScreenPage(this.label);
   //const ScreenTab(this.label, this.icon,this.root);

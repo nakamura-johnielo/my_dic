@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Constants/ui.dart';
+import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/dictionary/esj_dictionary.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/quiz_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/word_page_controller.dart';
@@ -13,16 +14,16 @@ import 'package:my_dic/html_style_kotobank.dart';
 
 class DictionaryFragment extends ConsumerWidget {
   final int wordId;
-  const DictionaryFragment(
-      {super.key, required this.wordId, required this.wordPageController});
+  const DictionaryFragment({super.key, required this.wordId});
   //final KotobankDictionaryDao _dao = KotobankDictionaryDao();
   //final DatabaseProvider db = DatabaseProvider();
-  final WordPageController wordPageController;
+  //final WordPageController wordPageController;
   //=DI<IEsjDictionaryRepository>();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     log("dic key: $key");
+    final wordPageController = ref.read(wordPageControllerProvider);
     final mainViewModel = ref.watch(mainViewModelProvider);
     if (!mainViewModel.dictionaryCache.containsKey(wordId)) {
       wordPageController.fetchDictionaryById(wordId);

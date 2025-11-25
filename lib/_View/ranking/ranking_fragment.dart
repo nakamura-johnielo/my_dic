@@ -16,13 +16,13 @@ import 'package:my_dic/_Interface_Adapter/ViewModel/ranking_view_model.dart';
 import 'package:my_dic/_View/word_page/word_page_fragment.dart';
 
 class RankingFragment extends ConsumerWidget {
-  const RankingFragment(this._rankingController, {super.key});
-  final RankingController _rankingController;
+  const RankingFragment({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final rankingController = ref.read(rankingControllerProvider);
     final viewModel = ref.watch(rankingViewModelProvider);
-    final wordStatusController = ref.read(wordStatusProvider.notifier);
+    final wordStatusController = ref.read(wordStatusViewModelProvider.notifier);
     //_rankingController.loadNext();
     const margin = EdgeInsets.symmetric(vertical: 1, horizontal: 16);
 
@@ -49,7 +49,7 @@ class RankingFragment extends ConsumerWidget {
               child: RankingInfinityScrollListView(
             //resetScroll: viewModel.resetIsOnUpdatedFilter,
             // isOnUpdatedFilter: viewModel.isOnUpdatedFilter,
-            loadNext: _rankingController.loadNext,
+            loadNext: rankingController.loadNext,
             itemCount: viewModel.items.length,
             itemBuilder: (context, index) {
               final id = viewModel.items[index].wordId;
@@ -268,7 +268,7 @@ class FilterButton extends StatelessWidget {
             //showDragHandle: true,
             barrierColor: Colors.black.withValues(alpha: .5),
             builder: (context) {
-              return DI<RankingFilterModal>();
+              return RankingFilterModal();
             });
       },
       //backgroundColor: Colors.blue,

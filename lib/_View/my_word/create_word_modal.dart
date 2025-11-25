@@ -1,28 +1,31 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/create/register_my_word/i_register_my_word_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/create/register_my_word/register_my_word_input_data.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/my_word_controller.dart';
 
-class WordRegistrationModal extends StatefulWidget {
-  const WordRegistrationModal(this._controller, {super.key});
-  final MyWordController _controller;
+class WordRegistrationModal extends ConsumerStatefulWidget {
+  const WordRegistrationModal({super.key});
 
   @override
-  State<WordRegistrationModal> createState() => _WordRegistrationModalState();
+  ConsumerState<WordRegistrationModal> createState() =>
+      _WordRegistrationModalState();
 }
 
-class _WordRegistrationModalState extends State<WordRegistrationModal> {
+class _WordRegistrationModalState extends ConsumerState<WordRegistrationModal> {
   final headwordTextFieldController = TextEditingController();
   final descriptionTextFieldController = TextEditingController();
-  late final MyWordController _controller;
+  late final MyWordController controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = widget._controller;
+    //controller = widget._controller;
+    controller = ref.read(myWordControllerProvider);
   }
 
   @override
@@ -34,6 +37,7 @@ class _WordRegistrationModalState extends State<WordRegistrationModal> {
 
   @override
   Widget build(BuildContext context) {
+    //final controller=ref.read(myWordControllerProvider);
     final Color bg = Theme.of(context).colorScheme.surfaceContainer;
     return FractionallySizedBox(
       heightFactor: 0.9,
@@ -120,7 +124,7 @@ class _WordRegistrationModalState extends State<WordRegistrationModal> {
                               //     const Color.fromARGB(255, 44, 110, 215),
                             ),
                             onPressed: () {
-                              _controller.registerWord(
+                              controller.registerWord(
                                   headword: headwordTextFieldController.text,
                                   description:
                                       descriptionTextFieldController.text,

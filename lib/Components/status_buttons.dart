@@ -39,7 +39,8 @@ class WordStatusViewModel extends StateNotifier<Map<int, WordStatus>> {
   WordStatusViewModel(this._espJpnStatusInteractor) : super(const {});
   final EspJpnStatusInteractor _espJpnStatusInteractor;
 
-  WordStatus getStatus(int wordId) => state[wordId] ?? const WordStatus();
+  WordStatus getStatus(int wordId) =>
+      state[wordId] ?? WordStatus(wordId: wordId);
 
   Future<void> init(int wordId) async {
     if (state[wordId] == null) await fetchStatus(wordId);
@@ -120,18 +121,18 @@ class WordStatusViewModel extends StateNotifier<Map<int, WordStatus>> {
   }
 }
 
-final wordStatusProvider =
-    StateNotifierProvider<WordStatusViewModel, Map<int, WordStatus>>(
-  (ref) => DI<WordStatusViewModel>(),
-);
+// final wordStatusViewModelProvider =
+//     StateNotifierProvider<WordStatusViewModel, Map<int, WordStatus>>(
+//   (ref) => WordStatusViewModel(EspJpnStatusInteractor),
+// );
 
-final wordStatusByIdProvider = Provider.family<WordStatus?, int>((ref, wordId) {
-  // 最小限の再ビルドにするためにselectで必要な要素のみ監視
-  final status = ref.watch(
-    wordStatusProvider.select((map) => map[wordId]),
-  );
-  return status; //?? const WordStatus();
-});
+// final wordStatusByIdProvider = Provider.family<WordStatus?, int>((ref, wordId) {
+//   // 最小限の再ビルドにするためにselectで必要な要素のみ監視
+//   final status = ref.watch(
+//     wordStatusViewModelProvider.select((map) => map[wordId]),
+//   );
+//   return status; //?? const WordStatus();
+// });
 
 /////////
 ////
@@ -155,7 +156,7 @@ class StatusButtons extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final wordStatus = ref.watch(wordStatusByIdProvider(wordId));
-    final controller = ref.read(wordStatusProvider.notifier);
+    final controller = ref.read(wordStatusViewModelProvider.notifier);
     controller.init(wordId); //初期化
 
     return Row(

@@ -8,8 +8,8 @@ import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/ranking.dart';
 
 /// ViewModelをプロバイダーで提供
-final rankingViewModelProvider =
-    ChangeNotifierProvider((ref) => DI<RankingViewModel>());
+// final rankingViewModelProvider =
+//     ChangeNotifierProvider((ref) => DI<RankingViewModel>());
 
 class RankingViewModel extends ChangeNotifier {
   //現在のページネーションのページ
