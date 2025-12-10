@@ -10,7 +10,9 @@ import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_user_repository.dar
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_word_status_repository.dart';
 import 'package:my_dic/_Framework_Driver/Repository/firebase_auth_repository.dart';
 import 'package:my_dic/_Framework_Driver/Repository/firebase_user_repository.dart';
+import 'package:my_dic/_Framework_Driver/Repository/sync%20service/word_status_sync_service.dart';
 import 'package:my_dic/_Framework_Driver/Repository/wordstatus_repository.dart';
+import 'package:my_dic/_Framework_Driver/local/drift/DAO/syncstatus_dao.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/DAO/word_status_dao.dart';
 import 'package:my_dic/_Framework_Driver/remote/firebase/DAO/user_profile_dao.dart';
 import 'package:my_dic/_Framework_Driver/remote/firebase/DAO/auth.dart';
@@ -42,8 +44,7 @@ final firebaseUserRepositoryProvider = Provider<IUserRepository>((ref) {
   return FirebaseUserRepository(dataSource);
 });
 
-final firebaseWordStatusRepositoryProvider =
-    Provider<IWordStatusRepository>((ref) {
+final wordStatusRepositoryProvider = Provider<IWordStatusRepository>((ref) {
   final local = ref.read(localWordStatusDaoProvider);
   final remote = ref.read(remoteWordStatusDaoProvider);
   // final localDataSource = ref.watch(localWordStatusDaoProvider);
@@ -82,3 +83,27 @@ final verificateInteractorProvider = Provider(
 final signOutInteractorProvider = Provider(
   (ref) => SignOutInteractor(ref.watch(firebaseAuthRepositoryProvider)),
 );
+
+// service
+final syncStatusDaoProvider = Provider((ref) => SyncStatusDao());
+
+final lastSyncProvider =
+    FutureProvider.family<DateTime?, String>((ref, key) async {
+  final dao = ref.watch(syncStatusDaoProvider);
+  return await dao.getLastSync(key);
+});
+
+final setLastSyncProvider =
+    Provider.family<void Function(DateTime), String>((ref, key) {
+  final dao = ref.watch(syncStatusDaoProvider);
+  return (dateTime) async {
+    await dao.setLastSync(key, dateTime);
+    ref.invalidate(lastSyncProvider(key)); // 更新後に再取得
+  };
+});
+
+final wordStatusSyncServiceProvider = Provider<WordStatusSyncService>((ref) {
+  final remoteDao = ref.watch(remoteWordStatusDaoProvider);
+  final localDao = ref.watch(localWordStatusDaoProvider);
+  return WordStatusSyncService(remoteDao, localDao);
+});

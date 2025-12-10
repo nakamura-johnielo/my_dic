@@ -2,10 +2,12 @@ import 'package:my_dic/_Business_Rule/_Domain/Entities/word/word_status.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_word_status_repository.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/DAO/word_status_dao.dart'
     as local;
+import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart';
 // import 'package:my_dic/_Framework_Driver/local/drift/Entity/word_status.dart'
 //     as local;
 import 'package:my_dic/_Framework_Driver/remote/firebase/DAO/word_status_dao.dart'
     as remote;
+import 'package:my_dic/_Framework_Driver/remote/firebase/Entity/wordStatusEntity.dart';
 
 class WordStatusRepository implements IWordStatusRepository {
   final remote.FirebaseWordStatusDao _remote;
@@ -33,9 +35,27 @@ class WordStatusRepository implements IWordStatusRepository {
   }
 
   @override
-  Future<void> updateWordStatus(WordStatus wordStatus) async {
-    // await _local.update();
-    // await _remote.update();
+  Future<void> updateWordStatus(
+      WordStatus wordStatus, DateTime now, String userId) async {
+    final nowDateTime = now; //DateTime.now().toUtc();
+    final localInput = WordStatusData(
+      wordId: wordStatus.wordId,
+      isLearned: wordStatus.isLearned ? 1 : 0,
+      isBookmarked: wordStatus.isBookmarked ? 1 : 0,
+      hasNote: wordStatus.hasNote ? 1 : 0,
+      editAt: nowDateTime.toString(),
+    );
+
+    if (await _local.exist(wordStatus.wordId)) {
+      await _local.updateStatus(localInput);
+      //localInput.createAt = nowDateTime.toString();
+    } else {
+      await _local.insertStatus(localInput);
+    }
+
+    WordStatusEntity remoteInput = WordStatusEntity.fromAppEntity(wordStatus);
+    remoteInput.updatedAt = nowDateTime;
+    await _remote.update(remoteInput, userId);
   }
 
   @override

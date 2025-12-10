@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_dic/Constants/Enums/subscribe_status.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/user/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:my_dic/_Business_Rule/_Domain/Entities/word/word_status.dart';
 
 class WordStatusEntity {
   static const String collectionName = "WordStatus";
@@ -14,13 +15,15 @@ class WordStatusEntity {
   static const String fieldCreatedAt = "createdAt";
   static const String fieldUpdatedAt = "updatedAt";
 
+  //!TODO finalにすべき？copywith?
+
   final int wordId;
-  final int isLearned;
-  final int isBookmarked;
-  final int hasNote;
-  final String? updateBy;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  int isLearned;
+  int isBookmarked;
+  int hasNote;
+  String? updateBy;
+  DateTime createdAt;
+  DateTime updatedAt;
 
   WordStatusEntity({
     required this.wordId,
@@ -61,6 +64,18 @@ class WordStatusEntity {
       fieldCreatedAt: Timestamp.fromDate(createdAt.toUtc()),
       fieldUpdatedAt: Timestamp.fromDate(updatedAt.toUtc()),
     };
+  }
+
+  factory WordStatusEntity.fromAppEntity(WordStatus data) {
+    //final data = doc.data()!;
+    return WordStatusEntity(
+        wordId: data.wordId,
+        isLearned: data.isLearned ? 1 : 0,
+        isBookmarked: data.isBookmarked ? 1 : 0,
+        hasNote: data.hasNote ? 1 : 0,
+        updateBy: "data.updateBy",
+        createdAt: DateTime(2019, 1, 1, 17, 30).toUtc(),
+        updatedAt: DateTime.now().toUtc());
   }
 
   /// ----------------------------

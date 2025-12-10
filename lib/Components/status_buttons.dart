@@ -8,6 +8,7 @@ import 'package:my_dic/Constants/Enums/feature_tag.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/Usecase/esp_jpn_status/esp_jpn_status_interactor.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/word/word_status.dart';
+import 'package:my_dic/_Interface_Adapter/ViewModel/user/profile.dart';
 //import 'package:my_dic/_Interface_Adapter/Controller/word_status_controller.dart';
 
 // @immutable
@@ -36,8 +37,10 @@ import 'package:my_dic/_Business_Rule/_Domain/Entities/word/word_status.dart';
 // }
 
 class WordStatusViewModel extends StateNotifier<Map<int, WordStatus>> {
-  WordStatusViewModel(this._espJpnStatusInteractor) : super(const {});
+  WordStatusViewModel(this._espJpnStatusInteractor, this._updateInteractor)
+      : super(const {});
   final EspJpnStatusInteractor _espJpnStatusInteractor;
+  final EspJpnStatusUpdateInteractor _updateInteractor;
 
   WordStatus getStatus(int wordId) =>
       state[wordId] ?? WordStatus(wordId: wordId);
@@ -51,14 +54,15 @@ class WordStatusViewModel extends StateNotifier<Map<int, WordStatus>> {
     state = {...state, wordId: status};
   }
 
-  void setBookmark(int wordId, bool value) {
+  void setBookmark(int wordId, bool value, String userId) {
     final current = getStatus(wordId);
     state = {
       ...state,
       wordId: current.copyWith(isBookmarked: value),
     };
-    _espJpnStatusInteractor.updateWordStatus(
+    _updateInteractor.execute(
       EsJUpdateStatusInputData(
+        userId,
         wordId,
         {
           if (value) FeatureTag.isBookmarked,
@@ -69,19 +73,20 @@ class WordStatusViewModel extends StateNotifier<Map<int, WordStatus>> {
     );
   }
 
-  void toggleBookmark(int wordId) {
+  void toggleBookmark(int wordId, String userId) {
     final current = getStatus(wordId);
-    setBookmark(wordId, !current.isBookmarked);
+    setBookmark(wordId, !current.isBookmarked, userId);
   }
 
-  void setLearned(int wordId, bool value) {
+  void setLearned(int wordId, bool value, String userId) {
     final current = getStatus(wordId);
     state = {
       ...state,
       wordId: current.copyWith(isLearned: value),
     };
-    _espJpnStatusInteractor.updateWordStatus(
+    _updateInteractor.execute(
       EsJUpdateStatusInputData(
+        userId,
         wordId,
         {
           if (state[wordId]?.isBookmarked ?? false) FeatureTag.isBookmarked,
@@ -92,19 +97,20 @@ class WordStatusViewModel extends StateNotifier<Map<int, WordStatus>> {
     );
   }
 
-  void toggleLearned(int wordId) {
+  void toggleLearned(int wordId, String userId) {
     final current = getStatus(wordId);
-    setLearned(wordId, !current.isLearned);
+    setLearned(wordId, !current.isLearned, userId);
   }
 
-  void setHasNote(int wordId, bool value) {
+  void setHasNote(int wordId, bool value, String userId) {
     final current = getStatus(wordId);
     state = {
       ...state,
       wordId: current.copyWith(hasNote: value),
     };
-    _espJpnStatusInteractor.updateWordStatus(
+    _updateInteractor.execute(
       EsJUpdateStatusInputData(
+        userId,
         wordId,
         {
           if (state[wordId]?.isBookmarked ?? false) FeatureTag.isBookmarked,
@@ -115,9 +121,9 @@ class WordStatusViewModel extends StateNotifier<Map<int, WordStatus>> {
     );
   }
 
-  void toggleHasNote(int wordId) {
+  void toggleHasNote(int wordId, String userId) {
     final current = getStatus(wordId);
-    setHasNote(wordId, !current.hasNote);
+    setHasNote(wordId, !current.hasNote, userId);
   }
 }
 
@@ -159,6 +165,8 @@ class StatusButtons extends ConsumerWidget {
     final controller = ref.read(wordStatusViewModelProvider.notifier);
     controller.init(wordId); //初期化
 
+    final userId = ref.watch(userViewModelProvider)?.id ?? "anonymous";
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -172,7 +180,7 @@ class StatusButtons extends ConsumerWidget {
               : learnedIcon["false"] ?? Icons.error,
           hoveredIconColor: const Color.fromARGB(255, 119, 119, 119),
           onTap: () {
-            controller.toggleLearned(wordId);
+            controller.toggleLearned(wordId, userId);
           },
         ),
         const SizedBox(width: 3),
@@ -186,7 +194,7 @@ class StatusButtons extends ConsumerWidget {
               : bookmarkIcon["false"] ?? Icons.error,
           hoveredIconColor: const Color.fromARGB(255, 119, 119, 119),
           onTap: () {
-            controller.toggleBookmark(wordId);
+            controller.toggleBookmark(wordId, userId);
           },
         ),
       ],

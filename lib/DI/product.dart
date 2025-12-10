@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Components/status_buttons.dart';
+import 'package:my_dic/DI/riverpod.dart';
 import 'package:my_dic/_Business_Rule/Usecase/esp_jpn_status/esp_jpn_status_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/fetch_conjugation_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/i_fetch_conjugation_use_case.dart';
@@ -476,9 +477,15 @@ final espJpnStatusInteractorProvider = Provider<EspJpnStatusInteractor>((ref) {
   return EspJpnStatusInteractor(ref.read(esjWordRepositoryProvider));
 });
 
+final espJpnUpdateInteractorProvider =
+    Provider<EspJpnStatusUpdateInteractor>((ref) {
+  return EspJpnStatusUpdateInteractor(ref.read(wordStatusRepositoryProvider));
+});
+
 final wordStatusViewModelProvider =
     StateNotifierProvider<WordStatusViewModel, Map<int, WordStatus>>((ref) {
-  return WordStatusViewModel(ref.read(espJpnStatusInteractorProvider));
+  return WordStatusViewModel(ref.read(espJpnStatusInteractorProvider),
+      ref.read(espJpnUpdateInteractorProvider));
 });
 
 final wordStatusByIdProvider = Provider.family<WordStatus?, int>((ref, wordId) {

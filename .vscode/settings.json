@@ -3,10 +3,11 @@
   "editor.guides.bracketPairs": true,
   "editor.bracketPairColorization.enabled": true,
   "files.watcherExclude": {
+    "**/__generated/**": true,
     "**/.idea/**": true,
     "**/.VSCodeCounter/**": true,
     "**/android/**": true,
-    "**/windows/**": true,
-    "**/build/**": true
+    "**/build/**": true,
+    "**/windows/**": true
   }
 }

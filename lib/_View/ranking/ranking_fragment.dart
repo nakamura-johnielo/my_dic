@@ -13,6 +13,7 @@ import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/ranking.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/ranking_controller.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/ranking_view_model.dart';
+import 'package:my_dic/_Interface_Adapter/ViewModel/user/profile.dart';
 import 'package:my_dic/_View/word_page/word_page_fragment.dart';
 
 class RankingFragment extends ConsumerWidget {
@@ -25,6 +26,7 @@ class RankingFragment extends ConsumerWidget {
     final wordStatusController = ref.read(wordStatusViewModelProvider.notifier);
     //_rankingController.loadNext();
     const margin = EdgeInsets.symmetric(vertical: 1, horizontal: 16);
+    final userId = ref.watch(userViewModelProvider)?.id ?? "anonymous";
 
     return Scaffold(
       appBar: AppBar(
@@ -65,7 +67,7 @@ class RankingFragment extends ConsumerWidget {
 
               Map<WordCardViewButton, VoidCallback>? clickListeners = {
                 WordCardViewButton.bookmark: () {
-                  wordStatusController.toggleBookmark(id);
+                  wordStatusController.toggleBookmark(id, userId);
                   //   _rankingController.updateWordStatus(
                   //       index,
                   //       ranking.wordId,
@@ -74,7 +76,7 @@ class RankingFragment extends ConsumerWidget {
                   //       ranking.hasNote);
                 },
                 WordCardViewButton.learned: () {
-                  wordStatusController.toggleLearned(id);
+                  wordStatusController.toggleLearned(id, userId);
                   //   _rankingController.updateWordStatus(
                   //       index,
                   //       ranking.wordId,

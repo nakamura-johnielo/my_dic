@@ -64,23 +64,23 @@ class RankingController {
     await _loadItemsByFilters(isNext: false);
   }
 
-  void updateWordStatus(
-    int index,
-    int wordId,
-    bool isBookmarked,
-    bool isLearned,
-    bool hasNote,
-  ) {
-    log("updatecontroller");
+  // void updateWordStatus(
+  //   int index,
+  //   int wordId,
+  //   bool isBookmarked,
+  //   bool isLearned,
+  //   bool hasNote,
+  // ) {
+  //   log("updatecontroller");
 
-    Set<FeatureTag> status = {
-      if (isBookmarked) FeatureTag.isBookmarked,
-      if (isLearned) FeatureTag.isLearned,
-      if (hasNote) FeatureTag.hasNote,
-    };
-    UpdateStatusInputData input = UpdateStatusInputData(wordId, status, index);
-    _updateStatusInteractor.execute(input);
-  }
+  //   Set<FeatureTag> status = {
+  //     if (isBookmarked) FeatureTag.isBookmarked,
+  //     if (isLearned) FeatureTag.isLearned,
+  //     if (hasNote) FeatureTag.hasNote,
+  //   };
+  //   UpdateStatusInputData input = UpdateStatusInputData(wordId, status, index);
+  //   _updateStatusInteractor.execute(input);
+  // }
 
   void addFilter(DisplayEnumMixin data, int filterType) {
     _updateFilter(data, filterType); //データ取得しなおすから始めから presenter内でpage=0もセット済み
