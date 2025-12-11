@@ -48,7 +48,6 @@ app.*.map.json
 **/google-services.json
 **/firebase.json
 **/firebase_options.dart
-
 # automation
 **/auto_generate_body.json
 **/auto_generate_config.json
