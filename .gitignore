@@ -47,5 +47,15 @@ app.*.map.json
 # firebase
 **/google-services.json
 **/firebase.json
-**/firebase_options.json
+**/firebase_options.dart
 
+# automation
+**/auto_generate_body.json
+**/auto_generate_config.json
+**/auto_generate_config-stock.json
+
+# db
+assets/**.db
+
+# private
+**/COMMAND.md
