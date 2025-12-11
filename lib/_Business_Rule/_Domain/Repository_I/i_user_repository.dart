@@ -1,4 +1,4 @@
-import 'package:my_dic/_Business_Rule/_Domain/Entities/user/user.dart';
+import 'package:my_dic/features/user/domain/entity/user.dart';
 
 abstract class IUserRepository {
   Future<AppUser?> getUserById(String id);
