@@ -49,3 +49,15 @@ app.*.map.json
 **/firebase.json
 **/firebase_options.dart
 
+# automation
+**/auto_generate_body.json
+**/auto_generate_config.json
+**/auto_generate_config-stock.json
+
+# myfile
+**/COMMAND.md
+
+# Database files (large binary files)
+# assets/kotobank.db
+# assets/mydic.db
+assets/*.db
