@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_dic/core/application/app_effects/auth_effect_provider.dart';
 import 'package:my_dic/features/auth/domain/entity/auth.dart';
 import 'package:my_dic/features/user/presentation/view_model/profile.dart';
 import 'package:my_dic/features/auth/presentation/view/sign_up.dart';
