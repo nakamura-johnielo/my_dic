@@ -5,9 +5,9 @@ import 'package:my_dic/features/auth/domain/usecase/observe_auth_state_interacto
 import 'package:my_dic/features/auth/domain/usecase/signin.dart';
 import 'package:my_dic/features/auth/domain/usecase/signup.dart';
 import 'package:my_dic/features/auth/domain/usecase/verify_email.dart';
-import 'package:my_dic/features/user/domain/usecase/user.dart';
+import 'package:my_dic/features/user/domain/usecase/get_user.dart';
 import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_user_repository.dart';
+import 'package:my_dic/features/user/domain/i_repository/i_user_repository.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_word_status_repository.dart';
 import 'package:my_dic/features/auth/data/repository_impl/firebase_auth_repository_impl.dart';
 import 'package:my_dic/features/user/data/repository_impl/firebase_user_repository.dart';
@@ -15,7 +15,7 @@ import 'package:my_dic/_Framework_Driver/Repository/sync%20service/word_status_s
 import 'package:my_dic/_Framework_Driver/Repository/wordstatus_repository.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/DAO/syncstatus_dao.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/DAO/word_status_dao.dart';
-import 'package:my_dic/_Framework_Driver/remote/firebase/DAO/user_profile_dao.dart';
+import 'package:my_dic/features/user/data/data_source/remote/user_profile_dao.dart';
 import 'package:my_dic/features/auth/data/data_source/remote/firebase_auth_dao.dart';
 import 'package:my_dic/_Framework_Driver/remote/firebase/DAO/word_status_dao.dart';
 import 'package:my_dic/core/infrastructure/firebase/firebase_provider.dart';
@@ -24,17 +24,11 @@ import 'package:my_dic/core/infrastructure/firebase/firebase_provider.dart';
 
 // ====data
 //Dao
-final userDaoProvider =
-    Provider((ref) => UserDao(ref.watch(firestoreDBProvider)));
 
 final remoteWordStatusDaoProvider =
     Provider((ref) => FirebaseWordStatusDao(ref.watch(firestoreDBProvider)));
 
 // repository
-final firebaseUserRepositoryProvider = Provider<IUserRepository>((ref) {
-  final dataSource = ref.watch(userDaoProvider);
-  return FirebaseUserRepository(dataSource);
-});
 
 final wordStatusRepositoryProvider = Provider<IWordStatusRepository>((ref) {
   final local = ref.read(localWordStatusDaoProvider);
@@ -47,14 +41,6 @@ final wordStatusRepositoryProvider = Provider<IWordStatusRepository>((ref) {
 //====================================================----
 //==================================================
 // UseCase
-
-final getUserInteractorProvider = Provider(
-  (ref) => GetUserInteractor(ref.watch(firebaseUserRepositoryProvider)),
-);
-
-final updateUserInteractorProvider = Provider(
-  (ref) => UpdateUserInteractor(ref.watch(firebaseUserRepositoryProvider)),
-);
 
 // service
 final syncStatusDaoProvider = Provider((ref) => SyncStatusDao());

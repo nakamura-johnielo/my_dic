@@ -8,7 +8,8 @@ import 'package:my_dic/Constants/Enums/feature_tag.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/Usecase/esp_jpn_status/esp_jpn_status_interactor.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/word/word_status.dart';
-import 'package:my_dic/features/user/presentation/view_model/profile.dart';
+import 'package:my_dic/features/user/di/viewmodel.dart';
+import 'package:my_dic/features/user/presentation/view_model/user_view_model.dart';
 //import 'package:my_dic/_Interface_Adapter/Controller/word_status_controller.dart';
 
 // @immutable

@@ -1,4 +1,4 @@
-import 'package:my_dic/features/auth/domain/entity/auth.dart';
+import 'package:my_dic/core/domain/entity/auth.dart';
 import 'package:my_dic/features/auth/data/dto/auth_dto.dart';
 
 abstract interface class IAuthRepository {

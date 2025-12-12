@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/Constants/tab.dart';
 import 'package:my_dic/features/auth/di/data_di.dart';
-import 'package:my_dic/features/user/presentation/view_model/profile.dart';
+import 'package:my_dic/features/auth/di/view_model_di.dart';
 
 class EmailPasswordPage extends ConsumerStatefulWidget {
   const EmailPasswordPage({super.key});
@@ -69,9 +69,11 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
+    //!TODO refactor depending onuser
     final authRepository = ref.watch(firebaseAuthRepositoryProvider);
     //final userRepository = ref.watch(firebaseUserRepositoryProvider);
-    final userViewModel = ref.read(userViewModelProvider.notifier);
+    // final userViewModel = ref.read(userViewModelProvider.notifier);
+    final authViewModel = ref.read(authViewModelProvider.notifier);
     // final auth = ref.watch(authStreamProvider);
     //ref.watch(authEffectProvider);
 
@@ -101,10 +103,13 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
                   ? null
                   : () {
                       if (!_validInputs()) return;
-                      _handleAuth(() => userViewModel.createUser(
-                            emailCtrl.text.trim(),
-                            passCtrl.text.trim(),
-                          ));
+                      _handleAuth(() async {
+                        await authViewModel.signUp(
+                          emailCtrl.text.trim(),
+                          passCtrl.text.trim(),
+                        );
+                        return '登録に成功しました。確認メールを送信しました。';
+                      });
                       ;
                     },
               icon: const Icon(Icons.person_add),
@@ -116,7 +121,7 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
                   ? null
                   : () {
                       if (!_validInputs()) return;
-                      _handleAuth(() => userViewModel.signIn(
+                      _handleAuth(() => authViewModel.signIn(
                             emailCtrl.text.trim(),
                             passCtrl.text.trim(),
                           ));
@@ -150,7 +155,7 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
                   ? null
                   : () async {
                       try {
-                        await userViewModel.signOut();
+                        await authViewModel.signOut();
                         setState(() => message = 'ログアウトしました');
                       } on FirebaseAuthException catch (e) {
                         setState(() => message = e.message);

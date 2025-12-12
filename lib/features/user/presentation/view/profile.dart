@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/Constants/tab.dart';
-import 'package:my_dic/features/user/presentation/view_model/profile.dart';
+import 'package:my_dic/features/user/di/viewmodel.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key, required this.uid});

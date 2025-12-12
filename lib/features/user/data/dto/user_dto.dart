@@ -3,7 +3,7 @@ import 'package:my_dic/Constants/Enums/subscribe_status.dart';
 import 'package:my_dic/features/user/domain/entity/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class UserEntity {
+class UserDTO {
   static const String collectionName = "Users";
   static const String fieldUserId = "userId";
   static const String fieldEmail = "email";
@@ -19,7 +19,7 @@ class UserEntity {
   final DateTime? updatedAt;
   final SubscriptionStatus? subscriptionStatus;
 
-  UserEntity({
+  UserDTO({
     this.subscriptionStatus,
     required this.userId,
     this.email,
@@ -31,9 +31,9 @@ class UserEntity {
   /// ----------------------------
   /// Firestore → AppUser に変換
   /// ----------------------------
-  factory UserEntity.fromFirebase(DocumentSnapshot<Map<String, dynamic>> doc) {
+  factory UserDTO.fromFirebase(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data()!;
-    return UserEntity(
+    return UserDTO(
       subscriptionStatus: SubscriptionStatus.values
           .firstWhere((e) => e.subscriptionCode == data['subscriptionStatus']),
       userId: doc.id,
@@ -68,12 +68,12 @@ class UserEntity {
   /// ----------------------------
   /// コピー（更新用）
   /// ----------------------------
-  UserEntity copyWith({
+  UserDTO copyWith({
     String? userName,
     String? email,
     SubscriptionStatus? subscriptionStatus,
   }) {
-    return UserEntity(
+    return UserDTO(
       userId: userId,
       email: email ?? this.email,
       userName: userName ?? this.userName,

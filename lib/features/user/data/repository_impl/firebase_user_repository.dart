@@ -1,9 +1,9 @@
 import 'package:my_dic/Constants/Enums/subscribe_status.dart';
 import 'package:my_dic/features/user/domain/entity/user.dart';
 import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_user_repository.dart';
-import 'package:my_dic/_Framework_Driver/remote/firebase/DAO/user_profile_dao.dart';
-import 'package:my_dic/_Framework_Driver/remote/firebase/Entity/userEntity.dart';
+import 'package:my_dic/features/user/domain/i_repository/i_user_repository.dart';
+import 'package:my_dic/features/user/data/data_source/remote/user_profile_dao.dart';
+import 'package:my_dic/features/user/data/dto/user_dto.dart';
 
 class FirebaseUserRepository implements IUserRepository {
   final UserDao _userProfileDao;
@@ -23,7 +23,7 @@ class FirebaseUserRepository implements IUserRepository {
 
   @override
   Future<void> updateUser(AppUser user) async {
-    final userEntity = UserEntity(
+    final userEntity = UserDTO(
       userId: user.id,
       email: user.email ?? '',
       userName: user.username,

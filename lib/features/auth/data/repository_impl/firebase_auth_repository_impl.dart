@@ -1,4 +1,4 @@
-import 'package:my_dic/features/auth/domain/entity/auth.dart';
+import 'package:my_dic/core/domain/entity/auth.dart';
 import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
 import 'package:my_dic/features/auth/data/data_source/remote/firebase_auth_dao.dart';
 import 'package:my_dic/features/auth/data/dto/auth_dto.dart';
