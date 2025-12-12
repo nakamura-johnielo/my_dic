@@ -14,13 +14,119 @@ final authStreamProvider = StreamProvider<AppAuth?>((ref) {
 
 // ...existing code...
 
+/// 認証状態の変化を監視し、副作用を実行
 final authEffectProvider = Provider<void>((ref) {
+  ref.listen<AsyncValue<AppAuth?>>(
+    authStreamProvider,
+    (previous, next) async {
+      await _handleAuthStateChange(ref, previous?.value, next.value);
+    },
+  );
+});
+
+/// 認証状態変化のハンドラー（処理を分離）
+Future<void> _handleAuthStateChange(
+  Ref ref,
+  AppAuth? previousAuth,
+  AppAuth? currentAuth,
+) async {
+  // ログアウト処理
+  if (currentAuth == null) {
+    await _handleSignOut(ref, previousAuth);
+    return;
+  }
+
+  // ログイン処理
+  await _handleSignIn(ref, currentAuth);
+}
+
+/// サインアウト時の処理
+Future<void> _handleSignOut(Ref ref, AppAuth? previousAuth) async {
+  print('[Auth Effect] User signed out');
+
+  // ViewModelの状態をクリア
+  if (previousAuth != null) {
+    ref.read(userViewModelProvider.notifier).setAuthInfo(
+          AppAuth(userId: 'logout', isLogined: false),
+        );
+  }
+
+  // 同期サービスを停止
+  ref.read(wordStatusSyncServiceProvider).dispose();
+}
+
+/// サインイン時の処理
+Future<void> _handleSignIn(Ref ref, AppAuth currentAuth) async {
+  print('[Auth Effect] User signed in: ${currentAuth.userId}');
+
+  try {
+    // 2. ユーザー情報をロード
+    await ref.read(userViewModelProvider.notifier).loadUser(currentAuth.userId);
+
+    // 3. 認証情報を同期
+    ref.read(userViewModelProvider.notifier).setAuthInfo(currentAuth);
+
+    // 4. 同期サービスを開始
+    await _startSyncService(ref, currentAuth.userId);
+  } catch (e) {
+    print('[Auth Effect] Error during sign in: $e');
+    // エラーハンドリング（必要に応じてUIにエラーを通知）
+  }
+}
+
+/// 新規ユーザー登録時の処理
+// Future<void> _handleNewUserSignUp(Ref ref, AppAuth auth) async {
+//   print('[Auth Effect] Creating new user profile: ${auth.userId}');
+
+//   final newUser = AppUser(
+//     id: auth.userId,
+//     email: auth.email,
+//     username: auth.email?.split('@')[0] ?? 'User',
+//     subscriptionStatus: SubscriptionStatus.trial,
+//   );
+
+//   try {
+//     // ユーザープロファイル作成
+//     await ref.read(userViewModelProvider.notifier).updateUser(newUser);
+
+//     // メール認証送信
+//     if (!auth.isVerified) {
+//       await ref.read(authViewModelProvider.notifier).verifyEmail();
+//       print('[Auth Effect] Verification email sent');
+//     }
+//   } catch (e) {
+//     print('[Auth Effect] Failed to create user profile: $e');
+//     rethrow;
+//   }
+// }
+
+/// 同期サービスの開始
+Future<void> _startSyncService(Ref ref, String userId) async {
+  final syncDao = ref.read(syncStatusDaoProvider);
+  final lastSync = await syncDao.getLastSync('lastSync_wordStatus');
+
+  final startPoint =
+      lastSync ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
+
+  ref.read(wordStatusSyncServiceProvider).startSync(
+    userId,
+    startPoint,
+    (newLastSync) async {
+      await syncDao.setLastSync('lastSync_wordStatus', newLastSync);
+      ref.read(setLastSyncProvider('lastSync_wordStatus'))(newLastSync);
+    },
+  );
+
+  print('[Auth Effect] Sync service started from: $startPoint');
+}
+
+final authEffectProvider2 = Provider<void>((ref) {
   ref.listen<AsyncValue<AppAuth?>>(
     authStreamProvider,
     (previous, next) async {
       // ログアウト時クリーンアップ
       if (next.value == null) {
-        final input = AppAuth(userId: 'logout');
+        final input = previous?.value ?? AppAuth(userId: 'logout');
         ref.read(userViewModelProvider.notifier).setAuthInfo(input);
         ref.read(wordStatusSyncServiceProvider).dispose();
         return;
@@ -74,41 +180,3 @@ final authEffectProvider = Provider<void>((ref) {
     },
   );
 });
-
-// final authEffectProvider = Provider<void>((ref) {
-//   ref.listen<AsyncValue<AppAuth?>>(
-//     authStreamProvider,
-//     (previous, next) async {
-//       // ログアウト時クリーンアップ
-//       if (next.value == null) {
-//         final input = AppAuth(userId: 'logout');
-//         ref.read(userViewModelProvider.notifier).setAuthInfo(input);
-//         ref.read(wordStatusSyncServiceProvider).dispose();
-//         return;
-//       }
-//       print("~~~~~~~~~~");
-//       print(" auth effect");
-//       print("user valid");
-//       final appAuth = next.value!;
-//       // ログイン後、ユーザー情報リロード
-//       await ref.read(userViewModelProvider.notifier).getUser(appAuth.userId);
-//       ref.read(userViewModelProvider.notifier).setAuthInfo(appAuth);
-
-//       // lastSync取得
-//       final syncDao = ref.read(syncStatusDaoProvider);
-//       final stored = await syncDao.getLastSync('lastSync_wordStatus');
-
-//       final startPoint =
-//           stored ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
-
-//       ref.read(wordStatusSyncServiceProvider).startSync(
-//         appAuth.userId,
-//         startPoint,
-//         (newLastSync) async {
-//           await syncDao.setLastSync('lastSync_wordStatus', newLastSync);
-//           ref.read(setLastSyncProvider('lastSync_wordStatus'))(newLastSync);
-//         },
-//       );
-//     },
-//   );
-// });

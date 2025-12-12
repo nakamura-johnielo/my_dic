@@ -1,16 +1,12 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/core/application/app_effects/auth_effect_provider.dart';
 import 'package:my_dic/core/domain/entity/auth.dart';
-import 'package:my_dic/features/user/presentation/view_model/user_view_model.dart';
 import 'package:my_dic/features/auth/presentation/view/sign_up.dart';
 import 'package:my_dic/_View/main_activity.dart';
 import 'package:my_dic/Constants/tab.dart';
-import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_View/my_word/my_word_fragment.dart';
-import 'package:my_dic/_View/note_fragment.dart';
 import 'package:my_dic/_View/quiz/quiz_fragment.dart';
 import 'package:my_dic/_View/quiz/quiz_game_fragment.dart';
 import 'package:my_dic/_View/ranking/ranking_fragment.dart';
@@ -64,7 +60,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   final quizKey = ref.watch(quizNavigatorKeyProvider);
   final myWordKey = ref.watch(myWordNavigatorKeyProvider);
   final rankingKey = ref.watch(rankingNavigatorKeyProvider);
-  final profileKey = ref.watch(profileNavigatorKeyProvider);
+  // final profileKey = ref.watch(profileNavigatorKeyProvider);
 
   return GoRouter(
     navigatorKey: rootKey,
