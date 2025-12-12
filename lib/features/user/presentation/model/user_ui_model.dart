@@ -1,7 +1,7 @@
 import 'package:my_dic/Constants/Enums/subscribe_status.dart';
 import 'package:my_dic/features/user/domain/entity/user.dart';
 
-class UserUIModel {
+class UserState {
   final String id;
   final String email;
   final String username;
@@ -9,7 +9,7 @@ class UserUIModel {
   final bool isLoggedIn;
   final bool isAuthorized;
 
-  UserUIModel({
+  UserState({
     required this.id,
     required this.email,
     required this.username,
@@ -18,9 +18,9 @@ class UserUIModel {
     this.isAuthorized = false,
   });
 
-  static UserUIModel fromEntity(AppUser user,
+  static UserState fromEntity(AppUser user,
       {bool? isLogined, bool? isAuthorized}) {
-    return UserUIModel(
+    return UserState(
       id: user.id,
       email: user.email,
       username: user.username,
@@ -30,7 +30,7 @@ class UserUIModel {
     );
   }
 
-  UserUIModel copyWith({
+  UserState copyWith({
     String? id,
     String? email,
     String? username,
@@ -38,7 +38,7 @@ class UserUIModel {
     bool? isLogined,
     bool? isAuthorized,
   }) {
-    return UserUIModel(
+    return UserState(
       id: id ?? this.id,
       email: email ?? this.email,
       username: username ?? this.username,

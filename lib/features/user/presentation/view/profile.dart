@@ -16,7 +16,6 @@ class ProfilePage extends ConsumerStatefulWidget {
 
 class _ProfilePageState extends ConsumerState<ProfilePage> {
   final _nameCtrl = TextEditingController();
-  bool _initApplied = false;
   bool _saving = false;
   String? _msg;
 
@@ -44,19 +43,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    // final docRef =
-    //     FirebaseFirestore.instance.collection('users').doc(widget.uid);
-
-    // final userViewModel = ref.read(userViewModelProvider.notifier);
-    // final userAsync = userViewModel.getUser(id);
     final user = ref.watch(userViewModelProvider);
-    // ユーザー名の初期化
-    // if (user != null && !_initApplied) {
-    //   _nameCtrl.text = user.username;
-    //   _initApplied = true;
-    // }
 
-    // ユーザー情報が更新されたら TextEditingController を同期
     if (user != null && _nameCtrl.text != user.username) {
       _nameCtrl.text = user.username;
     }
