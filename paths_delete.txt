@@ -1,0 +1,11 @@
+android/app/google-services.json
+firebase.json
+lib/firebase_options.dart
+
+auto_generate_body.json
+auto_generate_config.json
+auto_generate_config-stock.json
+
+assets/*.db
+
+PRIVATES/
