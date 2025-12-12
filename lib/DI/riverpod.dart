@@ -1,48 +1,34 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/DI/product.dart';
-import 'package:my_dic/_Business_Rule/Usecase/auth/observe_auth_state_interactor.dart';
-import 'package:my_dic/_Business_Rule/Usecase/auth/signin.dart';
-import 'package:my_dic/_Business_Rule/Usecase/auth/signup.dart';
-import 'package:my_dic/_Business_Rule/Usecase/auth/verficate.dart';
-import 'package:my_dic/_Business_Rule/Usecase/user/user.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_auth_repository.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_user_repository.dart';
+import 'package:my_dic/features/auth/di/data_di.dart';
+import 'package:my_dic/features/auth/domain/usecase/observe_auth_state_interactor.dart';
+import 'package:my_dic/features/auth/domain/usecase/signin.dart';
+import 'package:my_dic/features/auth/domain/usecase/signup.dart';
+import 'package:my_dic/features/auth/domain/usecase/verify_email.dart';
+import 'package:my_dic/features/user/domain/usecase/get_user.dart';
+import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
+import 'package:my_dic/features/user/domain/i_repository/i_user_repository.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_word_status_repository.dart';
-import 'package:my_dic/_Framework_Driver/Repository/firebase_auth_repository.dart';
-import 'package:my_dic/_Framework_Driver/Repository/firebase_user_repository.dart';
+import 'package:my_dic/features/auth/data/repository_impl/firebase_auth_repository_impl.dart';
+import 'package:my_dic/features/user/data/repository_impl/firebase_user_repository.dart';
 import 'package:my_dic/_Framework_Driver/Repository/sync%20service/word_status_sync_service.dart';
 import 'package:my_dic/_Framework_Driver/Repository/wordstatus_repository.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/DAO/syncstatus_dao.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/DAO/word_status_dao.dart';
-import 'package:my_dic/_Framework_Driver/remote/firebase/DAO/user_profile_dao.dart';
-import 'package:my_dic/_Framework_Driver/remote/firebase/DAO/auth.dart';
+import 'package:my_dic/features/user/data/data_source/remote/user_profile_dao.dart';
+import 'package:my_dic/features/auth/data/data_source/remote/firebase_auth_dao.dart';
 import 'package:my_dic/_Framework_Driver/remote/firebase/DAO/word_status_dao.dart';
-import 'package:my_dic/_Framework_Driver/remote/firebase/base.dart';
+import 'package:my_dic/core/infrastructure/firebase/firebase_provider.dart';
 
 // firebase
-// ====auth
-//Dao
-final authDaoProvider =
-    Provider((ref) => FirebaseAuthDao(ref.watch(firestoreAuthProvider)));
-//repository
-final firebaseAuthRepositoryProvider = Provider<IAuthRepository>((ref) {
-  final authDao = ref.watch(authDaoProvider);
-  return FirebaseAuthRepository(authDao);
-});
 
 // ====data
 //Dao
-final userDaoProvider =
-    Provider((ref) => UserDao(ref.watch(firestoreDBProvider)));
 
 final remoteWordStatusDaoProvider =
     Provider((ref) => FirebaseWordStatusDao(ref.watch(firestoreDBProvider)));
 
 // repository
-final firebaseUserRepositoryProvider = Provider<IUserRepository>((ref) {
-  final dataSource = ref.watch(userDaoProvider);
-  return FirebaseUserRepository(dataSource);
-});
 
 final wordStatusRepositoryProvider = Provider<IWordStatusRepository>((ref) {
   final local = ref.read(localWordStatusDaoProvider);
@@ -55,34 +41,6 @@ final wordStatusRepositoryProvider = Provider<IWordStatusRepository>((ref) {
 //====================================================----
 //==================================================
 // UseCase
-final observeAuthStateUseCaseProvider = Provider(
-  (ref) => ObserveAuthStateInteractor(ref.watch(firebaseAuthRepositoryProvider),
-      ref.watch(firebaseUserRepositoryProvider)),
-);
-
-final getUserInteractorProvider = Provider(
-  (ref) => GetUserInteractor(ref.watch(firebaseUserRepositoryProvider)),
-);
-
-final signInInteractorProvider = Provider(
-  (ref) => SignInInteractor(ref.watch(firebaseAuthRepositoryProvider)),
-);
-
-final signUpInteractorProvider = Provider(
-  (ref) => SignUpInteractor(ref.watch(firebaseAuthRepositoryProvider)),
-);
-
-final updateUserInteractorProvider = Provider(
-  (ref) => UpdateUserInteractor(ref.watch(firebaseUserRepositoryProvider)),
-);
-
-final verificateInteractorProvider = Provider(
-  (ref) => VerficateInteractor(ref.watch(firebaseAuthRepositoryProvider)),
-);
-
-final signOutInteractorProvider = Provider(
-  (ref) => SignOutInteractor(ref.watch(firebaseAuthRepositoryProvider)),
-);
 
 // service
 final syncStatusDaoProvider = Provider((ref) => SyncStatusDao());

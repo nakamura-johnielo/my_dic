@@ -13,7 +13,8 @@ import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/ranking.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/ranking_controller.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/ranking_view_model.dart';
-import 'package:my_dic/_Interface_Adapter/ViewModel/user/profile.dart';
+import 'package:my_dic/features/user/di/viewmodel.dart';
+import 'package:my_dic/features/user/presentation/view_model/user_view_model.dart';
 import 'package:my_dic/_View/word_page/word_page_fragment.dart';
 
 class RankingFragment extends ConsumerWidget {

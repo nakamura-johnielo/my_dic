@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Constants/enviroment.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart';
-import 'package:my_dic/_Interface_Adapter/ViewModel/Side_Effect/user.dart';
+import 'package:my_dic/core/application/app_effects/auth_effect_provider.dart';
 import 'package:my_dic/_View/Themes/color_scheme.dart';
 //import 'package:my_dic/_View/main_activity.dart';
 import 'package:my_dic/router.dart';

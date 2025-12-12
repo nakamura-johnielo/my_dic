@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:my_dic/_Framework_Driver/remote/firebase/Entity/userEntity.dart';
+import 'package:my_dic/features/user/data/dto/user_dto.dart';
 import 'package:my_dic/_Framework_Driver/remote/firebase/Entity/wordStatusEntity.dart';
 
 class FirebaseWordStatusDao {
@@ -18,7 +18,7 @@ class FirebaseWordStatusDao {
 
   Future<void> update(WordStatusEntity wordStatusEntity, String userId) async {
     final docRef = _db
-        .collection(UserEntity.collectionName)
+        .collection(UserDTO.collectionName)
         .doc(userId)
         .collection(WordStatusEntity.collectionName)
         .doc(wordStatusEntity.wordId.toString());
@@ -35,7 +35,7 @@ class FirebaseWordStatusDao {
   /// FirestoreのWordStatusコレクションを監視
   Stream<List<WordStatusEntity>> watchAll(String userId) {
     return _db
-        .collection(UserEntity.collectionName)
+        .collection(UserDTO.collectionName)
         .doc(userId)
         .collection(WordStatusEntity.collectionName)
         .snapshots()
@@ -47,7 +47,7 @@ class FirebaseWordStatusDao {
   Stream<List<WordStatusEntity>> watchUpdatedAfter(
       String userId, DateTime lastSync) {
     return _db
-        .collection(UserEntity.collectionName)
+        .collection(UserDTO.collectionName)
         .doc(userId)
         .collection(WordStatusEntity.collectionName)
         .where(WordStatusEntity.fieldUpdatedAt, isGreaterThan: lastSync)
