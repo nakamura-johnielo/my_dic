@@ -29,9 +29,13 @@ final authEffectProvider = Provider<void>((ref) {
       final appAuth = next.value!;
 
       // 新規ユーザー登録の検出（previousがnullでnextがある場合）
-      final isNewSignUp = previous?.value == null && next.value != null;
+      // final isNewSignUp = previous?.value == null && next.value != null;
+      // まず既存のユーザー情報を取得
+      final existingUser = await ref
+          .read(userViewModelProvider.notifier)
+          .loadUser(appAuth.userId);
 
-      if (isNewSignUp) {
+      if (existingUser.id.isEmpty) {
         // 新規ユーザーのProfile作成
         final user = AppUser(
           id: appAuth.userId,
@@ -42,14 +46,14 @@ final authEffectProvider = Provider<void>((ref) {
 
         try {
           await ref.read(userViewModelProvider.notifier).createUser(user);
-          await ref.read(authViewModelProvider.notifier).VerifyEmail();
+          await ref.read(authViewModelProvider.notifier).verifyEmail();
         } catch (e) {
           print('Failed to create user profile: $e');
         }
       }
 
       // 既存のユーザー情報ロード
-      await ref.read(userViewModelProvider.notifier).getUser(appAuth.userId);
+      await ref.read(userViewModelProvider.notifier).loadUser(appAuth.userId);
       ref.read(userViewModelProvider.notifier).setAuthInfo(appAuth);
 
       // lastSync取得

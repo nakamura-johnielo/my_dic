@@ -47,13 +47,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     // final docRef =
     //     FirebaseFirestore.instance.collection('users').doc(widget.uid);
 
-    final userViewModel = ref.read(userViewModelProvider.notifier);
+    // final userViewModel = ref.read(userViewModelProvider.notifier);
     // final userAsync = userViewModel.getUser(id);
     final user = ref.watch(userViewModelProvider);
     // ユーザー名の初期化
-    if (user != null && !_initApplied) {
+    // if (user != null && !_initApplied) {
+    //   _nameCtrl.text = user.username;
+    //   _initApplied = true;
+    // }
+
+    // ユーザー情報が更新されたら TextEditingController を同期
+    if (user != null && _nameCtrl.text != user.username) {
       _nameCtrl.text = user.username;
-      _initApplied = true;
     }
 
     return Scaffold(
