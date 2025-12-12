@@ -2,7 +2,7 @@
 name: Research
 about: 調査・技術選定
 title: "[RESEARCH]"
-labels: ''
+labels: question
 assignees: nakamura-johnielo
 
 ---

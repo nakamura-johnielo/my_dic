@@ -2,7 +2,7 @@
 name: Refactor
 about: refactoring
 title: "[REFACTOR]"
-labels: ''
+labels: enhancement
 assignees: nakamura-johnielo
 
 ---

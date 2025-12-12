@@ -2,7 +2,7 @@
 name: Task
 about: 雑タスク・管理系
 title: "[TASK]"
-labels: ''
+labels: enhancement
 assignees: nakamura-johnielo
 
 ---

@@ -2,7 +2,7 @@
 name: Feature
 about: 追加したい機能
 title: "[FEATURE]"
-labels: ''
+labels: enhancement
 assignees: nakamura-johnielo
 
 ---
