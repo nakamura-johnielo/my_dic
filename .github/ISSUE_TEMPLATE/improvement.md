@@ -2,7 +2,7 @@
 name: Improvement
 about: 改善・機能調整
 title: "[IMPROVEMENT]"
-labels: ''
+labels: enhancement
 assignees: nakamura-johnielo
 
 ---

@@ -2,7 +2,7 @@
 name: Design
 about: UI/UX
 title: "[DESIGN]"
-labels: ''
+labels: enhancement
 assignees: nakamura-johnielo
 
 ---

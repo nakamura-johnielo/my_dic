@@ -2,7 +2,7 @@
 name: Documentation
 about: documentation
 title: "[DOCUMENTATION]"
-labels: ''
+labels: documentation
 assignees: nakamura-johnielo
 
 ---

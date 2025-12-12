@@ -2,7 +2,7 @@
 name: Bug
 about: Bug
 title: "[BUG]"
-labels: ''
+labels: bug
 assignees: nakamura-johnielo
 
 ---
