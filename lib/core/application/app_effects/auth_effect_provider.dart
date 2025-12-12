@@ -6,7 +6,6 @@ import 'package:my_dic/features/auth/di/view_model_di.dart';
 import 'package:my_dic/core/domain/entity/auth.dart';
 import 'package:my_dic/features/user/di/viewmodel.dart';
 import 'package:my_dic/features/user/domain/entity/user.dart';
-import 'package:my_dic/features/user/presentation/view_model/user_view_model.dart';
 
 final authStreamProvider = StreamProvider<AppAuth?>((ref) {
   final useCase = ref.read(observeAuthStateUseCaseProvider);
