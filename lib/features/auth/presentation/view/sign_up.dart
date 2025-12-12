@@ -69,13 +69,8 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    //!TODO refactor depending onuser
     final authRepository = ref.watch(firebaseAuthRepositoryProvider);
-    //final userRepository = ref.watch(firebaseUserRepositoryProvider);
-    // final userViewModel = ref.read(userViewModelProvider.notifier);
     final authViewModel = ref.read(authViewModelProvider.notifier);
-    // final auth = ref.watch(authStreamProvider);
-    //ref.watch(authEffectProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Email / Password Auth')),
