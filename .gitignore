@@ -55,7 +55,8 @@ app.*.map.json
 **/auto_generate_config-stock.json
 
 # myfile
-**/COMMAND.md
+PRIVATE/
+# **/COMMAND.md
 
 # Database files (large binary files)
 # assets/kotobank.db
