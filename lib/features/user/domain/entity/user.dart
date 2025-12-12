@@ -14,4 +14,18 @@ class AppUser {
   })  : email = email ?? '',
         username = username ?? 'Guest',
         subscriptionStatus = subscriptionStatus ?? SubscriptionStatus.free;
+
+  AppUser copyWith({
+    String? id,
+    String? email,
+    String? username,
+    SubscriptionStatus? subscriptionStatus,
+  }) {
+    return AppUser(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      username: username ?? this.username,
+      subscriptionStatus: subscriptionStatus ?? this.subscriptionStatus,
+    );
+  }
 }

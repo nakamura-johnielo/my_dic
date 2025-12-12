@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/_View/UIModel/user_ui_model.dart';
+import 'package:my_dic/features/user/presentation/model/user_ui_model.dart';
 import 'package:my_dic/features/auth/di/data_di.dart';
 import 'package:my_dic/features/auth/presentation/view_model/auth_view_model.dart';
 
 final authViewModelProvider =
-    StateNotifierProvider<AuthViewModel, UserUIModel?>((ref) {
+    StateNotifierProvider<AuthViewModel, UserState?>((ref) {
   final signInInteractor = ref.watch(signInInteractorProvider);
   final signUpInteractor = ref.watch(signUpInteractorProvider);
   final verficateInteractor = ref.watch(verificateInteractorProvider);
