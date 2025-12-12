@@ -56,5 +56,6 @@ app.*.map.json
 # db
 assets/**.db
 
+
 # private
-**/COMMAND.md
+PRIVATES/

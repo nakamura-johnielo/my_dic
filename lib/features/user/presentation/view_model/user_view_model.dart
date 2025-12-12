@@ -10,7 +10,6 @@ import 'package:my_dic/features/user/domain/entity/user.dart';
 import 'package:my_dic/_View/UIModel/user_ui_model.dart';
 import 'package:my_dic/features/user/domain/usecase/update_user%20copy.dart';
 
-//!TODO refactor depending onuser
 class UserViewModel extends StateNotifier<UserUIModel?> {
   final GetUserInteractor _getUserInteractor;
   final UpdateUserInteractor _updateUserInteractor;
@@ -42,11 +41,12 @@ class UserViewModel extends StateNotifier<UserUIModel?> {
         isAuthorized: state?.isAuthorized ?? false);
   }
 
-  Future<void> getUser(String id) async {
+  Future<AppUser> loadUser(String id) async {
     final AppUser user = await _getUserInteractor.execute(id);
     state = UserUIModel.fromEntity(user,
         isLogined: state?.isLoggedIn ?? false,
         isAuthorized: state?.isAuthorized ?? false);
+    return user;
   }
 
   void setAuthInfo(AppAuth appAuth) {
