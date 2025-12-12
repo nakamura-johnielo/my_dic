@@ -55,7 +55,7 @@ app.*.map.json
 **/auto_generate_config-stock.json
 
 # myfile
-PRIVATE/
+PRIVATES/
 # **/COMMAND.md
 
 # Database files (large binary files)
