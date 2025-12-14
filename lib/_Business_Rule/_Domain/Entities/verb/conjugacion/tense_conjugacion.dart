@@ -7,21 +7,41 @@
 
  */
 
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:flutter/foundation.dart';
 
-// 生成されるdartファイルを記述
-part '../../../../../__generated/_Business_Rule/_Domain/Entities/verb/conjugacion/tense_conjugacion.freezed.dart';
+@immutable
+class TenseConjugacion {
+  final String yo;
+  final String tu;
+  final String el;
+  final String nosotros;
+  final String vosotros;
+  final String ellos;
 
-@freezed
-class TenseConjugacion with _$TenseConjugacion {
-  // プロパティを指定
-  const factory TenseConjugacion({
-    required String yo,
-    required String tu,
-    required String el,
-    required String nosotros,
-    required String vosotros,
-    required String ellos,
-    // デフォルト値は「@Default([デフォルト値]])」の形式で指定可能
-  }) = _TenseConjugacion;
+  const TenseConjugacion({
+    required this.yo,
+    required this.tu,
+    required this.el,
+    required this.nosotros,
+    required this.vosotros,
+    required this.ellos,
+  });
+
+  TenseConjugacion copyWith({
+    String? yo,
+    String? tu,
+    String? el,
+    String? nosotros,
+    String? vosotros,
+    String? ellos,
+  }) {
+    return TenseConjugacion(
+      yo: yo ?? this.yo,
+      tu: tu ?? this.tu,
+      el: el ?? this.el,
+      nosotros: nosotros ?? this.nosotros,
+      vosotros: vosotros ?? this.vosotros,
+      ellos: ellos ?? this.ellos,
+    );
+  }
 }

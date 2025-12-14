@@ -1,16 +1,39 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:flutter/foundation.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/jpn_esp/example/example.dart';
 
-part '../../../../__generated/_Business_Rule/_Domain/Entities/jpn_esp/jpn_esp_dictionary.freezed.dart';
+@immutable
+class JpnEspDictionary {
+  final int id;
+  final int wordId;
+  final String word;
+  final String? headword;
+  final String? content;
+  final List<JpnEspExampleWith>? examples;
 
-@freezed
-class JpnEspDictionary with _$JpnEspDictionary {
-  const factory JpnEspDictionary({
-    required int id,
-    required int wordId,
-    required String word,
+  const JpnEspDictionary({
+    required this.id,
+    required this.wordId,
+    required this.word,
+    this.headword,
+    this.content,
+    this.examples,
+  });
+
+  JpnEspDictionary copyWith({
+    int? id,
+    int? wordId,
+    String? word,
     String? headword,
     String? content,
     List<JpnEspExampleWith>? examples,
-  }) = _JpnEspDictionary;
+  }) {
+    return JpnEspDictionary(
+      id: id ?? this.id,
+      wordId: wordId ?? this.wordId,
+      word: word ?? this.word,
+      headword: headword ?? this.headword,
+      content: content ?? this.content,
+      examples: examples ?? this.examples,
+    );
+  }
 }

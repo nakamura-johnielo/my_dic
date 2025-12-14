@@ -1,13 +1,34 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-part '../../../__generated/_Business_Rule/_Domain/Entities/my_word.freezed.dart';
+import 'package:flutter/foundation.dart';
 
-@freezed
-class MyWord with _$MyWord {
-  const factory MyWord({
-    required int wordId,
-    required String word,
-    required String contents,
-    @Default(false) bool isLearned,
-    @Default(false) bool isBookmarked,
-  }) = _MyWord;
+@immutable
+class MyWord {
+  final int wordId;
+  final String word;
+  final String contents;
+  final bool isLearned;
+  final bool isBookmarked;
+
+  const MyWord({
+    required this.wordId,
+    required this.word,
+    required this.contents,
+    this.isLearned = false,
+    this.isBookmarked = false,
+  });
+
+  MyWord copyWith({
+    int? wordId,
+    String? word,
+    String? contents,
+    bool? isLearned,
+    bool? isBookmarked,
+  }) {
+    return MyWord(
+      wordId: wordId ?? this.wordId,
+      word: word ?? this.word,
+      contents: contents ?? this.contents,
+      isLearned: isLearned ?? this.isLearned,
+      isBookmarked: isBookmarked ?? this.isBookmarked,
+    );
+  }
 }

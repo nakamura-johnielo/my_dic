@@ -1,10 +1,22 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-part '../../../../../__generated/_Business_Rule/_Domain/Entities/dictionary/sub/supplement.freezed.dart';
+import 'package:flutter/foundation.dart';
 
-@freezed
-class Supplement with _$Supplement {
-  const factory Supplement({
-    required int supplementId,
-    required String supplement,
-  }) = _Supplement;
+@immutable
+class Supplement {
+  final int supplementId;
+  final String supplement;
+
+  const Supplement({
+    required this.supplementId,
+    required this.supplement,
+  });
+
+  Supplement copyWith({
+    int? supplementId,
+    String? supplement,
+  }) {
+    return Supplement(
+      supplementId: supplementId ?? this.supplementId,
+      supplement: supplement ?? this.supplement,
+    );
+  }
 }

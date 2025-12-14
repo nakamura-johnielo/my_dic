@@ -1,13 +1,30 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:flutter/foundation.dart';
 
-part '../../../../../__generated/_Business_Rule/_Domain/Entities/jpn_esp/example/example.freezed.dart';
+@immutable
+class JpnEspExampleWith {
+  final int exampleId;
+  final String japanese;
+  final String espanol;
+  final String espanolHtml;
 
-@freezed
-class JpnEspExampleWith with _$JpnEspExampleWith {
-  const factory JpnEspExampleWith({
-    required int exampleId,
-    required String japanese,
-    required String espanol,
-    required String espanolHtml,
-  }) = _JpnEspExampleWith;
+  const JpnEspExampleWith({
+    required this.exampleId,
+    required this.japanese,
+    required this.espanol,
+    required this.espanolHtml,
+  });
+
+  JpnEspExampleWith copyWith({
+    int? exampleId,
+    String? japanese,
+    String? espanol,
+    String? espanolHtml,
+  }) {
+    return JpnEspExampleWith(
+      exampleId: exampleId ?? this.exampleId,
+      japanese: japanese ?? this.japanese,
+      espanol: espanol ?? this.espanol,
+      espanolHtml: espanolHtml ?? this.espanolHtml,
+    );
+  }
 }

@@ -1,12 +1,30 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:flutter/foundation.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/dictionary/sub/idiom/i_idiom.dart';
-part '../../../../../../../__generated/_Business_Rule/_Domain/Entities/dictionary/sub/idiom/impl/solo_idiom.freezed.dart';
 
-@freezed
-class SoloIdiom with _$SoloIdiom implements IIdiom {
-  const factory SoloIdiom({
-    required int idiomId,
-    required String idiom,
-    required String description,
-  }) = _SoloIdiom;
+@immutable
+class SoloIdiom implements IIdiom {
+  @override
+  final int idiomId;
+  @override
+  final String idiom;
+  @override
+  final String description;
+
+  const SoloIdiom({
+    required this.idiomId,
+    required this.idiom,
+    required this.description,
+  });
+
+  SoloIdiom copyWith({
+    int? idiomId,
+    String? idiom,
+    String? description,
+  }) {
+    return SoloIdiom(
+      idiomId: idiomId ?? this.idiomId,
+      idiom: idiom ?? this.idiom,
+      description: description ?? this.description,
+    );
+  }
 }

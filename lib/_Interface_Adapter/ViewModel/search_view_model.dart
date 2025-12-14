@@ -10,7 +10,7 @@ import 'package:my_dic/_Business_Rule/_Domain/Entities/word/word.dart';
 //     ChangeNotifierProvider((ref) => DI<SearchViewModel>());
 
 class SearchViewModel extends ChangeNotifier {
-  List<Word> _filteredItems = [];
+  List<EspJpnWord> _filteredItems = [];
   String _query = "";
 
   // 検索クエリの取得と更新
@@ -24,19 +24,19 @@ class SearchViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<Word> get filteredItems => _filteredItems;
-  set filteredItems(List<Word> value) {
+  List<EspJpnWord> get filteredItems => _filteredItems;
+  set filteredItems(List<EspJpnWord> value) {
     _filteredItems = value;
     _filteredJpnEspItems.clear();
     notifyListeners();
   }
 
-  void setEspJpnItemsInTail(List<Word> values) {
+  void setEspJpnItemsInTail(List<EspJpnWord> values) {
     _filteredItems = [..._filteredItems, ...values];
     notifyListeners();
   }
 
-  void inicializeEspJpnItems(List<Word> values) {
+  void inicializeEspJpnItems(List<EspJpnWord> values) {
     _filteredItems = values;
     _filteredJpnEspItems.clear();
     notifyListeners();
