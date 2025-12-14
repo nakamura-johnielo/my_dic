@@ -5,7 +5,7 @@ import 'package:my_dic/Constants/Enums/part_of_speech.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_status/update_status_repository_input_data.dart';
 import 'package:my_dic/core/domain/entity/word/word.dart';
 import 'package:my_dic/core/domain/entity/word/esp_word.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esj_word_repository.dart';
+import 'package:my_dic/core/domain/i_repository/i_esj_word_repository.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/DAO/word_dao.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/DAO/word_status_dao.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart'

@@ -4,7 +4,7 @@ import 'package:my_dic/_Business_Rule/_Domain/Entities/quiz_searched_item.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacions.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/result_conjugacions.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/tense_conjugacion.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_conjugation_repository.dart';
+import 'package:my_dic/core/domain/i_repository/i_conjugation_repository.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/DAO/conjugation_dao.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart';
 
