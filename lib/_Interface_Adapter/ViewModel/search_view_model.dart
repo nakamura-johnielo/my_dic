@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/DI/product.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/jpn_esp/jpn_esp_word.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/verb/conjugacion/result_conjugacions.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/word/word.dart';
+import 'package:my_dic/core/domain/entity/jpn_esp/jpn_esp_word.dart';
+import 'package:my_dic/core/domain/entity/verb/conjugacion/result_conjugacions.dart';
+import 'package:my_dic/core/domain/entity/word/word.dart';
 
 /// ViewModelをプロバイダーで提供
 // final searchViewModelProvider =
 //     ChangeNotifierProvider((ref) => DI<SearchViewModel>());
 
 class SearchViewModel extends ChangeNotifier {
-  List<Word> _filteredItems = [];
+  List<EspJpnWord> _filteredItems = [];
   String _query = "";
 
   // 検索クエリの取得と更新
@@ -24,19 +24,19 @@ class SearchViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<Word> get filteredItems => _filteredItems;
-  set filteredItems(List<Word> value) {
+  List<EspJpnWord> get filteredItems => _filteredItems;
+  set filteredItems(List<EspJpnWord> value) {
     _filteredItems = value;
     _filteredJpnEspItems.clear();
     notifyListeners();
   }
 
-  void setEspJpnItemsInTail(List<Word> values) {
+  void setEspJpnItemsInTail(List<EspJpnWord> values) {
     _filteredItems = [..._filteredItems, ...values];
     notifyListeners();
   }
 
-  void inicializeEspJpnItems(List<Word> values) {
+  void inicializeEspJpnItems(List<EspJpnWord> values) {
     _filteredItems = values;
     _filteredJpnEspItems.clear();
     notifyListeners();

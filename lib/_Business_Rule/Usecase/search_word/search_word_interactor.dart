@@ -4,13 +4,13 @@ import 'package:my_dic/_Business_Rule/Usecase/search_word/i_search_word_presente
 import 'package:my_dic/_Business_Rule/Usecase/search_word/i_search_word_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/search_word/search_word_input_data.dart';
 import 'package:my_dic/_Business_Rule/Usecase/search_word/search_word_output_data.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/jpn_esp/jpn_esp_word.dart';
+import 'package:my_dic/core/domain/entity/jpn_esp/jpn_esp_word.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/quiz_searched_item.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/verb/conjugacion/result_conjugacions.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/word/word.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_conjugation_repository.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esj_word_repository.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_jpn_esp_word_repository.dart';
+import 'package:my_dic/core/domain/entity/verb/conjugacion/result_conjugacions.dart';
+import 'package:my_dic/core/domain/entity/word/word.dart';
+import 'package:my_dic/core/domain/i_repository/i_conjugation_repository.dart';
+import 'package:my_dic/core/domain/i_repository/i_esj_word_repository.dart';
+import 'package:my_dic/core/domain/i_repository/i_jpn_esp_word_repository.dart';
 
 class SearchWordInteractor implements ISearchWordUseCase {
   final IEsjWordRepository _wordRepository;
@@ -23,7 +23,7 @@ class SearchWordInteractor implements ISearchWordUseCase {
   @override
   Future<void> executeEspJpn(SearchWordInputData input) async {
     // List<Word> l = await _wordRepository.getWordsByWord(input.word);
-    List<Word> l = await _wordRepository.getWordsByWordByPage(
+    List<EspJpnWord> l = await _wordRepository.getWordsByWordByPage(
         input.word, input.size, input.page, input.forQuiz);
 
     SearchWordOutputData result = SearchWordOutputData(l);
@@ -50,7 +50,7 @@ class SearchWordInteractor implements ISearchWordUseCase {
       Word(wordId: 1, word: "2aplle2", partOfSpeech: PartOfSpeech.adverb),
       Word(wordId: 1, word: "3aplle", partOfSpeech: PartOfSpeech.adverb),
     ]; */
-    List<Word> res = [];
+    List<EspJpnWord> res = [];
     SearchWordOutputData result = SearchWordOutputData(res);
 
     //_presenter.execute(result);

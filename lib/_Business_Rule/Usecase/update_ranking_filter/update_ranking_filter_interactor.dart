@@ -1,6 +1,6 @@
 import 'package:my_dic/Constants/Enums/feature_tag.dart';
-import 'package:my_dic/Constants/Enums/i_enum.dart';
-import 'package:my_dic/Constants/Enums/part_of_speech.dart';
+import 'package:my_dic/core/common/enums/i_enum.dart';
+import 'package:my_dic/core/common/enums/word/part_of_speech.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/i_update_ranking_filter_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/i_update_ranking_filter_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/update_ranking_filter_input_data.dart';

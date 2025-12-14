@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_dic/Constants/tab.dart';
+import 'package:my_dic/core/common/enums/ui/tab.dart';
 //import 'package:my_dic/Constants/screen_tab.dart';
 
 class MainActivity extends StatelessWidget {

@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:drift/drift.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/Entity/my_word_status.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart';
+import 'package:my_dic/core/infrastructure/database/database_provider.dart';
 
 part '../../../../__generated/_Framework_Driver/Database/drift/DAO/my_word_status_dao.g.dart';
 
