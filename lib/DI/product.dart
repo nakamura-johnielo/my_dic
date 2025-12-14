@@ -32,8 +32,8 @@ import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/i_update_ran
 import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/update_ranking_filter_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_status/i_update_status_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_status/update_status_interactor.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/verb/conjugacion/conjugacions.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/word/word_status.dart';
+import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacions.dart';
+import 'package:my_dic/core/domain/entity/word/esp_word.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_conjugation_repository.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esj_dictionary_repository.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esj_word_repository.dart';
