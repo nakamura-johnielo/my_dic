@@ -1,5 +1,5 @@
 import 'package:my_dic/core/domain/entity/word/esp_word.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_word_status_repository.dart';
+import 'package:my_dic/core/domain/i_repository/i_word_status_repository.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/DAO/word_status_dao.dart'
     as local;
 import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart';

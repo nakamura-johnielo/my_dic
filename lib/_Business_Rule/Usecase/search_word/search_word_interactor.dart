@@ -8,9 +8,9 @@ import 'package:my_dic/core/domain/entity/jpn_esp/jpn_esp_word.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/quiz_searched_item.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/result_conjugacions.dart';
 import 'package:my_dic/core/domain/entity/word/word.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_conjugation_repository.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esj_word_repository.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_jpn_esp_word_repository.dart';
+import 'package:my_dic/core/domain/i_repository/i_conjugation_repository.dart';
+import 'package:my_dic/core/domain/i_repository/i_esj_word_repository.dart';
+import 'package:my_dic/core/domain/i_repository/i_jpn_esp_word_repository.dart';
 
 class SearchWordInteractor implements ISearchWordUseCase {
   final IEsjWordRepository _wordRepository;
