@@ -8,77 +8,116 @@
       "root": "features",
       "folders": [
         {
-          "root": ["${folder_name}"],
+          "root": [
+            "${folder_name}"
+          ],
           "folders": [
             {
-              "root": ["di"],
+              "root": [
+                "di"
+              ],
               "role": "di",
               "folders": []
             },
             {
-              "root": ["domain"],
+              "root": [
+                "domain"
+              ],
               "folders": [
                 {
-                  "root": ["entity"],
+                  "root": [
+                    "entity"
+                  ],
                   "role": "entities",
                   "folders": []
                 },
                 {
-                  "root": ["usecase"],
+                  "root": [
+                    "usecase"
+                  ],
                   "role": "input_boundary_I",
                   "folders": []
                 },
                 {
-                  "root": ["interactor"],
+                  "root": [
+                    "interactor"
+                  ],
                   "role": "use_case_interactor",
                   "folders": []
                 },
                 {
-                  "root": ["i", "repository"],
+                  "root": [
+                    "i",
+                    "repository"
+                  ],
                   "role": "data_access_interface_I",
                   "folders": []
                 }
               ]
             },
             {
-              "root": ["presentation"],
+              "root": [
+                "presentation"
+              ],
               "folders": [
                 {
-                  "root": ["ui", "model"],
+                  "root": [
+                    "ui",
+                    "model"
+                  ],
                   "role": "presenter_dto",
                   "folders": []
                 },
                 {
-                  "root": ["view"],
+                  "root": [
+                    "view"
+                  ],
                   "folders": []
                 },
                 {
-                  "root": ["view", "model"],
+                  "root": [
+                    "view",
+                    "model"
+                  ],
                   "role": "viewModel",
                   "folders": []
                 }
               ]
             },
             {
-              "root": ["data"],
+              "root": [
+                "data"
+              ],
               "folders": [
                 {
-                  "root": ["dto"],
+                  "root": [
+                    "dto"
+                  ],
                   "role": "data_access_dto"
                 },
                 {
-                  "root": ["repository", "impl"],
+                  "root": [
+                    "repository",
+                    "impl"
+                  ],
                   "role": "data_access"
                 },
                 {
-                  "root": ["data", "source"],
+                  "root": [
+                    "data",
+                    "source"
+                  ],
                   "folders": [
                     {
-                      "root": ["local"],
+                      "root": [
+                        "local"
+                      ],
                       "role": "data_access_dao"
                     },
                     {
-                      "root": ["remote"],
+                      "root": [
+                        "remote"
+                      ],
                       "role": "data_access_dao"
                     }
                   ]
@@ -91,30 +130,107 @@
     }
   },
   "roles": {
-    "di": ["${di_type}", "di"],
-    "entities": ["${name}"],
-    "data_access_interface_I": ["i", "${name}", "repository"],
-    "data_access": ["${data_source_name}", "${name}", "repository", "impl"],
-    "data_access_dao": ["${data_source_name}", "${name}", "dao"],
-    "data_access_dto": ["${name}", "dto"],
-    "presenter_dto": ["${name}", "ui", "model"],
-    "viewModel": ["${name}", "view", "model"],
-    "input_boundary_I": ["i", "get", "${name}", "use", "case"],
-    "use_case_interactor": ["get", "${name}", "interactor"],
-    "data_access_input_data_DS": ["${name}", "repository", "input", "data"],
-    "input_data_DS": ["${name}", "input", "data"],
-    "output_data_DS": ["${name}", "output", "data"],
-    "output_boundary_I": ["i", "presenter"],
-    "controller": ["${name}", "controller"],
-    "presenter": ["${name}", "${name}", "presenter", "impl"]
+    "di": [
+      "${di_type}",
+      "di"
+    ],
+    "entities": [
+      "${name}"
+    ],
+    "data_access_interface_I": [
+      "i",
+      "${name}",
+      "repository"
+    ],
+    "data_access": [
+      "${data_source_name}",
+      "${name}",
+      "repository",
+      "impl"
+    ],
+    "data_access_dao": [
+      "${data_source_name}",
+      "${name}",
+      "dao"
+    ],
+    "data_access_dto": [
+      "${name}",
+      "dto"
+    ],
+    "presenter_dto": [
+      "${name}",
+      "ui",
+      "model"
+    ],
+    "viewModel": [
+      "${name}",
+      "view",
+      "model"
+    ],
+    "input_boundary_I": [
+      "i",
+      "get",
+      "${name}",
+      "use",
+      "case"
+    ],
+    "use_case_interactor": [
+      "get",
+      "${name}",
+      "interactor"
+    ],
+    "data_access_input_data_DS": [
+      "${name}",
+      "repository",
+      "input",
+      "data"
+    ],
+    "input_data_DS": [
+      "${name}",
+      "input",
+      "data"
+    ],
+    "output_data_DS": [
+      "${name}",
+      "output",
+      "data"
+    ],
+    "output_boundary_I": [
+      "i",
+      "presenter"
+    ],
+    "controller": [
+      "${name}",
+      "controller"
+    ],
+    "presenter": [
+      "${name}",
+      "${name}",
+      "presenter",
+      "impl"
+    ]
   },
   "generate": [
     {
-      "folder_name": ["word"],
-      "name": ["word", ["word", "status"]],
+      "folder_name": [
+        "search"
+      ],
+      "name": [
+        "search"
+      ],
       "templates": "feature",
-      "data_source_name": ["drift"],
-      "di_type": ["data", "usecase", ["view", "model"]]
+      "data_source_name": [
+        "drift"
+      ],
+      "di_type": [
+        "data",
+        "usecase",
+        [
+          "view",
+          "model"
+        ]
+      ],
+      "exists": true
     }
   ]
 }
