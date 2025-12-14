@@ -1,9 +1,9 @@
 import 'package:drift/drift.dart';
 import 'package:my_dic/Constants/Enums/mood_tense.dart';
 import 'package:my_dic/Constants/Enums/subject.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/Entity/conjugations.dart';
+import 'package:my_dic/core/infrastructure/database/table/conjugations.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart';
-part '../../../../__generated/_Framework_Driver/Database/drift/DAO/conjugation_dao.g.dart';
+part '../../../../../__generated/_Framework_Driver/Database/drift/DAO/conjugation_dao.g.dart';
 
 @DriftAccessor(tables: [Conjugations])
 class ConjugationDao extends DatabaseAccessor<DatabaseProvider>

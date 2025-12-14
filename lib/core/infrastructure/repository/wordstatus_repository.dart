@@ -1,13 +1,13 @@
 import 'package:my_dic/core/domain/entity/word/esp_word.dart';
 import 'package:my_dic/core/domain/i_repository/i_word_status_repository.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/DAO/word_status_dao.dart'
+import 'package:my_dic/core/infrastructure/database/dao/local/word_status_dao.dart'
     as local;
 import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart';
 // import 'package:my_dic/_Framework_Driver/local/drift/Entity/word_status.dart'
 //     as local;
-import 'package:my_dic/_Framework_Driver/remote/firebase/DAO/word_status_dao.dart'
+import 'package:my_dic/core/infrastructure/database/dao/remote/word_status_dao.dart'
     as remote;
-import 'package:my_dic/_Framework_Driver/remote/firebase/Entity/wordStatusEntity.dart';
+import 'package:my_dic/core/infrastructure/dto/wordStatusEntity.dart';
 
 class WordStatusRepository implements IWordStatusRepository {
   final remote.FirebaseWordStatusDao _remote;

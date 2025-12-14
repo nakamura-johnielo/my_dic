@@ -1,10 +1,10 @@
 import 'package:drift/drift.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/Entity/dictionaries.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/Entity/examples.dart';
+import 'package:my_dic/core/infrastructure/database/table/dictionaries.dart';
+import 'package:my_dic/core/infrastructure/database/table/examples.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart';
 import 'package:tuple/tuple.dart';
 
-part '../../../../__generated/_Framework_Driver/Database/drift/DAO/dictionary_dao.g.dart';
+part '../../../../../__generated/_Framework_Driver/Database/drift/DAO/dictionary_dao.g.dart';
 
 @DriftAccessor(tables: [Dictionaries, Examples])
 class DictionaryDao extends DatabaseAccessor<DatabaseProvider>

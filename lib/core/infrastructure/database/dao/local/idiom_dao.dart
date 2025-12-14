@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/Entity/idioms.dart';
+import 'package:my_dic/core/infrastructure/database/table/idioms.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart';
-part '../../../../__generated/_Framework_Driver/Database/drift/DAO/idiom_dao.g.dart';
+part '../../../../../__generated/_Framework_Driver/Database/drift/DAO/idiom_dao.g.dart';
 
 @DriftAccessor(tables: [Idioms])
 class IdiomDao extends DatabaseAccessor<DatabaseProvider> with _$IdiomDaoMixin {

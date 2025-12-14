@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../../../../../_Framework_Driver/local/drift/DAO/word_dao.dart';
+part of '../../../../../core/infrastructure/database/dao/local/word_dao.dart';
 
 // ignore_for_file: type=lint
 mixin _$WordDaoMixin on DatabaseAccessor<DatabaseProvider> {
