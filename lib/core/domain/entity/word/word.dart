@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:my_dic/Constants/Enums/part_of_speech.dart';
+import 'package:my_dic/core/common/enums/word/part_of_speech.dart';
 
 @immutable
 class EspJpnWord {

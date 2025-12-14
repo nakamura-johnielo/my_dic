@@ -64,8 +64,8 @@
   subjunctivePast_vosotros, // 接続法過去
   subjunctivePast_ellos // 接続法過去 */
 
-import 'package:my_dic/Constants/Enums/mood_tense.dart';
-import 'package:my_dic/Constants/Enums/subject.dart';
+import 'package:my_dic/core/common/enums/conjugacion/mood_tense.dart';
+import 'package:my_dic/core/common/enums/conjugacion/subject.dart';
 
 enum MoodTenseSubject {
   present_participle,

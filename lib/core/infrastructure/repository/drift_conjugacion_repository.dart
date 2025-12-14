@@ -1,5 +1,5 @@
-import 'package:my_dic/Constants/Enums/enum_mood_tense_subject.dart';
-import 'package:my_dic/Constants/Enums/mood_tense.dart';
+import 'package:my_dic/core/common/enums/conjugacion/enum_mood_tense_subject.dart';
+import 'package:my_dic/core/common/enums/conjugacion/mood_tense.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/quiz_searched_item.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacions.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/result_conjugacions.dart';

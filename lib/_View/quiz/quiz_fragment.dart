@@ -5,7 +5,7 @@ import 'package:my_dic/Components/auto_focus_text_field.dart';
 import 'package:my_dic/Components/quiz_card.dart';
 import 'package:my_dic/Components/searhCard/quiz_search_card.dart';
 import 'package:my_dic/Constants/Enums/cardState.dart';
-import 'package:my_dic/Constants/tab.dart';
+import 'package:my_dic/core/common/enums/ui/tab.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/buffer_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/quiz_controller.dart';

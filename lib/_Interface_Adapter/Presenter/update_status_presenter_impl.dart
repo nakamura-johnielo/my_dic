@@ -1,5 +1,5 @@
-import 'package:my_dic/_Business_Rule/Usecase/update_status/update_status_output_data.dart';
-import 'package:my_dic/_Business_Rule/Usecase/update_status/i_update_status_presenter.dart';
+import 'package:my_dic/core/domain/usecase/update_status/update_status_output_data.dart';
+import 'package:my_dic/core/domain/usecase/update_status/i_update_status_presenter.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/ranking_view_model.dart';
 
 class UpdateStatusPresenterImpl implements IUpdateStatusPresenter {

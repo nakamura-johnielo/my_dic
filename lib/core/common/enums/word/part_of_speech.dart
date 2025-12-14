@@ -1,4 +1,4 @@
-import 'package:my_dic/Constants/Enums/i_enum.dart';
+import 'package:my_dic/core/common/enums/i_enum.dart';
 
 enum PartOfSpeech with DisplayEnumMixin {
   noun,

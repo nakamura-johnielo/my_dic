@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:my_dic/Constants/Enums/subscribe_status.dart';
 import 'package:my_dic/features/user/domain/entity/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_dic/core/domain/entity/word/esp_word.dart';

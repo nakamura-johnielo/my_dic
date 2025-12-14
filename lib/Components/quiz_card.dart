@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Constants/Enums/cardState.dart';
-import 'package:my_dic/Constants/Enums/mood_tense.dart';
-import 'package:my_dic/Constants/Enums/subject.dart';
+import 'package:my_dic/core/common/enums/conjugacion/mood_tense.dart';
+import 'package:my_dic/core/common/enums/conjugacion/subject.dart';
 
 final quizCardStateProvider =
     StateProvider<QuizCardState>((ref) => QuizCardState.question);
