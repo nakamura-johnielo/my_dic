@@ -1,4 +1,4 @@
-import 'package:my_dic/Constants/Enums/dictionary_type.dart';
+import 'package:my_dic/core/common/enums/dictionary/dictionary_type.dart';
 
 class JudgeSearchWordOutputData {
   DictionaryType dictionaryType;

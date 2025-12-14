@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
-import 'package:my_dic/Constants/enviroment.dart';
+import 'package:my_dic/core/common/consts/enviroment.dart';
 import 'package:my_dic/core/infrastructure/database/dao/local/es_en_conjugacion_dao.dart';
 import 'package:my_dic/core/infrastructure/database/dao/local/jpn_esp/jpn_esp_word_dao.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/DAO/my_word_dao.dart';

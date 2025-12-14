@@ -1,8 +1,8 @@
 import 'dart:developer';
 
 import 'package:my_dic/Constants/Enums/feature_tag.dart';
-import 'package:my_dic/Constants/Enums/i_enum.dart';
-import 'package:my_dic/Constants/Enums/part_of_speech.dart';
+import 'package:my_dic/core/common/enums/i_enum.dart';
+import 'package:my_dic/core/common/enums/word/part_of_speech.dart';
 /* import 'package:my_dic/Constants/Enums/part_of_speech.dart';
 import 'package:my_dic/_Business_Rule/Usecase/add_filter/add_filter_input_data.dart';
 import 'package:my_dic/_Business_Rule/Usecase/add_filter/i_add_filter_use_case.dart';
@@ -17,8 +17,8 @@ import 'package:my_dic/_Business_Rule/Usecase/locate_ranking_pagenation/locate_r
 import 'package:my_dic/_Business_Rule/Usecase/load_rankings22/load_rankings_input_data.dart'; */
 import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/i_update_ranking_filter_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/update_ranking_filter_input_data.dart';
-import 'package:my_dic/_Business_Rule/Usecase/update_status/i_update_status_use_case.dart';
-import 'package:my_dic/_Business_Rule/Usecase/update_status/update_status_input_data.dart';
+import 'package:my_dic/core/domain/usecase/update_status/i_update_status_use_case.dart';
+import 'package:my_dic/core/domain/usecase/update_status/update_status_input_data.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/ranking_view_model.dart';
 
 class LoadRankingsControllerInputData {

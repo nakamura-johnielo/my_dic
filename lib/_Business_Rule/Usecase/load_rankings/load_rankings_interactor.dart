@@ -1,5 +1,5 @@
 import 'package:my_dic/Constants/Enums/feature_tag.dart';
-import 'package:my_dic/Constants/Enums/part_of_speech.dart';
+import 'package:my_dic/core/common/enums/word/part_of_speech.dart';
 import 'package:my_dic/_Business_Rule/Usecase/load_rankings/filtered_ranking_list_input_data.dart';
 import 'package:my_dic/_Business_Rule/Usecase/load_rankings/load_rankings_input_data.dart';
 import 'package:my_dic/_Business_Rule/Usecase/load_rankings/load_rankings_output_data.dart';

@@ -1,4 +1,4 @@
-import 'package:my_dic/Constants/Enums/subscribe_status.dart';
+import 'package:my_dic/core/common/enums/subscription_status.dart';
 import 'package:my_dic/features/user/domain/entity/user.dart';
 
 class UserState {

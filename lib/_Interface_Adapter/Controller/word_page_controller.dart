@@ -1,10 +1,10 @@
 import 'package:my_dic/Constants/Enums/feature_tag.dart';
-import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/fetch_conjugation_input_data.dart';
-import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/i_fetch_conjugation_use_case.dart';
-import 'package:my_dic/_Business_Rule/Usecase/fetch_dictionary/fetch_dictionary_input_data.dart';
-import 'package:my_dic/_Business_Rule/Usecase/fetch_dictionary/i_fetch_dictionary_use_case.dart';
-import 'package:my_dic/_Business_Rule/Usecase/update_status/i_update_status_use_case.dart';
-import 'package:my_dic/_Business_Rule/Usecase/update_status/update_status_input_data.dart';
+import 'package:my_dic/core/domain/usecase/fetch_conjugation/fetch_conjugation_input_data.dart';
+import 'package:my_dic/core/domain/usecase/fetch_conjugation/i_fetch_conjugation_use_case.dart';
+import 'package:my_dic/core/domain/usecase/fetch_dictionary/fetch_dictionary_input_data.dart';
+import 'package:my_dic/core/domain/usecase/fetch_dictionary/i_fetch_dictionary_use_case.dart';
+import 'package:my_dic/core/domain/usecase/update_status/i_update_status_use_case.dart';
+import 'package:my_dic/core/domain/usecase/update_status/update_status_input_data.dart';
 
 class WordPageController {
   final IFetchDictionaryUseCase _fetchDictionaryUseCase;
