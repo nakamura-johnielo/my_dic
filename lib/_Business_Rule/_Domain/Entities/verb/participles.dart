@@ -1,14 +1,22 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:flutter/foundation.dart';
 
-// 生成されるdartファイルを記述
-part '../../../../__generated/_Business_Rule/_Domain/Entities/verb/participles.freezed.dart';
+@immutable
+class Participles {
+  final String present;
+  final String past;
 
-@freezed
-class Participles with _$Participles {
-  // プロパティを指定
-  const factory Participles({
-    required String present,
-    required String past,
-    // デフォルト値は「@Default([デフォルト値]])」の形式で指定可能
-  }) = _Participles;
+  const Participles({
+    required this.present,
+    required this.past,
+  });
+
+  Participles copyWith({
+    String? present,
+    String? past,
+  }) {
+    return Participles(
+      present: present ?? this.present,
+      past: past ?? this.past,
+    );
+  }
 }

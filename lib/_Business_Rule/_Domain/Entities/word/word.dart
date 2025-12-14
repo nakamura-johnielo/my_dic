@@ -1,17 +1,31 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:flutter/foundation.dart';
 import 'package:my_dic/Constants/Enums/part_of_speech.dart';
-part '../../../../__generated/_Business_Rule/_Domain/Entities/word.freezed.dart';
 
-@freezed
-class Word with _$Word {
-  const factory Word({
-    required int wordId,
-    required String word,
-    required List<PartOfSpeech> partOfSpeech,
-  }) = _Word;
+@immutable
+class EspJpnWord {
+  final int wordId;
+  final String word;
+  final List<PartOfSpeech> partOfSpeech;
 
-  const Word._();
+  const EspJpnWord({
+    required this.wordId,
+    required this.word,
+    required this.partOfSpeech,
+  });
+
   bool hasVerb() {
     return partOfSpeech.contains(PartOfSpeech.verb);
+  }
+
+  EspJpnWord copyWith({
+    int? wordId,
+    String? word,
+    List<PartOfSpeech>? partOfSpeech,
+  }) {
+    return EspJpnWord(
+      wordId: wordId ?? this.wordId,
+      word: word ?? this.word,
+      partOfSpeech: partOfSpeech ?? this.partOfSpeech,
+    );
   }
 }

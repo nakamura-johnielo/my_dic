@@ -1,14 +1,34 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
-part '../../../../__generated/_Business_Rule/_Domain/Entities/jpn_esp/jpn_esp_word.freezed.dart';
+import 'package:flutter/foundation.dart';
 
-@freezed
-class JpnEspWord with _$JpnEspWord {
-  const factory JpnEspWord({
-    required int id,
-    required String word,
-    @Default(false) bool isLearned,
-    @Default(false) bool isBookmarked,
-    @Default(false) bool hasNote,
-  }) = _JpnEspWord;
+@immutable
+class JpnEspWord {
+  final int id;
+  final String word;
+  final bool isLearned;
+  final bool isBookmarked;
+  final bool hasNote;
+
+  const JpnEspWord({
+    required this.id,
+    required this.word,
+    this.isLearned = false,
+    this.isBookmarked = false,
+    this.hasNote = false,
+  });
+
+  JpnEspWord copyWith({
+    int? id,
+    String? word,
+    bool? isLearned,
+    bool? isBookmarked,
+    bool? hasNote,
+  }) {
+    return JpnEspWord(
+      id: id ?? this.id,
+      word: word ?? this.word,
+      isLearned: isLearned ?? this.isLearned,
+      isBookmarked: isBookmarked ?? this.isBookmarked,
+      hasNote: hasNote ?? this.hasNote,
+    );
+  }
 }

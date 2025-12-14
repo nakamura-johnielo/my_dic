@@ -47,13 +47,13 @@ class DriftEsjDictionaryRepository implements IEsjDictionaryRepository {
   }
 }
 
-List<Example>? convertExamples(exampleList) {
-  List<Example>? res = [];
+List<EspJpnExample>? convertExamples(exampleList) {
+  List<EspJpnExample>? res = [];
   if (exampleList.isEmpty) {
     return res;
   }
   for (int i = 0; i < exampleList.length; i++) {
-    res.add(Example(
+    res.add(EspJpnExample(
       exampleId: exampleList[i].exampleId,
       japanese: exampleList[i].japaneseText,
       espanol: exampleList[i].espanolText,

@@ -18,12 +18,12 @@ class DriftEsjWordRepository implements IEsjWordRepository {
   DriftEsjWordRepository(this._wordDao, this._wordStatusDao);
 
   @override
-  Future<List<Word>> getWordsByWord(String word) async {
+  Future<List<EspJpnWord>> getWordsByWord(String word) async {
     final words = await _wordDao.getWordsByWord(word);
     if (words == null) return [];
     //final partOfSpeech=await _pslDao.getPartOfSpeechListByWordId(word)
     return words.map((word) {
-      return Word(
+      return EspJpnWord(
         wordId: word.wordId,
         word: word.word,
         partOfSpeech: _convertPartOfSpeech(word.partOfSpeech),
@@ -50,13 +50,13 @@ class DriftEsjWordRepository implements IEsjWordRepository {
   }
 
   @override
-  Future<List<Word>> getWordsByWordByPage(
+  Future<List<EspJpnWord>> getWordsByWordByPage(
       String word, int size, int currentPage, bool forQuiz) async {
     final words = await _wordDao.getWordsByWordByPage(word, size, currentPage);
     if (words == null) return [];
     //final partOfSpeech=await _pslDao.getPartOfSpeechListByWordId(word)
     return words.map((word) {
-      return Word(
+      return EspJpnWord(
         wordId: word.wordId,
         word: word.word,
         partOfSpeech: _convertPartOfSpeech(word.partOfSpeech),
@@ -65,14 +65,14 @@ class DriftEsjWordRepository implements IEsjWordRepository {
   }
 
   @override //!TODO delete
-  Future<List<Word>> getQuizWordsByWordByPage(
+  Future<List<EspJpnWord>> getQuizWordsByWordByPage(
       String word, int size, int currentPage) async {
 //nashi
     final words = await _wordDao.getWordsByWordByPage(word, size, currentPage);
     if (words == null) return [];
     //final partOfSpeech=await _pslDao.getPartOfSpeechListByWordId(word)
     return words.map((word) {
-      return Word(
+      return EspJpnWord(
         wordId: word.wordId,
         word: word.word,
         partOfSpeech: _convertPartOfSpeech(word.partOfSpeech),

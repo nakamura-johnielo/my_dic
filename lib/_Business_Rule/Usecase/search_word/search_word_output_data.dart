@@ -3,7 +3,7 @@ import 'package:my_dic/_Business_Rule/_Domain/Entities/verb/conjugacion/result_c
 import 'package:my_dic/_Business_Rule/_Domain/Entities/word/word.dart';
 
 class SearchWordOutputData {
-  List<Word> wordList;
+  List<EspJpnWord> wordList;
   SearchWordOutputData(this.wordList);
 }
 

@@ -1,14 +1,34 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:flutter/foundation.dart';
 
-part '../../../../../__generated/_Business_Rule/_Domain/Entities/jpn_esp/example/solo_example.freezed.dart';
+@immutable
+class SoloJpnEspExample {
+  final int exampleId;
+  final int dictionaryId;
+  final String japanese;
+  final String espanol;
+  final String espanolHtml;
 
-@freezed
-class SoloJpnEspExample with _$SoloJpnEspExample {
-  const factory SoloJpnEspExample({
-    required int exampleId,
-    required int dictionaryId,
-    required String japanese,
-    required String espanol,
-    required String espanolHtml,
-  }) = _SoloJpnEspExample;
+  const SoloJpnEspExample({
+    required this.exampleId,
+    required this.dictionaryId,
+    required this.japanese,
+    required this.espanol,
+    required this.espanolHtml,
+  });
+
+  SoloJpnEspExample copyWith({
+    int? exampleId,
+    int? dictionaryId,
+    String? japanese,
+    String? espanol,
+    String? espanolHtml,
+  }) {
+    return SoloJpnEspExample(
+      exampleId: exampleId ?? this.exampleId,
+      dictionaryId: dictionaryId ?? this.dictionaryId,
+      japanese: japanese ?? this.japanese,
+      espanol: espanol ?? this.espanol,
+      espanolHtml: espanolHtml ?? this.espanolHtml,
+    );
+  }
 }
