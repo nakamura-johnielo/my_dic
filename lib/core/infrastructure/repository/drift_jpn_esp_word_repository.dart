@@ -7,10 +7,10 @@ import 'package:my_dic/core/domain/entity/jpn_esp/jpn_esp_word.dart';
 import 'package:my_dic/core/domain/entity/word/word.dart';
 import 'package:my_dic/core/domain/i_repository/i_esj_word_repository.dart';
 import 'package:my_dic/core/domain/i_repository/i_jpn_esp_word_repository.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/DAO/jpn_esp/jpn_esp_dictionary_dao.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/DAO/jpn_esp/jpn_esp_word_dao.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/DAO/word_dao.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/DAO/word_status_dao.dart';
+import 'package:my_dic/core/infrastructure/database/dao/local/jpn_esp/jpn_esp_dictionary_dao.dart';
+import 'package:my_dic/core/infrastructure/database/dao/local/jpn_esp/jpn_esp_word_dao.dart';
+import 'package:my_dic/core/infrastructure/database/dao/local/word_dao.dart';
+import 'package:my_dic/core/infrastructure/database/dao/local/word_status_dao.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart'
     as db;
 

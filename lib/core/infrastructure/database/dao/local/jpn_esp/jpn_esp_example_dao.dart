@@ -1,8 +1,8 @@
 import 'package:drift/drift.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/Entity/jpn-esp/jpn_esp_examples.dart';
+import 'package:my_dic/core/infrastructure/database/table/jpn-esp/jpn_esp_examples.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart';
 
-part '../../../../../__generated/_Framework_Driver/Database/drift/DAO/jpn_esp/jpn_esp_example_dao.g.dart';
+part '../../../../../../__generated/_Framework_Driver/Database/drift/DAO/jpn_esp/jpn_esp_example_dao.g.dart';
 
 @DriftAccessor(tables: [JpnEspExamples])
 class JpnEspExampleDao extends DatabaseAccessor<DatabaseProvider>

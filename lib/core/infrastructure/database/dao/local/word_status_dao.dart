@@ -1,10 +1,10 @@
 import 'dart:developer';
 
 import 'package:drift/drift.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/Entity/word_status.dart';
+import 'package:my_dic/core/infrastructure/database/table/word_status.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart';
 
-part '../../../../__generated/_Framework_Driver/Database/drift/DAO/word_status_dao.g.dart';
+part '../../../../../__generated/_Framework_Driver/Database/drift/DAO/word_status_dao.g.dart';
 
 @DriftAccessor(tables: [WordStatus])
 class WordStatusDao extends DatabaseAccessor<DatabaseProvider>

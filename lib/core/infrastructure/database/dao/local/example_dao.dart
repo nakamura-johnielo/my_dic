@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/Entity/examples.dart';
+import 'package:my_dic/core/infrastructure/database/table/examples.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart';
-part '../../../../__generated/_Framework_Driver/Database/drift/DAO/example_dao.g.dart';
+part '../../../../../__generated/_Framework_Driver/Database/drift/DAO/example_dao.g.dart';
 
 @DriftAccessor(tables: [Examples])
 class ExampleDao extends DatabaseAccessor<DatabaseProvider>
