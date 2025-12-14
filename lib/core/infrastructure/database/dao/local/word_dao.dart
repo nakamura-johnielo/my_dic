@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:my_dic/core/infrastructure/database/table/words.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart';
-part '../../../../../__generated/_Framework_Driver/Database/drift/DAO/word_dao.g.dart';
+import 'package:my_dic/core/infrastructure/database/database_provider.dart';
+part '../../../../../__generated/core/infrastructure/database/dao/local/word_dao.g.dart';
 
 @DriftAccessor(tables: [Words])
 class WordDao extends DatabaseAccessor<DatabaseProvider> with _$WordDaoMixin {

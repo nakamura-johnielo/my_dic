@@ -6,7 +6,7 @@ import 'package:my_dic/core/domain/entity/verb/conjugacion/result_conjugacions.d
 import 'package:my_dic/core/domain/entity/verb/conjugacion/tense_conjugacion.dart';
 import 'package:my_dic/core/domain/i_repository/i_conjugation_repository.dart';
 import 'package:my_dic/core/infrastructure/database/dao/local/conjugation_dao.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart';
+import 'package:my_dic/core/infrastructure/database/database_provider.dart';
 
 class DriftConjugacionRepository implements IConjugacionsRepository {
   final ConjugationDao _conjugacionDao;

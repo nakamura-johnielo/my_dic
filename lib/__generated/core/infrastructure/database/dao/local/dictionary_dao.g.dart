@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../../../../../core/infrastructure/database/dao/local/dictionary_dao.dart';
+part of '../../../../../../core/infrastructure/database/dao/local/dictionary_dao.dart';
 
 // ignore_for_file: type=lint
 mixin _$DictionaryDaoMixin on DatabaseAccessor<DatabaseProvider> {

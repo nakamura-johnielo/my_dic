@@ -8,7 +8,7 @@ import 'package:my_dic/core/domain/entity/word/esp_word.dart';
 import 'package:my_dic/core/domain/i_repository/i_esj_word_repository.dart';
 import 'package:my_dic/core/infrastructure/database/dao/local/word_dao.dart';
 import 'package:my_dic/core/infrastructure/database/dao/local/word_status_dao.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart'
+import 'package:my_dic/core/infrastructure/database/database_provider.dart'
     as db;
 
 class DriftEsjWordRepository implements IEsjWordRepository {

@@ -4,7 +4,7 @@ import 'package:my_dic/core/domain/i_repository/i_jpn_esp_dictionary_repository.
 import 'package:my_dic/core/domain/usecase/fetch_jpn_esp_dictionary/fetch_jpn_esp_dictionary_repository_input_data.dart';
 import 'package:my_dic/core/infrastructure/database/dao/local/jpn_esp/jpn_esp_dictionary_dao.dart';
 import 'package:my_dic/core/infrastructure/database/dao/local/jpn_esp/jpn_esp_example_dao.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart'
+import 'package:my_dic/core/infrastructure/database/database_provider.dart'
     as drift;
 
 class DriftJpnEspDictionaryRepository implements IJpnEspDictionaryRepository {
