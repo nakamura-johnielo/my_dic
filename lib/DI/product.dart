@@ -1,13 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Components/status_buttons.dart';
-import 'package:my_dic/DI/riverpod.dart';
-import 'package:my_dic/_Business_Rule/Usecase/esp_jpn_status/esp_jpn_status_interactor.dart';
-import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/fetch_conjugation_interactor.dart';
-import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/i_fetch_conjugation_use_case.dart';
-import 'package:my_dic/_Business_Rule/Usecase/fetch_dictionary/fetch_dictionary_interactor.dart';
-import 'package:my_dic/_Business_Rule/Usecase/fetch_dictionary/i_fetch_dictionary_use_case.dart';
-import 'package:my_dic/_Business_Rule/Usecase/fetch_jpn_esp_dictionary/fetch_jpn_esp_dictionary_interactor.dart';
-import 'package:my_dic/_Business_Rule/Usecase/fetch_jpn_esp_dictionary/i_fetch_jpn_esp_dictionary_use_case.dart';
+import 'package:my_dic/core/di/data/data_di.dart';
+import 'package:my_dic/core/di/data/repository_di.dart';
+import 'package:my_dic/core/di/usecase/interactor_di.dart';
+import 'package:my_dic/core/di/usecase/usecase_di.dart';
 import 'package:my_dic/_Business_Rule/Usecase/judge_search_word/i_judge_search_word_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/judge_search_word/judge_search_word_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/load_my_word/i_load_my_word_use_case.dart';
@@ -30,40 +26,13 @@ import 'package:my_dic/_Business_Rule/Usecase/update_my_word_status/i_update_my_
 import 'package:my_dic/_Business_Rule/Usecase/update_my_word_status/update_my_word_status_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/i_update_ranking_filter_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/update_ranking_filter_interactor.dart';
-import 'package:my_dic/_Business_Rule/Usecase/update_status/i_update_status_use_case.dart';
-import 'package:my_dic/_Business_Rule/Usecase/update_status/update_status_interactor.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/verb/conjugacion/conjugacions.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/word/word_status.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_conjugation_repository.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esj_dictionary_repository.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esj_word_repository.dart';
+import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacions.dart';
+import 'package:my_dic/core/domain/entity/word/esp_word.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esp_ranking_repository.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_jpn_esp_dictionary_repository.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_jpn_esp_word_repository.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_my_word_repository.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/DAO/conjugation_dao.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/DAO/dictionary_dao.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/DAO/es_en_conjugacion_dao.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/DAO/example_dao.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/DAO/idiom_dao.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/DAO/jpn_esp/jpn_esp_dictionary_dao.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/DAO/jpn_esp/jpn_esp_example_dao.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/DAO/jpn_esp/jpn_esp_word_dao.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/DAO/jpn_esp/jpn_esp_word_status_dao.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/DAO/my_word_dao.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/DAO/my_word_status_dao.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/DAO/part_of_speech_list_dao.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/DAO/ranking_dao.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/DAO/supplement_dao.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/DAO/word_dao.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/DAO/word_status_dao.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart';
-import 'package:my_dic/_Framework_Driver/Repository/drift_conjugacion_repository.dart';
-import 'package:my_dic/_Framework_Driver/Repository/drift_es_en_conjugacions_repository.dart';
-import 'package:my_dic/_Framework_Driver/Repository/drift_esj_dictionary_repository.dart';
-import 'package:my_dic/_Framework_Driver/Repository/drift_esj_word_repository.dart';
-import 'package:my_dic/_Framework_Driver/Repository/drift_jpn_esp_dictionary_repository.dart';
-import 'package:my_dic/_Framework_Driver/Repository/drift_jpn_esp_word_repository.dart';
 import 'package:my_dic/_Framework_Driver/Repository/drift_my_word_repository.dart';
 import 'package:my_dic/_Framework_Driver/Repository/wiki_esp_ranking_repository.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/buffer_controller.dart';
@@ -94,44 +63,8 @@ import 'package:my_dic/_Interface_Adapter/ViewModel/search_view_model.dart';
 // Database & DAO Providers
 // ============================================================================
 
-final databaseProvider = Provider<DatabaseProvider>((ref) {
-  return DatabaseProvider();
-});
-
-final conjugationDaoProvider = Provider<ConjugationDao>((ref) {
-  return ConjugationDao(ref.read(databaseProvider));
-});
-
-final dictionaryDaoProvider = Provider<DictionaryDao>((ref) {
-  return DictionaryDao(ref.read(databaseProvider));
-});
-
-final exampleDaoProvider = Provider<ExampleDao>((ref) {
-  return ExampleDao(ref.read(databaseProvider));
-});
-
-final idiomDaoProvider = Provider<IdiomDao>((ref) {
-  return IdiomDao(ref.read(databaseProvider));
-});
-
-final partOfSpeechListDaoProvider = Provider<PartOfSpeechListDao>((ref) {
-  return PartOfSpeechListDao(ref.read(databaseProvider));
-});
-
 final rankingDaoProvider = Provider<RankingDao>((ref) {
   return RankingDao(ref.read(databaseProvider));
-});
-
-final supplementDaoProvider = Provider<SupplementDao>((ref) {
-  return SupplementDao(ref.read(databaseProvider));
-});
-
-final wordDaoProvider = Provider<WordDao>((ref) {
-  return WordDao(ref.read(databaseProvider));
-});
-
-final localWordStatusDaoProvider = Provider<WordStatusDao>((ref) {
-  return WordStatusDao(ref.read(databaseProvider));
 });
 
 final myWordStatusDaoProvider = Provider<MyWordStatusDao>((ref) {
@@ -142,50 +75,9 @@ final myWordDaoProvider = Provider<MyWordDao>((ref) {
   return MyWordDao(ref.read(databaseProvider));
 });
 
-final jpnEspWordDaoProvider = Provider<JpnEspWordDao>((ref) {
-  return JpnEspWordDao(ref.read(databaseProvider));
-});
-
-final jpnEspExampleDaoProvider = Provider<JpnEspExampleDao>((ref) {
-  return JpnEspExampleDao(ref.read(databaseProvider));
-});
-
-final jpnEspWordStatusDaoProvider = Provider<JpnEspWordStatusDao>((ref) {
-  return JpnEspWordStatusDao(ref.read(databaseProvider));
-});
-
-final jpnEspDictionaryDaoProvider = Provider<JpnEspDictionaryDao>((ref) {
-  return JpnEspDictionaryDao(ref.read(databaseProvider));
-});
-
-final esEnConjugacionDaoProvider = Provider<EsEnConjugacionDao>((ref) {
-  return EsEnConjugacionDao(ref.read(databaseProvider));
-});
-
 // ============================================================================
 // Repository Providers
 // ============================================================================
-
-final esjDictionaryRepositoryProvider =
-    Provider<IEsjDictionaryRepository>((ref) {
-  return DriftEsjDictionaryRepository(
-    ref.read(dictionaryDaoProvider),
-    ref.read(exampleDaoProvider),
-    ref.read(idiomDaoProvider),
-    ref.read(supplementDaoProvider),
-  );
-});
-
-final esjWordRepositoryProvider = Provider<IEsjWordRepository>((ref) {
-  return DriftEsjWordRepository(
-    ref.read(wordDaoProvider),
-    ref.read(localWordStatusDaoProvider),
-  );
-});
-
-final conjugacionsRepositoryProvider = Provider<IConjugacionsRepository>((ref) {
-  return DriftConjugacionRepository(ref.read(conjugationDaoProvider));
-});
 
 final espRankingRepositoryProvider = Provider<IEspRankingRepository>((ref) {
   return WikiEspRankingRepository(ref.read(rankingDaoProvider));
@@ -196,26 +88,6 @@ final myWordRepositoryProvider = Provider<IMyWordRepository>((ref) {
     ref.read(myWordDaoProvider),
     ref.read(myWordStatusDaoProvider),
   );
-});
-
-final jpnEspWordRepositoryProvider = Provider<IJpnEspWordRepository>((ref) {
-  return DriftJpnEspWordRepository(
-    ref.read(jpnEspWordDaoProvider),
-    ref.read(jpnEspDictionaryDaoProvider),
-  );
-});
-
-final jpnEspDictionaryRepositoryProvider =
-    Provider<IJpnEspDictionaryRepository>((ref) {
-  return DriftJpnEspDictionaryRepository(
-    ref.read(jpnEspDictionaryDaoProvider),
-    ref.read(jpnEspExampleDaoProvider),
-  );
-});
-
-final esEnConjugacionRepositoryProvider =
-    Provider<DriftEsEnConjugacionRepository>((ref) {
-  return DriftEsEnConjugacionRepository(ref.read(esEnConjugacionDaoProvider));
 });
 
 // ============================================================================
@@ -320,13 +192,6 @@ final locateRankingPagenationUseCaseProvider =
       ref.read(locateRankingPagenationPresenterProvider));
 });
 
-final updateStatusUseCaseProvider = Provider<IUpdateStatusUseCase>((ref) {
-  return UpdateStatusInteractor(
-    ref.read(updateStatusPresenterProvider),
-    ref.read(esjWordRepositoryProvider),
-  );
-});
-
 final searchWordUseCaseProvider = Provider<ISearchWordUseCase>((ref) {
   return SearchWordInteractor(
     ref.read(esjWordRepositoryProvider),
@@ -338,29 +203,6 @@ final searchWordUseCaseProvider = Provider<ISearchWordUseCase>((ref) {
 
 final judgeSearchWordUseCaseProvider = Provider<IJudgeSearchWordUseCase>((ref) {
   return JudgeSearchWordInteractor();
-});
-
-final fetchConjugationUseCaseProvider =
-    Provider<IFetchConjugationUseCase>((ref) {
-  return FetchConjugationInteractor(
-    ref.read(fetchConjugationPresenterProvider),
-    ref.read(conjugacionsRepositoryProvider),
-  );
-});
-
-final fetchDictionaryUseCaseProvider = Provider<IFetchDictionaryUseCase>((ref) {
-  return FetchDictionaryInteractor(
-    ref.read(fetchDictionaryPresenterProvider),
-    ref.read(esjDictionaryRepositoryProvider),
-  );
-});
-
-final fetchJpnEspDictionaryUseCaseProvider =
-    Provider<IFetchJpnEspDictionaryUseCase>((ref) {
-  return FetchJpnEspDictionaryInteractor(
-    ref.read(fetchJpnEspDictionaryPresenterProvider),
-    ref.read(jpnEspDictionaryRepositoryProvider),
-  );
 });
 
 final loadMyWordUseCaseProvider = Provider<ILoadMyWordUseCase>((ref) {
@@ -472,15 +314,6 @@ final quizStateProvider = StateNotifierProvider<QuizStateNotifier, QuizState>(
 // ============================================================================
 // Other Providers
 // ============================================================================
-
-final espJpnStatusInteractorProvider = Provider<EspJpnStatusInteractor>((ref) {
-  return EspJpnStatusInteractor(ref.read(esjWordRepositoryProvider));
-});
-
-final espJpnUpdateInteractorProvider =
-    Provider<EspJpnStatusUpdateInteractor>((ref) {
-  return EspJpnStatusUpdateInteractor(ref.read(wordStatusRepositoryProvider));
-});
 
 final wordStatusViewModelProvider =
     StateNotifierProvider<WordStatusViewModel, Map<int, WordStatus>>((ref) {

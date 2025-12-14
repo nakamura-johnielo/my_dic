@@ -11,7 +11,7 @@ import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_my_word_repository.
 import 'package:my_dic/_Business_Rule/Usecase/load_my_word/load_my_word_repository_input_data.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/DAO/my_word_dao.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/DAO/my_word_status_dao.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart'
+import 'package:my_dic/core/infrastructure/database/database_provider.dart'
     as db;
 
 class DriftMyWordRepository implements IMyWordRepository {

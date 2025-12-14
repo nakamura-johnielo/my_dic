@@ -1,6 +1,6 @@
-import 'package:my_dic/Constants/Enums/mood_tense.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/DAO/es_en_conjugacion_dao.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart';
+import 'package:my_dic/core/common/enums/conjugacion/mood_tense.dart';
+import 'package:my_dic/core/infrastructure/database/dao/local/es_en_conjugacion_dao.dart';
+import 'package:my_dic/core/infrastructure/database/database_provider.dart';
 
 class DriftEsEnConjugacionRepository {
   final EsEnConjugacionDao _esEnConjugacionDao;

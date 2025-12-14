@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:my_dic/Components/quiz_card.dart';
 import 'package:my_dic/Components/status_buttons.dart';
 import 'package:my_dic/Constants/Enums/cardState.dart';
-import 'package:my_dic/Constants/tab.dart';
+import 'package:my_dic/core/common/enums/ui/tab.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/quiz_controller.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/main_view_model.dart';

@@ -1,12 +1,12 @@
 import 'package:drift/drift.dart';
 import 'package:my_dic/Constants/Enums/feature_tag.dart';
-import 'package:my_dic/Constants/Enums/i_enum.dart';
-import 'package:my_dic/Constants/Enums/part_of_speech.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/Entity/conjugations.dart';
+import 'package:my_dic/core/common/enums/i_enum.dart';
+import 'package:my_dic/core/common/enums/word/part_of_speech.dart';
+import 'package:my_dic/core/infrastructure/database/table/conjugations.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/Entity/rankings.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/Entity/part_of_speech_lists.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/Entity/word_status.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart';
+import 'package:my_dic/core/infrastructure/database/table/word_status.dart';
+import 'package:my_dic/core/infrastructure/database/database_provider.dart';
 import 'package:tuple/tuple.dart';
 part '../../../../__generated/_Framework_Driver/Database/drift/DAO/ranking_dao.g.dart';
 

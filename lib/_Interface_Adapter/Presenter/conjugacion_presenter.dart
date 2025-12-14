@@ -1,5 +1,5 @@
-import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/fetch_conjugation_output_data.dart';
-import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/i_fetch_conjugation_presenter.dart';
+import 'package:my_dic/core/domain/usecase/fetch_conjugation/fetch_conjugation_output_data.dart';
+import 'package:my_dic/core/domain/usecase/fetch_conjugation/i_fetch_conjugation_presenter.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/main_view_model.dart';
 
 class ConjugacionFragmentPresenterImpl implements IFetchConjugationPresenter {

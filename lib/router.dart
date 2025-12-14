@@ -5,7 +5,7 @@ import 'package:my_dic/core/application/app_effects/auth_effect_provider.dart';
 import 'package:my_dic/core/domain/entity/auth.dart';
 import 'package:my_dic/features/auth/presentation/view/sign_up.dart';
 import 'package:my_dic/_View/main_activity.dart';
-import 'package:my_dic/Constants/tab.dart';
+import 'package:my_dic/core/common/enums/ui/tab.dart';
 import 'package:my_dic/_View/my_word/my_word_fragment.dart';
 import 'package:my_dic/_View/quiz/quiz_fragment.dart';
 import 'package:my_dic/_View/quiz/quiz_game_fragment.dart';
