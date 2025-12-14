@@ -57,7 +57,7 @@ import 'package:my_dic/_Framework_Driver/local/drift/DAO/ranking_dao.dart';
 import 'package:my_dic/core/infrastructure/database/dao/local/supplement_dao.dart';
 import 'package:my_dic/core/infrastructure/database/dao/local/word_dao.dart';
 import 'package:my_dic/core/infrastructure/database/dao/local/word_status_dao.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart';
+import 'package:my_dic/core/infrastructure/database/database_provider.dart';
 import 'package:my_dic/core/infrastructure/repository/drift_conjugacion_repository.dart';
 import 'package:my_dic/_Framework_Driver/Repository/drift_es_en_conjugacions_repository.dart';
 import 'package:my_dic/core/infrastructure/repository/drift_esj_dictionary_repository.dart';

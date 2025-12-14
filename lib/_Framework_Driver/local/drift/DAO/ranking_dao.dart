@@ -6,7 +6,7 @@ import 'package:my_dic/core/infrastructure/database/table/conjugations.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/Entity/rankings.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/Entity/part_of_speech_lists.dart';
 import 'package:my_dic/core/infrastructure/database/table/word_status.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart';
+import 'package:my_dic/core/infrastructure/database/database_provider.dart';
 import 'package:tuple/tuple.dart';
 part '../../../../__generated/_Framework_Driver/Database/drift/DAO/ranking_dao.g.dart';
 

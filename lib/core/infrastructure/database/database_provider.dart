@@ -32,8 +32,7 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'dart:async';
-
-part '../../../__generated/_Framework_Driver/Database/drift/database_provider.g.dart';
+part '../../../__generated/core/infrastructure/database/database_provider.g.dart';
 
 @DriftDatabase(tables: [
   Conjugations,

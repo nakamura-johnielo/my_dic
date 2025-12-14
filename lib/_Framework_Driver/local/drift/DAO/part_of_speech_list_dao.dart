@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/Entity/part_of_speech_lists.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart';
+import 'package:my_dic/core/infrastructure/database/database_provider.dart';
 part '../../../../__generated/_Framework_Driver/Database/drift/DAO/part_of_speech_list_dao.g.dart';
 
 @DriftAccessor(tables: [PartOfSpeechLists])

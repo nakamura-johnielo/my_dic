@@ -11,7 +11,7 @@ import 'package:my_dic/core/infrastructure/database/dao/local/jpn_esp/jpn_esp_di
 import 'package:my_dic/core/infrastructure/database/dao/local/jpn_esp/jpn_esp_word_dao.dart';
 import 'package:my_dic/core/infrastructure/database/dao/local/word_dao.dart';
 import 'package:my_dic/core/infrastructure/database/dao/local/word_status_dao.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/database_provider.dart'
+import 'package:my_dic/core/infrastructure/database/database_provider.dart'
     as db;
 
 class DriftJpnEspWordRepository implements IJpnEspWordRepository {
