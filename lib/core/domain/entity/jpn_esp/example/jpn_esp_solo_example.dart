@@ -1,30 +1,34 @@
 import 'package:flutter/foundation.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/dictionary/sub/example/i_example.dart';
 
 @immutable
-class EspJpnExample implements IExample {
-  @override
+class JpnEspSoloExample {
   final int exampleId;
-  @override
+  final int dictionaryId;
   final String japanese;
-  @override
   final String espanol;
+  final String espanolHtml;
 
-  const EspJpnExample({
+  const JpnEspSoloExample({
     required this.exampleId,
+    required this.dictionaryId,
     required this.japanese,
     required this.espanol,
+    required this.espanolHtml,
   });
 
-  EspJpnExample copyWith({
+  JpnEspSoloExample copyWith({
     int? exampleId,
+    int? dictionaryId,
     String? japanese,
     String? espanol,
+    String? espanolHtml,
   }) {
-    return EspJpnExample(
+    return JpnEspSoloExample(
       exampleId: exampleId ?? this.exampleId,
+      dictionaryId: dictionaryId ?? this.dictionaryId,
       japanese: japanese ?? this.japanese,
       espanol: espanol ?? this.espanol,
+      espanolHtml: espanolHtml ?? this.espanolHtml,
     );
   }
 }

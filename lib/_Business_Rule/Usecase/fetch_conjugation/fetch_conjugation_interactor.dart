@@ -2,7 +2,7 @@ import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/fetch_conjugatio
 import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/i_fetch_conjugation_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/fetch_conjugation_output_data.dart';
 import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/i_fetch_conjugation_presenter.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/verb/conjugacion/conjugacions.dart';
+import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacions.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_conjugation_repository.dart';
 
 class FetchConjugationInteractor implements IFetchConjugationUseCase {

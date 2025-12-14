@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/dictionary/sub/example/i_example.dart';
+import 'package:my_dic/core/domain/entity/dictionary/sub/example/i_example.dart';
 
 @immutable
-class SoloEspJpnExample implements IExample {
+class EspJpnSoloExample implements IExample {
   @override
   final int exampleId;
   final int dictionaryId;
@@ -11,20 +11,20 @@ class SoloEspJpnExample implements IExample {
   @override
   final String espanol;
 
-  const SoloEspJpnExample({
+  const EspJpnSoloExample({
     required this.exampleId,
     required this.dictionaryId,
     required this.japanese,
     required this.espanol,
   });
 
-  SoloEspJpnExample copyWith({
+  EspJpnSoloExample copyWith({
     int? exampleId,
     int? dictionaryId,
     String? japanese,
     String? espanol,
   }) {
-    return SoloEspJpnExample(
+    return EspJpnSoloExample(
       exampleId: exampleId ?? this.exampleId,
       dictionaryId: dictionaryId ?? this.dictionaryId,
       japanese: japanese ?? this.japanese,

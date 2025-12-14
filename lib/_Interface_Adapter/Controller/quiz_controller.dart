@@ -6,7 +6,7 @@ import 'package:my_dic/Constants/Enums/subject.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/fetch_conjugation_input_data.dart';
 import 'package:my_dic/_Business_Rule/Usecase/fetch_conjugation/i_fetch_conjugation_use_case.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/verb/conjugacion/conjugacions.dart';
+import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacions.dart';
 import 'package:my_dic/_Framework_Driver/Repository/drift_es_en_conjugacions_repository.dart';
 
 class QuizController {

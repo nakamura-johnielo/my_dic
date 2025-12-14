@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/dictionary/sub/idiom/i_idiom.dart';
+import 'package:my_dic/core/domain/entity/dictionary/sub/idiom/i_idiom.dart';
 
 @immutable
 class SoloIdiom implements IIdiom {

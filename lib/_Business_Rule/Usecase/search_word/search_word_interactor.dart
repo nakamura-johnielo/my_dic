@@ -4,10 +4,10 @@ import 'package:my_dic/_Business_Rule/Usecase/search_word/i_search_word_presente
 import 'package:my_dic/_Business_Rule/Usecase/search_word/i_search_word_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/search_word/search_word_input_data.dart';
 import 'package:my_dic/_Business_Rule/Usecase/search_word/search_word_output_data.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/jpn_esp/jpn_esp_word.dart';
+import 'package:my_dic/core/domain/entity/jpn_esp/jpn_esp_word.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/quiz_searched_item.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/verb/conjugacion/result_conjugacions.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/word/word.dart';
+import 'package:my_dic/core/domain/entity/verb/conjugacion/result_conjugacions.dart';
+import 'package:my_dic/core/domain/entity/word/word.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_conjugation_repository.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esj_word_repository.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_jpn_esp_word_repository.dart';

@@ -1,4 +1,4 @@
-import 'package:my_dic/_Business_Rule/_Domain/Entities/word/word_status.dart';
+import 'package:my_dic/core/domain/entity/word/esp_word.dart';
 
 abstract class IWordStatusRepository {
   Stream<WordStatus> watchWordStatusById(int id);

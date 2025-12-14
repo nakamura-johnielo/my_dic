@@ -1,6 +1,6 @@
-import 'package:my_dic/_Business_Rule/_Domain/Entities/jpn_esp/jpn_esp_word.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/verb/conjugacion/result_conjugacions.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/word/word.dart';
+import 'package:my_dic/core/domain/entity/jpn_esp/jpn_esp_word.dart';
+import 'package:my_dic/core/domain/entity/verb/conjugacion/result_conjugacions.dart';
+import 'package:my_dic/core/domain/entity/word/word.dart';
 
 class SearchWordOutputData {
   List<EspJpnWord> wordList;

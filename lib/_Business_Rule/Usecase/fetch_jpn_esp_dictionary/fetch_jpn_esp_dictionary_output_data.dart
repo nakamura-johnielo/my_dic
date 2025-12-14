@@ -1,4 +1,4 @@
-import 'package:my_dic/_Business_Rule/_Domain/Entities/jpn_esp/jpn_esp_dictionary.dart';
+import 'package:my_dic/core/domain/entity/jpn_esp/jpn_esp_dictionary.dart';
 
 class FetchJpnEspDictionaryOutputData {
   int id;

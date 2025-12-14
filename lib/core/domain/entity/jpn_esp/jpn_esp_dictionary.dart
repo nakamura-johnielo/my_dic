@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/jpn_esp/example/example.dart';
+import 'package:my_dic/core/domain/entity/jpn_esp/example/jpn_esp_example.dart';
 
 @immutable
 class JpnEspDictionary {

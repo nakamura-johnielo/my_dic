@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/dictionary/sub/example/impl/example.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/dictionary/sub/idiom/impl/idiom.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/dictionary/sub/supplement.dart';
+import 'package:my_dic/core/domain/entity/dictionary/sub/example/impl/esp_jpn_example.dart';
+import 'package:my_dic/core/domain/entity/dictionary/sub/idiom/impl/idiom.dart';
+import 'package:my_dic/core/domain/entity/dictionary/sub/supplement.dart';
 
 @immutable
 class EsjDictionary {

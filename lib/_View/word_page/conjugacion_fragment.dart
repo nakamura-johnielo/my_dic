@@ -6,7 +6,7 @@ import 'package:my_dic/Components/conjugacion_card.dart';
 import 'package:my_dic/Constants/Enums/mood_tense.dart';
 import 'package:my_dic/Constants/ui.dart';
 import 'package:my_dic/DI/product.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/verb/conjugacion/conjugacions.dart';
+import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacions.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/word_page_controller.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/main_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/search_view_model.dart';
