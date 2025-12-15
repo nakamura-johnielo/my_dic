@@ -1,4 +1,4 @@
-import 'package:my_dic/_Business_Rule/Usecase/search_word/search_word_output_data.dart';
+import 'package:my_dic/features/search/domain/usecase/search_word/search_word_output_data.dart';
 
 abstract class ISearchWordPresenter {
   void executNextEspJpn(SearchWordOutputData input);

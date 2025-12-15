@@ -7,9 +7,7 @@ import 'package:my_dic/core/common/enums/conjugacion/mood_tense.dart';
 import 'package:my_dic/core/common/enums/ui/ui.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacions.dart';
-import 'package:my_dic/_Interface_Adapter/Controller/word_page_controller.dart';
-import 'package:my_dic/_Interface_Adapter/ViewModel/main_view_model.dart';
-import 'package:my_dic/_Interface_Adapter/ViewModel/search_view_model.dart';
+import 'package:my_dic/features/search/di/view_model_di.dart';
 
 class ConjugacionFragment extends ConsumerWidget {
   const ConjugacionFragment({super.key, required this.wordId});
