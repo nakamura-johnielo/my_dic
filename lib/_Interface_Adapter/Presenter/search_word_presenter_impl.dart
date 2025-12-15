@@ -1,6 +1,6 @@
-import 'package:my_dic/_Business_Rule/Usecase/search_word/i_search_word_presenter.dart';
-import 'package:my_dic/_Business_Rule/Usecase/search_word/search_word_output_data.dart';
-import 'package:my_dic/_Interface_Adapter/ViewModel/search_view_model.dart';
+import 'package:my_dic/features/search/domain/usecase/search_word/i_search_word_presenter.dart';
+import 'package:my_dic/features/search/domain/usecase/search_word/search_word_output_data.dart';
+import 'package:my_dic/features/search/presentation/view_model/search_view_model.dart';
 //import 'package:my_dic/_Interface_Adapter/ViewModel/search_word_view_model.dart';
 
 class SearchWordPresenterImpl implements ISearchWordPresenter {
@@ -14,7 +14,7 @@ class SearchWordPresenterImpl implements ISearchWordPresenter {
 
   @override
   void executNextEspJpn(SearchWordOutputData input) {
-    _searchViewModel.setEspJpnItemsInTail(input.wordList);
+    _searchViewModel.addEspJpnItems(input.wordList);
   }
 
   @override
@@ -24,7 +24,7 @@ class SearchWordPresenterImpl implements ISearchWordPresenter {
 
   @override
   void executeNextJpnEsp(SearchJpnEspWordOutputData input) {
-    _searchViewModel.setJpnEspItemsInTail(input.wordList);
+    _searchViewModel.addJpnEspItems(input.wordList);
   }
 
   @override
@@ -34,6 +34,6 @@ class SearchWordPresenterImpl implements ISearchWordPresenter {
 
   @override
   void executNextConjugacion(SearchConjugacionOutputData input) {
-    _searchViewModel.setConjugacionItemsInTail(input.wordList);
+    _searchViewModel.addConjugacionItems(input.wordList);
   }
 }

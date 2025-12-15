@@ -1,9 +1,9 @@
 import 'dart:math';
 
-import 'package:my_dic/_Business_Rule/Usecase/search_word/i_search_word_presenter.dart';
-import 'package:my_dic/_Business_Rule/Usecase/search_word/i_search_word_use_case.dart';
-import 'package:my_dic/_Business_Rule/Usecase/search_word/search_word_input_data.dart';
-import 'package:my_dic/_Business_Rule/Usecase/search_word/search_word_output_data.dart';
+import 'package:my_dic/features/search/domain/usecase/search_word/i_search_word_presenter.dart';
+import 'package:my_dic/features/search/domain/usecase/search_word/i_search_word_use_case.dart';
+import 'package:my_dic/features/search/domain/usecase/search_word/search_word_input_data.dart';
+import 'package:my_dic/features/search/domain/usecase/search_word/search_word_output_data.dart';
 import 'package:my_dic/core/domain/entity/jpn_esp/jpn_esp_word.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/quiz_searched_item.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/result_conjugacions.dart';
@@ -21,7 +21,7 @@ class SearchWordInteractor implements ISearchWordUseCase {
       this._jpnEspWordRepository, this._conjugacionsRepository);
 
   @override
-  Future<void> executeEspJpn(SearchWordInputData input) async {
+  Future<SearchWordOutputData> executeEspJpn(SearchWordInputData input) async {
     // List<Word> l = await _wordRepository.getWordsByWord(input.word);
     List<EspJpnWord> l = await _wordRepository.getWordsByWordByPage(
         input.word, input.size, input.page, input.forQuiz);
@@ -30,9 +30,10 @@ class SearchWordInteractor implements ISearchWordUseCase {
 
     if (input.page == 0) {
       _presenter.executInicialEspJpn(result);
-      return;
+      return result;
     }
     _presenter.executNextEspJpn(result);
+    return result;
   }
 
   @override
@@ -44,7 +45,7 @@ class SearchWordInteractor implements ISearchWordUseCase {
   }
 
   @override
-  Future<void> emptyExecute() async {
+  SearchWordOutputData executeEmptyQuery() {
     /* List<Word> res = [
       Word(wordId: 1, word: "aplle", partOfSpeech: PartOfSpeech.adverb),
       Word(wordId: 1, word: "2aplle2", partOfSpeech: PartOfSpeech.adverb),
@@ -52,12 +53,13 @@ class SearchWordInteractor implements ISearchWordUseCase {
     ]; */
     List<EspJpnWord> res = [];
     SearchWordOutputData result = SearchWordOutputData(res);
-
+    return result;
     //_presenter.execute(result);
   }
 
   @override
-  Future<void> executeJpnEsp(SearchJpnEspWordInputData input) async {
+  Future<SearchJpnEspWordOutputData> executeJpnEsp(
+      SearchJpnEspWordInputData input) async {
     List<JpnEspWord> l = await _jpnEspWordRepository.getWordsByWord(
         input.word, input.size, input.page);
 
@@ -65,13 +67,15 @@ class SearchWordInteractor implements ISearchWordUseCase {
 
     if (input.page == 0) {
       _presenter.executeInicialJpnEsp(result);
-      return;
+      return result;
     }
     _presenter.executeNextJpnEsp(result);
+    return result;
   }
 
   @override
-  Future<void> executeConjugacion(SearchConjugacionInputData input) async {
+  Future<SearchConjugacionOutputData> executeConjugacion(
+      SearchConjugacionInputData input) async {
     List<SearchResultConjugacions> l = await _conjugacionsRepository
         .getConjugacionByWordWithPage(input.word, input.size, input.page);
 
@@ -79,8 +83,9 @@ class SearchWordInteractor implements ISearchWordUseCase {
 
     if (input.page == 0) {
       _presenter.executInicialConjugacion(result);
-      return;
+      return result;
     }
     _presenter.executNextConjugacion(result);
+    return result;
   }
 }

@@ -1,45 +1,42 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/Components/auto_focus_text_field.dart';
 import 'package:my_dic/Components/searhCard/conjugacion_search_card.dart';
 import 'package:my_dic/Components/searhCard/jpn_esp_searh_card.dart';
 import 'package:my_dic/Components/searhCard/search_card.dart';
-import 'package:my_dic/core/common/enums/word/part_of_speech.dart';
 import 'package:my_dic/core/common/enums/ui/tab.dart';
-import 'package:my_dic/DI/product.dart';
-import 'package:my_dic/_Interface_Adapter/Controller/buffer_controller.dart';
-import 'package:my_dic/_Interface_Adapter/ViewModel/search_view_model.dart';
+import 'package:my_dic/features/search/di/view_model_di.dart';
+import 'package:my_dic/features/search/presentation/view_model/buffer_controller.dart';
 import 'package:my_dic/_View/search/infinity_scroll_view/infinity_scroll_view.dart';
 import 'package:my_dic/_View/word_page/jpn_esp/jpn_esp_word_page_fragment.dart';
 import 'package:my_dic/_View/word_page/word_page_fragment.dart';
 
-class MyTextField extends ConsumerWidget {
-  const MyTextField({super.key});
+// class MyTextField extends ConsumerWidget {
+//   const MyTextField({super.key});
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final viewModel = ref.watch(searchViewModelProvider);
-    log("1-1 txtfield in build");
-    return TextField(
-      autofocus: true,
-      decoration: InputDecoration(
-        labelText: 'Search',
-        border: OutlineInputBorder(),
-      ),
-      onChanged: (value) {
-        SchedulerBinding.instance.addPostFrameCallback((_) {
-          viewModel.query = value;
-        });
-        //viewModel.query = value;
-        //_bufferController.searchWord(value);
-      },
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context, WidgetRef ref) {
+//     final viewModel = ref.watch(searchViewModelProvider);
+//     log("1-1 txtfield in build");
+//     return TextField(
+//       autofocus: true,
+//       decoration: InputDecoration(
+//         labelText: 'Search',
+//         border: OutlineInputBorder(),
+//       ),
+//       onChanged: (value) {
+//         SchedulerBinding.instance.addPostFrameCallback((_) {
+//           viewModel.query = value;
+//         });
+//         //viewModel.query = value;
+//         //_bufferController.searchWord(value);
+//       },
+//     );
+//   }
+// }
 
 class SearchFragment extends ConsumerWidget {
   const SearchFragment({super.key});
