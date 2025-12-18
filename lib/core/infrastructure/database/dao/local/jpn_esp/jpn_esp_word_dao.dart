@@ -10,21 +10,21 @@ class JpnEspWordDao extends DatabaseAccessor<DatabaseProvider>
     with _$JpnEspWordDaoMixin {
   JpnEspWordDao(super.database);
 
-  Future<JpnEspWord?> getDictionaryByWordId(int wordId) {
+  Future<JpnEspWordTableData?> getDictionaryByWordId(int wordId) {
     return (select(jpnEspWords)..where((tbl) => tbl.wordId.equals(wordId)))
         .getSingleOrNull();
   }
 
-  Future<void> insertWord(Insertable<JpnEspWord> tableName) =>
+  Future<void> insertWord(Insertable<JpnEspWordTableData> tableName) =>
       into(jpnEspWords).insert(tableName);
 
-  Future<void> updateWord(Insertable<JpnEspWord> tableName) =>
+  Future<void> updateWord(Insertable<JpnEspWordTableData> tableName) =>
       update(jpnEspWords).replace(tableName);
 
-  Future<void> deleteWord(Insertable<JpnEspWord> tableName) =>
+  Future<void> deleteWord(Insertable<JpnEspWordTableData> tableName) =>
       delete(jpnEspWords).delete(tableName);
 
-  Future<List<JpnEspWord>?> getWordsByWord(
+  Future<List<JpnEspWordTableData>?> getWordsByWord(
       String searchWord, int size, int currentPage) async {
     final int offset = size * currentPage; // ページ番号に基づいてスキップする件数を計算
 

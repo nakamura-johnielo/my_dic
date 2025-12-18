@@ -78,7 +78,7 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
   }
 
   // 結合クエリを使用して特定の単語に関連する例文を取得するメソッド
-  Future<List<Tuple2<Ranking, WordStatusData>>?>
+  Future<List<Tuple2<Ranking, WordStatusTableData>>?>
       getFilteredRankingWithStatusByPage(
           int requiredPage,
           int size,
@@ -160,7 +160,7 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
         wordId: row.read<int?>('word_id'),
         hasConj: row.read<int>('has_conj'),
       );
-      final status = WordStatusData(
+      final status = WordStatusTableData(
         wordId: row.read<int?>('w_word_id') ?? -1,
         isLearned: row.read<int?>('is_learned'),
         isBookmarked: row.read<int?>('is_bookmarked'),

@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+@DataClassName('ConjugationTableData')
 class Conjugations extends Table {
   IntColumn get wordId =>
       integer().named('word_id')(); // リレーションを簡単に記述// 外部キー制約をカラムに直接設定

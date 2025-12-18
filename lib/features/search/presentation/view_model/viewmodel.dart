@@ -20,49 +20,28 @@ class SearchViewModel extends StateNotifier<SearchState> {
 
   // ==================== Public Methods ====================
 
+
   /// 検索クエリを更新
   void updateQuery(String query) {
     final trimmedQuery = query.trim();
 
     if (trimmedQuery.isEmpty) {
-      _clearResults();
+      clearResults();
     }
 
     state = state.copyWith(query: trimmedQuery);
   }
 
-  /// 検索を実行（初回ページ）
-  Future<void> searchInitial(String word) async {
+  Future<void> loadSearchResults(int size, int currentPage) async {
+    final word = state.query;
     if (word.isEmpty) {
-      _clearResults();
+      clearResults();
       return;
     }
+    if (state.isLoading) return;
 
     state = state.copyWith(isLoading: true, errorMessage: null);
 
-    try {
-      final dictionaryType = _judgeDictionaryType(word);
-
-      if (dictionaryType == DictionaryType.jpnEsp) {
-        await _searchJpnEsp(word, size: 30, page: 0);
-      } else {
-        await _searchEspJpn(word, size: 30, page: 0);
-        // 初回のみ活用形も検索
-        await _searchConjugacion(word, size: 4, page: 0);
-      }
-    } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: 'Search failed: $e',
-      );
-    }
-  }
-
-  /// 次のページを読み込み
-  Future<void> loadNextPage(String word, int size, int currentPage) async {
-    if (state.isLoading) return;
-
-    state = state.copyWith(isLoading: true);
     final nextPage = currentPage + 1;
 
     try {
@@ -72,6 +51,10 @@ class SearchViewModel extends StateNotifier<SearchState> {
         await _searchJpnEsp(word, size: size, page: nextPage);
       } else {
         await _searchEspJpn(word, size: size, page: nextPage);
+        if (nextPage == 0) {
+          // 初回のみ活用形も検索
+          await _searchConjugacion(word, size: 4, page: 0);
+        }
       }
     } catch (e) {
       state = state.copyWith(
@@ -93,6 +76,69 @@ class SearchViewModel extends StateNotifier<SearchState> {
     return await _searchWordUseCase.executeVerbs(input);
   }
 
+  
+  /// 検索結果をクリア
+  void clearResults() {
+    state = state.copyWith(
+      //query: '',
+      espJpnWords: [],
+      jpnEspWords: [],
+      conjugacions: [],
+      isLoading: false,
+      errorMessage: null,
+    );
+  }
+
+  /// 検索を実行（初回ページ）
+  // Future<void> searchInitial(String word) async {
+  //   if (word.isEmpty) {
+  //     _clearResults();
+  //     return;
+  //   }
+
+  //   state = state.copyWith(isLoading: true, errorMessage: null);
+
+  //   try {
+  //     final dictionaryType = _judgeDictionaryType(word);
+
+  //     if (dictionaryType == DictionaryType.jpnEsp) {
+  //       await _searchJpnEsp(word, size: 30, page: 0);
+  //     } else {
+  //       await _searchEspJpn(word, size: 30, page: 0);
+  //       // 初回のみ活用形も検索
+  //       await _searchConjugacion(word, size: 4, page: 0);
+  //     }
+  //   } catch (e) {
+  //     state = state.copyWith(
+  //       isLoading: false,
+  //       errorMessage: 'Search failed: $e',
+  //     );
+  //   }
+  // }
+
+  /// 次のページを読み込み
+  // Future<void> loadNextPage(String word, int size, int currentPage) async {
+  //   if (state.isLoading) return;
+
+  //   state = state.copyWith(isLoading: true);
+  //   final nextPage = currentPage + 1;
+
+  //   try {
+  //     final dictionaryType = _judgeDictionaryType(word);
+
+  //     if (dictionaryType == DictionaryType.jpnEsp) {
+  //       await _searchJpnEsp(word, size: size, page: nextPage);
+  //     } else {
+  //       await _searchEspJpn(word, size: size, page: nextPage);
+  //     }
+  //   } catch (e) {
+  //     state = state.copyWith(
+  //       isLoading: false,
+  //       errorMessage: 'Failed to load next page: $e',
+  //     );
+  //   }
+  // }
+
   // ==================== Private Methods ====================
 
   /// 辞書タイプを判定
@@ -107,6 +153,7 @@ class SearchViewModel extends StateNotifier<SearchState> {
       {required int size, required int page}) async {
     final input = SearchWordInputData(word, size, page, false);
     final result = await _searchWordUseCase.executeEspJpn(input);
+    print("result length " + result.wordList.length.toString());
 
     if (page == 0) {
       // 初回は置き換え
@@ -156,15 +203,4 @@ class SearchViewModel extends StateNotifier<SearchState> {
     );
   }
 
-  /// 検索結果をクリア
-  void _clearResults() {
-    state = state.copyWith(
-      query: '',
-      espJpnWords: [],
-      jpnEspWords: [],
-      conjugacions: [],
-      isLoading: false,
-      errorMessage: null,
-    );
-  }
 }

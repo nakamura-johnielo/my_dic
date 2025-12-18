@@ -4,7 +4,7 @@ part of '../../../../core/infrastructure/database/database_provider.dart';
 
 // ignore_for_file: type=lint
 class $ConjugationsTable extends Conjugations
-    with TableInfo<$ConjugationsTable, Conjugation> {
+    with TableInfo<$ConjugationsTable, ConjugationTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -386,7 +386,8 @@ class $ConjugationsTable extends Conjugations
   String get actualTableName => $name;
   static const String $name = 'conjugations';
   @override
-  VerificationContext validateIntegrity(Insertable<Conjugation> instance,
+  VerificationContext validateIntegrity(
+      Insertable<ConjugationTableData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -725,9 +726,9 @@ class $ConjugationsTable extends Conjugations
   @override
   Set<GeneratedColumn> get $primaryKey => {wordId};
   @override
-  Conjugation map(Map<String, dynamic> data, {String? tablePrefix}) {
+  ConjugationTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Conjugation(
+    return ConjugationTableData(
       wordId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}word_id'])!,
       word: attachedDatabase.typeMapping
@@ -874,7 +875,8 @@ class $ConjugationsTable extends Conjugations
   }
 }
 
-class Conjugation extends DataClass implements Insertable<Conjugation> {
+class ConjugationTableData extends DataClass
+    implements Insertable<ConjugationTableData> {
   final int wordId;
   final String word;
   final String? meaning;
@@ -927,7 +929,7 @@ class Conjugation extends DataClass implements Insertable<Conjugation> {
   final String? subjunctivePastNosotros;
   final String? subjunctivePastVosotros;
   final String? subjunctivePastEllos;
-  const Conjugation(
+  const ConjugationTableData(
       {required this.wordId,
       required this.word,
       this.meaning,
@@ -1328,10 +1330,10 @@ class Conjugation extends DataClass implements Insertable<Conjugation> {
     );
   }
 
-  factory Conjugation.fromJson(Map<String, dynamic> json,
+  factory ConjugationTableData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Conjugation(
+    return ConjugationTableData(
       wordId: serializer.fromJson<int>(json['wordId']),
       word: serializer.fromJson<String>(json['word']),
       meaning: serializer.fromJson<String?>(json['meaning']),
@@ -1519,7 +1521,7 @@ class Conjugation extends DataClass implements Insertable<Conjugation> {
     };
   }
 
-  Conjugation copyWith(
+  ConjugationTableData copyWith(
           {int? wordId,
           String? word,
           Value<String?> meaning = const Value.absent(),
@@ -1572,7 +1574,7 @@ class Conjugation extends DataClass implements Insertable<Conjugation> {
           Value<String?> subjunctivePastNosotros = const Value.absent(),
           Value<String?> subjunctivePastVosotros = const Value.absent(),
           Value<String?> subjunctivePastEllos = const Value.absent()}) =>
-      Conjugation(
+      ConjugationTableData(
         wordId: wordId ?? this.wordId,
         word: word ?? this.word,
         meaning: meaning.present ? meaning.value : this.meaning,
@@ -1722,8 +1724,8 @@ class Conjugation extends DataClass implements Insertable<Conjugation> {
             ? subjunctivePastEllos.value
             : this.subjunctivePastEllos,
       );
-  Conjugation copyWithCompanion(ConjugationsCompanion data) {
-    return Conjugation(
+  ConjugationTableData copyWithCompanion(ConjugationsCompanion data) {
+    return ConjugationTableData(
       wordId: data.wordId.present ? data.wordId.value : this.wordId,
       word: data.word.present ? data.word.value : this.word,
       meaning: data.meaning.present ? data.meaning.value : this.meaning,
@@ -1879,7 +1881,7 @@ class Conjugation extends DataClass implements Insertable<Conjugation> {
 
   @override
   String toString() {
-    return (StringBuffer('Conjugation(')
+    return (StringBuffer('ConjugationTableData(')
           ..write('wordId: $wordId, ')
           ..write('word: $word, ')
           ..write('meaning: $meaning, ')
@@ -1996,7 +1998,7 @@ class Conjugation extends DataClass implements Insertable<Conjugation> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Conjugation &&
+      (other is ConjugationTableData &&
           other.wordId == this.wordId &&
           other.word == this.word &&
           other.meaning == this.meaning &&
@@ -2057,7 +2059,7 @@ class Conjugation extends DataClass implements Insertable<Conjugation> {
           other.subjunctivePastEllos == this.subjunctivePastEllos);
 }
 
-class ConjugationsCompanion extends UpdateCompanion<Conjugation> {
+class ConjugationsCompanion extends UpdateCompanion<ConjugationTableData> {
   final Value<int> wordId;
   final Value<String> word;
   final Value<String?> meaning;
@@ -2218,7 +2220,7 @@ class ConjugationsCompanion extends UpdateCompanion<Conjugation> {
     this.subjunctivePastVosotros = const Value.absent(),
     this.subjunctivePastEllos = const Value.absent(),
   }) : word = Value(word);
-  static Insertable<Conjugation> custom({
+  static Insertable<ConjugationTableData> custom({
     Expression<int>? wordId,
     Expression<String>? word,
     Expression<String>? meaning,
@@ -2766,7 +2768,7 @@ class ConjugationsCompanion extends UpdateCompanion<Conjugation> {
 }
 
 class $DictionariesTable extends Dictionaries
-    with TableInfo<$DictionariesTable, Dictionary> {
+    with TableInfo<$DictionariesTable, DictionaryTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -2846,7 +2848,8 @@ class $DictionariesTable extends Dictionaries
   String get actualTableName => $name;
   static const String $name = 'dictionaries';
   @override
-  VerificationContext validateIntegrity(Insertable<Dictionary> instance,
+  VerificationContext validateIntegrity(
+      Insertable<DictionaryTableData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -2906,9 +2909,9 @@ class $DictionariesTable extends Dictionaries
   @override
   Set<GeneratedColumn> get $primaryKey => {dictionaryId};
   @override
-  Dictionary map(Map<String, dynamic> data, {String? tablePrefix}) {
+  DictionaryTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Dictionary(
+    return DictionaryTableData(
       dictionaryId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}dictionary_id'])!,
       wordId: attachedDatabase.typeMapping
@@ -2938,7 +2941,8 @@ class $DictionariesTable extends Dictionaries
   }
 }
 
-class Dictionary extends DataClass implements Insertable<Dictionary> {
+class DictionaryTableData extends DataClass
+    implements Insertable<DictionaryTableData> {
   final int dictionaryId;
   final int wordId;
   final String word;
@@ -2949,7 +2953,7 @@ class Dictionary extends DataClass implements Insertable<Dictionary> {
   final String? content;
   final String? origin;
   final String? htmlRaw;
-  const Dictionary(
+  const DictionaryTableData(
       {required this.dictionaryId,
       required this.wordId,
       required this.word,
@@ -3016,10 +3020,10 @@ class Dictionary extends DataClass implements Insertable<Dictionary> {
     );
   }
 
-  factory Dictionary.fromJson(Map<String, dynamic> json,
+  factory DictionaryTableData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Dictionary(
+    return DictionaryTableData(
       dictionaryId: serializer.fromJson<int>(json['dictionaryId']),
       wordId: serializer.fromJson<int>(json['wordId']),
       word: serializer.fromJson<String>(json['word']),
@@ -3049,7 +3053,7 @@ class Dictionary extends DataClass implements Insertable<Dictionary> {
     };
   }
 
-  Dictionary copyWith(
+  DictionaryTableData copyWith(
           {int? dictionaryId,
           int? wordId,
           String? word,
@@ -3060,7 +3064,7 @@ class Dictionary extends DataClass implements Insertable<Dictionary> {
           Value<String?> content = const Value.absent(),
           Value<String?> origin = const Value.absent(),
           Value<String?> htmlRaw = const Value.absent()}) =>
-      Dictionary(
+      DictionaryTableData(
         dictionaryId: dictionaryId ?? this.dictionaryId,
         wordId: wordId ?? this.wordId,
         word: word ?? this.word,
@@ -3075,8 +3079,8 @@ class Dictionary extends DataClass implements Insertable<Dictionary> {
         origin: origin.present ? origin.value : this.origin,
         htmlRaw: htmlRaw.present ? htmlRaw.value : this.htmlRaw,
       );
-  Dictionary copyWithCompanion(DictionariesCompanion data) {
-    return Dictionary(
+  DictionaryTableData copyWithCompanion(DictionariesCompanion data) {
+    return DictionaryTableData(
       dictionaryId: data.dictionaryId.present
           ? data.dictionaryId.value
           : this.dictionaryId,
@@ -3098,7 +3102,7 @@ class Dictionary extends DataClass implements Insertable<Dictionary> {
 
   @override
   String toString() {
-    return (StringBuffer('Dictionary(')
+    return (StringBuffer('DictionaryTableData(')
           ..write('dictionaryId: $dictionaryId, ')
           ..write('wordId: $wordId, ')
           ..write('word: $word, ')
@@ -3119,7 +3123,7 @@ class Dictionary extends DataClass implements Insertable<Dictionary> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Dictionary &&
+      (other is DictionaryTableData &&
           other.dictionaryId == this.dictionaryId &&
           other.wordId == this.wordId &&
           other.word == this.word &&
@@ -3132,7 +3136,7 @@ class Dictionary extends DataClass implements Insertable<Dictionary> {
           other.htmlRaw == this.htmlRaw);
 }
 
-class DictionariesCompanion extends UpdateCompanion<Dictionary> {
+class DictionariesCompanion extends UpdateCompanion<DictionaryTableData> {
   final Value<int> dictionaryId;
   final Value<int> wordId;
   final Value<String> word;
@@ -3168,7 +3172,7 @@ class DictionariesCompanion extends UpdateCompanion<Dictionary> {
     this.htmlRaw = const Value.absent(),
   })  : wordId = Value(wordId),
         word = Value(word);
-  static Insertable<Dictionary> custom({
+  static Insertable<DictionaryTableData> custom({
     Expression<int>? dictionaryId,
     Expression<int>? wordId,
     Expression<String>? word,
@@ -3273,7 +3277,8 @@ class DictionariesCompanion extends UpdateCompanion<Dictionary> {
   }
 }
 
-class $ExamplesTable extends Examples with TableInfo<$ExamplesTable, Example> {
+class $ExamplesTable extends Examples
+    with TableInfo<$ExamplesTable, ExampleTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -3329,7 +3334,7 @@ class $ExamplesTable extends Examples with TableInfo<$ExamplesTable, Example> {
   String get actualTableName => $name;
   static const String $name = 'examples';
   @override
-  VerificationContext validateIntegrity(Insertable<Example> instance,
+  VerificationContext validateIntegrity(Insertable<ExampleTableData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -3381,9 +3386,9 @@ class $ExamplesTable extends Examples with TableInfo<$ExamplesTable, Example> {
   @override
   Set<GeneratedColumn> get $primaryKey => {exampleId};
   @override
-  Example map(Map<String, dynamic> data, {String? tablePrefix}) {
+  ExampleTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Example(
+    return ExampleTableData(
       exampleId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}example_id'])!,
       dictionaryId: attachedDatabase.typeMapping
@@ -3405,14 +3410,15 @@ class $ExamplesTable extends Examples with TableInfo<$ExamplesTable, Example> {
   }
 }
 
-class Example extends DataClass implements Insertable<Example> {
+class ExampleTableData extends DataClass
+    implements Insertable<ExampleTableData> {
   final int exampleId;
   final int dictionaryId;
   final int exampleNo;
   final String espanolHtml;
   final String japaneseText;
   final String espanolText;
-  const Example(
+  const ExampleTableData(
       {required this.exampleId,
       required this.dictionaryId,
       required this.exampleNo,
@@ -3442,10 +3448,10 @@ class Example extends DataClass implements Insertable<Example> {
     );
   }
 
-  factory Example.fromJson(Map<String, dynamic> json,
+  factory ExampleTableData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Example(
+    return ExampleTableData(
       exampleId: serializer.fromJson<int>(json['exampleId']),
       dictionaryId: serializer.fromJson<int>(json['dictionaryId']),
       exampleNo: serializer.fromJson<int>(json['exampleNo']),
@@ -3467,14 +3473,14 @@ class Example extends DataClass implements Insertable<Example> {
     };
   }
 
-  Example copyWith(
+  ExampleTableData copyWith(
           {int? exampleId,
           int? dictionaryId,
           int? exampleNo,
           String? espanolHtml,
           String? japaneseText,
           String? espanolText}) =>
-      Example(
+      ExampleTableData(
         exampleId: exampleId ?? this.exampleId,
         dictionaryId: dictionaryId ?? this.dictionaryId,
         exampleNo: exampleNo ?? this.exampleNo,
@@ -3482,8 +3488,8 @@ class Example extends DataClass implements Insertable<Example> {
         japaneseText: japaneseText ?? this.japaneseText,
         espanolText: espanolText ?? this.espanolText,
       );
-  Example copyWithCompanion(ExamplesCompanion data) {
-    return Example(
+  ExampleTableData copyWithCompanion(ExamplesCompanion data) {
+    return ExampleTableData(
       exampleId: data.exampleId.present ? data.exampleId.value : this.exampleId,
       dictionaryId: data.dictionaryId.present
           ? data.dictionaryId.value
@@ -3501,7 +3507,7 @@ class Example extends DataClass implements Insertable<Example> {
 
   @override
   String toString() {
-    return (StringBuffer('Example(')
+    return (StringBuffer('ExampleTableData(')
           ..write('exampleId: $exampleId, ')
           ..write('dictionaryId: $dictionaryId, ')
           ..write('exampleNo: $exampleNo, ')
@@ -3518,7 +3524,7 @@ class Example extends DataClass implements Insertable<Example> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Example &&
+      (other is ExampleTableData &&
           other.exampleId == this.exampleId &&
           other.dictionaryId == this.dictionaryId &&
           other.exampleNo == this.exampleNo &&
@@ -3527,7 +3533,7 @@ class Example extends DataClass implements Insertable<Example> {
           other.espanolText == this.espanolText);
 }
 
-class ExamplesCompanion extends UpdateCompanion<Example> {
+class ExamplesCompanion extends UpdateCompanion<ExampleTableData> {
   final Value<int> exampleId;
   final Value<int> dictionaryId;
   final Value<int> exampleNo;
@@ -3554,7 +3560,7 @@ class ExamplesCompanion extends UpdateCompanion<Example> {
         espanolHtml = Value(espanolHtml),
         japaneseText = Value(japaneseText),
         espanolText = Value(espanolText);
-  static Insertable<Example> custom({
+  static Insertable<ExampleTableData> custom({
     Expression<int>? exampleId,
     Expression<int>? dictionaryId,
     Expression<int>? exampleNo,
@@ -3627,7 +3633,7 @@ class ExamplesCompanion extends UpdateCompanion<Example> {
   }
 }
 
-class $IdiomsTable extends Idioms with TableInfo<$IdiomsTable, Idiom> {
+class $IdiomsTable extends Idioms with TableInfo<$IdiomsTable, IdiomTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -3670,7 +3676,7 @@ class $IdiomsTable extends Idioms with TableInfo<$IdiomsTable, Idiom> {
   String get actualTableName => $name;
   static const String $name = 'idioms';
   @override
-  VerificationContext validateIntegrity(Insertable<Idiom> instance,
+  VerificationContext validateIntegrity(Insertable<IdiomTableData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -3712,9 +3718,9 @@ class $IdiomsTable extends Idioms with TableInfo<$IdiomsTable, Idiom> {
   @override
   Set<GeneratedColumn> get $primaryKey => {idiomId};
   @override
-  Idiom map(Map<String, dynamic> data, {String? tablePrefix}) {
+  IdiomTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Idiom(
+    return IdiomTableData(
       idiomId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}idiom_id'])!,
       dictionaryId: attachedDatabase.typeMapping
@@ -3734,13 +3740,13 @@ class $IdiomsTable extends Idioms with TableInfo<$IdiomsTable, Idiom> {
   }
 }
 
-class Idiom extends DataClass implements Insertable<Idiom> {
+class IdiomTableData extends DataClass implements Insertable<IdiomTableData> {
   final int idiomId;
   final int dictionaryId;
   final int idiomNo;
   final String idiom;
   final String description;
-  const Idiom(
+  const IdiomTableData(
       {required this.idiomId,
       required this.dictionaryId,
       required this.idiomNo,
@@ -3767,10 +3773,10 @@ class Idiom extends DataClass implements Insertable<Idiom> {
     );
   }
 
-  factory Idiom.fromJson(Map<String, dynamic> json,
+  factory IdiomTableData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Idiom(
+    return IdiomTableData(
       idiomId: serializer.fromJson<int>(json['idiomId']),
       dictionaryId: serializer.fromJson<int>(json['dictionaryId']),
       idiomNo: serializer.fromJson<int>(json['idiomNo']),
@@ -3790,21 +3796,21 @@ class Idiom extends DataClass implements Insertable<Idiom> {
     };
   }
 
-  Idiom copyWith(
+  IdiomTableData copyWith(
           {int? idiomId,
           int? dictionaryId,
           int? idiomNo,
           String? idiom,
           String? description}) =>
-      Idiom(
+      IdiomTableData(
         idiomId: idiomId ?? this.idiomId,
         dictionaryId: dictionaryId ?? this.dictionaryId,
         idiomNo: idiomNo ?? this.idiomNo,
         idiom: idiom ?? this.idiom,
         description: description ?? this.description,
       );
-  Idiom copyWithCompanion(IdiomsCompanion data) {
-    return Idiom(
+  IdiomTableData copyWithCompanion(IdiomsCompanion data) {
+    return IdiomTableData(
       idiomId: data.idiomId.present ? data.idiomId.value : this.idiomId,
       dictionaryId: data.dictionaryId.present
           ? data.dictionaryId.value
@@ -3818,7 +3824,7 @@ class Idiom extends DataClass implements Insertable<Idiom> {
 
   @override
   String toString() {
-    return (StringBuffer('Idiom(')
+    return (StringBuffer('IdiomTableData(')
           ..write('idiomId: $idiomId, ')
           ..write('dictionaryId: $dictionaryId, ')
           ..write('idiomNo: $idiomNo, ')
@@ -3834,7 +3840,7 @@ class Idiom extends DataClass implements Insertable<Idiom> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Idiom &&
+      (other is IdiomTableData &&
           other.idiomId == this.idiomId &&
           other.dictionaryId == this.dictionaryId &&
           other.idiomNo == this.idiomNo &&
@@ -3842,7 +3848,7 @@ class Idiom extends DataClass implements Insertable<Idiom> {
           other.description == this.description);
 }
 
-class IdiomsCompanion extends UpdateCompanion<Idiom> {
+class IdiomsCompanion extends UpdateCompanion<IdiomTableData> {
   final Value<int> idiomId;
   final Value<int> dictionaryId;
   final Value<int> idiomNo;
@@ -3865,7 +3871,7 @@ class IdiomsCompanion extends UpdateCompanion<Idiom> {
         idiomNo = Value(idiomNo),
         idiom = Value(idiom),
         description = Value(description);
-  static Insertable<Idiom> custom({
+  static Insertable<IdiomTableData> custom({
     Expression<int>? idiomId,
     Expression<int>? dictionaryId,
     Expression<int>? idiomNo,
@@ -4495,7 +4501,7 @@ class RankingsCompanion extends UpdateCompanion<Ranking> {
 }
 
 class $SupplementsTable extends Supplements
-    with TableInfo<$SupplementsTable, Supplement> {
+    with TableInfo<$SupplementsTable, SupplementTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -4539,7 +4545,8 @@ class $SupplementsTable extends Supplements
   String get actualTableName => $name;
   static const String $name = 'supplements';
   @override
-  VerificationContext validateIntegrity(Insertable<Supplement> instance,
+  VerificationContext validateIntegrity(
+      Insertable<SupplementTableData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -4581,9 +4588,9 @@ class $SupplementsTable extends Supplements
   @override
   Set<GeneratedColumn> get $primaryKey => {supplementId};
   @override
-  Supplement map(Map<String, dynamic> data, {String? tablePrefix}) {
+  SupplementTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Supplement(
+    return SupplementTableData(
       supplementId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}supplement_id'])!,
       dictionaryId: attachedDatabase.typeMapping
@@ -4603,13 +4610,14 @@ class $SupplementsTable extends Supplements
   }
 }
 
-class Supplement extends DataClass implements Insertable<Supplement> {
+class SupplementTableData extends DataClass
+    implements Insertable<SupplementTableData> {
   final int supplementId;
   final int dictionaryId;
   final int supplementNo;
   final String content;
   final String? exampleId;
-  const Supplement(
+  const SupplementTableData(
       {required this.supplementId,
       required this.dictionaryId,
       required this.supplementNo,
@@ -4640,10 +4648,10 @@ class Supplement extends DataClass implements Insertable<Supplement> {
     );
   }
 
-  factory Supplement.fromJson(Map<String, dynamic> json,
+  factory SupplementTableData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Supplement(
+    return SupplementTableData(
       supplementId: serializer.fromJson<int>(json['supplementId']),
       dictionaryId: serializer.fromJson<int>(json['dictionaryId']),
       supplementNo: serializer.fromJson<int>(json['supplementNo']),
@@ -4663,21 +4671,21 @@ class Supplement extends DataClass implements Insertable<Supplement> {
     };
   }
 
-  Supplement copyWith(
+  SupplementTableData copyWith(
           {int? supplementId,
           int? dictionaryId,
           int? supplementNo,
           String? content,
           Value<String?> exampleId = const Value.absent()}) =>
-      Supplement(
+      SupplementTableData(
         supplementId: supplementId ?? this.supplementId,
         dictionaryId: dictionaryId ?? this.dictionaryId,
         supplementNo: supplementNo ?? this.supplementNo,
         content: content ?? this.content,
         exampleId: exampleId.present ? exampleId.value : this.exampleId,
       );
-  Supplement copyWithCompanion(SupplementsCompanion data) {
-    return Supplement(
+  SupplementTableData copyWithCompanion(SupplementsCompanion data) {
+    return SupplementTableData(
       supplementId: data.supplementId.present
           ? data.supplementId.value
           : this.supplementId,
@@ -4694,7 +4702,7 @@ class Supplement extends DataClass implements Insertable<Supplement> {
 
   @override
   String toString() {
-    return (StringBuffer('Supplement(')
+    return (StringBuffer('SupplementTableData(')
           ..write('supplementId: $supplementId, ')
           ..write('dictionaryId: $dictionaryId, ')
           ..write('supplementNo: $supplementNo, ')
@@ -4710,7 +4718,7 @@ class Supplement extends DataClass implements Insertable<Supplement> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Supplement &&
+      (other is SupplementTableData &&
           other.supplementId == this.supplementId &&
           other.dictionaryId == this.dictionaryId &&
           other.supplementNo == this.supplementNo &&
@@ -4718,7 +4726,7 @@ class Supplement extends DataClass implements Insertable<Supplement> {
           other.exampleId == this.exampleId);
 }
 
-class SupplementsCompanion extends UpdateCompanion<Supplement> {
+class SupplementsCompanion extends UpdateCompanion<SupplementTableData> {
   final Value<int> supplementId;
   final Value<int> dictionaryId;
   final Value<int> supplementNo;
@@ -4740,7 +4748,7 @@ class SupplementsCompanion extends UpdateCompanion<Supplement> {
   })  : dictionaryId = Value(dictionaryId),
         supplementNo = Value(supplementNo),
         content = Value(content);
-  static Insertable<Supplement> custom({
+  static Insertable<SupplementTableData> custom({
     Expression<int>? supplementId,
     Expression<int>? dictionaryId,
     Expression<int>? supplementNo,
@@ -4805,7 +4813,7 @@ class SupplementsCompanion extends UpdateCompanion<Supplement> {
   }
 }
 
-class $WordsTable extends Words with TableInfo<$WordsTable, Word> {
+class $WordsTable extends Words with TableInfo<$WordsTable, WordTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -4841,7 +4849,7 @@ class $WordsTable extends Words with TableInfo<$WordsTable, Word> {
   String get actualTableName => $name;
   static const String $name = 'words';
   @override
-  VerificationContext validateIntegrity(Insertable<Word> instance,
+  VerificationContext validateIntegrity(Insertable<WordTableData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -4873,9 +4881,9 @@ class $WordsTable extends Words with TableInfo<$WordsTable, Word> {
   @override
   Set<GeneratedColumn> get $primaryKey => {wordId};
   @override
-  Word map(Map<String, dynamic> data, {String? tablePrefix}) {
+  WordTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Word(
+    return WordTableData(
       wordId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}word_id'])!,
       word: attachedDatabase.typeMapping
@@ -4893,12 +4901,12 @@ class $WordsTable extends Words with TableInfo<$WordsTable, Word> {
   }
 }
 
-class Word extends DataClass implements Insertable<Word> {
+class WordTableData extends DataClass implements Insertable<WordTableData> {
   final int wordId;
   final String word;
   final String? partOfSpeech;
   final String? partOfSpeechMark;
-  const Word(
+  const WordTableData(
       {required this.wordId,
       required this.word,
       this.partOfSpeech,
@@ -4930,10 +4938,10 @@ class Word extends DataClass implements Insertable<Word> {
     );
   }
 
-  factory Word.fromJson(Map<String, dynamic> json,
+  factory WordTableData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Word(
+    return WordTableData(
       wordId: serializer.fromJson<int>(json['wordId']),
       word: serializer.fromJson<String>(json['word']),
       partOfSpeech: serializer.fromJson<String?>(json['partOfSpeech']),
@@ -4951,12 +4959,12 @@ class Word extends DataClass implements Insertable<Word> {
     };
   }
 
-  Word copyWith(
+  WordTableData copyWith(
           {int? wordId,
           String? word,
           Value<String?> partOfSpeech = const Value.absent(),
           Value<String?> partOfSpeechMark = const Value.absent()}) =>
-      Word(
+      WordTableData(
         wordId: wordId ?? this.wordId,
         word: word ?? this.word,
         partOfSpeech:
@@ -4965,8 +4973,8 @@ class Word extends DataClass implements Insertable<Word> {
             ? partOfSpeechMark.value
             : this.partOfSpeechMark,
       );
-  Word copyWithCompanion(WordsCompanion data) {
-    return Word(
+  WordTableData copyWithCompanion(WordsCompanion data) {
+    return WordTableData(
       wordId: data.wordId.present ? data.wordId.value : this.wordId,
       word: data.word.present ? data.word.value : this.word,
       partOfSpeech: data.partOfSpeech.present
@@ -4980,7 +4988,7 @@ class Word extends DataClass implements Insertable<Word> {
 
   @override
   String toString() {
-    return (StringBuffer('Word(')
+    return (StringBuffer('WordTableData(')
           ..write('wordId: $wordId, ')
           ..write('word: $word, ')
           ..write('partOfSpeech: $partOfSpeech, ')
@@ -4994,14 +5002,14 @@ class Word extends DataClass implements Insertable<Word> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Word &&
+      (other is WordTableData &&
           other.wordId == this.wordId &&
           other.word == this.word &&
           other.partOfSpeech == this.partOfSpeech &&
           other.partOfSpeechMark == this.partOfSpeechMark);
 }
 
-class WordsCompanion extends UpdateCompanion<Word> {
+class WordsCompanion extends UpdateCompanion<WordTableData> {
   final Value<int> wordId;
   final Value<String> word;
   final Value<String?> partOfSpeech;
@@ -5018,7 +5026,7 @@ class WordsCompanion extends UpdateCompanion<Word> {
     this.partOfSpeech = const Value.absent(),
     this.partOfSpeechMark = const Value.absent(),
   }) : word = Value(word);
-  static Insertable<Word> custom({
+  static Insertable<WordTableData> custom({
     Expression<int>? wordId,
     Expression<String>? word,
     Expression<String>? partOfSpeech,
@@ -5076,7 +5084,7 @@ class WordsCompanion extends UpdateCompanion<Word> {
 }
 
 class $WordStatusTable extends WordStatus
-    with TableInfo<$WordStatusTable, WordStatusData> {
+    with TableInfo<$WordStatusTable, WordStatusTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -5118,7 +5126,8 @@ class $WordStatusTable extends WordStatus
   String get actualTableName => $name;
   static const String $name = 'word_status';
   @override
-  VerificationContext validateIntegrity(Insertable<WordStatusData> instance,
+  VerificationContext validateIntegrity(
+      Insertable<WordStatusTableData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -5152,9 +5161,9 @@ class $WordStatusTable extends WordStatus
   @override
   Set<GeneratedColumn> get $primaryKey => {wordId};
   @override
-  WordStatusData map(Map<String, dynamic> data, {String? tablePrefix}) {
+  WordStatusTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return WordStatusData(
+    return WordStatusTableData(
       wordId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}word_id'])!,
       isLearned: attachedDatabase.typeMapping
@@ -5174,13 +5183,14 @@ class $WordStatusTable extends WordStatus
   }
 }
 
-class WordStatusData extends DataClass implements Insertable<WordStatusData> {
+class WordStatusTableData extends DataClass
+    implements Insertable<WordStatusTableData> {
   final int wordId;
   final int? isLearned;
   final int? isBookmarked;
   final int? hasNote;
   final String editAt;
-  const WordStatusData(
+  const WordStatusTableData(
       {required this.wordId,
       this.isLearned,
       this.isBookmarked,
@@ -5219,10 +5229,10 @@ class WordStatusData extends DataClass implements Insertable<WordStatusData> {
     );
   }
 
-  factory WordStatusData.fromJson(Map<String, dynamic> json,
+  factory WordStatusTableData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return WordStatusData(
+    return WordStatusTableData(
       wordId: serializer.fromJson<int>(json['wordId']),
       isLearned: serializer.fromJson<int?>(json['isLearned']),
       isBookmarked: serializer.fromJson<int?>(json['isBookmarked']),
@@ -5242,13 +5252,13 @@ class WordStatusData extends DataClass implements Insertable<WordStatusData> {
     };
   }
 
-  WordStatusData copyWith(
+  WordStatusTableData copyWith(
           {int? wordId,
           Value<int?> isLearned = const Value.absent(),
           Value<int?> isBookmarked = const Value.absent(),
           Value<int?> hasNote = const Value.absent(),
           String? editAt}) =>
-      WordStatusData(
+      WordStatusTableData(
         wordId: wordId ?? this.wordId,
         isLearned: isLearned.present ? isLearned.value : this.isLearned,
         isBookmarked:
@@ -5256,8 +5266,8 @@ class WordStatusData extends DataClass implements Insertable<WordStatusData> {
         hasNote: hasNote.present ? hasNote.value : this.hasNote,
         editAt: editAt ?? this.editAt,
       );
-  WordStatusData copyWithCompanion(WordStatusCompanion data) {
-    return WordStatusData(
+  WordStatusTableData copyWithCompanion(WordStatusCompanion data) {
+    return WordStatusTableData(
       wordId: data.wordId.present ? data.wordId.value : this.wordId,
       isLearned: data.isLearned.present ? data.isLearned.value : this.isLearned,
       isBookmarked: data.isBookmarked.present
@@ -5270,7 +5280,7 @@ class WordStatusData extends DataClass implements Insertable<WordStatusData> {
 
   @override
   String toString() {
-    return (StringBuffer('WordStatusData(')
+    return (StringBuffer('WordStatusTableData(')
           ..write('wordId: $wordId, ')
           ..write('isLearned: $isLearned, ')
           ..write('isBookmarked: $isBookmarked, ')
@@ -5286,7 +5296,7 @@ class WordStatusData extends DataClass implements Insertable<WordStatusData> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is WordStatusData &&
+      (other is WordStatusTableData &&
           other.wordId == this.wordId &&
           other.isLearned == this.isLearned &&
           other.isBookmarked == this.isBookmarked &&
@@ -5294,7 +5304,7 @@ class WordStatusData extends DataClass implements Insertable<WordStatusData> {
           other.editAt == this.editAt);
 }
 
-class WordStatusCompanion extends UpdateCompanion<WordStatusData> {
+class WordStatusCompanion extends UpdateCompanion<WordStatusTableData> {
   final Value<int> wordId;
   final Value<int?> isLearned;
   final Value<int?> isBookmarked;
@@ -5314,7 +5324,7 @@ class WordStatusCompanion extends UpdateCompanion<WordStatusData> {
     this.hasNote = const Value.absent(),
     required String editAt,
   }) : editAt = Value(editAt);
-  static Insertable<WordStatusData> custom({
+  static Insertable<WordStatusTableData> custom({
     Expression<int>? wordId,
     Expression<int>? isLearned,
     Expression<int>? isBookmarked,
@@ -5947,7 +5957,7 @@ class MyWordStatusCompanion extends UpdateCompanion<MyWordStatusData> {
 }
 
 class $JpnEspWordsTable extends JpnEspWords
-    with TableInfo<$JpnEspWordsTable, JpnEspWord> {
+    with TableInfo<$JpnEspWordsTable, JpnEspWordTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -5970,7 +5980,8 @@ class $JpnEspWordsTable extends JpnEspWords
   String get actualTableName => $name;
   static const String $name = 'jpn_esp_words';
   @override
-  VerificationContext validateIntegrity(Insertable<JpnEspWord> instance,
+  VerificationContext validateIntegrity(
+      Insertable<JpnEspWordTableData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -5990,9 +6001,9 @@ class $JpnEspWordsTable extends JpnEspWords
   @override
   Set<GeneratedColumn> get $primaryKey => {wordId};
   @override
-  JpnEspWord map(Map<String, dynamic> data, {String? tablePrefix}) {
+  JpnEspWordTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return JpnEspWord(
+    return JpnEspWordTableData(
       wordId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}jpn_esp_word_id'])!,
       word: attachedDatabase.typeMapping
@@ -6006,10 +6017,11 @@ class $JpnEspWordsTable extends JpnEspWords
   }
 }
 
-class JpnEspWord extends DataClass implements Insertable<JpnEspWord> {
+class JpnEspWordTableData extends DataClass
+    implements Insertable<JpnEspWordTableData> {
   final int wordId;
   final String word;
-  const JpnEspWord({required this.wordId, required this.word});
+  const JpnEspWordTableData({required this.wordId, required this.word});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -6025,10 +6037,10 @@ class JpnEspWord extends DataClass implements Insertable<JpnEspWord> {
     );
   }
 
-  factory JpnEspWord.fromJson(Map<String, dynamic> json,
+  factory JpnEspWordTableData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return JpnEspWord(
+    return JpnEspWordTableData(
       wordId: serializer.fromJson<int>(json['wordId']),
       word: serializer.fromJson<String>(json['word']),
     );
@@ -6042,12 +6054,13 @@ class JpnEspWord extends DataClass implements Insertable<JpnEspWord> {
     };
   }
 
-  JpnEspWord copyWith({int? wordId, String? word}) => JpnEspWord(
+  JpnEspWordTableData copyWith({int? wordId, String? word}) =>
+      JpnEspWordTableData(
         wordId: wordId ?? this.wordId,
         word: word ?? this.word,
       );
-  JpnEspWord copyWithCompanion(JpnEspWordsCompanion data) {
-    return JpnEspWord(
+  JpnEspWordTableData copyWithCompanion(JpnEspWordsCompanion data) {
+    return JpnEspWordTableData(
       wordId: data.wordId.present ? data.wordId.value : this.wordId,
       word: data.word.present ? data.word.value : this.word,
     );
@@ -6055,7 +6068,7 @@ class JpnEspWord extends DataClass implements Insertable<JpnEspWord> {
 
   @override
   String toString() {
-    return (StringBuffer('JpnEspWord(')
+    return (StringBuffer('JpnEspWordTableData(')
           ..write('wordId: $wordId, ')
           ..write('word: $word')
           ..write(')'))
@@ -6067,12 +6080,12 @@ class JpnEspWord extends DataClass implements Insertable<JpnEspWord> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is JpnEspWord &&
+      (other is JpnEspWordTableData &&
           other.wordId == this.wordId &&
           other.word == this.word);
 }
 
-class JpnEspWordsCompanion extends UpdateCompanion<JpnEspWord> {
+class JpnEspWordsCompanion extends UpdateCompanion<JpnEspWordTableData> {
   final Value<int> wordId;
   final Value<String> word;
   const JpnEspWordsCompanion({
@@ -6083,7 +6096,7 @@ class JpnEspWordsCompanion extends UpdateCompanion<JpnEspWord> {
     this.wordId = const Value.absent(),
     required String word,
   }) : word = Value(word);
-  static Insertable<JpnEspWord> custom({
+  static Insertable<JpnEspWordTableData> custom({
     Expression<int>? wordId,
     Expression<String>? word,
   }) {
@@ -6123,7 +6136,7 @@ class JpnEspWordsCompanion extends UpdateCompanion<JpnEspWord> {
 }
 
 class $JpnEspWordStatusTable extends JpnEspWordStatus
-    with TableInfo<$JpnEspWordStatusTable, JpnEspWordStatusData> {
+    with TableInfo<$JpnEspWordStatusTable, JpnEspWordStatusTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -6166,7 +6179,7 @@ class $JpnEspWordStatusTable extends JpnEspWordStatus
   static const String $name = 'jpn_esp_word_status';
   @override
   VerificationContext validateIntegrity(
-      Insertable<JpnEspWordStatusData> instance,
+      Insertable<JpnEspWordStatusTableData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -6200,9 +6213,10 @@ class $JpnEspWordStatusTable extends JpnEspWordStatus
   @override
   Set<GeneratedColumn> get $primaryKey => {wordId};
   @override
-  JpnEspWordStatusData map(Map<String, dynamic> data, {String? tablePrefix}) {
+  JpnEspWordStatusTableData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return JpnEspWordStatusData(
+    return JpnEspWordStatusTableData(
       wordId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}jpn_esp_word_id'])!,
       isLearned: attachedDatabase.typeMapping
@@ -6222,14 +6236,14 @@ class $JpnEspWordStatusTable extends JpnEspWordStatus
   }
 }
 
-class JpnEspWordStatusData extends DataClass
-    implements Insertable<JpnEspWordStatusData> {
+class JpnEspWordStatusTableData extends DataClass
+    implements Insertable<JpnEspWordStatusTableData> {
   final int wordId;
   final int? isLearned;
   final int? isBookmarked;
   final int? hasNote;
   final String editAt;
-  const JpnEspWordStatusData(
+  const JpnEspWordStatusTableData(
       {required this.wordId,
       this.isLearned,
       this.isBookmarked,
@@ -6268,10 +6282,10 @@ class JpnEspWordStatusData extends DataClass
     );
   }
 
-  factory JpnEspWordStatusData.fromJson(Map<String, dynamic> json,
+  factory JpnEspWordStatusTableData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return JpnEspWordStatusData(
+    return JpnEspWordStatusTableData(
       wordId: serializer.fromJson<int>(json['wordId']),
       isLearned: serializer.fromJson<int?>(json['isLearned']),
       isBookmarked: serializer.fromJson<int?>(json['isBookmarked']),
@@ -6291,13 +6305,13 @@ class JpnEspWordStatusData extends DataClass
     };
   }
 
-  JpnEspWordStatusData copyWith(
+  JpnEspWordStatusTableData copyWith(
           {int? wordId,
           Value<int?> isLearned = const Value.absent(),
           Value<int?> isBookmarked = const Value.absent(),
           Value<int?> hasNote = const Value.absent(),
           String? editAt}) =>
-      JpnEspWordStatusData(
+      JpnEspWordStatusTableData(
         wordId: wordId ?? this.wordId,
         isLearned: isLearned.present ? isLearned.value : this.isLearned,
         isBookmarked:
@@ -6305,8 +6319,8 @@ class JpnEspWordStatusData extends DataClass
         hasNote: hasNote.present ? hasNote.value : this.hasNote,
         editAt: editAt ?? this.editAt,
       );
-  JpnEspWordStatusData copyWithCompanion(JpnEspWordStatusCompanion data) {
-    return JpnEspWordStatusData(
+  JpnEspWordStatusTableData copyWithCompanion(JpnEspWordStatusCompanion data) {
+    return JpnEspWordStatusTableData(
       wordId: data.wordId.present ? data.wordId.value : this.wordId,
       isLearned: data.isLearned.present ? data.isLearned.value : this.isLearned,
       isBookmarked: data.isBookmarked.present
@@ -6319,7 +6333,7 @@ class JpnEspWordStatusData extends DataClass
 
   @override
   String toString() {
-    return (StringBuffer('JpnEspWordStatusData(')
+    return (StringBuffer('JpnEspWordStatusTableData(')
           ..write('wordId: $wordId, ')
           ..write('isLearned: $isLearned, ')
           ..write('isBookmarked: $isBookmarked, ')
@@ -6335,7 +6349,7 @@ class JpnEspWordStatusData extends DataClass
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is JpnEspWordStatusData &&
+      (other is JpnEspWordStatusTableData &&
           other.wordId == this.wordId &&
           other.isLearned == this.isLearned &&
           other.isBookmarked == this.isBookmarked &&
@@ -6343,7 +6357,8 @@ class JpnEspWordStatusData extends DataClass
           other.editAt == this.editAt);
 }
 
-class JpnEspWordStatusCompanion extends UpdateCompanion<JpnEspWordStatusData> {
+class JpnEspWordStatusCompanion
+    extends UpdateCompanion<JpnEspWordStatusTableData> {
   final Value<int> wordId;
   final Value<int?> isLearned;
   final Value<int?> isBookmarked;
@@ -6363,7 +6378,7 @@ class JpnEspWordStatusCompanion extends UpdateCompanion<JpnEspWordStatusData> {
     this.hasNote = const Value.absent(),
     required String editAt,
   }) : editAt = Value(editAt);
-  static Insertable<JpnEspWordStatusData> custom({
+  static Insertable<JpnEspWordStatusTableData> custom({
     Expression<int>? wordId,
     Expression<int>? isLearned,
     Expression<int>? isBookmarked,
@@ -6429,7 +6444,7 @@ class JpnEspWordStatusCompanion extends UpdateCompanion<JpnEspWordStatusData> {
 }
 
 class $JpnEspDictionariesTable extends JpnEspDictionaries
-    with TableInfo<$JpnEspDictionariesTable, JpnEspDictionary> {
+    with TableInfo<$JpnEspDictionariesTable, JpnEspDictionaryTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -6482,7 +6497,8 @@ class $JpnEspDictionariesTable extends JpnEspDictionaries
   String get actualTableName => $name;
   static const String $name = 'jpn_esp_dictionaries';
   @override
-  VerificationContext validateIntegrity(Insertable<JpnEspDictionary> instance,
+  VerificationContext validateIntegrity(
+      Insertable<JpnEspDictionaryTableData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -6534,9 +6550,10 @@ class $JpnEspDictionariesTable extends JpnEspDictionaries
   @override
   Set<GeneratedColumn> get $primaryKey => {dictionaryId};
   @override
-  JpnEspDictionary map(Map<String, dynamic> data, {String? tablePrefix}) {
+  JpnEspDictionaryTableData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return JpnEspDictionary(
+    return JpnEspDictionaryTableData(
       dictionaryId: attachedDatabase.typeMapping.read(
           DriftSqlType.int, data['${effectivePrefix}jpn_esp_dictionary_id'])!,
       wordId: attachedDatabase.typeMapping
@@ -6560,8 +6577,8 @@ class $JpnEspDictionariesTable extends JpnEspDictionaries
   }
 }
 
-class JpnEspDictionary extends DataClass
-    implements Insertable<JpnEspDictionary> {
+class JpnEspDictionaryTableData extends DataClass
+    implements Insertable<JpnEspDictionaryTableData> {
   final int dictionaryId;
   final int wordId;
   final String word;
@@ -6569,7 +6586,7 @@ class JpnEspDictionary extends DataClass
   final String headword;
   final String content;
   final String htmlRaw;
-  const JpnEspDictionary(
+  const JpnEspDictionaryTableData(
       {required this.dictionaryId,
       required this.wordId,
       required this.word,
@@ -6602,10 +6619,10 @@ class JpnEspDictionary extends DataClass
     );
   }
 
-  factory JpnEspDictionary.fromJson(Map<String, dynamic> json,
+  factory JpnEspDictionaryTableData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return JpnEspDictionary(
+    return JpnEspDictionaryTableData(
       dictionaryId: serializer.fromJson<int>(json['dictionaryId']),
       wordId: serializer.fromJson<int>(json['wordId']),
       word: serializer.fromJson<String>(json['word']),
@@ -6629,7 +6646,7 @@ class JpnEspDictionary extends DataClass
     };
   }
 
-  JpnEspDictionary copyWith(
+  JpnEspDictionaryTableData copyWith(
           {int? dictionaryId,
           int? wordId,
           String? word,
@@ -6637,7 +6654,7 @@ class JpnEspDictionary extends DataClass
           String? headword,
           String? content,
           String? htmlRaw}) =>
-      JpnEspDictionary(
+      JpnEspDictionaryTableData(
         dictionaryId: dictionaryId ?? this.dictionaryId,
         wordId: wordId ?? this.wordId,
         word: word ?? this.word,
@@ -6646,8 +6663,9 @@ class JpnEspDictionary extends DataClass
         content: content ?? this.content,
         htmlRaw: htmlRaw ?? this.htmlRaw,
       );
-  JpnEspDictionary copyWithCompanion(JpnEspDictionariesCompanion data) {
-    return JpnEspDictionary(
+  JpnEspDictionaryTableData copyWithCompanion(
+      JpnEspDictionariesCompanion data) {
+    return JpnEspDictionaryTableData(
       dictionaryId: data.dictionaryId.present
           ? data.dictionaryId.value
           : this.dictionaryId,
@@ -6662,7 +6680,7 @@ class JpnEspDictionary extends DataClass
 
   @override
   String toString() {
-    return (StringBuffer('JpnEspDictionary(')
+    return (StringBuffer('JpnEspDictionaryTableData(')
           ..write('dictionaryId: $dictionaryId, ')
           ..write('wordId: $wordId, ')
           ..write('word: $word, ')
@@ -6680,7 +6698,7 @@ class JpnEspDictionary extends DataClass
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is JpnEspDictionary &&
+      (other is JpnEspDictionaryTableData &&
           other.dictionaryId == this.dictionaryId &&
           other.wordId == this.wordId &&
           other.word == this.word &&
@@ -6690,7 +6708,8 @@ class JpnEspDictionary extends DataClass
           other.htmlRaw == this.htmlRaw);
 }
 
-class JpnEspDictionariesCompanion extends UpdateCompanion<JpnEspDictionary> {
+class JpnEspDictionariesCompanion
+    extends UpdateCompanion<JpnEspDictionaryTableData> {
   final Value<int> dictionaryId;
   final Value<int> wordId;
   final Value<String> word;
@@ -6721,7 +6740,7 @@ class JpnEspDictionariesCompanion extends UpdateCompanion<JpnEspDictionary> {
         headword = Value(headword),
         content = Value(content),
         htmlRaw = Value(htmlRaw);
-  static Insertable<JpnEspDictionary> custom({
+  static Insertable<JpnEspDictionaryTableData> custom({
     Expression<int>? dictionaryId,
     Expression<int>? wordId,
     Expression<String>? word,
@@ -6803,7 +6822,7 @@ class JpnEspDictionariesCompanion extends UpdateCompanion<JpnEspDictionary> {
 }
 
 class $JpnEspExamplesTable extends JpnEspExamples
-    with TableInfo<$JpnEspExamplesTable, JpnEspExample> {
+    with TableInfo<$JpnEspExamplesTable, JpnEspExampleTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -6859,7 +6878,8 @@ class $JpnEspExamplesTable extends JpnEspExamples
   String get actualTableName => $name;
   static const String $name = 'jpn_esp_examples';
   @override
-  VerificationContext validateIntegrity(Insertable<JpnEspExample> instance,
+  VerificationContext validateIntegrity(
+      Insertable<JpnEspExampleTableData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -6913,9 +6933,9 @@ class $JpnEspExamplesTable extends JpnEspExamples
   @override
   Set<GeneratedColumn> get $primaryKey => {exampleId};
   @override
-  JpnEspExample map(Map<String, dynamic> data, {String? tablePrefix}) {
+  JpnEspExampleTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return JpnEspExample(
+    return JpnEspExampleTableData(
       exampleId: attachedDatabase.typeMapping.read(
           DriftSqlType.int, data['${effectivePrefix}jpn_esp_example_id'])!,
       dictionaryId: attachedDatabase.typeMapping.read(
@@ -6937,14 +6957,15 @@ class $JpnEspExamplesTable extends JpnEspExamples
   }
 }
 
-class JpnEspExample extends DataClass implements Insertable<JpnEspExample> {
+class JpnEspExampleTableData extends DataClass
+    implements Insertable<JpnEspExampleTableData> {
   final int exampleId;
   final int dictionaryId;
   final int exampleNo;
   final String japaneseText;
   final String espanolHtml;
   final String espanolText;
-  const JpnEspExample(
+  const JpnEspExampleTableData(
       {required this.exampleId,
       required this.dictionaryId,
       required this.exampleNo,
@@ -6974,10 +6995,10 @@ class JpnEspExample extends DataClass implements Insertable<JpnEspExample> {
     );
   }
 
-  factory JpnEspExample.fromJson(Map<String, dynamic> json,
+  factory JpnEspExampleTableData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return JpnEspExample(
+    return JpnEspExampleTableData(
       exampleId: serializer.fromJson<int>(json['exampleId']),
       dictionaryId: serializer.fromJson<int>(json['dictionaryId']),
       exampleNo: serializer.fromJson<int>(json['exampleNo']),
@@ -6999,14 +7020,14 @@ class JpnEspExample extends DataClass implements Insertable<JpnEspExample> {
     };
   }
 
-  JpnEspExample copyWith(
+  JpnEspExampleTableData copyWith(
           {int? exampleId,
           int? dictionaryId,
           int? exampleNo,
           String? japaneseText,
           String? espanolHtml,
           String? espanolText}) =>
-      JpnEspExample(
+      JpnEspExampleTableData(
         exampleId: exampleId ?? this.exampleId,
         dictionaryId: dictionaryId ?? this.dictionaryId,
         exampleNo: exampleNo ?? this.exampleNo,
@@ -7014,8 +7035,8 @@ class JpnEspExample extends DataClass implements Insertable<JpnEspExample> {
         espanolHtml: espanolHtml ?? this.espanolHtml,
         espanolText: espanolText ?? this.espanolText,
       );
-  JpnEspExample copyWithCompanion(JpnEspExamplesCompanion data) {
-    return JpnEspExample(
+  JpnEspExampleTableData copyWithCompanion(JpnEspExamplesCompanion data) {
+    return JpnEspExampleTableData(
       exampleId: data.exampleId.present ? data.exampleId.value : this.exampleId,
       dictionaryId: data.dictionaryId.present
           ? data.dictionaryId.value
@@ -7033,7 +7054,7 @@ class JpnEspExample extends DataClass implements Insertable<JpnEspExample> {
 
   @override
   String toString() {
-    return (StringBuffer('JpnEspExample(')
+    return (StringBuffer('JpnEspExampleTableData(')
           ..write('exampleId: $exampleId, ')
           ..write('dictionaryId: $dictionaryId, ')
           ..write('exampleNo: $exampleNo, ')
@@ -7050,7 +7071,7 @@ class JpnEspExample extends DataClass implements Insertable<JpnEspExample> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is JpnEspExample &&
+      (other is JpnEspExampleTableData &&
           other.exampleId == this.exampleId &&
           other.dictionaryId == this.dictionaryId &&
           other.exampleNo == this.exampleNo &&
@@ -7059,7 +7080,7 @@ class JpnEspExample extends DataClass implements Insertable<JpnEspExample> {
           other.espanolText == this.espanolText);
 }
 
-class JpnEspExamplesCompanion extends UpdateCompanion<JpnEspExample> {
+class JpnEspExamplesCompanion extends UpdateCompanion<JpnEspExampleTableData> {
   final Value<int> exampleId;
   final Value<int> dictionaryId;
   final Value<int> exampleNo;
@@ -7086,7 +7107,7 @@ class JpnEspExamplesCompanion extends UpdateCompanion<JpnEspExample> {
         japaneseText = Value(japaneseText),
         espanolHtml = Value(espanolHtml),
         espanolText = Value(espanolText);
-  static Insertable<JpnEspExample> custom({
+  static Insertable<JpnEspExampleTableData> custom({
     Expression<int>? exampleId,
     Expression<int>? dictionaryId,
     Expression<int>? exampleNo,
@@ -7160,7 +7181,7 @@ class JpnEspExamplesCompanion extends UpdateCompanion<JpnEspExample> {
 }
 
 class $EsEnConjugacionsTable extends EsEnConjugacions
-    with TableInfo<$EsEnConjugacionsTable, EsEnConjugacion> {
+    with TableInfo<$EsEnConjugacionsTable, EsEnConjugacionTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -7216,7 +7237,8 @@ class $EsEnConjugacionsTable extends EsEnConjugacions
   String get actualTableName => $name;
   static const String $name = 'es_en_conjugacions';
   @override
-  VerificationContext validateIntegrity(Insertable<EsEnConjugacion> instance,
+  VerificationContext validateIntegrity(
+      Insertable<EsEnConjugacionTableData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -7256,9 +7278,10 @@ class $EsEnConjugacionsTable extends EsEnConjugacions
   @override
   Set<GeneratedColumn> get $primaryKey => {wordId};
   @override
-  EsEnConjugacion map(Map<String, dynamic> data, {String? tablePrefix}) {
+  EsEnConjugacionTableData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return EsEnConjugacion(
+    return EsEnConjugacionTableData(
       wordId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}word_id'])!,
       word: attachedDatabase.typeMapping
@@ -7282,7 +7305,8 @@ class $EsEnConjugacionsTable extends EsEnConjugacions
   }
 }
 
-class EsEnConjugacion extends DataClass implements Insertable<EsEnConjugacion> {
+class EsEnConjugacionTableData extends DataClass
+    implements Insertable<EsEnConjugacionTableData> {
   final int wordId;
   final String? word;
   final String? english;
@@ -7290,7 +7314,7 @@ class EsEnConjugacion extends DataClass implements Insertable<EsEnConjugacion> {
   final String? presentP;
   final String? past;
   final String? pastP;
-  const EsEnConjugacion(
+  const EsEnConjugacionTableData(
       {required this.wordId,
       this.word,
       this.english,
@@ -7342,10 +7366,10 @@ class EsEnConjugacion extends DataClass implements Insertable<EsEnConjugacion> {
     );
   }
 
-  factory EsEnConjugacion.fromJson(Map<String, dynamic> json,
+  factory EsEnConjugacionTableData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return EsEnConjugacion(
+    return EsEnConjugacionTableData(
       wordId: serializer.fromJson<int>(json['wordId']),
       word: serializer.fromJson<String?>(json['word']),
       english: serializer.fromJson<String?>(json['english']),
@@ -7369,7 +7393,7 @@ class EsEnConjugacion extends DataClass implements Insertable<EsEnConjugacion> {
     };
   }
 
-  EsEnConjugacion copyWith(
+  EsEnConjugacionTableData copyWith(
           {int? wordId,
           Value<String?> word = const Value.absent(),
           Value<String?> english = const Value.absent(),
@@ -7377,7 +7401,7 @@ class EsEnConjugacion extends DataClass implements Insertable<EsEnConjugacion> {
           Value<String?> presentP = const Value.absent(),
           Value<String?> past = const Value.absent(),
           Value<String?> pastP = const Value.absent()}) =>
-      EsEnConjugacion(
+      EsEnConjugacionTableData(
         wordId: wordId ?? this.wordId,
         word: word.present ? word.value : this.word,
         english: english.present ? english.value : this.english,
@@ -7386,8 +7410,8 @@ class EsEnConjugacion extends DataClass implements Insertable<EsEnConjugacion> {
         past: past.present ? past.value : this.past,
         pastP: pastP.present ? pastP.value : this.pastP,
       );
-  EsEnConjugacion copyWithCompanion(EsEnConjugacionsCompanion data) {
-    return EsEnConjugacion(
+  EsEnConjugacionTableData copyWithCompanion(EsEnConjugacionsCompanion data) {
+    return EsEnConjugacionTableData(
       wordId: data.wordId.present ? data.wordId.value : this.wordId,
       word: data.word.present ? data.word.value : this.word,
       english: data.english.present ? data.english.value : this.english,
@@ -7401,7 +7425,7 @@ class EsEnConjugacion extends DataClass implements Insertable<EsEnConjugacion> {
 
   @override
   String toString() {
-    return (StringBuffer('EsEnConjugacion(')
+    return (StringBuffer('EsEnConjugacionTableData(')
           ..write('wordId: $wordId, ')
           ..write('word: $word, ')
           ..write('english: $english, ')
@@ -7419,7 +7443,7 @@ class EsEnConjugacion extends DataClass implements Insertable<EsEnConjugacion> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is EsEnConjugacion &&
+      (other is EsEnConjugacionTableData &&
           other.wordId == this.wordId &&
           other.word == this.word &&
           other.english == this.english &&
@@ -7429,7 +7453,8 @@ class EsEnConjugacion extends DataClass implements Insertable<EsEnConjugacion> {
           other.pastP == this.pastP);
 }
 
-class EsEnConjugacionsCompanion extends UpdateCompanion<EsEnConjugacion> {
+class EsEnConjugacionsCompanion
+    extends UpdateCompanion<EsEnConjugacionTableData> {
   final Value<int> wordId;
   final Value<String?> word;
   final Value<String?> english;
@@ -7455,7 +7480,7 @@ class EsEnConjugacionsCompanion extends UpdateCompanion<EsEnConjugacion> {
     this.past = const Value.absent(),
     this.pastP = const Value.absent(),
   });
-  static Insertable<EsEnConjugacion> custom({
+  static Insertable<EsEnConjugacionTableData> custom({
     Expression<int>? wordId,
     Expression<String>? word,
     Expression<String>? english,
@@ -8306,17 +8331,18 @@ class $$ConjugationsTableAnnotationComposer
 class $$ConjugationsTableTableManager extends RootTableManager<
     _$DatabaseProvider,
     $ConjugationsTable,
-    Conjugation,
+    ConjugationTableData,
     $$ConjugationsTableFilterComposer,
     $$ConjugationsTableOrderingComposer,
     $$ConjugationsTableAnnotationComposer,
     $$ConjugationsTableCreateCompanionBuilder,
     $$ConjugationsTableUpdateCompanionBuilder,
     (
-      Conjugation,
-      BaseReferences<_$DatabaseProvider, $ConjugationsTable, Conjugation>
+      ConjugationTableData,
+      BaseReferences<_$DatabaseProvider, $ConjugationsTable,
+          ConjugationTableData>
     ),
-    Conjugation,
+    ConjugationTableData,
     PrefetchHooks Function()> {
   $$ConjugationsTableTableManager(
       _$DatabaseProvider db, $ConjugationsTable table)
@@ -8555,17 +8581,18 @@ class $$ConjugationsTableTableManager extends RootTableManager<
 typedef $$ConjugationsTableProcessedTableManager = ProcessedTableManager<
     _$DatabaseProvider,
     $ConjugationsTable,
-    Conjugation,
+    ConjugationTableData,
     $$ConjugationsTableFilterComposer,
     $$ConjugationsTableOrderingComposer,
     $$ConjugationsTableAnnotationComposer,
     $$ConjugationsTableCreateCompanionBuilder,
     $$ConjugationsTableUpdateCompanionBuilder,
     (
-      Conjugation,
-      BaseReferences<_$DatabaseProvider, $ConjugationsTable, Conjugation>
+      ConjugationTableData,
+      BaseReferences<_$DatabaseProvider, $ConjugationsTable,
+          ConjugationTableData>
     ),
-    Conjugation,
+    ConjugationTableData,
     PrefetchHooks Function()>;
 typedef $$DictionariesTableCreateCompanionBuilder = DictionariesCompanion
     Function({
@@ -8721,17 +8748,18 @@ class $$DictionariesTableAnnotationComposer
 class $$DictionariesTableTableManager extends RootTableManager<
     _$DatabaseProvider,
     $DictionariesTable,
-    Dictionary,
+    DictionaryTableData,
     $$DictionariesTableFilterComposer,
     $$DictionariesTableOrderingComposer,
     $$DictionariesTableAnnotationComposer,
     $$DictionariesTableCreateCompanionBuilder,
     $$DictionariesTableUpdateCompanionBuilder,
     (
-      Dictionary,
-      BaseReferences<_$DatabaseProvider, $DictionariesTable, Dictionary>
+      DictionaryTableData,
+      BaseReferences<_$DatabaseProvider, $DictionariesTable,
+          DictionaryTableData>
     ),
-    Dictionary,
+    DictionaryTableData,
     PrefetchHooks Function()> {
   $$DictionariesTableTableManager(
       _$DatabaseProvider db, $DictionariesTable table)
@@ -8802,17 +8830,18 @@ class $$DictionariesTableTableManager extends RootTableManager<
 typedef $$DictionariesTableProcessedTableManager = ProcessedTableManager<
     _$DatabaseProvider,
     $DictionariesTable,
-    Dictionary,
+    DictionaryTableData,
     $$DictionariesTableFilterComposer,
     $$DictionariesTableOrderingComposer,
     $$DictionariesTableAnnotationComposer,
     $$DictionariesTableCreateCompanionBuilder,
     $$DictionariesTableUpdateCompanionBuilder,
     (
-      Dictionary,
-      BaseReferences<_$DatabaseProvider, $DictionariesTable, Dictionary>
+      DictionaryTableData,
+      BaseReferences<_$DatabaseProvider, $DictionariesTable,
+          DictionaryTableData>
     ),
-    Dictionary,
+    DictionaryTableData,
     PrefetchHooks Function()>;
 typedef $$ExamplesTableCreateCompanionBuilder = ExamplesCompanion Function({
   Value<int> exampleId,
@@ -8920,14 +8949,17 @@ class $$ExamplesTableAnnotationComposer
 class $$ExamplesTableTableManager extends RootTableManager<
     _$DatabaseProvider,
     $ExamplesTable,
-    Example,
+    ExampleTableData,
     $$ExamplesTableFilterComposer,
     $$ExamplesTableOrderingComposer,
     $$ExamplesTableAnnotationComposer,
     $$ExamplesTableCreateCompanionBuilder,
     $$ExamplesTableUpdateCompanionBuilder,
-    (Example, BaseReferences<_$DatabaseProvider, $ExamplesTable, Example>),
-    Example,
+    (
+      ExampleTableData,
+      BaseReferences<_$DatabaseProvider, $ExamplesTable, ExampleTableData>
+    ),
+    ExampleTableData,
     PrefetchHooks Function()> {
   $$ExamplesTableTableManager(_$DatabaseProvider db, $ExamplesTable table)
       : super(TableManagerState(
@@ -8981,14 +9013,17 @@ class $$ExamplesTableTableManager extends RootTableManager<
 typedef $$ExamplesTableProcessedTableManager = ProcessedTableManager<
     _$DatabaseProvider,
     $ExamplesTable,
-    Example,
+    ExampleTableData,
     $$ExamplesTableFilterComposer,
     $$ExamplesTableOrderingComposer,
     $$ExamplesTableAnnotationComposer,
     $$ExamplesTableCreateCompanionBuilder,
     $$ExamplesTableUpdateCompanionBuilder,
-    (Example, BaseReferences<_$DatabaseProvider, $ExamplesTable, Example>),
-    Example,
+    (
+      ExampleTableData,
+      BaseReferences<_$DatabaseProvider, $ExamplesTable, ExampleTableData>
+    ),
+    ExampleTableData,
     PrefetchHooks Function()>;
 typedef $$IdiomsTableCreateCompanionBuilder = IdiomsCompanion Function({
   Value<int> idiomId,
@@ -9084,14 +9119,17 @@ class $$IdiomsTableAnnotationComposer
 class $$IdiomsTableTableManager extends RootTableManager<
     _$DatabaseProvider,
     $IdiomsTable,
-    Idiom,
+    IdiomTableData,
     $$IdiomsTableFilterComposer,
     $$IdiomsTableOrderingComposer,
     $$IdiomsTableAnnotationComposer,
     $$IdiomsTableCreateCompanionBuilder,
     $$IdiomsTableUpdateCompanionBuilder,
-    (Idiom, BaseReferences<_$DatabaseProvider, $IdiomsTable, Idiom>),
-    Idiom,
+    (
+      IdiomTableData,
+      BaseReferences<_$DatabaseProvider, $IdiomsTable, IdiomTableData>
+    ),
+    IdiomTableData,
     PrefetchHooks Function()> {
   $$IdiomsTableTableManager(_$DatabaseProvider db, $IdiomsTable table)
       : super(TableManagerState(
@@ -9141,14 +9179,17 @@ class $$IdiomsTableTableManager extends RootTableManager<
 typedef $$IdiomsTableProcessedTableManager = ProcessedTableManager<
     _$DatabaseProvider,
     $IdiomsTable,
-    Idiom,
+    IdiomTableData,
     $$IdiomsTableFilterComposer,
     $$IdiomsTableOrderingComposer,
     $$IdiomsTableAnnotationComposer,
     $$IdiomsTableCreateCompanionBuilder,
     $$IdiomsTableUpdateCompanionBuilder,
-    (Idiom, BaseReferences<_$DatabaseProvider, $IdiomsTable, Idiom>),
-    Idiom,
+    (
+      IdiomTableData,
+      BaseReferences<_$DatabaseProvider, $IdiomsTable, IdiomTableData>
+    ),
+    IdiomTableData,
     PrefetchHooks Function()>;
 typedef $$PartOfSpeechListsTableCreateCompanionBuilder
     = PartOfSpeechListsCompanion Function({
@@ -9566,17 +9607,17 @@ class $$SupplementsTableAnnotationComposer
 class $$SupplementsTableTableManager extends RootTableManager<
     _$DatabaseProvider,
     $SupplementsTable,
-    Supplement,
+    SupplementTableData,
     $$SupplementsTableFilterComposer,
     $$SupplementsTableOrderingComposer,
     $$SupplementsTableAnnotationComposer,
     $$SupplementsTableCreateCompanionBuilder,
     $$SupplementsTableUpdateCompanionBuilder,
     (
-      Supplement,
-      BaseReferences<_$DatabaseProvider, $SupplementsTable, Supplement>
+      SupplementTableData,
+      BaseReferences<_$DatabaseProvider, $SupplementsTable, SupplementTableData>
     ),
-    Supplement,
+    SupplementTableData,
     PrefetchHooks Function()> {
   $$SupplementsTableTableManager(_$DatabaseProvider db, $SupplementsTable table)
       : super(TableManagerState(
@@ -9626,17 +9667,17 @@ class $$SupplementsTableTableManager extends RootTableManager<
 typedef $$SupplementsTableProcessedTableManager = ProcessedTableManager<
     _$DatabaseProvider,
     $SupplementsTable,
-    Supplement,
+    SupplementTableData,
     $$SupplementsTableFilterComposer,
     $$SupplementsTableOrderingComposer,
     $$SupplementsTableAnnotationComposer,
     $$SupplementsTableCreateCompanionBuilder,
     $$SupplementsTableUpdateCompanionBuilder,
     (
-      Supplement,
-      BaseReferences<_$DatabaseProvider, $SupplementsTable, Supplement>
+      SupplementTableData,
+      BaseReferences<_$DatabaseProvider, $SupplementsTable, SupplementTableData>
     ),
-    Supplement,
+    SupplementTableData,
     PrefetchHooks Function()>;
 typedef $$WordsTableCreateCompanionBuilder = WordsCompanion Function({
   Value<int> wordId,
@@ -9723,14 +9764,17 @@ class $$WordsTableAnnotationComposer
 class $$WordsTableTableManager extends RootTableManager<
     _$DatabaseProvider,
     $WordsTable,
-    Word,
+    WordTableData,
     $$WordsTableFilterComposer,
     $$WordsTableOrderingComposer,
     $$WordsTableAnnotationComposer,
     $$WordsTableCreateCompanionBuilder,
     $$WordsTableUpdateCompanionBuilder,
-    (Word, BaseReferences<_$DatabaseProvider, $WordsTable, Word>),
-    Word,
+    (
+      WordTableData,
+      BaseReferences<_$DatabaseProvider, $WordsTable, WordTableData>
+    ),
+    WordTableData,
     PrefetchHooks Function()> {
   $$WordsTableTableManager(_$DatabaseProvider db, $WordsTable table)
       : super(TableManagerState(
@@ -9776,14 +9820,17 @@ class $$WordsTableTableManager extends RootTableManager<
 typedef $$WordsTableProcessedTableManager = ProcessedTableManager<
     _$DatabaseProvider,
     $WordsTable,
-    Word,
+    WordTableData,
     $$WordsTableFilterComposer,
     $$WordsTableOrderingComposer,
     $$WordsTableAnnotationComposer,
     $$WordsTableCreateCompanionBuilder,
     $$WordsTableUpdateCompanionBuilder,
-    (Word, BaseReferences<_$DatabaseProvider, $WordsTable, Word>),
-    Word,
+    (
+      WordTableData,
+      BaseReferences<_$DatabaseProvider, $WordsTable, WordTableData>
+    ),
+    WordTableData,
     PrefetchHooks Function()>;
 typedef $$WordStatusTableCreateCompanionBuilder = WordStatusCompanion Function({
   Value<int> wordId,
@@ -9879,17 +9926,17 @@ class $$WordStatusTableAnnotationComposer
 class $$WordStatusTableTableManager extends RootTableManager<
     _$DatabaseProvider,
     $WordStatusTable,
-    WordStatusData,
+    WordStatusTableData,
     $$WordStatusTableFilterComposer,
     $$WordStatusTableOrderingComposer,
     $$WordStatusTableAnnotationComposer,
     $$WordStatusTableCreateCompanionBuilder,
     $$WordStatusTableUpdateCompanionBuilder,
     (
-      WordStatusData,
-      BaseReferences<_$DatabaseProvider, $WordStatusTable, WordStatusData>
+      WordStatusTableData,
+      BaseReferences<_$DatabaseProvider, $WordStatusTable, WordStatusTableData>
     ),
-    WordStatusData,
+    WordStatusTableData,
     PrefetchHooks Function()> {
   $$WordStatusTableTableManager(_$DatabaseProvider db, $WordStatusTable table)
       : super(TableManagerState(
@@ -9939,17 +9986,17 @@ class $$WordStatusTableTableManager extends RootTableManager<
 typedef $$WordStatusTableProcessedTableManager = ProcessedTableManager<
     _$DatabaseProvider,
     $WordStatusTable,
-    WordStatusData,
+    WordStatusTableData,
     $$WordStatusTableFilterComposer,
     $$WordStatusTableOrderingComposer,
     $$WordStatusTableAnnotationComposer,
     $$WordStatusTableCreateCompanionBuilder,
     $$WordStatusTableUpdateCompanionBuilder,
     (
-      WordStatusData,
-      BaseReferences<_$DatabaseProvider, $WordStatusTable, WordStatusData>
+      WordStatusTableData,
+      BaseReferences<_$DatabaseProvider, $WordStatusTable, WordStatusTableData>
     ),
-    WordStatusData,
+    WordStatusTableData,
     PrefetchHooks Function()>;
 typedef $$MyWordsTableCreateCompanionBuilder = MyWordsCompanion Function({
   Value<int> myWordId,
@@ -10326,17 +10373,17 @@ class $$JpnEspWordsTableAnnotationComposer
 class $$JpnEspWordsTableTableManager extends RootTableManager<
     _$DatabaseProvider,
     $JpnEspWordsTable,
-    JpnEspWord,
+    JpnEspWordTableData,
     $$JpnEspWordsTableFilterComposer,
     $$JpnEspWordsTableOrderingComposer,
     $$JpnEspWordsTableAnnotationComposer,
     $$JpnEspWordsTableCreateCompanionBuilder,
     $$JpnEspWordsTableUpdateCompanionBuilder,
     (
-      JpnEspWord,
-      BaseReferences<_$DatabaseProvider, $JpnEspWordsTable, JpnEspWord>
+      JpnEspWordTableData,
+      BaseReferences<_$DatabaseProvider, $JpnEspWordsTable, JpnEspWordTableData>
     ),
-    JpnEspWord,
+    JpnEspWordTableData,
     PrefetchHooks Function()> {
   $$JpnEspWordsTableTableManager(_$DatabaseProvider db, $JpnEspWordsTable table)
       : super(TableManagerState(
@@ -10374,17 +10421,17 @@ class $$JpnEspWordsTableTableManager extends RootTableManager<
 typedef $$JpnEspWordsTableProcessedTableManager = ProcessedTableManager<
     _$DatabaseProvider,
     $JpnEspWordsTable,
-    JpnEspWord,
+    JpnEspWordTableData,
     $$JpnEspWordsTableFilterComposer,
     $$JpnEspWordsTableOrderingComposer,
     $$JpnEspWordsTableAnnotationComposer,
     $$JpnEspWordsTableCreateCompanionBuilder,
     $$JpnEspWordsTableUpdateCompanionBuilder,
     (
-      JpnEspWord,
-      BaseReferences<_$DatabaseProvider, $JpnEspWordsTable, JpnEspWord>
+      JpnEspWordTableData,
+      BaseReferences<_$DatabaseProvider, $JpnEspWordsTable, JpnEspWordTableData>
     ),
-    JpnEspWord,
+    JpnEspWordTableData,
     PrefetchHooks Function()>;
 typedef $$JpnEspWordStatusTableCreateCompanionBuilder
     = JpnEspWordStatusCompanion Function({
@@ -10482,18 +10529,18 @@ class $$JpnEspWordStatusTableAnnotationComposer
 class $$JpnEspWordStatusTableTableManager extends RootTableManager<
     _$DatabaseProvider,
     $JpnEspWordStatusTable,
-    JpnEspWordStatusData,
+    JpnEspWordStatusTableData,
     $$JpnEspWordStatusTableFilterComposer,
     $$JpnEspWordStatusTableOrderingComposer,
     $$JpnEspWordStatusTableAnnotationComposer,
     $$JpnEspWordStatusTableCreateCompanionBuilder,
     $$JpnEspWordStatusTableUpdateCompanionBuilder,
     (
-      JpnEspWordStatusData,
+      JpnEspWordStatusTableData,
       BaseReferences<_$DatabaseProvider, $JpnEspWordStatusTable,
-          JpnEspWordStatusData>
+          JpnEspWordStatusTableData>
     ),
-    JpnEspWordStatusData,
+    JpnEspWordStatusTableData,
     PrefetchHooks Function()> {
   $$JpnEspWordStatusTableTableManager(
       _$DatabaseProvider db, $JpnEspWordStatusTable table)
@@ -10544,18 +10591,18 @@ class $$JpnEspWordStatusTableTableManager extends RootTableManager<
 typedef $$JpnEspWordStatusTableProcessedTableManager = ProcessedTableManager<
     _$DatabaseProvider,
     $JpnEspWordStatusTable,
-    JpnEspWordStatusData,
+    JpnEspWordStatusTableData,
     $$JpnEspWordStatusTableFilterComposer,
     $$JpnEspWordStatusTableOrderingComposer,
     $$JpnEspWordStatusTableAnnotationComposer,
     $$JpnEspWordStatusTableCreateCompanionBuilder,
     $$JpnEspWordStatusTableUpdateCompanionBuilder,
     (
-      JpnEspWordStatusData,
+      JpnEspWordStatusTableData,
       BaseReferences<_$DatabaseProvider, $JpnEspWordStatusTable,
-          JpnEspWordStatusData>
+          JpnEspWordStatusTableData>
     ),
-    JpnEspWordStatusData,
+    JpnEspWordStatusTableData,
     PrefetchHooks Function()>;
 typedef $$JpnEspDictionariesTableCreateCompanionBuilder
     = JpnEspDictionariesCompanion Function({
@@ -10675,18 +10722,18 @@ class $$JpnEspDictionariesTableAnnotationComposer
 class $$JpnEspDictionariesTableTableManager extends RootTableManager<
     _$DatabaseProvider,
     $JpnEspDictionariesTable,
-    JpnEspDictionary,
+    JpnEspDictionaryTableData,
     $$JpnEspDictionariesTableFilterComposer,
     $$JpnEspDictionariesTableOrderingComposer,
     $$JpnEspDictionariesTableAnnotationComposer,
     $$JpnEspDictionariesTableCreateCompanionBuilder,
     $$JpnEspDictionariesTableUpdateCompanionBuilder,
     (
-      JpnEspDictionary,
+      JpnEspDictionaryTableData,
       BaseReferences<_$DatabaseProvider, $JpnEspDictionariesTable,
-          JpnEspDictionary>
+          JpnEspDictionaryTableData>
     ),
-    JpnEspDictionary,
+    JpnEspDictionaryTableData,
     PrefetchHooks Function()> {
   $$JpnEspDictionariesTableTableManager(
       _$DatabaseProvider db, $JpnEspDictionariesTable table)
@@ -10746,18 +10793,18 @@ class $$JpnEspDictionariesTableTableManager extends RootTableManager<
 typedef $$JpnEspDictionariesTableProcessedTableManager = ProcessedTableManager<
     _$DatabaseProvider,
     $JpnEspDictionariesTable,
-    JpnEspDictionary,
+    JpnEspDictionaryTableData,
     $$JpnEspDictionariesTableFilterComposer,
     $$JpnEspDictionariesTableOrderingComposer,
     $$JpnEspDictionariesTableAnnotationComposer,
     $$JpnEspDictionariesTableCreateCompanionBuilder,
     $$JpnEspDictionariesTableUpdateCompanionBuilder,
     (
-      JpnEspDictionary,
+      JpnEspDictionaryTableData,
       BaseReferences<_$DatabaseProvider, $JpnEspDictionariesTable,
-          JpnEspDictionary>
+          JpnEspDictionaryTableData>
     ),
-    JpnEspDictionary,
+    JpnEspDictionaryTableData,
     PrefetchHooks Function()>;
 typedef $$JpnEspExamplesTableCreateCompanionBuilder = JpnEspExamplesCompanion
     Function({
@@ -10867,17 +10914,18 @@ class $$JpnEspExamplesTableAnnotationComposer
 class $$JpnEspExamplesTableTableManager extends RootTableManager<
     _$DatabaseProvider,
     $JpnEspExamplesTable,
-    JpnEspExample,
+    JpnEspExampleTableData,
     $$JpnEspExamplesTableFilterComposer,
     $$JpnEspExamplesTableOrderingComposer,
     $$JpnEspExamplesTableAnnotationComposer,
     $$JpnEspExamplesTableCreateCompanionBuilder,
     $$JpnEspExamplesTableUpdateCompanionBuilder,
     (
-      JpnEspExample,
-      BaseReferences<_$DatabaseProvider, $JpnEspExamplesTable, JpnEspExample>
+      JpnEspExampleTableData,
+      BaseReferences<_$DatabaseProvider, $JpnEspExamplesTable,
+          JpnEspExampleTableData>
     ),
-    JpnEspExample,
+    JpnEspExampleTableData,
     PrefetchHooks Function()> {
   $$JpnEspExamplesTableTableManager(
       _$DatabaseProvider db, $JpnEspExamplesTable table)
@@ -10932,17 +10980,18 @@ class $$JpnEspExamplesTableTableManager extends RootTableManager<
 typedef $$JpnEspExamplesTableProcessedTableManager = ProcessedTableManager<
     _$DatabaseProvider,
     $JpnEspExamplesTable,
-    JpnEspExample,
+    JpnEspExampleTableData,
     $$JpnEspExamplesTableFilterComposer,
     $$JpnEspExamplesTableOrderingComposer,
     $$JpnEspExamplesTableAnnotationComposer,
     $$JpnEspExamplesTableCreateCompanionBuilder,
     $$JpnEspExamplesTableUpdateCompanionBuilder,
     (
-      JpnEspExample,
-      BaseReferences<_$DatabaseProvider, $JpnEspExamplesTable, JpnEspExample>
+      JpnEspExampleTableData,
+      BaseReferences<_$DatabaseProvider, $JpnEspExamplesTable,
+          JpnEspExampleTableData>
     ),
-    JpnEspExample,
+    JpnEspExampleTableData,
     PrefetchHooks Function()>;
 typedef $$EsEnConjugacionsTableCreateCompanionBuilder
     = EsEnConjugacionsCompanion Function({
@@ -11061,18 +11110,18 @@ class $$EsEnConjugacionsTableAnnotationComposer
 class $$EsEnConjugacionsTableTableManager extends RootTableManager<
     _$DatabaseProvider,
     $EsEnConjugacionsTable,
-    EsEnConjugacion,
+    EsEnConjugacionTableData,
     $$EsEnConjugacionsTableFilterComposer,
     $$EsEnConjugacionsTableOrderingComposer,
     $$EsEnConjugacionsTableAnnotationComposer,
     $$EsEnConjugacionsTableCreateCompanionBuilder,
     $$EsEnConjugacionsTableUpdateCompanionBuilder,
     (
-      EsEnConjugacion,
+      EsEnConjugacionTableData,
       BaseReferences<_$DatabaseProvider, $EsEnConjugacionsTable,
-          EsEnConjugacion>
+          EsEnConjugacionTableData>
     ),
-    EsEnConjugacion,
+    EsEnConjugacionTableData,
     PrefetchHooks Function()> {
   $$EsEnConjugacionsTableTableManager(
       _$DatabaseProvider db, $EsEnConjugacionsTable table)
@@ -11131,18 +11180,18 @@ class $$EsEnConjugacionsTableTableManager extends RootTableManager<
 typedef $$EsEnConjugacionsTableProcessedTableManager = ProcessedTableManager<
     _$DatabaseProvider,
     $EsEnConjugacionsTable,
-    EsEnConjugacion,
+    EsEnConjugacionTableData,
     $$EsEnConjugacionsTableFilterComposer,
     $$EsEnConjugacionsTableOrderingComposer,
     $$EsEnConjugacionsTableAnnotationComposer,
     $$EsEnConjugacionsTableCreateCompanionBuilder,
     $$EsEnConjugacionsTableUpdateCompanionBuilder,
     (
-      EsEnConjugacion,
+      EsEnConjugacionTableData,
       BaseReferences<_$DatabaseProvider, $EsEnConjugacionsTable,
-          EsEnConjugacion>
+          EsEnConjugacionTableData>
     ),
-    EsEnConjugacion,
+    EsEnConjugacionTableData,
     PrefetchHooks Function()>;
 
 class $DatabaseProviderManager {

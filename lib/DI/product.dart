@@ -138,10 +138,6 @@ final updateStatusPresenterProvider = Provider((ref) {
   return UpdateStatusPresenterImpl(ref.read(rankingViewModelProvider));
 });
 
-final searchWordPresenterProvider = Provider((ref) {
-  return SearchWordPresenterImpl(ref.read(searchViewModelProvider));
-});
-
 final fetchConjugationPresenterProvider = Provider((ref) {
   return ConjugacionFragmentPresenterImpl(ref.read(mainViewModelProvider));
 });
@@ -189,18 +185,7 @@ final locateRankingPagenationUseCaseProvider =
       ref.read(locateRankingPagenationPresenterProvider));
 });
 
-final searchWordUseCaseProvider = Provider<ISearchWordUseCase>((ref) {
-  return SearchWordInteractor(
-    ref.read(esjWordRepositoryProvider),
-    ref.read(searchWordPresenterProvider),
-    ref.read(jpnEspWordRepositoryProvider),
-    ref.read(conjugacionsRepositoryProvider),
-  );
-});
 
-final judgeSearchWordUseCaseProvider = Provider<IJudgeSearchWordUseCase>((ref) {
-  return JudgeSearchWordInteractor();
-});
 
 final loadMyWordUseCaseProvider = Provider<ILoadMyWordUseCase>((ref) {
   return LoadMyWordInteractor(
