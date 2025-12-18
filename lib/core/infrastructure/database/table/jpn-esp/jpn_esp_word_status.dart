@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+@DataClassName('JpnEspWordStatusTableData')
 class JpnEspWordStatus extends Table {
   IntColumn get wordId => integer().named('jpn_esp_word_id')();
   IntColumn get isLearned => integer().named('is_learned').nullable()();

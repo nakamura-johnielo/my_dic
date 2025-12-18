@@ -7,10 +7,11 @@ import 'package:my_dic/Components/auto_focus_text_field.dart';
 import 'package:my_dic/Components/searhCard/conjugacion_search_card.dart';
 import 'package:my_dic/Components/searhCard/jpn_esp_searh_card.dart';
 import 'package:my_dic/Components/searhCard/search_card.dart';
+import 'package:my_dic/_View/search/infinity_scroll_view/infinity_scroll_view_new.dart';
 import 'package:my_dic/core/common/enums/ui/tab.dart';
 import 'package:my_dic/features/search/di/view_model_di.dart';
 import 'package:my_dic/features/search/presentation/view_model/buffer_controller.dart';
-import 'package:my_dic/_View/search/infinity_scroll_view/infinity_scroll_view.dart';
+// import 'package:my_dic/_View/search/infinity_scroll_view/infinity_scroll_view.dart';
 import 'package:my_dic/_View/word_page/jpn_esp/jpn_esp_word_page_fragment.dart';
 import 'package:my_dic/_View/word_page/word_page_fragment.dart';
 
@@ -38,14 +39,72 @@ import 'package:my_dic/_View/word_page/word_page_fragment.dart';
 //   }
 // }
 
-class SearchFragment extends ConsumerWidget {
+class SearchFragment extends ConsumerStatefulWidget {
   const SearchFragment({super.key});
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final BufferController bufferController =
-        ref.read(bufferControllerProvider);
 
+  @override
+  ConsumerState<SearchFragment> createState() => _SearchFragmentState();
+}
+
+class _SearchFragmentState extends ConsumerState<SearchFragment> {
+  int _currentPage = -1;
+  final int _size = 30; //searchの1ページの取得件数
+  int _previousConjItemLength = 0;
+  int _previousEspJpnItemLength = 0;
+  int _previousJpnEspItemLength = 0;
+  bool _hasMore = true;
+
+  void _loadNextPage() async {
+    print("_loadNextPage: $_currentPage");
+    final viewModel = ref.read(searchViewModelProvider.notifier);
+
+    _setCurrentItemLength();
+    await viewModel.loadSearchResults(
+      _size,
+      _currentPage,
+    );
+    print(viewModel.state.espJpnWords.length);
+    setState(() {
+      _hasMore = _canFetch();
+      _currentPage++;
+    });
+  }
+
+  void _resetPage() {
+    setState(() {
+      _previousEspJpnItemLength = 0;
+      _previousConjItemLength = 0;
+      _previousJpnEspItemLength = 0;
+      _currentPage = -1;
+    });
+  }
+
+  void _setCurrentItemLength() {
+    final viewModel = ref.read(searchViewModelProvider);
+    _previousEspJpnItemLength = viewModel.espJpnWords.length;
+    _previousConjItemLength = viewModel.conjugacions.length;
+    _previousJpnEspItemLength = viewModel.jpnEspWords.length;
+  }
+
+  bool _canFetch() {
+    final viewModel = ref.read(searchViewModelProvider);
+    final currentEspJpnItemLength = viewModel.espJpnWords.length;
+    final currentConjItemLength = viewModel.conjugacions.length;
+    final currentJpnEspItemLength = viewModel.jpnEspWords.length;
+    return currentEspJpnItemLength > _previousEspJpnItemLength ||
+        currentConjItemLength > _previousConjItemLength ||
+        currentJpnEspItemLength > _previousJpnEspItemLength;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // final BufferController bufferController =
+    //     ref.read(bufferControllerProvider);
+    //final int size = 30;
+
+    //final viewModel = ref.watch(searchViewModelProviderOld);
     final viewModel = ref.watch(searchViewModelProvider);
+    final viewModelNotifier = ref.read(searchViewModelProvider.notifier);
     log("0 Fragment in build");
 
     return Scaffold(
@@ -63,7 +122,11 @@ class SearchFragment extends ConsumerWidget {
               ),
               onChanged: (value) {
                 //SchedulerBinding.instance.addPostFrameCallback((_) {
-                viewModel.query = value;
+                //viewModel.query = value;
+                viewModelNotifier.updateQuery(value);
+                viewModelNotifier.clearResults();
+                _resetPage();
+                _loadNextPage();
                 //});
                 //viewModel.query = value;
                 //_bufferController.searchWord(value);
@@ -132,69 +195,65 @@ class SearchFragment extends ConsumerWidget {
                   query: viewModel.query)) */
 
           Expanded(
-              child: viewModel.filteredJpnEspItems.isNotEmpty
-                  ? SearchInfinityListView(
-                      size: 30,
-                      itemCount: viewModel.filteredJpnEspItems.length,
+              child: viewModel.jpnEspWords.isNotEmpty
+                  ? InfinityScrollListView(
+                      hasMore: _hasMore,
+                      itemCount: viewModel.jpnEspWords.length,
                       itemBuilder: (context, index) {
+                        final jpnEspWord = viewModel.jpnEspWords[index];
                         return JpnEspSearchCard(
-                          word: viewModel.filteredJpnEspItems[index].word,
+                          word: jpnEspWord.word,
                           onTap: () {
                             context.push(
                                 '/${ScreenTab.search}/${ScreenPage.jpnEspDetail}',
                                 extra: JpnEspWordPageFragmentInput(
-                                    wordId: viewModel
-                                        .filteredJpnEspItems[index].id));
+                                    wordId: jpnEspWord.id));
                           },
                         );
                       },
-                      loadNext: bufferController.searchWord,
-                      query: viewModel.query)
-                  : SearchInfinityListView(
-                      size: 30,
-                      itemCount: viewModel.filteredConjugacionItems.length +
-                          viewModel.filteredItems.length,
+                      onLoadMore: _loadNextPage,
+                    )
+                  : InfinityScrollListView(
+                      hasMore: _hasMore,
+                      itemCount: (viewModel.conjugacions.length +
+                          viewModel.espJpnWords.length),
                       itemBuilder: (context, index) {
+                        final conjLength = viewModel.conjugacions.length;
+                        final query = viewModel.query;
                         //先にconj
-                        if (index < viewModel.filteredConjugacionItems.length) {
+                        if (index < conjLength) {
+                          final conjugacion = viewModel.conjugacions[index];
                           return ConjugacionSearchCard(
-                            word:
-                                viewModel.filteredConjugacionItems[index].word,
-                            conjugacions: viewModel
-                                .filteredConjugacionItems[index].matches,
-                            query: viewModel.query,
+                            word: conjugacion.word,
+                            conjugacions: conjugacion.matches,
+                            query: query,
                             //meaning: viewModel.filteredItems[index].meaning,
                             onTap: () {
                               context.push(
                                   '/${ScreenTab.search}/${ScreenPage.detail}',
                                   extra: WordPageFragmentInput(
-                                      wordId: viewModel
-                                          .filteredConjugacionItems[index]
-                                          .wordId,
+                                      wordId: conjugacion.wordId,
                                       isVerb: true));
                             },
                           );
                         }
-                        index =
-                            index - viewModel.filteredConjugacionItems.length;
+                        index = index - conjLength;
+                        final espJpnWord = viewModel.espJpnWords[index];
                         return SearchCard(
-                          word: viewModel.filteredItems[index].word,
+                          word: espJpnWord.word,
                           //meaning: viewModel.filteredItems[index].meaning,
-                          partOfSpeech:
-                              viewModel.filteredItems[index].partOfSpeech,
+                          partOfSpeech: espJpnWord.partOfSpeech,
                           onTap: () {
                             context.push(
                                 '/${ScreenTab.search}/${ScreenPage.detail}',
                                 extra: WordPageFragmentInput(
-                                    wordId:
-                                        viewModel.filteredItems[index].wordId,
-                                    isVerb: viewModel.filteredItems[index]
-                                        .hasVerb()));
+                                    wordId: espJpnWord.wordId,
+                                    isVerb: espJpnWord.hasVerb()));
                           },
                         );
                       },
-                      loadNext: bufferController.searchWord,
-                      query: viewModel.query)),
+                      onLoadMore: _loadNextPage,
+                    )),
         ],
       ),
     );

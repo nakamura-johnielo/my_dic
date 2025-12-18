@@ -159,17 +159,24 @@ class _InfinityScrollState extends ConsumerState<SearchInfinityListView> {
   } */
   void loadNext() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      _isLoading = true;
+      //_isLoading = true;
+      setState(() {
+        _isLoading = true;
+      });
       dev.log("loadNext, page: $_currentPage");
       await widget.loadNext(widget.query, _size, _currentPage);
-      _currentPage += 1;
+      // _currentPage += 1;
       //setState(() {});
+
+      setState(() {
+        _currentPage++;
+        _isLoading = false;
+      });
 
       /* _hasNext = false;
       if (widget.itemCount % _size == 0) {
         _hasNext = true;
       } */
-      _isLoading = false;
       //setState(() {});
     });
   }

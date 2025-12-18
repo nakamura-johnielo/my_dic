@@ -28,11 +28,11 @@ class SearchWordInteractor implements ISearchWordUseCase {
 
     SearchWordOutputData result = SearchWordOutputData(l);
 
-    if (input.page == 0) {
-      _presenter.executInicialEspJpn(result);
-      return result;
-    }
-    _presenter.executNextEspJpn(result);
+    // if (input.page == 0) {
+    //   _presenter.executInicialEspJpn(result);
+    //   return result;
+    // }
+    // _presenter.executNextEspJpn(result);
     return result;
   }
 

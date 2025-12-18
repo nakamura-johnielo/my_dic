@@ -40,7 +40,7 @@ class DriftJpnEspWordRepository implements IJpnEspWordRepository {
   @override
   void updateStatus(UpdateStatusRepositoryInputData input) async {
     log("updatestatusrepo");
-    db.WordStatusData data = db.WordStatusData(
+    db.WordStatusTableData data = db.WordStatusTableData(
       wordId: input.wordId,
       isLearned: input.status.contains(FeatureTag.isLearned) ? 1 : 0,
       isBookmarked: input.status.contains(FeatureTag.isBookmarked) ? 1 : 0,

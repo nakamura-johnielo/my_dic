@@ -30,6 +30,7 @@ class ConjugacionFragment extends ConsumerWidget {
     }
     final Conjugacions? conjugacions = mainViewModel.conjugacionCache[wordId]!;
 
+    // final query = ref.watch(searchViewModelProviderOld).query;
     final query = ref.watch(searchViewModelProvider).query;
 
     return conjugacions == null

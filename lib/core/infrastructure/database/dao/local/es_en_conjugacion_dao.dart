@@ -8,7 +8,7 @@ class EsEnConjugacionDao extends DatabaseAccessor<DatabaseProvider>
     with _$EsEnConjugacionDaoMixin {
   EsEnConjugacionDao(super.database);
 
-  Future<EsEnConjugacion?> getEnglishConjById(int id) {
+  Future<EsEnConjugacionTableData?> getEnglishConjById(int id) {
     return (select(esEnConjugacions)..where((tbl) => tbl.wordId.equals(id)))
         .getSingleOrNull();
   }

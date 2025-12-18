@@ -38,7 +38,7 @@ class WordStatusRepository implements IWordStatusRepository {
   Future<void> updateWordStatus(
       WordStatus wordStatus, DateTime now, String userId) async {
     final nowDateTime = now; //DateTime.now().toUtc();
-    final localInput = WordStatusData(
+    final localInput = WordStatusTableData(
       wordId: wordStatus.wordId,
       isLearned: wordStatus.isLearned ? 1 : 0,
       isBookmarked: wordStatus.isBookmarked ? 1 : 0,

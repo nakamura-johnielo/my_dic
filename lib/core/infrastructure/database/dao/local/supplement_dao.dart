@@ -8,24 +8,24 @@ class SupplementDao extends DatabaseAccessor<DatabaseProvider>
     with _$SupplementDaoMixin {
   SupplementDao(super.database);
 
-  Future<Supplement?> getSupplementById(int id) {
+  Future<SupplementTableData?> getSupplementById(int id) {
     return (select(supplements)..where((tbl) => tbl.supplementId.equals(id)))
         .getSingleOrNull();
   }
 
-  Future<List<Supplement?>> getExampleByDictionaryId(int id) {
+  Future<List<SupplementTableData?>> getExampleByDictionaryId(int id) {
     return (select(supplements)
           ..where((tbl) => tbl.dictionaryId.equals(id))
           ..orderBy([(tbl) => OrderingTerm(expression: tbl.supplementId)]))
         .get();
   }
 
-  Future<void> insertSupplement(Insertable<Supplement> tableName) =>
+  Future<void> insertSupplement(Insertable<SupplementTableData> tableName) =>
       into(supplements).insert(tableName);
 
-  Future<void> updateSupplement(Insertable<Supplement> tableName) =>
+  Future<void> updateSupplement(Insertable<SupplementTableData> tableName) =>
       update(supplements).replace(tableName);
 
-  Future<void> deleteSupplement(Insertable<Supplement> tableName) =>
+  Future<void> deleteSupplement(Insertable<SupplementTableData> tableName) =>
       delete(supplements).delete(tableName);
 }
