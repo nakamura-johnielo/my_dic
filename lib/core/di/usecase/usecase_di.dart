@@ -9,6 +9,7 @@ import 'package:my_dic/core/domain/usecase/fetch_jpn_esp_dictionary/fetch_jpn_es
 import 'package:my_dic/core/domain/usecase/fetch_jpn_esp_dictionary/i_fetch_jpn_esp_dictionary_use_case.dart';
 import 'package:my_dic/core/domain/usecase/update_status/i_update_status_use_case.dart';
 import 'package:my_dic/core/domain/usecase/update_status/update_status_interactor.dart';
+import 'package:my_dic/features/ranking/di/view_model_di.dart';
 
 final updateStatusUseCaseProvider = Provider<IUpdateStatusUseCase>((ref) {
   return UpdateStatusInteractor(

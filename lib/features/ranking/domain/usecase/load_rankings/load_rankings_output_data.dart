@@ -1,4 +1,4 @@
-import 'package:my_dic/_Business_Rule/_Domain/Entities/ranking.dart';
+import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
 
 class LoadRankingsOutputData {
   List<Ranking> items;

@@ -128,7 +128,7 @@ class _WordPageWithTabState extends ConsumerState<WordPageWithTab>
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          ref.read(quizStateProvider.notifier).init();
+          ref.read(quizGameViewModelProvider.notifier).initialize();
           ref.read(quizCardStateProvider.notifier).state =
               QuizCardState.question;
           context.push('/${ScreenTab.quiz}/${ScreenPage.quizDetail}',

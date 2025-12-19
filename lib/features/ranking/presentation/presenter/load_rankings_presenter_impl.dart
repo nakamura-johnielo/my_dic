@@ -1,8 +1,8 @@
 import 'dart:developer';
 
-import 'package:my_dic/_Business_Rule/Usecase/load_rankings/i_load_rankings_presenter.dart';
-import 'package:my_dic/_Business_Rule/Usecase/load_rankings/load_rankings_output_data.dart';
-import 'package:my_dic/_Interface_Adapter/ViewModel/ranking_view_model.dart';
+import 'package:my_dic/features/ranking/domain/usecase/load_rankings/i_load_rankings_presenter.dart';
+import 'package:my_dic/features/ranking/domain/usecase/load_rankings/load_rankings_output_data.dart';
+import 'package:my_dic/features/ranking/presentation/view_model/ranking_view_model.dart';
 
 class LoadRankingsPresenterImpl implements ILoadRankingsPresenter {
   final RankingViewModel _rankingViewModel;

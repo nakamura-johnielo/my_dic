@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Constants/Enums/cardState.dart';
-import 'package:my_dic/_Interface_Adapter/Controller/quiz_controller.dart';
 import 'package:my_dic/core/di/usecase/usecase_di.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacions.dart';
 import 'package:my_dic/features/quiz/di/usecase_di.dart';
@@ -40,9 +39,9 @@ final quizConjugacionsProvider =
 final quizWordProvider = StateProvider<String>((ref) => "");
 
 // QuizStateをRiverpodで管理するProvider
-final quizStateProvider = StateNotifierProvider<QuizStateNotifier, QuizState2>(
-  (ref) => QuizStateNotifier(),
-);
+// final quizStateProvider = StateNotifierProvider<QuizStateNotifier, QuizState2>(
+//   (ref) => QuizStateNotifier(),
+// );
 
 final quizSearchViewModelProvider =
     StateNotifierProvider<QuizSearchViewModel, QuizSearchState>((ref) {

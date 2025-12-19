@@ -5,7 +5,7 @@ import 'package:my_dic/features/search/domain/usecase/judge_search_word/i_judge_
 import 'package:my_dic/features/search/domain/usecase/judge_search_word/judge_search_word_input_data.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/i_search_word_use_case.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/search_word_input_data.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/quiz_searched_item.dart';
+import 'package:my_dic/features/quiz/domain/entity/quiz_searched_item.dart';
 import 'package:my_dic/features/search/presentation/ui_model/search_ui_model.dart';
 
 /// 検索画面のViewModel

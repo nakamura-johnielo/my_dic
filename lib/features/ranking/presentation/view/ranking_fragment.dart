@@ -9,6 +9,7 @@ import 'package:my_dic/Components/ranking_card.dart';
 import 'package:my_dic/Constants/Enums/word_card_view_click_listener.dart';
 import 'package:my_dic/core/common/enums/ui/tab.dart';
 import 'package:my_dic/DI/product.dart';
+import 'package:my_dic/features/ranking/di/view_model_di.dart';
 import 'package:my_dic/features/user/di/viewmodel.dart';
 import 'package:my_dic/_View/word_page/word_page_fragment.dart';
 
