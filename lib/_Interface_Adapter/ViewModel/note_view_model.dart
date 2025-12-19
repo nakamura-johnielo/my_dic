@@ -1,6 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/core/domain/entity/jpn_esp/jpn_esp_word.dart';
 
 // final noteViewModelProvider =

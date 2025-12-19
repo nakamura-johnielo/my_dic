@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:my_dic/core/common/enums/word/part_of_speech.dart';
 
 class QuizSearchCard extends StatelessWidget {
   const QuizSearchCard(

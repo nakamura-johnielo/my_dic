@@ -1,20 +1,14 @@
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_dic/Components/quiz_card.dart';
 import 'package:my_dic/Components/status_buttons.dart';
 import 'package:my_dic/Constants/Enums/cardState.dart';
 import 'package:my_dic/core/common/enums/ui/tab.dart';
-import 'package:my_dic/DI/product.dart';
-import 'package:my_dic/_Interface_Adapter/Controller/quiz_controller.dart';
-import 'package:my_dic/_Interface_Adapter/ViewModel/main_view_model.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
 import 'package:my_dic/_View/word_page/conjugacion_fragment.dart';
 import 'package:my_dic/_View/word_page/dictionary_fragment.dart';
-import 'package:my_dic/utils/random.dart';
 
 //input data DS
 class WordPageFragmentInput {

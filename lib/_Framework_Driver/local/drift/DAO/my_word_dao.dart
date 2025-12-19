@@ -2,7 +2,6 @@ import 'package:drift/drift.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/Entity/my_word_status.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/Entity/my_words.dart';
 import 'package:my_dic/core/infrastructure/database/database_provider.dart';
-import 'package:my_dic/utils/date_handler.dart';
 part '../../../../__generated/_Framework_Driver/Database/drift/DAO/my_word_dao.g.dart';
 
 @DriftAccessor(tables: [MyWords, MyWordStatus])

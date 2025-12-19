@@ -1,13 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Constants/Enums/cardState.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/quiz_controller.dart';
-import 'package:my_dic/core/di/data/repository_di.dart';
 import 'package:my_dic/core/di/usecase/usecase_di.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacions.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/quiz_searched_item.dart';
-import 'package:my_dic/core/domain/usecase/fetch_conjugation/i_fetch_conjugation_use_case.dart';
 import 'package:my_dic/features/quiz/di/usecase_di.dart';
-import 'package:my_dic/features/quiz/domain/usecase/fetch_english_conj.dart/i_fetch_english_conj_usecase.dart';
 import 'package:my_dic/features/quiz/presentation/ui_model/new_quiz_model.dart';
 import 'package:my_dic/features/quiz/presentation/ui_model/quiz_ui_model.dart';
 import 'package:my_dic/features/quiz/presentation/view_model/new_quiz_viewmodel.dart';

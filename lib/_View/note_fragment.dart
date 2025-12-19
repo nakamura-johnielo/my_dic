@@ -1,11 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/Components/searhCard/search_card.dart';
-import 'package:my_dic/Components/simple_infinity_list_view.dart';
-import 'package:my_dic/DI/product.dart';
-import 'package:my_dic/core/domain/i_repository/i_jpn_esp_word_repository.dart';
-import 'package:my_dic/core/infrastructure/repository/drift_jpn_esp_word_repository.dart';
-import 'package:my_dic/_Interface_Adapter/ViewModel/note_view_model.dart';
 
 class NoteFragment extends ConsumerWidget {
   const NoteFragment({super.key});

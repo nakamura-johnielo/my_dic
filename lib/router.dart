@@ -8,7 +8,7 @@ import 'package:my_dic/_View/main_activity.dart';
 import 'package:my_dic/core/common/enums/ui/tab.dart';
 import 'package:my_dic/_View/my_word/my_word_fragment.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
-import 'package:my_dic/_View/ranking/ranking_fragment.dart';
+import 'package:my_dic/features/ranking/presentation/view/ranking_fragment.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_search_fragment.dart';
 import 'package:my_dic/features/search/presentation/view/search_fragment.dart';
 import 'package:my_dic/features/user/presentation/view/profile.dart';

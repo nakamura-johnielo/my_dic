@@ -6,8 +6,6 @@ import 'package:my_dic/Components/my_word_card_modal.dart';
 import 'package:my_dic/Constants/Enums/word_card_view_click_listener.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/my_word.dart';
-import 'package:my_dic/_Interface_Adapter/Controller/my_word_controller.dart';
-import 'package:my_dic/_Interface_Adapter/ViewModel/my_word_view_model.dart';
 import 'package:my_dic/_View/my_word/create_word_modal.dart';
 
 class MyWordFragment extends ConsumerWidget {

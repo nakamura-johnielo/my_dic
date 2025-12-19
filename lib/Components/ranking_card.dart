@@ -3,15 +3,11 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_dic/Components/button/icon_button.dart';
 import 'package:my_dic/Components/button/my_icon_button.dart';
-import 'package:my_dic/Components/quiz_card.dart';
 import 'package:my_dic/Constants/Enums/cardState.dart';
 import 'package:my_dic/Constants/Enums/word_card_view_click_listener.dart';
 import 'package:my_dic/core/common/enums/ui/tab.dart';
-import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/ranking.dart';
-import 'package:my_dic/_Interface_Adapter/Controller/quiz_controller.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
 

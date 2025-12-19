@@ -10,7 +10,6 @@ import 'package:my_dic/Components/searhCard/search_card.dart';
 import 'package:my_dic/_View/search/infinity_scroll_view/infinity_scroll_view_new.dart';
 import 'package:my_dic/core/common/enums/ui/tab.dart';
 import 'package:my_dic/features/search/di/view_model_di.dart';
-import 'package:my_dic/features/search/presentation/view_model/buffer_controller.dart';
 // import 'package:my_dic/_View/search/infinity_scroll_view/infinity_scroll_view.dart';
 import 'package:my_dic/_View/word_page/jpn_esp/jpn_esp_word_page_fragment.dart';
 import 'package:my_dic/_View/word_page/word_page_fragment.dart';
