@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_dic/Components/infinity_list_view.dart';
 import 'package:my_dic/Components/modal/ranking_filter_modal.dart';
 import 'package:my_dic/Components/ranking_card.dart';
 import 'package:my_dic/Constants/Enums/word_card_view_click_listener.dart';

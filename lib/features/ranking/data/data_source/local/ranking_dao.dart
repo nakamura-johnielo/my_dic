@@ -3,31 +3,32 @@ import 'package:my_dic/Constants/Enums/feature_tag.dart';
 import 'package:my_dic/core/common/enums/i_enum.dart';
 import 'package:my_dic/core/common/enums/word/part_of_speech.dart';
 import 'package:my_dic/core/infrastructure/database/table/conjugations.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/Entity/rankings.dart';
+import 'package:my_dic/features/ranking/data/data_source/local/rankings_entity.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/Entity/part_of_speech_lists.dart';
 import 'package:my_dic/core/infrastructure/database/table/word_status.dart';
 import 'package:my_dic/core/infrastructure/database/database_provider.dart';
+import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
 import 'package:tuple/tuple.dart';
-part '../../../../__generated/_Framework_Driver/Database/drift/DAO/ranking_dao.g.dart';
+part '../../../../../__generated/features/ranking/data/data_source/local/ranking_dao.g.dart';
 
 @DriftAccessor(tables: [Rankings, PartOfSpeechLists, WordStatus, Conjugations])
 class RankingDao extends DatabaseAccessor<DatabaseProvider>
     with _$RankingDaoMixin {
   RankingDao(super.database);
 
-  Future<Ranking?> getRankingById(int id) {
+  Future<RankingTableData?> getRankingById(int id) {
     return (select(rankings)..where((tbl) => tbl.rankingId.equals(id)))
         .getSingleOrNull();
   }
 
-  Future<List<Ranking>?> getRankingListByPage(int page, int size) {
+  Future<List<RankingTableData>?> getRankingListByPage(int page, int size) {
     return (select(rankings)
           ..limit(size, offset: size * page)
           ..orderBy([(tbl) => OrderingTerm(expression: tbl.rankingId)]))
         .get();
   }
 
-  Future<List<Ranking>?> getFilteredRankingListByPage(
+  Future<List<RankingTableData>?> getFilteredRankingListByPage(
       int requiredPage,
       int size,
       Set<PartOfSpeech> partOfSpeechFilters,
@@ -67,7 +68,7 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
     }
 
     return res.map((row) {
-      return Ranking(
+      return RankingTableData(
         rankingId: row.read<int>('ranking_id'),
         rankingNo: row.read<int>('ranking_no'),
         word: row.read<String?>('word'),
@@ -78,7 +79,7 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
   }
 
   // 結合クエリを使用して特定の単語に関連する例文を取得するメソッド
-  Future<List<Tuple2<Ranking, WordStatusTableData>>?>
+  Future<List<Tuple2<RankingTableData, WordStatusTableData>>?>
       getFilteredRankingWithStatusByPage(
           int requiredPage,
           int size,
@@ -152,7 +153,7 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
 
     return res.map((row) {
       //final wordId = row.read<int>('word_id');
-      final ranking = Ranking(
+      final ranking = RankingTableData(
         rankingId: row.read<int>('ranking_id'),
         rankingNo: row.read<int>('ranking_no'),
         word: row.read<String?>('word'),

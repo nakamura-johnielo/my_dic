@@ -1,7 +1,7 @@
 import 'package:my_dic/features/ranking/domain/usecase/load_rankings/filtered_ranking_list_input_data.dart';
 import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
 import 'package:my_dic/features/ranking/domain/i_repository/i_esp_ranking_repository.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/DAO/ranking_dao.dart';
+import 'package:my_dic/features/ranking/data/data_source/local/ranking_dao.dart';
 
 class WikiEspRankingRepository implements IEspRankingRepository {
   final RankingDao _rankingDao;

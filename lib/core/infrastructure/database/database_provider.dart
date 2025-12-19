@@ -8,7 +8,7 @@ import 'package:my_dic/core/infrastructure/database/dao/local/es_en_conjugacion_
 import 'package:my_dic/core/infrastructure/database/dao/local/jpn_esp/jpn_esp_word_dao.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/DAO/my_word_dao.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/DAO/part_of_speech_list_dao.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/DAO/ranking_dao.dart';
+import 'package:my_dic/features/ranking/data/data_source/local/ranking_dao.dart';
 import 'package:my_dic/core/infrastructure/database/dao/local/word_dao.dart';
 import 'package:my_dic/core/infrastructure/database/table/conjugations.dart';
 import 'package:my_dic/core/infrastructure/database/table/dictionaries.dart';
@@ -22,7 +22,7 @@ import 'package:my_dic/core/infrastructure/database/table/jpn-esp/jpn_esp_word_s
 import 'package:my_dic/_Framework_Driver/local/drift/Entity/my_word_status.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/Entity/my_words.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/Entity/part_of_speech_lists.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/Entity/rankings.dart';
+import 'package:my_dic/features/ranking/data/data_source/local/rankings_entity.dart';
 import 'package:my_dic/core/infrastructure/database/table/supplements.dart';
 import 'package:my_dic/core/infrastructure/database/table/word_status.dart';
 import 'package:my_dic/core/infrastructure/database/table/words.dart';
