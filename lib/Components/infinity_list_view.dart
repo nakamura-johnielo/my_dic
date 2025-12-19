@@ -1,3 +1,4 @@
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,7 +13,6 @@ class RankingInfinityScrollListView extends ConsumerStatefulWidget {
     this.shrinkWrap = false,
     this.padding,
     this.itemExtent,
-    this.size = 40,
     //required this.isOnUpdatedFilter,
     required this.itemBuilder,
     required this.itemCount,
@@ -20,19 +20,22 @@ class RankingInfinityScrollListView extends ConsumerStatefulWidget {
     required this.viewModelProvider, */
     required this.loadNext,
     this.loadPrevious,
+    this.isLoading = false,
+    this.hasMore = true,
+    this.hasPrevious = false,
+    this.loadMoreThreshold = 0.8,
     //required this.resetScroll
   });
 
-  //original properties
-  final int size;
-  // final bool isOnUpdatedFilter;
-  /* final InfinityScrollableController fragmentController;
-  final ChangeNotifierProvider<InfinityScrollableViewModel<ItemType>>
-      viewModelProvider; */
   //loadNext 次も取得できるデータが存在している場合に返り値true
   final Future<void> Function() loadNext;
   // final void Function() resetScroll;
   final Future<void> Function(int, List<int>)? loadPrevious;
+
+  final bool isLoading;
+  final bool hasMore;
+  final bool hasPrevious;
+  final double loadMoreThreshold;
 
   //listview properties
   final Axis scrollDirection;
@@ -60,9 +63,9 @@ class _InfinityScrollState
   int _preItemLength = -1;
   //0-previous,1-next用のpage
   //List<int> currentPages = [-1, -1]; //読み込み済みのページ０～、-１初期値
-  late final int _size; // 1ページあたりのアイテム数
+  //late final int _size; // 1ページあたりのアイテム数
 
-  final ScrollController _scrollController = ScrollController();
+  late ScrollController _scrollController;
   /* Timer? _nextThrottle;
   Timer? _previousThrottle; */
 
@@ -80,8 +83,9 @@ class _InfinityScrollState
   @override
   void initState() {
     super.initState();
+    _scrollController = widget.controller ?? ScrollController();
     _scrollController.addListener(_onScroll);
-    _size = widget.size;
+    //_size = widget.size;
 
     //listview properties
     scrollDirection = widget.scrollDirection;
@@ -93,31 +97,22 @@ class _InfinityScrollState
     itemExtent = widget.itemExtent;
     /* itemBuilder = widget.itemBuilder;
     itemCount = widget.itemCount; */
-    widget.loadNext();
+    // widget.loadNext();
     //inicialize();
   }
 
-/*   @override
-  void didUpdateWidget(covariant RankingInfinityScrollListView oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    // oldWidget.titleとwidget.titleを比較
-    if (widget.isOnUpdatedFilter &&
-        oldWidget.isOnUpdatedFilter != widget.isOnUpdatedFilter) {
-      _scrollController.jumpTo(0.0); // 必要な処理を実行
-    }
-  } */
-
-  void inicialize() async {
-    await widget.loadNext();
-    setState(() {});
-  }
-
   void _onScroll() {
+    if (widget.isLoading || !(widget.hasMore || widget.hasPrevious)) return;
+
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.position.pixels;
+    final threshold =
+        max(maxScroll * widget.loadMoreThreshold, maxScroll - 540);
+
     // 最大スクロール位置の80%を計算
     //listviewのbottom padding引いてる240
     //final threshold = _scrollController.position.maxScrollExtent * 0.8 - 240;
-    final threshold = _scrollController.position.maxScrollExtent - 540;
+    //final threshold = _scrollController.position.maxScrollExtent - 540;
 
     if ( //(!(_nextThrottle?.isActive ?? false)) &&
         _scrollController.position.pixels >= threshold &&
@@ -142,6 +137,11 @@ class _InfinityScrollState
     }
   }
 
+  void inicialize() async {
+    await widget.loadNext();
+    setState(() {});
+  }
+
   /*  void _scrollToTop() {
     _scrollController.animateTo(
       0.0, // 初期値 (一番上) の位置
@@ -161,7 +161,7 @@ class _InfinityScrollState
   }
 
   void checkNext(int preItemLength) {
-    if (widget.itemCount - preItemLength < _size) {
+    if (widget.itemCount - preItemLength < 30) {
       _setStateHasNext(false);
     }
     //_setStatePreItemLength(itemCount);
@@ -205,7 +205,9 @@ class _InfinityScrollState
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    if (widget.controller == null) {
+      _scrollController.dispose();
+    }
     //_nextThrottle?.cancel();
     //_previousThrottle?.cancel();
     super.dispose();

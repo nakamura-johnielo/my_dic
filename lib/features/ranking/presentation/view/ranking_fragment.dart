@@ -52,6 +52,8 @@ class RankingFragment extends ConsumerWidget {
             itemCount: viewModel.items.length,
             itemBuilder: (context, index) {
               final id = viewModel.items[index].wordId;
+
+              //TODO streamproviderで監視
               final wordStatus = ref.watch(wordStatusByIdProvider(id));
 
               final rankingbase = viewModel.items[index];
@@ -109,13 +111,14 @@ class RankingFragment extends ConsumerWidget {
 }
 
 //スマホ用
+//TODO デザイン変更、幅調整
 class Header extends StatelessWidget {
   const Header({super.key, required this.margin});
   final EdgeInsetsGeometry margin;
 
   @override
   Widget build(BuildContext context) {
-    const Color textColor = Colors.black;
+    //const Color textColor = Colors.black;
 
     return Card(
       margin: margin,
