@@ -231,6 +231,27 @@
         ]
       ],
       "exists": true
+    },
+    {
+      "folder_name": [
+        "quiz"
+      ],
+      "name": [
+        "quiz"
+      ],
+      "templates": "feature",
+      "data_source_name": [
+        "drift"
+      ],
+      "di_type": [
+        "data",
+        "usecase",
+        [
+          "view",
+          "model"
+        ]
+      ],
+      "exists": true
     }
   ]
 }

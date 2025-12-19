@@ -89,55 +89,6 @@ class SearchViewModel extends StateNotifier<SearchState> {
     );
   }
 
-  /// 検索を実行（初回ページ）
-  // Future<void> searchInitial(String word) async {
-  //   if (word.isEmpty) {
-  //     _clearResults();
-  //     return;
-  //   }
-
-  //   state = state.copyWith(isLoading: true, errorMessage: null);
-
-  //   try {
-  //     final dictionaryType = _judgeDictionaryType(word);
-
-  //     if (dictionaryType == DictionaryType.jpnEsp) {
-  //       await _searchJpnEsp(word, size: 30, page: 0);
-  //     } else {
-  //       await _searchEspJpn(word, size: 30, page: 0);
-  //       // 初回のみ活用形も検索
-  //       await _searchConjugacion(word, size: 4, page: 0);
-  //     }
-  //   } catch (e) {
-  //     state = state.copyWith(
-  //       isLoading: false,
-  //       errorMessage: 'Search failed: $e',
-  //     );
-  //   }
-  // }
-
-  /// 次のページを読み込み
-  // Future<void> loadNextPage(String word, int size, int currentPage) async {
-  //   if (state.isLoading) return;
-
-  //   state = state.copyWith(isLoading: true);
-  //   final nextPage = currentPage + 1;
-
-  //   try {
-  //     final dictionaryType = _judgeDictionaryType(word);
-
-  //     if (dictionaryType == DictionaryType.jpnEsp) {
-  //       await _searchJpnEsp(word, size: size, page: nextPage);
-  //     } else {
-  //       await _searchEspJpn(word, size: size, page: nextPage);
-  //     }
-  //   } catch (e) {
-  //     state = state.copyWith(
-  //       isLoading: false,
-  //       errorMessage: 'Failed to load next page: $e',
-  //     );
-  //   }
-  // }
 
   // ==================== Private Methods ====================
 
