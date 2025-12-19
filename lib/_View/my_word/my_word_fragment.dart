@@ -1,19 +1,77 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/Components/infinity_scroll_list_view.dart';
+// import 'package:my_dic/Components/infinity_scroll_list_view.dart';
 import 'package:my_dic/Components/my_word_card.dart';
 import 'package:my_dic/Components/my_word_card_modal.dart';
 import 'package:my_dic/Constants/Enums/word_card_view_click_listener.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/my_word.dart';
 import 'package:my_dic/_View/my_word/create_word_modal.dart';
+import 'package:my_dic/core/components/infinityscroll.dart';
 
-class MyWordFragment extends ConsumerWidget {
+
+class MyWordFragment extends ConsumerStatefulWidget {
   const MyWordFragment({super.key});
-  //final MyWordController myWordController;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MyWordFragment> createState() => _MyWordFragmentState();
+}
+
+
+class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
+  // int _currentPage = -1;
+  final int _size = 30; //searchの1ページの取得件数
+  int _previousItemLength = 0;
+  final int _initialPage = 0;
+  // bool _hasMore = true;
+  late final InfinityScrollController _infinityScrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _infinityScrollController = InfinityScrollController();
+  }
+
+  Future<bool> loadNextPage(int nextPage) async {
+    final viewModel = ref.read(myWordControllerProvider);
+
+    _setCurrentItemLength();
+
+    await viewModel.loadNext(
+      _size,
+      [-1,nextPage - 1],
+    );
+
+    final canFetch = _canFetch();
+
+    return canFetch;
+  }
+
+  void _resetPage() {
+    _infinityScrollController.reset();
+
+    setState(() {
+      _previousItemLength = 0;
+      // _currentPage = -1;
+    });
+  }
+
+  void _setCurrentItemLength() {
+    //TODO read watch
+    final viewModel = ref.read(myWordViewModelProvider);
+    _previousItemLength = viewModel.items.length;
+  }
+
+  bool _canFetch() {
+    //TODO read watch
+    final viewModel = ref.read(myWordViewModelProvider);
+    final currentItemLength = viewModel.items.length;
+    return currentItemLength > _previousItemLength;
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
     final myWordController = ref.read(myWordControllerProvider);
     final myWordViewModel = ref.watch(myWordViewModelProvider);
 
@@ -28,13 +86,17 @@ class MyWordFragment extends ConsumerWidget {
         children: [
           Expanded(
               child: InfinityScrollListView(
-            loadNext: myWordController.loadNext,
+            initialPage: _initialPage,
+            controller: _infinityScrollController,
+            autoLoadFirstPage: true,
+            onLoadMore: loadNextPage,
+            // loadNext: myWordController.loadNext,
             itemCount: myWordViewModel.items.length,
             itemBuilder: (context, index) {
               final myword = myWordViewModel.items[index];
 
               //!
-              //!TODO clicklisternerがmodalとリアルタイムで更新されない
+              //TODO clicklisternerがmodalとリアルタイムで更新されない
               //!
 
               final clickListeners = {

@@ -9,16 +9,71 @@ import 'package:my_dic/Components/ranking_card.dart';
 import 'package:my_dic/Constants/Enums/word_card_view_click_listener.dart';
 import 'package:my_dic/core/common/enums/ui/tab.dart';
 import 'package:my_dic/DI/product.dart';
+import 'package:my_dic/core/components/infinityscroll.dart';
 import 'package:my_dic/features/ranking/di/view_model_di.dart';
 import 'package:my_dic/features/user/di/viewmodel.dart';
 import 'package:my_dic/_View/word_page/word_page_fragment.dart';
 
-class RankingFragment extends ConsumerWidget {
+class RankingFragment extends ConsumerStatefulWidget {
   const RankingFragment({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<RankingFragment> createState() => _RankingFragmentState();
+}
+
+class _RankingFragmentState extends ConsumerState<RankingFragment> {
+  // int _currentPage = -1;
+  final int _size = 30; //searchの1ページの取得件数
+  int _previousItemLength = 0;
+  final int _initialPage = 0;
+  // bool _hasMore = true;
+  late final InfinityScrollController _infinityScrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _infinityScrollController = InfinityScrollController();
+  }
+
+  Future<bool> loadNextPage(int nextPage) async {
     final rankingController = ref.read(rankingControllerProvider);
+    final viewModel = ref.watch(rankingViewModelProvider);
+
+    _setCurrentItemLength();
+    viewModel.currentPage = [-1, nextPage - 1];
+
+    await rankingController.loadNext();
+
+    final canFetch = _canFetch();
+
+    return canFetch;
+  }
+
+  void _resetPage() {//TODO filter適応時にreset走らせる
+    _infinityScrollController.reset();
+
+    setState(() {
+      _previousItemLength = 0;
+      // _currentPage = -1;
+    });
+  }
+
+  void _setCurrentItemLength() {
+    //TODO read watch
+    final viewModel = ref.read(rankingViewModelProvider);
+    _previousItemLength = viewModel.items.length;
+  }
+
+  bool _canFetch() {
+    //TODO read watch
+    final viewModel = ref.read(rankingViewModelProvider);
+    final currentItemLength = viewModel.items.length;
+    return currentItemLength > _previousItemLength;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // final rankingController = ref.read(rankingControllerProvider);
     final viewModel = ref.watch(rankingViewModelProvider);
     final wordStatusController = ref.read(wordStatusViewModelProvider.notifier);
     //_rankingController.loadNext();
@@ -45,10 +100,14 @@ class RankingFragment extends ConsumerWidget {
             ))
           else */
           Expanded(
-              child: RankingInfinityScrollListView(
+              child: InfinityScrollListView(
+            autoLoadFirstPage: true,
+            initialPage: _initialPage,
+            controller: _infinityScrollController,
+            onLoadMore: loadNextPage,
             //resetScroll: viewModel.resetIsOnUpdatedFilter,
             // isOnUpdatedFilter: viewModel.isOnUpdatedFilter,
-            loadNext: rankingController.loadNext,
+            // loadNext: rankingController.loadNext,
             itemCount: viewModel.items.length,
             itemBuilder: (context, index) {
               final id = viewModel.items[index].wordId;
