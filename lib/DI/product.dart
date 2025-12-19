@@ -267,25 +267,6 @@ final myWordControllerProvider = Provider<MyWordController>((ref) {
   );
 });
 
-final quizControllerProvider = Provider<QuizController>((ref) {
-  return QuizController(ref.read(esEnConjugacionRepositoryProvider),
-      ref.read(fetchConjugationUseCaseProvider));
-});
-
-final quizConjugacionsProvider =
-    FutureProvider.autoDispose.family<Conjugacions?, int>(
-  (ref, wordId) async {
-    final controller = ref.watch(quizControllerProvider);
-    return await controller.getConjugaciones(wordId);
-  },
-);
-
-final quizWordProvider = StateProvider<String>((ref) => "");
-
-// QuizStateをRiverpodで管理するProvider
-final quizStateProvider = StateNotifierProvider<QuizStateNotifier, QuizState>(
-  (ref) => QuizStateNotifier(),
-);
 // ============================================================================
 // Other Providers
 // ============================================================================

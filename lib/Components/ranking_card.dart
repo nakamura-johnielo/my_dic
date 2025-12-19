@@ -12,7 +12,8 @@ import 'package:my_dic/core/common/enums/ui/tab.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/ranking.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/quiz_controller.dart';
-import 'package:my_dic/_View/quiz/quiz_game_fragment.dart';
+import 'package:my_dic/features/quiz/di/view_model_di.dart';
+import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
 
 //スマホ用
 class RankingCard extends ConsumerWidget {

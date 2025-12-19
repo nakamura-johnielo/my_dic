@@ -6,7 +6,7 @@ import 'package:my_dic/core/domain/i_repository/i_esj_word_repository.dart';
 import 'package:my_dic/core/domain/i_repository/i_jpn_esp_dictionary_repository.dart';
 import 'package:my_dic/core/domain/i_repository/i_jpn_esp_word_repository.dart';
 import 'package:my_dic/core/infrastructure/repository/drift_conjugacion_repository.dart';
-import 'package:my_dic/_Framework_Driver/Repository/drift_es_en_conjugacions_repository.dart';
+import 'package:my_dic/features/quiz/data/repository_impl/drift_es_en_conjugacions_repository.dart';
 import 'package:my_dic/core/infrastructure/repository/drift_esj_dictionary_repository.dart';
 import 'package:my_dic/core/infrastructure/repository/drift_esj_word_repository.dart';
 import 'package:my_dic/core/infrastructure/repository/drift_jpn_esp_dictionary_repository.dart';
