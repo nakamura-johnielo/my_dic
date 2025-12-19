@@ -1,5 +1,7 @@
 import 'package:drift/drift.dart';
 
+
+@DataClassName('RankingTableData')
 class Rankings extends Table {
   IntColumn get rankingId => integer().named('ranking_id')();
   IntColumn get rankingNo => integer().named('ranking_no')();

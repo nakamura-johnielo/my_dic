@@ -26,9 +26,9 @@ import 'package:my_dic/features/ranking/domain/i_repository/i_esp_ranking_reposi
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_my_word_repository.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/DAO/my_word_dao.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/DAO/my_word_status_dao.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/DAO/ranking_dao.dart';
+import 'package:my_dic/features/ranking/data/data_source/local/ranking_dao.dart';
 import 'package:my_dic/_Framework_Driver/Repository/drift_my_word_repository.dart';
-import 'package:my_dic/_Framework_Driver/Repository/wiki_esp_ranking_repository.dart';
+import 'package:my_dic/features/ranking/data/repository_impl/wiki_esp_ranking_repository.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/jpn_esp_word_page_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/my_word_controller.dart';
 import 'package:my_dic/features/ranking/presentation/view_model/ranking_controller.dart';
