@@ -34,27 +34,18 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
     _infinityScrollController = InfinityScrollController();
   }
 
-
   Future<bool> loadNextPage(int nextPage) async {
-    //print("_loadNextPage: $_currentPage");
-
     final viewModel = ref.read(quizSearchViewModelProvider.notifier);
 
     _setCurrentItemLength();
 
     await viewModel.loadSearchResults(
       _size,
-      nextPage-1,
+      nextPage - 1,
     );
-
-    //print(viewModel.state.quizSearchedItems.length);
 
     final canFetch = _canFetch();
 
-    // setState(() {
-    //   // _hasMore = canFetch;
-    //   _currentPage++;
-    // });
     return canFetch;
   }
 
@@ -134,8 +125,8 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
           ),
           Expanded(
               child: InfinityScrollListView(
-                initialPage:_initialPage ,
-                controller: _infinityScrollController,
+            initialPage: _initialPage,
+            controller: _infinityScrollController,
             //hasMore: _hasMore,
             itemCount: viewModel.quizSearchedItems.length,
             itemBuilder: (context, index) {
