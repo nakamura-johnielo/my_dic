@@ -1,4 +1,4 @@
-import 'package:my_dic/_Business_Rule/_Domain/Entities/quiz_searched_item.dart';
+import 'package:my_dic/features/quiz/domain/entity/quiz_searched_item.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacions.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/result_conjugacions.dart';
 

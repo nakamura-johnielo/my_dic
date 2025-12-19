@@ -8,16 +8,16 @@ import 'package:my_dic/_Business_Rule/Usecase/add_filter/i_add_filter_use_case.d
 import 'package:my_dic/_Business_Rule/Usecase/delete_filter/delete_filter_input_data.dart';
 import 'package:my_dic/_Business_Rule/Usecase/delete_filter/delete_filter_output_data.dart';
 import 'package:my_dic/_Business_Rule/Usecase/delete_filter/i_delete_filter_use_case.dart'; */
-import 'package:my_dic/_Business_Rule/Usecase/load_rankings/load_rankings_input_data.dart';
-import 'package:my_dic/_Business_Rule/Usecase/load_rankings/i_load_rankings_use_case.dart';
-import 'package:my_dic/_Business_Rule/Usecase/locate_ranking_pagenation/i_locate_ranking_pagenation_use_case.dart';
-import 'package:my_dic/_Business_Rule/Usecase/locate_ranking_pagenation/locate_ranking_pagenation_input_data.dart';
+import 'package:my_dic/features/ranking/domain/usecase/load_rankings/load_rankings_input_data.dart';
+import 'package:my_dic/features/ranking/domain/usecase/load_rankings/i_load_rankings_use_case.dart';
+import 'package:my_dic/features/ranking/domain/usecase/locate_ranking_pagenation/i_locate_ranking_pagenation_use_case.dart';
+import 'package:my_dic/features/ranking/domain/usecase/locate_ranking_pagenation/locate_ranking_pagenation_input_data.dart';
 /* import 'package:my_dic/_Business_Rule/Usecase/load_rankings22/i_load_rankings_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/load_rankings22/load_rankings_input_data.dart'; */
-import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/i_update_ranking_filter_use_case.dart';
-import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/update_ranking_filter_input_data.dart';
+import 'package:my_dic/features/ranking/domain/usecase/update_ranking_filter/i_update_ranking_filter_use_case.dart';
+import 'package:my_dic/features/ranking/domain/usecase/update_ranking_filter/update_ranking_filter_input_data.dart';
 import 'package:my_dic/core/domain/usecase/update_status/i_update_status_use_case.dart';
-import 'package:my_dic/_Interface_Adapter/ViewModel/ranking_view_model.dart';
+import 'package:my_dic/features/ranking/presentation/view_model/ranking_view_model.dart';
 
 class LoadRankingsControllerInputData {
   int currentPage;

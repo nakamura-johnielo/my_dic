@@ -7,7 +7,7 @@ import 'package:my_dic/Components/button/my_icon_button.dart';
 import 'package:my_dic/Constants/Enums/cardState.dart';
 import 'package:my_dic/Constants/Enums/word_card_view_click_listener.dart';
 import 'package:my_dic/core/common/enums/ui/tab.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/ranking.dart';
+import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
 
@@ -127,7 +127,7 @@ class RankingCard extends ConsumerWidget {
                 defaultIcon: Icons.handshake_rounded,
                 hoveredIconColor: const Color.fromARGB(255, 119, 119, 119),
                 onTap: () {
-                  ref.read(quizStateProvider.notifier).init();
+                  ref.read(quizGameViewModelProvider.notifier).initialize();
                   ref.read(quizCardStateProvider.notifier).state =
                       QuizCardState.question;
                   ref.read(quizWordProvider.notifier).state = ranking.lemma;

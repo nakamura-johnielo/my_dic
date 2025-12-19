@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:my_dic/Components/auto_focus_text_field.dart';
 import 'package:my_dic/Components/searhCard/quiz_search_card.dart';
 import 'package:my_dic/Constants/Enums/cardState.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/quiz_searched_item.dart';
+import 'package:my_dic/features/quiz/domain/entity/quiz_searched_item.dart';
 import 'package:my_dic/_View/search/infinity_scroll_view/infinity_scroll_view_new.dart';
 import 'package:my_dic/core/common/enums/ui/tab.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
@@ -76,8 +76,8 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
     //TODO: quizStateProvider  -> viewmodel
     ref.read(quizGameViewModelProvider.notifier).initialize();
     
-    ref.read(quizStateProvider.notifier).init();
-    ref.read(quizCardStateProvider.notifier).state = QuizCardState.question;
+    // ref.read(quizStateProvider.notifier).init();
+    // ref.read(quizCardStateProvider.notifier).state = QuizCardState.question;
     ref.read(quizWordProvider.notifier).state = quizWord.word;
  
     context.push('/${ScreenTab.quiz}/${ScreenPage.quizDetail}',

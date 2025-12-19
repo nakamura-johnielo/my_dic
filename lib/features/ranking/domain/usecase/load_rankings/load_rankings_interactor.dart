@@ -1,12 +1,12 @@
 import 'package:my_dic/Constants/Enums/feature_tag.dart';
 import 'package:my_dic/core/common/enums/word/part_of_speech.dart';
-import 'package:my_dic/_Business_Rule/Usecase/load_rankings/filtered_ranking_list_input_data.dart';
-import 'package:my_dic/_Business_Rule/Usecase/load_rankings/load_rankings_input_data.dart';
-import 'package:my_dic/_Business_Rule/Usecase/load_rankings/load_rankings_output_data.dart';
-import 'package:my_dic/_Business_Rule/Usecase/load_rankings/i_load_rankings_presenter.dart';
-import 'package:my_dic/_Business_Rule/Usecase/load_rankings/i_load_rankings_use_case.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/ranking.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esp_ranking_repository.dart';
+import 'package:my_dic/features/ranking/domain/usecase/load_rankings/filtered_ranking_list_input_data.dart';
+import 'package:my_dic/features/ranking/domain/usecase/load_rankings/load_rankings_input_data.dart';
+import 'package:my_dic/features/ranking/domain/usecase/load_rankings/load_rankings_output_data.dart';
+import 'package:my_dic/features/ranking/domain/usecase/load_rankings/i_load_rankings_presenter.dart';
+import 'package:my_dic/features/ranking/domain/usecase/load_rankings/i_load_rankings_use_case.dart';
+import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
+import 'package:my_dic/features/ranking/domain/i_repository/i_esp_ranking_repository.dart';
 
 class LoadRankingsInteractor implements ILoadRankingsUseCase {
   final ILoadRankingsPresenter _loadRankingsPresenterImpl;
