@@ -20,26 +20,26 @@ class WordStatusDao extends DatabaseAccessor<DatabaseProvider>
             hasNote: Value(hasNote)));
   } */
 
-  Future<void> updateStatus(WordStatusData data) async {
+  Future<void> updateStatus(WordStatusTableData data) async {
     log("update");
     await update(wordStatus).replace(data);
   }
 
-  Future<WordStatusData?> getStatusById(int wordId) {
+  Future<WordStatusTableData?> getStatusById(int wordId) {
     return (select(wordStatus)..where((tbl) => tbl.wordId.equals(wordId)))
         .getSingleOrNull();
   }
 
   /* Future<void> insertStatus(
       int id, int isLearned, int isBookmarked, int hasNote) async {
-    into(wordStatus).insert(WordStatusData(
+    into(wordStatus).insert(WordStatusTableData(
         wordId: id,
         isLearned: isLearned,
         isBookmarked: isBookmarked,
         hasNote: hasNote));
   } */
 
-  Future<void> insertStatus(WordStatusData data) async {
+  Future<void> insertStatus(WordStatusTableData data) async {
     into(wordStatus).insert(data);
     log("insert");
   }

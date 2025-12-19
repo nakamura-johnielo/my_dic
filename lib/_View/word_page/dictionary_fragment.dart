@@ -9,6 +9,7 @@ import 'package:my_dic/core/domain/entity/dictionary/esj_dictionary.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/quiz_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/word_page_controller.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/main_view_model.dart';
+import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/html_style_kotobank.dart';
 //import 'package:my_dic/Infrastracture/DAO/kotobank_dictionary_dao.dart';
 

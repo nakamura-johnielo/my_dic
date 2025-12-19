@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+@DataClassName('IdiomTableData')
 class Idioms extends Table {
   IntColumn get idiomId => integer().named('idiom_id')();
   IntColumn get dictionaryId => integer().named('dictionary_id')();

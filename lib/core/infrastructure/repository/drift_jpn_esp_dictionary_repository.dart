@@ -42,7 +42,7 @@ class DriftJpnEspDictionaryRepository implements IJpnEspDictionaryRepository {
 }
 
 List<JpnEspExampleWith>? convertExamples(
-    List<drift.JpnEspExample?> exampleList) {
+    List<drift.JpnEspExampleTableData?> exampleList) {
   List<JpnEspExampleWith> res = [];
   if (exampleList.isEmpty) {
     return res;

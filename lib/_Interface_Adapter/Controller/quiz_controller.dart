@@ -7,7 +7,7 @@ import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/core/domain/usecase/fetch_conjugation/fetch_conjugation_input_data.dart';
 import 'package:my_dic/core/domain/usecase/fetch_conjugation/i_fetch_conjugation_use_case.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacions.dart';
-import 'package:my_dic/_Framework_Driver/Repository/drift_es_en_conjugacions_repository.dart';
+import 'package:my_dic/features/quiz/data/repository_impl/drift_es_en_conjugacions_repository.dart';
 
 class QuizController {
   final DriftEsEnConjugacionRepository _driftEsEnConjugacionRepository;
@@ -116,23 +116,9 @@ class QuizController {
 /////
 //////
 
-// final quizConjugacionsProvider =
-//     FutureProvider.autoDispose.family<Conjugacions?, int>(
-//   (ref, wordId) async {
-//     final controller = ref.watch(quizControllerProvider);
-//     return await controller.getConjugaciones(wordId);
-//   },
-// );
 
-// final quizWordProvider = StateProvider<String>((ref) => "");
-
-// // QuizStateをRiverpodで管理するProvider
-// final quizStateProvider = StateNotifierProvider<QuizStateNotifier, QuizState>(
-//   (ref) => QuizStateNotifier(),
-// );
-
-class QuizStateNotifier extends StateNotifier<QuizState> {
-  QuizStateNotifier() : super(QuizState()) {
+class QuizStateNotifier extends StateNotifier<QuizState2> {
+  QuizStateNotifier() : super(QuizState2()) {
     state.init();
     //state = state;
   }
@@ -177,7 +163,7 @@ class QuizStateNotifier extends StateNotifier<QuizState> {
   // 必要に応じて他の操作も追加
 }
 
-class QuizState {
+class QuizState2 {
   final _random = Random();
 
   List<Subject> activeSubjects = []; //出題する主語
@@ -193,6 +179,7 @@ class QuizState {
 
   int get allLength => activeKeys.length;
 
+  // Complete
   void setActiveKeys() {
     activeKeys.clear();
     waitingKeys.clear();
@@ -239,6 +226,7 @@ class QuizState {
     }
   }
 
+  // complete
   void setActiveItems(bool isActive, Enum item) {
     if (item is Subject) {
       if (isActive) {
@@ -260,8 +248,8 @@ class QuizState {
     setActiveKeys();
   }
 
-  QuizState copy() {
-    final cloned = QuizState();
+  QuizState2 copy() {
+    final cloned = QuizState2();
     cloned.doneKeyOrder = List<String>.from(doneKeyOrder);
     cloned.currentIndex = currentIndex;
     cloned.nonExistKeys = Set<String>.from(nonExistKeys);

@@ -4,8 +4,8 @@ import 'package:my_dic/core/di/data/data_di.dart';
 import 'package:my_dic/core/di/data/repository_di.dart';
 import 'package:my_dic/core/di/usecase/interactor_di.dart';
 import 'package:my_dic/core/di/usecase/usecase_di.dart';
-import 'package:my_dic/_Business_Rule/Usecase/judge_search_word/i_judge_search_word_use_case.dart';
-import 'package:my_dic/_Business_Rule/Usecase/judge_search_word/judge_search_word_interactor.dart';
+import 'package:my_dic/features/search/domain/usecase/judge_search_word/i_judge_search_word_use_case.dart';
+import 'package:my_dic/features/search/domain/usecase/judge_search_word/judge_search_word_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/load_my_word/i_load_my_word_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/load_my_word/load_my_word_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/locate_ranking_pagenation/i_locate_ranking_pagenation_use_case.dart';
@@ -18,8 +18,8 @@ import 'package:my_dic/_Business_Rule/Usecase/my_word/create/register_my_word/i_
 import 'package:my_dic/_Business_Rule/Usecase/my_word/create/register_my_word/register_my_word_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/update/update_my_word/i_update_my_word_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/update/update_my_word/update_my_word_interactor.dart';
-import 'package:my_dic/_Business_Rule/Usecase/search_word/i_search_word_use_case.dart';
-import 'package:my_dic/_Business_Rule/Usecase/search_word/search_word_interactor.dart';
+import 'package:my_dic/features/search/domain/usecase/search_word/i_search_word_use_case.dart';
+import 'package:my_dic/features/search/domain/usecase/search_word/search_word_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/load_rankings/i_load_rankings_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/load_rankings/load_rankings_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_my_word_status/i_update_my_word_status_use_case.dart';
@@ -35,7 +35,8 @@ import 'package:my_dic/_Framework_Driver/local/drift/DAO/my_word_status_dao.dart
 import 'package:my_dic/_Framework_Driver/local/drift/DAO/ranking_dao.dart';
 import 'package:my_dic/_Framework_Driver/Repository/drift_my_word_repository.dart';
 import 'package:my_dic/_Framework_Driver/Repository/wiki_esp_ranking_repository.dart';
-import 'package:my_dic/_Interface_Adapter/Controller/buffer_controller.dart';
+import 'package:my_dic/features/search/di/view_model_di.dart';
+import 'package:my_dic/features/search/presentation/view_model/buffer_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/jpn_esp_word_page_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/my_word_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/quiz_controller.dart';
@@ -57,7 +58,7 @@ import 'package:my_dic/_Interface_Adapter/ViewModel/main_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/my_word_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/note_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/ranking_view_model.dart';
-import 'package:my_dic/_Interface_Adapter/ViewModel/search_view_model.dart';
+import 'package:my_dic/features/search/presentation/view_model/search_view_model.dart';
 
 // ============================================================================
 // Database & DAO Providers
@@ -99,10 +100,6 @@ final rankingViewModelProvider =
   return RankingViewModel();
 });
 
-final searchViewModelProvider = ChangeNotifierProvider<SearchViewModel>((ref) {
-  return SearchViewModel();
-});
-
 final mainViewModelProvider = ChangeNotifierProvider<MainViewModel>((ref) {
   return MainViewModel();
 });
@@ -139,10 +136,6 @@ final locateRankingPagenationPresenterProvider = Provider((ref) {
 
 final updateStatusPresenterProvider = Provider((ref) {
   return UpdateStatusPresenterImpl(ref.read(rankingViewModelProvider));
-});
-
-final searchWordPresenterProvider = Provider((ref) {
-  return SearchWordPresenterImpl(ref.read(searchViewModelProvider));
 });
 
 final fetchConjugationPresenterProvider = Provider((ref) {
@@ -192,18 +185,7 @@ final locateRankingPagenationUseCaseProvider =
       ref.read(locateRankingPagenationPresenterProvider));
 });
 
-final searchWordUseCaseProvider = Provider<ISearchWordUseCase>((ref) {
-  return SearchWordInteractor(
-    ref.read(esjWordRepositoryProvider),
-    ref.read(searchWordPresenterProvider),
-    ref.read(jpnEspWordRepositoryProvider),
-    ref.read(conjugacionsRepositoryProvider),
-  );
-});
 
-final judgeSearchWordUseCaseProvider = Provider<IJudgeSearchWordUseCase>((ref) {
-  return JudgeSearchWordInteractor();
-});
 
 final loadMyWordUseCaseProvider = Provider<ILoadMyWordUseCase>((ref) {
   return LoadMyWordInteractor(
@@ -260,13 +242,6 @@ final rankingControllerProvider = Provider<RankingController>((ref) {
   );
 });
 
-final bufferControllerProvider = Provider<BufferController>((ref) {
-  return BufferController(
-    ref.read(searchWordUseCaseProvider),
-    ref.read(judgeSearchWordUseCaseProvider),
-  );
-});
-
 final wordPageControllerProvider = Provider<WordPageController>((ref) {
   return WordPageController(
     ref.read(fetchDictionaryUseCaseProvider),
@@ -292,25 +267,6 @@ final myWordControllerProvider = Provider<MyWordController>((ref) {
   );
 });
 
-final quizControllerProvider = Provider<QuizController>((ref) {
-  return QuizController(ref.read(esEnConjugacionRepositoryProvider),
-      ref.read(fetchConjugationUseCaseProvider));
-});
-
-final quizConjugacionsProvider =
-    FutureProvider.autoDispose.family<Conjugacions?, int>(
-  (ref, wordId) async {
-    final controller = ref.watch(quizControllerProvider);
-    return await controller.getConjugaciones(wordId);
-  },
-);
-
-final quizWordProvider = StateProvider<String>((ref) => "");
-
-// QuizStateをRiverpodで管理するProvider
-final quizStateProvider = StateNotifierProvider<QuizStateNotifier, QuizState>(
-  (ref) => QuizStateNotifier(),
-);
 // ============================================================================
 // Other Providers
 // ============================================================================

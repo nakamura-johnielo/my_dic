@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+@DataClassName('JpnEspDictionaryTableData')
 class JpnEspDictionaries extends Table {
   IntColumn get dictionaryId => integer().named('jpn_esp_dictionary_id')();
   IntColumn get wordId => integer().named('jpn_esp_word_id')();

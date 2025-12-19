@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+@DataClassName('EsEnConjugacionTableData')
 class EsEnConjugacions extends Table {
   IntColumn get wordId => integer().named('word_id').autoIncrement()();
   TextColumn get word => text().nullable()();

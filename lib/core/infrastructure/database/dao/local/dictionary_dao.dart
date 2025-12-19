@@ -13,14 +13,14 @@ class DictionaryDao extends DatabaseAccessor<DatabaseProvider>
   DictionaryDao(super.database);
 
   // 特定のword_idに基づいてエントリを取得するメソッド
-  Future<List<Dictionary>> getDictionaryByWordId(int wordId) {
+  Future<List<DictionaryTableData>> getDictionaryByWordId(int wordId) {
     return (select(dictionaries)..where((tbl) => tbl.wordId.equals(wordId)))
         .get();
   }
 
   // 結合クエリを使用して特定の単語に関連する例文を取得するメソッド
-  Future<List<Tuple2<Dictionary, Example>>> getDictionaryWithExamples(
-      int wordId) {
+  Future<List<Tuple2<DictionaryTableData, ExampleTableData>>>
+      getDictionaryWithExamples(int wordId) {
     final query = select(dictionaries).join([
       innerJoin(
           examples, examples.dictionaryId.equalsExp(dictionaries.dictionaryId))
