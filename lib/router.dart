@@ -7,10 +7,10 @@ import 'package:my_dic/features/auth/presentation/view/sign_up.dart';
 import 'package:my_dic/_View/main_activity.dart';
 import 'package:my_dic/core/common/enums/ui/tab.dart';
 import 'package:my_dic/_View/my_word/my_word_fragment.dart';
-import 'package:my_dic/_View/quiz/quiz_fragment.dart';
-import 'package:my_dic/_View/quiz/quiz_game_fragment.dart';
+import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
 import 'package:my_dic/_View/ranking/ranking_fragment.dart';
-import 'package:my_dic/_View/search/search_fragment.dart';
+import 'package:my_dic/features/quiz/presentation/view/quiz_search_fragment.dart';
+import 'package:my_dic/features/search/presentation/view/search_fragment.dart';
 import 'package:my_dic/features/user/presentation/view/profile.dart';
 import 'package:my_dic/_View/word_page/jpn_esp/jpn_esp_word_page_fragment.dart';
 import 'package:my_dic/_View/word_page/word_page_fragment.dart';
@@ -117,7 +117,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: '/${ScreenTab.quiz}',
                 pageBuilder: (context, state) => NoTransitionPage(
                   key: state.pageKey,
-                  child: QuizFragment(),
+                  child: QuizSearchFragment(),
                 ),
                 routes: [
                   GoRoute(

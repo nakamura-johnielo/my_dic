@@ -9,7 +9,7 @@ class JpnEspDictionaryDao extends DatabaseAccessor<DatabaseProvider>
     with _$JpnEspDictionaryDaoMixin {
   JpnEspDictionaryDao(super.database);
   // 特定のword_idに基づいてエントリを取得するメソッド
-  Future<List<JpnEspDictionary>> getDictionaryByWordId(int wordId) {
+  Future<List<JpnEspDictionaryTableData>> getDictionaryByWordId(int wordId) {
     return (select(jpnEspDictionaries)
           ..where((tbl) => tbl.wordId.equals(wordId)))
         .get();

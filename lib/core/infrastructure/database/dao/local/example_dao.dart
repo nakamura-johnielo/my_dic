@@ -8,24 +8,24 @@ class ExampleDao extends DatabaseAccessor<DatabaseProvider>
     with _$ExampleDaoMixin {
   ExampleDao(super.database);
 
-  Future<Example?> getExampleById(int id) {
+  Future<ExampleTableData?> getExampleById(int id) {
     return (select(examples)..where((tbl) => tbl.exampleId.equals(id)))
         .getSingleOrNull();
   }
 
-  Future<List<Example?>> getExampleByDictionaryId(int id) {
+  Future<List<ExampleTableData?>> getExampleByDictionaryId(int id) {
     return (select(examples)
           ..where((tbl) => tbl.dictionaryId.equals(id))
           ..orderBy([(tbl) => OrderingTerm(expression: tbl.exampleId)]))
         .get();
   }
 
-  Future<void> insertExample(Insertable<Example> tableName) =>
+  Future<void> insertExample(Insertable<ExampleTableData> tableName) =>
       into(examples).insert(tableName);
 
-  Future<void> updateExample(Insertable<Example> tableName) =>
+  Future<void> updateExample(Insertable<ExampleTableData> tableName) =>
       update(examples).replace(tableName);
 
-  Future<void> deleteExample(Insertable<Example> tableName) =>
+  Future<void> deleteExample(Insertable<ExampleTableData> tableName) =>
       delete(examples).delete(tableName);
 }

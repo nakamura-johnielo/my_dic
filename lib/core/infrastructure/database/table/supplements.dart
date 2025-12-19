@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+@DataClassName('SupplementTableData')
 class Supplements extends Table {
   IntColumn get supplementId => integer().named('supplement_id')();
   IntColumn get dictionaryId => integer().named('dictionary_id')();

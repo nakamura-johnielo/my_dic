@@ -7,24 +7,24 @@ part '../../../../../__generated/core/infrastructure/database/dao/local/idiom_da
 class IdiomDao extends DatabaseAccessor<DatabaseProvider> with _$IdiomDaoMixin {
   IdiomDao(super.database);
 
-  Future<Idiom?> getIdiomById(int id) {
+  Future<IdiomTableData?> getIdiomById(int id) {
     return (select(idioms)..where((tbl) => tbl.idiomId.equals(id)))
         .getSingleOrNull();
   }
 
-  Future<List<Idiom?>> getExampleByDictionaryId(int id) {
+  Future<List<IdiomTableData?>> getExampleByDictionaryId(int id) {
     return (select(idioms)
           ..where((tbl) => tbl.dictionaryId.equals(id))
           ..orderBy([(tbl) => OrderingTerm(expression: tbl.idiomId)]))
         .get();
   }
 
-  Future<void> insertIdiom(Insertable<Idiom> tableName) =>
+  Future<void> insertIdiom(Insertable<IdiomTableData> tableName) =>
       into(idioms).insert(tableName);
 
-  Future<void> updateIdiom(Insertable<Idiom> tableName) =>
+  Future<void> updateIdiom(Insertable<IdiomTableData> tableName) =>
       update(idioms).replace(tableName);
 
-  Future<void> deleteIdiom(Insertable<Idiom> tableName) =>
+  Future<void> deleteIdiom(Insertable<IdiomTableData> tableName) =>
       delete(idioms).delete(tableName);
 }

@@ -29,7 +29,7 @@ class WordStatusSyncService {
         print(
             "${entity.wordId}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!status UPDATED");
         await _local.updateStatus(
-          WordStatusData(
+          WordStatusTableData(
             wordId: entity.wordId,
             isLearned: entity.isLearned,
             isBookmarked: entity.isBookmarked,

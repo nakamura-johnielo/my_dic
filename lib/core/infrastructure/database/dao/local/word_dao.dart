@@ -7,25 +7,25 @@ part '../../../../../__generated/core/infrastructure/database/dao/local/word_dao
 class WordDao extends DatabaseAccessor<DatabaseProvider> with _$WordDaoMixin {
   WordDao(super.database);
 
-  Future<Word?> getDictionaryByWordId(int wordId) {
+  Future<WordTableData?> getDictionaryByWordId(int wordId) {
     return (select(words)..where((tbl) => tbl.wordId.equals(wordId)))
         .getSingleOrNull();
   }
 
-  Future<void> insertWord(Insertable<Word> tableName) =>
+  Future<void> insertWord(Insertable<WordTableData> tableName) =>
       into(words).insert(tableName);
 
-  Future<void> updateWord(Insertable<Word> tableName) =>
+  Future<void> updateWord(Insertable<WordTableData> tableName) =>
       update(words).replace(tableName);
 
-  Future<void> deleteWord(Insertable<Word> tableName) =>
+  Future<void> deleteWord(Insertable<WordTableData> tableName) =>
       delete(words).delete(tableName);
 
-  Future<List<Word>?> getWordsByWord(String searchWord) async {
+  Future<List<WordTableData>?> getWordsByWord(String searchWord) async {
     return (select(words)..where((tbl) => tbl.word.like('$searchWord%'))).get();
   }
 
-  Future<List<Word>?> getWordsByWordByPage(
+  Future<List<WordTableData>?> getWordsByWordByPage(
       String searchWord, int size, int currentPage) async {
     final int offset = size * currentPage; // ページ番号に基づいてスキップする件数を計算
 

@@ -10,18 +10,18 @@ class ConjugationDao extends DatabaseAccessor<DatabaseProvider>
     with _$ConjugationDaoMixin {
   ConjugationDao(super.database);
 
-  Future<Conjugation?> getConjugationById(int id) {
+  Future<ConjugationTableData?> getConjugationById(int id) {
     return (select(conjugations)..where((tbl) => tbl.wordId.equals(id)))
         .getSingleOrNull();
   }
 
-/*   Future<Conjugation?> getConjugationByWordWithPage(
+/*   Future<ConjugationTableData?> getConjugationByWordWithPage(
       String word, int size, int currentPage) {
     return (select(conjugations)..where((tbl) => tbl.wordId.equals(id)))
         .getSingleOrNull();
   } */
 
-  Future<List<Conjugation>?> getConjugationByWordWithPage(
+  Future<List<ConjugationTableData>?> getConjugationByWordWithPage(
     String word,
     int size,
     int requiredPage,
@@ -40,7 +40,7 @@ class ConjugationDao extends DatabaseAccessor<DatabaseProvider>
     //   });
 
     return res.map((row) {
-      return Conjugation(
+      return ConjugationTableData(
         wordId: row.read<int>('word_id'),
         word: row.read<String>('word'),
         meaning: row.read<String?>('meaning'),
@@ -112,7 +112,7 @@ class ConjugationDao extends DatabaseAccessor<DatabaseProvider>
     }).toList();
   }
 
-  Future<List<Conjugation>?> getConjugationInAllTableByWordWithPage(
+  Future<List<ConjugationTableData>?> getConjugationInAllTableByWordWithPage(
     String word,
     int size,
     int requiredPage,
@@ -131,7 +131,7 @@ class ConjugationDao extends DatabaseAccessor<DatabaseProvider>
     //   });
 
     return res.map((row) {
-      return Conjugation(
+      return ConjugationTableData(
         wordId: row.read<int>('word_id'),
         word: row.read<String>('word'),
         meaning: row.read<String?>('meaning'),
@@ -203,13 +203,13 @@ class ConjugationDao extends DatabaseAccessor<DatabaseProvider>
     }).toList();
   }
 
-  Future<void> insertConjugation(Insertable<Conjugation> tableName) =>
+  Future<void> insertConjugation(Insertable<ConjugationTableData> tableName) =>
       into(conjugations).insert(tableName);
 
-  Future<void> updateConjugation(Insertable<Conjugation> tableName) =>
+  Future<void> updateConjugation(Insertable<ConjugationTableData> tableName) =>
       update(conjugations).replace(tableName);
 
-  Future<void> deleteConjugation(Insertable<Conjugation> tableName) =>
+  Future<void> deleteConjugation(Insertable<ConjugationTableData> tableName) =>
       delete(conjugations).delete(tableName);
 }
 

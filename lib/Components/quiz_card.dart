@@ -3,9 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Constants/Enums/cardState.dart';
 import 'package:my_dic/core/common/enums/conjugacion/mood_tense.dart';
 import 'package:my_dic/core/common/enums/conjugacion/subject.dart';
-
-final quizCardStateProvider =
-    StateProvider<QuizCardState>((ref) => QuizCardState.question);
+import 'package:my_dic/features/quiz/di/view_model_di.dart';
 
 class QuizCard extends ConsumerWidget {
   final MoodTense moodTense;
@@ -13,32 +11,32 @@ class QuizCard extends ConsumerWidget {
   final Subject subject;
   final Function onSwipe;
   final String englishSub;
+  final Function onToggle;
+  // final QuizCardState cardState;
 
   // static const Color subjectColor = Color.fromARGB(255, 62, 62, 62);
   // static const Color conjColor = Color.fromARGB(255, 3, 159, 52);
   //final IconData icon;
-  const QuizCard(
-      {super.key,
-      required this.englishSub,
-      required this.moodTense,
-      required this.conjugacion,
-      required this.subject,
-      required this.onSwipe});
+  const QuizCard({
+    super.key,
+    required this.englishSub,
+    required this.moodTense,
+    required this.conjugacion,
+    required this.subject,
+    required this.onSwipe,
+    required this.onToggle,
+    // required this.cardState
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cardState = ref.watch(quizCardStateProvider);
-
     return GestureDetector(
       onTap: () {
         // Handle card tap if needed
-        ref.read(quizCardStateProvider.notifier).state =
-            cardState == QuizCardState.question
-                ? QuizCardState.answer
-                : QuizCardState.question;
+        onToggle();
       },
       onHorizontalDragEnd: (details) {
-        ref.read(quizCardStateProvider.notifier).state = QuizCardState.question;
+        //ref.read(quizCardStateProvider.notifier).state = QuizCardState.question;
 
         if (details.primaryVelocity != null) {
           if (details.primaryVelocity! < 0) {
@@ -90,7 +88,7 @@ class ConjCard extends ConsumerWidget {
   static const Color conjColor = Color.fromARGB(255, 3, 159, 52);
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cardState = ref.watch(quizCardStateProvider);
+    final cardState = ref.watch(quizGameViewModelProvider).quizCardState;
     return Card(
       //shadowColor: Colors.grey.withOpacity(0.5),
       elevation: 5,
@@ -177,7 +175,7 @@ class ParticipleCard extends ConsumerWidget {
   static const Color conjColor = Color.fromARGB(255, 3, 159, 52);
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cardState = ref.watch(quizCardStateProvider);
+    final cardState = ref.watch(quizGameViewModelProvider).quizCardState;
     return Card(
       //shadowColor: Colors.grey.withOpacity(0.5),
       elevation: 5,
@@ -235,47 +233,3 @@ class ParticipleCard extends ConsumerWidget {
     );
   }
 }
-
-// class ParticipleCard extends StatelessWidget {
-//   final MoodTense moodTense;
-//   final String conjugacion;
-//   final String query;
-
-//   static const Color subjectColor = Color.fromARGB(255, 62, 62, 62);
-//   static const Color conjColor = Colors.black;
-//   //final IconData icon;
-//   const ParticipleCard(
-//       {super.key,
-//       required this.moodTense,
-//       required this.conjugacion,
-//       this.query = ""});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Card(
-//       elevation: 5,
-//       shape: RoundedRectangleBorder(
-//         borderRadius: BorderRadius.circular(15),
-//       ),
-//       child: Padding(
-//         padding: const EdgeInsets.fromLTRB(15, 10, 15, 15),
-//         child: Row(
-//           spacing: 15,
-//           mainAxisSize: MainAxisSize.min,
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: <Widget>[
-//             Text(
-//               moodTense.jap,
-//               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-//             ),
-//             Text(
-//               conjugacion,
-//               style: TextStyle(fontSize: 16, color: conjColor),
-//               textAlign: TextAlign.left,
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }

@@ -32,7 +32,7 @@ class DriftConjugacionRepository implements IConjugacionsRepository {
     if (conjugaciones == null) return res;
 
     res = conjugaciones.map((conj) {
-      Map<MoodTenseSubject, String> matches = check(conj);
+      Map<MoodTenseSubject, String> matches = _check(conj);
       return SearchResultConjugacions(
           wordId: conj.wordId, word: conj.word, matches: matches);
     }).toList();
@@ -56,7 +56,7 @@ class DriftConjugacionRepository implements IConjugacionsRepository {
     return res;
   }
 
-  Map<MoodTenseSubject, String> check(Conjugation conjugacion) {
+  Map<MoodTenseSubject, String> _check(ConjugationTableData conjugacion) {
     Map<MoodTenseSubject, String> res = {};
     if (conjugacion.presentParticiple != null &&
         conjugacion.presentParticiple!.isNotEmpty) {
