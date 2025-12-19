@@ -1,7 +1,6 @@
 import 'package:my_dic/_Business_Rule/Usecase/my_word/delete/delete_my_word/delete_my_word_input_data.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/delete/delete_my_word/i_delete_my_word_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/delete/delete_my_word/delete_my_word_output_data.dart';
-import 'package:my_dic/_Business_Rule/Usecase/my_word/delete/delete_my_word/i_delete_my_word_presenter.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/delete/delete_my_word/delete_my_word_repository_input_data.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/i_my_word_fragment_presenter.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_my_word_repository.dart';

@@ -1,10 +1,8 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Constants/Enums/feature_tag.dart';
 import 'package:my_dic/core/common/enums/word/part_of_speech.dart';
-import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/ranking.dart';
 
 /// ViewModelをプロバイダーで提供

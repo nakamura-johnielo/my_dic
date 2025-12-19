@@ -4,21 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/Components/auto_focus_text_field.dart';
-import 'package:my_dic/Components/searhCard/conjugacion_search_card.dart';
-import 'package:my_dic/Components/searhCard/jpn_esp_searh_card.dart';
 import 'package:my_dic/Components/searhCard/quiz_search_card.dart';
-import 'package:my_dic/Components/searhCard/search_card.dart';
 import 'package:my_dic/Constants/Enums/cardState.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/quiz_searched_item.dart';
 import 'package:my_dic/_View/search/infinity_scroll_view/infinity_scroll_view_new.dart';
 import 'package:my_dic/core/common/enums/ui/tab.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
-import 'package:my_dic/features/search/di/view_model_di.dart';
-import 'package:my_dic/features/search/presentation/view_model/buffer_controller.dart';
 // import 'package:my_dic/_View/search/infinity_scroll_view/infinity_scroll_view.dart';
-import 'package:my_dic/_View/word_page/jpn_esp/jpn_esp_word_page_fragment.dart';
-import 'package:my_dic/_View/word_page/word_page_fragment.dart';
 
 
 

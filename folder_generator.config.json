@@ -252,6 +252,24 @@
         ]
       ],
       "exists": true
+    },
+    {
+      "folder_name": [
+        "ranking"
+      ],
+      "name": [
+        "ranking"
+      ],
+      "templates": "feature",
+      "data_source_name": [
+        "drift"
+      ],
+      "di_type": [
+        "data",
+        "usecase",
+        "view_model"
+      ],
+      "exists": true
     }
   ]
 }

@@ -1,4 +1,3 @@
-import 'dart:math';
 
 import 'package:my_dic/features/search/domain/usecase/search_word/i_search_word_presenter.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/i_search_word_use_case.dart';

@@ -1,7 +1,6 @@
 import 'dart:developer';
 
 import 'package:my_dic/Constants/Enums/feature_tag.dart';
-import 'package:my_dic/_Business_Rule/Usecase/my_word/create/register_my_word/register_my_word_input_data.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/create/register_my_word/register_my_word_repository_input_data.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/delete/delete_my_word/delete_my_word_repository_input_data.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/update/update_my_word/update_my_word_repository_input_data.dart';

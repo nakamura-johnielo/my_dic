@@ -1,13 +1,8 @@
 // lib/features/search/presentation/view_model/search_view_model.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/core/common/enums/dictionary/dictionary_type.dart';
 import 'package:my_dic/features/quiz/presentation/ui_model/quiz_ui_model.dart';
-import 'package:my_dic/features/search/domain/usecase/judge_search_word/i_judge_search_word_use_case.dart';
-import 'package:my_dic/features/search/domain/usecase/judge_search_word/judge_search_word_input_data.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/i_search_word_use_case.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/search_word_input_data.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/quiz_searched_item.dart';
-import 'package:my_dic/features/search/presentation/ui_model/search_ui_model.dart';
 
 /// 検索画面のViewModel
 class QuizSearchViewModel extends StateNotifier<QuizSearchState> {
