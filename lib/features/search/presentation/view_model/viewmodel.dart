@@ -64,17 +64,6 @@ class SearchViewModel extends StateNotifier<SearchState> {
     }
   }
 
-  /// クイズ用の動詞検索
-  Future<List<QuizSearchedItem>> searchVerbs(
-    String word,
-    int size,
-    int currentPage,
-  ) async {
-    if (word.isEmpty) return [];
-
-    final input = SearchWordInputData(word, size, currentPage + 1, true);
-    return await _searchWordUseCase.executeVerbs(input);
-  }
 
   
   /// 検索結果をクリア

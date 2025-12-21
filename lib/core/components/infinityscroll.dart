@@ -166,6 +166,7 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
       final page = _nextPage;
       final hasMore = await widget.onLoadMore(page);
 
+          print("in infi _nextPage BEFORE : $_nextPage");
       if (!mounted) return;
 
       setState(() {
@@ -174,6 +175,7 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
         if (hasMore) {
           _nextPage = page + 1;
         }
+          print("in infi _nextPage: $_nextPage");
       });
     } catch (e, st) {
       dev.log("InfinityScrollListView loadMore error: $e", stackTrace: st);
