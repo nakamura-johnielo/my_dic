@@ -9,32 +9,39 @@ import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
 import 'package:my_dic/features/ranking/domain/i_repository/i_esp_ranking_repository.dart';
 
 class LoadRankingsInteractor implements ILoadRankingsUseCase {
-  final ILoadRankingsPresenter _loadRankingsPresenterImpl;
+  // final ILoadRankingsPresenter _loadRankingsPresenterImpl;
   final IEspRankingRepository _wikiEspRankingRepository;
 
   LoadRankingsInteractor(
-      this._loadRankingsPresenterImpl, this._wikiEspRankingRepository);
-
+      // this._loadRankingsPresenterImpl,
+      this._wikiEspRankingRepository);
 /*   int _getOffset(int pagenation, int size) {
     return pagenation ~/ size; //商のみ
   } */
 
   @override
-  Future<void> execute(LoadRankingsInputData input) async {
+  Future<List<Ranking>> execute(LoadRankingsInputData input) async {
     List<int> requiredPages = [input.currentPage[0], input.currentPage[1]];
     int offset = input.pagenation; // getOffset(input.pagenation, input.size);
     /* if ((offset < requiredPages[0] || -1 == requiredPages[0]) ||
         requiredPages[1] < offset) */
-    if (requiredPages[0] <= offset && offset <= requiredPages[1]) {
-      if (input.isNext) {
-        requiredPages[1] += 1;
-      } else {
-        requiredPages[0] -= 1;
-      }
-    } else {
-      requiredPages[0] = offset;
-      requiredPages[1] = offset;
-    }
+
+    //TODO 両方に行けるscrollではない
+    //現状、Next方向のみ対応
+    requiredPages[1] += 1;
+    final requiredNextPage = requiredPages[1] + offset;
+
+    // if (requiredPages[0] <= offset && offset <= requiredPages[1]) {
+    //   if (input.isNext) {
+    //     requiredPages[1] += 1;
+    //   } else {
+    //     requiredPages[0] -= 1;
+    //   }
+    // } else {
+    //   requiredPages[0] = offset;
+    //   requiredPages[1] = offset;
+    // }
+
 
     /* if (input.isNext) {
       if (offset <= requiredPages[1]) {
@@ -80,19 +87,20 @@ class LoadRankingsInteractor implements ILoadRankingsUseCase {
         partOfSpeechExcludeFilter,
         featureTagExcludeFilter,
         input.isNext
-            ? requiredPages[1]
+            ? requiredNextPage//requiredPages[1]
             : requiredPages[0], //current -> required
         input.size);
 
     List<Ranking> resp =
         await _wikiEspRankingRepository.getRankingListByFilters(inputData);
 
-    LoadRankingsOutputData outputData =
-        LoadRankingsOutputData(resp, requiredPages);
-    if (input.isNext) {
-      _loadRankingsPresenterImpl.handleNext(outputData);
-      return;
-    }
-    _loadRankingsPresenterImpl.handlePrevious(outputData);
+    return resp;
+    // LoadRankingsOutputData outputData =
+    //     LoadRankingsOutputData(resp, requiredPages);
+    // if (input.isNext) {
+    //   _loadRankingsPresenterImpl.handleNext(outputData);
+    //   return;
+    // }
+    // _loadRankingsPresenterImpl.handlePrevious(outputData);
   }
 }

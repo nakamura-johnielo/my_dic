@@ -5,13 +5,13 @@ import 'package:my_dic/features/ranking/domain/usecase/locate_ranking_pagenation
 
 class LocateRankingPagenationInteractor
     implements ILocateRankingPagenationUseCase {
-  final ILocateRankingPagenationPresenter _locateRankingPagenationPresenterImpl;
-  LocateRankingPagenationInteractor(this._locateRankingPagenationPresenterImpl);
+  // final ILocateRankingPagenationPresenter _locateRankingPagenationPresenterImpl;
+  LocateRankingPagenationInteractor();
 
   @override
   void execute(LocateRankingPagenationInputData input) {
     LocateRankingPagenationOutputData output =
         LocateRankingPagenationOutputData(input.pagenationFilter);
-    _locateRankingPagenationPresenterImpl.execute(output);
+    //_locateRankingPagenationPresenterImpl.execute(output);
   }
 }

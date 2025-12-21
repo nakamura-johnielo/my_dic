@@ -1,23 +1,30 @@
 import 'package:my_dic/core/common/enums/i_enum.dart';
 
-class AddPartOfSpeechFilterOutputData extends UpdateRankingFilterOutputData {
+class AddPartOfSpeechFilterOutputData extends IUpdateRankingFilterOutputData {
   AddPartOfSpeechFilterOutputData(super.data, super.filterType);
 }
 
-class DeletePartOfSpeechFilterOutputData extends UpdateRankingFilterOutputData {
+class DeletePartOfSpeechFilterOutputData extends IUpdateRankingFilterOutputData {
   DeletePartOfSpeechFilterOutputData(super.data, super.filterType);
 }
 
-class AddFeatureTagFilterOutputData extends UpdateRankingFilterOutputData {
+class AddFeatureTagFilterOutputData extends IUpdateRankingFilterOutputData {
   AddFeatureTagFilterOutputData(super.data, super.filterType);
 }
 
-class DeleteFeatureTagFilterOutputData extends UpdateRankingFilterOutputData {
+class DeleteFeatureTagFilterOutputData extends IUpdateRankingFilterOutputData {
   DeleteFeatureTagFilterOutputData(super.data, super.filterType);
 }
 
-abstract class UpdateRankingFilterOutputData {
+abstract class IUpdateRankingFilterOutputData {
   DisplayEnumMixin data;
   int filterType;
-  UpdateRankingFilterOutputData(this.data, this.filterType);
+  IUpdateRankingFilterOutputData(this.data, this.filterType);
+}
+
+class UpdateRankingFilterOutputData {
+  final DisplayEnumMixin data;
+  final int value; // 0: none, 1: include, -1: exclude
+
+  UpdateRankingFilterOutputData(this.data, this.value);
 }

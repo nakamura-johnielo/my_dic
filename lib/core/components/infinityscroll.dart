@@ -95,6 +95,8 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
       oldWidget.controller?._reset = null;
       widget.controller?._reset = _resetInternal;
     }
+
+    print("infiscroll nextPage: $_nextPage" );
   }
 
   @override
@@ -107,9 +109,22 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
     super.dispose();
   }
 
+  void _resetScrollPosition() {
+    if (_scrollController.hasClients) {
+      _scrollController.jumpTo(0);
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(0);
+      }
+    });
+  }
+
   void _resetInternal() {
     print("InfinityScrollListView reset");
-    _scrollController.jumpTo(0);
+    _resetScrollPosition();
 
     setState(() {
       _isLoading = false;

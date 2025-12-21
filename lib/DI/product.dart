@@ -31,7 +31,7 @@ import 'package:my_dic/_Framework_Driver/Repository/drift_my_word_repository.dar
 import 'package:my_dic/features/ranking/data/repository_impl/wiki_esp_ranking_repository.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/jpn_esp_word_page_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/my_word_controller.dart';
-import 'package:my_dic/features/ranking/presentation/view_model/ranking_controller.dart';
+// import 'package:my_dic/features/ranking/presentation/view_model/ranking_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/word_page_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/conjugacion_presenter.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/dictionary_presenter.dart';

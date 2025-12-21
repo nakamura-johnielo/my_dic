@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/Components/modal/ranking_filter_modal.dart';
-import 'package:my_dic/Components/ranking_card.dart';
+import 'package:my_dic/features/ranking/presentation/effect_provider.dart';
+import 'package:my_dic/features/ranking/presentation/view/ranking_card.dart';
 import 'package:my_dic/Constants/Enums/word_card_view_click_listener.dart';
 import 'package:my_dic/core/common/enums/ui/tab.dart';
 import 'package:my_dic/DI/product.dart';
@@ -27,28 +28,32 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
   final int _initialPage = 0;
   // bool _hasMore = true;
   late final InfinityScrollController _infinityScrollController;
+  late final VoidCallback _resetPageCallback; // = _resetPage;
 
   @override
   void initState() {
     super.initState();
     _infinityScrollController = InfinityScrollController();
+    _resetPageCallback = _resetPage;
   }
 
   Future<bool> loadNextPage(int nextPage) async {
-    final rankingController = ref.read(rankingControllerProvider);
-    final viewModel = ref.watch(rankingViewModelProvider);
+    //final rankingController = ref.read(rankingControllerProvider);
+    final viewModel = ref.read(rankingViewModelProvider.notifier);
 
     _setCurrentItemLength();
-    viewModel.currentPage = [-1, nextPage - 1];
+    viewModel.setNextPage(nextPage - 1);
 
-    await rankingController.loadNext();
+    await viewModel.loadNextPage(nextPage);
 
     final canFetch = _canFetch();
 
     return canFetch;
   }
 
-  void _resetPage() {//TODO filter適応時にreset走らせる
+  void _resetPage() {
+    //TODO filter適応時にreset走らせる
+    //TODO　infilistview内のnextpage変更できないからfilter更新時にリセットする
     _infinityScrollController.reset();
 
     setState(() {
@@ -78,6 +83,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
     //_rankingController.loadNext();
     const margin = EdgeInsets.symmetric(vertical: 1, horizontal: 16);
     final userId = ref.watch(userViewModelProvider)?.id ?? "anonymous";
+    ref.watch(rankingFilterEffectProvider(_resetPageCallback));
 
     return Scaffold(
       appBar: AppBar(

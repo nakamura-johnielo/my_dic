@@ -158,7 +158,7 @@ class RankingViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setPartOfSpeechFilter(filter, int value) {
+  void setPartOfSpeechFilter( filter, int value) {
     partOfSpeechFilters[filter] = value;
     hasNext = true;
     notifyListeners();
