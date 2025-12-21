@@ -9,16 +9,11 @@ import 'package:my_dic/_Business_Rule/Usecase/my_word/create/handle_word_registr
 import 'package:my_dic/_Business_Rule/Usecase/my_word/create/handle_word_registration/i_handle_word_registration_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/create/register_my_word/i_register_my_word_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/create/register_my_word/register_my_word_input_data.dart';
-import 'package:my_dic/_Business_Rule/Usecase/my_word/update/handle_word_update/handle_word_update_input_data.dart';
-import 'package:my_dic/_Business_Rule/Usecase/my_word/update/handle_word_update/i_handle_word_update_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/update/update_my_word/i_update_my_word_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/update/update_my_word/update_my_word_input_data.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_my_word_status/i_update_my_word_status_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_my_word_status/update_my_word_status_input_data.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/my_word.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/infinity_scrollable_controller.dart';
-import 'package:my_dic/_Interface_Adapter/ViewModel/infinity_scrollable_viewmodel.dart';
-import 'package:path/path.dart';
 
 class MyWordController extends InfinityScrollableController {
   final ILoadMyWordUseCase _loadMyWordInteractor;

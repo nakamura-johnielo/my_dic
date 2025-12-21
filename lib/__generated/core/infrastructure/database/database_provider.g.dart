@@ -4164,7 +4164,8 @@ class PartOfSpeechListsCompanion extends UpdateCompanion<PartOfSpeechList> {
   }
 }
 
-class $RankingsTable extends Rankings with TableInfo<$RankingsTable, Ranking> {
+class $RankingsTable extends Rankings
+    with TableInfo<$RankingsTable, RankingTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -4212,7 +4213,7 @@ class $RankingsTable extends Rankings with TableInfo<$RankingsTable, Ranking> {
   String get actualTableName => $name;
   static const String $name = 'rankings';
   @override
-  VerificationContext validateIntegrity(Insertable<Ranking> instance,
+  VerificationContext validateIntegrity(Insertable<RankingTableData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -4250,9 +4251,9 @@ class $RankingsTable extends Rankings with TableInfo<$RankingsTable, Ranking> {
   @override
   Set<GeneratedColumn> get $primaryKey => {rankingId};
   @override
-  Ranking map(Map<String, dynamic> data, {String? tablePrefix}) {
+  RankingTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Ranking(
+    return RankingTableData(
       rankingId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}ranking_id'])!,
       rankingNo: attachedDatabase.typeMapping
@@ -4274,14 +4275,15 @@ class $RankingsTable extends Rankings with TableInfo<$RankingsTable, Ranking> {
   }
 }
 
-class Ranking extends DataClass implements Insertable<Ranking> {
+class RankingTableData extends DataClass
+    implements Insertable<RankingTableData> {
   final int rankingId;
   final int rankingNo;
   final String? word;
   final String? wordOrigin;
   final int? wordId;
   final int? hasConj;
-  const Ranking(
+  const RankingTableData(
       {required this.rankingId,
       required this.rankingNo,
       this.word,
@@ -4324,10 +4326,10 @@ class Ranking extends DataClass implements Insertable<Ranking> {
     );
   }
 
-  factory Ranking.fromJson(Map<String, dynamic> json,
+  factory RankingTableData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Ranking(
+    return RankingTableData(
       rankingId: serializer.fromJson<int>(json['rankingId']),
       rankingNo: serializer.fromJson<int>(json['rankingNo']),
       word: serializer.fromJson<String?>(json['word']),
@@ -4349,14 +4351,14 @@ class Ranking extends DataClass implements Insertable<Ranking> {
     };
   }
 
-  Ranking copyWith(
+  RankingTableData copyWith(
           {int? rankingId,
           int? rankingNo,
           Value<String?> word = const Value.absent(),
           Value<String?> wordOrigin = const Value.absent(),
           Value<int?> wordId = const Value.absent(),
           Value<int?> hasConj = const Value.absent()}) =>
-      Ranking(
+      RankingTableData(
         rankingId: rankingId ?? this.rankingId,
         rankingNo: rankingNo ?? this.rankingNo,
         word: word.present ? word.value : this.word,
@@ -4364,8 +4366,8 @@ class Ranking extends DataClass implements Insertable<Ranking> {
         wordId: wordId.present ? wordId.value : this.wordId,
         hasConj: hasConj.present ? hasConj.value : this.hasConj,
       );
-  Ranking copyWithCompanion(RankingsCompanion data) {
-    return Ranking(
+  RankingTableData copyWithCompanion(RankingsCompanion data) {
+    return RankingTableData(
       rankingId: data.rankingId.present ? data.rankingId.value : this.rankingId,
       rankingNo: data.rankingNo.present ? data.rankingNo.value : this.rankingNo,
       word: data.word.present ? data.word.value : this.word,
@@ -4378,7 +4380,7 @@ class Ranking extends DataClass implements Insertable<Ranking> {
 
   @override
   String toString() {
-    return (StringBuffer('Ranking(')
+    return (StringBuffer('RankingTableData(')
           ..write('rankingId: $rankingId, ')
           ..write('rankingNo: $rankingNo, ')
           ..write('word: $word, ')
@@ -4395,7 +4397,7 @@ class Ranking extends DataClass implements Insertable<Ranking> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Ranking &&
+      (other is RankingTableData &&
           other.rankingId == this.rankingId &&
           other.rankingNo == this.rankingNo &&
           other.word == this.word &&
@@ -4404,7 +4406,7 @@ class Ranking extends DataClass implements Insertable<Ranking> {
           other.hasConj == this.hasConj);
 }
 
-class RankingsCompanion extends UpdateCompanion<Ranking> {
+class RankingsCompanion extends UpdateCompanion<RankingTableData> {
   final Value<int> rankingId;
   final Value<int> rankingNo;
   final Value<String?> word;
@@ -4427,7 +4429,7 @@ class RankingsCompanion extends UpdateCompanion<Ranking> {
     this.wordId = const Value.absent(),
     this.hasConj = const Value.absent(),
   }) : rankingNo = Value(rankingNo);
-  static Insertable<Ranking> custom({
+  static Insertable<RankingTableData> custom({
     Expression<int>? rankingId,
     Expression<int>? rankingNo,
     Expression<String>? word,
@@ -9439,14 +9441,17 @@ class $$RankingsTableAnnotationComposer
 class $$RankingsTableTableManager extends RootTableManager<
     _$DatabaseProvider,
     $RankingsTable,
-    Ranking,
+    RankingTableData,
     $$RankingsTableFilterComposer,
     $$RankingsTableOrderingComposer,
     $$RankingsTableAnnotationComposer,
     $$RankingsTableCreateCompanionBuilder,
     $$RankingsTableUpdateCompanionBuilder,
-    (Ranking, BaseReferences<_$DatabaseProvider, $RankingsTable, Ranking>),
-    Ranking,
+    (
+      RankingTableData,
+      BaseReferences<_$DatabaseProvider, $RankingsTable, RankingTableData>
+    ),
+    RankingTableData,
     PrefetchHooks Function()> {
   $$RankingsTableTableManager(_$DatabaseProvider db, $RankingsTable table)
       : super(TableManagerState(
@@ -9500,14 +9505,17 @@ class $$RankingsTableTableManager extends RootTableManager<
 typedef $$RankingsTableProcessedTableManager = ProcessedTableManager<
     _$DatabaseProvider,
     $RankingsTable,
-    Ranking,
+    RankingTableData,
     $$RankingsTableFilterComposer,
     $$RankingsTableOrderingComposer,
     $$RankingsTableAnnotationComposer,
     $$RankingsTableCreateCompanionBuilder,
     $$RankingsTableUpdateCompanionBuilder,
-    (Ranking, BaseReferences<_$DatabaseProvider, $RankingsTable, Ranking>),
-    Ranking,
+    (
+      RankingTableData,
+      BaseReferences<_$DatabaseProvider, $RankingsTable, RankingTableData>
+    ),
+    RankingTableData,
     PrefetchHooks Function()>;
 typedef $$SupplementsTableCreateCompanionBuilder = SupplementsCompanion
     Function({

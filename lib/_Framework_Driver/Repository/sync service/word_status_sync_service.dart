@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:my_dic/core/infrastructure/database/dao/local/word_status_dao.dart';
 import 'package:my_dic/core/infrastructure/database/database_provider.dart';
 import 'package:my_dic/core/infrastructure/dto/wordStatusEntity.dart';
 

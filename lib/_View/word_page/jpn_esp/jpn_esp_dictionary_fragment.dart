@@ -5,12 +5,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/common/enums/ui/ui.dart';
 import 'package:my_dic/DI/product.dart';
-import 'package:my_dic/core/domain/entity/dictionary/esj_dictionary.dart';
 import 'package:my_dic/core/domain/entity/jpn_esp/jpn_esp_dictionary.dart';
-import 'package:my_dic/_Interface_Adapter/Controller/jpn_esp_word_page_controller.dart';
-import 'package:my_dic/_Interface_Adapter/Controller/word_page_controller.dart';
-import 'package:my_dic/_Interface_Adapter/ViewModel/jpn_esp_word_page_view_model.dart';
-import 'package:my_dic/_Interface_Adapter/ViewModel/main_view_model.dart';
 import 'package:my_dic/html_style_kotobank.dart';
 //import 'package:my_dic/Infrastracture/DAO/kotobank_dictionary_dao.dart';
 

@@ -4,23 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/Components/auto_focus_text_field.dart';
-import 'package:my_dic/Components/searhCard/conjugacion_search_card.dart';
-import 'package:my_dic/Components/searhCard/jpn_esp_searh_card.dart';
 import 'package:my_dic/Components/searhCard/quiz_search_card.dart';
-import 'package:my_dic/Components/searhCard/search_card.dart';
-import 'package:my_dic/Constants/Enums/cardState.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/quiz_searched_item.dart';
-import 'package:my_dic/_View/search/infinity_scroll_view/infinity_scroll_view_new.dart';
+import 'package:my_dic/features/quiz/domain/entity/quiz_searched_item.dart';
+// import 'package:my_dic/_View/search/infinity_scroll_view/infinity_scroll_view_new.dart';
 import 'package:my_dic/core/common/enums/ui/tab.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
+import 'package:my_dic/core/components/infinityscroll.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
-import 'package:my_dic/features/search/di/view_model_di.dart';
-import 'package:my_dic/features/search/presentation/view_model/buffer_controller.dart';
 // import 'package:my_dic/_View/search/infinity_scroll_view/infinity_scroll_view.dart';
-import 'package:my_dic/_View/word_page/jpn_esp/jpn_esp_word_page_fragment.dart';
-import 'package:my_dic/_View/word_page/word_page_fragment.dart';
-
-
 
 class QuizSearchFragment extends ConsumerStatefulWidget {
   const QuizSearchFragment({super.key});
@@ -33,44 +24,48 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
   int _currentPage = -1;
   final int _size = 30; //searchの1ページの取得件数
   int _previousItemLength = 0;
-  bool _hasMore = true;
+  final int _initialPage = 0;
+  // bool _hasMore = true;
+  late final InfinityScrollController _infinityScrollController;
 
-  void loadNextPage() async {
-    print("_loadNextPage: $_currentPage");
-    if (ref.read(quizSearchViewModelProvider).isLoading) return;
+  @override
+  void initState() {
+    super.initState();
+    _infinityScrollController = InfinityScrollController();
+  }
 
+  Future<bool> loadNextPage(int nextPage) async {
     final viewModel = ref.read(quizSearchViewModelProvider.notifier);
 
     _setCurrentItemLength();
 
     await viewModel.loadSearchResults(
       _size,
-      _currentPage,
+      nextPage - 1,
     );
-
-    print(viewModel.state.quizSearchedItems.length);
 
     final canFetch = _canFetch();
 
-    setState(() {
-      _hasMore = canFetch;
-      _currentPage++;
-    });
+    return canFetch;
   }
 
   void _resetPage() {
+    _infinityScrollController.reset();
+
     setState(() {
       _previousItemLength = 0;
       _currentPage = -1;
     });
   }
 
-  void _setCurrentItemLength() {//TODO read watch
+  void _setCurrentItemLength() {
+    //TODO read watch
     final viewModel = ref.read(quizSearchViewModelProvider);
     _previousItemLength = viewModel.quizSearchedItems.length;
   }
 
-  bool _canFetch() {//TODO read watch
+  bool _canFetch() {
+    //TODO read watch
     final viewModel = ref.read(quizSearchViewModelProvider);
     final currentItemLength = viewModel.quizSearchedItems.length;
     return currentItemLength > _previousItemLength;
@@ -82,14 +77,13 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
     //Quiz game の初期化
     //TODO: quizStateProvider  -> viewmodel
     ref.read(quizGameViewModelProvider.notifier).initialize();
-    
-    ref.read(quizStateProvider.notifier).init();
-    ref.read(quizCardStateProvider.notifier).state = QuizCardState.question;
+
+    // ref.read(quizStateProvider.notifier).init();
+    // ref.read(quizCardStateProvider.notifier).state = QuizCardState.question;
     ref.read(quizWordProvider.notifier).state = quizWord.word;
- 
+
     context.push('/${ScreenTab.quiz}/${ScreenPage.quizDetail}',
         extra: QuizGameFragmentInput(wordId: id, word: quizWord.word));
-
   }
 
   @override
@@ -101,7 +95,7 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
     //final viewModel = ref.watch(searchViewModelProviderOld);
     final viewModel = ref.watch(quizSearchViewModelProvider);
     final viewModelNotifier = ref.read(quizSearchViewModelProvider.notifier);
-    log("0 Fragment in build");
+    //log("0 Fragment in build");
 
     return Scaffold(
       appBar: AppBar(
@@ -122,7 +116,7 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
                 viewModelNotifier.updateQuery(value);
                 viewModelNotifier.clearResults();
                 _resetPage();
-                loadNextPage();
+                loadNextPage(_initialPage);
                 //});
                 //viewModel.query = value;
                 //_bufferController.searchWord(value);
@@ -131,7 +125,9 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
           ),
           Expanded(
               child: InfinityScrollListView(
-            hasMore: _hasMore,
+            initialPage: _initialPage,
+            controller: _infinityScrollController,
+            //hasMore: _hasMore,
             itemCount: viewModel.quizSearchedItems.length,
             itemBuilder: (context, index) {
               final quizWord = viewModel.quizSearchedItems[index];

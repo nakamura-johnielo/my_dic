@@ -1,15 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Components/status_buttons.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
-import 'package:my_dic/core/di/data/repository_di.dart';
 import 'package:my_dic/core/di/usecase/interactor_di.dart';
 import 'package:my_dic/core/di/usecase/usecase_di.dart';
-import 'package:my_dic/features/search/domain/usecase/judge_search_word/i_judge_search_word_use_case.dart';
-import 'package:my_dic/features/search/domain/usecase/judge_search_word/judge_search_word_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/load_my_word/i_load_my_word_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/load_my_word/load_my_word_interactor.dart';
-import 'package:my_dic/_Business_Rule/Usecase/locate_ranking_pagenation/i_locate_ranking_pagenation_use_case.dart';
-import 'package:my_dic/_Business_Rule/Usecase/locate_ranking_pagenation/locate_ranking_pagenation_interactor.dart';
+import 'package:my_dic/features/ranking/domain/usecase/locate_ranking_pagenation/i_locate_ranking_pagenation_use_case.dart';
+import 'package:my_dic/features/ranking/domain/usecase/locate_ranking_pagenation/locate_ranking_pagenation_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/create/handle_word_registration/handle_word_registration_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/create/handle_word_registration/i_handle_word_registration_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/delete/delete_my_word/delete_my_word_interactor.dart';
@@ -18,47 +15,39 @@ import 'package:my_dic/_Business_Rule/Usecase/my_word/create/register_my_word/i_
 import 'package:my_dic/_Business_Rule/Usecase/my_word/create/register_my_word/register_my_word_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/update/update_my_word/i_update_my_word_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/my_word/update/update_my_word/update_my_word_interactor.dart';
-import 'package:my_dic/features/search/domain/usecase/search_word/i_search_word_use_case.dart';
-import 'package:my_dic/features/search/domain/usecase/search_word/search_word_interactor.dart';
-import 'package:my_dic/_Business_Rule/Usecase/load_rankings/i_load_rankings_use_case.dart';
-import 'package:my_dic/_Business_Rule/Usecase/load_rankings/load_rankings_interactor.dart';
+import 'package:my_dic/features/ranking/domain/usecase/load_rankings/i_load_rankings_use_case.dart';
+import 'package:my_dic/features/ranking/domain/usecase/load_rankings/load_rankings_interactor.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_my_word_status/i_update_my_word_status_use_case.dart';
 import 'package:my_dic/_Business_Rule/Usecase/update_my_word_status/update_my_word_status_interactor.dart';
-import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/i_update_ranking_filter_use_case.dart';
-import 'package:my_dic/_Business_Rule/Usecase/update_ranking_filter/update_ranking_filter_interactor.dart';
-import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacions.dart';
+import 'package:my_dic/features/ranking/domain/usecase/update_ranking_filter/i_update_ranking_filter_use_case.dart';
+import 'package:my_dic/features/ranking/domain/usecase/update_ranking_filter/update_ranking_filter_interactor.dart';
 import 'package:my_dic/core/domain/entity/word/esp_word.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_esp_ranking_repository.dart';
+import 'package:my_dic/features/ranking/domain/i_repository/i_esp_ranking_repository.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Repository_I/i_my_word_repository.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/DAO/my_word_dao.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/DAO/my_word_status_dao.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/DAO/ranking_dao.dart';
+import 'package:my_dic/features/ranking/data/data_source/local/ranking_dao.dart';
 import 'package:my_dic/_Framework_Driver/Repository/drift_my_word_repository.dart';
-import 'package:my_dic/_Framework_Driver/Repository/wiki_esp_ranking_repository.dart';
-import 'package:my_dic/features/search/di/view_model_di.dart';
-import 'package:my_dic/features/search/presentation/view_model/buffer_controller.dart';
+import 'package:my_dic/features/ranking/data/repository_impl/wiki_esp_ranking_repository.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/jpn_esp_word_page_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/my_word_controller.dart';
-import 'package:my_dic/_Interface_Adapter/Controller/quiz_controller.dart';
-import 'package:my_dic/_Interface_Adapter/Controller/ranking_controller.dart';
+// import 'package:my_dic/features/ranking/presentation/view_model/ranking_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/word_page_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/conjugacion_presenter.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/dictionary_presenter.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/jpn_esp_word_page_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/load_my_word_presenter_impl.dart';
-import 'package:my_dic/_Interface_Adapter/Presenter/locate_ranking_pagenation_presenter_impl.dart';
+import 'package:my_dic/features/ranking/presentation/presenter/locate_ranking_pagenation_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/my_word_fragment_presenter_impl.dart';
-import 'package:my_dic/_Interface_Adapter/Presenter/search_word_presenter_impl.dart';
-import 'package:my_dic/_Interface_Adapter/Presenter/load_rankings_presenter_impl.dart';
+import 'package:my_dic/features/ranking/presentation/presenter/load_rankings_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/update_my_word_status_presenter_impl.dart';
-import 'package:my_dic/_Interface_Adapter/Presenter/update_ranking_filter_presenter_impl.dart';
-import 'package:my_dic/_Interface_Adapter/Presenter/update_status_presenter_impl.dart';
+import 'package:my_dic/features/ranking/presentation/presenter/update_ranking_filter_presenter_impl.dart';
+import 'package:my_dic/features/ranking/presentation/presenter/update_status_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/jpn_esp_word_page_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/main_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/my_word_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/note_view_model.dart';
-import 'package:my_dic/_Interface_Adapter/ViewModel/ranking_view_model.dart';
-import 'package:my_dic/features/search/presentation/view_model/search_view_model.dart';
+import 'package:my_dic/features/ranking/presentation/view_model/ranking_view_model.dart';
 
 // ============================================================================
 // Database & DAO Providers
@@ -95,10 +84,7 @@ final myWordRepositoryProvider = Provider<IMyWordRepository>((ref) {
 // ViewModel Providers
 // ============================================================================
 
-final rankingViewModelProvider =
-    ChangeNotifierProvider<RankingViewModel>((ref) {
-  return RankingViewModel();
-});
+
 
 final mainViewModelProvider = ChangeNotifierProvider<MainViewModel>((ref) {
   return MainViewModel();
@@ -121,22 +107,6 @@ final noteViewModelProvider = ChangeNotifierProvider<NoteViewModel>((ref) {
 // Presenter Providers
 // ============================================================================
 
-final loadRankingsPresenterProvider = Provider((ref) {
-  return LoadRankingsPresenterImpl(ref.read(rankingViewModelProvider));
-});
-
-final updateRankingFilterPresenterProvider = Provider((ref) {
-  return UpdateRankingFilterPresenterImpl(ref.read(rankingViewModelProvider));
-});
-
-final locateRankingPagenationPresenterProvider = Provider((ref) {
-  return LocateRankingPagenationPresenterImpl(
-      ref.read(rankingViewModelProvider));
-});
-
-final updateStatusPresenterProvider = Provider((ref) {
-  return UpdateStatusPresenterImpl(ref.read(rankingViewModelProvider));
-});
 
 final fetchConjugationPresenterProvider = Provider((ref) {
   return ConjugacionFragmentPresenterImpl(ref.read(mainViewModelProvider));
@@ -165,26 +135,6 @@ final myWordFragmentPresenterProvider = Provider((ref) {
 // ============================================================================
 // UseCase Providers
 // ============================================================================
-
-final loadRankingsUseCaseProvider = Provider<ILoadRankingsUseCase>((ref) {
-  return LoadRankingsInteractor(
-    ref.read(loadRankingsPresenterProvider),
-    ref.read(espRankingRepositoryProvider),
-  );
-});
-
-final updateRankingFilterUseCaseProvider =
-    Provider<IUpdateRankingFilterUseCase>((ref) {
-  return UpdateRankingFilterInteractor(
-      ref.read(updateRankingFilterPresenterProvider));
-});
-
-final locateRankingPagenationUseCaseProvider =
-    Provider<ILocateRankingPagenationUseCase>((ref) {
-  return LocateRankingPagenationInteractor(
-      ref.read(locateRankingPagenationPresenterProvider));
-});
-
 
 
 final loadMyWordUseCaseProvider = Provider<ILoadMyWordUseCase>((ref) {
@@ -232,15 +182,6 @@ final deleteMyWordUseCaseProvider = Provider<IDeleteMyWordUseCase>((ref) {
 // Controller Providers
 // ============================================================================
 
-final rankingControllerProvider = Provider<RankingController>((ref) {
-  return RankingController(
-    ref.read(rankingViewModelProvider),
-    ref.read(loadRankingsUseCaseProvider),
-    ref.read(updateRankingFilterUseCaseProvider),
-    ref.read(locateRankingPagenationUseCaseProvider),
-    ref.read(updateStatusUseCaseProvider),
-  );
-});
 
 final wordPageControllerProvider = Provider<WordPageController>((ref) {
   return WordPageController(
