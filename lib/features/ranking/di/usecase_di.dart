@@ -14,28 +14,26 @@ import 'package:my_dic/core/domain/usecase/update_status/i_update_status_use_cas
 import 'package:my_dic/core/domain/usecase/update_status/update_status_interactor.dart';
 import 'package:my_dic/features/ranking/di/view_model_di.dart';
 
-final updateStatusUseCaseProvider = Provider<IUpdateStatusUseCase>((ref) {
-  return UpdateStatusInteractor(
-    ref.read(updateStatusPresenterProvider),
-    ref.read(esjWordRepositoryProvider),
-  );
-});
+// final updateStatusUseCaseProvider = Provider<IUpdateStatusUseCase>((ref) {
+//   return UpdateStatusInteractor(
+//     // ref.read(updateStatusPresenterProvider),
+//     ref.read(esjWordRepositoryProvider),
+//   );
+// });
 
 final loadRankingsUseCaseProvider = Provider<ILoadRankingsUseCase>((ref) {
   return LoadRankingsInteractor(
-    ref.read(loadRankingsPresenterProvider),
+    // ref.read(loadRankingsPresenterProvider),
     ref.read(espRankingRepositoryProvider),
   );
 });
 
 final updateRankingFilterUseCaseProvider =
     Provider<IUpdateRankingFilterUseCase>((ref) {
-  return UpdateRankingFilterInteractor(
-      ref.read(updateRankingFilterPresenterProvider));
+  return UpdateRankingFilterInteractor();
 });
 
 final locateRankingPagenationUseCaseProvider =
     Provider<ILocateRankingPagenationUseCase>((ref) {
-  return LocateRankingPagenationInteractor(
-      ref.read(locateRankingPagenationPresenterProvider));
+  return LocateRankingPagenationInteractor();
 });

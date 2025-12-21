@@ -3,8 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Constants/Enums/feature_tag.dart';
 import 'package:my_dic/core/common/enums/word/part_of_speech.dart';
 
-import 'package:my_dic/features/ranking/presentation/view_model/ranking_controller.dart';
-import 'package:my_dic/features/ranking/presentation/view_model/ranking_view_model.dart';
 import 'package:my_dic/core/common/enums/i_enum.dart';
 import 'package:my_dic/features/ranking/di/view_model_di.dart';
 
@@ -16,7 +14,7 @@ class RankingFilterModal extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final viewModel = ref.watch(rankingViewModelProvider);
-    final rankingController = ref.read(rankingControllerProvider);
+    final rankingNotifier = ref.read(rankingViewModelProvider.notifier);
     return FractionallySizedBox(
       heightFactor: 0.8,
       widthFactor: 1,
@@ -50,8 +48,9 @@ class RankingFilterModal extends ConsumerWidget {
                       label: "品詞",
                       filters: viewModel.partOfSpeechFilters,
                       chipsEnum: PartOfSpeech.values,
-                      rankingController: rankingController,
-                      viewModel: viewModel,
+                      addFilter: rankingNotifier.addFilter,
+                      deleteFilter: rankingNotifier.removeFilter,
+                      // viewModel: viewModel,
                     ),
                     SizedBox(
                       height: 20,
@@ -60,8 +59,9 @@ class RankingFilterModal extends ConsumerWidget {
                       label: "タグ",
                       filters: viewModel.featureTagFilters,
                       chipsEnum: FeatureTag.values,
-                      rankingController: rankingController,
-                      viewModel: viewModel,
+                      addFilter: rankingNotifier.addFilter,
+                      deleteFilter: rankingNotifier.removeFilter,
+                      // viewModel: viewModel,
                     ),
                     SizedBox(
                       height: 20,
@@ -70,8 +70,9 @@ class RankingFilterModal extends ConsumerWidget {
                       label: "品詞除外",
                       filters: viewModel.partOfSpeechFilters,
                       chipsEnum: PartOfSpeech.values,
-                      rankingController: rankingController,
-                      viewModel: viewModel,
+                      addFilter: rankingNotifier.addExcludeFilter,
+                      deleteFilter: rankingNotifier.removeFilter,
+                      // viewModel: viewModel,
                     ),
                     SizedBox(
                       height: 20,
@@ -80,15 +81,16 @@ class RankingFilterModal extends ConsumerWidget {
                       label: "タグ除外",
                       filters: viewModel.featureTagFilters,
                       chipsEnum: FeatureTag.values,
-                      rankingController: rankingController,
-                      viewModel: viewModel,
+                      addFilter: rankingNotifier.addExcludeFilter,
+                      deleteFilter: rankingNotifier.removeFilter,
+                      // viewModel: viewModel,
                     ),
                     SizedBox(
                       height: 20,
                     ),
                     PagenationFilterSection(
                       label: "ページ",
-                      rankingController: rankingController,
+                      locatePage: rankingNotifier.locatePage,
                       pagenationFilter: viewModel.pagenationFilter,
                     ),
                     SizedBox(
@@ -111,14 +113,15 @@ class FilterSection<ChipsEnum extends DisplayEnumMixin>
       {super.key,
       required this.label,
       required this.chipsEnum,
-      required this.filters,
-      required this.rankingController,
-      required this.viewModel});
+      required this.filters, required this.addFilter, required this.deleteFilter,
+      // required this.viewModel
+      });
   final String label;
   final List<ChipsEnum> chipsEnum; //Enum
   final Map<ChipsEnum, int> filters;
-  final RankingController rankingController;
-  final RankingViewModel viewModel;
+  final Function(DisplayEnumMixin) addFilter;
+  final Function(DisplayEnumMixin) deleteFilter;
+  // final RankingViewModel viewModel;
 
   @override
   Widget build(BuildContext context) {
@@ -136,12 +139,13 @@ class FilterSection<ChipsEnum extends DisplayEnumMixin>
           spacing: 5.0,
           runSpacing: 5,
           children: chipsEnum.map((ChipsEnum chip) {
+            //TODO ここだけ違う.ダブり表示ありを検索することはない
             return FilterChip(
               label: Text(chip.display),
               selected: filters[chip] == 1,
               onSelected: (bool selected) {
                 if (selected) {
-                  rankingController.addFilter(chip, 1);
+                  addFilter(chip);
                   /* LoadRankingsControllerInputData inputLoadItems =
                       LoadRankingsControllerInputData(
                           viewModel.partOfSpeechFilters,
@@ -153,7 +157,7 @@ class FilterSection<ChipsEnum extends DisplayEnumMixin>
                   //viewModel.addPartOfSpeechFilter(chip);
                 } else {
                   //viewModel.deletePartOfSpeechFilter(chip);
-                  rankingController.deleteFilter(chip, 0);
+                 deleteFilter(chip);
                   /* LoadRankingsControllerInputData inputLoadItems =
                       LoadRankingsControllerInputData(
                           viewModel.partOfSpeechFilters,
@@ -178,14 +182,15 @@ class FilterExclusionSection<ChipsEnum extends DisplayEnumMixin>
       {super.key,
       required this.label,
       required this.chipsEnum,
-      required this.filters,
-      required this.rankingController,
-      required this.viewModel});
+      required this.filters, required this.addFilter, required this.deleteFilter,
+      // required this.viewModel
+      });
   final String label;
   final List<ChipsEnum> chipsEnum; //Enum
   final Map<ChipsEnum, int> filters;
-  final RankingController rankingController;
-  final RankingViewModel viewModel;
+  final Function(DisplayEnumMixin) addFilter;
+  final Function(DisplayEnumMixin) deleteFilter;
+  // final RankingViewModel viewModel;
 
   @override
   Widget build(BuildContext context) {
@@ -203,6 +208,9 @@ class FilterExclusionSection<ChipsEnum extends DisplayEnumMixin>
           spacing: 5.0,
           runSpacing: 5,
           children: chipsEnum.map((ChipsEnum chip) {
+            //TODO ここだけ違う.ダブり表示ありを検索することはない
+      
+            
             if (chip == FeatureTag.multiLemma) {
               return SizedBox(
                 width: 0,
@@ -214,7 +222,7 @@ class FilterExclusionSection<ChipsEnum extends DisplayEnumMixin>
               selected: filters[chip] == -1,
               onSelected: (bool selected) {
                 if (selected) {
-                  rankingController.addFilter(chip, -1);
+                  addFilter(chip);
                   /* LoadRankingsControllerInputData inputLoadItems =
                       LoadRankingsControllerInputData(
                           viewModel.partOfSpeechFilters,
@@ -226,7 +234,7 @@ class FilterExclusionSection<ChipsEnum extends DisplayEnumMixin>
                   //viewModel.addPartOfSpeechFilter(chip);
                 } else {
                   //viewModel.deletePartOfSpeechFilter(chip);
-                  rankingController.deleteFilter(chip, 0);
+                  deleteFilter(chip);
                   /* LoadRankingsControllerInputData inputLoadItems =
                       LoadRankingsControllerInputData(
                           viewModel.partOfSpeechFilters,
@@ -249,12 +257,11 @@ class PagenationFilterSection extends StatelessWidget {
   const PagenationFilterSection(
       {super.key,
       required this.label,
-      required this.rankingController,
-      required this.pagenationFilter});
+      required this.pagenationFilter, required this.locatePage});
 
   final String label; //Enum
-  final RankingController rankingController;
   final int pagenationFilter;
+  final Function(int) locatePage;
 
   @override
   Widget build(BuildContext context) {
@@ -285,7 +292,7 @@ class PagenationFilterSection extends StatelessWidget {
               selected: pagenationFilter == page,
               onSelected: (bool selected) {
                 if (selected) {
-                  rankingController.locatePage(page);
+                  locatePage(page);
                 } else {
                   //rankingController.deleteFilter(chip);
                 }
