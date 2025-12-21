@@ -64,11 +64,11 @@ class SearchWordInteractor implements ISearchWordUseCase {
 
     SearchJpnEspWordOutputData result = SearchJpnEspWordOutputData(l);
 
-    if (input.page == 0) {
-      _presenter.executeInicialJpnEsp(result);
-      return result;
-    }
-    _presenter.executeNextJpnEsp(result);
+    // if (input.page == 0) {
+    //   _presenter.executeInicialJpnEsp(result);
+    //   return result;
+    // }
+    // _presenter.executeNextJpnEsp(result);
     return result;
   }
 
@@ -80,11 +80,11 @@ class SearchWordInteractor implements ISearchWordUseCase {
 
     SearchConjugacionOutputData result = SearchConjugacionOutputData(l);
 
-    if (input.page == 0) {
-      _presenter.executInicialConjugacion(result);
-      return result;
-    }
-    _presenter.executNextConjugacion(result);
+    // if (input.page == 0) {
+    //   _presenter.executInicialConjugacion(result);
+    //   return result;
+    // }
+    // _presenter.executNextConjugacion(result);
     return result;
   }
 }
