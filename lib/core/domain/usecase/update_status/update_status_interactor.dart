@@ -8,12 +8,12 @@ import 'package:my_dic/core/domain/i_repository/i_esj_word_repository.dart';
 import 'package:my_dic/utils/date_handler.dart';
 
 class UpdateStatusInteractor implements IUpdateStatusUseCase {
-  final IUpdateStatusPresenter _updateStatusPresenterImpl;
+   final IUpdateStatusPresenter _updateStatusPresenterImpl;
   final IEsjWordRepository _driftEsjWordRepository;
 
   UpdateStatusInteractor(
-      this._updateStatusPresenterImpl, this._driftEsjWordRepository);
-
+       this._updateStatusPresenterImpl, 
+      this._driftEsjWordRepository);
   @override
   void execute(UpdateStatusInputData input) {
     String dateTime = getNowUTCDateHour();
@@ -28,6 +28,6 @@ class UpdateStatusInteractor implements IUpdateStatusUseCase {
       isLearned: input.status.contains(FeatureTag.isLearned),
       hasNote: input.status.contains(FeatureTag.hasNote),
     );
-    _updateStatusPresenterImpl.execute(output);
+     _updateStatusPresenterImpl.execute(output);
   }
 }

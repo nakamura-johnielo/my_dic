@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
 
-import 'dart:developer';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Components/button/my_icon_button.dart';
 import 'package:my_dic/Constants/Enums/my_icons.dart';
 import 'package:my_dic/Constants/Enums/word_card_view_click_listener.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/my_word.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/ranking.dart';
-import 'package:my_dic/_Interface_Adapter/Controller/my_word_controller.dart';
 
 const Map<String, IconData> _bookmarkIcon = {
   "true": Icons.bookmark_rounded,

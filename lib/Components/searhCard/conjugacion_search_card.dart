@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_dic/core/common/enums/conjugacion/enum_mood_tense_subject.dart';
 import 'package:my_dic/core/common/enums/conjugacion/mood_tense.dart';
-import 'package:my_dic/core/common/enums/word/part_of_speech.dart';
 
 class ConjugacionSearchCard extends StatelessWidget {
   const ConjugacionSearchCard(

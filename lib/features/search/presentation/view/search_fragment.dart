@@ -7,10 +7,9 @@ import 'package:my_dic/Components/auto_focus_text_field.dart';
 import 'package:my_dic/Components/searhCard/conjugacion_search_card.dart';
 import 'package:my_dic/Components/searhCard/jpn_esp_searh_card.dart';
 import 'package:my_dic/Components/searhCard/search_card.dart';
-import 'package:my_dic/_View/search/infinity_scroll_view/infinity_scroll_view_new.dart';
 import 'package:my_dic/core/common/enums/ui/tab.dart';
+import 'package:my_dic/core/components/infinityscroll.dart';
 import 'package:my_dic/features/search/di/view_model_di.dart';
-import 'package:my_dic/features/search/presentation/view_model/buffer_controller.dart';
 // import 'package:my_dic/_View/search/infinity_scroll_view/infinity_scroll_view.dart';
 import 'package:my_dic/_View/word_page/jpn_esp/jpn_esp_word_page_fragment.dart';
 import 'package:my_dic/_View/word_page/word_page_fragment.dart';
@@ -52,28 +51,34 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
   int _previousConjItemLength = 0;
   int _previousEspJpnItemLength = 0;
   int _previousJpnEspItemLength = 0;
-  bool _hasMore = true;
+  // bool _hasMore = true;
+  late final InfinityScrollController _infinityScrollController;
+  final int initialPage = 0;
 
-  void _loadNextPage() async {
+  @override
+  void initState() {
+    super.initState();
+    _infinityScrollController = InfinityScrollController();
+  }
+
+  Future<bool> _loadNextPage(int nextPage) async {
     print("_loadNextPage: $_currentPage");
-    if (ref.read(searchViewModelProvider).isLoading) return;
+    //if (ref.read(searchViewModelProvider).isLoading) return;
 
     final viewModel = ref.read(searchViewModelProvider.notifier);
 
     _setCurrentItemLength();
     await viewModel.loadSearchResults(
       _size,
-      _currentPage,
+      nextPage,
     );
-    print(viewModel.state.espJpnWords.length);
+    //print(viewModel.state.espJpnWords.length);
     final canFetch = _canFetch();
-    setState(() {
-      _hasMore = canFetch;
-      _currentPage++;
-    });
+    return canFetch;
   }
 
   void _resetPage() {
+    _infinityScrollController.reset();
     setState(() {
       _previousEspJpnItemLength = 0;
       _previousConjItemLength = 0;
@@ -129,7 +134,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                 viewModelNotifier.updateQuery(value);
                 viewModelNotifier.clearResults();
                 _resetPage();
-                _loadNextPage();
+                _loadNextPage(initialPage);
                 //});
                 //viewModel.query = value;
                 //_bufferController.searchWord(value);
@@ -139,7 +144,8 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
           Expanded(
               child: viewModel.jpnEspWords.isNotEmpty
                   ? InfinityScrollListView(
-                      hasMore: _hasMore,
+                      initialPage: initialPage,
+                      controller: _infinityScrollController,
                       itemCount: viewModel.jpnEspWords.length,
                       itemBuilder: (context, index) {
                         final jpnEspWord = viewModel.jpnEspWords[index];
@@ -156,7 +162,8 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                       onLoadMore: _loadNextPage,
                     )
                   : InfinityScrollListView(
-                      hasMore: _hasMore,
+                      initialPage: initialPage,
+                      controller: _infinityScrollController,
                       itemCount: (viewModel.conjugacions.length +
                           viewModel.espJpnWords.length),
                       itemBuilder: (context, index) {
