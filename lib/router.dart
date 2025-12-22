@@ -12,8 +12,9 @@ import 'package:my_dic/features/ranking/presentation/view/ranking_fragment.dart'
 import 'package:my_dic/features/quiz/presentation/view/quiz_search_fragment.dart';
 import 'package:my_dic/features/search/presentation/view/search_fragment.dart';
 import 'package:my_dic/features/user/presentation/view/profile.dart';
-import 'package:my_dic/_View/word_page/jpn_esp/jpn_esp_word_page_fragment.dart';
-import 'package:my_dic/_View/word_page/word_page_fragment.dart';
+import 'package:my_dic/features/word_page/presentation/view/jpn_esp/jpn_esp_word_page_fragment.dart';
+import 'package:my_dic/features/word_page/presentation/view/esp_jpn/word_page_fragment.dart';
+import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
 
 // GlobalKeyをProvider内で作成して使い回す
 final rootNavigatorKeyProvider = Provider<GlobalKey<NavigatorState>>((ref) {
@@ -129,6 +130,15 @@ final routerProvider = Provider<GoRouter>((ref) {
                           child: QuizGameFragment(input: input));
                     },
                   ),
+                  GoRoute(
+                    path: '${ScreenPage.detail}',
+                    parentNavigatorKey: quizKey,
+                    pageBuilder: (context, state) {
+                      final input = state.extra as WordPageInput;
+                      return MaterialPage(
+                          child: NEWWordPageFragment(input: input));
+                    },
+                  ),
                 ],
               ),
             ],
@@ -147,9 +157,18 @@ final routerProvider = Provider<GoRouter>((ref) {
                     path: '${ScreenPage.detail}',
                     parentNavigatorKey: searchKey,
                     pageBuilder: (context, state) {
-                      final input = state.extra as WordPageFragmentInput;
+                      final input = state.extra as WordPageInput;
                       return MaterialPage(
-                          child: WordPageFragment(input: input));
+                          child: NEWWordPageFragment(input: input));
+                    },
+                  ),
+                  GoRoute(
+                    path: '${ScreenPage.espJpnDetail}',
+                    parentNavigatorKey: searchKey,
+                    pageBuilder: (context, state) {
+                      final input = state.extra as EspJpnWordPageFragmentInput;
+                      return MaterialPage(
+                          child: EspJpnWordPageFragment(input: input));
                     },
                   ),
                   GoRoute(
@@ -175,13 +194,23 @@ final routerProvider = Provider<GoRouter>((ref) {
                   child: RankingFragment(),
                 ),
                 routes: [
+                  
                   GoRoute(
                     path: '${ScreenPage.detail}',
                     parentNavigatorKey: rankingKey,
                     pageBuilder: (context, state) {
-                      final input = state.extra as WordPageFragmentInput;
+                      final input = state.extra as WordPageInput;
                       return MaterialPage(
-                          child: WordPageFragment(input: input));
+                          child: NEWWordPageFragment(input: input));
+                    },
+                  ),
+                  GoRoute(
+                    path: '${ScreenPage.espJpnDetail}',
+                    parentNavigatorKey: rankingKey,
+                    pageBuilder: (context, state) {
+                      final input = state.extra as EspJpnWordPageFragmentInput;
+                      return MaterialPage(
+                          child: EspJpnWordPageFragment(input: input));
                     },
                   ),
                 ],

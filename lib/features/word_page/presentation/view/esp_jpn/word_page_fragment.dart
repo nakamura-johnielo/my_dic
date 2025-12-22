@@ -7,20 +7,20 @@ import 'package:my_dic/Constants/Enums/cardState.dart';
 import 'package:my_dic/core/common/enums/ui/tab.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
-import 'package:my_dic/_View/word_page/conjugacion_fragment.dart';
-import 'package:my_dic/_View/word_page/dictionary_fragment.dart';
+import 'package:my_dic/features/word_page/presentation/view/esp_jpn/conjugacion_fragment.dart';
+import 'package:my_dic/features/word_page/presentation/view/esp_jpn/dictionary_fragment.dart';
 
 //input data DS
-class WordPageFragmentInput {
+class EspJpnWordPageFragmentInput {
   final int wordId;
   final bool isVerb;
-  WordPageFragmentInput({required this.wordId, required this.isVerb});
+  EspJpnWordPageFragmentInput({required this.wordId, required this.isVerb});
 }
 
 //main fragment
-class WordPageFragment extends StatelessWidget {
-  const WordPageFragment({super.key, required this.input});
-  final WordPageFragmentInput input;
+class EspJpnWordPageFragment extends StatelessWidget {
+  const EspJpnWordPageFragment({super.key, required this.input});
+  final EspJpnWordPageFragmentInput input;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +33,7 @@ class WordPageFragment extends StatelessWidget {
 
 class WordPageWithTab extends ConsumerStatefulWidget {
   const WordPageWithTab({super.key, required this.input});
-  final WordPageFragmentInput input;
+  final EspJpnWordPageFragmentInput input;
   @override
   ConsumerState<WordPageWithTab> createState() => _WordPageWithTabState();
 }
@@ -43,7 +43,7 @@ class _WordPageWithTabState extends ConsumerState<WordPageWithTab>
   late TabController _tabController;
   //late PageController _pageController;
   //final PageStorageBucket _bucket = PageStorageBucket();
-  late WordPageFragmentInput input;
+  late EspJpnWordPageFragmentInput input;
   late List<Widget> _tabs;
 
   @override
@@ -55,9 +55,8 @@ class _WordPageWithTabState extends ConsumerState<WordPageWithTab>
     //input = widget.input;
 
     //anti rebuild ↓
-    //! TODO ただ、isbookmarkedとかの更新に対応する必要あり
     _tabs = [
-      KeepAlivePage(child: DictionaryFragment(wordId: widget.input.wordId)),
+      KeepAlivePage(child: EspJpnDictionaryFragment(wordId: widget.input.wordId)),
       // param1: WordPageChildInputData(wordId: widget.input.wordId))),
       KeepAlivePage(
         child: ConjugacionFragment(wordId: widget.input.wordId),
@@ -149,7 +148,7 @@ class _WordPageWithTabState extends ConsumerState<WordPageWithTab>
 
 class WordPageWithoutTab extends StatelessWidget {
   const WordPageWithoutTab({super.key, required this.input});
-  final WordPageFragmentInput input;
+  final EspJpnWordPageFragmentInput input;
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +162,7 @@ class WordPageWithoutTab extends StatelessWidget {
           )
         ],
       ),
-      body: DictionaryFragment(wordId: input.wordId),
+      body: EspJpnDictionaryFragment(wordId: input.wordId),
     );
   }
 }

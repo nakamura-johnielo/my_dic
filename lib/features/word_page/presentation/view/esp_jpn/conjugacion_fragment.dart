@@ -5,9 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Components/conjugacion_card.dart';
 import 'package:my_dic/core/common/enums/conjugacion/mood_tense.dart';
 import 'package:my_dic/core/common/enums/ui/ui.dart';
-import 'package:my_dic/DI/product.dart';
-import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacions.dart';
+import 'package:my_dic/core/domain/entity/verb/new_conjugacions.dart';
 import 'package:my_dic/features/search/di/view_model_di.dart';
+import 'package:my_dic/features/word_page/di/view_model_di.dart';
 
 class ConjugacionFragment extends ConsumerWidget {
   const ConjugacionFragment({super.key, required this.wordId});
@@ -20,15 +20,19 @@ class ConjugacionFragment extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     log("conj key: $key");
-    final wordPageController = ref.read(wordPageControllerProvider);
-    final mainViewModel = ref.watch(mainViewModelProvider);
-    if (!mainViewModel.conjugacionCache.containsKey(wordId)) {
-      wordPageController.fetchConjugacionById(wordId);
-      return Center(
-        child: Text("Loading..."),
-      );
-    }
-    final Conjugacions? conjugacions = mainViewModel.conjugacionCache[wordId]!;
+    // final wordPageController = ref.read(wordPageControllerProvider);
+    // final mainViewModel = ref.watch(mainViewModelProvider);
+    // if (!mainViewModel.conjugacionCache.containsKey(wordId)) {
+    //   wordPageController.fetchConjugacionById(wordId);
+    //   return Center(
+    //     child: Text("Loading..."),
+    //   );
+    // }
+
+    final viewModel = ref.watch(wordPageViewModelProvider);
+
+    //TODO ここ修正
+    final EspConjugacions? conjugacions = viewModel.conjugacions;
 
     // final query = ref.watch(searchViewModelProviderOld).query;
     final query = ref.watch(searchViewModelProvider).query;

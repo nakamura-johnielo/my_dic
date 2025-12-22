@@ -4,45 +4,40 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/common/enums/ui/ui.dart';
-import 'package:my_dic/DI/product.dart';
-import 'package:my_dic/core/domain/entity/dictionary/esj_dictionary.dart';
-import 'package:my_dic/features/quiz/di/view_model_di.dart';
+import 'package:my_dic/core/domain/entity/jpn_esp/jpn_esp_dictionary.dart';
+import 'package:my_dic/features/word_page/di/view_model_di.dart';
 import 'package:my_dic/html_style_kotobank.dart';
 //import 'package:my_dic/Infrastracture/DAO/kotobank_dictionary_dao.dart';
 
-class DictionaryFragment extends ConsumerWidget {
+class JpnEspDictionaryFragmentInputData {
   final int wordId;
-  const DictionaryFragment({super.key, required this.wordId});
+  JpnEspDictionaryFragmentInputData({required this.wordId});
+}
+
+class JpnEspDictionaryFragment extends ConsumerWidget {
+  final int wordId;
+  const JpnEspDictionaryFragment({super.key, required this.wordId});
   //final KotobankDictionaryDao _dao = KotobankDictionaryDao();
   //final DatabaseProvider db = DatabaseProvider();
-  //final WordPageController wordPageController;
+  // final JpnEspWordPageController wordPageController;
   //=DI<IEsjDictionaryRepository>();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     log("dic key: $key");
-    final wordPageController = ref.read(wordPageControllerProvider);
-    final mainViewModel = ref.watch(mainViewModelProvider);
-    if (!mainViewModel.dictionaryCache.containsKey(wordId)) {
-      wordPageController.fetchDictionaryById(wordId);
-      return Center(
-        child: Text("Loading..."),
-      );
-    }
-    final List<EsjDictionary>? dictionaries =
-        mainViewModel.dictionaryCache[wordId]!;
-    //     final dictionaries = ref.watch(mainViewModelProvider).dictionaryCache[wordId]!;
-    // if (dictionaries != null && dictionaries.isNotEmpty) {
-    //   //!TODO
-    //   ref.read(quizWordProvider.notifier).state = dictionaries[0].word;
+    // final wordPageController = ref.read(jpnEspWordPageControllerProvider);
+    // final viewModel = ref.watch(jpnEspWordPageViewModelProvider);
+    // if (!viewModel.dictionaryCache.containsKey(wordId)) {
+    //   wordPageController.fetchDictionaryById(wordId);
+    //   return Center(
+    //     child: Text("Loading..."),
+    //   );
     // }
-    if (dictionaries != null &&
-        dictionaries.isNotEmpty &&
-        (ref.watch(quizWordProvider) != dictionaries[0].word)) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(quizWordProvider.notifier).state = dictionaries[0].word;
-      });
-    }
+    
+    final viewModel = ref.watch(wordPageViewModelProvider);
+
+    final List<JpnEspDictionary>? dictionaries =
+        viewModel.jpnEspDictionary;
 
     return dictionaries == null
         ? (Center(
@@ -75,7 +70,7 @@ class DictionaryFragment extends ConsumerWidget {
 
 class DicSection extends StatelessWidget {
   const DicSection({super.key, required this.dictionary});
-  final EsjDictionary dictionary;
+  final JpnEspDictionary dictionary;
 
   @override
   Widget build(BuildContext context) {

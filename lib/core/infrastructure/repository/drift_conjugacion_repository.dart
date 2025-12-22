@@ -1,5 +1,7 @@
 import 'package:my_dic/core/common/enums/conjugacion/enum_mood_tense_subject.dart';
 import 'package:my_dic/core/common/enums/conjugacion/mood_tense.dart';
+import 'package:my_dic/core/domain/entity/verb/new_conjugacions.dart';
+import 'package:my_dic/core/domain/entity/verb/participles.dart';
 import 'package:my_dic/features/quiz/domain/entity/quiz_searched_item.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacions.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/result_conjugacions.dart';
@@ -12,15 +14,23 @@ class DriftConjugacionRepository implements IConjugacionsRepository {
   final ConjugationDao _conjugacionDao;
   DriftConjugacionRepository(this._conjugacionDao);
 
+  // @override
+  // Future<Conjugacions?> getConjugacionByWordId(int id)async {
+  //   final res = await _conjugacionDao.getConjugationById(id);
+  //   if (res == null) {
+  //     return null; // 結果がnullの場合はnullを返す
+  //   }
+  //   return Conjugacions(wordId: res.wordId, conjugacions: convertToConjugations(res));
+  // }
   @override
-  Future<Conjugacions?> getConjugacionByWordId(int id) async {
+  Future<EspConjugacions?> getConjugacionByWordIdNEW(int id) async {
     final res = await _conjugacionDao.getConjugationById(id);
     if (res == null) {
       return null; // 結果がnullの場合はnullを返す
     }
 
-    return Conjugacions(
-        wordId: res.wordId, conjugacions: convertToConjugations(res));
+    return EspConjugacions(
+        wordId: res.wordId, conjugacions: convertToConjugations(res),participles:  EspParticiples(present: res.presentParticiple!,past:res.prastParticiple!));
   }
 
   @override
@@ -302,6 +312,7 @@ class DriftConjugacionRepository implements IConjugacionsRepository {
     }
     return res;
   }
+  
 
   /* @override
   Futu&&<List<JpnEspWord>> getWordsByWord(

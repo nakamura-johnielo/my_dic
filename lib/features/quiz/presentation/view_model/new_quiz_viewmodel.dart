@@ -2,9 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Constants/Enums/cardState.dart';
 import 'package:my_dic/core/common/enums/conjugacion/mood_tense.dart';
 import 'package:my_dic/core/common/enums/conjugacion/subject.dart';
-import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacions.dart';
-import 'package:my_dic/core/domain/usecase/fetch_conjugation/fetch_conjugation_input_data.dart';
-import 'package:my_dic/core/domain/usecase/fetch_conjugation/i_fetch_conjugation_use_case.dart';
+import 'package:my_dic/core/domain/entity/verb/new_conjugacions.dart';
+import 'package:my_dic/core/domain/usecase/new_fetch_conjugation/fetch_conjugation_input_data.dart';
+import 'package:my_dic/core/domain/usecase/new_fetch_conjugation/i_fetch_conjugation_use_case.dart';
 import 'package:my_dic/features/quiz/domain/usecase/fetch_english_conj.dart/i_fetch_english_conj_usecase.dart';
 import 'package:my_dic/features/quiz/presentation/ui_model/new_quiz_model.dart';
 
@@ -12,7 +12,7 @@ import 'package:my_dic/features/quiz/presentation/ui_model/new_quiz_model.dart';
 class QuizViewModel extends StateNotifier<QuizState> {
   // ✅ 内部状態（private）
   late QuizInternalState _internalState;
-  final IFetchConjugationUseCase _fetchConjugationInteractor;
+  final IFetchEspConjugationUseCase _fetchConjugationInteractor;
   final IFetchEnglishConjUseCase _fetchEnglishConjInteractor;
 
   QuizViewModel(
@@ -45,13 +45,13 @@ class QuizViewModel extends StateNotifier<QuizState> {
     return englishConj;
   }
 
-  Future<Conjugacions?> getConjugaciones(int wordId) async {
+  Future<EspConjugacions?> getConjugaciones(int wordId) async {
     final FetchConjugationInputData input = FetchConjugationInputData(wordId);
     final FetchConjugationInputData inputDef =
         FetchConjugationInputData(61663); //ser
-    final res = await _fetchConjugationInteractor.executeReturn(input) ??
-        _fetchConjugationInteractor.executeReturn(inputDef);
-    if (res is Conjugacions) {
+    final res = await _fetchConjugationInteractor.execute(input) ??
+       await _fetchConjugationInteractor.execute(inputDef);
+    if (res is EspConjugacions) {
       return res;
     }
     return null;
@@ -222,25 +222,4 @@ class QuizViewModel extends StateNotifier<QuizState> {
     );
   }
 
-  /// アクティブな主語を更新
-  void _updateActiveSubjects(bool isActive, Subject subject) {
-    if (isActive) {
-      if (!_internalState.activeSubjects.contains(subject)) {
-        _internalState.activeSubjects.add(subject);
-      }
-    } else {
-      _internalState.activeSubjects.remove(subject);
-    }
-  }
-
-  /// アクティブな時制を更新
-  void _updateActiveMoodTenses(bool isActive, MoodTense tense) {
-    if (isActive) {
-      if (!_internalState.activeMoodTenses.contains(tense)) {
-        _internalState.activeMoodTenses.add(tense);
-      }
-    } else {
-      _internalState.activeMoodTenses.remove(tense);
-    }
-  }
 }
