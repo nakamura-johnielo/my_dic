@@ -1,10 +1,9 @@
 import 'dart:developer';
 
 import 'package:drift/drift.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/Entity/my_word_status.dart';
+import 'package:my_dic/features/my_word/data/data_source/local/my_word_status.dart';
 import 'package:my_dic/core/infrastructure/database/database_provider.dart';
-
-part '../../../../../__generated/_Framework_Driver/Database/drift/DAO/my_word_status_dao.g.dart';
+part '../../../../../__generated/features/my_word/data/data_source/local/drift_my_word_status_dao.g.dart';
 
 @DriftAccessor(tables: [MyWordStatus])
 class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
@@ -20,7 +19,7 @@ class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
             hasNote: Value(hasNote)));
   } */
 
-  Future<void> updateStatus(MyWordStatusData data) async {
+  Future<void> updateStatus(MyWordStatusTableData data) async {
     log("update");
     await update(myWordStatus).replace(data);
   }
@@ -34,7 +33,7 @@ class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
         hasNote: hasNote));
   } */
 
-  Future<void> insertStatus(MyWordStatusData data) async {
+  Future<void> insertStatus(MyWordStatusTableData data) async {
     into(myWordStatus).insert(data);
     log("insert");
   }

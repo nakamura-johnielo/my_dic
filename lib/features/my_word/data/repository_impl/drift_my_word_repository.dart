@@ -48,7 +48,7 @@ class DriftMyWordRepository implements IMyWordRepository {
   @override
   Future<void> updateStatus(UpdateMyWordStatusRepositoryInputData input) async {
     log("updatestatusrepo");
-    db.MyWordStatusData data = db.MyWordStatusData(
+    db.MyWordStatusTableData data = db.MyWordStatusTableData(
       myWordId: input.wordId,
       isLearned: input.status.contains(FeatureTag.isLearned) ? 1 : 0,
       isBookmarked: input.status.contains(FeatureTag.isBookmarked) ? 1 : 0,

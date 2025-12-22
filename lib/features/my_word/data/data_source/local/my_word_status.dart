@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+@DataClassName('MyWordStatusTableData')
 class MyWordStatus extends Table {
   IntColumn get myWordId => integer().named('my_word_id')();
   IntColumn get isLearned => integer().named('is_learned').nullable()();

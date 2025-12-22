@@ -1,20 +1,20 @@
 import 'package:drift/drift.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/Entity/my_word_status.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/Entity/my_words.dart';
+import 'package:my_dic/features/my_word/data/data_source/local/my_word_status.dart';
+import 'package:my_dic/features/my_word/data/data_source/local/my_words.dart';
 import 'package:my_dic/core/infrastructure/database/database_provider.dart';
-part '../../../../../__generated/_Framework_Driver/Database/drift/DAO/my_word_dao.g.dart';
+part '../../../../../__generated/features/my_word/data/data_source/local/drift_my_word_dao.g.dart';
 
 @DriftAccessor(tables: [MyWords, MyWordStatus])
 class MyWordDao extends DatabaseAccessor<DatabaseProvider>
     with _$MyWordDaoMixin {
   MyWordDao(super.database);
 
-  Future<MyWord?> getMyWordById(int id) {
+  Future<MyWordTableData?> getMyWordById(int id) {
     return (select(myWords)..where((tbl) => tbl.myWordId.equals(id)))
         .getSingleOrNull();
   }
 
-  Future<List<MyWord>?> getFilteredMyWordByPage(int size, int offset) async {
+  Future<List<MyWordTableData>?> getFilteredMyWordByPage(int size, int offset) async {
     return (select(myWords)
           ..orderBy([(t) => OrderingTerm.desc(t.myWordId)])
           ..limit(size, offset: offset))

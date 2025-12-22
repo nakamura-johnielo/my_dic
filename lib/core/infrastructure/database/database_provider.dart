@@ -19,8 +19,8 @@ import 'package:my_dic/core/infrastructure/database/table/jpn-esp/jpn_esp_dictio
 import 'package:my_dic/core/infrastructure/database/table/jpn-esp/jpn_esp_examples.dart';
 import 'package:my_dic/core/infrastructure/database/table/jpn-esp/jpn_esp_word.dart';
 import 'package:my_dic/core/infrastructure/database/table/jpn-esp/jpn_esp_word_status.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/Entity/my_word_status.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/Entity/my_words.dart';
+import 'package:my_dic/features/my_word/data/data_source/local/my_word_status.dart';
+import 'package:my_dic/features/my_word/data/data_source/local/my_words.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/Entity/part_of_speech_lists.dart';
 import 'package:my_dic/features/ranking/data/data_source/local/rankings_entity.dart';
 import 'package:my_dic/core/infrastructure/database/table/supplements.dart';
