@@ -1,86 +1,114 @@
-import 'package:flutter/material.dart';
-import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
+import 'dart:developer';
 
-/// ViewModelをプロバイダーで提供
-// final myWordViewModelProvider =
-//     ChangeNotifierProvider((ref) => DI<MyWordViewModel>());
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/core/common/enums/feature_tag.dart';
+import 'package:my_dic/features/my_word/domain/usecase/load_my_word/i_load_my_word_use_case.dart';
+import 'package:my_dic/features/my_word/domain/usecase/load_my_word/load_my_word_input_data.dart';
+import 'package:my_dic/features/my_word/domain/usecase/my_word/create/handle_word_registration/handle_word_registration_input_data.dart';
+import 'package:my_dic/features/my_word/domain/usecase/my_word/create/handle_word_registration/i_handle_word_registration_use_case.dart';
+import 'package:my_dic/features/my_word/domain/usecase/my_word/create/register_my_word/i_register_my_word_use_case.dart';
+import 'package:my_dic/features/my_word/domain/usecase/my_word/create/register_my_word/register_my_word_input_data.dart';
+import 'package:my_dic/features/my_word/domain/usecase/my_word/delete/delete_my_word/delete_my_word_input_data.dart';
+import 'package:my_dic/features/my_word/domain/usecase/my_word/delete/delete_my_word/i_delete_my_word_use_case.dart';
+import 'package:my_dic/features/my_word/domain/usecase/my_word/update/update_my_word/i_update_my_word_use_case.dart';
+import 'package:my_dic/features/my_word/domain/usecase/my_word/update/update_my_word/update_my_word_input_data.dart';
+import 'package:my_dic/features/my_word/domain/usecase/update_my_word_status/i_update_my_word_status_use_case.dart';
+import 'package:my_dic/features/my_word/domain/usecase/update_my_word_status/update_my_word_status_input_data.dart';
+import 'package:my_dic/features/my_word/presentation/ui_model/my_word_ui_model.dart';
 
-class MyWordViewModel
-    extends ChangeNotifier /* extends InfinityScrollableViewModel<MyWord> */ {
-  List<MyWord> _items = [];
-  List<MyWord> get items => _items;
-  set items(List<MyWord> value) {
-    _items = value;
-    notifyListeners();
+class MyWordViewModel extends StateNotifier<MyWordState> {
+  final ILoadMyWordUseCase _loadMyWordInteractor;
+  final IUpdateMyWordStatusUseCase _updateMyWordStatusInteractor;
+  final IRegisterMyWordUseCase _registerMyWordInteractor;
+  final IHandleWordRegistrationUseCase _handleWordRegistrationInteractor;
+  final IUpdateMyWordUseCase _updateMyWordInteractor;
+  final IDeleteMyWordUseCase _deleteMyWordInteractor;
+
+  MyWordViewModel(
+      this._loadMyWordInteractor,
+      this._updateMyWordStatusInteractor,
+      this._registerMyWordInteractor,
+      this._handleWordRegistrationInteractor,
+      this._updateMyWordInteractor,
+      this._deleteMyWordInteractor)
+      : super(MyWordState());
+
+  Future<void> loadNext(int size, int currentPage) async {
+    log("lodNext");
+    //List<int> requiredPages = [_viewModel.currentPage[0], _viewModel.currentPage[1]];
+
+    LoadMyWordInputData input = LoadMyWordInputData(size, currentPage + 1);
+    final res = await _loadMyWordInteractor.execute(input);
+    final newData=[...state.myWords, ...res];
+    state = state.copyWith(myWords: newData);
   }
 
-  void updateAllWordStatus({
-    required wordId,
-    required bool isBookmarked,
-    required bool isLearned, //required bool hasNote
-  }) {
-    _items = [
-      for (int i = 0; i < _items.length; i++)
-        if (_items[i].wordId == wordId)
-          _items[i].copyWith(
-            //rankedWord: "${_items[i].rankedWord} U",
-            isBookmarked: isBookmarked,
-            isLearned: isLearned, //hasNote: hasNote,
-          )
-        else
-          _items[i]
-    ];
-    notifyListeners();
-    //log("${_items[wordId].rankedWord} Bookmark: ${_items[wordId].isBookmarked},learn: ${_items[wordId].isLearned}");
+  void updateWordStatus(
+    int index,
+    int wordId,
+    bool isBookmarked,
+    bool isLearned,
+    //bool hasNote,
+  ) {
+    log("updatecontroller");
+
+    Set<FeatureTag> status = {
+      if (isBookmarked) FeatureTag.isBookmarked,
+      if (isLearned) FeatureTag.isLearned,
+    };
+    UpdateMyWordStatusInputData input =
+        UpdateMyWordStatusInputData(wordId, status, index);
+    _updateMyWordStatusInteractor.execute(input);
   }
 
-  void addItemsInHead(List<MyWord> l) {
-    _items = [...l, ..._items];
-    //itemが正常に追加されてからpage数更新
-    //初期化時は-1
-    notifyListeners();
+  void registerWord(
+      {required String headword,
+      required String description,
+      required void Function() onComplete,
+      required void Function() onError,
+      required void Function() onInvalid}) async {
+    if (headword.isEmpty) {
+      onInvalid();
+      return;
+    }
+
+    bool isSuccess = await _registerMyWordInteractor
+        .execute(RegisterMyWordInputData(headword, description));
+
+    _handleWordRegistrationInteractor.execute(
+        HandleWordRegistrationInputData(isSuccess, onComplete, onError));
   }
 
-  void addItemInHead(MyWord value) {
-    _items.insert(0, value);
-    notifyListeners();
+  void deleteWord({
+    required int wordId,
+    required int index,
+    required void Function() onComplete,
+  }) async {
+    DeleteMyWordInputData input = DeleteMyWordInputData(wordId, index);
+    bool res = await _deleteMyWordInteractor.execute(input);
+    if (res) {
+      onComplete();
+    }
+    /* HandleWordUpdateInputData inputHandle = HandleWordUpdateInputData();
+    _handleWordDeleteInteractor.execute(inputHandle); */
   }
 
-  void replaceItem(MyWord value, int index) {
-    _items[index] = value;
-    notifyListeners();
-  }
+  void updateWord({
+    required int myWordId,
+    required String headword,
+    required String description,
+    required int index,
+    required void Function() onComplete,
+  }) async {
+    UpdateMyWordInputData input =
+        UpdateMyWordInputData(myWordId, headword, description, index);
 
-  void deleteItemWithIndex(int index) {
-    _items.removeAt(index);
-    notifyListeners();
-  }
-
-  void inicializeTest() {
-    items = [
-      MyWord(wordId: 1, word: 'word1', contents: 'contents1'),
-      MyWord(wordId: 2, word: 'word2', contents: 'contents2'),
-      MyWord(wordId: 3, word: 'word3', contents: 'contents3'),
-      MyWord(wordId: 4, word: 'word4', contents: 'contents4'),
-      MyWord(wordId: 5, word: 'word5', contents: 'contents5'),
-      MyWord(wordId: 6, word: 'word6', contents: 'contents6'),
-      MyWord(wordId: 7, word: 'word7', contents: 'contents7'),
-      MyWord(wordId: 8, word: 'word8', contents: 'contents8'),
-      MyWord(wordId: 9, word: 'word9', contents: 'contents9'),
-      MyWord(wordId: 10, word: 'word10', contents: 'contents10'),
-      MyWord(wordId: 11, word: 'word11', contents: 'contents11'),
-      MyWord(wordId: 12, word: 'word12', contents: 'contents12'),
-      MyWord(wordId: 13, word: 'word13', contents: 'contents13'),
-      MyWord(wordId: 14, word: 'word14', contents: 'contents14'),
-      MyWord(wordId: 15, word: 'word15', contents: 'contents15'),
-      MyWord(wordId: 16, word: 'word16', contents: 'contents16'),
-      MyWord(wordId: 17, word: 'word17', contents: 'contents17'),
-      MyWord(wordId: 18, word: 'word18', contents: 'contents18'),
-      MyWord(wordId: 19, word: 'word19', contents: 'contents19'),
-      MyWord(wordId: 20, word: 'word20', contents: 'contents20'),
-      MyWord(wordId: 21, word: 'word21', contents: 'contents21'),
-      MyWord(wordId: 22, word: 'word22', contents: 'contents22'),
-      MyWord(wordId: 23, word: 'word23', contents: 'contents23'),
-    ];
+    bool res = await _updateMyWordInteractor.execute(input);
+   
+    if (res) {
+      onComplete();
+    }
+    /* HandleWordUpdateInputData inputHandle = HandleWordUpdateInputData();
+    _handleWordUpdateInteractor.execute(inputHandle); */
   }
 }
