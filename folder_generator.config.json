@@ -294,6 +294,30 @@
         "view_model"
       ],
       "exists": true
+    },
+    {
+      "folder_name": [
+        [
+          "my",
+          "word"
+        ]
+      ],
+      "name": [
+        [
+          "my",
+          "word"
+        ]
+      ],
+      "templates": "feature",
+      "data_source_name": [
+        "drift"
+      ],
+      "di_type": [
+        "data",
+        "usecase",
+        "view_model"
+      ],
+      "exists": true
     }
   ]
 }
