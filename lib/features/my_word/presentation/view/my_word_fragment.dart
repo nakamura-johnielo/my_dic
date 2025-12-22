@@ -32,7 +32,7 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
   }
 
   Future<bool> loadNextPage(int nextPage) async {
-    final viewModel = ref.read(newMyWordViewModelProvider.notifier);
+    final viewModel = ref.read(myWordViewModelProvider.notifier);
 
     _setCurrentItemLength();
 
@@ -57,21 +57,21 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
 
   void _setCurrentItemLength() {
     //TODO read watch
-    final viewModel = ref.read(newMyWordViewModelProvider);
+    final viewModel = ref.read(myWordViewModelProvider);
     _previousItemLength = viewModel.myWords.length;
   }
 
   bool _canFetch() {
     //TODO read watch
-    final viewModel = ref.read(newMyWordViewModelProvider);
+    final viewModel = ref.read(myWordViewModelProvider);
     final currentItemLength = viewModel.myWords.length;
     return currentItemLength > _previousItemLength;
   }
 
   @override
   Widget build(BuildContext context) {
-    final myWordController = ref.read(newMyWordViewModelProvider.notifier);
-    final myWordViewModel = ref.watch(newMyWordViewModelProvider);
+    final myWordController = ref.read(myWordViewModelProvider.notifier);
+    final myWordViewModel = ref.watch(myWordViewModelProvider);
 
     return Scaffold(
       appBar: AppBar(

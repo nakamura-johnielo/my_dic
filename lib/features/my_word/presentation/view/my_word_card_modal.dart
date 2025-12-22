@@ -103,7 +103,7 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
 
   @override
   Widget build(BuildContext context) {
-    final myWordController = ref.read(newMyWordViewModelProvider.notifier);
+    final myWordController = ref.read(myWordViewModelProvider.notifier);
     Color descriptionColor = Theme.of(context).colorScheme.onSurfaceVariant;
     Color headwordColor = Theme.of(context).colorScheme.onSurface;
     return GestureDetector(
