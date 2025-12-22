@@ -5391,7 +5391,8 @@ class WordStatusCompanion extends UpdateCompanion<WordStatusTableData> {
   }
 }
 
-class $MyWordsTable extends MyWords with TableInfo<$MyWordsTable, MyWord> {
+class $MyWordsTable extends MyWords
+    with TableInfo<$MyWordsTable, MyWordTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -5430,7 +5431,7 @@ class $MyWordsTable extends MyWords with TableInfo<$MyWordsTable, MyWord> {
   String get actualTableName => $name;
   static const String $name = 'my_words';
   @override
-  VerificationContext validateIntegrity(Insertable<MyWord> instance,
+  VerificationContext validateIntegrity(Insertable<MyWordTableData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -5460,9 +5461,9 @@ class $MyWordsTable extends MyWords with TableInfo<$MyWordsTable, MyWord> {
   @override
   Set<GeneratedColumn> get $primaryKey => {myWordId};
   @override
-  MyWord map(Map<String, dynamic> data, {String? tablePrefix}) {
+  MyWordTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return MyWord(
+    return MyWordTableData(
       myWordId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}my_word_id'])!,
       word: attachedDatabase.typeMapping
@@ -5480,12 +5481,12 @@ class $MyWordsTable extends MyWords with TableInfo<$MyWordsTable, MyWord> {
   }
 }
 
-class MyWord extends DataClass implements Insertable<MyWord> {
+class MyWordTableData extends DataClass implements Insertable<MyWordTableData> {
   final int myWordId;
   final String word;
   final String? contents;
   final String editAt;
-  const MyWord(
+  const MyWordTableData(
       {required this.myWordId,
       required this.word,
       this.contents,
@@ -5513,10 +5514,10 @@ class MyWord extends DataClass implements Insertable<MyWord> {
     );
   }
 
-  factory MyWord.fromJson(Map<String, dynamic> json,
+  factory MyWordTableData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return MyWord(
+    return MyWordTableData(
       myWordId: serializer.fromJson<int>(json['myWordId']),
       word: serializer.fromJson<String>(json['word']),
       contents: serializer.fromJson<String?>(json['contents']),
@@ -5534,19 +5535,19 @@ class MyWord extends DataClass implements Insertable<MyWord> {
     };
   }
 
-  MyWord copyWith(
+  MyWordTableData copyWith(
           {int? myWordId,
           String? word,
           Value<String?> contents = const Value.absent(),
           String? editAt}) =>
-      MyWord(
+      MyWordTableData(
         myWordId: myWordId ?? this.myWordId,
         word: word ?? this.word,
         contents: contents.present ? contents.value : this.contents,
         editAt: editAt ?? this.editAt,
       );
-  MyWord copyWithCompanion(MyWordsCompanion data) {
-    return MyWord(
+  MyWordTableData copyWithCompanion(MyWordsCompanion data) {
+    return MyWordTableData(
       myWordId: data.myWordId.present ? data.myWordId.value : this.myWordId,
       word: data.word.present ? data.word.value : this.word,
       contents: data.contents.present ? data.contents.value : this.contents,
@@ -5556,7 +5557,7 @@ class MyWord extends DataClass implements Insertable<MyWord> {
 
   @override
   String toString() {
-    return (StringBuffer('MyWord(')
+    return (StringBuffer('MyWordTableData(')
           ..write('myWordId: $myWordId, ')
           ..write('word: $word, ')
           ..write('contents: $contents, ')
@@ -5570,14 +5571,14 @@ class MyWord extends DataClass implements Insertable<MyWord> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is MyWord &&
+      (other is MyWordTableData &&
           other.myWordId == this.myWordId &&
           other.word == this.word &&
           other.contents == this.contents &&
           other.editAt == this.editAt);
 }
 
-class MyWordsCompanion extends UpdateCompanion<MyWord> {
+class MyWordsCompanion extends UpdateCompanion<MyWordTableData> {
   final Value<int> myWordId;
   final Value<String> word;
   final Value<String?> contents;
@@ -5595,7 +5596,7 @@ class MyWordsCompanion extends UpdateCompanion<MyWord> {
     required String editAt,
   })  : word = Value(word),
         editAt = Value(editAt);
-  static Insertable<MyWord> custom({
+  static Insertable<MyWordTableData> custom({
     Expression<int>? myWordId,
     Expression<String>? word,
     Expression<String>? contents,
@@ -5653,7 +5654,7 @@ class MyWordsCompanion extends UpdateCompanion<MyWord> {
 }
 
 class $MyWordStatusTable extends MyWordStatus
-    with TableInfo<$MyWordStatusTable, MyWordStatusData> {
+    with TableInfo<$MyWordStatusTable, MyWordStatusTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -5696,7 +5697,8 @@ class $MyWordStatusTable extends MyWordStatus
   String get actualTableName => $name;
   static const String $name = 'my_word_status';
   @override
-  VerificationContext validateIntegrity(Insertable<MyWordStatusData> instance,
+  VerificationContext validateIntegrity(
+      Insertable<MyWordStatusTableData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -5730,9 +5732,9 @@ class $MyWordStatusTable extends MyWordStatus
   @override
   Set<GeneratedColumn> get $primaryKey => {myWordId};
   @override
-  MyWordStatusData map(Map<String, dynamic> data, {String? tablePrefix}) {
+  MyWordStatusTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return MyWordStatusData(
+    return MyWordStatusTableData(
       myWordId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}my_word_id'])!,
       isLearned: attachedDatabase.typeMapping
@@ -5752,14 +5754,14 @@ class $MyWordStatusTable extends MyWordStatus
   }
 }
 
-class MyWordStatusData extends DataClass
-    implements Insertable<MyWordStatusData> {
+class MyWordStatusTableData extends DataClass
+    implements Insertable<MyWordStatusTableData> {
   final int myWordId;
   final int? isLearned;
   final int? isBookmarked;
   final int? hasNote;
   final String editAt;
-  const MyWordStatusData(
+  const MyWordStatusTableData(
       {required this.myWordId,
       this.isLearned,
       this.isBookmarked,
@@ -5798,10 +5800,10 @@ class MyWordStatusData extends DataClass
     );
   }
 
-  factory MyWordStatusData.fromJson(Map<String, dynamic> json,
+  factory MyWordStatusTableData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return MyWordStatusData(
+    return MyWordStatusTableData(
       myWordId: serializer.fromJson<int>(json['myWordId']),
       isLearned: serializer.fromJson<int?>(json['isLearned']),
       isBookmarked: serializer.fromJson<int?>(json['isBookmarked']),
@@ -5821,13 +5823,13 @@ class MyWordStatusData extends DataClass
     };
   }
 
-  MyWordStatusData copyWith(
+  MyWordStatusTableData copyWith(
           {int? myWordId,
           Value<int?> isLearned = const Value.absent(),
           Value<int?> isBookmarked = const Value.absent(),
           Value<int?> hasNote = const Value.absent(),
           String? editAt}) =>
-      MyWordStatusData(
+      MyWordStatusTableData(
         myWordId: myWordId ?? this.myWordId,
         isLearned: isLearned.present ? isLearned.value : this.isLearned,
         isBookmarked:
@@ -5835,8 +5837,8 @@ class MyWordStatusData extends DataClass
         hasNote: hasNote.present ? hasNote.value : this.hasNote,
         editAt: editAt ?? this.editAt,
       );
-  MyWordStatusData copyWithCompanion(MyWordStatusCompanion data) {
-    return MyWordStatusData(
+  MyWordStatusTableData copyWithCompanion(MyWordStatusCompanion data) {
+    return MyWordStatusTableData(
       myWordId: data.myWordId.present ? data.myWordId.value : this.myWordId,
       isLearned: data.isLearned.present ? data.isLearned.value : this.isLearned,
       isBookmarked: data.isBookmarked.present
@@ -5849,7 +5851,7 @@ class MyWordStatusData extends DataClass
 
   @override
   String toString() {
-    return (StringBuffer('MyWordStatusData(')
+    return (StringBuffer('MyWordStatusTableData(')
           ..write('myWordId: $myWordId, ')
           ..write('isLearned: $isLearned, ')
           ..write('isBookmarked: $isBookmarked, ')
@@ -5865,7 +5867,7 @@ class MyWordStatusData extends DataClass
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is MyWordStatusData &&
+      (other is MyWordStatusTableData &&
           other.myWordId == this.myWordId &&
           other.isLearned == this.isLearned &&
           other.isBookmarked == this.isBookmarked &&
@@ -5873,7 +5875,7 @@ class MyWordStatusData extends DataClass
           other.editAt == this.editAt);
 }
 
-class MyWordStatusCompanion extends UpdateCompanion<MyWordStatusData> {
+class MyWordStatusCompanion extends UpdateCompanion<MyWordStatusTableData> {
   final Value<int> myWordId;
   final Value<int?> isLearned;
   final Value<int?> isBookmarked;
@@ -5893,7 +5895,7 @@ class MyWordStatusCompanion extends UpdateCompanion<MyWordStatusData> {
     this.hasNote = const Value.absent(),
     required String editAt,
   }) : editAt = Value(editAt);
-  static Insertable<MyWordStatusData> custom({
+  static Insertable<MyWordStatusTableData> custom({
     Expression<int>? myWordId,
     Expression<int>? isLearned,
     Expression<int>? isBookmarked,
@@ -10088,14 +10090,17 @@ class $$MyWordsTableAnnotationComposer
 class $$MyWordsTableTableManager extends RootTableManager<
     _$DatabaseProvider,
     $MyWordsTable,
-    MyWord,
+    MyWordTableData,
     $$MyWordsTableFilterComposer,
     $$MyWordsTableOrderingComposer,
     $$MyWordsTableAnnotationComposer,
     $$MyWordsTableCreateCompanionBuilder,
     $$MyWordsTableUpdateCompanionBuilder,
-    (MyWord, BaseReferences<_$DatabaseProvider, $MyWordsTable, MyWord>),
-    MyWord,
+    (
+      MyWordTableData,
+      BaseReferences<_$DatabaseProvider, $MyWordsTable, MyWordTableData>
+    ),
+    MyWordTableData,
     PrefetchHooks Function()> {
   $$MyWordsTableTableManager(_$DatabaseProvider db, $MyWordsTable table)
       : super(TableManagerState(
@@ -10141,14 +10146,17 @@ class $$MyWordsTableTableManager extends RootTableManager<
 typedef $$MyWordsTableProcessedTableManager = ProcessedTableManager<
     _$DatabaseProvider,
     $MyWordsTable,
-    MyWord,
+    MyWordTableData,
     $$MyWordsTableFilterComposer,
     $$MyWordsTableOrderingComposer,
     $$MyWordsTableAnnotationComposer,
     $$MyWordsTableCreateCompanionBuilder,
     $$MyWordsTableUpdateCompanionBuilder,
-    (MyWord, BaseReferences<_$DatabaseProvider, $MyWordsTable, MyWord>),
-    MyWord,
+    (
+      MyWordTableData,
+      BaseReferences<_$DatabaseProvider, $MyWordsTable, MyWordTableData>
+    ),
+    MyWordTableData,
     PrefetchHooks Function()>;
 typedef $$MyWordStatusTableCreateCompanionBuilder = MyWordStatusCompanion
     Function({
@@ -10246,17 +10254,18 @@ class $$MyWordStatusTableAnnotationComposer
 class $$MyWordStatusTableTableManager extends RootTableManager<
     _$DatabaseProvider,
     $MyWordStatusTable,
-    MyWordStatusData,
+    MyWordStatusTableData,
     $$MyWordStatusTableFilterComposer,
     $$MyWordStatusTableOrderingComposer,
     $$MyWordStatusTableAnnotationComposer,
     $$MyWordStatusTableCreateCompanionBuilder,
     $$MyWordStatusTableUpdateCompanionBuilder,
     (
-      MyWordStatusData,
-      BaseReferences<_$DatabaseProvider, $MyWordStatusTable, MyWordStatusData>
+      MyWordStatusTableData,
+      BaseReferences<_$DatabaseProvider, $MyWordStatusTable,
+          MyWordStatusTableData>
     ),
-    MyWordStatusData,
+    MyWordStatusTableData,
     PrefetchHooks Function()> {
   $$MyWordStatusTableTableManager(
       _$DatabaseProvider db, $MyWordStatusTable table)
@@ -10307,17 +10316,18 @@ class $$MyWordStatusTableTableManager extends RootTableManager<
 typedef $$MyWordStatusTableProcessedTableManager = ProcessedTableManager<
     _$DatabaseProvider,
     $MyWordStatusTable,
-    MyWordStatusData,
+    MyWordStatusTableData,
     $$MyWordStatusTableFilterComposer,
     $$MyWordStatusTableOrderingComposer,
     $$MyWordStatusTableAnnotationComposer,
     $$MyWordStatusTableCreateCompanionBuilder,
     $$MyWordStatusTableUpdateCompanionBuilder,
     (
-      MyWordStatusData,
-      BaseReferences<_$DatabaseProvider, $MyWordStatusTable, MyWordStatusData>
+      MyWordStatusTableData,
+      BaseReferences<_$DatabaseProvider, $MyWordStatusTable,
+          MyWordStatusTableData>
     ),
-    MyWordStatusData,
+    MyWordStatusTableData,
     PrefetchHooks Function()>;
 typedef $$JpnEspWordsTableCreateCompanionBuilder = JpnEspWordsCompanion
     Function({
