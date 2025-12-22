@@ -84,6 +84,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
     //_rankingController.loadNext();
     const margin = EdgeInsets.symmetric(vertical: 1, horizontal: 16);
     final userId = ref.watch(userViewModelProvider)?.id ?? "anonymous";
+    
     ref.watch(rankingFilterEffectProvider(_resetPageCallback));
 
     return Scaffold(

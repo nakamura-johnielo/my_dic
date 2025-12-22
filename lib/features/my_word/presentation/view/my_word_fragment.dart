@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // import 'package:my_dic/Components/infinity_scroll_list_view.dart';
-import 'package:my_dic/Components/my_word_card.dart';
-import 'package:my_dic/Components/my_word_card_modal.dart';
+import 'package:my_dic/features/my_word/presentation/view/my_word_card.dart';
+import 'package:my_dic/features/my_word/presentation/view/my_word_card_modal.dart';
 import 'package:my_dic/core/common/word_card_view_click_listener.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/features/my_word/di/view_model_di.dart';
@@ -10,14 +10,12 @@ import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
 import 'package:my_dic/features/my_word/presentation/view/create_word_modal.dart';
 import 'package:my_dic/core/components/infinityscroll.dart';
 
-
 class MyWordFragment extends ConsumerStatefulWidget {
   const MyWordFragment({super.key});
 
   @override
   ConsumerState<MyWordFragment> createState() => _MyWordFragmentState();
 }
-
 
 class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
   // int _currentPage = -1;
@@ -34,13 +32,13 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
   }
 
   Future<bool> loadNextPage(int nextPage) async {
-    final viewModel = ref.read(myWordControllerProvider);
+    final viewModel = ref.read(newMyWordViewModelProvider.notifier);
 
     _setCurrentItemLength();
 
     await viewModel.loadNext(
       _size,
-      [-1,nextPage - 1],
+      nextPage - 1,
     );
 
     final canFetch = _canFetch();
@@ -59,22 +57,21 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
 
   void _setCurrentItemLength() {
     //TODO read watch
-    final viewModel = ref.read(myWordViewModelProvider);
-    _previousItemLength = viewModel.items.length;
+    final viewModel = ref.read(newMyWordViewModelProvider);
+    _previousItemLength = viewModel.myWords.length;
   }
 
   bool _canFetch() {
     //TODO read watch
-    final viewModel = ref.read(myWordViewModelProvider);
-    final currentItemLength = viewModel.items.length;
+    final viewModel = ref.read(newMyWordViewModelProvider);
+    final currentItemLength = viewModel.myWords.length;
     return currentItemLength > _previousItemLength;
   }
 
-
   @override
   Widget build(BuildContext context) {
-    final myWordController = ref.read(myWordControllerProvider);
-    final myWordViewModel = ref.watch(myWordViewModelProvider);
+    final myWordController = ref.read(newMyWordViewModelProvider.notifier);
+    final myWordViewModel = ref.watch(newMyWordViewModelProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -92,9 +89,9 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
             autoLoadFirstPage: true,
             onLoadMore: loadNextPage,
             // loadNext: myWordController.loadNext,
-            itemCount: myWordViewModel.items.length,
+            itemCount: myWordViewModel.myWords.length,
             itemBuilder: (context, index) {
-              final myword = myWordViewModel.items[index];
+              final myword = myWordViewModel.myWords[index];
 
               //!
               //TODO clicklisternerがmodalとリアルタイムで更新されない
@@ -172,7 +169,40 @@ void openDetailModal(
     },
   );
 }
-// ...existing code...
+
+class RegisterButton extends StatelessWidget {
+  const RegisterButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () {
+        showDialog<void>(
+          context: context,
+          barrierDismissible: true,
+          barrierColor: Colors.black.withOpacity(0.5),
+          builder: (context) {
+            return Center(
+              child: Padding(
+                // キーボードで押し上げ
+                padding: MediaQuery.viewInsetsOf(context),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 560),
+                  child: Material(
+                    type: MaterialType.transparency, // Material 祖先を提供
+                    child: WordRegistrationModal(),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+      child: Icon(Icons.add),
+    );
+  }
+}
+
 
 void openDetailModal2(
     BuildContext context,
@@ -298,39 +328,6 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
 }
  */
 
-// ...existing code...
-class RegisterButton extends StatelessWidget {
-  const RegisterButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () {
-        showDialog<void>(
-          context: context,
-          barrierDismissible: true,
-          barrierColor: Colors.black.withOpacity(0.5),
-          builder: (context) {
-            return Center(
-              child: Padding(
-                // キーボードで押し上げ
-                padding: MediaQuery.viewInsetsOf(context),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 560),
-                  child: Material(
-                    type: MaterialType.transparency, // Material 祖先を提供
-                    child: WordRegistrationModal(),
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
-      child: Icon(Icons.add),
-    );
-  }
-}
 // ...existing code...
 
 class RegisterButton2 extends StatelessWidget {
