@@ -1,4 +1,4 @@
-import 'package:my_dic/Constants/Enums/feature_tag.dart';
+import 'package:my_dic/core/common/enums/feature_tag.dart';
 
 class UpdateMyWordStatusInputData {
   int index;

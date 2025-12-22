@@ -1,23 +1,23 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/Constants/Enums/cardState.dart';
+import 'package:my_dic/features/quiz/consts/card_state.dart';
 import 'package:my_dic/core/common/enums/conjugacion/mood_tense.dart';
 import 'package:my_dic/core/common/enums/conjugacion/subject.dart';
-import 'package:my_dic/core/domain/entity/verb/new_conjugacions.dart';
-import 'package:my_dic/core/domain/usecase/new_fetch_conjugation/fetch_conjugation_input_data.dart';
-import 'package:my_dic/core/domain/usecase/new_fetch_conjugation/i_fetch_conjugation_use_case.dart';
+import 'package:my_dic/core/domain/entity/verb/conjugacions.dart';
+import 'package:my_dic/core/domain/usecase/fetch_conjugation/fetch_conjugation_input_data.dart';
+import 'package:my_dic/core/domain/usecase/fetch_conjugation/i_fetch_conjugation_use_case.dart';
 import 'package:my_dic/features/quiz/domain/usecase/fetch_english_conj.dart/i_fetch_english_conj_usecase.dart';
-import 'package:my_dic/features/quiz/presentation/ui_model/new_quiz_model.dart';
+import 'package:my_dic/features/quiz/presentation/ui_model/quiz_game_model.dart';
 
 /// クイズのViewModel
-class QuizViewModel extends StateNotifier<QuizState> {
+class QuizGameViewModel extends StateNotifier<QuizGameState> {
   // ✅ 内部状態（private）
   late QuizInternalState _internalState;
   final IFetchEspConjugationUseCase _fetchConjugationInteractor;
   final IFetchEnglishConjUseCase _fetchEnglishConjInteractor;
 
-  QuizViewModel(
+  QuizGameViewModel(
       this._fetchConjugationInteractor, this._fetchEnglishConjInteractor)
-      : super(QuizState.initial()) {
+      : super(QuizGameState.initial()) {
     _internalState = QuizInternalState.initial();
     _updatePublicState();
   }
@@ -126,7 +126,7 @@ class QuizViewModel extends StateNotifier<QuizState> {
   /// クイズを初期化
   void initialize() {
     _internalState = QuizInternalState.initial();
-    state = QuizState.initial();
+    state = QuizGameState.initial();
     _updatePublicState();
     next();
   }

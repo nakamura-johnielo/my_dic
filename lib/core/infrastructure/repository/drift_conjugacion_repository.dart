@@ -1,9 +1,8 @@
 import 'package:my_dic/core/common/enums/conjugacion/enum_mood_tense_subject.dart';
 import 'package:my_dic/core/common/enums/conjugacion/mood_tense.dart';
-import 'package:my_dic/core/domain/entity/verb/new_conjugacions.dart';
+import 'package:my_dic/core/domain/entity/verb/conjugacions.dart';
 import 'package:my_dic/core/domain/entity/verb/participles.dart';
 import 'package:my_dic/features/quiz/domain/entity/quiz_searched_item.dart';
-import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacions.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/result_conjugacions.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/tense_conjugacion.dart';
 import 'package:my_dic/core/domain/i_repository/i_conjugation_repository.dart';
@@ -23,7 +22,7 @@ class DriftConjugacionRepository implements IConjugacionsRepository {
   //   return Conjugacions(wordId: res.wordId, conjugacions: convertToConjugations(res));
   // }
   @override
-  Future<EspConjugacions?> getConjugacionByWordIdNEW(int id) async {
+  Future<EspConjugacions?> getConjugacionByWordId(int id) async {
     final res = await _conjugacionDao.getConjugationById(id);
     if (res == null) {
       return null; // 結果がnullの場合はnullを返す

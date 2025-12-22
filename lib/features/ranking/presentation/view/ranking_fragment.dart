@@ -7,7 +7,7 @@ import 'package:my_dic/Components/modal/ranking_filter_modal.dart';
 import 'package:my_dic/core/common/enums/word/word_type.dart';
 import 'package:my_dic/features/ranking/presentation/effect_provider.dart';
 import 'package:my_dic/features/ranking/presentation/view/ranking_card.dart';
-import 'package:my_dic/Constants/Enums/word_card_view_click_listener.dart';
+import 'package:my_dic/core/common/word_card_view_click_listener.dart';
 import 'package:my_dic/core/common/enums/ui/tab.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/core/components/infinityscroll.dart';

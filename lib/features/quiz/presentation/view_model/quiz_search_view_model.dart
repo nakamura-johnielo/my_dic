@@ -1,6 +1,6 @@
 // lib/features/search/presentation/view_model/search_view_model.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/features/quiz/presentation/ui_model/quiz_ui_model.dart';
+import 'package:my_dic/features/quiz/presentation/ui_model/quiz_search_model.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/i_search_word_use_case.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/search_word_input_data.dart';
 

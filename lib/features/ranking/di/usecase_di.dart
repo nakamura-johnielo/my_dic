@@ -2,7 +2,7 @@
 //================usecase=================
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/DI/product.dart';
+import 'package:my_dic/features/ranking/di/data_di.dart';
 import 'package:my_dic/features/ranking/domain/usecase/load_rankings/i_load_rankings_use_case.dart';
 import 'package:my_dic/features/ranking/domain/usecase/load_rankings/load_rankings_interactor.dart';
 import 'package:my_dic/features/ranking/domain/usecase/locate_ranking_pagenation/i_locate_ranking_pagenation_use_case.dart';

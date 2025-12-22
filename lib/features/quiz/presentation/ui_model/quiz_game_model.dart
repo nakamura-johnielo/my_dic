@@ -1,10 +1,10 @@
 import 'dart:math';
-import 'package:my_dic/Constants/Enums/cardState.dart';
+import 'package:my_dic/features/quiz/consts/card_state.dart';
 import 'package:my_dic/core/common/enums/conjugacion/mood_tense.dart';
 import 'package:my_dic/core/common/enums/conjugacion/subject.dart';
 
 /// 外部に公開する Quiz の状態（読み取り専用）
-class QuizState {
+class QuizGameState {
   //TODO word,wordIdも入れる？？？
   
   final int currentIndex;
@@ -13,7 +13,7 @@ class QuizState {
   final int allLength;
   final QuizCardState quizCardState;
 
-  const QuizState({
+  const QuizGameState({
     required this.currentIndex,
     required this.currentTense,
     required this.currentSubject,
@@ -21,14 +21,14 @@ class QuizState {
     required this.quizCardState,
   });
 
-  QuizState copyWith({
+  QuizGameState copyWith({
     int? currentIndex,
     MoodTense? currentTense,
     Subject? currentSubject,
     int? allLength,
     QuizCardState? quizCardState,
   }) {
-    return QuizState(
+    return QuizGameState(
       currentIndex: currentIndex ?? this.currentIndex,
       currentTense: currentTense ?? this.currentTense,
       currentSubject: currentSubject ?? this.currentSubject,
@@ -38,8 +38,8 @@ class QuizState {
   }
 
   /// 初期状態
-  factory QuizState.initial() {
-    return QuizState(
+  factory QuizGameState.initial() {
+    return QuizGameState(
       currentIndex: -1,
       currentTense: MoodTense.indicativePresent,
       currentSubject: Subject.yo,
