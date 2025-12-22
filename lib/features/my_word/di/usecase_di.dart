@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/features/my_word/di/data_di.dart';
-import 'package:my_dic/features/my_word/di/view_model_di.dart';
 import 'package:my_dic/features/my_word/domain/usecase/load_my_word/i_load_my_word_use_case.dart';
 import 'package:my_dic/features/my_word/domain/usecase/load_my_word/load_my_word_interactor.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word/create/handle_word_registration/handle_word_registration_interactor.dart';
@@ -22,7 +21,6 @@ import 'package:my_dic/features/my_word/domain/usecase/update_my_word_status/upd
 
 final loadMyWordUseCaseProvider = Provider<ILoadMyWordUseCase>((ref) {
   return LoadMyWordInteractor(
-    ref.read(loadMyWordPresenterProvider),
     ref.read(myWordRepositoryProvider),
   );
 });
@@ -30,14 +28,12 @@ final loadMyWordUseCaseProvider = Provider<ILoadMyWordUseCase>((ref) {
 final updateMyWordStatusUseCaseProvider =
     Provider<IUpdateMyWordStatusUseCase>((ref) {
   return UpdateMyWordStatusInteractor(
-    ref.read(updateMyWordStatusPresenterProvider),
     ref.read(myWordRepositoryProvider),
   );
 });
 
 final registerMyWordUseCaseProvider = Provider<IRegisterMyWordUseCase>((ref) {
   return RegisterMyWordInteractor(
-    ref.read(myWordFragmentPresenterProvider),
     ref.read(myWordRepositoryProvider),
   );
 });
@@ -49,14 +45,12 @@ final handleWordRegistrationUseCaseProvider =
 
 final updateMyWordUseCaseProvider = Provider<IUpdateMyWordUseCase>((ref) {
   return UpdateMyWordInteractor(
-    ref.read(myWordFragmentPresenterProvider),
     ref.read(myWordRepositoryProvider),
   );
 });
 
 final deleteMyWordUseCaseProvider = Provider<IDeleteMyWordUseCase>((ref) {
   return DeleteMyWordInteractor(
-    ref.read(myWordFragmentPresenterProvider),
     ref.read(myWordRepositoryProvider),
   );
 });

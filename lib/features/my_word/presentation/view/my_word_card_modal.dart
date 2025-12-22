@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Components/button/my_icon_button.dart';
 import 'package:my_dic/core/common/enums/my_icons.dart';
@@ -104,7 +103,7 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
 
   @override
   Widget build(BuildContext context) {
-    final myWordController = ref.read(myWordControllerProvider);
+    final myWordController = ref.read(newMyWordViewModelProvider.notifier);
     Color descriptionColor = Theme.of(context).colorScheme.onSurfaceVariant;
     Color headwordColor = Theme.of(context).colorScheme.onSurface;
     return GestureDetector(
@@ -256,6 +255,7 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
                                       descriptionTextFieldController.text,
                                   index: widget.index,
                                   onComplete: () {
+                                    print("~~~~~~~~update myword");
                                     setState(() {
                                       _isOnEdit = !_isOnEdit;
                                       myDescription =

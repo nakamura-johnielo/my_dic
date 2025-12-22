@@ -84,6 +84,7 @@ class DriftMyWordRepository implements IMyWordRepository {
     try {
       await _myWordDao.updateMyWord(
           input.myWordId, input.headword, input.description, input.editAt);
+     
       return true;
     } catch (e) {
       return false;

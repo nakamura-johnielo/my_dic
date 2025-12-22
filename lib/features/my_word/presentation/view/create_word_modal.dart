@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:my_dic/DI/product.dart';
+import 'package:my_dic/features/my_word/di/view_model_di.dart';
 import 'package:my_dic/features/my_word/presentation/view_model/my_word_controller.dart';
+import 'package:my_dic/features/my_word/presentation/view_model/new_my_word_view_model.dart';
 
 class WordRegistrationModal extends ConsumerStatefulWidget {
   const WordRegistrationModal({super.key});
@@ -17,13 +19,13 @@ class WordRegistrationModal extends ConsumerStatefulWidget {
 class _WordRegistrationModalState extends ConsumerState<WordRegistrationModal> {
   final headwordTextFieldController = TextEditingController();
   final descriptionTextFieldController = TextEditingController();
-  late final MyWordController controller;
+  late final NewMyWordViewModel controller;
 
   @override
   void initState() {
     super.initState();
     //controller = widget._controller;
-    controller = ref.read(myWordControllerProvider);
+    controller = ref.read(newMyWordViewModelProvider.notifier);
   }
 
   @override

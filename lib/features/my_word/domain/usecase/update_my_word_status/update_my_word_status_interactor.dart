@@ -8,11 +8,9 @@ import 'package:my_dic/features/my_word/domain/i_repository/i_my_word_repository
 import 'package:my_dic/utils/date_handler.dart';
 
 class UpdateMyWordStatusInteractor implements IUpdateMyWordStatusUseCase {
-  final IUpdateMyWordStatusPresenter _updateMyWordStatusPresenterImpl;
   final IMyWordRepository _driftMyWordRepository;
 
-  UpdateMyWordStatusInteractor(
-      this._updateMyWordStatusPresenterImpl, this._driftMyWordRepository);
+  UpdateMyWordStatusInteractor( this._driftMyWordRepository);
 
   @override
   void execute(UpdateMyWordStatusInputData input) {
@@ -31,6 +29,6 @@ class UpdateMyWordStatusInteractor implements IUpdateMyWordStatusUseCase {
       hasNote: input.status.contains(FeatureTag.hasNote),
     );
 
-    _updateMyWordStatusPresenterImpl.execute(output);
+    // _updateMyWordStatusPresenterImpl.execute(output);
   }
 }
