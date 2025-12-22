@@ -23,12 +23,10 @@ import 'package:my_dic/_Framework_Driver/local/drift/DAO/my_word_status_dao.dart
 import 'package:my_dic/features/ranking/data/data_source/local/ranking_dao.dart';
 import 'package:my_dic/_Framework_Driver/Repository/drift_my_word_repository.dart';
 import 'package:my_dic/features/ranking/data/repository_impl/wiki_esp_ranking_repository.dart';
-import 'package:my_dic/_Interface_Adapter/Controller/jpn_esp_word_page_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Controller/my_word_controller.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/load_my_word_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/my_word_fragment_presenter_impl.dart';
 import 'package:my_dic/_Interface_Adapter/Presenter/update_my_word_status_presenter_impl.dart';
-import 'package:my_dic/_Interface_Adapter/ViewModel/jpn_esp_word_page_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/my_word_view_model.dart';
 import 'package:my_dic/_Interface_Adapter/ViewModel/note_view_model.dart';
 
@@ -36,9 +34,6 @@ import 'package:my_dic/_Interface_Adapter/ViewModel/note_view_model.dart';
 // Database & DAO Providers
 // ============================================================================
 
-final rankingDaoProvider = Provider<RankingDao>((ref) {
-  return RankingDao(ref.read(databaseProvider));
-});
 
 final myWordStatusDaoProvider = Provider<MyWordStatusDao>((ref) {
   return MyWordStatusDao(ref.read(databaseProvider));
@@ -52,9 +47,7 @@ final myWordDaoProvider = Provider<MyWordDao>((ref) {
 // Repository Providers
 // ============================================================================
 
-final espRankingRepositoryProvider = Provider<IEspRankingRepository>((ref) {
-  return WikiEspRankingRepository(ref.read(rankingDaoProvider));
-});
+
 
 final myWordRepositoryProvider = Provider<IMyWordRepository>((ref) {
   return DriftMyWordRepository(
@@ -73,10 +66,10 @@ final myWordRepositoryProvider = Provider<IMyWordRepository>((ref) {
 //   return MainViewModel();
 // });
 
-final jpnEspWordPageViewModelProvider =
-    ChangeNotifierProvider<JpnEspWordPageViewModel>((ref) {
-  return JpnEspWordPageViewModel();
-});
+// final jpnEspWordPageViewModelProvider =
+//     ChangeNotifierProvider<JpnEspWordPageViewModel>((ref) {
+//   return JpnEspWordPageViewModel();
+// });
 
 final myWordViewModelProvider = ChangeNotifierProvider<MyWordViewModel>((ref) {
   return MyWordViewModel();
@@ -174,11 +167,11 @@ final deleteMyWordUseCaseProvider = Provider<IDeleteMyWordUseCase>((ref) {
 //   );
 // });
 
-final jpnEspWordPageControllerProvider =
-    Provider<JpnEspWordPageController>((ref) {
-  return JpnEspWordPageController(
-      ref.read(fetchJpnEspDictionaryUseCaseProvider));
-});
+// final jpnEspWordPageControllerProvider =
+//     Provider<JpnEspWordPageController>((ref) {
+//   return JpnEspWordPageController(
+//       ref.read(fetchJpnEspDictionaryUseCaseProvider));
+// });
 
 final myWordControllerProvider = Provider<MyWordController>((ref) {
   return MyWordController(

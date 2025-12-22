@@ -8,7 +8,7 @@ import 'package:my_dic/core/common/enums/conjugacion/subject.dart';
 import 'package:my_dic/core/common/enums/ui/tab.dart';
 import 'package:my_dic/core/common/enums/word/word_type.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/tense_conjugacion.dart';
-import 'package:my_dic/core/domain/entity/verb/new_conjugacions.dart';
+import 'package:my_dic/core/domain/entity/verb/conjugacions.dart';
 import 'package:my_dic/features/quiz/di/usecase_di.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';

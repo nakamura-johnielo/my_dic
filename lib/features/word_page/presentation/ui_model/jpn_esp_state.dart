@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:my_dic/core/common/enums/word/word_type.dart';
 import 'package:my_dic/core/domain/entity/dictionary/esj_dictionary.dart';
 import 'package:my_dic/core/domain/entity/jpn_esp/jpn_esp_dictionary.dart';
-import 'package:my_dic/core/domain/entity/verb/new_conjugacions.dart';
+import 'package:my_dic/core/domain/entity/verb/conjugacions.dart';
 
 @immutable
 class WordPageState {

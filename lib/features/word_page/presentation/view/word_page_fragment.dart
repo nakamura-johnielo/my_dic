@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/Components/status_buttons.dart';
-import 'package:my_dic/Constants/Enums/cardState.dart';
+import 'package:my_dic/features/quiz/consts/card_state.dart';
 import 'package:my_dic/core/common/enums/ui/tab.dart';
 import 'package:my_dic/core/common/enums/word/word_type.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
@@ -13,7 +13,7 @@ import 'package:my_dic/features/word_page/presentation/view/esp_jpn/dictionary_f
 import 'package:my_dic/features/word_page/presentation/view/jpn_esp/jpn_esp_dictionary_fragment.dart';
 
 //input data DS
-
+//TODO QuizCardState enumを使用してしまってる
 class WordPageInput {
   final int wordId;
   final WordType wordType;
@@ -71,8 +71,8 @@ class SingleWordPageInput {
 
 //main fragment
 //wordId,dictionarytype
-class NEWWordPageFragment extends ConsumerWidget {
-  const NEWWordPageFragment({super.key, required this.input});
+class WordPageFragment extends ConsumerWidget {
+  const WordPageFragment({super.key, required this.input});
   final WordPageInput input;
 
   @override

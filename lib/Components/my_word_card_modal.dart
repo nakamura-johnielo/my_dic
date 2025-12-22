@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Components/button/my_icon_button.dart';
-import 'package:my_dic/Constants/Enums/my_icons.dart';
-import 'package:my_dic/Constants/Enums/word_card_view_click_listener.dart';
+import 'package:my_dic/core/common/enums/my_icons.dart';
+import 'package:my_dic/core/common/word_card_view_click_listener.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/_Business_Rule/_Domain/Entities/my_word.dart';
 
