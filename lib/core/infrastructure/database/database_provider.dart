@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:my_dic/core/common/consts/enviroment.dart';
 import 'package:my_dic/core/infrastructure/database/dao/local/es_en_conjugacion_dao.dart';
 import 'package:my_dic/core/infrastructure/database/dao/local/jpn_esp/jpn_esp_word_dao.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/DAO/my_word_dao.dart';
+import 'package:my_dic/features/my_word/data/data_source/local/drift_my_word_dao.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/DAO/part_of_speech_list_dao.dart';
 import 'package:my_dic/features/ranking/data/data_source/local/ranking_dao.dart';
 import 'package:my_dic/core/infrastructure/database/dao/local/word_dao.dart';

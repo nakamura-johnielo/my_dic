@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/common/consts/enviroment.dart';
 import 'package:my_dic/core/application/app_effects/auth_effect_provider.dart';
-import 'package:my_dic/_View/Themes/color_scheme.dart';
+import 'package:my_dic/core/application/Themes/color_scheme.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
 import 'package:my_dic/router.dart';
 import 'package:my_dic/firebase_options.dart';

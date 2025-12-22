@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_dic/Components/button/my_icon_button.dart';
 import 'package:my_dic/core/common/word_card_view_click_listener.dart';
-import 'package:my_dic/_Business_Rule/_Domain/Entities/my_word.dart';
+import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
 
 const Map<String, IconData> _bookmarkIcon = {
   "true": Icons.bookmark_rounded,
