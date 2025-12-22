@@ -14,3 +14,4 @@ abstract class IMyWordRepository {
   Future<bool> updateWord(UpdateMyWordRepositoryInputData input);
   Future<bool> deleteWord(DeleteMyWordRepositoryInputData input);
 }
+ 
