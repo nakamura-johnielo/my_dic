@@ -13,7 +13,7 @@ import 'package:my_dic/features/ranking/presentation/presenter/update_status_pre
 //     ref.read(updateRankingFilterUseCaseProvider),
 //     ref.read(locateRankingPagenationUseCaseProvider),
 //     ref.read(updateStatusUseCaseProvider),
-//   );
+//   );s
 // });
 
 final rankingViewModelProviderLegacy =

@@ -1,1 +1,0 @@
-enum QuizCardState { question, answer }

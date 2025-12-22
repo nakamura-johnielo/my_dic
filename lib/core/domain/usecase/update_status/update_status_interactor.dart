@@ -1,4 +1,4 @@
-import 'package:my_dic/Constants/Enums/feature_tag.dart';
+import 'package:my_dic/core/common/enums/feature_tag.dart';
 import 'package:my_dic/core/domain/usecase/update_status/update_status_input_data.dart';
 import 'package:my_dic/core/domain/usecase/update_status/i_update_status_use_case.dart';
 import 'package:my_dic/core/domain/usecase/update_status/update_status_output_data.dart';

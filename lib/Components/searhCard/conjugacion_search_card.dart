@@ -59,9 +59,11 @@ class ConjugacionSearchCard extends StatelessWidget {
               textAlign: TextAlign.left,
             ),
             SizedBox(width: 15),
-            ConjSections(
-              conjugacions: conjugacions,
-              query: query,
+            Expanded(
+              child: ConjSections(
+                conjugacions: conjugacions,
+                query: query,
+              ),
             ),
           ]),
           //),
@@ -87,9 +89,16 @@ class ConjSections extends StatelessWidget {
         .toList();
     conjMiniSections.sort((a, b) =>
         a.conjugacion == query ? -1 : (b.conjugacion == query ? 1 : 0));
-    return Row(
-      spacing: 8,
-      children: conjMiniSections,
+    return ClipRect(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const NeverScrollableScrollPhysics(), // スクロールさせない（見切るだけ）
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 8,
+          children: conjMiniSections,
+        ),
+      ),
     );
   }
 }

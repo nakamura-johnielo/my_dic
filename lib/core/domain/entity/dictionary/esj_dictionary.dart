@@ -4,7 +4,7 @@ import 'package:my_dic/core/domain/entity/dictionary/sub/idiom/impl/idiom.dart';
 import 'package:my_dic/core/domain/entity/dictionary/sub/supplement.dart';
 
 @immutable
-class EsjDictionary {
+class EspJpnDictionary {
   final int dictionaryId;
   final String word;
   final String? headword;
@@ -14,7 +14,7 @@ class EsjDictionary {
   final List<Idiom>? idioms;
   final List<Supplement>? supplements;
 
-  const EsjDictionary({
+  const EspJpnDictionary({
     required this.dictionaryId,
     required this.word,
     this.headword,
@@ -25,7 +25,7 @@ class EsjDictionary {
     this.supplements,
   });
 
-  EsjDictionary copyWith({
+  EspJpnDictionary copyWith({
     int? dictionaryId,
     String? word,
     String? headword,
@@ -35,7 +35,7 @@ class EsjDictionary {
     List<Idiom>? idioms,
     List<Supplement>? supplements,
   }) {
-    return EsjDictionary(
+    return EspJpnDictionary(
       dictionaryId: dictionaryId ?? this.dictionaryId,
       word: word ?? this.word,
       headword: headword ?? this.headword,

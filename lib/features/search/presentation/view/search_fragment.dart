@@ -8,11 +8,10 @@ import 'package:my_dic/Components/searhCard/conjugacion_search_card.dart';
 import 'package:my_dic/Components/searhCard/jpn_esp_searh_card.dart';
 import 'package:my_dic/Components/searhCard/search_card.dart';
 import 'package:my_dic/core/common/enums/ui/tab.dart';
+import 'package:my_dic/core/common/enums/word/word_type.dart';
 import 'package:my_dic/core/components/infinityscroll.dart';
 import 'package:my_dic/features/search/di/view_model_di.dart';
-// import 'package:my_dic/_View/search/infinity_scroll_view/infinity_scroll_view.dart';
-import 'package:my_dic/_View/word_page/jpn_esp/jpn_esp_word_page_fragment.dart';
-import 'package:my_dic/_View/word_page/word_page_fragment.dart';
+import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
 
 // class MyTextField extends ConsumerWidget {
 //   const MyTextField({super.key});
@@ -62,7 +61,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
   }
 
   Future<bool> _loadNextPage(int nextPage) async {
-    print("_loadNextPage: $_currentPage");
+    print("_loadNextPage: $nextPage");
     //if (ref.read(searchViewModelProvider).isLoading) return;
 
     final viewModel = ref.read(searchViewModelProvider.notifier);
@@ -70,10 +69,11 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
     _setCurrentItemLength();
     await viewModel.loadSearchResults(
       _size,
-      nextPage,
+      nextPage - 1,
     );
     //print(viewModel.state.espJpnWords.length);
     final canFetch = _canFetch();
+    print("canfetch:$canFetch");
     return canFetch;
   }
 
@@ -99,6 +99,8 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
     final currentEspJpnItemLength = viewModel.espJpnWords.length;
     final currentConjItemLength = viewModel.conjugacions.length;
     final currentJpnEspItemLength = viewModel.jpnEspWords.length;
+    print(
+        "EspJpn current:$currentEspJpnItemLength, pre:$_previousEspJpnItemLength");
     return currentEspJpnItemLength > _previousEspJpnItemLength ||
         currentConjItemLength > _previousConjItemLength ||
         currentJpnEspItemLength > _previousJpnEspItemLength;
@@ -134,7 +136,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                 viewModelNotifier.updateQuery(value);
                 viewModelNotifier.clearResults();
                 _resetPage();
-                _loadNextPage(initialPage);
+                // _loadNextPage(initialPage);
                 //});
                 //viewModel.query = value;
                 //_bufferController.searchWord(value);
@@ -144,6 +146,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
           Expanded(
               child: viewModel.jpnEspWords.isNotEmpty
                   ? InfinityScrollListView(
+                      autoLoadFirstPage: true,
                       initialPage: initialPage,
                       controller: _infinityScrollController,
                       itemCount: viewModel.jpnEspWords.length,
@@ -152,16 +155,21 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                         return JpnEspSearchCard(
                           word: jpnEspWord.word,
                           onTap: () {
-                            context.push(
-                                '/${ScreenTab.search}/${ScreenPage.jpnEspDetail}',
-                                extra: JpnEspWordPageFragmentInput(
-                                    wordId: jpnEspWord.id));
+                            // context.push(
+                            //     '/${ScreenTab.search}/${ScreenPage.jpnEspDetail}',
+                            //     extra: JpnEspWordPageFragmentInput(
+                            //         wordId: jpnEspWord.id));
+                                    
+                  context.push('/${ScreenTab.search}/${ScreenPage.detail}',
+                      extra: WordPageInput(
+                          wordId: jpnEspWord.id, wordType: WordType.jpnEsp, hasConj: false));
                           },
                         );
                       },
                       onLoadMore: _loadNextPage,
                     )
                   : InfinityScrollListView(
+                      autoLoadFirstPage: true,
                       initialPage: initialPage,
                       controller: _infinityScrollController,
                       itemCount: (viewModel.conjugacions.length +
@@ -178,11 +186,15 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                             query: query,
                             //meaning: viewModel.filteredItems[index].meaning,
                             onTap: () {
-                              context.push(
-                                  '/${ScreenTab.search}/${ScreenPage.detail}',
-                                  extra: WordPageFragmentInput(
-                                      wordId: conjugacion.wordId,
-                                      isVerb: true));
+                              // context.push(
+                              //     '/${ScreenTab.search}/${ScreenPage.detail}',
+                              //     extra: EspJpnWordPageFragmentInput(
+                              //         wordId: conjugacion.wordId,
+                              //         isVerb: true));
+                              
+                  context.push('/${ScreenTab.search}/${ScreenPage.detail}',
+                      extra: WordPageInput(
+                          wordId: conjugacion.wordId, wordType: WordType.espJpn, hasConj: true));
                             },
                           );
                         }
@@ -193,11 +205,15 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                           //meaning: viewModel.filteredItems[index].meaning,
                           partOfSpeech: espJpnWord.partOfSpeech,
                           onTap: () {
-                            context.push(
-                                '/${ScreenTab.search}/${ScreenPage.detail}',
-                                extra: WordPageFragmentInput(
-                                    wordId: espJpnWord.wordId,
-                                    isVerb: espJpnWord.hasVerb()));
+                            // context.push(
+                            //     '/${ScreenTab.search}/${ScreenPage.detail}',
+                            //     extra: EspJpnWordPageFragmentInput(
+                            //         wordId: espJpnWord.wordId,
+                            //         isVerb: espJpnWord.hasVerb()));
+                            
+                  context.push('/${ScreenTab.search}/${ScreenPage.detail}',
+                      extra: WordPageInput(
+                          wordId: espJpnWord.wordId, wordType: WordType.espJpn, hasConj: espJpnWord.hasVerb()));
                           },
                         );
                       },

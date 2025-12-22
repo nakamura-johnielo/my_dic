@@ -4,15 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/Components/modal/ranking_filter_modal.dart';
+import 'package:my_dic/core/common/enums/word/word_type.dart';
 import 'package:my_dic/features/ranking/presentation/effect_provider.dart';
 import 'package:my_dic/features/ranking/presentation/view/ranking_card.dart';
-import 'package:my_dic/Constants/Enums/word_card_view_click_listener.dart';
+import 'package:my_dic/core/common/word_card_view_click_listener.dart';
 import 'package:my_dic/core/common/enums/ui/tab.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/core/components/infinityscroll.dart';
 import 'package:my_dic/features/ranking/di/view_model_di.dart';
 import 'package:my_dic/features/user/di/viewmodel.dart';
-import 'package:my_dic/_View/word_page/word_page_fragment.dart';
+import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
 
 class RankingFragment extends ConsumerStatefulWidget {
   const RankingFragment({super.key});
@@ -159,9 +160,12 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
                 // ),
                 margin: margin,
                 onTap: () {
+                  // context.push('/${ScreenTab.ranking}/${ScreenPage.detail}',
+                  //     extra: EspJpnWordPageFragmentInput(
+                  //         wordId: ranking.wordId, isVerb: ranking.hasConj));
                   context.push('/${ScreenTab.ranking}/${ScreenPage.detail}',
-                      extra: WordPageFragmentInput(
-                          wordId: ranking.wordId, isVerb: ranking.hasConj));
+                      extra: WordPageInput(
+                          wordId: ranking.wordId, wordType: WordType.espJpn, hasConj: ranking.hasConj));
                 },
                 clickListeners: clickListeners,
               );
