@@ -11,7 +11,6 @@ import 'package:my_dic/features/search/presentation/view_model/search_view_model
 final searchWordUseCaseProvider = Provider<ISearchWordUseCase>((ref) {
   return SearchWordInteractor(
     ref.read(esjWordRepositoryProvider),
-    ref.read(searchWordPresenterProvider),
     ref.read(jpnEspWordRepositoryProvider),
     ref.read(conjugacionsRepositoryProvider),
   );

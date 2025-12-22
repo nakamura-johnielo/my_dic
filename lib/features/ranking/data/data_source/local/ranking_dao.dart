@@ -7,7 +7,6 @@ import 'package:my_dic/features/ranking/data/data_source/local/rankings_entity.d
 import 'package:my_dic/_Framework_Driver/local/drift/Entity/part_of_speech_lists.dart';
 import 'package:my_dic/core/infrastructure/database/table/word_status.dart';
 import 'package:my_dic/core/infrastructure/database/database_provider.dart';
-import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
 import 'package:tuple/tuple.dart';
 part '../../../../../__generated/features/ranking/data/data_source/local/ranking_dao.g.dart';
 

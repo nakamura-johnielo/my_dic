@@ -30,6 +30,7 @@ enum ScreenTab {
 
 enum ScreenPage {
   detail('単語詳細'),
+  espJpnDetail('単語詳細'),
   jpnEspDetail('単語詳細'),
   quizDetail('Quiz!'),
   unAuthorized('未承認'),

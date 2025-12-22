@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/Constants/Enums/cardState.dart';
 import 'package:my_dic/core/di/usecase/usecase_di.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacions.dart';
+import 'package:my_dic/core/domain/entity/verb/new_conjugacions.dart';
 import 'package:my_dic/features/quiz/di/usecase_di.dart';
 import 'package:my_dic/features/quiz/presentation/ui_model/new_quiz_model.dart';
 import 'package:my_dic/features/quiz/presentation/ui_model/quiz_ui_model.dart';
@@ -29,7 +30,7 @@ final quizCardStateProvider =
 // });
 
 final quizConjugacionsProvider =
-    FutureProvider.autoDispose.family<Conjugacions?, int>(
+    FutureProvider.autoDispose.family<EspConjugacions?, int>(
   (ref, wordId) async {
     final controller = ref.read(quizGameViewModelProvider.notifier);
     return await controller.getConjugaciones(wordId);
@@ -52,7 +53,7 @@ final quizSearchViewModelProvider =
 final quizGameViewModelProvider =
     StateNotifierProvider<QuizViewModel, QuizState>((ref) {
   // final searchUsecase=
-  final fetchConjugationInteractor = ref.read(fetchConjugationUseCaseProvider);
+  final fetchConjugationInteractor = ref.read(newFetchEspConjugationUseCaseProvider);
   final fetchEnglishConjInteractor = ref.read(fetchEnglishConjUseCaseProvider);
   return QuizViewModel(fetchConjugationInteractor, fetchEnglishConjInteractor);
 });

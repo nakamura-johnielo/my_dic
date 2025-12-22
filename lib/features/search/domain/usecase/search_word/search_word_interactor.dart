@@ -1,5 +1,4 @@
 
-import 'package:my_dic/features/search/domain/usecase/search_word/i_search_word_presenter.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/i_search_word_use_case.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/search_word_input_data.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/search_word_output_data.dart';
@@ -15,8 +14,7 @@ class SearchWordInteractor implements ISearchWordUseCase {
   final IEsjWordRepository _wordRepository;
   final IJpnEspWordRepository _jpnEspWordRepository;
   final IConjugacionsRepository _conjugacionsRepository;
-  final ISearchWordPresenter _presenter;
-  SearchWordInteractor(this._wordRepository, this._presenter,
+  SearchWordInteractor(this._wordRepository, 
       this._jpnEspWordRepository, this._conjugacionsRepository);
 
   @override

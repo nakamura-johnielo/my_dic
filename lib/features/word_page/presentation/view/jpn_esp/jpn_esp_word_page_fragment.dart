@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_dic/_View/word_page/jpn_esp/jpn_esp_dictionary_fragment.dart';
+import 'package:my_dic/features/word_page/presentation/view/jpn_esp/jpn_esp_dictionary_fragment.dart';
 
 class JpnEspWordPageFragmentInput {
   final int wordId;

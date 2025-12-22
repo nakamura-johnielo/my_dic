@@ -17,9 +17,9 @@ class DriftEsjDictionaryRepository implements IEsjDictionaryRepository {
       this._idiomDao, this._supplementDao);
 
   @override
-  Future<List<EsjDictionary>> getDictionaryByWordId(int wordId) async {
+  Future<List<EspJpnDictionary>> getDictionaryByWordId(int wordId) async {
     final dic = await _dictionaryDao.getDictionaryByWordId(wordId);
-    List<EsjDictionary> res = [];
+    List<EspJpnDictionary> res = [];
     if (dic.isEmpty) {
       return res; // 結果がnullの場合はnullを返す
     }
@@ -31,7 +31,7 @@ class DriftEsjDictionaryRepository implements IEsjDictionaryRepository {
       final idi = await _idiomDao.getExampleByDictionaryId(dicId);
       final sup = await _supplementDao.getExampleByDictionaryId(dicId);
 
-      res.add(EsjDictionary(
+      res.add(EspJpnDictionary(
         dictionaryId: d.dictionaryId,
         word: d.word,
         headword: d.headword,
