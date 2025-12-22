@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/Constants/Enums/cardState.dart';
+import 'package:my_dic/features/quiz/consts/card_state.dart';
 import 'package:my_dic/core/common/enums/conjugacion/mood_tense.dart';
 import 'package:my_dic/core/common/enums/conjugacion/subject.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';

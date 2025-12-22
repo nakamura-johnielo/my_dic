@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:my_dic/Constants/Enums/feature_tag.dart';
+import 'package:my_dic/core/common/enums/feature_tag.dart';
 import 'package:my_dic/core/common/enums/word/part_of_speech.dart';
 import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
 

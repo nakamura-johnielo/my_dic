@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/Constants/Enums/feature_tag.dart';
+import 'package:my_dic/core/common/enums/feature_tag.dart';
 import 'package:my_dic/core/common/enums/i_enum.dart';
 import 'package:my_dic/core/common/enums/word/part_of_speech.dart';
 import 'package:my_dic/features/ranking/domain/usecase/load_rankings/i_load_rankings_use_case.dart';

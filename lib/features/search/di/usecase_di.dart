@@ -1,17 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/_Interface_Adapter/Presenter/search_word_presenter_impl.dart';
 import 'package:my_dic/core/di/data/repository_di.dart';
 import 'package:my_dic/features/search/domain/usecase/judge_search_word/i_judge_search_word_use_case.dart';
 import 'package:my_dic/features/search/domain/usecase/judge_search_word/judge_search_word_interactor.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/i_search_word_use_case.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/search_word_interactor.dart';
-import 'package:my_dic/features/search/presentation/view_model/search_view_model.dart';
 
 
 final searchWordUseCaseProvider = Provider<ISearchWordUseCase>((ref) {
   return SearchWordInteractor(
     ref.read(esjWordRepositoryProvider),
-    ref.read(searchWordPresenterProvider),
     ref.read(jpnEspWordRepositoryProvider),
     ref.read(conjugacionsRepositoryProvider),
   );
@@ -27,6 +24,6 @@ final judgeSearchWordUseCaseProvider = Provider<IJudgeSearchWordUseCase>((ref) {
 
 // LEGACY
 
-final searchWordPresenterProvider = Provider((ref) {
-  return SearchWordPresenterImpl(SearchViewModel());
-});
+// final searchWordPresenterProvider = Provider((ref) {
+//   return SearchWordPresenterImpl(SearchViewModel());
+// });

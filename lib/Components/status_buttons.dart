@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:flutter/material.dart';
 import 'package:my_dic/Components/button/my_icon_button.dart';
-import 'package:my_dic/Constants/Enums/feature_tag.dart';
+import 'package:my_dic/core/common/enums/feature_tag.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/core/domain/usecase/esp_jpn_status/esp_jpn_status_interactor.dart';
 import 'package:my_dic/core/domain/entity/word/esp_word.dart';

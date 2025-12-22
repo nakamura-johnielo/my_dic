@@ -4,13 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/Components/button/my_icon_button.dart';
-import 'package:my_dic/Constants/Enums/cardState.dart';
-import 'package:my_dic/Constants/Enums/word_card_view_click_listener.dart';
+import 'package:my_dic/features/quiz/consts/card_state.dart';
+import 'package:my_dic/core/common/word_card_view_click_listener.dart';
 import 'package:my_dic/core/common/enums/ui/tab.dart';
 import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
 
+//TODO QuizCardState enumを使用してしまってる
 //スマホ用
 class RankingCard extends ConsumerWidget {
   //

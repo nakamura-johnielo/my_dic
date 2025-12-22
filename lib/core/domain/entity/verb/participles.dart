@@ -1,20 +1,20 @@
 import 'package:flutter/foundation.dart';
 
 @immutable
-class Participles {
+class EspParticiples {
   final String present;
   final String past;
 
-  const Participles({
+  const EspParticiples({
     required this.present,
     required this.past,
   });
 
-  Participles copyWith({
+  EspParticiples copyWith({
     String? present,
     String? past,
   }) {
-    return Participles(
+    return EspParticiples(
       present: present ?? this.present,
       past: past ?? this.past,
     );

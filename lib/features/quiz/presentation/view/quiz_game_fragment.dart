@@ -6,11 +6,12 @@ import 'package:my_dic/Components/status_buttons.dart';
 import 'package:my_dic/core/common/enums/conjugacion/mood_tense.dart';
 import 'package:my_dic/core/common/enums/conjugacion/subject.dart';
 import 'package:my_dic/core/common/enums/ui/tab.dart';
-import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacions.dart';
+import 'package:my_dic/core/common/enums/word/word_type.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/tense_conjugacion.dart';
-import 'package:my_dic/_View/word_page/word_page_fragment.dart';
+import 'package:my_dic/core/domain/entity/verb/conjugacions.dart';
 import 'package:my_dic/features/quiz/di/usecase_di.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
+import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
 
 class QuizGameFragmentInput {
   final int wordId;
@@ -74,7 +75,7 @@ class QuizGameFragment extends ConsumerWidget {
     //
     //final quizGame = ref.watch(quizStateProvider);
     //final quizStateController = ref.read(quizStateProvider.notifier);
-    final quizWord = ref.watch(quizWordProvider); //TODO quizword
+    //final quizWord = ref.watch(quizWordProvider); //TODO quizword
     final conjugacionesAsync =
         ref.watch(quizConjugacionsProvider(input.wordId));
 
@@ -117,7 +118,7 @@ class QuizGameFragment extends ConsumerWidget {
                   spacing: 7,
                   children: [
                     Text(
-                      '${quizWord} の活用',
+                      '${input.word} の活用',
                       style:
                           TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
                     ),
@@ -126,10 +127,14 @@ class QuizGameFragment extends ConsumerWidget {
                       spacing: 20,
                       children: [
                         TextButton(
-                          onPressed: () => context.push(
-                              '/${ScreenTab.search}/${ScreenPage.detail}',
-                              extra: WordPageFragmentInput(
-                                  wordId: input.wordId, isVerb: true)),
+                          onPressed: () => 
+                          // context.push(
+                          //     '/${ScreenTab.search}/${ScreenPage.detail}',
+                          //     extra: EspJpnWordPageFragmentInput(
+                          //         wordId: input.wordId, isVerb: true))
+                  context.push('/${ScreenTab.quiz}/${ScreenPage.detail}',
+                      extra: WordPageInput(
+                          wordId: input.wordId, wordType: WordType.espJpn, hasConj: true)),
                           child: Text("> 辞書確認"),
                         ),
                         StatusButtons(wordId: input.wordId),
@@ -204,7 +209,7 @@ class QuizGameFragment extends ConsumerWidget {
 }
 
 //TODO usecase化
-String displayConjugacion(Conjugacions conjugaciones, Subject currentSubject,
+String displayConjugacion(EspConjugacions conjugaciones, Subject currentSubject,
     MoodTense currentTense) {
   TenseConjugacion? conj = conjugaciones.conjugacions[currentTense];
   if (conj == null) {

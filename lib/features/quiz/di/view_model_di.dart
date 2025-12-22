@@ -1,12 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/Constants/Enums/cardState.dart';
+import 'package:my_dic/features/quiz/consts/card_state.dart';
 import 'package:my_dic/core/di/usecase/usecase_di.dart';
-import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacions.dart';
+import 'package:my_dic/core/domain/entity/verb/conjugacions.dart';
 import 'package:my_dic/features/quiz/di/usecase_di.dart';
-import 'package:my_dic/features/quiz/presentation/ui_model/new_quiz_model.dart';
-import 'package:my_dic/features/quiz/presentation/ui_model/quiz_ui_model.dart';
-import 'package:my_dic/features/quiz/presentation/view_model/new_quiz_viewmodel.dart';
-import 'package:my_dic/features/quiz/presentation/view_model/quiz_view_model.dart';
+import 'package:my_dic/features/quiz/presentation/ui_model/quiz_game_model.dart';
+import 'package:my_dic/features/quiz/presentation/ui_model/quiz_search_model.dart';
+import 'package:my_dic/features/quiz/presentation/view_model/quiz_game_viewmodel.dart';
+import 'package:my_dic/features/quiz/presentation/view_model/quiz_search_view_model.dart';
 import 'package:my_dic/features/search/di/usecase_di.dart';
 
 /// クイズ検索結果リストのプロバイダー
@@ -29,7 +29,7 @@ final quizCardStateProvider =
 // });
 
 final quizConjugacionsProvider =
-    FutureProvider.autoDispose.family<Conjugacions?, int>(
+    FutureProvider.autoDispose.family<EspConjugacions?, int>(
   (ref, wordId) async {
     final controller = ref.read(quizGameViewModelProvider.notifier);
     return await controller.getConjugaciones(wordId);
@@ -50,9 +50,9 @@ final quizSearchViewModelProvider =
 });
 
 final quizGameViewModelProvider =
-    StateNotifierProvider<QuizViewModel, QuizState>((ref) {
+    StateNotifierProvider<QuizGameViewModel, QuizGameState>((ref) {
   // final searchUsecase=
-  final fetchConjugationInteractor = ref.read(fetchConjugationUseCaseProvider);
+  final fetchConjugationInteractor = ref.read(fetchEspConjugationUseCaseProvider);
   final fetchEnglishConjInteractor = ref.read(fetchEnglishConjUseCaseProvider);
-  return QuizViewModel(fetchConjugationInteractor, fetchEnglishConjInteractor);
+  return QuizGameViewModel(fetchConjugationInteractor, fetchEnglishConjInteractor);
 });
