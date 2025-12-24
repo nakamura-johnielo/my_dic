@@ -9,12 +9,12 @@ import 'package:my_dic/core/infrastructure/database/dao/local/jpn_esp/jpn_esp_wo
 import 'package:my_dic/features/my_word/data/data_source/local/drift_my_word_dao.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/DAO/part_of_speech_list_dao.dart';
 import 'package:my_dic/features/ranking/data/data_source/local/ranking_dao.dart';
-import 'package:my_dic/core/infrastructure/database/dao/local/word_dao.dart';
-import 'package:my_dic/core/infrastructure/database/table/conjugations.dart';
-import 'package:my_dic/core/infrastructure/database/table/dictionaries.dart';
+import 'package:my_dic/core/infrastructure/database/dao/local/esp_jpn/esp_jpn_word_dao.dart';
+import 'package:my_dic/core/infrastructure/database/table/esp_jpn/conjugations.dart';
+import 'package:my_dic/core/infrastructure/database/table/esp_jpn/dictionaries.dart';
 import 'package:my_dic/core/infrastructure/database/table/es_en_conjugacions.dart';
-import 'package:my_dic/core/infrastructure/database/table/examples.dart';
-import 'package:my_dic/core/infrastructure/database/table/idioms.dart';
+import 'package:my_dic/core/infrastructure/database/table/esp_jpn/examples.dart';
+import 'package:my_dic/core/infrastructure/database/table/esp_jpn/idioms.dart';
 import 'package:my_dic/core/infrastructure/database/table/jpn-esp/jpn_esp_dictionaries.dart';
 import 'package:my_dic/core/infrastructure/database/table/jpn-esp/jpn_esp_examples.dart';
 import 'package:my_dic/core/infrastructure/database/table/jpn-esp/jpn_esp_word.dart';
@@ -23,9 +23,9 @@ import 'package:my_dic/features/my_word/data/data_source/local/my_word_status.da
 import 'package:my_dic/features/my_word/data/data_source/local/my_words.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/Entity/part_of_speech_lists.dart';
 import 'package:my_dic/features/ranking/data/data_source/local/rankings_entity.dart';
-import 'package:my_dic/core/infrastructure/database/table/supplements.dart';
-import 'package:my_dic/core/infrastructure/database/table/word_status.dart';
-import 'package:my_dic/core/infrastructure/database/table/words.dart';
+import 'package:my_dic/core/infrastructure/database/table/esp_jpn/supplements.dart';
+import 'package:my_dic/core/infrastructure/database/table/esp_jpn/word_status.dart';
+import 'package:my_dic/core/infrastructure/database/table/esp_jpn/words.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
@@ -35,15 +35,15 @@ import 'dart:async';
 part '../../../__generated/core/infrastructure/database/database_provider.g.dart';
 
 @DriftDatabase(tables: [
-  Conjugations,
-  Dictionaries,
-  Examples,
-  Idioms,
+  EspConjugations,
+  EspJpnDictionaries,
+  EspJpnExamples,
+  EspJpnIdioms,
   PartOfSpeechLists,
   Rankings,
-  Supplements,
-  Words,
-  WordStatus,
+  EspJpnSupplements,
+  EspJpnWords,
+  EspJpnWordStatus,
   MyWords,
   MyWordStatus,
   JpnEspWords,
@@ -52,7 +52,7 @@ part '../../../__generated/core/infrastructure/database/database_provider.g.dart
   JpnEspExamples,
   EsEnConjugacions,
 ], daos: [
-  WordDao,
+  EspJpnWordDao,
   RankingDao,
   PartOfSpeechListDao,
   MyWordDao,

@@ -4,16 +4,15 @@ import 'package:my_dic/core/common/enums/feature_tag.dart';
 import 'package:my_dic/core/common/enums/word/part_of_speech.dart';
 import 'package:my_dic/core/domain/usecase/update_status/update_status_repository_input_data.dart';
 import 'package:my_dic/core/domain/entity/word/word.dart';
-import 'package:my_dic/core/domain/entity/word/esp_word.dart';
+import 'package:my_dic/core/domain/entity/word/esp_word_status.dart';
 import 'package:my_dic/core/domain/i_repository/i_esj_word_repository.dart';
-import 'package:my_dic/core/infrastructure/database/dao/local/word_dao.dart';
-import 'package:my_dic/core/infrastructure/database/dao/local/word_status_dao.dart';
-import 'package:my_dic/core/infrastructure/database/database_provider.dart'
-    as db;
+import 'package:my_dic/core/infrastructure/database/dao/local/esp_jpn/esp_jpn_word_dao.dart';
+import 'package:my_dic/core/infrastructure/database/dao/local/esp_jpn/esp_jpn_word_status_dao.dart';
+import 'package:my_dic/core/infrastructure/database/database_provider.dart';
 
 class DriftEsjWordRepository implements IEsjWordRepository {
-  final WordDao _wordDao;
-  final WordStatusDao _wordStatusDao;
+  final EspJpnWordDao _wordDao;
+  final EspJpnWordStatusDao _wordStatusDao;
   //final PartOfSpeechListDao _pslDao;
   DriftEsjWordRepository(this._wordDao, this._wordStatusDao);
 
@@ -34,7 +33,7 @@ class DriftEsjWordRepository implements IEsjWordRepository {
   @override
   void updateStatus(UpdateStatusRepositoryInputData input) async {
     log("updatestatusrepo");
-    db.WordStatusTableData data = db.WordStatusTableData(
+    EspJpnWordStatusTableData data = EspJpnWordStatusTableData(
       wordId: input.wordId,
       isLearned: input.status.contains(FeatureTag.isLearned) ? 1 : 0,
       isBookmarked: input.status.contains(FeatureTag.isBookmarked) ? 1 : 0,
@@ -52,10 +51,10 @@ class DriftEsjWordRepository implements IEsjWordRepository {
   @override
   Future<List<EspJpnWord>> getWordsByWordByPage(
       String word, int size, int currentPage, bool forQuiz) async {
-        print(word+" , "+size.toString()+" , "+currentPage.toString());
+    print(word + " , " + size.toString() + " , " + currentPage.toString());
     final words = await _wordDao.getWordsByWordByPage(word, size, currentPage);
     if (words == null) return [];
-    print("words length in repo: "+words.length.toString());
+    print("words length in repo: " + words.length.toString());
     //final partOfSpeech=await _pslDao.getPartOfSpeechListByWordId(word)
     return words.map((word) {
       return EspJpnWord(
@@ -90,7 +89,7 @@ class DriftEsjWordRepository implements IEsjWordRepository {
       isLearned: status?.isLearned == 1,
       isBookmarked: status?.isBookmarked == 1,
       hasNote: status?.hasNote == 1,
-      //editAt: status?.editAt,
+      editAt: status?.editAt != null ? DateTime.parse(status!.editAt) : null,
     );
   }
 }

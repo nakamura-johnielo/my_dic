@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/DI/riverpod.dart';
+import 'package:my_dic/core/di/service/riverpod.dart';
 import 'package:my_dic/core/di/data/repository_di.dart';
 import 'package:my_dic/core/domain/usecase/esp_jpn_status/esp_jpn_status_interactor.dart';
 

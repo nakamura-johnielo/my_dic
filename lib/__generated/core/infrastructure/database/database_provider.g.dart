@@ -3,12 +3,12 @@
 part of '../../../../core/infrastructure/database/database_provider.dart';
 
 // ignore_for_file: type=lint
-class $ConjugationsTable extends Conjugations
-    with TableInfo<$ConjugationsTable, ConjugationTableData> {
+class $EspConjugationsTable extends EspConjugations
+    with TableInfo<$EspConjugationsTable, EspConjugationTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $ConjugationsTable(this.attachedDatabase, [this._alias]);
+  $EspConjugationsTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _wordIdMeta = const VerificationMeta('wordId');
   @override
   late final GeneratedColumn<int> wordId = GeneratedColumn<int>(
@@ -31,10 +31,10 @@ class $ConjugationsTable extends Conjugations
   late final GeneratedColumn<String> presentParticiple =
       GeneratedColumn<String>('present_participle', aliasedName, true,
           type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _prastParticipleMeta =
-      const VerificationMeta('prastParticiple');
+  static const VerificationMeta _pastParticipleMeta =
+      const VerificationMeta('pastParticiple');
   @override
-  late final GeneratedColumn<String> prastParticiple = GeneratedColumn<String>(
+  late final GeneratedColumn<String> pastParticiple = GeneratedColumn<String>(
       'past_participle', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _indicativePresentYoMeta =
@@ -331,7 +331,7 @@ class $ConjugationsTable extends Conjugations
         word,
         meaning,
         presentParticiple,
-        prastParticiple,
+        pastParticiple,
         indicativePresentYo,
         indicativePresentTu,
         indicativePresentEl,
@@ -387,7 +387,7 @@ class $ConjugationsTable extends Conjugations
   static const String $name = 'conjugations';
   @override
   VerificationContext validateIntegrity(
-      Insertable<ConjugationTableData> instance,
+      Insertable<EspConjugationTableData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -413,9 +413,9 @@ class $ConjugationsTable extends Conjugations
     }
     if (data.containsKey('past_participle')) {
       context.handle(
-          _prastParticipleMeta,
-          prastParticiple.isAcceptableOrUnknown(
-              data['past_participle']!, _prastParticipleMeta));
+          _pastParticipleMeta,
+          pastParticiple.isAcceptableOrUnknown(
+              data['past_participle']!, _pastParticipleMeta));
     }
     if (data.containsKey('indicative_present_yo')) {
       context.handle(
@@ -726,9 +726,10 @@ class $ConjugationsTable extends Conjugations
   @override
   Set<GeneratedColumn> get $primaryKey => {wordId};
   @override
-  ConjugationTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+  EspConjugationTableData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return ConjugationTableData(
+    return EspConjugationTableData(
       wordId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}word_id'])!,
       word: attachedDatabase.typeMapping
@@ -737,7 +738,7 @@ class $ConjugationsTable extends Conjugations
           .read(DriftSqlType.string, data['${effectivePrefix}meaning']),
       presentParticiple: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}present_participle']),
-      prastParticiple: attachedDatabase.typeMapping
+      pastParticiple: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}past_participle']),
       indicativePresentYo: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}indicative_present_yo']),
@@ -870,18 +871,18 @@ class $ConjugationsTable extends Conjugations
   }
 
   @override
-  $ConjugationsTable createAlias(String alias) {
-    return $ConjugationsTable(attachedDatabase, alias);
+  $EspConjugationsTable createAlias(String alias) {
+    return $EspConjugationsTable(attachedDatabase, alias);
   }
 }
 
-class ConjugationTableData extends DataClass
-    implements Insertable<ConjugationTableData> {
+class EspConjugationTableData extends DataClass
+    implements Insertable<EspConjugationTableData> {
   final int wordId;
   final String word;
   final String? meaning;
   final String? presentParticiple;
-  final String? prastParticiple;
+  final String? pastParticiple;
   final String? indicativePresentYo;
   final String? indicativePresentTu;
   final String? indicativePresentEl;
@@ -929,12 +930,12 @@ class ConjugationTableData extends DataClass
   final String? subjunctivePastNosotros;
   final String? subjunctivePastVosotros;
   final String? subjunctivePastEllos;
-  const ConjugationTableData(
+  const EspConjugationTableData(
       {required this.wordId,
       required this.word,
       this.meaning,
       this.presentParticiple,
-      this.prastParticiple,
+      this.pastParticiple,
       this.indicativePresentYo,
       this.indicativePresentTu,
       this.indicativePresentEl,
@@ -993,8 +994,8 @@ class ConjugationTableData extends DataClass
     if (!nullToAbsent || presentParticiple != null) {
       map['present_participle'] = Variable<String>(presentParticiple);
     }
-    if (!nullToAbsent || prastParticiple != null) {
-      map['past_participle'] = Variable<String>(prastParticiple);
+    if (!nullToAbsent || pastParticiple != null) {
+      map['past_participle'] = Variable<String>(pastParticiple);
     }
     if (!nullToAbsent || indicativePresentYo != null) {
       map['indicative_present_yo'] = Variable<String>(indicativePresentYo);
@@ -1162,8 +1163,8 @@ class ConjugationTableData extends DataClass
     return map;
   }
 
-  ConjugationsCompanion toCompanion(bool nullToAbsent) {
-    return ConjugationsCompanion(
+  EspConjugationsCompanion toCompanion(bool nullToAbsent) {
+    return EspConjugationsCompanion(
       wordId: Value(wordId),
       word: Value(word),
       meaning: meaning == null && nullToAbsent
@@ -1172,9 +1173,9 @@ class ConjugationTableData extends DataClass
       presentParticiple: presentParticiple == null && nullToAbsent
           ? const Value.absent()
           : Value(presentParticiple),
-      prastParticiple: prastParticiple == null && nullToAbsent
+      pastParticiple: pastParticiple == null && nullToAbsent
           ? const Value.absent()
-          : Value(prastParticiple),
+          : Value(pastParticiple),
       indicativePresentYo: indicativePresentYo == null && nullToAbsent
           ? const Value.absent()
           : Value(indicativePresentYo),
@@ -1330,16 +1331,16 @@ class ConjugationTableData extends DataClass
     );
   }
 
-  factory ConjugationTableData.fromJson(Map<String, dynamic> json,
+  factory EspConjugationTableData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return ConjugationTableData(
+    return EspConjugationTableData(
       wordId: serializer.fromJson<int>(json['wordId']),
       word: serializer.fromJson<String>(json['word']),
       meaning: serializer.fromJson<String?>(json['meaning']),
       presentParticiple:
           serializer.fromJson<String?>(json['presentParticiple']),
-      prastParticiple: serializer.fromJson<String?>(json['prastParticiple']),
+      pastParticiple: serializer.fromJson<String?>(json['pastParticiple']),
       indicativePresentYo:
           serializer.fromJson<String?>(json['indicativePresentYo']),
       indicativePresentTu:
@@ -1441,7 +1442,7 @@ class ConjugationTableData extends DataClass
       'word': serializer.toJson<String>(word),
       'meaning': serializer.toJson<String?>(meaning),
       'presentParticiple': serializer.toJson<String?>(presentParticiple),
-      'prastParticiple': serializer.toJson<String?>(prastParticiple),
+      'pastParticiple': serializer.toJson<String?>(pastParticiple),
       'indicativePresentYo': serializer.toJson<String?>(indicativePresentYo),
       'indicativePresentTu': serializer.toJson<String?>(indicativePresentTu),
       'indicativePresentEl': serializer.toJson<String?>(indicativePresentEl),
@@ -1521,12 +1522,12 @@ class ConjugationTableData extends DataClass
     };
   }
 
-  ConjugationTableData copyWith(
+  EspConjugationTableData copyWith(
           {int? wordId,
           String? word,
           Value<String?> meaning = const Value.absent(),
           Value<String?> presentParticiple = const Value.absent(),
-          Value<String?> prastParticiple = const Value.absent(),
+          Value<String?> pastParticiple = const Value.absent(),
           Value<String?> indicativePresentYo = const Value.absent(),
           Value<String?> indicativePresentTu = const Value.absent(),
           Value<String?> indicativePresentEl = const Value.absent(),
@@ -1574,16 +1575,15 @@ class ConjugationTableData extends DataClass
           Value<String?> subjunctivePastNosotros = const Value.absent(),
           Value<String?> subjunctivePastVosotros = const Value.absent(),
           Value<String?> subjunctivePastEllos = const Value.absent()}) =>
-      ConjugationTableData(
+      EspConjugationTableData(
         wordId: wordId ?? this.wordId,
         word: word ?? this.word,
         meaning: meaning.present ? meaning.value : this.meaning,
         presentParticiple: presentParticiple.present
             ? presentParticiple.value
             : this.presentParticiple,
-        prastParticiple: prastParticiple.present
-            ? prastParticiple.value
-            : this.prastParticiple,
+        pastParticiple:
+            pastParticiple.present ? pastParticiple.value : this.pastParticiple,
         indicativePresentYo: indicativePresentYo.present
             ? indicativePresentYo.value
             : this.indicativePresentYo,
@@ -1724,17 +1724,17 @@ class ConjugationTableData extends DataClass
             ? subjunctivePastEllos.value
             : this.subjunctivePastEllos,
       );
-  ConjugationTableData copyWithCompanion(ConjugationsCompanion data) {
-    return ConjugationTableData(
+  EspConjugationTableData copyWithCompanion(EspConjugationsCompanion data) {
+    return EspConjugationTableData(
       wordId: data.wordId.present ? data.wordId.value : this.wordId,
       word: data.word.present ? data.word.value : this.word,
       meaning: data.meaning.present ? data.meaning.value : this.meaning,
       presentParticiple: data.presentParticiple.present
           ? data.presentParticiple.value
           : this.presentParticiple,
-      prastParticiple: data.prastParticiple.present
-          ? data.prastParticiple.value
-          : this.prastParticiple,
+      pastParticiple: data.pastParticiple.present
+          ? data.pastParticiple.value
+          : this.pastParticiple,
       indicativePresentYo: data.indicativePresentYo.present
           ? data.indicativePresentYo.value
           : this.indicativePresentYo,
@@ -1881,12 +1881,12 @@ class ConjugationTableData extends DataClass
 
   @override
   String toString() {
-    return (StringBuffer('ConjugationTableData(')
+    return (StringBuffer('EspConjugationTableData(')
           ..write('wordId: $wordId, ')
           ..write('word: $word, ')
           ..write('meaning: $meaning, ')
           ..write('presentParticiple: $presentParticiple, ')
-          ..write('prastParticiple: $prastParticiple, ')
+          ..write('pastParticiple: $pastParticiple, ')
           ..write('indicativePresentYo: $indicativePresentYo, ')
           ..write('indicativePresentTu: $indicativePresentTu, ')
           ..write('indicativePresentEl: $indicativePresentEl, ')
@@ -1946,7 +1946,7 @@ class ConjugationTableData extends DataClass
         word,
         meaning,
         presentParticiple,
-        prastParticiple,
+        pastParticiple,
         indicativePresentYo,
         indicativePresentTu,
         indicativePresentEl,
@@ -1998,12 +1998,12 @@ class ConjugationTableData extends DataClass
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is ConjugationTableData &&
+      (other is EspConjugationTableData &&
           other.wordId == this.wordId &&
           other.word == this.word &&
           other.meaning == this.meaning &&
           other.presentParticiple == this.presentParticiple &&
-          other.prastParticiple == this.prastParticiple &&
+          other.pastParticiple == this.pastParticiple &&
           other.indicativePresentYo == this.indicativePresentYo &&
           other.indicativePresentTu == this.indicativePresentTu &&
           other.indicativePresentEl == this.indicativePresentEl &&
@@ -2059,12 +2059,13 @@ class ConjugationTableData extends DataClass
           other.subjunctivePastEllos == this.subjunctivePastEllos);
 }
 
-class ConjugationsCompanion extends UpdateCompanion<ConjugationTableData> {
+class EspConjugationsCompanion
+    extends UpdateCompanion<EspConjugationTableData> {
   final Value<int> wordId;
   final Value<String> word;
   final Value<String?> meaning;
   final Value<String?> presentParticiple;
-  final Value<String?> prastParticiple;
+  final Value<String?> pastParticiple;
   final Value<String?> indicativePresentYo;
   final Value<String?> indicativePresentTu;
   final Value<String?> indicativePresentEl;
@@ -2112,12 +2113,12 @@ class ConjugationsCompanion extends UpdateCompanion<ConjugationTableData> {
   final Value<String?> subjunctivePastNosotros;
   final Value<String?> subjunctivePastVosotros;
   final Value<String?> subjunctivePastEllos;
-  const ConjugationsCompanion({
+  const EspConjugationsCompanion({
     this.wordId = const Value.absent(),
     this.word = const Value.absent(),
     this.meaning = const Value.absent(),
     this.presentParticiple = const Value.absent(),
-    this.prastParticiple = const Value.absent(),
+    this.pastParticiple = const Value.absent(),
     this.indicativePresentYo = const Value.absent(),
     this.indicativePresentTu = const Value.absent(),
     this.indicativePresentEl = const Value.absent(),
@@ -2166,12 +2167,12 @@ class ConjugationsCompanion extends UpdateCompanion<ConjugationTableData> {
     this.subjunctivePastVosotros = const Value.absent(),
     this.subjunctivePastEllos = const Value.absent(),
   });
-  ConjugationsCompanion.insert({
+  EspConjugationsCompanion.insert({
     this.wordId = const Value.absent(),
     required String word,
     this.meaning = const Value.absent(),
     this.presentParticiple = const Value.absent(),
-    this.prastParticiple = const Value.absent(),
+    this.pastParticiple = const Value.absent(),
     this.indicativePresentYo = const Value.absent(),
     this.indicativePresentTu = const Value.absent(),
     this.indicativePresentEl = const Value.absent(),
@@ -2220,12 +2221,12 @@ class ConjugationsCompanion extends UpdateCompanion<ConjugationTableData> {
     this.subjunctivePastVosotros = const Value.absent(),
     this.subjunctivePastEllos = const Value.absent(),
   }) : word = Value(word);
-  static Insertable<ConjugationTableData> custom({
+  static Insertable<EspConjugationTableData> custom({
     Expression<int>? wordId,
     Expression<String>? word,
     Expression<String>? meaning,
     Expression<String>? presentParticiple,
-    Expression<String>? prastParticiple,
+    Expression<String>? pastParticiple,
     Expression<String>? indicativePresentYo,
     Expression<String>? indicativePresentTu,
     Expression<String>? indicativePresentEl,
@@ -2279,7 +2280,7 @@ class ConjugationsCompanion extends UpdateCompanion<ConjugationTableData> {
       if (word != null) 'word': word,
       if (meaning != null) 'meaning': meaning,
       if (presentParticiple != null) 'present_participle': presentParticiple,
-      if (prastParticiple != null) 'past_participle': prastParticiple,
+      if (pastParticiple != null) 'past_participle': pastParticiple,
       if (indicativePresentYo != null)
         'indicative_present_yo': indicativePresentYo,
       if (indicativePresentTu != null)
@@ -2369,12 +2370,12 @@ class ConjugationsCompanion extends UpdateCompanion<ConjugationTableData> {
     });
   }
 
-  ConjugationsCompanion copyWith(
+  EspConjugationsCompanion copyWith(
       {Value<int>? wordId,
       Value<String>? word,
       Value<String?>? meaning,
       Value<String?>? presentParticiple,
-      Value<String?>? prastParticiple,
+      Value<String?>? pastParticiple,
       Value<String?>? indicativePresentYo,
       Value<String?>? indicativePresentTu,
       Value<String?>? indicativePresentEl,
@@ -2422,12 +2423,12 @@ class ConjugationsCompanion extends UpdateCompanion<ConjugationTableData> {
       Value<String?>? subjunctivePastNosotros,
       Value<String?>? subjunctivePastVosotros,
       Value<String?>? subjunctivePastEllos}) {
-    return ConjugationsCompanion(
+    return EspConjugationsCompanion(
       wordId: wordId ?? this.wordId,
       word: word ?? this.word,
       meaning: meaning ?? this.meaning,
       presentParticiple: presentParticiple ?? this.presentParticiple,
-      prastParticiple: prastParticiple ?? this.prastParticiple,
+      pastParticiple: pastParticiple ?? this.pastParticiple,
       indicativePresentYo: indicativePresentYo ?? this.indicativePresentYo,
       indicativePresentTu: indicativePresentTu ?? this.indicativePresentTu,
       indicativePresentEl: indicativePresentEl ?? this.indicativePresentEl,
@@ -2522,8 +2523,8 @@ class ConjugationsCompanion extends UpdateCompanion<ConjugationTableData> {
     if (presentParticiple.present) {
       map['present_participle'] = Variable<String>(presentParticiple.value);
     }
-    if (prastParticiple.present) {
-      map['past_participle'] = Variable<String>(prastParticiple.value);
+    if (pastParticiple.present) {
+      map['past_participle'] = Variable<String>(pastParticiple.value);
     }
     if (indicativePresentYo.present) {
       map['indicative_present_yo'] =
@@ -2707,12 +2708,12 @@ class ConjugationsCompanion extends UpdateCompanion<ConjugationTableData> {
 
   @override
   String toString() {
-    return (StringBuffer('ConjugationsCompanion(')
+    return (StringBuffer('EspConjugationsCompanion(')
           ..write('wordId: $wordId, ')
           ..write('word: $word, ')
           ..write('meaning: $meaning, ')
           ..write('presentParticiple: $presentParticiple, ')
-          ..write('prastParticiple: $prastParticiple, ')
+          ..write('pastParticiple: $pastParticiple, ')
           ..write('indicativePresentYo: $indicativePresentYo, ')
           ..write('indicativePresentTu: $indicativePresentTu, ')
           ..write('indicativePresentEl: $indicativePresentEl, ')
@@ -2767,12 +2768,12 @@ class ConjugationsCompanion extends UpdateCompanion<ConjugationTableData> {
   }
 }
 
-class $DictionariesTable extends Dictionaries
-    with TableInfo<$DictionariesTable, DictionaryTableData> {
+class $EspJpnDictionariesTable extends EspJpnDictionaries
+    with TableInfo<$EspJpnDictionariesTable, EspJpnDictionaryTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $DictionariesTable(this.attachedDatabase, [this._alias]);
+  $EspJpnDictionariesTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _dictionaryIdMeta =
       const VerificationMeta('dictionaryId');
   @override
@@ -2849,7 +2850,7 @@ class $DictionariesTable extends Dictionaries
   static const String $name = 'dictionaries';
   @override
   VerificationContext validateIntegrity(
-      Insertable<DictionaryTableData> instance,
+      Insertable<EspJpnDictionaryTableData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -2909,9 +2910,10 @@ class $DictionariesTable extends Dictionaries
   @override
   Set<GeneratedColumn> get $primaryKey => {dictionaryId};
   @override
-  DictionaryTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+  EspJpnDictionaryTableData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return DictionaryTableData(
+    return EspJpnDictionaryTableData(
       dictionaryId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}dictionary_id'])!,
       wordId: attachedDatabase.typeMapping
@@ -2936,13 +2938,13 @@ class $DictionariesTable extends Dictionaries
   }
 
   @override
-  $DictionariesTable createAlias(String alias) {
-    return $DictionariesTable(attachedDatabase, alias);
+  $EspJpnDictionariesTable createAlias(String alias) {
+    return $EspJpnDictionariesTable(attachedDatabase, alias);
   }
 }
 
-class DictionaryTableData extends DataClass
-    implements Insertable<DictionaryTableData> {
+class EspJpnDictionaryTableData extends DataClass
+    implements Insertable<EspJpnDictionaryTableData> {
   final int dictionaryId;
   final int wordId;
   final String word;
@@ -2953,7 +2955,7 @@ class DictionaryTableData extends DataClass
   final String? content;
   final String? origin;
   final String? htmlRaw;
-  const DictionaryTableData(
+  const EspJpnDictionaryTableData(
       {required this.dictionaryId,
       required this.wordId,
       required this.word,
@@ -2994,8 +2996,8 @@ class DictionaryTableData extends DataClass
     return map;
   }
 
-  DictionariesCompanion toCompanion(bool nullToAbsent) {
-    return DictionariesCompanion(
+  EspJpnDictionariesCompanion toCompanion(bool nullToAbsent) {
+    return EspJpnDictionariesCompanion(
       dictionaryId: Value(dictionaryId),
       wordId: Value(wordId),
       word: Value(word),
@@ -3020,10 +3022,10 @@ class DictionaryTableData extends DataClass
     );
   }
 
-  factory DictionaryTableData.fromJson(Map<String, dynamic> json,
+  factory EspJpnDictionaryTableData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return DictionaryTableData(
+    return EspJpnDictionaryTableData(
       dictionaryId: serializer.fromJson<int>(json['dictionaryId']),
       wordId: serializer.fromJson<int>(json['wordId']),
       word: serializer.fromJson<String>(json['word']),
@@ -3053,7 +3055,7 @@ class DictionaryTableData extends DataClass
     };
   }
 
-  DictionaryTableData copyWith(
+  EspJpnDictionaryTableData copyWith(
           {int? dictionaryId,
           int? wordId,
           String? word,
@@ -3064,7 +3066,7 @@ class DictionaryTableData extends DataClass
           Value<String?> content = const Value.absent(),
           Value<String?> origin = const Value.absent(),
           Value<String?> htmlRaw = const Value.absent()}) =>
-      DictionaryTableData(
+      EspJpnDictionaryTableData(
         dictionaryId: dictionaryId ?? this.dictionaryId,
         wordId: wordId ?? this.wordId,
         word: word ?? this.word,
@@ -3079,8 +3081,9 @@ class DictionaryTableData extends DataClass
         origin: origin.present ? origin.value : this.origin,
         htmlRaw: htmlRaw.present ? htmlRaw.value : this.htmlRaw,
       );
-  DictionaryTableData copyWithCompanion(DictionariesCompanion data) {
-    return DictionaryTableData(
+  EspJpnDictionaryTableData copyWithCompanion(
+      EspJpnDictionariesCompanion data) {
+    return EspJpnDictionaryTableData(
       dictionaryId: data.dictionaryId.present
           ? data.dictionaryId.value
           : this.dictionaryId,
@@ -3102,7 +3105,7 @@ class DictionaryTableData extends DataClass
 
   @override
   String toString() {
-    return (StringBuffer('DictionaryTableData(')
+    return (StringBuffer('EspJpnDictionaryTableData(')
           ..write('dictionaryId: $dictionaryId, ')
           ..write('wordId: $wordId, ')
           ..write('word: $word, ')
@@ -3123,7 +3126,7 @@ class DictionaryTableData extends DataClass
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is DictionaryTableData &&
+      (other is EspJpnDictionaryTableData &&
           other.dictionaryId == this.dictionaryId &&
           other.wordId == this.wordId &&
           other.word == this.word &&
@@ -3136,7 +3139,8 @@ class DictionaryTableData extends DataClass
           other.htmlRaw == this.htmlRaw);
 }
 
-class DictionariesCompanion extends UpdateCompanion<DictionaryTableData> {
+class EspJpnDictionariesCompanion
+    extends UpdateCompanion<EspJpnDictionaryTableData> {
   final Value<int> dictionaryId;
   final Value<int> wordId;
   final Value<String> word;
@@ -3147,7 +3151,7 @@ class DictionariesCompanion extends UpdateCompanion<DictionaryTableData> {
   final Value<String?> content;
   final Value<String?> origin;
   final Value<String?> htmlRaw;
-  const DictionariesCompanion({
+  const EspJpnDictionariesCompanion({
     this.dictionaryId = const Value.absent(),
     this.wordId = const Value.absent(),
     this.word = const Value.absent(),
@@ -3159,7 +3163,7 @@ class DictionariesCompanion extends UpdateCompanion<DictionaryTableData> {
     this.origin = const Value.absent(),
     this.htmlRaw = const Value.absent(),
   });
-  DictionariesCompanion.insert({
+  EspJpnDictionariesCompanion.insert({
     this.dictionaryId = const Value.absent(),
     required int wordId,
     required String word,
@@ -3172,7 +3176,7 @@ class DictionariesCompanion extends UpdateCompanion<DictionaryTableData> {
     this.htmlRaw = const Value.absent(),
   })  : wordId = Value(wordId),
         word = Value(word);
-  static Insertable<DictionaryTableData> custom({
+  static Insertable<EspJpnDictionaryTableData> custom({
     Expression<int>? dictionaryId,
     Expression<int>? wordId,
     Expression<String>? word,
@@ -3198,7 +3202,7 @@ class DictionariesCompanion extends UpdateCompanion<DictionaryTableData> {
     });
   }
 
-  DictionariesCompanion copyWith(
+  EspJpnDictionariesCompanion copyWith(
       {Value<int>? dictionaryId,
       Value<int>? wordId,
       Value<String>? word,
@@ -3209,7 +3213,7 @@ class DictionariesCompanion extends UpdateCompanion<DictionaryTableData> {
       Value<String?>? content,
       Value<String?>? origin,
       Value<String?>? htmlRaw}) {
-    return DictionariesCompanion(
+    return EspJpnDictionariesCompanion(
       dictionaryId: dictionaryId ?? this.dictionaryId,
       wordId: wordId ?? this.wordId,
       word: word ?? this.word,
@@ -3261,7 +3265,7 @@ class DictionariesCompanion extends UpdateCompanion<DictionaryTableData> {
 
   @override
   String toString() {
-    return (StringBuffer('DictionariesCompanion(')
+    return (StringBuffer('EspJpnDictionariesCompanion(')
           ..write('dictionaryId: $dictionaryId, ')
           ..write('wordId: $wordId, ')
           ..write('word: $word, ')
@@ -3277,12 +3281,12 @@ class DictionariesCompanion extends UpdateCompanion<DictionaryTableData> {
   }
 }
 
-class $ExamplesTable extends Examples
-    with TableInfo<$ExamplesTable, ExampleTableData> {
+class $EspJpnExamplesTable extends EspJpnExamples
+    with TableInfo<$EspJpnExamplesTable, EspJpnExampleTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $ExamplesTable(this.attachedDatabase, [this._alias]);
+  $EspJpnExamplesTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _exampleIdMeta =
       const VerificationMeta('exampleId');
   @override
@@ -3334,7 +3338,8 @@ class $ExamplesTable extends Examples
   String get actualTableName => $name;
   static const String $name = 'examples';
   @override
-  VerificationContext validateIntegrity(Insertable<ExampleTableData> instance,
+  VerificationContext validateIntegrity(
+      Insertable<EspJpnExampleTableData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -3386,9 +3391,9 @@ class $ExamplesTable extends Examples
   @override
   Set<GeneratedColumn> get $primaryKey => {exampleId};
   @override
-  ExampleTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+  EspJpnExampleTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return ExampleTableData(
+    return EspJpnExampleTableData(
       exampleId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}example_id'])!,
       dictionaryId: attachedDatabase.typeMapping
@@ -3405,20 +3410,20 @@ class $ExamplesTable extends Examples
   }
 
   @override
-  $ExamplesTable createAlias(String alias) {
-    return $ExamplesTable(attachedDatabase, alias);
+  $EspJpnExamplesTable createAlias(String alias) {
+    return $EspJpnExamplesTable(attachedDatabase, alias);
   }
 }
 
-class ExampleTableData extends DataClass
-    implements Insertable<ExampleTableData> {
+class EspJpnExampleTableData extends DataClass
+    implements Insertable<EspJpnExampleTableData> {
   final int exampleId;
   final int dictionaryId;
   final int exampleNo;
   final String espanolHtml;
   final String japaneseText;
   final String espanolText;
-  const ExampleTableData(
+  const EspJpnExampleTableData(
       {required this.exampleId,
       required this.dictionaryId,
       required this.exampleNo,
@@ -3437,8 +3442,8 @@ class ExampleTableData extends DataClass
     return map;
   }
 
-  ExamplesCompanion toCompanion(bool nullToAbsent) {
-    return ExamplesCompanion(
+  EspJpnExamplesCompanion toCompanion(bool nullToAbsent) {
+    return EspJpnExamplesCompanion(
       exampleId: Value(exampleId),
       dictionaryId: Value(dictionaryId),
       exampleNo: Value(exampleNo),
@@ -3448,10 +3453,10 @@ class ExampleTableData extends DataClass
     );
   }
 
-  factory ExampleTableData.fromJson(Map<String, dynamic> json,
+  factory EspJpnExampleTableData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return ExampleTableData(
+    return EspJpnExampleTableData(
       exampleId: serializer.fromJson<int>(json['exampleId']),
       dictionaryId: serializer.fromJson<int>(json['dictionaryId']),
       exampleNo: serializer.fromJson<int>(json['exampleNo']),
@@ -3473,14 +3478,14 @@ class ExampleTableData extends DataClass
     };
   }
 
-  ExampleTableData copyWith(
+  EspJpnExampleTableData copyWith(
           {int? exampleId,
           int? dictionaryId,
           int? exampleNo,
           String? espanolHtml,
           String? japaneseText,
           String? espanolText}) =>
-      ExampleTableData(
+      EspJpnExampleTableData(
         exampleId: exampleId ?? this.exampleId,
         dictionaryId: dictionaryId ?? this.dictionaryId,
         exampleNo: exampleNo ?? this.exampleNo,
@@ -3488,8 +3493,8 @@ class ExampleTableData extends DataClass
         japaneseText: japaneseText ?? this.japaneseText,
         espanolText: espanolText ?? this.espanolText,
       );
-  ExampleTableData copyWithCompanion(ExamplesCompanion data) {
-    return ExampleTableData(
+  EspJpnExampleTableData copyWithCompanion(EspJpnExamplesCompanion data) {
+    return EspJpnExampleTableData(
       exampleId: data.exampleId.present ? data.exampleId.value : this.exampleId,
       dictionaryId: data.dictionaryId.present
           ? data.dictionaryId.value
@@ -3507,7 +3512,7 @@ class ExampleTableData extends DataClass
 
   @override
   String toString() {
-    return (StringBuffer('ExampleTableData(')
+    return (StringBuffer('EspJpnExampleTableData(')
           ..write('exampleId: $exampleId, ')
           ..write('dictionaryId: $dictionaryId, ')
           ..write('exampleNo: $exampleNo, ')
@@ -3524,7 +3529,7 @@ class ExampleTableData extends DataClass
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is ExampleTableData &&
+      (other is EspJpnExampleTableData &&
           other.exampleId == this.exampleId &&
           other.dictionaryId == this.dictionaryId &&
           other.exampleNo == this.exampleNo &&
@@ -3533,14 +3538,14 @@ class ExampleTableData extends DataClass
           other.espanolText == this.espanolText);
 }
 
-class ExamplesCompanion extends UpdateCompanion<ExampleTableData> {
+class EspJpnExamplesCompanion extends UpdateCompanion<EspJpnExampleTableData> {
   final Value<int> exampleId;
   final Value<int> dictionaryId;
   final Value<int> exampleNo;
   final Value<String> espanolHtml;
   final Value<String> japaneseText;
   final Value<String> espanolText;
-  const ExamplesCompanion({
+  const EspJpnExamplesCompanion({
     this.exampleId = const Value.absent(),
     this.dictionaryId = const Value.absent(),
     this.exampleNo = const Value.absent(),
@@ -3548,7 +3553,7 @@ class ExamplesCompanion extends UpdateCompanion<ExampleTableData> {
     this.japaneseText = const Value.absent(),
     this.espanolText = const Value.absent(),
   });
-  ExamplesCompanion.insert({
+  EspJpnExamplesCompanion.insert({
     this.exampleId = const Value.absent(),
     required int dictionaryId,
     required int exampleNo,
@@ -3560,7 +3565,7 @@ class ExamplesCompanion extends UpdateCompanion<ExampleTableData> {
         espanolHtml = Value(espanolHtml),
         japaneseText = Value(japaneseText),
         espanolText = Value(espanolText);
-  static Insertable<ExampleTableData> custom({
+  static Insertable<EspJpnExampleTableData> custom({
     Expression<int>? exampleId,
     Expression<int>? dictionaryId,
     Expression<int>? exampleNo,
@@ -3578,14 +3583,14 @@ class ExamplesCompanion extends UpdateCompanion<ExampleTableData> {
     });
   }
 
-  ExamplesCompanion copyWith(
+  EspJpnExamplesCompanion copyWith(
       {Value<int>? exampleId,
       Value<int>? dictionaryId,
       Value<int>? exampleNo,
       Value<String>? espanolHtml,
       Value<String>? japaneseText,
       Value<String>? espanolText}) {
-    return ExamplesCompanion(
+    return EspJpnExamplesCompanion(
       exampleId: exampleId ?? this.exampleId,
       dictionaryId: dictionaryId ?? this.dictionaryId,
       exampleNo: exampleNo ?? this.exampleNo,
@@ -3621,7 +3626,7 @@ class ExamplesCompanion extends UpdateCompanion<ExampleTableData> {
 
   @override
   String toString() {
-    return (StringBuffer('ExamplesCompanion(')
+    return (StringBuffer('EspJpnExamplesCompanion(')
           ..write('exampleId: $exampleId, ')
           ..write('dictionaryId: $dictionaryId, ')
           ..write('exampleNo: $exampleNo, ')
@@ -3633,11 +3638,12 @@ class ExamplesCompanion extends UpdateCompanion<ExampleTableData> {
   }
 }
 
-class $IdiomsTable extends Idioms with TableInfo<$IdiomsTable, IdiomTableData> {
+class $EspJpnIdiomsTable extends EspJpnIdioms
+    with TableInfo<$EspJpnIdiomsTable, EspJpnIdiomTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $IdiomsTable(this.attachedDatabase, [this._alias]);
+  $EspJpnIdiomsTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idiomIdMeta =
       const VerificationMeta('idiomId');
   @override
@@ -3676,7 +3682,8 @@ class $IdiomsTable extends Idioms with TableInfo<$IdiomsTable, IdiomTableData> {
   String get actualTableName => $name;
   static const String $name = 'idioms';
   @override
-  VerificationContext validateIntegrity(Insertable<IdiomTableData> instance,
+  VerificationContext validateIntegrity(
+      Insertable<EspJpnIdiomTableData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -3718,9 +3725,9 @@ class $IdiomsTable extends Idioms with TableInfo<$IdiomsTable, IdiomTableData> {
   @override
   Set<GeneratedColumn> get $primaryKey => {idiomId};
   @override
-  IdiomTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+  EspJpnIdiomTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return IdiomTableData(
+    return EspJpnIdiomTableData(
       idiomId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}idiom_id'])!,
       dictionaryId: attachedDatabase.typeMapping
@@ -3735,18 +3742,19 @@ class $IdiomsTable extends Idioms with TableInfo<$IdiomsTable, IdiomTableData> {
   }
 
   @override
-  $IdiomsTable createAlias(String alias) {
-    return $IdiomsTable(attachedDatabase, alias);
+  $EspJpnIdiomsTable createAlias(String alias) {
+    return $EspJpnIdiomsTable(attachedDatabase, alias);
   }
 }
 
-class IdiomTableData extends DataClass implements Insertable<IdiomTableData> {
+class EspJpnIdiomTableData extends DataClass
+    implements Insertable<EspJpnIdiomTableData> {
   final int idiomId;
   final int dictionaryId;
   final int idiomNo;
   final String idiom;
   final String description;
-  const IdiomTableData(
+  const EspJpnIdiomTableData(
       {required this.idiomId,
       required this.dictionaryId,
       required this.idiomNo,
@@ -3763,8 +3771,8 @@ class IdiomTableData extends DataClass implements Insertable<IdiomTableData> {
     return map;
   }
 
-  IdiomsCompanion toCompanion(bool nullToAbsent) {
-    return IdiomsCompanion(
+  EspJpnIdiomsCompanion toCompanion(bool nullToAbsent) {
+    return EspJpnIdiomsCompanion(
       idiomId: Value(idiomId),
       dictionaryId: Value(dictionaryId),
       idiomNo: Value(idiomNo),
@@ -3773,10 +3781,10 @@ class IdiomTableData extends DataClass implements Insertable<IdiomTableData> {
     );
   }
 
-  factory IdiomTableData.fromJson(Map<String, dynamic> json,
+  factory EspJpnIdiomTableData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return IdiomTableData(
+    return EspJpnIdiomTableData(
       idiomId: serializer.fromJson<int>(json['idiomId']),
       dictionaryId: serializer.fromJson<int>(json['dictionaryId']),
       idiomNo: serializer.fromJson<int>(json['idiomNo']),
@@ -3796,21 +3804,21 @@ class IdiomTableData extends DataClass implements Insertable<IdiomTableData> {
     };
   }
 
-  IdiomTableData copyWith(
+  EspJpnIdiomTableData copyWith(
           {int? idiomId,
           int? dictionaryId,
           int? idiomNo,
           String? idiom,
           String? description}) =>
-      IdiomTableData(
+      EspJpnIdiomTableData(
         idiomId: idiomId ?? this.idiomId,
         dictionaryId: dictionaryId ?? this.dictionaryId,
         idiomNo: idiomNo ?? this.idiomNo,
         idiom: idiom ?? this.idiom,
         description: description ?? this.description,
       );
-  IdiomTableData copyWithCompanion(IdiomsCompanion data) {
-    return IdiomTableData(
+  EspJpnIdiomTableData copyWithCompanion(EspJpnIdiomsCompanion data) {
+    return EspJpnIdiomTableData(
       idiomId: data.idiomId.present ? data.idiomId.value : this.idiomId,
       dictionaryId: data.dictionaryId.present
           ? data.dictionaryId.value
@@ -3824,7 +3832,7 @@ class IdiomTableData extends DataClass implements Insertable<IdiomTableData> {
 
   @override
   String toString() {
-    return (StringBuffer('IdiomTableData(')
+    return (StringBuffer('EspJpnIdiomTableData(')
           ..write('idiomId: $idiomId, ')
           ..write('dictionaryId: $dictionaryId, ')
           ..write('idiomNo: $idiomNo, ')
@@ -3840,7 +3848,7 @@ class IdiomTableData extends DataClass implements Insertable<IdiomTableData> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is IdiomTableData &&
+      (other is EspJpnIdiomTableData &&
           other.idiomId == this.idiomId &&
           other.dictionaryId == this.dictionaryId &&
           other.idiomNo == this.idiomNo &&
@@ -3848,20 +3856,20 @@ class IdiomTableData extends DataClass implements Insertable<IdiomTableData> {
           other.description == this.description);
 }
 
-class IdiomsCompanion extends UpdateCompanion<IdiomTableData> {
+class EspJpnIdiomsCompanion extends UpdateCompanion<EspJpnIdiomTableData> {
   final Value<int> idiomId;
   final Value<int> dictionaryId;
   final Value<int> idiomNo;
   final Value<String> idiom;
   final Value<String> description;
-  const IdiomsCompanion({
+  const EspJpnIdiomsCompanion({
     this.idiomId = const Value.absent(),
     this.dictionaryId = const Value.absent(),
     this.idiomNo = const Value.absent(),
     this.idiom = const Value.absent(),
     this.description = const Value.absent(),
   });
-  IdiomsCompanion.insert({
+  EspJpnIdiomsCompanion.insert({
     this.idiomId = const Value.absent(),
     required int dictionaryId,
     required int idiomNo,
@@ -3871,7 +3879,7 @@ class IdiomsCompanion extends UpdateCompanion<IdiomTableData> {
         idiomNo = Value(idiomNo),
         idiom = Value(idiom),
         description = Value(description);
-  static Insertable<IdiomTableData> custom({
+  static Insertable<EspJpnIdiomTableData> custom({
     Expression<int>? idiomId,
     Expression<int>? dictionaryId,
     Expression<int>? idiomNo,
@@ -3887,13 +3895,13 @@ class IdiomsCompanion extends UpdateCompanion<IdiomTableData> {
     });
   }
 
-  IdiomsCompanion copyWith(
+  EspJpnIdiomsCompanion copyWith(
       {Value<int>? idiomId,
       Value<int>? dictionaryId,
       Value<int>? idiomNo,
       Value<String>? idiom,
       Value<String>? description}) {
-    return IdiomsCompanion(
+    return EspJpnIdiomsCompanion(
       idiomId: idiomId ?? this.idiomId,
       dictionaryId: dictionaryId ?? this.dictionaryId,
       idiomNo: idiomNo ?? this.idiomNo,
@@ -3925,7 +3933,7 @@ class IdiomsCompanion extends UpdateCompanion<IdiomTableData> {
 
   @override
   String toString() {
-    return (StringBuffer('IdiomsCompanion(')
+    return (StringBuffer('EspJpnIdiomsCompanion(')
           ..write('idiomId: $idiomId, ')
           ..write('dictionaryId: $dictionaryId, ')
           ..write('idiomNo: $idiomNo, ')
@@ -4502,12 +4510,12 @@ class RankingsCompanion extends UpdateCompanion<RankingTableData> {
   }
 }
 
-class $SupplementsTable extends Supplements
-    with TableInfo<$SupplementsTable, SupplementTableData> {
+class $EspJpnSupplementsTable extends EspJpnSupplements
+    with TableInfo<$EspJpnSupplementsTable, EspJpnSupplementTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $SupplementsTable(this.attachedDatabase, [this._alias]);
+  $EspJpnSupplementsTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _supplementIdMeta =
       const VerificationMeta('supplementId');
   @override
@@ -4548,7 +4556,7 @@ class $SupplementsTable extends Supplements
   static const String $name = 'supplements';
   @override
   VerificationContext validateIntegrity(
-      Insertable<SupplementTableData> instance,
+      Insertable<EspJpnSupplementTableData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -4590,9 +4598,10 @@ class $SupplementsTable extends Supplements
   @override
   Set<GeneratedColumn> get $primaryKey => {supplementId};
   @override
-  SupplementTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+  EspJpnSupplementTableData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return SupplementTableData(
+    return EspJpnSupplementTableData(
       supplementId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}supplement_id'])!,
       dictionaryId: attachedDatabase.typeMapping
@@ -4607,19 +4616,19 @@ class $SupplementsTable extends Supplements
   }
 
   @override
-  $SupplementsTable createAlias(String alias) {
-    return $SupplementsTable(attachedDatabase, alias);
+  $EspJpnSupplementsTable createAlias(String alias) {
+    return $EspJpnSupplementsTable(attachedDatabase, alias);
   }
 }
 
-class SupplementTableData extends DataClass
-    implements Insertable<SupplementTableData> {
+class EspJpnSupplementTableData extends DataClass
+    implements Insertable<EspJpnSupplementTableData> {
   final int supplementId;
   final int dictionaryId;
   final int supplementNo;
   final String content;
   final String? exampleId;
-  const SupplementTableData(
+  const EspJpnSupplementTableData(
       {required this.supplementId,
       required this.dictionaryId,
       required this.supplementNo,
@@ -4638,8 +4647,8 @@ class SupplementTableData extends DataClass
     return map;
   }
 
-  SupplementsCompanion toCompanion(bool nullToAbsent) {
-    return SupplementsCompanion(
+  EspJpnSupplementsCompanion toCompanion(bool nullToAbsent) {
+    return EspJpnSupplementsCompanion(
       supplementId: Value(supplementId),
       dictionaryId: Value(dictionaryId),
       supplementNo: Value(supplementNo),
@@ -4650,10 +4659,10 @@ class SupplementTableData extends DataClass
     );
   }
 
-  factory SupplementTableData.fromJson(Map<String, dynamic> json,
+  factory EspJpnSupplementTableData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return SupplementTableData(
+    return EspJpnSupplementTableData(
       supplementId: serializer.fromJson<int>(json['supplementId']),
       dictionaryId: serializer.fromJson<int>(json['dictionaryId']),
       supplementNo: serializer.fromJson<int>(json['supplementNo']),
@@ -4673,21 +4682,21 @@ class SupplementTableData extends DataClass
     };
   }
 
-  SupplementTableData copyWith(
+  EspJpnSupplementTableData copyWith(
           {int? supplementId,
           int? dictionaryId,
           int? supplementNo,
           String? content,
           Value<String?> exampleId = const Value.absent()}) =>
-      SupplementTableData(
+      EspJpnSupplementTableData(
         supplementId: supplementId ?? this.supplementId,
         dictionaryId: dictionaryId ?? this.dictionaryId,
         supplementNo: supplementNo ?? this.supplementNo,
         content: content ?? this.content,
         exampleId: exampleId.present ? exampleId.value : this.exampleId,
       );
-  SupplementTableData copyWithCompanion(SupplementsCompanion data) {
-    return SupplementTableData(
+  EspJpnSupplementTableData copyWithCompanion(EspJpnSupplementsCompanion data) {
+    return EspJpnSupplementTableData(
       supplementId: data.supplementId.present
           ? data.supplementId.value
           : this.supplementId,
@@ -4704,7 +4713,7 @@ class SupplementTableData extends DataClass
 
   @override
   String toString() {
-    return (StringBuffer('SupplementTableData(')
+    return (StringBuffer('EspJpnSupplementTableData(')
           ..write('supplementId: $supplementId, ')
           ..write('dictionaryId: $dictionaryId, ')
           ..write('supplementNo: $supplementNo, ')
@@ -4720,7 +4729,7 @@ class SupplementTableData extends DataClass
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is SupplementTableData &&
+      (other is EspJpnSupplementTableData &&
           other.supplementId == this.supplementId &&
           other.dictionaryId == this.dictionaryId &&
           other.supplementNo == this.supplementNo &&
@@ -4728,20 +4737,21 @@ class SupplementTableData extends DataClass
           other.exampleId == this.exampleId);
 }
 
-class SupplementsCompanion extends UpdateCompanion<SupplementTableData> {
+class EspJpnSupplementsCompanion
+    extends UpdateCompanion<EspJpnSupplementTableData> {
   final Value<int> supplementId;
   final Value<int> dictionaryId;
   final Value<int> supplementNo;
   final Value<String> content;
   final Value<String?> exampleId;
-  const SupplementsCompanion({
+  const EspJpnSupplementsCompanion({
     this.supplementId = const Value.absent(),
     this.dictionaryId = const Value.absent(),
     this.supplementNo = const Value.absent(),
     this.content = const Value.absent(),
     this.exampleId = const Value.absent(),
   });
-  SupplementsCompanion.insert({
+  EspJpnSupplementsCompanion.insert({
     this.supplementId = const Value.absent(),
     required int dictionaryId,
     required int supplementNo,
@@ -4750,7 +4760,7 @@ class SupplementsCompanion extends UpdateCompanion<SupplementTableData> {
   })  : dictionaryId = Value(dictionaryId),
         supplementNo = Value(supplementNo),
         content = Value(content);
-  static Insertable<SupplementTableData> custom({
+  static Insertable<EspJpnSupplementTableData> custom({
     Expression<int>? supplementId,
     Expression<int>? dictionaryId,
     Expression<int>? supplementNo,
@@ -4766,13 +4776,13 @@ class SupplementsCompanion extends UpdateCompanion<SupplementTableData> {
     });
   }
 
-  SupplementsCompanion copyWith(
+  EspJpnSupplementsCompanion copyWith(
       {Value<int>? supplementId,
       Value<int>? dictionaryId,
       Value<int>? supplementNo,
       Value<String>? content,
       Value<String?>? exampleId}) {
-    return SupplementsCompanion(
+    return EspJpnSupplementsCompanion(
       supplementId: supplementId ?? this.supplementId,
       dictionaryId: dictionaryId ?? this.dictionaryId,
       supplementNo: supplementNo ?? this.supplementNo,
@@ -4804,7 +4814,7 @@ class SupplementsCompanion extends UpdateCompanion<SupplementTableData> {
 
   @override
   String toString() {
-    return (StringBuffer('SupplementsCompanion(')
+    return (StringBuffer('EspJpnSupplementsCompanion(')
           ..write('supplementId: $supplementId, ')
           ..write('dictionaryId: $dictionaryId, ')
           ..write('supplementNo: $supplementNo, ')
@@ -4815,11 +4825,12 @@ class SupplementsCompanion extends UpdateCompanion<SupplementTableData> {
   }
 }
 
-class $WordsTable extends Words with TableInfo<$WordsTable, WordTableData> {
+class $EspJpnWordsTable extends EspJpnWords
+    with TableInfo<$EspJpnWordsTable, EspJpnWordTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $WordsTable(this.attachedDatabase, [this._alias]);
+  $EspJpnWordsTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _wordIdMeta = const VerificationMeta('wordId');
   @override
   late final GeneratedColumn<int> wordId = GeneratedColumn<int>(
@@ -4851,7 +4862,8 @@ class $WordsTable extends Words with TableInfo<$WordsTable, WordTableData> {
   String get actualTableName => $name;
   static const String $name = 'words';
   @override
-  VerificationContext validateIntegrity(Insertable<WordTableData> instance,
+  VerificationContext validateIntegrity(
+      Insertable<EspJpnWordTableData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -4883,9 +4895,9 @@ class $WordsTable extends Words with TableInfo<$WordsTable, WordTableData> {
   @override
   Set<GeneratedColumn> get $primaryKey => {wordId};
   @override
-  WordTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+  EspJpnWordTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return WordTableData(
+    return EspJpnWordTableData(
       wordId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}word_id'])!,
       word: attachedDatabase.typeMapping
@@ -4898,17 +4910,18 @@ class $WordsTable extends Words with TableInfo<$WordsTable, WordTableData> {
   }
 
   @override
-  $WordsTable createAlias(String alias) {
-    return $WordsTable(attachedDatabase, alias);
+  $EspJpnWordsTable createAlias(String alias) {
+    return $EspJpnWordsTable(attachedDatabase, alias);
   }
 }
 
-class WordTableData extends DataClass implements Insertable<WordTableData> {
+class EspJpnWordTableData extends DataClass
+    implements Insertable<EspJpnWordTableData> {
   final int wordId;
   final String word;
   final String? partOfSpeech;
   final String? partOfSpeechMark;
-  const WordTableData(
+  const EspJpnWordTableData(
       {required this.wordId,
       required this.word,
       this.partOfSpeech,
@@ -4927,8 +4940,8 @@ class WordTableData extends DataClass implements Insertable<WordTableData> {
     return map;
   }
 
-  WordsCompanion toCompanion(bool nullToAbsent) {
-    return WordsCompanion(
+  EspJpnWordsCompanion toCompanion(bool nullToAbsent) {
+    return EspJpnWordsCompanion(
       wordId: Value(wordId),
       word: Value(word),
       partOfSpeech: partOfSpeech == null && nullToAbsent
@@ -4940,10 +4953,10 @@ class WordTableData extends DataClass implements Insertable<WordTableData> {
     );
   }
 
-  factory WordTableData.fromJson(Map<String, dynamic> json,
+  factory EspJpnWordTableData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return WordTableData(
+    return EspJpnWordTableData(
       wordId: serializer.fromJson<int>(json['wordId']),
       word: serializer.fromJson<String>(json['word']),
       partOfSpeech: serializer.fromJson<String?>(json['partOfSpeech']),
@@ -4961,12 +4974,12 @@ class WordTableData extends DataClass implements Insertable<WordTableData> {
     };
   }
 
-  WordTableData copyWith(
+  EspJpnWordTableData copyWith(
           {int? wordId,
           String? word,
           Value<String?> partOfSpeech = const Value.absent(),
           Value<String?> partOfSpeechMark = const Value.absent()}) =>
-      WordTableData(
+      EspJpnWordTableData(
         wordId: wordId ?? this.wordId,
         word: word ?? this.word,
         partOfSpeech:
@@ -4975,8 +4988,8 @@ class WordTableData extends DataClass implements Insertable<WordTableData> {
             ? partOfSpeechMark.value
             : this.partOfSpeechMark,
       );
-  WordTableData copyWithCompanion(WordsCompanion data) {
-    return WordTableData(
+  EspJpnWordTableData copyWithCompanion(EspJpnWordsCompanion data) {
+    return EspJpnWordTableData(
       wordId: data.wordId.present ? data.wordId.value : this.wordId,
       word: data.word.present ? data.word.value : this.word,
       partOfSpeech: data.partOfSpeech.present
@@ -4990,7 +5003,7 @@ class WordTableData extends DataClass implements Insertable<WordTableData> {
 
   @override
   String toString() {
-    return (StringBuffer('WordTableData(')
+    return (StringBuffer('EspJpnWordTableData(')
           ..write('wordId: $wordId, ')
           ..write('word: $word, ')
           ..write('partOfSpeech: $partOfSpeech, ')
@@ -5004,31 +5017,31 @@ class WordTableData extends DataClass implements Insertable<WordTableData> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is WordTableData &&
+      (other is EspJpnWordTableData &&
           other.wordId == this.wordId &&
           other.word == this.word &&
           other.partOfSpeech == this.partOfSpeech &&
           other.partOfSpeechMark == this.partOfSpeechMark);
 }
 
-class WordsCompanion extends UpdateCompanion<WordTableData> {
+class EspJpnWordsCompanion extends UpdateCompanion<EspJpnWordTableData> {
   final Value<int> wordId;
   final Value<String> word;
   final Value<String?> partOfSpeech;
   final Value<String?> partOfSpeechMark;
-  const WordsCompanion({
+  const EspJpnWordsCompanion({
     this.wordId = const Value.absent(),
     this.word = const Value.absent(),
     this.partOfSpeech = const Value.absent(),
     this.partOfSpeechMark = const Value.absent(),
   });
-  WordsCompanion.insert({
+  EspJpnWordsCompanion.insert({
     this.wordId = const Value.absent(),
     required String word,
     this.partOfSpeech = const Value.absent(),
     this.partOfSpeechMark = const Value.absent(),
   }) : word = Value(word);
-  static Insertable<WordTableData> custom({
+  static Insertable<EspJpnWordTableData> custom({
     Expression<int>? wordId,
     Expression<String>? word,
     Expression<String>? partOfSpeech,
@@ -5042,12 +5055,12 @@ class WordsCompanion extends UpdateCompanion<WordTableData> {
     });
   }
 
-  WordsCompanion copyWith(
+  EspJpnWordsCompanion copyWith(
       {Value<int>? wordId,
       Value<String>? word,
       Value<String?>? partOfSpeech,
       Value<String?>? partOfSpeechMark}) {
-    return WordsCompanion(
+    return EspJpnWordsCompanion(
       wordId: wordId ?? this.wordId,
       word: word ?? this.word,
       partOfSpeech: partOfSpeech ?? this.partOfSpeech,
@@ -5075,7 +5088,7 @@ class WordsCompanion extends UpdateCompanion<WordTableData> {
 
   @override
   String toString() {
-    return (StringBuffer('WordsCompanion(')
+    return (StringBuffer('EspJpnWordsCompanion(')
           ..write('wordId: $wordId, ')
           ..write('word: $word, ')
           ..write('partOfSpeech: $partOfSpeech, ')
@@ -5085,12 +5098,12 @@ class WordsCompanion extends UpdateCompanion<WordTableData> {
   }
 }
 
-class $WordStatusTable extends WordStatus
-    with TableInfo<$WordStatusTable, WordStatusTableData> {
+class $EspJpnWordStatusTable extends EspJpnWordStatus
+    with TableInfo<$EspJpnWordStatusTable, EspJpnWordStatusTableData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $WordStatusTable(this.attachedDatabase, [this._alias]);
+  $EspJpnWordStatusTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _wordIdMeta = const VerificationMeta('wordId');
   @override
   late final GeneratedColumn<int> wordId = GeneratedColumn<int>(
@@ -5129,7 +5142,7 @@ class $WordStatusTable extends WordStatus
   static const String $name = 'word_status';
   @override
   VerificationContext validateIntegrity(
-      Insertable<WordStatusTableData> instance,
+      Insertable<EspJpnWordStatusTableData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -5163,9 +5176,10 @@ class $WordStatusTable extends WordStatus
   @override
   Set<GeneratedColumn> get $primaryKey => {wordId};
   @override
-  WordStatusTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+  EspJpnWordStatusTableData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return WordStatusTableData(
+    return EspJpnWordStatusTableData(
       wordId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}word_id'])!,
       isLearned: attachedDatabase.typeMapping
@@ -5180,19 +5194,19 @@ class $WordStatusTable extends WordStatus
   }
 
   @override
-  $WordStatusTable createAlias(String alias) {
-    return $WordStatusTable(attachedDatabase, alias);
+  $EspJpnWordStatusTable createAlias(String alias) {
+    return $EspJpnWordStatusTable(attachedDatabase, alias);
   }
 }
 
-class WordStatusTableData extends DataClass
-    implements Insertable<WordStatusTableData> {
+class EspJpnWordStatusTableData extends DataClass
+    implements Insertable<EspJpnWordStatusTableData> {
   final int wordId;
   final int? isLearned;
   final int? isBookmarked;
   final int? hasNote;
   final String editAt;
-  const WordStatusTableData(
+  const EspJpnWordStatusTableData(
       {required this.wordId,
       this.isLearned,
       this.isBookmarked,
@@ -5215,8 +5229,8 @@ class WordStatusTableData extends DataClass
     return map;
   }
 
-  WordStatusCompanion toCompanion(bool nullToAbsent) {
-    return WordStatusCompanion(
+  EspJpnWordStatusCompanion toCompanion(bool nullToAbsent) {
+    return EspJpnWordStatusCompanion(
       wordId: Value(wordId),
       isLearned: isLearned == null && nullToAbsent
           ? const Value.absent()
@@ -5231,10 +5245,10 @@ class WordStatusTableData extends DataClass
     );
   }
 
-  factory WordStatusTableData.fromJson(Map<String, dynamic> json,
+  factory EspJpnWordStatusTableData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return WordStatusTableData(
+    return EspJpnWordStatusTableData(
       wordId: serializer.fromJson<int>(json['wordId']),
       isLearned: serializer.fromJson<int?>(json['isLearned']),
       isBookmarked: serializer.fromJson<int?>(json['isBookmarked']),
@@ -5254,13 +5268,13 @@ class WordStatusTableData extends DataClass
     };
   }
 
-  WordStatusTableData copyWith(
+  EspJpnWordStatusTableData copyWith(
           {int? wordId,
           Value<int?> isLearned = const Value.absent(),
           Value<int?> isBookmarked = const Value.absent(),
           Value<int?> hasNote = const Value.absent(),
           String? editAt}) =>
-      WordStatusTableData(
+      EspJpnWordStatusTableData(
         wordId: wordId ?? this.wordId,
         isLearned: isLearned.present ? isLearned.value : this.isLearned,
         isBookmarked:
@@ -5268,8 +5282,8 @@ class WordStatusTableData extends DataClass
         hasNote: hasNote.present ? hasNote.value : this.hasNote,
         editAt: editAt ?? this.editAt,
       );
-  WordStatusTableData copyWithCompanion(WordStatusCompanion data) {
-    return WordStatusTableData(
+  EspJpnWordStatusTableData copyWithCompanion(EspJpnWordStatusCompanion data) {
+    return EspJpnWordStatusTableData(
       wordId: data.wordId.present ? data.wordId.value : this.wordId,
       isLearned: data.isLearned.present ? data.isLearned.value : this.isLearned,
       isBookmarked: data.isBookmarked.present
@@ -5282,7 +5296,7 @@ class WordStatusTableData extends DataClass
 
   @override
   String toString() {
-    return (StringBuffer('WordStatusTableData(')
+    return (StringBuffer('EspJpnWordStatusTableData(')
           ..write('wordId: $wordId, ')
           ..write('isLearned: $isLearned, ')
           ..write('isBookmarked: $isBookmarked, ')
@@ -5298,7 +5312,7 @@ class WordStatusTableData extends DataClass
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is WordStatusTableData &&
+      (other is EspJpnWordStatusTableData &&
           other.wordId == this.wordId &&
           other.isLearned == this.isLearned &&
           other.isBookmarked == this.isBookmarked &&
@@ -5306,27 +5320,28 @@ class WordStatusTableData extends DataClass
           other.editAt == this.editAt);
 }
 
-class WordStatusCompanion extends UpdateCompanion<WordStatusTableData> {
+class EspJpnWordStatusCompanion
+    extends UpdateCompanion<EspJpnWordStatusTableData> {
   final Value<int> wordId;
   final Value<int?> isLearned;
   final Value<int?> isBookmarked;
   final Value<int?> hasNote;
   final Value<String> editAt;
-  const WordStatusCompanion({
+  const EspJpnWordStatusCompanion({
     this.wordId = const Value.absent(),
     this.isLearned = const Value.absent(),
     this.isBookmarked = const Value.absent(),
     this.hasNote = const Value.absent(),
     this.editAt = const Value.absent(),
   });
-  WordStatusCompanion.insert({
+  EspJpnWordStatusCompanion.insert({
     this.wordId = const Value.absent(),
     this.isLearned = const Value.absent(),
     this.isBookmarked = const Value.absent(),
     this.hasNote = const Value.absent(),
     required String editAt,
   }) : editAt = Value(editAt);
-  static Insertable<WordStatusTableData> custom({
+  static Insertable<EspJpnWordStatusTableData> custom({
     Expression<int>? wordId,
     Expression<int>? isLearned,
     Expression<int>? isBookmarked,
@@ -5342,13 +5357,13 @@ class WordStatusCompanion extends UpdateCompanion<WordStatusTableData> {
     });
   }
 
-  WordStatusCompanion copyWith(
+  EspJpnWordStatusCompanion copyWith(
       {Value<int>? wordId,
       Value<int?>? isLearned,
       Value<int?>? isBookmarked,
       Value<int?>? hasNote,
       Value<String>? editAt}) {
-    return WordStatusCompanion(
+    return EspJpnWordStatusCompanion(
       wordId: wordId ?? this.wordId,
       isLearned: isLearned ?? this.isLearned,
       isBookmarked: isBookmarked ?? this.isBookmarked,
@@ -5380,7 +5395,7 @@ class WordStatusCompanion extends UpdateCompanion<WordStatusTableData> {
 
   @override
   String toString() {
-    return (StringBuffer('WordStatusCompanion(')
+    return (StringBuffer('EspJpnWordStatusCompanion(')
           ..write('wordId: $wordId, ')
           ..write('isLearned: $isLearned, ')
           ..write('isBookmarked: $isBookmarked, ')
@@ -7568,16 +7583,20 @@ class EsEnConjugacionsCompanion
 abstract class _$DatabaseProvider extends GeneratedDatabase {
   _$DatabaseProvider(QueryExecutor e) : super(e);
   $DatabaseProviderManager get managers => $DatabaseProviderManager(this);
-  late final $ConjugationsTable conjugations = $ConjugationsTable(this);
-  late final $DictionariesTable dictionaries = $DictionariesTable(this);
-  late final $ExamplesTable examples = $ExamplesTable(this);
-  late final $IdiomsTable idioms = $IdiomsTable(this);
+  late final $EspConjugationsTable espConjugations =
+      $EspConjugationsTable(this);
+  late final $EspJpnDictionariesTable espJpnDictionaries =
+      $EspJpnDictionariesTable(this);
+  late final $EspJpnExamplesTable espJpnExamples = $EspJpnExamplesTable(this);
+  late final $EspJpnIdiomsTable espJpnIdioms = $EspJpnIdiomsTable(this);
   late final $PartOfSpeechListsTable partOfSpeechLists =
       $PartOfSpeechListsTable(this);
   late final $RankingsTable rankings = $RankingsTable(this);
-  late final $SupplementsTable supplements = $SupplementsTable(this);
-  late final $WordsTable words = $WordsTable(this);
-  late final $WordStatusTable wordStatus = $WordStatusTable(this);
+  late final $EspJpnSupplementsTable espJpnSupplements =
+      $EspJpnSupplementsTable(this);
+  late final $EspJpnWordsTable espJpnWords = $EspJpnWordsTable(this);
+  late final $EspJpnWordStatusTable espJpnWordStatus =
+      $EspJpnWordStatusTable(this);
   late final $MyWordsTable myWords = $MyWordsTable(this);
   late final $MyWordStatusTable myWordStatus = $MyWordStatusTable(this);
   late final $JpnEspWordsTable jpnEspWords = $JpnEspWordsTable(this);
@@ -7588,7 +7607,8 @@ abstract class _$DatabaseProvider extends GeneratedDatabase {
   late final $JpnEspExamplesTable jpnEspExamples = $JpnEspExamplesTable(this);
   late final $EsEnConjugacionsTable esEnConjugacions =
       $EsEnConjugacionsTable(this);
-  late final WordDao wordDao = WordDao(this as DatabaseProvider);
+  late final EspJpnWordDao espJpnWordDao =
+      EspJpnWordDao(this as DatabaseProvider);
   late final RankingDao rankingDao = RankingDao(this as DatabaseProvider);
   late final PartOfSpeechListDao partOfSpeechListDao =
       PartOfSpeechListDao(this as DatabaseProvider);
@@ -7602,15 +7622,15 @@ abstract class _$DatabaseProvider extends GeneratedDatabase {
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
-        conjugations,
-        dictionaries,
-        examples,
-        idioms,
+        espConjugations,
+        espJpnDictionaries,
+        espJpnExamples,
+        espJpnIdioms,
         partOfSpeechLists,
         rankings,
-        supplements,
-        words,
-        wordStatus,
+        espJpnSupplements,
+        espJpnWords,
+        espJpnWordStatus,
         myWords,
         myWordStatus,
         jpnEspWords,
@@ -7621,13 +7641,13 @@ abstract class _$DatabaseProvider extends GeneratedDatabase {
       ];
 }
 
-typedef $$ConjugationsTableCreateCompanionBuilder = ConjugationsCompanion
+typedef $$EspConjugationsTableCreateCompanionBuilder = EspConjugationsCompanion
     Function({
   Value<int> wordId,
   required String word,
   Value<String?> meaning,
   Value<String?> presentParticiple,
-  Value<String?> prastParticiple,
+  Value<String?> pastParticiple,
   Value<String?> indicativePresentYo,
   Value<String?> indicativePresentTu,
   Value<String?> indicativePresentEl,
@@ -7676,13 +7696,13 @@ typedef $$ConjugationsTableCreateCompanionBuilder = ConjugationsCompanion
   Value<String?> subjunctivePastVosotros,
   Value<String?> subjunctivePastEllos,
 });
-typedef $$ConjugationsTableUpdateCompanionBuilder = ConjugationsCompanion
+typedef $$EspConjugationsTableUpdateCompanionBuilder = EspConjugationsCompanion
     Function({
   Value<int> wordId,
   Value<String> word,
   Value<String?> meaning,
   Value<String?> presentParticiple,
-  Value<String?> prastParticiple,
+  Value<String?> pastParticiple,
   Value<String?> indicativePresentYo,
   Value<String?> indicativePresentTu,
   Value<String?> indicativePresentEl,
@@ -7732,9 +7752,9 @@ typedef $$ConjugationsTableUpdateCompanionBuilder = ConjugationsCompanion
   Value<String?> subjunctivePastEllos,
 });
 
-class $$ConjugationsTableFilterComposer
-    extends Composer<_$DatabaseProvider, $ConjugationsTable> {
-  $$ConjugationsTableFilterComposer({
+class $$EspConjugationsTableFilterComposer
+    extends Composer<_$DatabaseProvider, $EspConjugationsTable> {
+  $$EspConjugationsTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -7754,8 +7774,8 @@ class $$ConjugationsTableFilterComposer
       column: $table.presentParticiple,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get prastParticiple => $composableBuilder(
-      column: $table.prastParticiple,
+  ColumnFilters<String> get pastParticiple => $composableBuilder(
+      column: $table.pastParticiple,
       builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get indicativePresentYo => $composableBuilder(
@@ -7945,9 +7965,9 @@ class $$ConjugationsTableFilterComposer
       builder: (column) => ColumnFilters(column));
 }
 
-class $$ConjugationsTableOrderingComposer
-    extends Composer<_$DatabaseProvider, $ConjugationsTable> {
-  $$ConjugationsTableOrderingComposer({
+class $$EspConjugationsTableOrderingComposer
+    extends Composer<_$DatabaseProvider, $EspConjugationsTable> {
+  $$EspConjugationsTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -7967,8 +7987,8 @@ class $$ConjugationsTableOrderingComposer
       column: $table.presentParticiple,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get prastParticiple => $composableBuilder(
-      column: $table.prastParticiple,
+  ColumnOrderings<String> get pastParticiple => $composableBuilder(
+      column: $table.pastParticiple,
       builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get indicativePresentYo => $composableBuilder(
@@ -8162,9 +8182,9 @@ class $$ConjugationsTableOrderingComposer
       builder: (column) => ColumnOrderings(column));
 }
 
-class $$ConjugationsTableAnnotationComposer
-    extends Composer<_$DatabaseProvider, $ConjugationsTable> {
-  $$ConjugationsTableAnnotationComposer({
+class $$EspConjugationsTableAnnotationComposer
+    extends Composer<_$DatabaseProvider, $EspConjugationsTable> {
+  $$EspConjugationsTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -8183,8 +8203,8 @@ class $$ConjugationsTableAnnotationComposer
   GeneratedColumn<String> get presentParticiple => $composableBuilder(
       column: $table.presentParticiple, builder: (column) => column);
 
-  GeneratedColumn<String> get prastParticiple => $composableBuilder(
-      column: $table.prastParticiple, builder: (column) => column);
+  GeneratedColumn<String> get pastParticiple => $composableBuilder(
+      column: $table.pastParticiple, builder: (column) => column);
 
   GeneratedColumn<String> get indicativePresentYo => $composableBuilder(
       column: $table.indicativePresentYo, builder: (column) => column);
@@ -8332,39 +8352,39 @@ class $$ConjugationsTableAnnotationComposer
       column: $table.subjunctivePastEllos, builder: (column) => column);
 }
 
-class $$ConjugationsTableTableManager extends RootTableManager<
+class $$EspConjugationsTableTableManager extends RootTableManager<
     _$DatabaseProvider,
-    $ConjugationsTable,
-    ConjugationTableData,
-    $$ConjugationsTableFilterComposer,
-    $$ConjugationsTableOrderingComposer,
-    $$ConjugationsTableAnnotationComposer,
-    $$ConjugationsTableCreateCompanionBuilder,
-    $$ConjugationsTableUpdateCompanionBuilder,
+    $EspConjugationsTable,
+    EspConjugationTableData,
+    $$EspConjugationsTableFilterComposer,
+    $$EspConjugationsTableOrderingComposer,
+    $$EspConjugationsTableAnnotationComposer,
+    $$EspConjugationsTableCreateCompanionBuilder,
+    $$EspConjugationsTableUpdateCompanionBuilder,
     (
-      ConjugationTableData,
-      BaseReferences<_$DatabaseProvider, $ConjugationsTable,
-          ConjugationTableData>
+      EspConjugationTableData,
+      BaseReferences<_$DatabaseProvider, $EspConjugationsTable,
+          EspConjugationTableData>
     ),
-    ConjugationTableData,
+    EspConjugationTableData,
     PrefetchHooks Function()> {
-  $$ConjugationsTableTableManager(
-      _$DatabaseProvider db, $ConjugationsTable table)
+  $$EspConjugationsTableTableManager(
+      _$DatabaseProvider db, $EspConjugationsTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$ConjugationsTableFilterComposer($db: db, $table: table),
+              $$EspConjugationsTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$ConjugationsTableOrderingComposer($db: db, $table: table),
+              $$EspConjugationsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$ConjugationsTableAnnotationComposer($db: db, $table: table),
+              $$EspConjugationsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> wordId = const Value.absent(),
             Value<String> word = const Value.absent(),
             Value<String?> meaning = const Value.absent(),
             Value<String?> presentParticiple = const Value.absent(),
-            Value<String?> prastParticiple = const Value.absent(),
+            Value<String?> pastParticiple = const Value.absent(),
             Value<String?> indicativePresentYo = const Value.absent(),
             Value<String?> indicativePresentTu = const Value.absent(),
             Value<String?> indicativePresentEl = const Value.absent(),
@@ -8413,12 +8433,12 @@ class $$ConjugationsTableTableManager extends RootTableManager<
             Value<String?> subjunctivePastVosotros = const Value.absent(),
             Value<String?> subjunctivePastEllos = const Value.absent(),
           }) =>
-              ConjugationsCompanion(
+              EspConjugationsCompanion(
             wordId: wordId,
             word: word,
             meaning: meaning,
             presentParticiple: presentParticiple,
-            prastParticiple: prastParticiple,
+            pastParticiple: pastParticiple,
             indicativePresentYo: indicativePresentYo,
             indicativePresentTu: indicativePresentTu,
             indicativePresentEl: indicativePresentEl,
@@ -8472,7 +8492,7 @@ class $$ConjugationsTableTableManager extends RootTableManager<
             required String word,
             Value<String?> meaning = const Value.absent(),
             Value<String?> presentParticiple = const Value.absent(),
-            Value<String?> prastParticiple = const Value.absent(),
+            Value<String?> pastParticiple = const Value.absent(),
             Value<String?> indicativePresentYo = const Value.absent(),
             Value<String?> indicativePresentTu = const Value.absent(),
             Value<String?> indicativePresentEl = const Value.absent(),
@@ -8521,12 +8541,12 @@ class $$ConjugationsTableTableManager extends RootTableManager<
             Value<String?> subjunctivePastVosotros = const Value.absent(),
             Value<String?> subjunctivePastEllos = const Value.absent(),
           }) =>
-              ConjugationsCompanion.insert(
+              EspConjugationsCompanion.insert(
             wordId: wordId,
             word: word,
             meaning: meaning,
             presentParticiple: presentParticiple,
-            prastParticiple: prastParticiple,
+            pastParticiple: pastParticiple,
             indicativePresentYo: indicativePresentYo,
             indicativePresentTu: indicativePresentTu,
             indicativePresentEl: indicativePresentEl,
@@ -8582,24 +8602,24 @@ class $$ConjugationsTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$ConjugationsTableProcessedTableManager = ProcessedTableManager<
+typedef $$EspConjugationsTableProcessedTableManager = ProcessedTableManager<
     _$DatabaseProvider,
-    $ConjugationsTable,
-    ConjugationTableData,
-    $$ConjugationsTableFilterComposer,
-    $$ConjugationsTableOrderingComposer,
-    $$ConjugationsTableAnnotationComposer,
-    $$ConjugationsTableCreateCompanionBuilder,
-    $$ConjugationsTableUpdateCompanionBuilder,
+    $EspConjugationsTable,
+    EspConjugationTableData,
+    $$EspConjugationsTableFilterComposer,
+    $$EspConjugationsTableOrderingComposer,
+    $$EspConjugationsTableAnnotationComposer,
+    $$EspConjugationsTableCreateCompanionBuilder,
+    $$EspConjugationsTableUpdateCompanionBuilder,
     (
-      ConjugationTableData,
-      BaseReferences<_$DatabaseProvider, $ConjugationsTable,
-          ConjugationTableData>
+      EspConjugationTableData,
+      BaseReferences<_$DatabaseProvider, $EspConjugationsTable,
+          EspConjugationTableData>
     ),
-    ConjugationTableData,
+    EspConjugationTableData,
     PrefetchHooks Function()>;
-typedef $$DictionariesTableCreateCompanionBuilder = DictionariesCompanion
-    Function({
+typedef $$EspJpnDictionariesTableCreateCompanionBuilder
+    = EspJpnDictionariesCompanion Function({
   Value<int> dictionaryId,
   required int wordId,
   required String word,
@@ -8611,8 +8631,8 @@ typedef $$DictionariesTableCreateCompanionBuilder = DictionariesCompanion
   Value<String?> origin,
   Value<String?> htmlRaw,
 });
-typedef $$DictionariesTableUpdateCompanionBuilder = DictionariesCompanion
-    Function({
+typedef $$EspJpnDictionariesTableUpdateCompanionBuilder
+    = EspJpnDictionariesCompanion Function({
   Value<int> dictionaryId,
   Value<int> wordId,
   Value<String> word,
@@ -8625,9 +8645,9 @@ typedef $$DictionariesTableUpdateCompanionBuilder = DictionariesCompanion
   Value<String?> htmlRaw,
 });
 
-class $$DictionariesTableFilterComposer
-    extends Composer<_$DatabaseProvider, $DictionariesTable> {
-  $$DictionariesTableFilterComposer({
+class $$EspJpnDictionariesTableFilterComposer
+    extends Composer<_$DatabaseProvider, $EspJpnDictionariesTable> {
+  $$EspJpnDictionariesTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -8666,9 +8686,9 @@ class $$DictionariesTableFilterComposer
       column: $table.htmlRaw, builder: (column) => ColumnFilters(column));
 }
 
-class $$DictionariesTableOrderingComposer
-    extends Composer<_$DatabaseProvider, $DictionariesTable> {
-  $$DictionariesTableOrderingComposer({
+class $$EspJpnDictionariesTableOrderingComposer
+    extends Composer<_$DatabaseProvider, $EspJpnDictionariesTable> {
+  $$EspJpnDictionariesTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -8709,9 +8729,9 @@ class $$DictionariesTableOrderingComposer
       column: $table.htmlRaw, builder: (column) => ColumnOrderings(column));
 }
 
-class $$DictionariesTableAnnotationComposer
-    extends Composer<_$DatabaseProvider, $DictionariesTable> {
-  $$DictionariesTableAnnotationComposer({
+class $$EspJpnDictionariesTableAnnotationComposer
+    extends Composer<_$DatabaseProvider, $EspJpnDictionariesTable> {
+  $$EspJpnDictionariesTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -8749,33 +8769,34 @@ class $$DictionariesTableAnnotationComposer
       $composableBuilder(column: $table.htmlRaw, builder: (column) => column);
 }
 
-class $$DictionariesTableTableManager extends RootTableManager<
+class $$EspJpnDictionariesTableTableManager extends RootTableManager<
     _$DatabaseProvider,
-    $DictionariesTable,
-    DictionaryTableData,
-    $$DictionariesTableFilterComposer,
-    $$DictionariesTableOrderingComposer,
-    $$DictionariesTableAnnotationComposer,
-    $$DictionariesTableCreateCompanionBuilder,
-    $$DictionariesTableUpdateCompanionBuilder,
+    $EspJpnDictionariesTable,
+    EspJpnDictionaryTableData,
+    $$EspJpnDictionariesTableFilterComposer,
+    $$EspJpnDictionariesTableOrderingComposer,
+    $$EspJpnDictionariesTableAnnotationComposer,
+    $$EspJpnDictionariesTableCreateCompanionBuilder,
+    $$EspJpnDictionariesTableUpdateCompanionBuilder,
     (
-      DictionaryTableData,
-      BaseReferences<_$DatabaseProvider, $DictionariesTable,
-          DictionaryTableData>
+      EspJpnDictionaryTableData,
+      BaseReferences<_$DatabaseProvider, $EspJpnDictionariesTable,
+          EspJpnDictionaryTableData>
     ),
-    DictionaryTableData,
+    EspJpnDictionaryTableData,
     PrefetchHooks Function()> {
-  $$DictionariesTableTableManager(
-      _$DatabaseProvider db, $DictionariesTable table)
+  $$EspJpnDictionariesTableTableManager(
+      _$DatabaseProvider db, $EspJpnDictionariesTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$DictionariesTableFilterComposer($db: db, $table: table),
+              $$EspJpnDictionariesTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$DictionariesTableOrderingComposer($db: db, $table: table),
+              $$EspJpnDictionariesTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$DictionariesTableAnnotationComposer($db: db, $table: table),
+              $$EspJpnDictionariesTableAnnotationComposer(
+                  $db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> dictionaryId = const Value.absent(),
             Value<int> wordId = const Value.absent(),
@@ -8788,7 +8809,7 @@ class $$DictionariesTableTableManager extends RootTableManager<
             Value<String?> origin = const Value.absent(),
             Value<String?> htmlRaw = const Value.absent(),
           }) =>
-              DictionariesCompanion(
+              EspJpnDictionariesCompanion(
             dictionaryId: dictionaryId,
             wordId: wordId,
             word: word,
@@ -8812,7 +8833,7 @@ class $$DictionariesTableTableManager extends RootTableManager<
             Value<String?> origin = const Value.absent(),
             Value<String?> htmlRaw = const Value.absent(),
           }) =>
-              DictionariesCompanion.insert(
+              EspJpnDictionariesCompanion.insert(
             dictionaryId: dictionaryId,
             wordId: wordId,
             word: word,
@@ -8831,23 +8852,24 @@ class $$DictionariesTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$DictionariesTableProcessedTableManager = ProcessedTableManager<
+typedef $$EspJpnDictionariesTableProcessedTableManager = ProcessedTableManager<
     _$DatabaseProvider,
-    $DictionariesTable,
-    DictionaryTableData,
-    $$DictionariesTableFilterComposer,
-    $$DictionariesTableOrderingComposer,
-    $$DictionariesTableAnnotationComposer,
-    $$DictionariesTableCreateCompanionBuilder,
-    $$DictionariesTableUpdateCompanionBuilder,
+    $EspJpnDictionariesTable,
+    EspJpnDictionaryTableData,
+    $$EspJpnDictionariesTableFilterComposer,
+    $$EspJpnDictionariesTableOrderingComposer,
+    $$EspJpnDictionariesTableAnnotationComposer,
+    $$EspJpnDictionariesTableCreateCompanionBuilder,
+    $$EspJpnDictionariesTableUpdateCompanionBuilder,
     (
-      DictionaryTableData,
-      BaseReferences<_$DatabaseProvider, $DictionariesTable,
-          DictionaryTableData>
+      EspJpnDictionaryTableData,
+      BaseReferences<_$DatabaseProvider, $EspJpnDictionariesTable,
+          EspJpnDictionaryTableData>
     ),
-    DictionaryTableData,
+    EspJpnDictionaryTableData,
     PrefetchHooks Function()>;
-typedef $$ExamplesTableCreateCompanionBuilder = ExamplesCompanion Function({
+typedef $$EspJpnExamplesTableCreateCompanionBuilder = EspJpnExamplesCompanion
+    Function({
   Value<int> exampleId,
   required int dictionaryId,
   required int exampleNo,
@@ -8855,7 +8877,8 @@ typedef $$ExamplesTableCreateCompanionBuilder = ExamplesCompanion Function({
   required String japaneseText,
   required String espanolText,
 });
-typedef $$ExamplesTableUpdateCompanionBuilder = ExamplesCompanion Function({
+typedef $$EspJpnExamplesTableUpdateCompanionBuilder = EspJpnExamplesCompanion
+    Function({
   Value<int> exampleId,
   Value<int> dictionaryId,
   Value<int> exampleNo,
@@ -8864,9 +8887,9 @@ typedef $$ExamplesTableUpdateCompanionBuilder = ExamplesCompanion Function({
   Value<String> espanolText,
 });
 
-class $$ExamplesTableFilterComposer
-    extends Composer<_$DatabaseProvider, $ExamplesTable> {
-  $$ExamplesTableFilterComposer({
+class $$EspJpnExamplesTableFilterComposer
+    extends Composer<_$DatabaseProvider, $EspJpnExamplesTable> {
+  $$EspJpnExamplesTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -8892,9 +8915,9 @@ class $$ExamplesTableFilterComposer
       column: $table.espanolText, builder: (column) => ColumnFilters(column));
 }
 
-class $$ExamplesTableOrderingComposer
-    extends Composer<_$DatabaseProvider, $ExamplesTable> {
-  $$ExamplesTableOrderingComposer({
+class $$EspJpnExamplesTableOrderingComposer
+    extends Composer<_$DatabaseProvider, $EspJpnExamplesTable> {
+  $$EspJpnExamplesTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -8922,9 +8945,9 @@ class $$ExamplesTableOrderingComposer
       column: $table.espanolText, builder: (column) => ColumnOrderings(column));
 }
 
-class $$ExamplesTableAnnotationComposer
-    extends Composer<_$DatabaseProvider, $ExamplesTable> {
-  $$ExamplesTableAnnotationComposer({
+class $$EspJpnExamplesTableAnnotationComposer
+    extends Composer<_$DatabaseProvider, $EspJpnExamplesTable> {
+  $$EspJpnExamplesTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -8950,31 +8973,33 @@ class $$ExamplesTableAnnotationComposer
       column: $table.espanolText, builder: (column) => column);
 }
 
-class $$ExamplesTableTableManager extends RootTableManager<
+class $$EspJpnExamplesTableTableManager extends RootTableManager<
     _$DatabaseProvider,
-    $ExamplesTable,
-    ExampleTableData,
-    $$ExamplesTableFilterComposer,
-    $$ExamplesTableOrderingComposer,
-    $$ExamplesTableAnnotationComposer,
-    $$ExamplesTableCreateCompanionBuilder,
-    $$ExamplesTableUpdateCompanionBuilder,
+    $EspJpnExamplesTable,
+    EspJpnExampleTableData,
+    $$EspJpnExamplesTableFilterComposer,
+    $$EspJpnExamplesTableOrderingComposer,
+    $$EspJpnExamplesTableAnnotationComposer,
+    $$EspJpnExamplesTableCreateCompanionBuilder,
+    $$EspJpnExamplesTableUpdateCompanionBuilder,
     (
-      ExampleTableData,
-      BaseReferences<_$DatabaseProvider, $ExamplesTable, ExampleTableData>
+      EspJpnExampleTableData,
+      BaseReferences<_$DatabaseProvider, $EspJpnExamplesTable,
+          EspJpnExampleTableData>
     ),
-    ExampleTableData,
+    EspJpnExampleTableData,
     PrefetchHooks Function()> {
-  $$ExamplesTableTableManager(_$DatabaseProvider db, $ExamplesTable table)
+  $$EspJpnExamplesTableTableManager(
+      _$DatabaseProvider db, $EspJpnExamplesTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$ExamplesTableFilterComposer($db: db, $table: table),
+              $$EspJpnExamplesTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$ExamplesTableOrderingComposer($db: db, $table: table),
+              $$EspJpnExamplesTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$ExamplesTableAnnotationComposer($db: db, $table: table),
+              $$EspJpnExamplesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> exampleId = const Value.absent(),
             Value<int> dictionaryId = const Value.absent(),
@@ -8983,7 +9008,7 @@ class $$ExamplesTableTableManager extends RootTableManager<
             Value<String> japaneseText = const Value.absent(),
             Value<String> espanolText = const Value.absent(),
           }) =>
-              ExamplesCompanion(
+              EspJpnExamplesCompanion(
             exampleId: exampleId,
             dictionaryId: dictionaryId,
             exampleNo: exampleNo,
@@ -8999,7 +9024,7 @@ class $$ExamplesTableTableManager extends RootTableManager<
             required String japaneseText,
             required String espanolText,
           }) =>
-              ExamplesCompanion.insert(
+              EspJpnExamplesCompanion.insert(
             exampleId: exampleId,
             dictionaryId: dictionaryId,
             exampleNo: exampleNo,
@@ -9014,29 +9039,32 @@ class $$ExamplesTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$ExamplesTableProcessedTableManager = ProcessedTableManager<
+typedef $$EspJpnExamplesTableProcessedTableManager = ProcessedTableManager<
     _$DatabaseProvider,
-    $ExamplesTable,
-    ExampleTableData,
-    $$ExamplesTableFilterComposer,
-    $$ExamplesTableOrderingComposer,
-    $$ExamplesTableAnnotationComposer,
-    $$ExamplesTableCreateCompanionBuilder,
-    $$ExamplesTableUpdateCompanionBuilder,
+    $EspJpnExamplesTable,
+    EspJpnExampleTableData,
+    $$EspJpnExamplesTableFilterComposer,
+    $$EspJpnExamplesTableOrderingComposer,
+    $$EspJpnExamplesTableAnnotationComposer,
+    $$EspJpnExamplesTableCreateCompanionBuilder,
+    $$EspJpnExamplesTableUpdateCompanionBuilder,
     (
-      ExampleTableData,
-      BaseReferences<_$DatabaseProvider, $ExamplesTable, ExampleTableData>
+      EspJpnExampleTableData,
+      BaseReferences<_$DatabaseProvider, $EspJpnExamplesTable,
+          EspJpnExampleTableData>
     ),
-    ExampleTableData,
+    EspJpnExampleTableData,
     PrefetchHooks Function()>;
-typedef $$IdiomsTableCreateCompanionBuilder = IdiomsCompanion Function({
+typedef $$EspJpnIdiomsTableCreateCompanionBuilder = EspJpnIdiomsCompanion
+    Function({
   Value<int> idiomId,
   required int dictionaryId,
   required int idiomNo,
   required String idiom,
   required String description,
 });
-typedef $$IdiomsTableUpdateCompanionBuilder = IdiomsCompanion Function({
+typedef $$EspJpnIdiomsTableUpdateCompanionBuilder = EspJpnIdiomsCompanion
+    Function({
   Value<int> idiomId,
   Value<int> dictionaryId,
   Value<int> idiomNo,
@@ -9044,9 +9072,9 @@ typedef $$IdiomsTableUpdateCompanionBuilder = IdiomsCompanion Function({
   Value<String> description,
 });
 
-class $$IdiomsTableFilterComposer
-    extends Composer<_$DatabaseProvider, $IdiomsTable> {
-  $$IdiomsTableFilterComposer({
+class $$EspJpnIdiomsTableFilterComposer
+    extends Composer<_$DatabaseProvider, $EspJpnIdiomsTable> {
+  $$EspJpnIdiomsTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -9069,9 +9097,9 @@ class $$IdiomsTableFilterComposer
       column: $table.description, builder: (column) => ColumnFilters(column));
 }
 
-class $$IdiomsTableOrderingComposer
-    extends Composer<_$DatabaseProvider, $IdiomsTable> {
-  $$IdiomsTableOrderingComposer({
+class $$EspJpnIdiomsTableOrderingComposer
+    extends Composer<_$DatabaseProvider, $EspJpnIdiomsTable> {
+  $$EspJpnIdiomsTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -9095,9 +9123,9 @@ class $$IdiomsTableOrderingComposer
       column: $table.description, builder: (column) => ColumnOrderings(column));
 }
 
-class $$IdiomsTableAnnotationComposer
-    extends Composer<_$DatabaseProvider, $IdiomsTable> {
-  $$IdiomsTableAnnotationComposer({
+class $$EspJpnIdiomsTableAnnotationComposer
+    extends Composer<_$DatabaseProvider, $EspJpnIdiomsTable> {
+  $$EspJpnIdiomsTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -9120,31 +9148,33 @@ class $$IdiomsTableAnnotationComposer
       column: $table.description, builder: (column) => column);
 }
 
-class $$IdiomsTableTableManager extends RootTableManager<
+class $$EspJpnIdiomsTableTableManager extends RootTableManager<
     _$DatabaseProvider,
-    $IdiomsTable,
-    IdiomTableData,
-    $$IdiomsTableFilterComposer,
-    $$IdiomsTableOrderingComposer,
-    $$IdiomsTableAnnotationComposer,
-    $$IdiomsTableCreateCompanionBuilder,
-    $$IdiomsTableUpdateCompanionBuilder,
+    $EspJpnIdiomsTable,
+    EspJpnIdiomTableData,
+    $$EspJpnIdiomsTableFilterComposer,
+    $$EspJpnIdiomsTableOrderingComposer,
+    $$EspJpnIdiomsTableAnnotationComposer,
+    $$EspJpnIdiomsTableCreateCompanionBuilder,
+    $$EspJpnIdiomsTableUpdateCompanionBuilder,
     (
-      IdiomTableData,
-      BaseReferences<_$DatabaseProvider, $IdiomsTable, IdiomTableData>
+      EspJpnIdiomTableData,
+      BaseReferences<_$DatabaseProvider, $EspJpnIdiomsTable,
+          EspJpnIdiomTableData>
     ),
-    IdiomTableData,
+    EspJpnIdiomTableData,
     PrefetchHooks Function()> {
-  $$IdiomsTableTableManager(_$DatabaseProvider db, $IdiomsTable table)
+  $$EspJpnIdiomsTableTableManager(
+      _$DatabaseProvider db, $EspJpnIdiomsTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$IdiomsTableFilterComposer($db: db, $table: table),
+              $$EspJpnIdiomsTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$IdiomsTableOrderingComposer($db: db, $table: table),
+              $$EspJpnIdiomsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$IdiomsTableAnnotationComposer($db: db, $table: table),
+              $$EspJpnIdiomsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> idiomId = const Value.absent(),
             Value<int> dictionaryId = const Value.absent(),
@@ -9152,7 +9182,7 @@ class $$IdiomsTableTableManager extends RootTableManager<
             Value<String> idiom = const Value.absent(),
             Value<String> description = const Value.absent(),
           }) =>
-              IdiomsCompanion(
+              EspJpnIdiomsCompanion(
             idiomId: idiomId,
             dictionaryId: dictionaryId,
             idiomNo: idiomNo,
@@ -9166,7 +9196,7 @@ class $$IdiomsTableTableManager extends RootTableManager<
             required String idiom,
             required String description,
           }) =>
-              IdiomsCompanion.insert(
+              EspJpnIdiomsCompanion.insert(
             idiomId: idiomId,
             dictionaryId: dictionaryId,
             idiomNo: idiomNo,
@@ -9180,20 +9210,21 @@ class $$IdiomsTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$IdiomsTableProcessedTableManager = ProcessedTableManager<
+typedef $$EspJpnIdiomsTableProcessedTableManager = ProcessedTableManager<
     _$DatabaseProvider,
-    $IdiomsTable,
-    IdiomTableData,
-    $$IdiomsTableFilterComposer,
-    $$IdiomsTableOrderingComposer,
-    $$IdiomsTableAnnotationComposer,
-    $$IdiomsTableCreateCompanionBuilder,
-    $$IdiomsTableUpdateCompanionBuilder,
+    $EspJpnIdiomsTable,
+    EspJpnIdiomTableData,
+    $$EspJpnIdiomsTableFilterComposer,
+    $$EspJpnIdiomsTableOrderingComposer,
+    $$EspJpnIdiomsTableAnnotationComposer,
+    $$EspJpnIdiomsTableCreateCompanionBuilder,
+    $$EspJpnIdiomsTableUpdateCompanionBuilder,
     (
-      IdiomTableData,
-      BaseReferences<_$DatabaseProvider, $IdiomsTable, IdiomTableData>
+      EspJpnIdiomTableData,
+      BaseReferences<_$DatabaseProvider, $EspJpnIdiomsTable,
+          EspJpnIdiomTableData>
     ),
-    IdiomTableData,
+    EspJpnIdiomTableData,
     PrefetchHooks Function()>;
 typedef $$PartOfSpeechListsTableCreateCompanionBuilder
     = PartOfSpeechListsCompanion Function({
@@ -9519,16 +9550,16 @@ typedef $$RankingsTableProcessedTableManager = ProcessedTableManager<
     ),
     RankingTableData,
     PrefetchHooks Function()>;
-typedef $$SupplementsTableCreateCompanionBuilder = SupplementsCompanion
-    Function({
+typedef $$EspJpnSupplementsTableCreateCompanionBuilder
+    = EspJpnSupplementsCompanion Function({
   Value<int> supplementId,
   required int dictionaryId,
   required int supplementNo,
   required String content,
   Value<String?> exampleId,
 });
-typedef $$SupplementsTableUpdateCompanionBuilder = SupplementsCompanion
-    Function({
+typedef $$EspJpnSupplementsTableUpdateCompanionBuilder
+    = EspJpnSupplementsCompanion Function({
   Value<int> supplementId,
   Value<int> dictionaryId,
   Value<int> supplementNo,
@@ -9536,9 +9567,9 @@ typedef $$SupplementsTableUpdateCompanionBuilder = SupplementsCompanion
   Value<String?> exampleId,
 });
 
-class $$SupplementsTableFilterComposer
-    extends Composer<_$DatabaseProvider, $SupplementsTable> {
-  $$SupplementsTableFilterComposer({
+class $$EspJpnSupplementsTableFilterComposer
+    extends Composer<_$DatabaseProvider, $EspJpnSupplementsTable> {
+  $$EspJpnSupplementsTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -9561,9 +9592,9 @@ class $$SupplementsTableFilterComposer
       column: $table.exampleId, builder: (column) => ColumnFilters(column));
 }
 
-class $$SupplementsTableOrderingComposer
-    extends Composer<_$DatabaseProvider, $SupplementsTable> {
-  $$SupplementsTableOrderingComposer({
+class $$EspJpnSupplementsTableOrderingComposer
+    extends Composer<_$DatabaseProvider, $EspJpnSupplementsTable> {
+  $$EspJpnSupplementsTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -9589,9 +9620,9 @@ class $$SupplementsTableOrderingComposer
       column: $table.exampleId, builder: (column) => ColumnOrderings(column));
 }
 
-class $$SupplementsTableAnnotationComposer
-    extends Composer<_$DatabaseProvider, $SupplementsTable> {
-  $$SupplementsTableAnnotationComposer({
+class $$EspJpnSupplementsTableAnnotationComposer
+    extends Composer<_$DatabaseProvider, $EspJpnSupplementsTable> {
+  $$EspJpnSupplementsTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -9614,31 +9645,34 @@ class $$SupplementsTableAnnotationComposer
       $composableBuilder(column: $table.exampleId, builder: (column) => column);
 }
 
-class $$SupplementsTableTableManager extends RootTableManager<
+class $$EspJpnSupplementsTableTableManager extends RootTableManager<
     _$DatabaseProvider,
-    $SupplementsTable,
-    SupplementTableData,
-    $$SupplementsTableFilterComposer,
-    $$SupplementsTableOrderingComposer,
-    $$SupplementsTableAnnotationComposer,
-    $$SupplementsTableCreateCompanionBuilder,
-    $$SupplementsTableUpdateCompanionBuilder,
+    $EspJpnSupplementsTable,
+    EspJpnSupplementTableData,
+    $$EspJpnSupplementsTableFilterComposer,
+    $$EspJpnSupplementsTableOrderingComposer,
+    $$EspJpnSupplementsTableAnnotationComposer,
+    $$EspJpnSupplementsTableCreateCompanionBuilder,
+    $$EspJpnSupplementsTableUpdateCompanionBuilder,
     (
-      SupplementTableData,
-      BaseReferences<_$DatabaseProvider, $SupplementsTable, SupplementTableData>
+      EspJpnSupplementTableData,
+      BaseReferences<_$DatabaseProvider, $EspJpnSupplementsTable,
+          EspJpnSupplementTableData>
     ),
-    SupplementTableData,
+    EspJpnSupplementTableData,
     PrefetchHooks Function()> {
-  $$SupplementsTableTableManager(_$DatabaseProvider db, $SupplementsTable table)
+  $$EspJpnSupplementsTableTableManager(
+      _$DatabaseProvider db, $EspJpnSupplementsTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$SupplementsTableFilterComposer($db: db, $table: table),
+              $$EspJpnSupplementsTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$SupplementsTableOrderingComposer($db: db, $table: table),
+              $$EspJpnSupplementsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$SupplementsTableAnnotationComposer($db: db, $table: table),
+              $$EspJpnSupplementsTableAnnotationComposer(
+                  $db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> supplementId = const Value.absent(),
             Value<int> dictionaryId = const Value.absent(),
@@ -9646,7 +9680,7 @@ class $$SupplementsTableTableManager extends RootTableManager<
             Value<String> content = const Value.absent(),
             Value<String?> exampleId = const Value.absent(),
           }) =>
-              SupplementsCompanion(
+              EspJpnSupplementsCompanion(
             supplementId: supplementId,
             dictionaryId: dictionaryId,
             supplementNo: supplementNo,
@@ -9660,7 +9694,7 @@ class $$SupplementsTableTableManager extends RootTableManager<
             required String content,
             Value<String?> exampleId = const Value.absent(),
           }) =>
-              SupplementsCompanion.insert(
+              EspJpnSupplementsCompanion.insert(
             supplementId: supplementId,
             dictionaryId: dictionaryId,
             supplementNo: supplementNo,
@@ -9674,37 +9708,40 @@ class $$SupplementsTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$SupplementsTableProcessedTableManager = ProcessedTableManager<
+typedef $$EspJpnSupplementsTableProcessedTableManager = ProcessedTableManager<
     _$DatabaseProvider,
-    $SupplementsTable,
-    SupplementTableData,
-    $$SupplementsTableFilterComposer,
-    $$SupplementsTableOrderingComposer,
-    $$SupplementsTableAnnotationComposer,
-    $$SupplementsTableCreateCompanionBuilder,
-    $$SupplementsTableUpdateCompanionBuilder,
+    $EspJpnSupplementsTable,
+    EspJpnSupplementTableData,
+    $$EspJpnSupplementsTableFilterComposer,
+    $$EspJpnSupplementsTableOrderingComposer,
+    $$EspJpnSupplementsTableAnnotationComposer,
+    $$EspJpnSupplementsTableCreateCompanionBuilder,
+    $$EspJpnSupplementsTableUpdateCompanionBuilder,
     (
-      SupplementTableData,
-      BaseReferences<_$DatabaseProvider, $SupplementsTable, SupplementTableData>
+      EspJpnSupplementTableData,
+      BaseReferences<_$DatabaseProvider, $EspJpnSupplementsTable,
+          EspJpnSupplementTableData>
     ),
-    SupplementTableData,
+    EspJpnSupplementTableData,
     PrefetchHooks Function()>;
-typedef $$WordsTableCreateCompanionBuilder = WordsCompanion Function({
+typedef $$EspJpnWordsTableCreateCompanionBuilder = EspJpnWordsCompanion
+    Function({
   Value<int> wordId,
   required String word,
   Value<String?> partOfSpeech,
   Value<String?> partOfSpeechMark,
 });
-typedef $$WordsTableUpdateCompanionBuilder = WordsCompanion Function({
+typedef $$EspJpnWordsTableUpdateCompanionBuilder = EspJpnWordsCompanion
+    Function({
   Value<int> wordId,
   Value<String> word,
   Value<String?> partOfSpeech,
   Value<String?> partOfSpeechMark,
 });
 
-class $$WordsTableFilterComposer
-    extends Composer<_$DatabaseProvider, $WordsTable> {
-  $$WordsTableFilterComposer({
+class $$EspJpnWordsTableFilterComposer
+    extends Composer<_$DatabaseProvider, $EspJpnWordsTable> {
+  $$EspJpnWordsTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -9725,9 +9762,9 @@ class $$WordsTableFilterComposer
       builder: (column) => ColumnFilters(column));
 }
 
-class $$WordsTableOrderingComposer
-    extends Composer<_$DatabaseProvider, $WordsTable> {
-  $$WordsTableOrderingComposer({
+class $$EspJpnWordsTableOrderingComposer
+    extends Composer<_$DatabaseProvider, $EspJpnWordsTable> {
+  $$EspJpnWordsTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -9749,9 +9786,9 @@ class $$WordsTableOrderingComposer
       builder: (column) => ColumnOrderings(column));
 }
 
-class $$WordsTableAnnotationComposer
-    extends Composer<_$DatabaseProvider, $WordsTable> {
-  $$WordsTableAnnotationComposer({
+class $$EspJpnWordsTableAnnotationComposer
+    extends Composer<_$DatabaseProvider, $EspJpnWordsTable> {
+  $$EspJpnWordsTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -9771,38 +9808,38 @@ class $$WordsTableAnnotationComposer
       column: $table.partOfSpeechMark, builder: (column) => column);
 }
 
-class $$WordsTableTableManager extends RootTableManager<
+class $$EspJpnWordsTableTableManager extends RootTableManager<
     _$DatabaseProvider,
-    $WordsTable,
-    WordTableData,
-    $$WordsTableFilterComposer,
-    $$WordsTableOrderingComposer,
-    $$WordsTableAnnotationComposer,
-    $$WordsTableCreateCompanionBuilder,
-    $$WordsTableUpdateCompanionBuilder,
+    $EspJpnWordsTable,
+    EspJpnWordTableData,
+    $$EspJpnWordsTableFilterComposer,
+    $$EspJpnWordsTableOrderingComposer,
+    $$EspJpnWordsTableAnnotationComposer,
+    $$EspJpnWordsTableCreateCompanionBuilder,
+    $$EspJpnWordsTableUpdateCompanionBuilder,
     (
-      WordTableData,
-      BaseReferences<_$DatabaseProvider, $WordsTable, WordTableData>
+      EspJpnWordTableData,
+      BaseReferences<_$DatabaseProvider, $EspJpnWordsTable, EspJpnWordTableData>
     ),
-    WordTableData,
+    EspJpnWordTableData,
     PrefetchHooks Function()> {
-  $$WordsTableTableManager(_$DatabaseProvider db, $WordsTable table)
+  $$EspJpnWordsTableTableManager(_$DatabaseProvider db, $EspJpnWordsTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$WordsTableFilterComposer($db: db, $table: table),
+              $$EspJpnWordsTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$WordsTableOrderingComposer($db: db, $table: table),
+              $$EspJpnWordsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$WordsTableAnnotationComposer($db: db, $table: table),
+              $$EspJpnWordsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> wordId = const Value.absent(),
             Value<String> word = const Value.absent(),
             Value<String?> partOfSpeech = const Value.absent(),
             Value<String?> partOfSpeechMark = const Value.absent(),
           }) =>
-              WordsCompanion(
+              EspJpnWordsCompanion(
             wordId: wordId,
             word: word,
             partOfSpeech: partOfSpeech,
@@ -9814,7 +9851,7 @@ class $$WordsTableTableManager extends RootTableManager<
             Value<String?> partOfSpeech = const Value.absent(),
             Value<String?> partOfSpeechMark = const Value.absent(),
           }) =>
-              WordsCompanion.insert(
+              EspJpnWordsCompanion.insert(
             wordId: wordId,
             word: word,
             partOfSpeech: partOfSpeech,
@@ -9827,29 +9864,31 @@ class $$WordsTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$WordsTableProcessedTableManager = ProcessedTableManager<
+typedef $$EspJpnWordsTableProcessedTableManager = ProcessedTableManager<
     _$DatabaseProvider,
-    $WordsTable,
-    WordTableData,
-    $$WordsTableFilterComposer,
-    $$WordsTableOrderingComposer,
-    $$WordsTableAnnotationComposer,
-    $$WordsTableCreateCompanionBuilder,
-    $$WordsTableUpdateCompanionBuilder,
+    $EspJpnWordsTable,
+    EspJpnWordTableData,
+    $$EspJpnWordsTableFilterComposer,
+    $$EspJpnWordsTableOrderingComposer,
+    $$EspJpnWordsTableAnnotationComposer,
+    $$EspJpnWordsTableCreateCompanionBuilder,
+    $$EspJpnWordsTableUpdateCompanionBuilder,
     (
-      WordTableData,
-      BaseReferences<_$DatabaseProvider, $WordsTable, WordTableData>
+      EspJpnWordTableData,
+      BaseReferences<_$DatabaseProvider, $EspJpnWordsTable, EspJpnWordTableData>
     ),
-    WordTableData,
+    EspJpnWordTableData,
     PrefetchHooks Function()>;
-typedef $$WordStatusTableCreateCompanionBuilder = WordStatusCompanion Function({
+typedef $$EspJpnWordStatusTableCreateCompanionBuilder
+    = EspJpnWordStatusCompanion Function({
   Value<int> wordId,
   Value<int?> isLearned,
   Value<int?> isBookmarked,
   Value<int?> hasNote,
   required String editAt,
 });
-typedef $$WordStatusTableUpdateCompanionBuilder = WordStatusCompanion Function({
+typedef $$EspJpnWordStatusTableUpdateCompanionBuilder
+    = EspJpnWordStatusCompanion Function({
   Value<int> wordId,
   Value<int?> isLearned,
   Value<int?> isBookmarked,
@@ -9857,9 +9896,9 @@ typedef $$WordStatusTableUpdateCompanionBuilder = WordStatusCompanion Function({
   Value<String> editAt,
 });
 
-class $$WordStatusTableFilterComposer
-    extends Composer<_$DatabaseProvider, $WordStatusTable> {
-  $$WordStatusTableFilterComposer({
+class $$EspJpnWordStatusTableFilterComposer
+    extends Composer<_$DatabaseProvider, $EspJpnWordStatusTable> {
+  $$EspJpnWordStatusTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -9882,9 +9921,9 @@ class $$WordStatusTableFilterComposer
       column: $table.editAt, builder: (column) => ColumnFilters(column));
 }
 
-class $$WordStatusTableOrderingComposer
-    extends Composer<_$DatabaseProvider, $WordStatusTable> {
-  $$WordStatusTableOrderingComposer({
+class $$EspJpnWordStatusTableOrderingComposer
+    extends Composer<_$DatabaseProvider, $EspJpnWordStatusTable> {
+  $$EspJpnWordStatusTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -9908,9 +9947,9 @@ class $$WordStatusTableOrderingComposer
       column: $table.editAt, builder: (column) => ColumnOrderings(column));
 }
 
-class $$WordStatusTableAnnotationComposer
-    extends Composer<_$DatabaseProvider, $WordStatusTable> {
-  $$WordStatusTableAnnotationComposer({
+class $$EspJpnWordStatusTableAnnotationComposer
+    extends Composer<_$DatabaseProvider, $EspJpnWordStatusTable> {
+  $$EspJpnWordStatusTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -9933,31 +9972,33 @@ class $$WordStatusTableAnnotationComposer
       $composableBuilder(column: $table.editAt, builder: (column) => column);
 }
 
-class $$WordStatusTableTableManager extends RootTableManager<
+class $$EspJpnWordStatusTableTableManager extends RootTableManager<
     _$DatabaseProvider,
-    $WordStatusTable,
-    WordStatusTableData,
-    $$WordStatusTableFilterComposer,
-    $$WordStatusTableOrderingComposer,
-    $$WordStatusTableAnnotationComposer,
-    $$WordStatusTableCreateCompanionBuilder,
-    $$WordStatusTableUpdateCompanionBuilder,
+    $EspJpnWordStatusTable,
+    EspJpnWordStatusTableData,
+    $$EspJpnWordStatusTableFilterComposer,
+    $$EspJpnWordStatusTableOrderingComposer,
+    $$EspJpnWordStatusTableAnnotationComposer,
+    $$EspJpnWordStatusTableCreateCompanionBuilder,
+    $$EspJpnWordStatusTableUpdateCompanionBuilder,
     (
-      WordStatusTableData,
-      BaseReferences<_$DatabaseProvider, $WordStatusTable, WordStatusTableData>
+      EspJpnWordStatusTableData,
+      BaseReferences<_$DatabaseProvider, $EspJpnWordStatusTable,
+          EspJpnWordStatusTableData>
     ),
-    WordStatusTableData,
+    EspJpnWordStatusTableData,
     PrefetchHooks Function()> {
-  $$WordStatusTableTableManager(_$DatabaseProvider db, $WordStatusTable table)
+  $$EspJpnWordStatusTableTableManager(
+      _$DatabaseProvider db, $EspJpnWordStatusTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$WordStatusTableFilterComposer($db: db, $table: table),
+              $$EspJpnWordStatusTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$WordStatusTableOrderingComposer($db: db, $table: table),
+              $$EspJpnWordStatusTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$WordStatusTableAnnotationComposer($db: db, $table: table),
+              $$EspJpnWordStatusTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> wordId = const Value.absent(),
             Value<int?> isLearned = const Value.absent(),
@@ -9965,7 +10006,7 @@ class $$WordStatusTableTableManager extends RootTableManager<
             Value<int?> hasNote = const Value.absent(),
             Value<String> editAt = const Value.absent(),
           }) =>
-              WordStatusCompanion(
+              EspJpnWordStatusCompanion(
             wordId: wordId,
             isLearned: isLearned,
             isBookmarked: isBookmarked,
@@ -9979,7 +10020,7 @@ class $$WordStatusTableTableManager extends RootTableManager<
             Value<int?> hasNote = const Value.absent(),
             required String editAt,
           }) =>
-              WordStatusCompanion.insert(
+              EspJpnWordStatusCompanion.insert(
             wordId: wordId,
             isLearned: isLearned,
             isBookmarked: isBookmarked,
@@ -9993,20 +10034,21 @@ class $$WordStatusTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$WordStatusTableProcessedTableManager = ProcessedTableManager<
+typedef $$EspJpnWordStatusTableProcessedTableManager = ProcessedTableManager<
     _$DatabaseProvider,
-    $WordStatusTable,
-    WordStatusTableData,
-    $$WordStatusTableFilterComposer,
-    $$WordStatusTableOrderingComposer,
-    $$WordStatusTableAnnotationComposer,
-    $$WordStatusTableCreateCompanionBuilder,
-    $$WordStatusTableUpdateCompanionBuilder,
+    $EspJpnWordStatusTable,
+    EspJpnWordStatusTableData,
+    $$EspJpnWordStatusTableFilterComposer,
+    $$EspJpnWordStatusTableOrderingComposer,
+    $$EspJpnWordStatusTableAnnotationComposer,
+    $$EspJpnWordStatusTableCreateCompanionBuilder,
+    $$EspJpnWordStatusTableUpdateCompanionBuilder,
     (
-      WordStatusTableData,
-      BaseReferences<_$DatabaseProvider, $WordStatusTable, WordStatusTableData>
+      EspJpnWordStatusTableData,
+      BaseReferences<_$DatabaseProvider, $EspJpnWordStatusTable,
+          EspJpnWordStatusTableData>
     ),
-    WordStatusTableData,
+    EspJpnWordStatusTableData,
     PrefetchHooks Function()>;
 typedef $$MyWordsTableCreateCompanionBuilder = MyWordsCompanion Function({
   Value<int> myWordId,
@@ -11215,24 +11257,24 @@ typedef $$EsEnConjugacionsTableProcessedTableManager = ProcessedTableManager<
 class $DatabaseProviderManager {
   final _$DatabaseProvider _db;
   $DatabaseProviderManager(this._db);
-  $$ConjugationsTableTableManager get conjugations =>
-      $$ConjugationsTableTableManager(_db, _db.conjugations);
-  $$DictionariesTableTableManager get dictionaries =>
-      $$DictionariesTableTableManager(_db, _db.dictionaries);
-  $$ExamplesTableTableManager get examples =>
-      $$ExamplesTableTableManager(_db, _db.examples);
-  $$IdiomsTableTableManager get idioms =>
-      $$IdiomsTableTableManager(_db, _db.idioms);
+  $$EspConjugationsTableTableManager get espConjugations =>
+      $$EspConjugationsTableTableManager(_db, _db.espConjugations);
+  $$EspJpnDictionariesTableTableManager get espJpnDictionaries =>
+      $$EspJpnDictionariesTableTableManager(_db, _db.espJpnDictionaries);
+  $$EspJpnExamplesTableTableManager get espJpnExamples =>
+      $$EspJpnExamplesTableTableManager(_db, _db.espJpnExamples);
+  $$EspJpnIdiomsTableTableManager get espJpnIdioms =>
+      $$EspJpnIdiomsTableTableManager(_db, _db.espJpnIdioms);
   $$PartOfSpeechListsTableTableManager get partOfSpeechLists =>
       $$PartOfSpeechListsTableTableManager(_db, _db.partOfSpeechLists);
   $$RankingsTableTableManager get rankings =>
       $$RankingsTableTableManager(_db, _db.rankings);
-  $$SupplementsTableTableManager get supplements =>
-      $$SupplementsTableTableManager(_db, _db.supplements);
-  $$WordsTableTableManager get words =>
-      $$WordsTableTableManager(_db, _db.words);
-  $$WordStatusTableTableManager get wordStatus =>
-      $$WordStatusTableTableManager(_db, _db.wordStatus);
+  $$EspJpnSupplementsTableTableManager get espJpnSupplements =>
+      $$EspJpnSupplementsTableTableManager(_db, _db.espJpnSupplements);
+  $$EspJpnWordsTableTableManager get espJpnWords =>
+      $$EspJpnWordsTableTableManager(_db, _db.espJpnWords);
+  $$EspJpnWordStatusTableTableManager get espJpnWordStatus =>
+      $$EspJpnWordStatusTableTableManager(_db, _db.espJpnWordStatus);
   $$MyWordsTableTableManager get myWords =>
       $$MyWordsTableTableManager(_db, _db.myWords);
   $$MyWordStatusTableTableManager get myWordStatus =>

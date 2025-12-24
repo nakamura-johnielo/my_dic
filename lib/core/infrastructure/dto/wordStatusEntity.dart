@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:my_dic/core/domain/entity/word/esp_word.dart';
+import 'package:my_dic/core/common/consts/dates.dart';
+import 'package:my_dic/core/domain/entity/word/esp_word_status.dart';
 
-class WordStatusEntity {
+class WordStatusDTO {
   static const String collectionName = "WordStatus";
 
   static const String fieldwordId = "wordId";
@@ -23,7 +23,7 @@ class WordStatusEntity {
   DateTime createdAt;
   DateTime updatedAt;
 
-  WordStatusEntity({
+  WordStatusDTO({
     required this.wordId,
     required this.isLearned,
     required this.isBookmarked,
@@ -36,10 +36,10 @@ class WordStatusEntity {
   /// ----------------------------
   /// Firestore → AppUser に変換
   /// ----------------------------
-  factory WordStatusEntity.fromFirebase(
+  factory WordStatusDTO.fromFirebase(
       DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data()!;
-    return WordStatusEntity(
+    return WordStatusDTO(
         wordId: data[fieldwordId],
         isLearned: data[fieldIsLearned],
         isBookmarked: data[fieldIsBookmarked],
@@ -47,6 +47,17 @@ class WordStatusEntity {
         updateBy: data[fieldupdateBy],
         createdAt: (data[fieldCreatedAt] as Timestamp).toDate().toUtc(),
         updatedAt: (data[fieldUpdatedAt] as Timestamp).toDate().toUtc());
+  }
+
+  WordStatus toEntity(){
+    return WordStatus(
+      wordId: wordId,
+      isLearned: isLearned == 1 ? true : false,
+      isBookmarked: isBookmarked == 1 ? true : false,
+      hasNote: hasNote == 1 ? true : false, 
+      editAt: updatedAt,
+      //editAt: updatedAt,
+    );
   }
 
   /// ----------------------------
@@ -64,16 +75,16 @@ class WordStatusEntity {
     };
   }
 
-  factory WordStatusEntity.fromAppEntity(WordStatus data) {
+  factory WordStatusDTO.fromAppEntity(WordStatus data) {
     //final data = doc.data()!;
-    return WordStatusEntity(
+    return WordStatusDTO(
         wordId: data.wordId,
         isLearned: data.isLearned ? 1 : 0,
         isBookmarked: data.isBookmarked ? 1 : 0,
         hasNote: data.hasNote ? 1 : 0,
         updateBy: "data.updateBy",
-        createdAt: DateTime(2019, 1, 1, 17, 30).toUtc(),
-        updatedAt: DateTime.now().toUtc());
+        createdAt: MyDateTime.sentinel,
+        updatedAt: data.editAt);
   }
 
   /// ----------------------------

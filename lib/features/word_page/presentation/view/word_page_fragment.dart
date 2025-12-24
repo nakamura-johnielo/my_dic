@@ -91,8 +91,8 @@ class WordPageFragment extends ConsumerWidget {
       tabs["Dictionary"] = EspJpnDictionaryFragment(wordId: input.wordId);
       if (input.hasConj) {
         tabs["Conjugacion"] = ConjugacionFragment(wordId: input.wordId);
+        floatingButton = quizFloatingButton(context, ref);
       }
-      floatingButton = quizFloatingButton(context, ref);
     }
 
     //TODO 名前とページwidgetつける

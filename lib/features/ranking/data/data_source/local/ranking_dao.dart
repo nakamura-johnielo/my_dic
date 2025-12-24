@@ -2,15 +2,15 @@ import 'package:drift/drift.dart';
 import 'package:my_dic/core/common/enums/feature_tag.dart';
 import 'package:my_dic/core/common/enums/i_enum.dart';
 import 'package:my_dic/core/common/enums/word/part_of_speech.dart';
-import 'package:my_dic/core/infrastructure/database/table/conjugations.dart';
+import 'package:my_dic/core/infrastructure/database/table/esp_jpn/conjugations.dart';
 import 'package:my_dic/features/ranking/data/data_source/local/rankings_entity.dart';
 import 'package:my_dic/_Framework_Driver/local/drift/Entity/part_of_speech_lists.dart';
-import 'package:my_dic/core/infrastructure/database/table/word_status.dart';
+import 'package:my_dic/core/infrastructure/database/table/esp_jpn/word_status.dart';
 import 'package:my_dic/core/infrastructure/database/database_provider.dart';
 import 'package:tuple/tuple.dart';
 part '../../../../../__generated/features/ranking/data/data_source/local/ranking_dao.g.dart';
 
-@DriftAccessor(tables: [Rankings, PartOfSpeechLists, WordStatus, Conjugations])
+@DriftAccessor(tables: [Rankings, PartOfSpeechLists, EspJpnWordStatus, EspConjugations])
 class RankingDao extends DatabaseAccessor<DatabaseProvider>
     with _$RankingDaoMixin {
   RankingDao(super.database);
@@ -78,7 +78,7 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
   }
 
   // 結合クエリを使用して特定の単語に関連する例文を取得するメソッド
-  Future<List<Tuple2<RankingTableData, WordStatusTableData>>?>
+  Future<List<Tuple2<RankingTableData, EspJpnWordStatusTableData>>?>
       getFilteredRankingWithStatusByPage(
           int requiredPage,
           int size,
@@ -145,7 +145,7 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
       ''',
       //, f.part_of_speech_id,f.word_id,f.part_of_speech
       // 取得データrankingのみ
-      readsFrom: {rankings, partOfSpeechLists, wordStatus, conjugations},
+      readsFrom: {rankings, partOfSpeechLists, espJpnWordStatus, espConjugations},
     );
 
     final res = await mainQuery.get();
@@ -160,7 +160,7 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
         wordId: row.read<int?>('word_id'),
         hasConj: row.read<int>('has_conj'),
       );
-      final status = WordStatusTableData(
+      final status = EspJpnWordStatusTableData(
         wordId: row.read<int?>('w_word_id') ?? -1,
         isLearned: row.read<int?>('is_learned'),
         isBookmarked: row.read<int?>('is_bookmarked'),

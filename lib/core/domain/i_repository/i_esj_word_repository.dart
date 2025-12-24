@@ -1,6 +1,6 @@
 import 'package:my_dic/core/domain/usecase/update_status/update_status_repository_input_data.dart';
 import 'package:my_dic/core/domain/entity/word/word.dart';
-import 'package:my_dic/core/domain/entity/word/esp_word.dart';
+import 'package:my_dic/core/domain/entity/word/esp_word_status.dart';
 
 abstract class IEsjWordRepository {
   Future<List<EspJpnWord>> getWordsByWord(String word);

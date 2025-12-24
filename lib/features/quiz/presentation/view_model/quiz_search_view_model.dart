@@ -47,7 +47,6 @@ class QuizSearchViewModel extends StateNotifier<QuizSearchState> {
     }
   }
 
-
   /// 検索結果をクリア
   void clearResults() {
     state = state.copyWith(
@@ -63,9 +62,10 @@ class QuizSearchViewModel extends StateNotifier<QuizSearchState> {
   /// 和西検索
   Future<void> _searchQuizEnableWord(String word,
       {required int size, required int page}) async {
-    final input = SearchWordInputData(word, size, page , true);
+    final input = SearchWordInputData(word, size, page, true);
+    print("_searchQuizEnableWord");
     final result = await _searchWordUseCase.executeVerbs(input);
-
+    print(result.length.toString() + " in viewmodel");
     state = state.copyWith(
       quizSearchedItems: [...state.quizSearchedItems, ...result],
       isLoading: false,

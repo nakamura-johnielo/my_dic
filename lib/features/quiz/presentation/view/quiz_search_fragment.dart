@@ -38,6 +38,7 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
 
     _setCurrentItemLength();
 
+    print("nextpage: "+nextPage.toString());
     await viewModel.loadSearchResults(
       _size,
       nextPage - 1,
