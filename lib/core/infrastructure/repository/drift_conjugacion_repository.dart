@@ -6,7 +6,7 @@ import 'package:my_dic/features/quiz/domain/entity/quiz_searched_item.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/result_conjugacions.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/tense_conjugacion.dart';
 import 'package:my_dic/core/domain/i_repository/i_conjugation_repository.dart';
-import 'package:my_dic/core/infrastructure/database/dao/local/conjugation_dao.dart';
+import 'package:my_dic/core/infrastructure/database/dao/local/esp_jpn/conjugation_dao.dart';
 import 'package:my_dic/core/infrastructure/database/database_provider.dart';
 
 class DriftConjugacionRepository implements IConjugacionsRepository {
@@ -29,7 +29,7 @@ class DriftConjugacionRepository implements IConjugacionsRepository {
     }
 
     return EspConjugacions(
-        wordId: res.wordId, conjugacions: convertToConjugations(res),participles:  EspParticiples(present: res.presentParticiple!,past:res.prastParticiple!));
+        wordId: res.wordId, conjugacions: convertToConjugations(res),participles:  EspParticiples(present: res.presentParticiple!,past:res.pastParticiple!));
   }
 
   @override
@@ -65,16 +65,16 @@ class DriftConjugacionRepository implements IConjugacionsRepository {
     return res;
   }
 
-  Map<MoodTenseSubject, String> _check(ConjugationTableData conjugacion) {
+  Map<MoodTenseSubject, String> _check(EspConjugationTableData conjugacion) {
     Map<MoodTenseSubject, String> res = {};
     if (conjugacion.presentParticiple != null &&
         conjugacion.presentParticiple!.isNotEmpty) {
       res[MoodTenseSubject.present_participle] =
           conjugacion.presentParticiple ?? "";
     }
-    if (conjugacion.prastParticiple != null &&
-        conjugacion.prastParticiple!.isNotEmpty) {
-      res[MoodTenseSubject.past_participle] = conjugacion.prastParticiple ?? "";
+    if (conjugacion.pastParticiple != null &&
+        conjugacion.pastParticiple!.isNotEmpty) {
+      res[MoodTenseSubject.past_participle] = conjugacion.pastParticiple ?? "";
     }
     if (conjugacion.indicativePresentYo != null &&
         conjugacion.indicativePresentYo!.isNotEmpty) {
@@ -342,7 +342,7 @@ Map<MoodTense, TenseConjugacion> convertToConjugations(data) {
       ellos: nonText,
     ),
     MoodTense.participlePast: TenseConjugacion(
-      yo: data.prastParticiple ?? nonText, //Todo gojinaosu
+      yo: data.pastParticiple ?? nonText, //Todo gojinaosu
       tu: nonText,
       el: nonText,
       nosotros: nonText,

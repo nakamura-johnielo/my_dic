@@ -6,7 +6,7 @@ import 'package:my_dic/Components/button/my_icon_button.dart';
 import 'package:my_dic/core/common/enums/feature_tag.dart';
 import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/core/domain/usecase/esp_jpn_status/esp_jpn_status_interactor.dart';
-import 'package:my_dic/core/domain/entity/word/esp_word.dart';
+import 'package:my_dic/core/domain/entity/word/esp_word_status.dart';
 import 'package:my_dic/features/user/di/viewmodel.dart';
 //import 'package:my_dic/_Interface_Adapter/Controller/word_status_controller.dart';
 

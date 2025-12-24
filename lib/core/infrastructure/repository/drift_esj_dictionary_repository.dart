@@ -3,16 +3,16 @@ import 'package:my_dic/core/domain/entity/dictionary/sub/example/impl/esp_jpn_ex
 import 'package:my_dic/core/domain/entity/dictionary/sub/idiom/impl/idiom.dart';
 import 'package:my_dic/core/domain/entity/dictionary/sub/supplement.dart';
 import 'package:my_dic/core/domain/i_repository/i_esj_dictionary_repository.dart';
-import 'package:my_dic/core/infrastructure/database/dao/local/dictionary_dao.dart';
-import 'package:my_dic/core/infrastructure/database/dao/local/example_dao.dart';
-import 'package:my_dic/core/infrastructure/database/dao/local/idiom_dao.dart';
-import 'package:my_dic/core/infrastructure/database/dao/local/supplement_dao.dart';
+import 'package:my_dic/core/infrastructure/database/dao/local/esp_jpn/dictionary_dao.dart';
+import 'package:my_dic/core/infrastructure/database/dao/local/esp_jpn/example_dao.dart';
+import 'package:my_dic/core/infrastructure/database/dao/local/esp_jpn/idiom_dao.dart';
+import 'package:my_dic/core/infrastructure/database/dao/local/esp_jpn/supplement_dao.dart';
 
 class DriftEsjDictionaryRepository implements IEsjDictionaryRepository {
-  final DictionaryDao _dictionaryDao;
-  final ExampleDao _exampleDao;
-  final IdiomDao _idiomDao;
-  final SupplementDao _supplementDao;
+  final EspjpnDictionaryDao _dictionaryDao;
+  final EspJpnExampleDao _exampleDao;
+  final EspJpnIdiomDao _idiomDao;
+  final EspJpnSupplementDao _supplementDao;
   DriftEsjDictionaryRepository(this._dictionaryDao, this._exampleDao,
       this._idiomDao, this._supplementDao);
 

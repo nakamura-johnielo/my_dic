@@ -8,7 +8,7 @@ import 'package:my_dic/core/domain/i_repository/i_jpn_esp_word_repository.dart';
 import 'package:my_dic/core/infrastructure/database/dao/local/jpn_esp/jpn_esp_dictionary_dao.dart';
 import 'package:my_dic/core/infrastructure/database/dao/local/jpn_esp/jpn_esp_word_dao.dart';
 import 'package:my_dic/core/infrastructure/database/database_provider.dart'
-    as db;
+;
 
 class DriftJpnEspWordRepository implements IJpnEspWordRepository {
   final JpnEspWordDao _jpnEspWordDao;
@@ -36,7 +36,7 @@ class DriftJpnEspWordRepository implements IJpnEspWordRepository {
   @override
   void updateStatus(UpdateStatusRepositoryInputData input) async {
     log("updatestatusrepo");
-    db.WordStatusTableData data = db.WordStatusTableData(
+    EspJpnWordStatusTableData data = EspJpnWordStatusTableData(
       wordId: input.wordId,
       isLearned: input.status.contains(FeatureTag.isLearned) ? 1 : 0,
       isBookmarked: input.status.contains(FeatureTag.isBookmarked) ? 1 : 0,

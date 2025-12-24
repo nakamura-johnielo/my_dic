@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/DI/product.dart';
 import 'package:my_dic/core/di/data/repository_di.dart';
 import 'package:my_dic/core/domain/usecase/fetch_conjugation/fetch_conjugation_interactor.dart' ;
 import 'package:my_dic/core/domain/usecase/fetch_conjugation/i_fetch_conjugation_use_case.dart' ;
@@ -9,6 +8,8 @@ import 'package:my_dic/core/domain/usecase/fetch_jpn_esp_dictionary/fetch_jpn_es
 import 'package:my_dic/core/domain/usecase/fetch_jpn_esp_dictionary/i_fetch_jpn_esp_dictionary_use_case.dart';
 import 'package:my_dic/core/domain/usecase/update_status/i_update_status_use_case.dart';
 import 'package:my_dic/core/domain/usecase/update_status/update_status_interactor.dart';
+import 'package:my_dic/core/service/usecase/i_sync_esp_jpn_word_status_usecase.dart';
+import 'package:my_dic/core/service/usecase/sync_esp_jpn_word_status_interactor.dart';
 import 'package:my_dic/features/ranking/di/view_model_di.dart';
 
 final updateStatusUseCaseProvider = Provider<IUpdateStatusUseCase>((ref) {
@@ -45,3 +46,16 @@ final fetchJpnEspDictionaryUseCaseProvider =
     ref.read(jpnEspDictionaryRepositoryProvider),
   );
 });
+
+
+final syncEspJpnWordStatusUseCaseProvider=
+    Provider<ISyncEspJpnWordStatusUseCase>((ref) {
+  return SyncEspJpnWordStatusInteractor(
+    ref.read(syncStatusRepositoryProvider),
+    ref.read(localEspJpnWordStatusRepositoryProvider),
+    ref.read(remoteEspJpnWordStatusRepositoryProvider),
+  );
+});
+
+
+// ISyncEspJpnWordStatusUseCase

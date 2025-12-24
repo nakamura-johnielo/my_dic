@@ -1,18 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/DI/riverpod.dart';
+import 'package:my_dic/core/di/service/riverpod.dart';
 import 'package:my_dic/core/common/enums/subscription_status.dart';
+import 'package:my_dic/core/di/data/data_di.dart';
+import 'package:my_dic/core/di/service/sync.dart';
 import 'package:my_dic/features/auth/di/data_di.dart';
 import 'package:my_dic/features/auth/di/view_model_di.dart';
 import 'package:my_dic/core/domain/entity/auth.dart';
 import 'package:my_dic/features/user/di/viewmodel.dart';
 import 'package:my_dic/features/user/domain/entity/user.dart';
 
+/// 認証状態のストリームプロバイダー
+/// Authを常に監視
 final authStreamProvider = StreamProvider<AppAuth?>((ref) {
   final useCase = ref.read(observeAuthStateUseCaseProvider);
   return useCase.execute();
 });
-
-// ...existing code...
 
 /// 認証状態の変化を監視し、副作用を実行
 final authEffectProvider = Provider<void>((ref) {
@@ -52,7 +54,8 @@ Future<void> _handleSignOut(Ref ref, AppAuth? previousAuth) async {
   }
 
   // 同期サービスを停止
-  ref.read(wordStatusSyncServiceProvider).dispose();
+  //ref.read(wordStatusSyncServiceProvider).dispose();
+  ref.read(espJpnWordStatusSyncServiceProvider).dispose();
 }
 
 /// サインイン時の処理
@@ -67,7 +70,10 @@ Future<void> _handleSignIn(Ref ref, AppAuth currentAuth) async {
     ref.read(userViewModelProvider.notifier).setAuthInfo(currentAuth);
 
     // 4. 同期サービスを開始
-    await _startSyncService(ref, currentAuth.userId);
+    //await _startSyncService(ref, currentAuth.userId);
+
+    ref.read(espJpnWordStatusSyncServiceProvider)
+        .startSyncWithRemote(currentAuth.userId);
   } catch (e) {
     print('[Auth Effect] Error during sign in: $e');
     // エラーハンドリング（必要に応じてUIにエラーを通知）
@@ -100,83 +106,25 @@ Future<void> _handleSignIn(Ref ref, AppAuth currentAuth) async {
 //   }
 // }
 
+
+//
 /// 同期サービスの開始
-Future<void> _startSyncService(Ref ref, String userId) async {
-  final syncDao = ref.read(syncStatusDaoProvider);
-  final lastSync = await syncDao.getLastSync('lastSync_wordStatus');
+// Future<void> _startSyncService(Ref ref, String userId) async {
+//   final syncDao = ref.read(sharedPreferenceSyncStatusDaoProvider);
+//   final lastSync = await syncDao.getLastSyncDate();
 
-  final startPoint =
-      lastSync ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
+//   final startPoint =
+//       lastSync ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
 
-  ref.read(wordStatusSyncServiceProvider).startSync(
-    userId,
-    startPoint,
-    (newLastSync) async {
-      await syncDao.setLastSync('lastSync_wordStatus', newLastSync);
-      ref.read(setLastSyncProvider('lastSync_wordStatus'))(newLastSync);
-    },
-  );
+//   ref.read(wordStatusSyncServiceProvider).startSync(
+//     userId,
+//     startPoint,
+//     (newLastSync) async {
+//       await syncDao.updateLastSyncDate(newLastSync);
+//       ref.read(setLastSyncProvider)(newLastSync);
+//     },
+//   );
 
-  print('[Auth Effect] Sync service started from: $startPoint');
-}
+//   print('[Auth Effect] Sync service started from: $startPoint');
+// }
 
-final authEffectProvider2 = Provider<void>((ref) {
-  ref.listen<AsyncValue<AppAuth?>>(
-    authStreamProvider,
-    (previous, next) async {
-      // ログアウト時クリーンアップ
-      if (next.value == null) {
-        final input = previous?.value ?? AppAuth(userId: 'logout');
-        ref.read(userViewModelProvider.notifier).setAuthInfo(input);
-        ref.read(wordStatusSyncServiceProvider).dispose();
-        return;
-      }
-
-      final appAuth = next.value!;
-
-      // 新規ユーザー登録の検出（previousがnullでnextがある場合）
-      // final isNewSignUp = previous?.value == null && next.value != null;
-      // まず既存のユーザー情報を取得
-      final existingUser = await ref
-          .read(userViewModelProvider.notifier)
-          .loadUser(appAuth.userId);
-
-      if (existingUser.id.isEmpty) {
-        // 新規ユーザーのProfile作成
-        final user = AppUser(
-          id: appAuth.userId,
-          email: appAuth.email,
-          username: appAuth.email?.split('@')[0] ?? 'Anonymous User',
-          subscriptionStatus: SubscriptionStatus.trial,
-        );
-
-        try {
-          await ref.read(userViewModelProvider.notifier).createUser(user);
-          await ref.read(authViewModelProvider.notifier).verifyEmail();
-        } catch (e) {
-          print('Failed to create user profile: $e');
-        }
-      }
-
-      // 既存のユーザー情報ロード
-      await ref.read(userViewModelProvider.notifier).loadUser(appAuth.userId);
-      ref.read(userViewModelProvider.notifier).setAuthInfo(appAuth);
-
-      // lastSync取得
-      final syncDao = ref.read(syncStatusDaoProvider);
-      final stored = await syncDao.getLastSync('lastSync_wordStatus');
-
-      final startPoint =
-          stored ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
-
-      ref.read(wordStatusSyncServiceProvider).startSync(
-        appAuth.userId,
-        startPoint,
-        (newLastSync) async {
-          await syncDao.setLastSync('lastSync_wordStatus', newLastSync);
-          ref.read(setLastSyncProvider('lastSync_wordStatus'))(newLastSync);
-        },
-      );
-    },
-  );
-});
