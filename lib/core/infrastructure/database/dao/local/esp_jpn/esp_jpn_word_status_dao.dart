@@ -20,13 +20,13 @@ class EspJpnWordStatusDao extends DatabaseAccessor<DatabaseProvider>
             hasNote: Value(hasNote)));
   } */
 
- Stream<List<int>> watchChangedWordIds() {
+ Stream<EspJpnWordStatusTableData?> watchWordStatus(int wordId) {
     // 変更された wordId のリストを監視するクエリを実装
     // ここでは単純に全てのレコードの wordId を返す例を示します
-    return select(espJpnWordStatus).watch().map((rows) {
-      return rows.map((row) => row.wordId).toList();
-    });
-  }
+    return (select(espJpnWordStatus)
+    ..where((tbl) => tbl.wordId.equals(wordId)))
+    .watchSingleOrNull();
+      }
 
   Stream<List<int>> watchChangedWordIdsWithFilter(DateTime since) {
   return (select(espJpnWordStatus)

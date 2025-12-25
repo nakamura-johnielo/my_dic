@@ -29,7 +29,7 @@ class ConjugacionFragment extends ConsumerWidget {
     //   );
     // }
 
-    final viewModel = ref.watch(wordPageViewModelProvider);
+    final viewModel = ref.watch(wordPageViewModelProvider(wordId));
 
     //TODO ここ修正
     final EspConjugacions? conjugacions = viewModel.conjugacions;

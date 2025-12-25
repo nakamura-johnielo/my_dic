@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/Components/modal/ranking_filter_modal.dart';
 import 'package:my_dic/core/common/enums/word/word_type.dart';
+import 'package:my_dic/core/di/view_model/view_model.dart';
 import 'package:my_dic/features/ranking/presentation/effect_provider.dart';
 import 'package:my_dic/features/ranking/presentation/view/ranking_card.dart';
 import 'package:my_dic/core/common/word_card_view_click_listener.dart';
@@ -80,7 +81,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
   Widget build(BuildContext context) {
     // final rankingController = ref.read(rankingControllerProvider);
     final viewModel = ref.watch(rankingViewModelProvider);
-    final wordStatusController = ref.read(wordStatusViewModelProvider.notifier);
+    final wordStatusController = ref.read(wordStatusViewModelProvider(1).notifier);//TODO wordID
     //_rankingController.loadNext();
     const margin = EdgeInsets.symmetric(vertical: 1, horizontal: 16);
     final userId = ref.watch(userViewModelProvider)?.id ?? "anonymous";
@@ -120,7 +121,8 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
               final id = viewModel.items[index].wordId;
 
               //TODO streamproviderで監視
-              final wordStatus = ref.watch(wordStatusByIdProvider(id));
+              // final wordStatus = ref.watch(wordStatusByIdProvider(id));
+              final wordStatus = ref.watch(espJpnWordStatusViewModelProvider(id));
 
               final rankingbase = viewModel.items[index];
               final ranking = rankingbase.copyWith(
