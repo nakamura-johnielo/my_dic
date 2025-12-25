@@ -81,7 +81,7 @@ class WordPageFragment extends ConsumerWidget {
     final Map<String, Widget> tabs = {};
     FloatingActionButton? floatingButton;
 
-    final viewModel = ref.read(wordPageViewModelProvider.notifier);
+    final viewModel = ref.read(wordPageViewModelProvider(input.wordId).notifier);
 
     if (input.wordType == WordType.jpnEsp) {
       viewModel.fetchJpnEspDictionaryById(input.wordId);

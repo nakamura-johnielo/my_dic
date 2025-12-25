@@ -30,7 +30,7 @@ class EspJpnDictionaryFragment extends ConsumerWidget {
     //   );
     // }
     
-    final viewModel = ref.watch(wordPageViewModelProvider);
+    final viewModel = ref.watch(wordPageViewModelProvider(wordId));
 
     final List<EspJpnDictionary>? dictionaries =
         viewModel.espJpnDictionary;

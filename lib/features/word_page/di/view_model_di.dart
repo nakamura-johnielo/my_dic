@@ -4,19 +4,30 @@ import 'package:my_dic/core/di/usecase/usecase_di.dart';
 import 'package:my_dic/features/word_page/presentation/ui_model/jpn_esp_state.dart';
 import 'package:my_dic/features/word_page/presentation/view_model/word_page_view_model.dart';
 
-final wordPageViewModelProvider=
-    StateNotifierProvider<WordPageViewModel, WordPageState>((ref) {
+// final wordPageViewModelProvider=
+//     StateNotifierProvider.autoDispose<WordPageViewModel, WordPageState>((ref) {
+//   final fetchJpnEspDictionaryInteractor = ref.read(fetchJpnEspDictionaryUseCaseProvider);
+//   final fetchEspJpnDictionaryInteractor = ref.read(fetchEspJpnDictionaryUseCaseProvider);
+//   final fetchEspConjugationInteractor =
+//       ref.read(fetchEspConjugationUseCaseProvider);
+//   return WordPageViewModel(
+//       fetchJpnEspDictionaryInteractor,
+//       fetchEspJpnDictionaryInteractor,
+//       fetchEspConjugationInteractor);
+// });
+
+final wordPageViewModelProvider = StateNotifierProvider.autoDispose
+    .family<WordPageViewModel, WordPageState, int>((ref, wordId) {
   final fetchJpnEspDictionaryInteractor = ref.read(fetchJpnEspDictionaryUseCaseProvider);
   final fetchEspJpnDictionaryInteractor = ref.read(fetchEspJpnDictionaryUseCaseProvider);
-  final fetchEspConjugationInteractor =
-      ref.read(fetchEspConjugationUseCaseProvider);
+  final fetchEspConjugationInteractor = ref.read(fetchEspConjugationUseCaseProvider);
+  
   return WordPageViewModel(
-      fetchJpnEspDictionaryInteractor,
-      fetchEspJpnDictionaryInteractor,
-      fetchEspConjugationInteractor);
+    fetchJpnEspDictionaryInteractor,
+    fetchEspJpnDictionaryInteractor,
+    fetchEspConjugationInteractor,
+  );
 });
-
-
 // IFetchJpnEspDictionaryUseCase
 // IFetchEspJpnDictionaryUseCase
 // IFetchEspConjugationUseCase
