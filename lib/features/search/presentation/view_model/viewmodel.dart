@@ -19,7 +19,6 @@ class SearchViewModel extends StateNotifier<SearchState> {
 
   // ==================== Public Methods ====================
 
-
   /// 検索クエリを更新
   void updateQuery(String query) {
     final trimmedQuery = query.trim();
@@ -45,10 +44,12 @@ class SearchViewModel extends StateNotifier<SearchState> {
 
     try {
       final dictionaryType = _judgeDictionaryType(word);
+      print("#############Viewmodel nextpage:$nextPage");
 
       if (dictionaryType == DictionaryType.jpnEsp) {
         await _searchJpnEsp(word, size: size, page: nextPage);
       } else {
+        print("#############true");
         await _searchEspJpn(word, size: size, page: nextPage);
         if (nextPage == 0) {
           // 初回のみ活用形も検索
@@ -63,8 +64,6 @@ class SearchViewModel extends StateNotifier<SearchState> {
     }
   }
 
-
-  
   /// 検索結果をクリア
   void clearResults() {
     state = state.copyWith(
@@ -76,7 +75,6 @@ class SearchViewModel extends StateNotifier<SearchState> {
       errorMessage: null,
     );
   }
-
 
   // ==================== Private Methods ====================
 
@@ -137,9 +135,9 @@ class SearchViewModel extends StateNotifier<SearchState> {
     final input = SearchConjugacionInputData(word, size, page);
     final result = await _searchWordUseCase.executeConjugacion(input);
 
+    print("##############conjlength:${result.wordList.length}");
     state = state.copyWith(
       conjugacions: result.wordList,
     );
   }
-
 }

@@ -1,11 +1,38 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:my_dic/features/user/data/dto/user_dto.dart';
+import 'package:my_dic/core/common/consts/firebase.dart';
 import 'package:my_dic/core/infrastructure/dto/wordStatusEntity.dart';
+import 'package:my_dic/features/user/data/dto/user_dto.dart';
 
 class FirebaseWordStatusDao {
   final FirebaseFirestore _db;
 
   FirebaseWordStatusDao(this._db);
+
+  Future<void> updateBatch(
+      String userId, List<WordStatusDTO> wordStatusList) async {
+        //batch sizeごとにまとめて実行
+    final batchSize = FirebaseConsts.batchSize;
+
+    for (int i = 0; i < wordStatusList.length; i += batchSize) {
+      final batch = _db.batch();
+      final end = (i + batchSize < wordStatusList.length)
+          ? i + batchSize
+          : wordStatusList.length;
+
+      for (int j = i; j < end; j++) {
+        final wordStatus = wordStatusList[j];
+        final batch = _db.batch();
+        final docRef = _db
+            .collection(UserDTO.collectionName)
+            .doc(userId)
+            .collection(WordStatusDTO.collectionName)
+            .doc(wordStatus.wordId.toString());
+        batch.set(docRef, wordStatus.toFirebase(), SetOptions(merge: true));
+      }
+      await batch.commit();
+    }
+  }
+
   // Assume this class has a method to get user profile data from Firestore
   Future<WordStatusDTO?> getWordStatus(String userId, int wordId) async {
     final doc = await _db
@@ -43,7 +70,7 @@ class FirebaseWordStatusDao {
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => WordStatusDTO.fromFirebase(doc))
-            .toList());
+            .toList()).distinct();
   }
 
   /// リアルタイムで更新を監視し、変更されたドキュメントのIDのみを返す
@@ -61,7 +88,7 @@ class FirebaseWordStatusDao {
                 change.type == DocumentChangeType.added)
             .map((change) =>
                 change.doc.data()?[WordStatusDTO.fieldwordId] as int)
-            .toList());
+            .toList()).distinct();
   }
 
   Stream<List<WordStatusDTO>> watchUpdatedAfter(
@@ -74,7 +101,7 @@ class FirebaseWordStatusDao {
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => WordStatusDTO.fromFirebase(doc))
-            .toList());
+            .toList()).distinct();
   }
 
   Future<List<WordStatusDTO>> getWordStatusAfter(

@@ -29,12 +29,16 @@ class DriftConjugacionRepository implements IConjugacionsRepository {
     }
 
     return EspConjugacions(
-        wordId: res.wordId, conjugacions: convertToConjugations(res),participles:  EspParticiples(present: res.presentParticiple!,past:res.pastParticiple!));
+        wordId: res.wordId,
+        conjugacions: convertToConjugations(res),
+        participles: EspParticiples(
+            present: res.presentParticiple!, past: res.pastParticiple!));
   }
 
   @override
   Future<List<SearchResultConjugacions>> getConjugacionByWordWithPage(
       String word, int size, int currentPage) async {
+    print("================================{conjugaciones?.length}");
     final conjugaciones = await _conjugacionDao.getConjugationByWordWithPage(
         word, size, currentPage);
     List<SearchResultConjugacions> res = [];
@@ -311,7 +315,6 @@ class DriftConjugacionRepository implements IConjugacionsRepository {
     }
     return res;
   }
-  
 
   /* @override
   Futu&&<List<JpnEspWord>> getWordsByWord(

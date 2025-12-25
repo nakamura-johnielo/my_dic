@@ -21,7 +21,12 @@ class UpdateStatusInteractor implements IUpdateStatusUseCase {
       hasNote: input.status.contains(FeatureTag.hasNote),
       editAt: dateTime,
     );
-    await _wordStatusRepository.updateWordStatus(repoInput, dateTime, input.userId);
+    await _wordStatusRepository.updateLocalWordStatus(repoInput, dateTime, input.userId);
+
+    if (input.userId!="logout"&&input.userId!="anonymous" ){
+       await _wordStatusRepository.updateRemoteWordStatus(repoInput, dateTime, input.userId);
+
+    }
 
   }
 }

@@ -318,7 +318,7 @@ SELECT word_id, word,
       CASE WHEN subjunctive_past_nosotros LIKE '$query%' THEN subjunctive_past_nosotros ELSE '' END AS 'subjunctive_past_nosotros',
       CASE WHEN subjunctive_past_vosotros LIKE '$query%' THEN subjunctive_past_vosotros ELSE '' END AS 'subjunctive_past_vosotros',
       CASE WHEN subjunctive_past_ellos LIKE '$query%' THEN subjunctive_past_ellos ELSE '' END AS 'subjunctive_past_ellos'
-FROM espConjugations 
+FROM conjugations 
 WHERE present_participle LIKE '$query%'  OR
       past_participle LIKE '$query%'  OR
       indicative_present_yo LIKE '$query%'  OR

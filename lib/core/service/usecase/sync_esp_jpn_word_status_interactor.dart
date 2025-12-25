@@ -30,19 +30,32 @@ class SyncEspJpnWordStatusInteractor implements ISyncEspJpnWordStatusUseCase {
     final remoteData = await _remoteWordStatusRepository.getWordStatusAfter(
         userId, localLastSyncDate);
 
+    //remoteの値でlocalを更新した場合、そのwordIdを格納
+    final List<int> wordIdsUpdatedByRemote = [];
+
     if (remoteData.isNotEmpty) {
-      //同期するデータがない場合は終了
-      //localからremoteへの同期も考慮するならここで処理を追加
-      //local同期時刻更新
-      await _updateLocalLastSyncDate();
-      return;
+      for (var remoteItem in remoteData) {
+        final id = await _syncHandle(userId, remoteItem);
+        if (id != null) {
+          wordIdsUpdatedByRemote.add(id);
+        }
+      }
     }
 
-    for (var remoteItem in remoteData) {
-      await _syncHandle(userId, remoteItem);
-    }
+    await _uploadLocal2Remote(
+        userId, localLastSyncDate, wordIdsUpdatedByRemote);
 
     await _updateLocalLastSyncDate();
+  }
+
+  Future<void> _uploadLocal2Remote(
+      String userId, DateTime datetime, List<int> ids) async {
+    final localData =
+        await _localWordStatusRepository.getWordStatusAfter(datetime);
+        print("local length hay que sync: ${localData.length}");
+    if (localData.isEmpty) return;
+
+    await _remoteWordStatusRepository.updateWordStatusBatch(userId, localData);
   }
 
   @override
@@ -97,7 +110,8 @@ class SyncEspJpnWordStatusInteractor implements ISyncEspJpnWordStatusUseCase {
     return localLastSyncDate;
   }
 
-  Future<void> _syncHandle(String userId, WordStatus remoteItem) async {
+  Future<int?> _syncHandle(String userId, WordStatus remoteItem) async {
+    //remoteの値でlocalが更新された場合、wordId そうではない場合null
     //与えられたWordStatusとlocalの時刻を最新の法を同期
     //localに反映、remoteに反映
 
@@ -115,6 +129,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncEspJpnWordStatusUseCase {
       // リモートの方が新しい場合
       // local更新
       await _localWordStatusRepository.updateWordStatus(remoteItem);
+      return remoteItem.wordId;
     } else if (localUpdatedAt.isAfter(remoteUpdatedAt)) {
       print("Local is newer for wordId: ${remoteItem.wordId}");
       // ローカルの方が新しい場合
@@ -129,6 +144,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncEspJpnWordStatusUseCase {
       //remote更新
       //await _remoteWordStatusRepository.updateWordStatus(userId, localData);
     }
+    return null;
   }
 
   @override
