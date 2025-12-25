@@ -11,6 +11,7 @@ class EspJpnWordStatusSyncService {
 
   /// 一回限りの同期
   Future<void> syncOnce(String userId) async {
+    print("synconce");
     await _syncUseCase.syncOnce(userId);
   }
 

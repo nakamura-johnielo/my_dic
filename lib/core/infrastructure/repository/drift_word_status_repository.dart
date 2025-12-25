@@ -19,7 +19,9 @@ class DriftWordStatusRepository implements ILocalWordStatusRepository {
         isLearned: false,
         isBookmarked: false,
         hasNote: false,
-        editAt: MyDateTime.sentinel,
+        editAt: data?.editAt != null
+            ? DateTime.parse(data!.editAt).toUtc()
+            : MyDateTime.sentinel,
       );
     }
     return _toEntity(data);
@@ -27,19 +29,18 @@ class DriftWordStatusRepository implements ILocalWordStatusRepository {
 
   @override
   Future<List<WordStatus>> getWordStatusAfter(DateTime datetime) async {
-   final dataList = await _dao.getWordStatusAfter(datetime);
-   if (dataList.isEmpty) {
-     return [];
-   }
-   return dataList.map((data) => _toEntity(data)).toList();
+    final dataList = await _dao.getWordStatusAfter(datetime);
+    if (dataList.isEmpty) {
+      return [];
+    }
+    return dataList.map((data) => _toEntity(data)).toList();
   }
 
   @override
-  Future<void> updateWordStatus(
-    WordStatus wordStatus) async {
+  Future<void> updateWordStatus(WordStatus wordStatus) async {
     final data = _toTableData(wordStatus);
     final exists = await _dao.exist(wordStatus.wordId);
-    
+
     if (exists) {
       await _dao.updateStatus(data);
     } else {
@@ -75,10 +76,10 @@ class DriftWordStatusRepository implements ILocalWordStatusRepository {
       isLearned: entity.isLearned ? 1 : 0,
       isBookmarked: entity.isBookmarked ? 1 : 0,
       hasNote: entity.hasNote ? 1 : 0,
-      editAt: entity.editAt.toIso8601String(),//TODO millis epoch intに変換
+      editAt: entity.editAt.toIso8601String(), //TODO millis epoch intに変換
     );
   }
-  
+
   @override
   Stream<List<int>> watchChangedIds(DateTime datetime) {
     //return _dao.watchChangedWordIds();//TODO datetimeでフィルタで効率化

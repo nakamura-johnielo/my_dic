@@ -52,7 +52,9 @@ class FirebaseWordStatusDao {
         .collection(UserDTO.collectionName)
         .doc(userId)
         .collection(WordStatusDTO.collectionName)
+        //.where(WordStatusDTO.fieldUpdatedAt,isGreaterThan: Timestamp.fromDate(datetime))
         .snapshots()
+        .skip(1)
         .map((snapshot) => snapshot.docChanges
             .where((change) =>
                 change.type == DocumentChangeType.modified ||

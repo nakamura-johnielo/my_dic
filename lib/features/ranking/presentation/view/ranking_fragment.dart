@@ -65,13 +65,11 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
   }
 
   void _setCurrentItemLength() {
-    //TODO read watch
     final viewModel = ref.read(rankingViewModelProvider);
     _previousItemLength = viewModel.items.length;
   }
 
   bool _canFetch() {
-    //TODO read watch
     final viewModel = ref.read(rankingViewModelProvider);
     final currentItemLength = viewModel.items.length;
     return currentItemLength > _previousItemLength;
@@ -81,7 +79,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
   Widget build(BuildContext context) {
     // final rankingController = ref.read(rankingControllerProvider);
     final viewModel = ref.watch(rankingViewModelProvider);
-    final wordStatusController = ref.read(wordStatusViewModelProvider(1).notifier);//TODO wordID
+    //final wordStatusController = ref.read(wordStatusViewModelProvider(1).notifier);//TODO wordID
     //_rankingController.loadNext();
     const margin = EdgeInsets.symmetric(vertical: 1, horizontal: 16);
     final userId = ref.watch(userViewModelProvider)?.id ?? "anonymous";
@@ -123,18 +121,18 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
               //TODO streamproviderで監視
               // final wordStatus = ref.watch(wordStatusByIdProvider(id));
               final wordStatus = ref.watch(espJpnWordStatusViewModelProvider(id));
+              final wordStatusNotifier = ref.read(espJpnWordStatusViewModelProvider(id).notifier);
 
-              final rankingbase = viewModel.items[index];
-              final ranking = rankingbase.copyWith(
+              final ranking = viewModel.items[index].copyWith(
                 isBookmarked:
-                    wordStatus?.isBookmarked ?? rankingbase.isBookmarked,
-                isLearned: wordStatus?.isLearned ?? rankingbase.isLearned,
-                hasNote: wordStatus?.hasNote ?? rankingbase.hasNote,
+                    wordStatus.isBookmarked ,
+                isLearned: wordStatus.isLearned ,
+                hasNote: wordStatus.hasNote ,
               );
 
               Map<WordCardViewButton, VoidCallback>? clickListeners = {
                 WordCardViewButton.bookmark: () {
-                  wordStatusController.toggleBookmark(id, userId);
+                  wordStatusNotifier.toggleBookmark( userId);
                   //   _rankingController.updateWordStatus(
                   //       index,
                   //       ranking.wordId,
@@ -143,7 +141,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
                   //       ranking.hasNote);
                 },
                 WordCardViewButton.learned: () {
-                  wordStatusController.toggleLearned(id, userId);
+                  wordStatusNotifier.toggleLearned( userId);
                   //   _rankingController.updateWordStatus(
                   //       index,
                   //       ranking.wordId,
