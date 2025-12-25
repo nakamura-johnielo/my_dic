@@ -15,9 +15,8 @@ class WordStatusRepository implements IWordStatusRepository {
   WordStatusRepository(this._remote, this._local);
 
   @override
-  Future<void> updateWordStatus(
-      WordStatus wordStatus, DateTime now, String userId,
-      {bool isFromSync = false}) async {
+  Future<void> updateLocalWordStatus(
+      WordStatus wordStatus, DateTime now, String userId,) async {
         //localの更新
         //その後にremoteの更新
     final nowDateTime = now; //DateTime.now().toUtc();
@@ -26,7 +25,7 @@ class WordStatusRepository implements IWordStatusRepository {
       isLearned: wordStatus.isLearned ? 1 : 0,
       isBookmarked: wordStatus.isBookmarked ? 1 : 0,
       hasNote: wordStatus.hasNote ? 1 : 0,
-      editAt: nowDateTime.toString(),
+      editAt: nowDateTime.toIso8601String(),
     );
 
     if (await _local.exist(wordStatus.wordId)) {
@@ -36,14 +35,14 @@ class WordStatusRepository implements IWordStatusRepository {
       await _local.insertStatus(localInput);
     }
 
-    // リモート更新は同期処理の場合は行わない
-    //remoteからのデータをローカルに反映するだけ
-    if (isFromSync) {
-      return;
-    }
+  }
 
-    WordStatusDTO remoteInput = WordStatusDTO.fromAppEntity(wordStatus);
-    remoteInput.updatedAt = nowDateTime;
+
+  @override
+  Future<void> updateRemoteWordStatus(
+      WordStatus wordStatus, DateTime now, String userId,) async {
+          WordStatusDTO remoteInput = WordStatusDTO.fromAppEntity(wordStatus);
+    remoteInput.updatedAt = now;
     await _remote.update(remoteInput, userId);
   }
 

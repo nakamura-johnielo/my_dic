@@ -10,7 +10,7 @@ class FirebaseWordStatusRepository implements IRemoteWordStatusRepository {
 
   @override
   Future<WordStatus?> getWordStatusById(String userId, int id) async {
-    final entity = await _dao.getWordStatus(userId,id);
+    final entity = await _dao.getWordStatus(userId, id);
     if (entity == null) {
       return WordStatus(wordId: id);
     }
@@ -55,5 +55,14 @@ class FirebaseWordStatusRepository implements IRemoteWordStatusRepository {
   @override
   Stream<List<int>> watchChangedIds(String userId) {
     return _dao.watchChangedWordIds(userId);
+  }
+
+  @override
+  Future<void> updateWordStatusBatch(
+      String userId, List<WordStatus> wordStatusList) async {
+    print("~~~~~~~~~~~~~remote Batch");
+    final inputData =
+        wordStatusList.map((d) => WordStatusDTO.fromAppEntity(d)).toList();
+    await _dao.updateBatch(userId, inputData);
   }
 }

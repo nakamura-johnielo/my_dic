@@ -13,7 +13,11 @@ import 'package:my_dic/features/user/domain/entity/user.dart';
 /// Authを常に監視
 final authStreamProvider = StreamProvider<AppAuth?>((ref) {
   final useCase = ref.read(observeAuthStateUseCaseProvider);
-  return useCase.execute();
+  return useCase.execute().distinct((prev, next) {
+    // userId と isLogined が両方同じなら重複とみなす
+    return prev?.userId == next?.userId && 
+           prev?.isLogined == next?.isLogined;
+  });
 });
 
 /// 認証状態の変化を監視し、副作用を実行
@@ -71,13 +75,7 @@ Future<void> _handleSignIn(Ref ref, AppAuth currentAuth) async {
 
     // 4. 同期サービスを開始
     //await _startSyncService(ref, currentAuth.userId);
-
-    ref.read(espJpnWordStatusSyncServiceProvider)
-        .startSyncWithRemote(currentAuth.userId);
-
-            // 5. バックグラウンドで一回限りの同期を実行
-    // ユーザー操作をブロックしないようにawaitしない
-    ref.read(espJpnWordStatusSyncServiceProvider)
+  await ref.read(espJpnWordStatusSyncServiceProvider)
         .syncOnce(currentAuth.userId)
         .then((_) {
           print('[Auth Effect] Initial sync completed');
@@ -86,6 +84,12 @@ Future<void> _handleSignIn(Ref ref, AppAuth currentAuth) async {
           print('[Auth Effect] Initial sync failed: $error');
         });
         
+    ref.read(espJpnWordStatusSyncServiceProvider)
+        .startSyncWithRemote(currentAuth.userId);
+
+            // 5. バックグラウンドで一回限りの同期を実行
+    // ユーザー操作をブロックしないようにawaitしない
+
   } catch (e) {
     print('[Auth Effect] Error during sign in: $e');
     // エラーハンドリング（必要に応じてUIにエラーを通知）

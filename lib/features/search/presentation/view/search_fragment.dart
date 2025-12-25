@@ -13,30 +13,6 @@ import 'package:my_dic/core/components/infinityscroll.dart';
 import 'package:my_dic/features/search/di/view_model_di.dart';
 import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
 
-// class MyTextField extends ConsumerWidget {
-//   const MyTextField({super.key});
-
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref) {
-//     final viewModel = ref.watch(searchViewModelProvider);
-//     log("1-1 txtfield in build");
-//     return TextField(
-//       autofocus: true,
-//       decoration: InputDecoration(
-//         labelText: 'Search',
-//         border: OutlineInputBorder(),
-//       ),
-//       onChanged: (value) {
-//         SchedulerBinding.instance.addPostFrameCallback((_) {
-//           viewModel.query = value;
-//         });
-//         //viewModel.query = value;
-//         //_bufferController.searchWord(value);
-//       },
-//     );
-//   }
-// }
-
 class SearchFragment extends ConsumerStatefulWidget {
   const SearchFragment({super.key});
 
@@ -159,10 +135,13 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                             //     '/${ScreenTab.search}/${ScreenPage.jpnEspDetail}',
                             //     extra: JpnEspWordPageFragmentInput(
                             //         wordId: jpnEspWord.id));
-                                    
-                  context.push('/${ScreenTab.search}/${ScreenPage.detail}',
-                      extra: WordPageInput(
-                          wordId: jpnEspWord.id, wordType: WordType.jpnEsp, hasConj: false));
+
+                            context.push(
+                                '/${ScreenTab.search}/${ScreenPage.detail}',
+                                extra: WordPageInput(
+                                    wordId: jpnEspWord.id,
+                                    wordType: WordType.jpnEsp,
+                                    hasConj: false));
                           },
                         );
                       },
@@ -191,10 +170,13 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                               //     extra: EspJpnWordPageFragmentInput(
                               //         wordId: conjugacion.wordId,
                               //         isVerb: true));
-                              
-                  context.push('/${ScreenTab.search}/${ScreenPage.detail}',
-                      extra: WordPageInput(
-                          wordId: conjugacion.wordId, wordType: WordType.espJpn, hasConj: true));
+
+                              context.push(
+                                  '/${ScreenTab.search}/${ScreenPage.detail}',
+                                  extra: WordPageInput(
+                                      wordId: conjugacion.wordId,
+                                      wordType: WordType.espJpn,
+                                      hasConj: true));
                             },
                           );
                         }
@@ -210,10 +192,13 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                             //     extra: EspJpnWordPageFragmentInput(
                             //         wordId: espJpnWord.wordId,
                             //         isVerb: espJpnWord.hasVerb()));
-                            
-                  context.push('/${ScreenTab.search}/${ScreenPage.detail}',
-                      extra: WordPageInput(
-                          wordId: espJpnWord.wordId, wordType: WordType.espJpn, hasConj: espJpnWord.hasVerb()));
+
+                            context.push(
+                                '/${ScreenTab.search}/${ScreenPage.detail}',
+                                extra: WordPageInput(
+                                    wordId: espJpnWord.wordId,
+                                    wordType: WordType.espJpn,
+                                    hasConj: espJpnWord.hasVerb()));
                           },
                         );
                       },
