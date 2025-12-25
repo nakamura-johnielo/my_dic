@@ -133,13 +133,16 @@ class SyncEspJpnWordStatusInteractor implements ISyncEspJpnWordStatusUseCase {
 
   @override
   Stream<List<int>> watchRemoteChangedIds(String userId) {
+    //final lastSyncTime =await _getLastSyncDate();
+    //final lastSyncTime = DateTime.now().toUtc();
     return _remoteWordStatusRepository.watchChangedIds(userId);
   }
 
   @override
-  Stream<List<int>> watchLocalChangedIds() {//TODO driftでは無理
+  Stream<List<int>> watchLocalChangedIds() {
+    //TODO driftでは無理
     //final dateTime =await _getLastSyncDate();
-    final dateTime =DateTime.now().toUtc();
+    final dateTime = DateTime.now().toUtc();
     return _localWordStatusRepository.watchChangedIds(dateTime);
   }
 }

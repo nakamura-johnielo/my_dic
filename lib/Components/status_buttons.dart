@@ -44,7 +44,7 @@ class StatusButtons extends ConsumerWidget {
               : learnedIcon["false"] ?? Icons.error,
           hoveredIconColor: const Color.fromARGB(255, 119, 119, 119),
           onTap: () {
-            controller.toggleLearned(wordId, userId);
+            controller.toggleLearned( userId);
           },
         ),
         const SizedBox(width: 3),
@@ -58,7 +58,7 @@ class StatusButtons extends ConsumerWidget {
               : bookmarkIcon["false"] ?? Icons.error,
           hoveredIconColor: const Color.fromARGB(255, 119, 119, 119),
           onTap: () {
-            controller.toggleBookmark(wordId, userId);
+            controller.toggleBookmark( userId);
           },
         ),
       ],

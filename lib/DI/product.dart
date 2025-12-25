@@ -21,20 +21,20 @@ final noteViewModelProvider = ChangeNotifierProvider<NoteViewModel>((ref) {
 // Other Providers
 // ============================================================================
 
-final wordStatusViewModelProvider = StateNotifierProvider.family
-    .autoDispose<EspJpnWordStatusViewModel, WordStatusState, int>(
-  (ref, wordId) {
-    //ProviderListenable<dynamic> fetchEspJpnStatusUsecaseProvider;
-    final fetchUsecase = ref.watch(fetchEspJpnWordStatusInteractorProvider);
-    final updateUsecase = ref.watch(updateStatusUseCaseProvider);
+// final wordStatusViewModelProvider = StateNotifierProvider.family
+//     .autoDispose<EspJpnWordStatusViewModel, WordStatusState, int>(
+//   (ref, wordId) {
+//     //ProviderListenable<dynamic> fetchEspJpnStatusUsecaseProvider;
+//     final fetchUsecase = ref.watch(fetchEspJpnWordStatusInteractorProvider);
+//     final updateUsecase = ref.watch(updateStatusUseCaseProvider);
     
-    return EspJpnWordStatusViewModel(
-      wordId,
-      fetchUsecase,
-      updateUsecase,
-    );
-  },
-);////TODO ranking用
+//     return EspJpnWordStatusViewModel(
+//       wordId,
+//       fetchUsecase,
+//       updateUsecase,
+//     );
+//   },
+// );////TODO ranking用
 
 // final wordStatusViewModelProvider =
 //     StateNotifierProvider<WordStatusViewModel, Map<int, WordStatus>>((ref) {

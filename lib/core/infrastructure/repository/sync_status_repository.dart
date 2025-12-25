@@ -4,18 +4,18 @@ import 'package:my_dic/core/infrastructure/database/dao/local/shared_preferences
 class SharedPreferenceSyncStatusRepository implements ISyncStatusRepository {
   // final FirebaseWordStatusDao _remote;
   final SharedPreferencesSyncStatusDao _repository;
-  SharedPreferenceSyncStatusRepository( this._repository);
+  SharedPreferenceSyncStatusRepository(this._repository);
 
   @override
-  Future<DateTime?> getLastSyncDate() async{
-    return await  _repository.getLastSyncDate();
-  }
-  
-  @override
-  Future<void> updateSyncDate( DateTime date) async{
-   await _repository.updateLastSyncDate( date);
+  Future<DateTime?> getLastSyncDate() async {
+    
+    print("lastsync: ${await _repository.getLastSyncDate()}");
+    return await _repository.getLastSyncDate();
   }
 
- 
-  
+  @override
+  Future<void> updateSyncDate(DateTime date) async {
+    await _repository.updateLastSyncDate(date);
+    print("lastsync updated: ${await _repository.getLastSyncDate()}");
+  }
 }

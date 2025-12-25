@@ -96,7 +96,7 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
       widget.controller?._reset = _resetInternal;
     }
 
-    print("infiscroll nextPage: $_nextPage" );
+    //print("infiscroll nextPage: $_nextPage" );
   }
 
   @override

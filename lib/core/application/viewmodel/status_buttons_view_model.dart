@@ -1,19 +1,12 @@
 import 'dart:async';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-//
-
-import 'package:flutter/material.dart';
-import 'package:my_dic/Components/button/my_icon_button.dart';
 import 'package:my_dic/Components/word_status_state.dart';
 import 'package:my_dic/core/common/enums/feature_tag.dart';
-import 'package:my_dic/DI/product.dart';
-import 'package:my_dic/core/di/view_model/view_model.dart';
 import 'package:my_dic/core/domain/entity/word/esp_word_status.dart';
 import 'package:my_dic/core/domain/usecase/fetch_esp_jpn_status/fetch_esp_jpn_status_usecase.dart';
 import 'package:my_dic/core/domain/usecase/update_status/i_update_status_use_case.dart';
 import 'package:my_dic/core/domain/usecase/update_status/update_status_input_data.dart';
-import 'package:my_dic/features/user/di/viewmodel.dart';
+
 
 class EspJpnWordStatusViewModel extends StateNotifier<WordStatusState> {
   EspJpnWordStatusViewModel(
@@ -58,15 +51,18 @@ class EspJpnWordStatusViewModel extends StateNotifier<WordStatusState> {
   //   );
   // }
 
-  void toggleBookmark(int wordId, String userId) {
+  void toggleBookmark( String userId) {
+  final wordId=_wordId;
     _setBookmark(wordId, !state.isBookmarked, userId);
   }
 
-  void toggleLearned(int wordId, String userId) {
+  void toggleLearned( String userId) {
+  final wordId=_wordId;
     _setLearned(wordId, !state.isLearned, userId);
   }
 
-  void toggleHasNote(int wordId, String userId) {
+  void toggleHasNote( String userId) {
+  final wordId=_wordId;
     _setHasNote(wordId, !state.hasNote, userId);
   }
 
@@ -122,21 +118,3 @@ class EspJpnWordStatusViewModel extends StateNotifier<WordStatusState> {
     super.dispose();
   }
 }
-
-// final wordStatusViewModelProvider =
-//     StateNotifierProvider<WordStatusViewModel, Map<int, WordStatus>>(
-//   (ref) => WordStatusViewModel(EspJpnStatusInteractor),
-// );
-
-// final wordStatusByIdProvider = Provider.family<WordStatus?, int>((ref, wordId) {
-//   // 最小限の再ビルドにするためにselectで必要な要素のみ監視
-//   final status = ref.watch(
-//     wordStatusViewModelProvider.select((map) => map[wordId]),
-//   );
-//   return status; //?? const WordStatus();
-// });
-
-/////////
-////
-///
-// 単語ごとのステータスボタン（学習済み/ブックマーク）
