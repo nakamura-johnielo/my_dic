@@ -3,14 +3,14 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_dic/Components/modal/ranking_filter_modal.dart';
-import 'package:my_dic/core/common/enums/word/word_type.dart';
+import 'package:my_dic/features/ranking/presentation/view/ranking_filter_modal.dart';
+import 'package:my_dic/core/shared/enums/word/word_type.dart';
+import 'package:my_dic/core/di/view_model/view_model.dart';
 import 'package:my_dic/features/ranking/presentation/effect_provider.dart';
 import 'package:my_dic/features/ranking/presentation/view/ranking_card.dart';
-import 'package:my_dic/core/common/word_card_view_click_listener.dart';
-import 'package:my_dic/core/common/enums/ui/tab.dart';
-import 'package:my_dic/DI/product.dart';
-import 'package:my_dic/core/components/infinityscroll.dart';
+import 'package:my_dic/core/shared/word_card_view_click_listener.dart';
+import 'package:my_dic/core/shared/enums/ui/tab.dart';
+import 'package:my_dic/core/presentation/components/infinityscroll.dart';
 import 'package:my_dic/features/ranking/di/view_model_di.dart';
 import 'package:my_dic/features/user/di/viewmodel.dart';
 import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
@@ -64,13 +64,11 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
   }
 
   void _setCurrentItemLength() {
-    //TODO read watch
     final viewModel = ref.read(rankingViewModelProvider);
     _previousItemLength = viewModel.items.length;
   }
 
   bool _canFetch() {
-    //TODO read watch
     final viewModel = ref.read(rankingViewModelProvider);
     final currentItemLength = viewModel.items.length;
     return currentItemLength > _previousItemLength;
@@ -80,7 +78,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
   Widget build(BuildContext context) {
     // final rankingController = ref.read(rankingControllerProvider);
     final viewModel = ref.watch(rankingViewModelProvider);
-    final wordStatusController = ref.read(wordStatusViewModelProvider.notifier);
+    //final wordStatusController = ref.read(wordStatusViewModelProvider(1).notifier);//TODO wordID
     //_rankingController.loadNext();
     const margin = EdgeInsets.symmetric(vertical: 1, horizontal: 16);
     final userId = ref.watch(userViewModelProvider)?.id ?? "anonymous";
@@ -120,19 +118,20 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
               final id = viewModel.items[index].wordId;
 
               //TODO streamproviderで監視
-              final wordStatus = ref.watch(wordStatusByIdProvider(id));
+              // final wordStatus = ref.watch(wordStatusByIdProvider(id));
+              final wordStatus = ref.watch(espJpnWordStatusViewModelProvider(id));
+              final wordStatusNotifier = ref.read(espJpnWordStatusViewModelProvider(id).notifier);
 
-              final rankingbase = viewModel.items[index];
-              final ranking = rankingbase.copyWith(
+              final ranking = viewModel.items[index].copyWith(
                 isBookmarked:
-                    wordStatus?.isBookmarked ?? rankingbase.isBookmarked,
-                isLearned: wordStatus?.isLearned ?? rankingbase.isLearned,
-                hasNote: wordStatus?.hasNote ?? rankingbase.hasNote,
+                    wordStatus.isBookmarked ,
+                isLearned: wordStatus.isLearned ,
+                hasNote: wordStatus.hasNote ,
               );
 
               Map<WordCardViewButton, VoidCallback>? clickListeners = {
                 WordCardViewButton.bookmark: () {
-                  wordStatusController.toggleBookmark(id, userId);
+                  wordStatusNotifier.toggleBookmark( userId);
                   //   _rankingController.updateWordStatus(
                   //       index,
                   //       ranking.wordId,
@@ -141,7 +140,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
                   //       ranking.hasNote);
                 },
                 WordCardViewButton.learned: () {
-                  wordStatusController.toggleLearned(id, userId);
+                  wordStatusNotifier.toggleLearned( userId);
                   //   _rankingController.updateWordStatus(
                   //       index,
                   //       ranking.wordId,

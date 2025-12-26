@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:my_dic/features/my_word/data/data_source/local/my_word_status.dart';
 import 'package:my_dic/features/my_word/data/data_source/local/my_words.dart';
-import 'package:my_dic/core/infrastructure/database/database_provider.dart';
+import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 part '../../../../../__generated/features/my_word/data/data_source/local/drift_my_word_dao.g.dart';
 
 @DriftAccessor(tables: [MyWords, MyWordStatus])

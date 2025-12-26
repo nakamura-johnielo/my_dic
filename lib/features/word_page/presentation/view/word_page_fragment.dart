@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_dic/Components/status_buttons.dart';
+import 'package:my_dic/core/presentation/components/button/status_buttons.dart';
 import 'package:my_dic/features/quiz/consts/card_state.dart';
-import 'package:my_dic/core/common/enums/ui/tab.dart';
-import 'package:my_dic/core/common/enums/word/word_type.dart';
+import 'package:my_dic/core/shared/enums/ui/tab.dart';
+import 'package:my_dic/core/shared/enums/word/word_type.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
 import 'package:my_dic/features/word_page/di/view_model_di.dart';
@@ -81,7 +81,7 @@ class WordPageFragment extends ConsumerWidget {
     final Map<String, Widget> tabs = {};
     FloatingActionButton? floatingButton;
 
-    final viewModel = ref.read(wordPageViewModelProvider.notifier);
+    final viewModel = ref.read(wordPageViewModelProvider(input.wordId).notifier);
 
     if (input.wordType == WordType.jpnEsp) {
       viewModel.fetchJpnEspDictionaryById(input.wordId);
@@ -91,8 +91,8 @@ class WordPageFragment extends ConsumerWidget {
       tabs["Dictionary"] = EspJpnDictionaryFragment(wordId: input.wordId);
       if (input.hasConj) {
         tabs["Conjugacion"] = ConjugacionFragment(wordId: input.wordId);
+        floatingButton = quizFloatingButton(context, ref);
       }
-      floatingButton = quizFloatingButton(context, ref);
     }
 
     //TODO 名前とページwidgetつける
