@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/auth/domain/usecase/signin.dart';
 import 'package:my_dic/features/auth/domain/usecase/signout.dart';
 import 'package:my_dic/features/auth/domain/usecase/signup.dart';
@@ -28,93 +29,57 @@ class AuthViewModel extends StateNotifier<UserState?> {
   //   await _signUpInteractor.execute(email, password);
   // }
 
-  Future<void> signOut() async {
-    await _signOutInteractor.execute();
+  Future<String> signOut() async {
+    final result = await _signOutInteractor.execute();
+    return result.when(
+      success: (_) => 'ログアウトしました',
+      failure: (error) => 'ログアウトに失敗しました: ${error.message}',
+    );
   }
 
-  Future<void> verifyEmail() async {
-    await _verficateInteractor.execute();
+  Future<String> verifyEmail() async {
+    final result = await _verficateInteractor.execute();
+    return result.when(
+      success: (_) => '確認メールを送信しました',
+      failure: (error) => '送信に失敗しました: ${error.message}',
+    );
   }
 
   Future<String> signIn(String email, String password) async {
-    String message = "--";
-    try {
-      final authEntity = await _signInInteractor.execute(email, password);
+    final result = await _signInInteractor.execute(email, password);
 
-      //final user = cred.user;
-      if (authEntity != null) {
-        // 新規 or 既存ユーザーのプロファイルドキュメントを用意
-        // final user = AppUser(
-        //     id: authEntity.userId,
-        //     email: authEntity.email,
-        //     username: email.split('@')[0],
-        //     subscribeStatus: SubscribeStatus.trial);
-        // await _updateUserInteractor.execute(user);
-
+    return result.when(
+      success: (authEntity) async {
         if (!authEntity.isVerified) {
-          await _verficateInteractor.execute();
-          message = '確認メールを送信しました';
+          final verifyResult = await _verficateInteractor.execute();
+          return verifyResult.when(
+            success: (_) => '確認メールを送信しました',
+            failure: (error) => 'ログイン成功しましたが、確認メールの送信に失敗しました',
+          );
         } else {
-          message = '成功しました';
+          return 'ログインに成功しました';
         }
-        if (!mounted) return message;
-        // プロフィールページへ遷移（置き換え）
-        //context.push('/${ScreenTab.profile}/${ScreenPage.authorized}');
-        // Navigator.of(context).pushReplacement(
-        //   MaterialPageRoute(builder: (_) => ProfilePage(uid: user.uid)),
-        // );
-        return message; // 以降のsetStateを避ける
-      }
-      return "登録に失敗しました";
-    } catch (e) {
-      message = '登録に失敗しました: $e';
-      print(e);
-    } finally {
-      if (mounted) {
-        message = "mounted " + message;
-      }
-      return message;
-    }
+      },
+      failure: (error) => error.message,
+    );
   }
 
   Future<String> signUp(String email, String password) async {
-    String message = "--";
-    try {
-      final authEntity = await _signUpInteractor.execute(email, password);
+    final result = await _signUpInteractor.execute(email, password);
 
-      //final user = cred.user;
-      if (authEntity != null) {
-        // 新規 or 既存ユーザーのプロファイルドキュメントを用意
-        // final user = AppUser(
-        //     id: authEntity.userId,
-        //     email: authEntity.email,
-        //     username: email.split('@')[0],
-        //     subscribeStatus: SubscribeStatus.trial);
-        // await _updateUserInteractor.execute(user);
-
+    return result.when(
+      success: (authEntity) async {
         if (!authEntity.isVerified) {
-          await _verficateInteractor.execute();
-          message = '確認メールを送信しました';
+          final verifyResult = await _verficateInteractor.execute();
+          return verifyResult.when(
+            success: (_) => '確認メールを送信しました',
+            failure: (error) => 'アカウント作成に成功しましたが、確認メールの送信に失敗しました',
+          );
         } else {
-          message = '成功しました';
+          return 'アカウント作成に成功しました';
         }
-        if (!mounted) return message;
-        // プロフィールページへ遷移（置き換え）
-        //context.push('/${ScreenTab.profile}/${ScreenPage.authorized}');
-        // Navigator.of(context).pushReplacement(
-        //   MaterialPageRoute(builder: (_) => ProfilePage(uid: user.uid)),
-        // );
-        return message; // 以降のsetStateを避ける
-      }
-      return "登録に失敗しました";
-    } catch (e) {
-      message = '登録に失敗しました: $e';
-      print(e);
-    } finally {
-      if (mounted) {
-        message = "mounted " + message;
-      }
-      return message;
-    }
+      },
+      failure: (error) => error.message,
+    );
   }
 }
