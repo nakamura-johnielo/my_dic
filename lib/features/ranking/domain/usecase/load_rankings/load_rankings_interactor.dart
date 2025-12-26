@@ -5,6 +5,9 @@ import 'package:my_dic/features/ranking/domain/usecase/load_rankings/load_rankin
 import 'package:my_dic/features/ranking/domain/usecase/load_rankings/i_load_rankings_use_case.dart';
 import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
 import 'package:my_dic/features/ranking/domain/i_repository/i_esp_ranking_repository.dart';
+import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/core/shared/errors/domain_errors.dart';
+import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 
 class LoadRankingsInteractor implements ILoadRankingsUseCase {
   // final ILoadRankingsPresenter _loadRankingsPresenterImpl;
@@ -18,9 +21,17 @@ class LoadRankingsInteractor implements ILoadRankingsUseCase {
   } */
 
   @override
-  Future<List<Ranking>> execute(LoadRankingsInputData input) async {
-    List<int> requiredPages = [input.currentPage[0], input.currentPage[1]];
-    int offset = input.pagenation; // getOffset(input.pagenation, input.size);
+  Future<Result<List<Ranking>>> execute(LoadRankingsInputData input) async {
+    // バリデーション
+    // if (input.size <= 0) {
+    //   return Result.failure(ValidationError(
+    //     message: 'ページサイズは1以上である必要があります',
+    //   ));
+    // }
+
+    try {
+      List<int> requiredPages = [input.currentPage[0], input.currentPage[1]];
+      int offset = input.pagenation; // getOffset(input.pagenation, input.size);
     /* if ((offset < requiredPages[0] || -1 == requiredPages[0]) ||
         requiredPages[1] < offset) */
 
@@ -92,7 +103,14 @@ class LoadRankingsInteractor implements ILoadRankingsUseCase {
     List<Ranking> resp =
         await _wikiEspRankingRepository.getRankingListByFilters(inputData);
 
-    return resp;
+    return Result.success(resp);
+    } catch (e, stackTrace) {
+      return Result.failure(DatabaseError(
+        message: 'ランキングデータの取得に失敗しました',
+        originalError: e,
+        stackTrace: stackTrace,
+      ));
+    }
     // LoadRankingsOutputData outputData =
     //     LoadRankingsOutputData(resp, requiredPages);
     // if (input.isNext) {

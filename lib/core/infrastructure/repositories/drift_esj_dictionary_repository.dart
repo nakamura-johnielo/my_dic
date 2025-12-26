@@ -1,3 +1,7 @@
+import 'package:my_dic/core/shared/errors/domain_errors.dart';
+import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
+import 'package:my_dic/core/shared/errors/unexpected_error.dart';
+import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/domain/entity/dictionary/esj_dictionary.dart';
 import 'package:my_dic/core/domain/entity/dictionary/sub/example/impl/esp_jpn_example.dart';
 import 'package:my_dic/core/domain/entity/dictionary/sub/idiom/impl/idiom.dart';
@@ -17,33 +21,43 @@ class DriftEsjDictionaryRepository implements IEsjDictionaryRepository {
       this._idiomDao, this._supplementDao);
 
   @override
-  Future<List<EspJpnDictionary>> getDictionaryByWordId(int wordId) async {
-    final dic = await _dictionaryDao.getDictionaryByWordId(wordId);
-    List<EspJpnDictionary> res = [];
-    if (dic.isEmpty) {
-      return res; // 結果がnullの場合はnullを返す
-    }
+  Future<Result<List<EspJpnDictionary>>> getDictionaryByWordId(int wordId) async {
+    try {
+      final dic = await _dictionaryDao.getDictionaryByWordId(wordId);
+      List<EspJpnDictionary> res = [];
+      if (dic.isEmpty) {
+        return Result.failure(NotFoundError(
+          message: '辞書データが見つかりません',
+        ));
+      }
 
-    for (int i = 0; i < dic.length; i++) {
-      final d = dic[i];
-      final int dicId = d.dictionaryId;
-      final exp = await _exampleDao.getExampleByDictionaryId(dicId);
-      final idi = await _idiomDao.getExampleByDictionaryId(dicId);
-      final sup = await _supplementDao.getExampleByDictionaryId(dicId);
+      for (int i = 0; i < dic.length; i++) {
+        final d = dic[i];
+        final int dicId = d.dictionaryId;
+        final exp = await _exampleDao.getExampleByDictionaryId(dicId);
+        final idi = await _idiomDao.getExampleByDictionaryId(dicId);
+        final sup = await _supplementDao.getExampleByDictionaryId(dicId);
 
-      res.add(EspJpnDictionary(
-        dictionaryId: d.dictionaryId,
-        word: d.word,
-        headword: d.headword,
-        content: d.htmlRaw, //!todo
-        origin: d.origin,
-        examples: (exp.isNotEmpty) ? convertExamples(exp) : null,
-        idioms: idi.isNotEmpty ? convertIdioms(idi) : null,
-        supplements: sup.isNotEmpty ? convertSupplements(sup) : null,
+        res.add(EspJpnDictionary(
+          dictionaryId: d.dictionaryId,
+          word: d.word,
+          headword: d.headword,
+          content: d.htmlRaw,
+          origin: d.origin,
+          examples: (exp.isNotEmpty) ? convertExamples(exp) : null,
+          idioms: idi.isNotEmpty ? convertIdioms(idi) : null,
+          supplements: sup.isNotEmpty ? convertSupplements(sup) : null,
+        ));
+      }
+
+      return Result.success(res);
+    } catch (e, s) {
+      return Result.failure(DatabaseError(
+        message: '辞書データの取得に失敗しました',
+        originalError: e,
+        stackTrace: s,
       ));
     }
-
-    return res;
   }
 }
 

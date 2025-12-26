@@ -1,3 +1,5 @@
+import 'package:my_dic/core/shared/utils/result.dart';
+
 abstract class IFetchEnglishConjUseCase {
-  Future<Map<String, String>> execute(int wordId);
+  Future<Result<Map<String, String>>> execute(int wordId);
 }

@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/enums/subscription_status.dart';
+import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/user/domain/usecase/ensure_user_exists.dart';
 import 'package:my_dic/features/user/domain/usecase/get_user.dart';
 import 'package:my_dic/core/domain/entity/auth.dart';
@@ -40,15 +43,22 @@ class UserViewModel extends StateNotifier<UserState?> {
   }
 
   Future<AppUser> loadUser(String id) async {
-    final AppUser user = await _ensureUserExistsInteractor.execute(id);
-    state = UserState.fromEntity(user,
-        isLogined: state?.isLoggedIn ?? false,
-        isAuthorized: state?.isAuthorized ?? false);
+    final res = await _ensureUserExistsInteractor.execute(id);
+    return res.when(success: (user) {
+      state = UserState.fromEntity(user,
+          isLogined: state?.isLoggedIn ?? false,
+          isAuthorized: state?.isAuthorized ?? false);
+      return user;
+    }, failure: (error) {
+      log("loaduserユーザー情報の取得に失敗しました: ${error.message}");
+      return AppUser(id: id, username: "load fail");
+      //throw Exception('ユーザー情報の取得に失敗しました: ${error.message}');
+    });
     // final AppUser user = await _getUserInteractor.execute(id);
     // state = UserState.fromEntity(user,
     //     isLogined: state?.isLoggedIn ?? false,
     //     isAuthorized: state?.isAuthorized ?? false);
-    return user;
+    //return user;
   }
 
   void setAuthInfo(AppAuth appAuth) {

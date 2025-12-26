@@ -1,6 +1,8 @@
 
+import 'package:my_dic/core/shared/utils/result.dart';
+
 abstract class ISyncStatusRepository {
-  Future<DateTime?> getLastSyncDate();
-  Future<void> updateSyncDate(DateTime date);
+  Future<Result<DateTime?>> getLastSyncDate();
+  Future<Result<void>> updateSyncDate(DateTime date);
 
 }
