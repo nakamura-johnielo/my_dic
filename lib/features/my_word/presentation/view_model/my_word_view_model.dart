@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/enums/feature_tag.dart';
+import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/my_word/domain/usecase/load_my_word/i_load_my_word_use_case.dart';
 import 'package:my_dic/features/my_word/domain/usecase/load_my_word/load_my_word_input_data.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word/create/handle_word_registration/handle_word_registration_input_data.dart';
@@ -38,9 +39,17 @@ class MyWordViewModel extends StateNotifier<MyWordState> {
     //List<int> requiredPages = [_viewModel.currentPage[0], _viewModel.currentPage[1]];
 
     LoadMyWordInputData input = LoadMyWordInputData(size, currentPage + 1);
-    final res = await _loadMyWordInteractor.execute(input);
-    final newData=[...state.myWords, ...res];
-    state = state.copyWith(myWords: newData);
+    final result = await _loadMyWordInteractor.execute(input);
+    result.when(
+      success: (words) {
+        final newData = [...state.myWords, ...words];
+        state = state.copyWith(myWords: newData);
+      },
+      failure: (error) {
+        // エラーハンドリング - ログ出力やユーザーへの通知
+        log('Failed to load words: ${error.message}');
+      },
+    );
   }
 
   void updateWordStatus(
@@ -72,11 +81,20 @@ class MyWordViewModel extends StateNotifier<MyWordState> {
       return;
     }
 
-    bool isSuccess = await _registerMyWordInteractor
+    final result = await _registerMyWordInteractor
         .execute(RegisterMyWordInputData(headword, description));
 
-    _handleWordRegistrationInteractor.execute(
-        HandleWordRegistrationInputData(isSuccess, onComplete, onError));
+    result.when(
+      success: (_) {
+        _handleWordRegistrationInteractor.execute(
+            HandleWordRegistrationInputData(true, onComplete, onError));
+      },
+      failure: (error) {
+        log('Failed to register word: ${error.message}');
+        _handleWordRegistrationInteractor.execute(
+            HandleWordRegistrationInputData(false, onComplete, onError));
+      },
+    );
   }
 
   void deleteWord({
@@ -85,10 +103,16 @@ class MyWordViewModel extends StateNotifier<MyWordState> {
     required void Function() onComplete,
   }) async {
     DeleteMyWordInputData input = DeleteMyWordInputData(wordId, index);
-    bool res = await _deleteMyWordInteractor.execute(input);
-    if (res) {
-      onComplete();
-    }
+    final result = await _deleteMyWordInteractor.execute(input);
+    result.when(
+      success: (_) {
+        onComplete();
+      },
+      failure: (error) {
+        log('Failed to delete word: ${error.message}');
+        // エラーをUIに通知する必要がある場合はここで処理
+      },
+    );
     /* HandleWordUpdateInputData inputHandle = HandleWordUpdateInputData();
     _handleWordDeleteInteractor.execute(inputHandle); */
   }
@@ -103,11 +127,17 @@ class MyWordViewModel extends StateNotifier<MyWordState> {
     UpdateMyWordInputData input =
         UpdateMyWordInputData(myWordId, headword, description, index);
 
-    bool res = await _updateMyWordInteractor.execute(input);
-   
-    if (res) {
-      onComplete();
-    }
+    final result = await _updateMyWordInteractor.execute(input);
+
+    result.when(
+      success: (_) {
+        onComplete();
+      },
+      failure: (error) {
+        log('Failed to update word: ${error.message}');
+        // エラーをUIに通知する必要がある場合はここで処理
+      },
+    );
     /* HandleWordUpdateInputData inputHandle = HandleWordUpdateInputData();
     _handleWordUpdateInteractor.execute(inputHandle); */
   }

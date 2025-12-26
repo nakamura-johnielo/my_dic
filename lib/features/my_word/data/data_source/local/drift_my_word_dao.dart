@@ -30,21 +30,22 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
     ));
   }
 
-  Future<void> deleteMyword(int wordId, String editAt) async {
-    await transaction(() async {
+  Future<int> deleteMyword(int wordId, String editAt) async {
+    return await transaction(() async {
       // 子テーブルのデータを削除
       await (delete(myWordStatus)..where((tbl) => tbl.myWordId.equals(wordId)))
           .go();
-      await (delete(myWords)..where((tbl) => tbl.myWordId.equals(wordId))).go();
+      final rows = await (delete(myWords)..where((tbl) => tbl.myWordId.equals(wordId))).go();
+      return rows;
     });
   }
 
   /* Future<void> updateMyWord(Insertable<MyWord> tableName) =>
       update(myWords).replace(tableName); */
 
-  Future<void> updateMyWord(
+  Future<int> updateMyWord(
       int id, String word, String contents, String dateTime) async {
-    await (update(myWords)..where((tbl) => tbl.myWordId.equals(id))).write(
+    return await (update(myWords)..where((tbl) => tbl.myWordId.equals(id))).write(
       MyWordsCompanion(
           myWordId: Value(id),
           word: Value(word),
