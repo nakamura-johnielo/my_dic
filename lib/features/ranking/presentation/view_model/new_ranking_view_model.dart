@@ -2,12 +2,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/enums/feature_tag.dart';
 import 'package:my_dic/core/shared/enums/i_enum.dart';
 import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
+import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/ranking/domain/usecase/load_rankings/i_load_rankings_use_case.dart';
 import 'package:my_dic/features/ranking/domain/usecase/load_rankings/load_rankings_input_data.dart';
 import 'package:my_dic/features/ranking/domain/usecase/locate_ranking_pagenation/i_locate_ranking_pagenation_use_case.dart';
 import 'package:my_dic/features/ranking/domain/usecase/update_ranking_filter/i_update_ranking_filter_use_case.dart';
 import 'package:my_dic/features/ranking/domain/usecase/update_ranking_filter/update_ranking_filter_input_data.dart';
 import 'package:my_dic/features/ranking/presentation/ui_model/ranking_ui_model.dart';
+import 'package:logging/logging.dart';
 
 class RankingViewModelV2 extends StateNotifier<RankingState> {
   RankingViewModelV2(this._loadRankingsUseCase,
@@ -17,6 +19,7 @@ class RankingViewModelV2 extends StateNotifier<RankingState> {
   final ILoadRankingsUseCase _loadRankingsUseCase;
   final ILocateRankingPagenationUseCase _locateRankingPagenationUseCase;
   final IUpdateRankingFilterUseCase _updateRankingFilterUseCase;
+  final _logger = Logger('RankingViewModelV2');
 
   static const int _pageSize = 100;
 
@@ -42,19 +45,28 @@ class RankingViewModelV2 extends StateNotifier<RankingState> {
           //nextPage - 1, // InfinityScroll仕様に合わせる（現行と同じ補正）
           );
 
-      final output = await _loadRankingsUseCase.execute(input);
+      final result = await _loadRankingsUseCase.execute(input);
 
-      final appended = [...state.items, ...output];
-      final hasNext = output.length > _pageSize;
+      return result.when(
+        success: (output) {
+          final appended = [...state.items, ...output];
+          final hasNext = output.length > _pageSize;
 
-      state = state.copyWith(
-        items: appended,
-        currentPageRange: [state.currentPageRange[0], nextPage],
-        hasNext: hasNext,
-        isLoadingNext: false,
+          state = state.copyWith(
+            items: appended,
+            currentPageRange: [state.currentPageRange[0], nextPage],
+            hasNext: hasNext,
+            isLoadingNext: false,
+          );
+
+          return hasNext;
+        },
+        failure: (error) {
+          _logger.warning('ランキングの読み込みに失敗しました', error);
+          state = state.copyWith(isLoadingNext: false);
+          return false;
+        },
       );
-
-      return hasNext;
     } catch (_) {
       state = state.copyWith(isLoadingNext: false);
       rethrow;

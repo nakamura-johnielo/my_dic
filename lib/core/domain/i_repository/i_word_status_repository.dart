@@ -1,13 +1,14 @@
+import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/domain/entity/word/esp_word_status.dart';
 
 abstract class IWordStatusRepository {
-  Future<void> updateLocalWordStatus(
+  Future<Result<void>> updateLocalWordStatus(
       WordStatus wordStatus, DateTime now, String userId,);
-  Future<void> updateRemoteWordStatus(
+  Future<Result<void>> updateRemoteWordStatus(
       WordStatus wordStatus, DateTime now, String userId,);
   Stream<WordStatus> watchWordStatusById(int id);
-  Future<WordStatus> getWordStatusById(int id);
-  Future<void> deleteWordStatus(WordStatus wordStatus);
+  Future<Result<WordStatus?>> getWordStatusById(int id);
+  Future<Result<void>> deleteWordStatus(WordStatus wordStatus);
 }
 
 abstract class ILocalWordStatusRepository {

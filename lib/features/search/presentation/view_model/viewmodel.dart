@@ -1,16 +1,19 @@
 // lib/features/search/presentation/view_model/search_view_model.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/enums/dictionary/dictionary_type.dart';
+import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/search/domain/usecase/judge_search_word/i_judge_search_word_use_case.dart';
 import 'package:my_dic/features/search/domain/usecase/judge_search_word/judge_search_word_input_data.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/i_search_word_use_case.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/search_word_input_data.dart';
 import 'package:my_dic/features/search/presentation/ui_model/search_ui_model.dart';
+import 'package:logging/logging.dart';
 
 /// 検索画面のViewModel
 class SearchViewModel extends StateNotifier<SearchState> {
   final ISearchWordUseCase _searchWordUseCase;
   final IJudgeSearchWordUseCase _judgeSearchWordUseCase;
+  final _logger = Logger('SearchViewModel');
 
   SearchViewModel(
     this._searchWordUseCase,
@@ -90,22 +93,34 @@ class SearchViewModel extends StateNotifier<SearchState> {
       {required int size, required int page}) async {
     final input = SearchWordInputData(word, size, page, false);
     final result = await _searchWordUseCase.executeEspJpn(input);
-    print("result length " + result.wordList.length.toString());
-
-    if (page == 0) {
-      // 初回は置き換え
-      state = state.copyWith(
-        espJpnWords: result.wordList,
-        jpnEspWords: [],
-        isLoading: false,
-      );
-    } else {
-      // 追加読み込みは追加
-      state = state.copyWith(
-        espJpnWords: [...state.espJpnWords, ...result.wordList],
-        isLoading: false,
-      );
-    }
+    
+    result.when(
+      success: (data) {
+        print("result length " + data.wordList.length.toString());
+        
+        if (page == 0) {
+          // 初回は置き換え
+          state = state.copyWith(
+            espJpnWords: data.wordList,
+            jpnEspWords: [],
+            isLoading: false,
+          );
+        } else {
+          // 追加読み込みは追加
+          state = state.copyWith(
+            espJpnWords: [...state.espJpnWords, ...data.wordList],
+            isLoading: false,
+          );
+        }
+      },
+      failure: (error) {
+        _logger.warning('西和検索に失敗しました', error);
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: error.message,
+        );
+      },
+    );
   }
 
   /// 和西検索
@@ -114,19 +129,30 @@ class SearchViewModel extends StateNotifier<SearchState> {
     final input = SearchJpnEspWordInputData(word, size, page);
     final result = await _searchWordUseCase.executeJpnEsp(input);
 
-    if (page == 0) {
-      state = state.copyWith(
-        jpnEspWords: result.wordList,
-        espJpnWords: [],
-        conjugacions: [],
-        isLoading: false,
-      );
-    } else {
-      state = state.copyWith(
-        jpnEspWords: [...state.jpnEspWords, ...result.wordList],
-        isLoading: false,
-      );
-    }
+    result.when(
+      success: (data) {
+        if (page == 0) {
+          state = state.copyWith(
+            jpnEspWords: data.wordList,
+            espJpnWords: [],
+            conjugacions: [],
+            isLoading: false,
+          );
+        } else {
+          state = state.copyWith(
+            jpnEspWords: [...state.jpnEspWords, ...data.wordList],
+            isLoading: false,
+          );
+        }
+      },
+      failure: (error) {
+        _logger.warning('和西検索に失敗しました', error);
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: error.message,
+        );
+      },
+    );
   }
 
   /// 活用形検索
@@ -135,9 +161,17 @@ class SearchViewModel extends StateNotifier<SearchState> {
     final input = SearchConjugacionInputData(word, size, page);
     final result = await _searchWordUseCase.executeConjugacion(input);
 
-    print("##############conjlength:${result.wordList.length}");
-    state = state.copyWith(
-      conjugacions: result.wordList,
+    result.when(
+      success: (data) {
+        print("##############conjlength:${data.wordList.length}");
+        state = state.copyWith(
+          conjugacions: data.wordList,
+        );
+      },
+      failure: (error) {
+        _logger.warning('活用形検索に失敗しました', error);
+        // 活用形検索は失敗しても他の検索結果は表示する
+      },
     );
   }
 }

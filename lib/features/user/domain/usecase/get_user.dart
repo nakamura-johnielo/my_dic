@@ -1,3 +1,5 @@
+import 'package:my_dic/core/shared/errors/domain_errors.dart';
+import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/user/domain/entity/user.dart';
 import 'package:my_dic/features/user/domain/i_repository/i_user_repository.dart';
 
@@ -6,11 +8,18 @@ class GetUserInteractor {
 
   GetUserInteractor(this._userRepository);
 
-  Future<AppUser> execute(String id) async {
-    final user = await _userRepository.getUserById(id);
-    if (user == null) {
-      return AppUser(id: id);
-    }
-    return user;
+  Future<Result<AppUser>> execute(String id) async {
+    final result = await _userRepository.getUserById(id);
+    
+    // NotFoundErrorの場合はデフォルトユーザーを返す
+    return result.when(
+      success: (user) => Result.success(user),
+      failure: (error) {
+        if (error is NotFoundError) {
+          return Result.success(AppUser(id: id));
+        }
+        return Result.failure(error);
+      },
+    );
   }
 }

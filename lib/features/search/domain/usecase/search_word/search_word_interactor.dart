@@ -1,4 +1,6 @@
-
+import 'package:my_dic/core/shared/errors/domain_errors.dart';
+import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
+import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/i_search_word_use_case.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/search_word_input_data.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/search_word_output_data.dart';
@@ -14,31 +16,39 @@ class SearchWordInteractor implements ISearchWordUseCase {
   final IEsjWordRepository _wordRepository;
   final IJpnEspWordRepository _jpnEspWordRepository;
   final IConjugacionsRepository _conjugacionsRepository;
-  SearchWordInteractor(this._wordRepository, 
-      this._jpnEspWordRepository, this._conjugacionsRepository);
+  SearchWordInteractor(this._wordRepository, this._jpnEspWordRepository,
+      this._conjugacionsRepository);
 
   @override
-  Future<SearchWordOutputData> executeEspJpn(SearchWordInputData input) async {
-    // List<Word> l = await _wordRepository.getWordsByWord(input.word);
-    List<EspJpnWord> l = await _wordRepository.getWordsByWordByPage(
+  Future<Result<SearchWordOutputData>> executeEspJpn(
+      SearchWordInputData input) async {
+    // 検索クエリのバリデーション
+    if (input.word.trim().isEmpty) {
+      return Result.failure(ValidationError(
+        message: '検索キーワードを入力してください',
+      ));
+    }
+
+    final result = await _wordRepository.getWordsByWordByPage(
         input.word, input.size, input.page, input.forQuiz);
 
-    SearchWordOutputData result = SearchWordOutputData(l);
-
-    // if (input.page == 0) {
-    //   _presenter.executInicialEspJpn(result);
-    //   return result;
-    // }
-    // _presenter.executNextEspJpn(result);
-    return result;
+    return result.map((words) => SearchWordOutputData(words));
   }
 
   @override
   Future<List<QuizSearchedItem>> executeVerbs(SearchWordInputData input) async {
     // List<Word> l = await _wordRepository.getWordsByWord(input.word);
-    List<QuizSearchedItem> l = await _conjugacionsRepository
+    final result = await _conjugacionsRepository
         .getQuizConjugacionByWordWithPage(input.word, input.size, input.page);
-    return l;
+
+    // Result<T>を展開して、エラー時は空のリストを返す
+    return result.when(
+      success: (items) => items,
+      failure: (error) {
+        print('クイズ用活用形の取得に失敗: $error');
+        return <QuizSearchedItem>[];
+      },
+    );
   }
 
   @override
@@ -55,34 +65,34 @@ class SearchWordInteractor implements ISearchWordUseCase {
   }
 
   @override
-  Future<SearchJpnEspWordOutputData> executeJpnEsp(
+  Future<Result<SearchJpnEspWordOutputData>> executeJpnEsp(
       SearchJpnEspWordInputData input) async {
-    List<JpnEspWord> l = await _jpnEspWordRepository.getWordsByWord(
+    // 検索クエリのバリデーション
+    if (input.word.trim().isEmpty) {
+      return Result.failure(ValidationError(
+        message: '検索キーワードを入力してください',
+      ));
+    }
+
+    final result = await _jpnEspWordRepository.getWordsByWord(
         input.word, input.size, input.page);
 
-    SearchJpnEspWordOutputData result = SearchJpnEspWordOutputData(l);
-
-    // if (input.page == 0) {
-    //   _presenter.executeInicialJpnEsp(result);
-    //   return result;
-    // }
-    // _presenter.executeNextJpnEsp(result);
-    return result;
+    return result.map((data) => SearchJpnEspWordOutputData(data));
   }
 
   @override
-  Future<SearchConjugacionOutputData> executeConjugacion(
+  Future<Result<SearchConjugacionOutputData>> executeConjugacion(
       SearchConjugacionInputData input) async {
-    List<SearchResultConjugacions> l = await _conjugacionsRepository
-        .getConjugacionByWordWithPage(input.word, input.size, input.page);
+    // 検索クエリのバリデーション
+    if (input.word.trim().isEmpty) {
+      return Result.failure(ValidationError(
+        message: '検索キーワードを入力してください',
+      ));
+    }
 
-    SearchConjugacionOutputData result = SearchConjugacionOutputData(l);
+    final result = await _conjugacionsRepository.getConjugacionByWordWithPage(
+        input.word, input.size, input.page);
 
-    // if (input.page == 0) {
-    //   _presenter.executInicialConjugacion(result);
-    //   return result;
-    // }
-    // _presenter.executNextConjugacion(result);
-    return result;
+    return result.map((l) => SearchConjugacionOutputData(l));
   }
 }
