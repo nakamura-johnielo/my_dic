@@ -1,4 +1,4 @@
-import 'package:my_dic/utils/json.dart';
+import 'package:my_dic/core/shared/utils/json.dart';
 
 class JsonHandler {
   Future<Map<String, dynamic>> getConjEnglishGuide() async {
