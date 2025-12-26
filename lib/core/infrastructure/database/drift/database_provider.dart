@@ -1,9 +1,14 @@
 import 'dart:developer';
 
 import 'package:drift/drift.dart';
-import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
 import 'package:my_dic/core/shared/consts/enviroment.dart';
+import 'dart:io' 
+    if (dart.library.html) 'package:my_dic/core/infrastructure/database/drift/io_stub.dart';
+import 'package:my_dic/core/infrastructure/database/drift/native_database_helper.dart'
+    if (dart.library.html) 'package:my_dic/core/infrastructure/database/drift/native_database_helper_web.dart';
+import 'package:my_dic/core/infrastructure/database/drift/web_executor.dart'
+    if (dart.library.io) 'package:my_dic/core/infrastructure/database/drift/web_executor_stub.dart';
 import 'package:my_dic/core/infrastructure/database/drift/daos/es_en_conjugacion_dao.dart';
 import 'package:my_dic/core/infrastructure/database/drift/daos/jpn_esp/jpn_esp_word_dao.dart';
 import 'package:my_dic/features/my_word/data/data_source/local/drift_my_word_dao.dart';
@@ -27,11 +32,12 @@ import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/supplem
 import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/word_status.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/words.dart';
 import 'package:path_provider/path_provider.dart';
-import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'dart:async';
+import 'package:my_dic/core/infrastructure/database/drift/web_database_seeder.dart'
+    if (dart.library.io) 'package:my_dic/core/infrastructure/database/drift/web_database_seeder_stub.dart';
 
 part '../../../../__generated/core/infrastructure/database/drift/database_provider.g.dart';
 
@@ -83,6 +89,13 @@ class DatabaseProvider extends _$DatabaseProvider {
       onCreate: (Migrator m) async {
         print("==== DB Migration create ===");
         await m.createAll();
+        
+        // Web環境の場合、JSONからデータをシード
+        if (kIsWeb) {
+          log("Web platform detected - seeding from JSON");
+          final seeder = WebDatabaseSeeder(this);
+          await seeder.seedFromJson();
+        }
       },
       onUpgrade: (Migrator m, int from, int to) async {
         print("==== DB Migration upgrade ===");
@@ -93,33 +106,37 @@ class DatabaseProvider extends _$DatabaseProvider {
         if (from < 4) {
           await m.createTable(esEnConjugacions);
 
-          // ATTACH 用の軽量サブDB (assets/es_en_conjugacions.db) をコピーしてパス取得
-          final attachDbPath = await copyAssetDbOnce('es_en_conjugacions.db');
-          await customStatement(
-              "ATTACH DATABASE '${attachDbPath.replaceAll(r'\', '/')}' AS seeddb;");
-          print("attached database at $attachDbPath");
+          if (!kIsWeb) {
+            // ATTACH 用の軽量サブDB (assets/es_en_conjugacions.db) をコピーしてパス取得
+            final attachDbPath = await copyAssetDbOnce('es_en_conjugacions.db');
+            await customStatement(
+                "ATTACH DATABASE '${attachDbPath.replaceAll(r'\', '/')}' AS seeddb;");
+            print("attached database at $attachDbPath");
 
-          try {
-            // 挿入済みなら投入不要
-            final cnt = await customSelect(
-                    "SELECT COUNT(*) AS c FROM es_en_conjugacions;")
-                .getSingle();
-            final hasData = (cnt.data['c'] as int) > 0;
-            if (hasData) {
-              log("Skip seeding es_en_conjugacions (already populated).");
-              return;
+            try {
+              // 挿入済みなら投入不要
+              final cnt = await customSelect(
+                      "SELECT COUNT(*) AS c FROM es_en_conjugacions;")
+                  .getSingle();
+              final hasData = (cnt.data['c'] as int) > 0;
+              if (hasData) {
+                log("Skip seeding es_en_conjugacions (already populated).");
+                return;
+              }
+
+              await transaction(() async {
+                print("start transaction");
+                await customStatement("""
+                INSERT INTO es_en_conjugacions (word_id, word, english, present_3rd, present_p, past, past_p)
+                SELECT word_id, word, english, present_3rd, present_p, past, past_p FROM seeddb.es_en_conjugacions;
+              """);
+              });
+            } finally {
+              await customStatement("DETACH DATABASE seeddb;");
+              await deleteDatabaseFile(attachDbPath);
             }
-
-            await transaction(() async {
-              print("start transaction");
-              await customStatement("""
-              INSERT INTO es_en_conjugacions (word_id, word, english, present_3rd, present_p, past, past_p)
-              SELECT word_id, word, english, present_3rd, present_p, past, past_p FROM seeddb.es_en_conjugacions;
-            """);
-            });
-          } finally {
-            await customStatement("DETACH DATABASE seeddb;");
-            await deleteDatabaseFile(attachDbPath);
+          } else {
+            log("Web platform: es_en_conjugacions seeding skipped - needs web implementation");
           }
         }
       },
@@ -172,6 +189,9 @@ class DatabaseProvider extends _$DatabaseProvider {
 }
 
 Future<String> getAppDir() async {
+  if (kIsWeb) {
+    return 'web_indexeddb';
+  }
   final documentsDirectory = await getApplicationSupportDirectory();
   final path = kReleaseMode
       ? join(documentsDirectory.path, "${APP_NAME}_DB")
@@ -181,6 +201,10 @@ Future<String> getAppDir() async {
 
 // ...existing code...
 Future<void> deleteDatabaseFile(String dbName) async {
+  if (kIsWeb) {
+    log("deleteDatabaseFile called on web - no-op");
+    return;
+  }
   // final documentsDirectory = await getApplicationSupportDirectory();
   // final folderPath = join(documentsDirectory.path, "${APP_NAME}_DB");
   final folderPath = await getAppDir();
@@ -197,6 +221,10 @@ Future<void> deleteDatabaseFile(String dbName) async {
 
 Future<String> copyAssetDbOnce(String assetDbFileName,
     {String? destFileName}) async {
+  if (kIsWeb) {
+    log("copyAssetDbOnce called on web - returning placeholder");
+    return 'web_not_supported';
+  }
   // 保存先フォルダ（既存の getDatabasePath と同じ場所）
   // final documentsDirectory = await getApplicationSupportDirectory();
   // final folderPath = join(documentsDirectory.path, "${APP_NAME}_DB");
@@ -225,14 +253,27 @@ Future<String> copyAssetDbOnce(String assetDbFileName,
 
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
-    final dbPath = await getDatabasePath(DB_NAME);
-    log("DatabaseProvider - Database path: $dbPath");
-    final file = File(dbPath);
-    return NativeDatabase(file);
+    if (kIsWeb) {
+      // Web: Use IndexedDB
+      log("DatabaseProvider - Using WebDatabase for web platform");
+      return createWebExecutor('my_dic_db');
+    } else {
+      // Mobile/Desktop: Use file-based SQLite
+      final dbPath = await getDatabasePath(DB_NAME);
+      log("DatabaseProvider - Database path: $dbPath");
+      final file = File(dbPath);
+      return await createNativeExecutor(file);
+    }
   });
 }
 
 Future<String> getDatabasePath(String dbName) async {
+  if (kIsWeb) {
+    // Web doesn't need file paths - IndexedDB is used instead
+    log("getDatabasePath called on web platform - returning placeholder");
+    return 'web_indexeddb';
+  }
+
   // final documentsDirectory = await getApplicationSupportDirectory();
   // // 新しいフォルダのパスを作成
   // final folderPath = join(documentsDirectory.path, "${APP_NAME}_DB");
