@@ -5,9 +5,9 @@ import 'package:flutter/foundation.dart';
 import 'package:my_dic/core/shared/consts/enviroment.dart';
 import 'dart:io' 
     if (dart.library.html) 'package:my_dic/core/infrastructure/database/drift/io_stub.dart';
-import 'package:my_dic/core/infrastructure/database/drift/native_database_helper.dart'
+import 'package:my_dic/core/infrastructure/database/drift/_NATIVE/native_database_helper.dart'
     if (dart.library.html) 'package:my_dic/core/infrastructure/database/drift/native_database_helper_web.dart';
-import 'package:my_dic/core/infrastructure/database/drift/web_executor.dart'
+import 'package:my_dic/core/infrastructure/database/drift/_WEB/web_executor.dart'
     if (dart.library.io) 'package:my_dic/core/infrastructure/database/drift/web_executor_stub.dart';
 import 'package:my_dic/core/infrastructure/database/drift/daos/es_en_conjugacion_dao.dart';
 import 'package:my_dic/core/infrastructure/database/drift/daos/jpn_esp/jpn_esp_word_dao.dart';
@@ -36,7 +36,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'dart:async';
-import 'package:my_dic/core/infrastructure/database/drift/web_database_seeder.dart'
+import 'package:my_dic/core/infrastructure/database/drift/_WEB/web_database_seeder.dart'
     if (dart.library.io) 'package:my_dic/core/infrastructure/database/drift/web_database_seeder_stub.dart';
 
 part '../../../../__generated/core/infrastructure/database/drift/database_provider.g.dart';
