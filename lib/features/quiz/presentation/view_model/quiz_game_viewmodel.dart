@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/quiz/consts/card_state.dart';
 import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
 import 'package:my_dic/core/shared/enums/conjugacion/subject.dart';
@@ -7,6 +8,7 @@ import 'package:my_dic/core/domain/usecase/fetch_conjugation/fetch_conjugation_i
 import 'package:my_dic/core/domain/usecase/fetch_conjugation/i_fetch_conjugation_use_case.dart';
 import 'package:my_dic/features/quiz/domain/usecase/fetch_english_conj.dart/i_fetch_english_conj_usecase.dart';
 import 'package:my_dic/features/quiz/presentation/ui_model/quiz_game_model.dart';
+import 'package:logging/logging.dart';
 
 /// クイズのViewModel
 class QuizGameViewModel extends StateNotifier<QuizGameState> {
@@ -14,6 +16,7 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
   late QuizInternalState _internalState;
   final IFetchEspConjugationUseCase _fetchConjugationInteractor;
   final IFetchEnglishConjUseCase _fetchEnglishConjInteractor;
+  final _logger = Logger('QuizGameViewModel');
 
   QuizGameViewModel(
       this._fetchConjugationInteractor, this._fetchEnglishConjInteractor)
@@ -24,37 +27,49 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
 
   // ==================== Public Methods ====================
 
-
-  void inicializeQuizCardStatus(){
-     _updateQuizCardStatus( QuizCardState.question);
+  void inicializeQuizCardStatus() {
+    _updateQuizCardStatus(QuizCardState.question);
   }
 
-  void toggleQuizCardStatus(){
-    print("!!!!!!!!!!!!!!!!!!!!!!!!!toggleQuizCardStatus${state.quizCardState}");
-    if(state.quizCardState == QuizCardState.question){
-      _updateQuizCardStatus( QuizCardState.answer);
-    }else{
-     _updateQuizCardStatus( QuizCardState.question);
+  void toggleQuizCardStatus() {
+    print(
+        "!!!!!!!!!!!!!!!!!!!!!!!!!toggleQuizCardStatus${state.quizCardState}");
+    if (state.quizCardState == QuizCardState.question) {
+      _updateQuizCardStatus(QuizCardState.answer);
+    } else {
+      _updateQuizCardStatus(QuizCardState.question);
     }
   }
 
   Future<Map<String, String>> fetchEnglishConj(int wordId) async {
-    final englishConj = await _fetchEnglishConjInteractor.execute(wordId);
+    final result = await _fetchEnglishConjInteractor.execute(wordId);
     print("!!!!!!!!!!!!!!!!!!!!!!!!!englishConj in QuizController");
-    print(englishConj);
-    return englishConj;
+    
+    return result.when(
+      success: (englishConj) {
+        print(englishConj);
+        return englishConj;
+      },
+      failure: (error) {
+        _logger.warning('英語活用形の取得に失敗しました', error);
+        return <String, String>{}; // エラー時は空のMapを返す
+      },
+    );
   }
 
   Future<EspConjugacions?> getConjugaciones(int wordId) async {
     final FetchConjugationInputData input = FetchConjugationInputData(wordId);
-    final FetchConjugationInputData inputDef =
-        FetchConjugationInputData(61663); //ser
-    final res = await _fetchConjugationInteractor.execute(input) ??
-       await _fetchConjugationInteractor.execute(inputDef);
-    if (res is EspConjugacions) {
-      return res;
-    }
-    return null;
+    // final FetchConjugationInputData inputDef =
+    //     FetchConjugationInputData(61663); //ser
+    final res = await _fetchConjugationInteractor.execute(input);
+    // await _fetchConjugationInteractor.execute(inputDef);
+
+   return res.when(
+        success: (data) => data,
+        failure: (failure) {
+          print("活用形の取得に失敗しました: $failure");
+          return null;
+        });
   }
 
   String quiz1EnglishSub(
@@ -221,5 +236,4 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
       currentSubject: subject,
     );
   }
-
 }

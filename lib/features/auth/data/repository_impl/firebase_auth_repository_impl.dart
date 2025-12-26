@@ -1,4 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:my_dic/core/domain/entity/auth.dart';
+import 'package:my_dic/core/shared/errors/domain_errors.dart';
+import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
+import 'package:my_dic/core/shared/errors/unexpected_error.dart';
+import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
 import 'package:my_dic/features/auth/data/data_source/remote/firebase_auth_dao.dart';
 import 'package:my_dic/features/auth/data/dto/auth_dto.dart';
@@ -23,54 +28,187 @@ class FirebaseAuthRepositoryImpl implements IAuthRepository {
   }
 
   @override
-  Future<AppAuth> createUserWithEmailAndPassword(
+  Future<Result<AppAuth>> createUserWithEmailAndPassword(
       {required String email, required String password}) async {
     try {
       final dto =
           await _authDao.createUserWithEmailAndPassword(email, password);
-      return _toEntity(dto);
-    } catch (e) {
-      throw Exception('Failed to create user: $e');
+      return Result.success(_toEntity(dto));
+    } on firebase_auth.FirebaseAuthException catch (e, s) {
+      switch (e.code) {
+        case 'email-already-in-use':
+          return Result.failure(BusinessRuleError(
+            message: 'このメールアドレスは既に使用されています',
+            code: e.code,
+            originalError: e,
+            stackTrace: s,
+          ));
+        case 'invalid-email':
+          return Result.failure(ValidationError(
+            message: 'メールアドレスの形式が正しくありません',
+            code: e.code,
+            originalError: e,
+            stackTrace: s,
+          ));
+        case 'weak-password':
+          return Result.failure(ValidationError(
+            message: 'パスワードは6文字以上にしてください',
+            code: e.code,
+            originalError: e,
+            stackTrace: s,
+          ));
+        default:
+          return Result.failure(FirebaseError(
+            message: 'アカウント作成に失敗しました: ${e.message}',
+            code: e.code,
+            originalError: e,
+            stackTrace: s,
+          ));
+      }
+    } catch (e, s) {
+      return Result.failure(UnexpectedError(
+        message: 'アカウント作成中に予期しないエラーが発生しました',
+        originalError: e,
+        stackTrace: s,
+      ));
     }
   }
 
   @override
-  Future<AppAuth> signInWithEmailAndPassword({
+  Future<Result<AppAuth>> signInWithEmailAndPassword({
     required String email,
     required String password,
   }) async {
     try {
       final dto = await _authDao.signInWithEmailAndPassword(email, password);
-      return _toEntity(dto).copyWith(isLogined: true);
-    } catch (e) {
-      throw Exception('Failed to sign in: $e');
+      return Result.success(_toEntity(dto).copyWith(isLogined: true));
+    } on firebase_auth.FirebaseAuthException catch (e, s) {
+      switch (e.code) {
+        case 'user-not-found':
+        case 'wrong-password':
+        case 'invalid-credential':
+          return Result.failure(UnauthorizedError(
+            message: 'メールアドレスまたはパスワードが間違っています',
+            code: e.code,
+            originalError: e,
+            stackTrace: s,
+          ));
+        case 'user-disabled':
+          return Result.failure(UnauthorizedError(
+            message: 'このアカウントは無効になっています',
+            code: e.code,
+            originalError: e,
+            stackTrace: s,
+          ));
+        case 'invalid-email':
+          return Result.failure(ValidationError(
+            message: 'メールアドレスの形式が正しくありません',
+            code: e.code,
+            originalError: e,
+            stackTrace: s,
+          ));
+        default:
+          return Result.failure(FirebaseError(
+            message: 'ログインに失敗しました: ${e.message}',
+            code: e.code,
+            originalError: e,
+            stackTrace: s,
+          ));
+      }
+    } catch (e, s) {
+      return Result.failure(UnexpectedError(
+        message: 'ログイン中に予期しないエラーが発生しました',
+        originalError: e,
+        stackTrace: s,
+      ));
     }
   }
 
   @override
-  Future<void> signOut() async {
+  Future<Result<void>> signOut() async {
     try {
       await _authDao.signOut();
-    } catch (e) {
-      throw Exception('Failed to sign out: $e');
+      return const Result.success(null);
+    } on firebase_auth.FirebaseAuthException catch (e, s) {
+      return Result.failure(FirebaseError(
+        message: 'ログアウトに失敗しました: ${e.message}',
+        code: e.code,
+        originalError: e,
+        stackTrace: s,
+      ));
+    } catch (e, s) {
+      return Result.failure(UnexpectedError(
+        message: 'ログアウト中に予期しないエラーが発生しました',
+        originalError: e,
+        stackTrace: s,
+      ));
     }
   }
 
   @override
-  Future<void> sendEmailVerification() async {
+  Future<Result<void>> sendEmailVerification() async {
     try {
       await _authDao.sendEmailVerification();
-    } catch (e) {
-      throw Exception('Failed to send verification email: $e');
+      return const Result.success(null);
+    } on firebase_auth.FirebaseAuthException catch (e, s) {
+      if (e.code == 'too-many-requests') {
+        return Result.failure(BusinessRuleError(
+          message: '送信回数が多すぎます。しばらくしてから再度お試しください',
+          code: e.code,
+          originalError: e,
+          stackTrace: s,
+        ));
+      }
+      return Result.failure(FirebaseError(
+        message: '確認メールの送信に失敗しました: ${e.message}',
+        code: e.code,
+        originalError: e,
+        stackTrace: s,
+      ));
+    } catch (e, s) {
+      return Result.failure(UnexpectedError(
+        message: '確認メール送信中に予期しないエラーが発生しました',
+        originalError: e,
+        stackTrace: s,
+      ));
     }
   }
 
   @override
-  Future<void> sendPasswordResetEmail({required String email}) {
+  Future<Result<void>> sendPasswordResetEmail({required String email}) async {
     try {
-      return _authDao.sendPasswordResetEmail(email: email);
-    } catch (e) {
-      throw Exception('Failed to send password reset email: $e');
+      await _authDao.sendPasswordResetEmail(email: email);
+      return const Result.success(null);
+    } on firebase_auth.FirebaseAuthException catch (e, s) {
+      switch (e.code) {
+        case 'invalid-email':
+          return Result.failure(ValidationError(
+            message: 'メールアドレスの形式が正しくありません',
+            code: e.code,
+            originalError: e,
+            stackTrace: s,
+          ));
+        case 'user-not-found':
+          return Result.failure(NotFoundError(
+            message: 'このメールアドレスは登録されていません',
+            code: e.code,
+            originalError: e,
+            stackTrace: s,
+          ));
+        default:
+          return Result.failure(FirebaseError(
+            message: 'パスワードリセットメールの送信に失敗しました: ${e.message}',
+            code: e.code,
+            originalError: e,
+            stackTrace: s,
+          ));
+      }
+    } catch (e, s) {
+      return Result.failure(UnexpectedError(
+        message: 'パスワードリセット中に予期しないエラーが発生しました',
+        originalError: e,
+        stackTrace: s,
+      ));
     }
   }
 

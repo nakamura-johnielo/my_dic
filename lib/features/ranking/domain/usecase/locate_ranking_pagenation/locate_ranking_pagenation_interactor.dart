@@ -10,8 +10,8 @@ class LocateRankingPagenationInteractor
 
   @override
   void execute(LocateRankingPagenationInputData input) {
-    LocateRankingPagenationOutputData output =
-        LocateRankingPagenationOutputData(input.pagenationFilter);
+    // LocateRankingPagenationOutputData output =
+    //     LocateRankingPagenationOutputData(input.pagenationFilter);
     //_locateRankingPagenationPresenterImpl.execute(output);
   }
 }
