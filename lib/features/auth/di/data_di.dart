@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/core/infrastructure/database/firebase_provider.dart';
+import 'package:my_dic/core/infrastructure/database/firebase/firebase_provider.dart';
 import 'package:my_dic/features/auth/data/data_source/remote/firebase_auth_dao.dart';
 import 'package:my_dic/features/auth/data/repository_impl/firebase_auth_repository_impl.dart';
 import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/core/common/enums/feature_tag.dart';
-import 'package:my_dic/core/common/enums/i_enum.dart';
-import 'package:my_dic/core/common/enums/word/part_of_speech.dart';
+import 'package:my_dic/core/shared/enums/feature_tag.dart';
+import 'package:my_dic/core/shared/enums/i_enum.dart';
+import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
 import 'package:my_dic/features/ranking/domain/usecase/load_rankings/i_load_rankings_use_case.dart';
 import 'package:my_dic/features/ranking/domain/usecase/load_rankings/load_rankings_input_data.dart';
 import 'package:my_dic/features/ranking/domain/usecase/locate_ranking_pagenation/i_locate_ranking_pagenation_use_case.dart';

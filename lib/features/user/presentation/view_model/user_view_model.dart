@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/core/common/enums/subscription_status.dart';
+import 'package:my_dic/core/shared/enums/subscription_status.dart';
 import 'package:my_dic/features/user/domain/usecase/ensure_user_exists.dart';
 import 'package:my_dic/features/user/domain/usecase/get_user.dart';
 import 'package:my_dic/core/domain/entity/auth.dart';

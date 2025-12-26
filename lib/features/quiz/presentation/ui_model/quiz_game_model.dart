@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:my_dic/features/quiz/consts/card_state.dart';
-import 'package:my_dic/core/common/enums/conjugacion/mood_tense.dart';
-import 'package:my_dic/core/common/enums/conjugacion/subject.dart';
+import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
+import 'package:my_dic/core/shared/enums/conjugacion/subject.dart';
 
 /// 外部に公開する Quiz の状態（読み取り専用）
 class QuizGameState {

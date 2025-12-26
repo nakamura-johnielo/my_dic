@@ -1,12 +1,12 @@
 import 'package:drift/drift.dart';
-import 'package:my_dic/core/common/enums/feature_tag.dart';
-import 'package:my_dic/core/common/enums/i_enum.dart';
-import 'package:my_dic/core/common/enums/word/part_of_speech.dart';
-import 'package:my_dic/core/infrastructure/database/table/esp_jpn/conjugations.dart';
+import 'package:my_dic/core/shared/enums/feature_tag.dart';
+import 'package:my_dic/core/shared/enums/i_enum.dart';
+import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
+import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/conjugations.dart';
 import 'package:my_dic/features/ranking/data/data_source/local/rankings_entity.dart';
-import 'package:my_dic/_Framework_Driver/local/drift/Entity/part_of_speech_lists.dart';
-import 'package:my_dic/core/infrastructure/database/table/esp_jpn/word_status.dart';
-import 'package:my_dic/core/infrastructure/database/database_provider.dart';
+import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/part_of_speech_lists.dart';
+import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/word_status.dart';
+import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:tuple/tuple.dart';
 part '../../../../../__generated/features/ranking/data/data_source/local/ranking_dao.g.dart';
 
@@ -72,7 +72,7 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
         rankingNo: row.read<int>('ranking_no'),
         word: row.read<String?>('word'),
         wordOrigin: row.read<String?>('word_origin'),
-        wordId: row.read<int?>('word_id'),
+        wordId: row.read<int?>('word_id')??-1,
       );
     }).toList();
   }
@@ -157,7 +157,7 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
         rankingNo: row.read<int>('ranking_no'),
         word: row.read<String?>('word'),
         wordOrigin: row.read<String?>('word_origin'),
-        wordId: row.read<int?>('word_id'),
+        wordId: row.read<int?>('word_id')??-1,
         hasConj: row.read<int>('has_conj'),
       );
       final status = EspJpnWordStatusTableData(

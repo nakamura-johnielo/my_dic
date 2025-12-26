@@ -2,9 +2,9 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/Components/conjugacion_card.dart';
-import 'package:my_dic/core/common/enums/conjugacion/mood_tense.dart';
-import 'package:my_dic/core/common/enums/ui/ui.dart';
+import 'package:my_dic/features/word_page/presentation/components/conjugacion_card.dart';
+import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
+import 'package:my_dic/core/shared/enums/ui/ui.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacions.dart';
 import 'package:my_dic/features/search/di/view_model_di.dart';
 import 'package:my_dic/features/word_page/di/view_model_di.dart';

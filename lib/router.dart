@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_dic/core/application/app_effects/auth_effect_provider.dart';
+import 'package:my_dic/core/application/effects/auth_effect_provider.dart';
 import 'package:my_dic/core/domain/entity/auth.dart';
 import 'package:my_dic/features/auth/presentation/view/sign_up.dart';
-import 'package:my_dic/_View/main_activity.dart';
-import 'package:my_dic/core/common/enums/ui/tab.dart';
+import 'package:my_dic/main_activity.dart';
+import 'package:my_dic/core/shared/enums/ui/tab.dart';
 import 'package:my_dic/features/my_word/presentation/view/my_word_fragment.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
 import 'package:my_dic/features/ranking/presentation/view/ranking_fragment.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:my_dic/core/common/enums/conjugacion/mood_tense.dart';
+import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/tense_conjugacion.dart';
 import 'package:my_dic/core/domain/entity/verb/participles.dart';
 

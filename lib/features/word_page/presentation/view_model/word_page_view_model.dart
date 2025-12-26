@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/core/common/enums/word/word_type.dart';
+import 'package:my_dic/core/shared/enums/word/word_type.dart';
 import 'package:my_dic/core/domain/usecase/fetch_dictionary/fetch_dictionary_input_data.dart';
 import 'package:my_dic/core/domain/usecase/fetch_dictionary/i_fetch_dictionary_use_case.dart';
 import 'package:my_dic/core/domain/usecase/fetch_jpn_esp_dictionary/fetch_jpn_esp_dictionary_input_data.dart';
