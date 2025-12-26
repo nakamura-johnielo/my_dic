@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/core/common/enums/ui/ui.dart';
+import 'package:my_dic/core/shared/enums/ui/ui.dart';
 import 'package:my_dic/core/domain/entity/dictionary/esj_dictionary.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/features/word_page/di/view_model_di.dart';
@@ -30,7 +30,7 @@ class EspJpnDictionaryFragment extends ConsumerWidget {
     //   );
     // }
     
-    final viewModel = ref.watch(wordPageViewModelProvider);
+    final viewModel = ref.watch(wordPageViewModelProvider(wordId));
 
     final List<EspJpnDictionary>? dictionaries =
         viewModel.espJpnDictionary;

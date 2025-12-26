@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/core/common/enums/feature_tag.dart';
+import 'package:my_dic/core/shared/enums/feature_tag.dart';
 import 'package:my_dic/features/my_word/domain/usecase/load_my_word/i_load_my_word_use_case.dart';
 import 'package:my_dic/features/my_word/domain/usecase/load_my_word/load_my_word_input_data.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word/create/handle_word_registration/handle_word_registration_input_data.dart';

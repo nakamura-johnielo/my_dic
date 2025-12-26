@@ -1,5 +1,5 @@
-import 'package:my_dic/core/common/enums/conjugacion/mood_tense.dart';
-import 'package:my_dic/core/infrastructure/database/dao/local/es_en_conjugacion_dao.dart';
+import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
+import 'package:my_dic/core/infrastructure/database/drift/daos/es_en_conjugacion_dao.dart';
 import 'package:my_dic/features/quiz/domain/usecase/fetch_english_conj.dart/i_fetch_english_conj_repository.dart';
 
 class DriftEsEnConjugacionRepository implements IEsEnConjugacionRepository{
