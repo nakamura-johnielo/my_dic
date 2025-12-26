@@ -1,4 +1,4 @@
-import 'package:my_dic/core/shared/consts/dates.dart';
+
 import 'package:my_dic/core/domain/i_repository/i_sync_status_repository.dart';
 import 'package:my_dic/core/infrastructure/database/shared_preferences/shared_preferences_syncstatus_dao.dart';
 

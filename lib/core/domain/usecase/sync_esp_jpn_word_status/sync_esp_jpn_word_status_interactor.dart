@@ -1,5 +1,4 @@
 import 'package:my_dic/core/shared/consts/dates.dart';
-import 'package:my_dic/core/shared/consts/sharedPreference.dart';
 import 'package:my_dic/core/domain/entity/word/esp_word_status.dart';
 import 'package:my_dic/core/domain/i_repository/i_sync_status_repository.dart';
 import 'package:my_dic/core/domain/i_repository/i_word_status_repository.dart';

@@ -10,7 +10,6 @@ import 'package:my_dic/core/shared/enums/word/word_type.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/tense_conjugacion.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacions.dart';
 import 'package:my_dic/features/quiz/di/provider_di.dart';
-import 'package:my_dic/features/quiz/di/usecase_di.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
 

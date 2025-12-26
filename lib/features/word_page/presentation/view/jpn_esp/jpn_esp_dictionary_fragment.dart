@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/enums/ui/ui.dart';
 import 'package:my_dic/core/domain/entity/jpn_esp/jpn_esp_dictionary.dart';
 import 'package:my_dic/features/word_page/di/view_model_di.dart';
-import 'package:my_dic/html_style_kotobank.dart';
+import 'package:my_dic/features/word_page/presentation/view/html_style_kotobank.dart';
 //import 'package:my_dic/Infrastracture/DAO/kotobank_dictionary_dao.dart';
 
 class JpnEspDictionaryFragmentInputData {
