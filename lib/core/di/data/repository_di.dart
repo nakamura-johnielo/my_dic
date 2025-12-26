@@ -7,16 +7,16 @@ import 'package:my_dic/core/domain/i_repository/i_jpn_esp_dictionary_repository.
 import 'package:my_dic/core/domain/i_repository/i_jpn_esp_word_repository.dart';
 import 'package:my_dic/core/domain/i_repository/i_sync_status_repository.dart';
 import 'package:my_dic/core/domain/i_repository/i_word_status_repository.dart';
-import 'package:my_dic/core/infrastructure/repository/drift_conjugacion_repository.dart';
-import 'package:my_dic/core/infrastructure/repository/drift_word_status_repository.dart';
-import 'package:my_dic/core/infrastructure/repository/firebase_word_status_repository.dart';
-import 'package:my_dic/core/infrastructure/repository/sync_status_repository.dart';
-import 'package:my_dic/core/infrastructure/repository/wordstatus_repository.dart';
+import 'package:my_dic/core/infrastructure/repositories/drift_conjugacion_repository.dart';
+import 'package:my_dic/core/infrastructure/repositories/drift_word_status_repository.dart';
+import 'package:my_dic/core/infrastructure/repositories/firebase_word_status_repository.dart';
+import 'package:my_dic/core/infrastructure/repositories/sync_status_repository.dart';
+import 'package:my_dic/core/infrastructure/repositories/wordstatus_repository.dart';
 import 'package:my_dic/features/quiz/data/repository_impl/drift_es_en_conjugacions_repository.dart';
-import 'package:my_dic/core/infrastructure/repository/drift_esj_dictionary_repository.dart';
-import 'package:my_dic/core/infrastructure/repository/drift_esj_word_repository.dart';
-import 'package:my_dic/core/infrastructure/repository/drift_jpn_esp_dictionary_repository.dart';
-import 'package:my_dic/core/infrastructure/repository/drift_jpn_esp_word_repository.dart';
+import 'package:my_dic/core/infrastructure/repositories/drift_esj_dictionary_repository.dart';
+import 'package:my_dic/core/infrastructure/repositories/drift_esj_word_repository.dart';
+import 'package:my_dic/core/infrastructure/repositories/drift_jpn_esp_dictionary_repository.dart';
+import 'package:my_dic/core/infrastructure/repositories/drift_jpn_esp_word_repository.dart';
 
 final esjDictionaryRepositoryProvider =
     Provider<IEsjDictionaryRepository>((ref) {

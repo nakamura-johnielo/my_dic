@@ -1,6 +1,6 @@
-import 'package:my_dic/core/common/enums/conjugacion/enum_mood_tense_subject.dart';
-import 'package:my_dic/core/common/enums/conjugacion/mood_tense.dart';
-import 'package:my_dic/core/common/enums/conjugacion/subject.dart';
+import 'package:my_dic/core/shared/enums/conjugacion/enum_mood_tense_subject.dart';
+import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
+import 'package:my_dic/core/shared/enums/conjugacion/subject.dart';
 
 class SearchResultConjugacions {
   SearchResultConjugacions(

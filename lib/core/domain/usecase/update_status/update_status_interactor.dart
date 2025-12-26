@@ -1,4 +1,4 @@
-import 'package:my_dic/core/common/enums/feature_tag.dart';
+import 'package:my_dic/core/shared/enums/feature_tag.dart';
 import 'package:my_dic/core/domain/entity/word/esp_word_status.dart';
 import 'package:my_dic/core/domain/i_repository/i_word_status_repository.dart';
 import 'package:my_dic/core/domain/usecase/update_status/update_status_input_data.dart';

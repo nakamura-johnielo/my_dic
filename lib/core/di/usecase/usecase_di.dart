@@ -10,8 +10,8 @@ import 'package:my_dic/core/domain/usecase/fetch_jpn_esp_dictionary/fetch_jpn_es
 import 'package:my_dic/core/domain/usecase/fetch_jpn_esp_dictionary/i_fetch_jpn_esp_dictionary_use_case.dart';
 import 'package:my_dic/core/domain/usecase/update_status/i_update_status_use_case.dart';
 import 'package:my_dic/core/domain/usecase/update_status/update_status_interactor.dart';
-import 'package:my_dic/core/service/usecase/i_sync_esp_jpn_word_status_usecase.dart';
-import 'package:my_dic/core/service/usecase/sync_esp_jpn_word_status_interactor.dart';
+import 'package:my_dic/core/domain/usecase/sync_esp_jpn_word_status/i_sync_esp_jpn_word_status_usecase.dart';
+import 'package:my_dic/core/domain/usecase/sync_esp_jpn_word_status/sync_esp_jpn_word_status_interactor.dart';
 
 
 final fetchEspJpnWordStatusInteractorProvider = Provider<FetchEspJpnWordStatusUsecase>((ref) {

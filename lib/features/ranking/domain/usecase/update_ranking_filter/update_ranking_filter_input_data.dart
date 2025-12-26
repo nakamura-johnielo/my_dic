@@ -1,4 +1,4 @@
-import 'package:my_dic/core/common/enums/i_enum.dart';
+import 'package:my_dic/core/shared/enums/i_enum.dart';
 
 class UpdateRankingFilterInputData {
   DisplayEnumMixin data;

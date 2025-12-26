@@ -1,4 +1,4 @@
-import 'package:my_dic/core/common/enums/dictionary/dictionary_type.dart';
+import 'package:my_dic/core/shared/enums/dictionary/dictionary_type.dart';
 import 'package:my_dic/features/search/domain/usecase/judge_search_word/judge_search_word_input_data.dart';
 import 'package:my_dic/features/search/domain/usecase/judge_search_word/i_judge_search_word_use_case.dart';
 import 'package:my_dic/features/search/domain/usecase/judge_search_word/judge_search_word_output_data.dart';

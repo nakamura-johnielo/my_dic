@@ -4,6 +4,7 @@ part of '../../../../../../features/ranking/data/data_source/local/ranking_dao.d
 
 // ignore_for_file: type=lint
 mixin _$RankingDaoMixin on DatabaseAccessor<DatabaseProvider> {
+  $EspJpnWordsTable get espJpnWords => attachedDatabase.espJpnWords;
   $RankingsTable get rankings => attachedDatabase.rankings;
   $PartOfSpeechListsTable get partOfSpeechLists =>
       attachedDatabase.partOfSpeechLists;

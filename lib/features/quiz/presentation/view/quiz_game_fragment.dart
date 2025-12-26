@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_dic/Components/quiz_card.dart';
-import 'package:my_dic/Components/status_buttons.dart';
-import 'package:my_dic/core/common/enums/conjugacion/mood_tense.dart';
-import 'package:my_dic/core/common/enums/conjugacion/subject.dart';
-import 'package:my_dic/core/common/enums/ui/tab.dart';
-import 'package:my_dic/core/common/enums/word/word_type.dart';
+import 'package:my_dic/features/quiz/presentation/components/quiz_card.dart';
+import 'package:my_dic/core/presentation/components/button/status_buttons.dart';
+import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
+import 'package:my_dic/core/shared/enums/conjugacion/subject.dart';
+import 'package:my_dic/core/shared/enums/ui/tab.dart';
+import 'package:my_dic/core/shared/enums/word/word_type.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/tense_conjugacion.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacions.dart';
+import 'package:my_dic/features/quiz/di/provider_di.dart';
 import 'package:my_dic/features/quiz/di/usecase_di.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
@@ -18,25 +19,6 @@ class QuizGameFragmentInput {
   final String word;
   QuizGameFragmentInput({required this.wordId, required this.word});
 }
-
-final conjEnglishProvider = FutureProvider<Map<String, String>>((ref) async {
-  final usecase=ref.read(fetchEnglishConjSubUsecaseProvider);
-  return await usecase.getConjEnglishGuide();
-});
-
-final beConjProvider =
-    FutureProvider<Map<String, Map<String, String>>>((ref) async {
-  final usecase=ref.read(fetchEnglishConjSubUsecaseProvider);
-  return await usecase.getConjOfBe();
-});
-
-// 追加: DBから英語活用を取得（wordIdごと）
-final englishConjByWordIdProvider =
-    FutureProvider.family<Map<String, String>, int>((ref, wordId) async {
-  final controller = ref.read(quizGameViewModelProvider.notifier);
-  // final controller = ref.read(quizControllerProvider);
-  return controller.fetchEnglishConj(wordId);
-});
 
 // ConsumerStatefulWidgetに変更
 class QuizGameFragment extends ConsumerWidget {

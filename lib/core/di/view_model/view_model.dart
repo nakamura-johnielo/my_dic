@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/Components/word_status_state.dart';
-import 'package:my_dic/core/application/viewmodel/status_buttons_view_model.dart';
+import 'package:my_dic/core/application/state/word_status_state.dart';
+import 'package:my_dic/core/application/view_model/status_buttons_view_model.dart';
 import 'package:my_dic/core/di/usecase/usecase_di.dart';
 
 // final espJpnWordStatusViewModelProvider =

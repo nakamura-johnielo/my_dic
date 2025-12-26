@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_dic/core/common/enums/ui/tab.dart';
+import 'package:my_dic/core/shared/enums/ui/tab.dart';
 import 'package:my_dic/features/user/di/viewmodel.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
