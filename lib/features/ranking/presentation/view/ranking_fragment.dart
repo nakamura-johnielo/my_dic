@@ -24,7 +24,7 @@ class RankingFragment extends ConsumerStatefulWidget {
 
 class _RankingFragmentState extends ConsumerState<RankingFragment> {
   // int _currentPage = -1;
-  final int _size = 30; //searchの1ページの取得件数
+  //final int _size = 30; //searchの1ページの取得件数
   int _previousItemLength = 0;
   final int _initialPage = 0;
   // bool _hasMore = true;

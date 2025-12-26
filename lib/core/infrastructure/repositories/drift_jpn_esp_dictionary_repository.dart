@@ -6,6 +6,8 @@ import 'package:my_dic/core/infrastructure/database/drift/daos/jpn_esp/jpn_esp_d
 import 'package:my_dic/core/infrastructure/database/drift/daos/jpn_esp/jpn_esp_example_dao.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart'
     as drift;
+import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 
 class DriftJpnEspDictionaryRepository implements IJpnEspDictionaryRepository {
   final JpnEspDictionaryDao _dictionaryDao;
@@ -14,30 +16,38 @@ class DriftJpnEspDictionaryRepository implements IJpnEspDictionaryRepository {
   DriftJpnEspDictionaryRepository(this._dictionaryDao, this._exampleDao);
 
   @override
-  Future<List<JpnEspDictionary>> getDictionaryByWordId(
+  Future<Result<List<JpnEspDictionary>>> getDictionaryByWordId(
       FetchJpnEspDictionaryRepositoryInputData input) async {
-    final dic = await _dictionaryDao.getDictionaryByWordId(input.id);
-    List<JpnEspDictionary> res = [];
-    if (dic.isEmpty) {
-      return res; // 結果がnullの場合はnullを返す
-    }
+    try {
+      final dic = await _dictionaryDao.getDictionaryByWordId(input.id);
+      List<JpnEspDictionary> res = [];
+      if (dic.isEmpty) {
+        return Result.success(res); // 結果がnullの場合はnullを返す
+      }
 
-    for (int i = 0; i < dic.length; i++) {
-      final d = dic[i];
-      final int dicId = d.dictionaryId;
-      final exp = await _exampleDao.getExampleByDictionaryId(dicId);
+      for (int i = 0; i < dic.length; i++) {
+        final d = dic[i];
+        final int dicId = d.dictionaryId;
+        final exp = await _exampleDao.getExampleByDictionaryId(dicId);
 
-      res.add(JpnEspDictionary(
-        id: d.dictionaryId,
-        wordId: d.wordId,
-        word: d.word,
-        headword: d.headword,
-        content: d.htmlRaw, //!todo
-        examples: (exp.isNotEmpty) ? convertExamples(exp) : null,
+        res.add(JpnEspDictionary(
+          id: d.dictionaryId,
+          wordId: d.wordId,
+          word: d.word,
+          headword: d.headword,
+          content: d.htmlRaw, //!todo
+          examples: (exp.isNotEmpty) ? convertExamples(exp) : null,
+        ));
+      }
+
+      return Result.success(res);
+    } catch (e, stackTrace) {
+      return Result.failure(DatabaseError(
+        message: '和西辞書の取得に失敗しました',
+        originalError: e,
+        stackTrace: stackTrace,
       ));
     }
-
-    return res;
   }
 }
 

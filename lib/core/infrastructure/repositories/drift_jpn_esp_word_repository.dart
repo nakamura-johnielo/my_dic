@@ -9,6 +9,8 @@ import 'package:my_dic/core/infrastructure/database/drift/daos/jpn_esp/jpn_esp_d
 import 'package:my_dic/core/infrastructure/database/drift/daos/jpn_esp/jpn_esp_word_dao.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart'
 ;
+import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 
 class DriftJpnEspWordRepository implements IJpnEspWordRepository {
   final JpnEspWordDao _jpnEspWordDao;
@@ -19,36 +21,54 @@ class DriftJpnEspWordRepository implements IJpnEspWordRepository {
   DriftJpnEspWordRepository(this._jpnEspWordDao, this._jpnEspDictionaryDao);
 
   @override
-  Future<List<JpnEspWord>> getWordsByWord(
+  Future<Result<List<JpnEspWord>>> getWordsByWord(
       String word, int size, int currentPage) async {
-    final words = await _jpnEspWordDao.getWordsByWord(word, size, currentPage);
+    try {
+      final words = await _jpnEspWordDao.getWordsByWord(word, size, currentPage);
 
-    if (words == null) return [];
-    //final partOfSpeech=await _pslDao.getPartOfSpeechListByWordId(word)
-    return words.map((word) {
-      return JpnEspWord(
-        id: word.wordId,
-        word: word.word,
-      );
-    }).toList();
+      if (words == null) return Result.success([]);
+      //final partOfSpeech=await _pslDao.getPartOfSpeechListByWordId(word)
+      final result = words.map((word) {
+        return JpnEspWord(
+          id: word.wordId,
+          word: word.word,
+        );
+      }).toList();
+      return Result.success(result);
+    } catch (e, stackTrace) {
+      return Result.failure(DatabaseError(
+        message: '和西単語の検索に失敗しました',
+        originalError: e,
+        stackTrace: stackTrace,
+      ));
+    }
   }
 
   @override
-  void updateStatus(UpdateStatusRepositoryInputData input) async {
-    log("updatestatusrepo");
-    EspJpnWordStatusTableData data = EspJpnWordStatusTableData(
-      wordId: input.wordId,
-      isLearned: input.status.contains(FeatureTag.isLearned) ? 1 : 0,
-      isBookmarked: input.status.contains(FeatureTag.isBookmarked) ? 1 : 0,
-      hasNote: input.status.contains(FeatureTag.hasNote) ? 1 : 0,
-      editAt: input.editAt,
-    );
+  Future<Result<void>> updateStatus(UpdateStatusRepositoryInputData input) async {
+    try {//TODO remove ここでは使わない
+      log("updatestatusrepo");
+      EspJpnWordStatusTableData data = EspJpnWordStatusTableData(
+        wordId: input.wordId,
+        isLearned: input.status.contains(FeatureTag.isLearned) ? 1 : 0,
+        isBookmarked: input.status.contains(FeatureTag.isBookmarked) ? 1 : 0,
+        hasNote: input.status.contains(FeatureTag.hasNote) ? 1 : 0,
+        editAt: input.editAt,
+      );
 
-    /* if (await _jpnEspDictionaryDao.exist(input.wordId)) {
-      _jpnEspDictionaryDao.updateStatus(data);
-      return;
+      /* if (await _jpnEspDictionaryDao.exist(input.wordId)) {
+        _jpnEspDictionaryDao.updateStatus(data);
+        return;
+      }
+      _jpnEspDictionaryDao.insertStatus(data); */
+      return Result.success(null);
+    } catch (e, stackTrace) {
+      return Result.failure(DatabaseError(
+        message: '和西単語ステータスの更新に失敗しました',
+        originalError: e,
+        stackTrace: stackTrace,
+      ));
     }
-    _jpnEspDictionaryDao.insertStatus(data); */
   }
 }
 

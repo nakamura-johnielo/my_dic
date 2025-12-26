@@ -2,6 +2,9 @@ import 'dart:developer';
 
 import 'package:my_dic/core/shared/enums/feature_tag.dart';
 import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
+import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
+import 'package:my_dic/core/shared/errors/unexpected_error.dart';
+import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/domain/usecase/update_status/update_status_repository_input_data.dart';
 import 'package:my_dic/core/domain/entity/word/word.dart';
 import 'package:my_dic/core/domain/entity/word/esp_word_status.dart';
@@ -17,80 +20,126 @@ class DriftEsjWordRepository implements IEsjWordRepository {
   DriftEsjWordRepository(this._wordDao, this._wordStatusDao);
 
   @override
-  Future<List<EspJpnWord>> getWordsByWord(String word) async {
-    final words = await _wordDao.getWordsByWord(word);
-    if (words == null) return [];
-    //final partOfSpeech=await _pslDao.getPartOfSpeechListByWordId(word)
-    return words.map((word) {
-      return EspJpnWord(
-        wordId: word.wordId,
-        word: word.word,
-        partOfSpeech: _convertPartOfSpeech(word.partOfSpeech),
-      );
-    }).toList();
-  }
-
-  @override
-  void updateStatus(UpdateStatusRepositoryInputData input) async {
-    log("updatestatusrepo");
-    EspJpnWordStatusTableData data = EspJpnWordStatusTableData(
-      wordId: input.wordId,
-      isLearned: input.status.contains(FeatureTag.isLearned) ? 1 : 0,
-      isBookmarked: input.status.contains(FeatureTag.isBookmarked) ? 1 : 0,
-      hasNote: input.status.contains(FeatureTag.hasNote) ? 1 : 0,
-      editAt: input.editAt,
-    );
-
-    if (await _wordStatusDao.exist(input.wordId)) {
-      _wordStatusDao.updateStatus(data);
-      return;
+  Future<Result<List<EspJpnWord>>> getWordsByWord(String word) async {
+    try {
+      final words = await _wordDao.getWordsByWord(word);
+      if (words == null) return const Result.success([]);
+      
+      final wordList = words.map((word) {
+        return EspJpnWord(
+          wordId: word.wordId,
+          word: word.word,
+          partOfSpeech: _convertPartOfSpeech(word.partOfSpeech),
+        );
+      }).toList();
+      
+      return Result.success(wordList);
+    } catch (e, s) {
+      return Result.failure(DatabaseError(
+        message: '単語の検索に失敗しました',
+        originalError: e,
+        stackTrace: s,
+      ));
     }
-    _wordStatusDao.insertStatus(data);
   }
 
   @override
-  Future<List<EspJpnWord>> getWordsByWordByPage(
-      String word, int size, int currentPage, bool forQuiz) async {
-    print(word + " , " + size.toString() + " , " + currentPage.toString());
-    final words = await _wordDao.getWordsByWordByPage(word, size, currentPage);
-    if (words == null) return [];
-    print("words length in repo: " + words.length.toString());
-    //final partOfSpeech=await _pslDao.getPartOfSpeechListByWordId(word)
-    return words.map((word) {
-      return EspJpnWord(
-        wordId: word.wordId,
-        word: word.word,
-        partOfSpeech: _convertPartOfSpeech(word.partOfSpeech),
+  Future<Result<void>> updateStatus(UpdateStatusRepositoryInputData input) async {
+    try {
+      log("updatestatusrepo");
+      EspJpnWordStatusTableData data = EspJpnWordStatusTableData(
+        wordId: input.wordId,
+        isLearned: input.status.contains(FeatureTag.isLearned) ? 1 : 0,
+        isBookmarked: input.status.contains(FeatureTag.isBookmarked) ? 1 : 0,
+        hasNote: input.status.contains(FeatureTag.hasNote) ? 1 : 0,
+        editAt: input.editAt,
       );
-    }).toList();
+
+      if (await _wordStatusDao.exist(input.wordId)) {
+        await _wordStatusDao.updateStatus(data);
+      } else {
+        await _wordStatusDao.insertStatus(data);
+      }
+      return const Result.success(null);
+    } catch (e, s) {
+      return Result.failure(DatabaseError(
+        message: '単語ステータスの更新に失敗しました',
+        originalError: e,
+        stackTrace: s,
+      ));
+    }
+  }
+
+  @override
+  Future<Result<List<EspJpnWord>>> getWordsByWordByPage(
+      String word, int size, int currentPage, bool forQuiz) async {
+    try {
+      print(word + " , " + size.toString() + " , " + currentPage.toString());
+      final words = await _wordDao.getWordsByWordByPage(word, size, currentPage);
+      if (words == null) return const Result.success([]);
+      
+      print("words length in repo: " + words.length.toString());
+      final wordList = words.map((word) {
+        return EspJpnWord(
+          wordId: word.wordId,
+          word: word.word,
+          partOfSpeech: _convertPartOfSpeech(word.partOfSpeech),
+        );
+      }).toList();
+      
+      return Result.success(wordList);
+    } catch (e, s) {
+      return Result.failure(DatabaseError(
+        message: '単語リストの取得に失敗しました',
+        originalError: e,
+        stackTrace: s,
+      ));
+    }
   }
 
   @override //!TODO delete
-  Future<List<EspJpnWord>> getQuizWordsByWordByPage(
+  Future<Result<List<EspJpnWord>>> getQuizWordsByWordByPage(
       String word, int size, int currentPage) async {
-//nashi
-    final words = await _wordDao.getWordsByWordByPage(word, size, currentPage);
-    if (words == null) return [];
-    //final partOfSpeech=await _pslDao.getPartOfSpeechListByWordId(word)
-    return words.map((word) {
-      return EspJpnWord(
-        wordId: word.wordId,
-        word: word.word,
-        partOfSpeech: _convertPartOfSpeech(word.partOfSpeech),
-      );
-    }).toList();
+    try {
+      final words = await _wordDao.getWordsByWordByPage(word, size, currentPage);
+      if (words == null) return const Result.success([]);
+      
+      final wordList = words.map((word) {
+        return EspJpnWord(
+          wordId: word.wordId,
+          word: word.word,
+          partOfSpeech: _convertPartOfSpeech(word.partOfSpeech),
+        );
+      }).toList();
+      
+      return Result.success(wordList);
+    } catch (e, s) {
+      return Result.failure(DatabaseError(
+        message: 'クイズ用単語リストの取得に失敗しました',
+        originalError: e,
+        stackTrace: s,
+      ));
+    }
   }
 
   @override
-  Future<WordStatus> getStatusById(int wordId) async {
-    final status = await _wordStatusDao.getStatusById(wordId);
-    return WordStatus(
-      wordId: wordId,
-      isLearned: status?.isLearned == 1,
-      isBookmarked: status?.isBookmarked == 1,
-      hasNote: status?.hasNote == 1,
-      editAt: status?.editAt != null ? DateTime.parse(status!.editAt) : null,
-    );
+  Future<Result<WordStatus>> getStatusById(int wordId) async {
+    try {
+      final status = await _wordStatusDao.getStatusById(wordId);
+      return Result.success(WordStatus(
+        wordId: wordId,
+        isLearned: status?.isLearned == 1,
+        isBookmarked: status?.isBookmarked == 1,
+        hasNote: status?.hasNote == 1,
+        editAt: status?.editAt != null ? DateTime.parse(status!.editAt) : null,
+      ));
+    } catch (e, s) {
+      return Result.failure(DatabaseError(
+        message: '単語ステータスの取得に失敗しました',
+        originalError: e,
+        stackTrace: s,
+      ));
+    }
   }
 }
 

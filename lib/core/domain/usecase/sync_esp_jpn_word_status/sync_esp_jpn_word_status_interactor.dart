@@ -1,9 +1,9 @@
 import 'package:my_dic/core/shared/consts/dates.dart';
-import 'package:my_dic/core/shared/consts/sharedPreference.dart';
 import 'package:my_dic/core/domain/entity/word/esp_word_status.dart';
 import 'package:my_dic/core/domain/i_repository/i_sync_status_repository.dart';
 import 'package:my_dic/core/domain/i_repository/i_word_status_repository.dart';
 import 'package:my_dic/core/domain/usecase/sync_esp_jpn_word_status/i_sync_esp_jpn_word_status_usecase.dart';
+import 'package:my_dic/core/shared/utils/result.dart';
 
 class SyncEspJpnWordStatusInteractor implements ISyncEspJpnWordStatusUseCase {
   final ISyncStatusRepository _localSyncStatusRepository;
@@ -100,14 +100,24 @@ class SyncEspJpnWordStatusInteractor implements ISyncEspJpnWordStatusUseCase {
   Future<void> _updateLocalLastSyncDate() async {
     //TODO servertimestapで同期時刻取得sる用変更
     final now = DateTime.now().toUtc();
-    await _localSyncStatusRepository.updateSyncDate(now);
+    final result = await _localSyncStatusRepository.updateSyncDate(now);
+    
+    result.when(
+      success: (_) => print('Sync date updated successfully'),
+      failure: (error) => print('Failed to update sync date: $error'),
+    );
   }
 
   Future<DateTime> _getLastSyncDate() async {
-    final localLastSyncDate =
-        await _localSyncStatusRepository.getLastSyncDate() ??
-            MyDateTime.sentinel;
-    return localLastSyncDate;
+    final result = await _localSyncStatusRepository.getLastSyncDate();
+    
+    return result.when(
+      success: (localLastSyncDate) => localLastSyncDate ?? MyDateTime.sentinel,
+      failure: (error) {
+        print('Failed to get last sync date: $error');
+        return MyDateTime.sentinel;
+      },
+    );
   }
 
   Future<int?> _syncHandle(String userId, WordStatus remoteItem) async {

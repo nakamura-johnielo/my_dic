@@ -8,6 +8,8 @@ import 'package:my_dic/core/domain/entity/verb/conjugacion/tense_conjugacion.dar
 import 'package:my_dic/core/domain/i_repository/i_conjugation_repository.dart';
 import 'package:my_dic/core/infrastructure/database/drift/daos/esp_jpn/conjugation_dao.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
+import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 
 class DriftConjugacionRepository implements IConjugacionsRepository {
   final ConjugationDao _conjugacionDao;
@@ -22,51 +24,75 @@ class DriftConjugacionRepository implements IConjugacionsRepository {
   //   return Conjugacions(wordId: res.wordId, conjugacions: convertToConjugations(res));
   // }
   @override
-  Future<EspConjugacions?> getConjugacionByWordId(int id) async {
-    final res = await _conjugacionDao.getConjugationById(id);
-    if (res == null) {
-      return null; // 結果がnullの場合はnullを返す
+  Future<Result<EspConjugacions?>> getConjugacionByWordId(int id) async {
+    try {
+      final res = await _conjugacionDao.getConjugationById(id);
+      if (res == null) {
+        return Result.success(null); // 結果がnullの場合はnullを返す
+      }
+
+      return Result.success(EspConjugacions(
+          wordId: res.wordId,
+          conjugacions: convertToConjugations(res),
+          participles: EspParticiples(
+              present: res.presentParticiple!, past: res.pastParticiple!)));
+    } catch (e, stackTrace) {
+      return Result.failure(DatabaseError(
+        message: '活用形の取得に失敗しました',
+        originalError: e,
+        stackTrace: stackTrace,
+      ));
     }
-
-    return EspConjugacions(
-        wordId: res.wordId,
-        conjugacions: convertToConjugations(res),
-        participles: EspParticiples(
-            present: res.presentParticiple!, past: res.pastParticiple!));
   }
 
   @override
-  Future<List<SearchResultConjugacions>> getConjugacionByWordWithPage(
+  Future<Result<List<SearchResultConjugacions>>> getConjugacionByWordWithPage(
       String word, int size, int currentPage) async {
-    print("================================{conjugaciones?.length}");
-    final conjugaciones = await _conjugacionDao.getConjugationByWordWithPage(
-        word, size, currentPage);
-    List<SearchResultConjugacions> res = [];
-    if (conjugaciones == null) return res;
+    try {
+      print("================================{conjugaciones?.length}");
+      final conjugaciones = await _conjugacionDao.getConjugationByWordWithPage(
+          word, size, currentPage);
+      List<SearchResultConjugacions> res = [];
+      if (conjugaciones == null) return Result.success(res);
 
-    res = conjugaciones.map((conj) {
-      Map<MoodTenseSubject, String> matches = _check(conj);
-      return SearchResultConjugacions(
-          wordId: conj.wordId, word: conj.word, matches: matches);
-    }).toList();
-    return res;
+      res = conjugaciones.map((conj) {
+        Map<MoodTenseSubject, String> matches = _check(conj);
+        return SearchResultConjugacions(
+            wordId: conj.wordId, word: conj.word, matches: matches);
+      }).toList();
+      return Result.success(res);
+    } catch (e, stackTrace) {
+      return Result.failure(DatabaseError(
+        message: '活用形検索に失敗しました',
+        originalError: e,
+        stackTrace: stackTrace,
+      ));
+    }
   }
 
   @override
-  Future<List<QuizSearchedItem>> getQuizConjugacionByWordWithPage(
+  Future<Result<List<QuizSearchedItem>>> getQuizConjugacionByWordWithPage(
       String word, int size, int currentPage) async {
-    final conjugaciones = await _conjugacionDao
-        .getConjugationInAllTableByWordWithPage(word, size, currentPage);
-    List<QuizSearchedItem> res = [];
-    if (conjugaciones == null) return res;
+    try {
+      final conjugaciones = await _conjugacionDao
+          .getConjugationInAllTableByWordWithPage(word, size, currentPage);
+      List<QuizSearchedItem> res = [];
+      if (conjugaciones == null) return Result.success(res);
 
-    res = conjugaciones.map((conj) {
-      return QuizSearchedItem(
-          wordId: conj.wordId,
-          word: conj.word,
-          simpleMeaning: conj.meaning ?? "");
-    }).toList();
-    return res;
+      res = conjugaciones.map((conj) {
+        return QuizSearchedItem(
+            wordId: conj.wordId,
+            word: conj.word,
+            simpleMeaning: conj.meaning ?? "");
+      }).toList();
+      return Result.success(res);
+    } catch (e, stackTrace) {
+      return Result.failure(DatabaseError(
+        message: 'クイズ用活用形検索に失敗しました',
+        originalError: e,
+        stackTrace: stackTrace,
+      ));
+    }
   }
 
   Map<MoodTenseSubject, String> _check(EspConjugationTableData conjugacion) {
