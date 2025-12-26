@@ -1,12 +1,13 @@
 import 'package:my_dic/core/domain/entity/auth.dart';
+import 'package:my_dic/core/shared/utils/result.dart';
 
 abstract interface class IAuthRepository {
   Stream<AppAuth?> observeAuthState();
-  Future<void> signOut();
-  Future<AppAuth> signInWithEmailAndPassword(
+  Future<Result<void>> signOut();
+  Future<Result<AppAuth>> signInWithEmailAndPassword(
       {required String email, required String password});
-  Future<AppAuth> createUserWithEmailAndPassword(
+  Future<Result<AppAuth>> createUserWithEmailAndPassword(
       {required String email, required String password});
-  Future<void> sendEmailVerification();
-  Future<void> sendPasswordResetEmail({required String email});
+  Future<Result<void>> sendEmailVerification();
+  Future<Result<void>> sendPasswordResetEmail({required String email});
 }
