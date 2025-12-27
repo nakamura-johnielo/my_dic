@@ -52,8 +52,8 @@ flutter:
     - assets/data/be_conjugacion.json
     - assets/data/es_conjugacion_en_translation.json
     # Web用Gzip圧縮JSONデータベース（ビルド時にexport_db_to_json_compressed.dartで生成）
-    - assets/data/kotobank.json.gz
-    - assets/data/es_en_conjugacions.json.gz
+    - assets/db_for_web/kotobank.json.gz
+    - assets/db_for_web/es_en_conjugacions.json.gz
 
 flutter_icons:
   android: true

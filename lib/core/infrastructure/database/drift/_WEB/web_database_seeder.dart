@@ -5,11 +5,11 @@
 /// データベーススキーマと完全に同期している必要があります
 
 import 'dart:convert';
-import 'dart:developer';
 import 'package:archive/archive.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:drift/drift.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
+import 'package:my_dic/core/shared/consts/enviroment.dart';
 
 class WebDatabaseSeeder {
   final DatabaseProvider db;
@@ -73,7 +73,7 @@ class WebDatabaseSeeder {
 
   Future<void> _seedKotobankData() async {
     print('🔍 _seedKotobankData() START');
-    final data = await _loadCompressedJson('assets/data/kotobank.json.gz');
+    final data = await _loadCompressedJson(WebDb.kotobankPath);
     print('🔍 JSON loaded, extracting tables...');
     final tables = data['tables'] as Map<String, dynamic>;
     print('🔍 Tables keys: ${tables.keys.toList()}');
@@ -110,7 +110,7 @@ class WebDatabaseSeeder {
   }
 
   Future<void> _seedEsEnConjugacions() async {
-    final data = await _loadCompressedJson('assets/data/es_en_conjugacions.json.gz');
+    final data = await _loadCompressedJson(WebDb.esEnConjugacionsPath);
     final tables = data['tables'] as Map<String, dynamic>;
     if (tables.containsKey('es_en_conjugacions')) {
       await _importEsEnConjugacions(tables['es_en_conjugacions']);

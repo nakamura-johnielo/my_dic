@@ -16,7 +16,7 @@ void main() async {
   final scriptDir = path.dirname(Platform.script.toFilePath());
   final projectRoot = path.dirname(scriptDir);
   final assetsDir = path.join(projectRoot, 'assets');
-  final outputDir = path.join(assetsDir, 'data');
+  final outputDir = path.join(assetsDir, 'db_for_web');
   
   final outputDirectory = Directory(outputDir);
   if (!await outputDirectory.exists()) {

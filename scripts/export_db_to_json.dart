@@ -17,7 +17,7 @@ void main() async {
   final scriptDir = path.dirname(Platform.script.toFilePath());
   final projectRoot = path.dirname(scriptDir);
   final assetsDir = path.join(projectRoot, 'assets');
-  final outputDir = path.join(assetsDir, 'data');
+  final outputDir = path.join(assetsDir, 'db_for_web');
   
   // 出力ディレクトリの作成
   final outputDirectory = Directory(outputDir);
