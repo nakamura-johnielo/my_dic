@@ -4,8 +4,8 @@ import 'package:my_dic/core/infrastructure/database/drift/tables/jpn-esp/jpn_esp
 @DataClassName('JpnEspExampleTableData')
 class JpnEspExamples extends Table {
   IntColumn get exampleId => integer().named('jpn_esp_example_id')();
-  IntColumn get dictionaryId => integer().named('jpn_esp_dictionary_id')();
-      IntColumn get wordId => integer()
+  //IntColumn get dictionaryId => integer().named('jpn_esp_dictionary_id')();
+      IntColumn get dictionaryId => integer()
     .named('jpn_esp_dictionary_id')
     .references(JpnEspDictionaries, #dictionaryId, onDelete: KeyAction.cascade)();
   IntColumn get exampleNo => integer().named('example_no')();

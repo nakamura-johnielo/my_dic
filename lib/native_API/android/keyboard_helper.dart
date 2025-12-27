@@ -1,6 +1,7 @@
 import 'dart:developer';
-import 'dart:io';
+import 'dart:io' if (dart.library.html) 'package:my_dic/core/infrastructure/database/drift/_WEB/io_stub.dart';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 class KeyboardHelper {
@@ -8,7 +9,7 @@ class KeyboardHelper {
 
   static Future<void> showKeyboard() async {
     log("==============================================");
-    if (Platform.isAndroid) {
+    if (!kIsWeb && Platform.isAndroid) {
       try {
         await platform.invokeMethod('showKeyboard');
       } catch (e) {

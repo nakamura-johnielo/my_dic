@@ -63,3 +63,7 @@ SECRETS/
 # assets/kotobank.db
 # assets/mydic.db
 assets/*.db
+assets\data\es_en_conjugacions.json
+assets\data\es_en_conjugacions.json.gz
+assets\data\kotobank.json
+assets\data\kotobank.json.gz

@@ -49,6 +49,7 @@ class RankingViewModelV2 extends StateNotifier<RankingState> {
 
       return result.when(
         success: (output) {
+          print("==================- ranking items: ${output.length}");
           final appended = [...state.items, ...output];
           final hasNext = output.length > _pageSize;
 
@@ -62,6 +63,7 @@ class RankingViewModelV2 extends StateNotifier<RankingState> {
           return hasNext;
         },
         failure: (error) {
+          print("==================- ranking items:FAILURE");
           _logger.warning('ランキングの読み込みに失敗しました', error);
           state = state.copyWith(isLoadingNext: false);
           return false;

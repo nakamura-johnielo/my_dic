@@ -10,7 +10,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  sqflite:
   cupertino_icons:
   flutter_riverpod: ^2.5.1
   freezed:
@@ -34,6 +33,7 @@ dependencies:
   firebase_auth:
   cloud_firestore:
   shared_preferences:
+  archive: ^4.0.7
 
 dev_dependencies:
   flutter_test:
@@ -51,6 +51,9 @@ flutter:
     - assets/es_en_conjugacions.db
     - assets/data/be_conjugacion.json
     - assets/data/es_conjugacion_en_translation.json
+    # Web用Gzip圧縮JSONデータベース（ビルド時にexport_db_to_json_compressed.dartで生成）
+    - assets/data/kotobank.json.gz
+    - assets/data/es_en_conjugacions.json.gz
 
 flutter_icons:
   android: true

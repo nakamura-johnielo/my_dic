@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/services.dart' show rootBundle;
 
 Future<Map<String, dynamic>> loadBeConjugacion() async {
@@ -38,8 +37,8 @@ Future<Map<String, dynamic>> readJsonFile(String path) async {
 //   return toMap(json);
 // }
 
-Future<Map<String, T>> readJsonFile2<T>(String path) async {
-  final file = File(path);
-  final contents = await file.readAsString();
-  return jsonDecode(contents) as Map<String, T>;
-}
+// Future<Map<String, T>> readJsonFile2<T>(String path) async {
+//   final file = File(path);
+//   final contents = await file.readAsString();
+//   return jsonDecode(contents) as Map<String, T>;
+// }
