@@ -16,42 +16,84 @@ class WebDatabaseSeeder {
 
   WebDatabaseSeeder(this.db);
 
+  /// JSON値を安全にint型に変換
+  int? _toInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is String) return int.tryParse(value);
+    if (value is num) return value.toInt();
+    return null;
+  }
+
+  /// 必須int値（nullを0にフォールバック）
+  int _toIntRequired(dynamic value, {int defaultValue = 0}) {
+    return _toInt(value) ?? defaultValue;
+  }
+
   /// Web環境でデータベースをシードする
   Future<void> seedFromJson() async {
-    log('WebDatabaseSeeder: Starting database seeding from compressed JSON...');
-    log('⚠️ This is first-time setup and may take 2-5 minutes');
+    print('🚀 WebDatabaseSeeder.seedFromJson() CALLED');
+    print('🚀 WebDatabaseSeeder: Starting database seeding from compressed JSON...');
+    print('⚠️ This is first-time setup and may take 2-5 minutes');
 
     try {
+      print('📦 Step 1: Loading kotobank data...');
       await _seedKotobankData();
+      print('📦 Step 2: Loading es_en_conjugacions data...');
       await _seedEsEnConjugacions();
-      log('WebDatabaseSeeder: ✓ Seeding completed successfully');
+      print('✅ WebDatabaseSeeder: Seeding completed successfully');
+      print('✅ WebDatabaseSeeder.seedFromJson() COMPLETED');
     } catch (e, stackTrace) {
-      log('WebDatabaseSeeder: ✗ Error - $e');
-      log('StackTrace: $stackTrace');
+      print('❌ WebDatabaseSeeder ERROR: $e');
+      print('❌ WebDatabaseSeeder: Error - $e');
+      print('StackTrace: $stackTrace');
       rethrow;
     }
   }
 
   Future<Map<String, dynamic>> _loadCompressedJson(String assetPath) async {
-    log('Loading: $assetPath');
+    print('📂 Loading compressed JSON: $assetPath');
+    print('Loading: $assetPath');
     final byteData = await rootBundle.load(assetPath);
     final compressed = byteData.buffer.asUint8List();
-    log('  Compressed size: ${(compressed.length / 1024 / 1024).toStringAsFixed(2)} MB');
+    print('  Compressed size: ${(compressed.length / 1024 / 1024).toStringAsFixed(2)} MB');
+    print('  Compressed size: ${(compressed.length / 1024 / 1024).toStringAsFixed(2)} MB');
     
+    print('  Decompressing...');
     final decompressed = GZipDecoder().decodeBytes(compressed);
-    log('  Decompressed: ${(decompressed.length / 1024 / 1024).toStringAsFixed(2)} MB');
+    print('  Decompressed: ${(decompressed.length / 1024 / 1024).toStringAsFixed(2)} MB');
+    print('  Decompressed: ${(decompressed.length / 1024 / 1024).toStringAsFixed(2)} MB');
     
+    print('  Parsing JSON...');
     final jsonString = utf8.decode(decompressed);
-    return jsonDecode(jsonString) as Map<String, dynamic>;
+    final result = jsonDecode(jsonString) as Map<String, dynamic>;
+    print('  ✓ JSON parsed successfully');
+    return result;
   }
 
   Future<void> _seedKotobankData() async {
+    print('🔍 _seedKotobankData() START');
     final data = await _loadCompressedJson('assets/data/kotobank.json.gz');
+    print('🔍 JSON loaded, extracting tables...');
     final tables = data['tables'] as Map<String, dynamic>;
+    print('🔍 Tables keys: ${tables.keys.toList()}');
 
     // Import in order respecting foreign key dependencies
-    if (tables.containsKey('words')) await _importWords(tables['words']);
-    if (tables.containsKey('dictionaries')) await _importDictionaries(tables['dictionaries']);
+    print('🔍 Checking for "words" table...');
+    if (tables.containsKey('words')) {
+      print('🔍 Found "words" table, importing...');
+      await _importWords(tables['words']);
+    } else {
+      print('❌ "words" table NOT FOUND');
+    }
+    
+    print('🔍 Checking for "dictionaries" table...');
+    if (tables.containsKey('dictionaries')) {
+      print('🔍 Found "dictionaries" table, importing...');
+      await _importDictionaries(tables['dictionaries']);
+    } else {
+      print('❌ "dictionaries" table NOT FOUND');
+    }
     if (tables.containsKey('part_of_speech_lists')) await _importPartOfSpeechLists(tables['part_of_speech_lists']);
     if (tables.containsKey('examples')) await _importExamples(tables['examples']);
     if (tables.containsKey('idioms')) await _importIdioms(tables['idioms']);
@@ -61,6 +103,10 @@ class WebDatabaseSeeder {
     if (tables.containsKey('jpn_esp_dictionaries')) await _importJpnEspDictionaries(tables['jpn_esp_dictionaries']);
     if (tables.containsKey('jpn_esp_examples')) await _importJpnEspExamples(tables['jpn_esp_examples']);
     if (tables.containsKey('rankings')) await _importRankings(tables['rankings']);
+    if (tables.containsKey('word_status')) await _importEspJpnWordStatus(tables['word_status']);
+    if (tables.containsKey('my_words')) await _importMyWords(tables['my_words']);
+    if (tables.containsKey('my_word_status')) await _importMyWordStatus(tables['my_word_status']);
+    if (tables.containsKey('jpn_esp_word_status')) await _importJpnEspWordStatus(tables['jpn_esp_word_status']);
   }
 
   Future<void> _seedEsEnConjugacions() async {
@@ -73,17 +119,20 @@ class WebDatabaseSeeder {
 
   // Simplified imports - Web環境では詳細なログは不要
   Future<void> _importWords(Map<String, dynamic> tableData) async {
+    print('🔍 _importWords() CALLED');
     final rows = tableData['rows'] as List;
-    log('Importing ${rows.length} words...');
+    print('🔍 _importWords: rows count = ${rows.length}');
+    print('Importing ${rows.length} words...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
+      print('🔍 _importWords: Processing batch ${i ~/ batchSize + 1}/${(rows.length / batchSize).ceil()}');
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
           // Skip rows that don't have required fields
           if (row['word_id'] == null || row['word'] == null) continue;
           b.insert(db.espJpnWords, EspJpnWordsCompanion.insert(
-            wordId: Value(row['word_id'] as int),
+            wordId: Value(_toIntRequired(row['word_id'])),
             word: row['word'] as String,
             partOfSpeech: Value(row['part_of_speech'] as String?),
             partOfSpeechMark: Value(row['part_of_speech_mark'] as String?),
@@ -91,12 +140,12 @@ class WebDatabaseSeeder {
         }
       });
     }
-    log('✓ words');
+    print('✓ words');
   }
 
   Future<void> _importDictionaries(Map<String, dynamic> tableData) async {
     final rows = tableData['rows'] as List;
-    log('Importing ${rows.length} dictionaries...');
+    print('Importing ${rows.length} dictionaries...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
       final batch = rows.skip(i).take(batchSize).toList();
@@ -104,10 +153,10 @@ class WebDatabaseSeeder {
         for (final row in batch) {
           if (row['dictionary_id'] == null || row['word_id'] == null || row['word'] == null) continue;
           b.insert(db.espJpnDictionaries, EspJpnDictionariesCompanion.insert(
-            dictionaryId: Value(row['dictionary_id'] as int),
-            wordId: row['word_id'] as int,
+            dictionaryId: Value(_toIntRequired(row['dictionary_id'])),
+            wordId: _toIntRequired(row['word_id']),
             word: row['word'] as String,
-            excf: Value(row['excf'] as int?),
+            excf: Value(_toInt(row['excf'])),
             headword: Value(row['headword'] as String?),
             partOfSpeech: Value(row['part_of_speech'] as String?),
             partOfSpeechMark: Value(row['part_of_speech_mark'] as String?),
@@ -118,12 +167,13 @@ class WebDatabaseSeeder {
         }
       });
     }
-    log('✓ dictionaries');
+    print('==========✓ dictionaries print');
+    print('✓ dictionaries');
   }
 
   Future<void> _importExamples(Map<String, dynamic> tableData) async {
     final rows = tableData['rows'] as List;
-    log('Importing ${rows.length} examples...');
+    print('Importing ${rows.length} examples...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
       final batch = rows.skip(i).take(batchSize).toList();
@@ -131,9 +181,9 @@ class WebDatabaseSeeder {
         for (final row in batch) {
           if (row['example_id'] == null || row['example_no'] == null) continue;
           b.insert(db.espJpnExamples, EspJpnExamplesCompanion.insert(
-            exampleId: Value(row['example_id'] as int),
-            dictionaryId: Value(row['dictionary_id'] as int?),
-            exampleNo: row['example_no'] as int,
+            exampleId: Value(_toIntRequired(row['example_id'])),
+            dictionaryId: Value(_toInt(row['dictionary_id'])),
+            exampleNo: _toIntRequired(row['example_no']),
             espanolHtml: row['espanol_html'] as String? ?? '',
             japaneseText: row['japanese_text'] as String? ?? '',
             espanolText: row['espanol_text'] as String? ?? '',
@@ -141,12 +191,12 @@ class WebDatabaseSeeder {
         }
       });
     }
-    log('✓ examples');
+    print('✓ examples');
   }
 
   Future<void> _importIdioms(Map<String, dynamic> tableData) async {
     final rows = tableData['rows'] as List;
-    log('Importing ${rows.length} idioms...');
+    print('Importing ${rows.length} idioms...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
       final batch = rows.skip(i).take(batchSize).toList();
@@ -154,21 +204,21 @@ class WebDatabaseSeeder {
         for (final row in batch) {
           if (row['idiom_id'] == null || row['idiom_no'] == null) continue;
           b.insert(db.espJpnIdioms, EspJpnIdiomsCompanion.insert(
-            idiomId: Value(row['idiom_id'] as int),
-            dictionaryId: Value(row['dictionary_id'] as int?),
-            idiomNo: row['idiom_no'] as int,
+            idiomId: Value(_toIntRequired(row['idiom_id'])),
+            dictionaryId: Value(_toInt(row['dictionary_id'])),
+            idiomNo: _toIntRequired(row['idiom_no']),
             idiom: row['idiom'] as String? ?? '',
             description: row['description'] as String? ?? '',
           ), mode: InsertMode.insertOrIgnore);
         }
       });
     }
-    log('✓ idioms');
+    print('✓ idioms');
   }
 
   Future<void> _importSupplements(Map<String, dynamic> tableData) async {
     final rows = tableData['rows'] as List;
-    log('Importing ${rows.length} supplements...');
+    print('Importing ${rows.length} supplements...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
       final batch = rows.skip(i).take(batchSize).toList();
@@ -176,21 +226,21 @@ class WebDatabaseSeeder {
         for (final row in batch) {
           if (row['supplement_id'] == null || row['supplement_no'] == null) continue;
           b.insert(db.espJpnSupplements, EspJpnSupplementsCompanion.insert(
-            supplementId: Value(row['supplement_id'] as int),
-            dictionaryId: Value(row['dictionary_id'] as int?),
-            supplementNo: row['supplement_no'] as int,
+            supplementId: Value(_toIntRequired(row['supplement_id'])),
+            dictionaryId: Value(_toInt(row['dictionary_id'])),
+            supplementNo: _toIntRequired(row['supplement_no']),
             content: row['content'] as String? ?? '',
-            exampleId: Value(row['example_id'] as int?),
+            exampleId: Value(_toInt(row['example_id'])),
           ), mode: InsertMode.insertOrIgnore);
         }
       });
     }
-    log('✓ supplements');
+    print('✓ supplements');
   }
 
   Future<void> _importConjugations(Map<String, dynamic> tableData) async {
     final rows = tableData['rows'] as List;
-    log('Importing ${rows.length} conjugations (complex table)...');
+    print('Importing ${rows.length} conjugations (complex table)...');
     const batchSize = 100;
     for (var i = 0; i < rows.length; i += batchSize) {
       final batch = rows.skip(i).take(batchSize).toList();
@@ -198,6 +248,7 @@ class WebDatabaseSeeder {
         for (final row in batch) {
           if (row['word'] == null) continue;
           b.insert(db.espConjugations, EspConjugationsCompanion.insert(
+            wordId: Value(_toIntRequired(row['word_id'])),
             word: row['word'] as String,
             meaning: Value(row['meaning'] as String?),
             presentParticiple: Value(row['present_participle'] as String?),
@@ -253,12 +304,12 @@ class WebDatabaseSeeder {
         }
       });
     }
-    log('✓ conjugations');
+    print('✓ conjugations');
   }
 
   Future<void> _importPartOfSpeechLists(Map<String, dynamic> tableData) async {
     final rows = tableData['rows'] as List;
-    log('Importing ${rows.length} part_of_speech_lists...');
+    print('Importing ${rows.length} part_of_speech_lists...');
     const batchSize = 1000;
     for (var i = 0; i < rows.length; i += batchSize) {
       final batch = rows.skip(i).take(batchSize).toList();
@@ -266,19 +317,19 @@ class WebDatabaseSeeder {
         for (final row in batch) {
           if (row['part_of_speech_id'] == null || row['word_id'] == null || row['part_of_speech'] == null) continue;
           b.insert(db.partOfSpeechLists, PartOfSpeechListsCompanion.insert(
-            partOfSpeechId: Value(row['part_of_speech_id'] as int),
-            wordId: row['word_id'] as int,
+            partOfSpeechId: Value(_toIntRequired(row['part_of_speech_id'])),
+            wordId: _toIntRequired(row['word_id']),
             partOfSpeech: row['part_of_speech'] as String,
           ), mode: InsertMode.insertOrIgnore);
         }
       });
     }
-    log('✓ part_of_speech_lists');
+    print('✓ part_of_speech_lists');
   }
 
   Future<void> _importJpnEspWords(Map<String, dynamic> tableData) async {
     final rows = tableData['rows'] as List;
-    log('Importing ${rows.length} jpn_esp_words...');
+    print('Importing ${rows.length} jpn_esp_words...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
       final batch = rows.skip(i).take(batchSize).toList();
@@ -286,29 +337,29 @@ class WebDatabaseSeeder {
         for (final row in batch) {
           if (row['word_id'] == null || row['word'] == null) continue;
           b.insert(db.jpnEspWords, JpnEspWordsCompanion.insert(
-            wordId: Value(row['word_id'] as int),
+            wordId: Value(_toIntRequired(row['word_id'])),
             word: row['word'] as String,
           ), mode: InsertMode.insertOrIgnore);
         }
       });
     }
-    log('✓ jpn_esp_words');
+    print('✓ jpn_esp_words');
   }
 
   Future<void> _importJpnEspDictionaries(Map<String, dynamic> tableData) async {
     final rows = tableData['rows'] as List;
-    log('Importing ${rows.length} jpn_esp_dictionaries...');
+    print('Importing ${rows.length} jpn_esp_dictionaries...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
-          if (row['dictionary_id'] == null || row['word_id'] == null || row['word'] == null || row['excf'] == null || row['headword'] == null || row['content'] == null || row['html_raw'] == null) continue;
+          if (row['dictionary_id'] == null || row['word_id'] == null || row['word'] == null ) continue;
           b.insert(db.jpnEspDictionaries, JpnEspDictionariesCompanion.insert(
-            dictionaryId: Value(row['dictionary_id'] as int),
-            wordId: row['word_id'] as int,
+            dictionaryId: Value(_toIntRequired(row['dictionary_id'])),
+            wordId: _toIntRequired(row['word_id']),
             word: row['word'] as String,
-            excf: row['excf'] as int,
+            excf: _toIntRequired(row['excf']),
             headword: row['headword'] as String,
             content: row['content'] as String,
             htmlRaw: row['html_raw'] as String,
@@ -316,23 +367,23 @@ class WebDatabaseSeeder {
         }
       });
     }
-    log('✓ jpn_esp_dictionaries');
+    print('✓ jpn_esp_dictionaries');
   }
 
   Future<void> _importJpnEspExamples(Map<String, dynamic> tableData) async {
     final rows = tableData['rows'] as List;
-    log('Importing ${rows.length} jpn_esp_examples...');
+    print('Importing ${rows.length} jpn_esp_examples...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
-          if (row['example_id'] == null || row['example_no'] == null || row['dictionary_id'] == null || row['word_id'] == null || row['japanese_text'] == null || row['espanol_html'] == null || row['espanol_text'] == null) continue;
+          if (row['example_id'] == null || row['example_no'] == null || row['dictionary_id'] == null) continue;
           b.insert(db.jpnEspExamples, JpnEspExamplesCompanion.insert(
-            exampleId: Value(row['example_id'] as int),
-            dictionaryId: row['dictionary_id'] as int,
-            wordId: row['word_id'] as int,
-            exampleNo: row['example_no'] as int,
+            exampleId: Value(_toIntRequired(row['example_id'])),
+            dictionaryId: _toIntRequired(row['dictionary_id']),
+           // wordId: _toIntRequired(row['word_id']),
+            exampleNo: _toIntRequired(row['example_no']),
             japaneseText: row['japanese_text'] as String,
             espanolHtml: row['espanol_html'] as String,
             espanolText: row['espanol_text'] as String,
@@ -340,35 +391,38 @@ class WebDatabaseSeeder {
         }
       });
     }
-    log('✓ jpn_esp_examples');
+    print('✓ jpn_esp_examples');
   }
 
   Future<void> _importRankings(Map<String, dynamic> tableData) async {
     final rows = tableData['rows'] as List;
-    log('Importing ${rows.length} rankings...');
+    print('Importing ${rows.length} rankings...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
-          if (row['ranking_id'] == null || row['ranking_no'] == null) continue;
+          if (row['ranking_id'] == null || row['ranking_no'] == null) {
+            
+    print('~~~~~~skip ranking ${row['word']??"unknown"} rankings...');
+            continue;}
           b.insert(db.rankings, RankingsCompanion.insert(
-            rankingId: Value(row['ranking_id'] as int),
-            rankingNo: row['ranking_no'] as int,
+            rankingId: Value(_toIntRequired(row['ranking_id'])),
+            rankingNo: _toIntRequired(row['ranking_no']),
             word: Value(row['word'] as String?),
             wordOrigin: Value(row['word_origin'] as String?),
-            hasConj: Value(row['has_conj'] as int?),
-            wordId: Value(row['word_id'] as int?),
+            hasConj: Value(_toInt(row['has_conj'])),
+            wordId: Value(_toInt(row['word_id'])),
           ), mode: InsertMode.insertOrIgnore);
         }
       });
     }
-    log('✓ rankings');
+    print('✓ rankings');
   }
 
   Future<void> _importEsEnConjugacions(Map<String, dynamic> tableData) async {
     final rows = tableData['rows'] as List;
-    log('Importing ${rows.length} es_en_conjugacions...');
+    print('Importing ${rows.length} es_en_conjugacions...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
       final batch = rows.skip(i).take(batchSize).toList();
@@ -376,7 +430,7 @@ class WebDatabaseSeeder {
         for (final row in batch) {
           if (row['word_id'] == null) continue;
           b.insert(db.esEnConjugacions, EsEnConjugacionsCompanion.insert(
-            wordId: Value(row['word_id'] as int),
+            wordId: Value(_toIntRequired(row['word_id'])),
             word: Value(row['word'] as String?),
             english: Value(row['english'] as String?),
             present3rd: Value(row['present_3rd'] as String?),
@@ -387,6 +441,91 @@ class WebDatabaseSeeder {
         }
       });
     }
-    log('✓ es_en_conjugacions');
+    print('✓ es_en_conjugacions');
+  }
+
+  Future<void> _importEspJpnWordStatus(Map<String, dynamic> tableData) async {
+    final rows = tableData['rows'] as List;
+    print('Importing ${rows.length} esp_jpn_word_status...');
+    const batchSize = 500;
+    for (var i = 0; i < rows.length; i += batchSize) {
+      final batch = rows.skip(i).take(batchSize).toList();
+      await db.batch((b) {
+        for (final row in batch) {
+          if (row['word_id'] == null  || row['edit_at'] == null) continue;
+          b.insert(db.espJpnWordStatus, EspJpnWordStatusCompanion.insert(
+            wordId: Value(_toIntRequired(row['word_id'])),
+            isLearned:  Value(_toIntRequired(row['is_learned'])),
+            isBookmarked: Value(_toIntRequired(row['is_bookmarked'])),
+           hasNote: Value(_toIntRequired(row['has_note'])),
+            editAt: row['edit_at'] as String,
+          ), mode: InsertMode.insertOrIgnore);
+        }
+      });
+    }
+    print('✓ esp_jpn_word_status');
+  }
+
+  Future<void> _importMyWords(Map<String, dynamic> tableData) async {
+    final rows = tableData['rows'] as List;
+    print('Importing ${rows.length} my_words...');
+    const batchSize = 500;
+    for (var i = 0; i < rows.length; i += batchSize) {
+      final batch = rows.skip(i).take(batchSize).toList();
+      await db.batch((b) {
+        for (final row in batch) {
+          if (row['word'] == null || row['edit_at'] == null) continue;
+          b.insert(db.myWords, MyWordsCompanion.insert(
+            word: row['word'] as String,
+            editAt: row['edit_at'] as String,
+          ), mode: InsertMode.insertOrIgnore);
+        }
+      });
+    }
+    print('✓ my_words');
+  }
+
+  Future<void> _importMyWordStatus(Map<String, dynamic> tableData) async {
+    final rows = tableData['rows'] as List;
+    print('Importing ${rows.length} my_word_status...');
+    const batchSize = 500;
+    for (var i = 0; i < rows.length; i += batchSize) {
+      final batch = rows.skip(i).take(batchSize).toList();
+      await db.batch((b) {
+        for (final row in batch) {
+          if (row['word'] == null || row['edit_at'] == null) continue;
+          b.insert(db.myWordStatus, MyWordStatusCompanion.insert(
+            myWordId: Value(_toIntRequired(row['my_word_id'])),
+            isLearned:  Value(_toIntRequired(row['is_learned'])),
+            isBookmarked: Value(_toIntRequired(row['is_bookmarked'])),
+           hasNote: Value(_toIntRequired(row['has_note'])),
+            editAt: row['edit_at'] as String,
+          ), mode: InsertMode.insertOrIgnore);
+        }
+      });
+    }
+    print('✓ my_word_status');
+  }
+
+  Future<void> _importJpnEspWordStatus(Map<String, dynamic> tableData) async {
+    final rows = tableData['rows'] as List;
+    print('Importing ${rows.length} jpn_esp_word_status...');
+    const batchSize = 500;
+    for (var i = 0; i < rows.length; i += batchSize) {
+      final batch = rows.skip(i).take(batchSize).toList();
+      await db.batch((b) {
+        for (final row in batch) {
+          if (row['word_id'] == null  || row['edit_at'] == null) continue;
+          b.insert(db.jpnEspWordStatus, JpnEspWordStatusCompanion.insert(
+             wordId: Value(_toIntRequired(row['word_id'])),
+            isLearned:  Value(_toIntRequired(row['is_learned'])),
+            isBookmarked: Value(_toIntRequired(row['is_bookmarked'])),
+           hasNote: Value(_toIntRequired(row['has_note'])),
+            editAt: row['edit_at'] as String,
+          ), mode: InsertMode.insertOrIgnore);
+        }
+      });
+    }
+    print('✓ jpn_esp_word_status');
   }
 }

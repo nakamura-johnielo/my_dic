@@ -6896,11 +6896,6 @@ class $JpnEspExamplesTable extends JpnEspExamples
   @override
   late final GeneratedColumn<int> dictionaryId = GeneratedColumn<int>(
       'jpn_esp_dictionary_id', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _wordIdMeta = const VerificationMeta('wordId');
-  @override
-  late final GeneratedColumn<int> wordId = GeneratedColumn<int>(
-      'jpn_esp_dictionary_id', aliasedName, false,
       type: DriftSqlType.int,
       requiredDuringInsert: true,
       defaultConstraints: GeneratedColumn.constraintIsAlways(
@@ -6933,7 +6928,6 @@ class $JpnEspExamplesTable extends JpnEspExamples
   List<GeneratedColumn> get $columns => [
         exampleId,
         dictionaryId,
-        wordId,
         exampleNo,
         japaneseText,
         espanolHtml,
@@ -6963,14 +6957,6 @@ class $JpnEspExamplesTable extends JpnEspExamples
               data['jpn_esp_dictionary_id']!, _dictionaryIdMeta));
     } else if (isInserting) {
       context.missing(_dictionaryIdMeta);
-    }
-    if (data.containsKey('jpn_esp_dictionary_id')) {
-      context.handle(
-          _wordIdMeta,
-          wordId.isAcceptableOrUnknown(
-              data['jpn_esp_dictionary_id']!, _wordIdMeta));
-    } else if (isInserting) {
-      context.missing(_wordIdMeta);
     }
     if (data.containsKey('example_no')) {
       context.handle(_exampleNoMeta,
@@ -7015,8 +7001,6 @@ class $JpnEspExamplesTable extends JpnEspExamples
           DriftSqlType.int, data['${effectivePrefix}jpn_esp_example_id'])!,
       dictionaryId: attachedDatabase.typeMapping.read(
           DriftSqlType.int, data['${effectivePrefix}jpn_esp_dictionary_id'])!,
-      wordId: attachedDatabase.typeMapping.read(
-          DriftSqlType.int, data['${effectivePrefix}jpn_esp_dictionary_id'])!,
       exampleNo: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}example_no'])!,
       japaneseText: attachedDatabase.typeMapping
@@ -7038,7 +7022,6 @@ class JpnEspExampleTableData extends DataClass
     implements Insertable<JpnEspExampleTableData> {
   final int exampleId;
   final int dictionaryId;
-  final int wordId;
   final int exampleNo;
   final String japaneseText;
   final String espanolHtml;
@@ -7046,7 +7029,6 @@ class JpnEspExampleTableData extends DataClass
   const JpnEspExampleTableData(
       {required this.exampleId,
       required this.dictionaryId,
-      required this.wordId,
       required this.exampleNo,
       required this.japaneseText,
       required this.espanolHtml,
@@ -7056,7 +7038,6 @@ class JpnEspExampleTableData extends DataClass
     final map = <String, Expression>{};
     map['jpn_esp_example_id'] = Variable<int>(exampleId);
     map['jpn_esp_dictionary_id'] = Variable<int>(dictionaryId);
-    map['jpn_esp_dictionary_id'] = Variable<int>(wordId);
     map['example_no'] = Variable<int>(exampleNo);
     map['japanese_text'] = Variable<String>(japaneseText);
     map['espanol_html'] = Variable<String>(espanolHtml);
@@ -7068,7 +7049,6 @@ class JpnEspExampleTableData extends DataClass
     return JpnEspExamplesCompanion(
       exampleId: Value(exampleId),
       dictionaryId: Value(dictionaryId),
-      wordId: Value(wordId),
       exampleNo: Value(exampleNo),
       japaneseText: Value(japaneseText),
       espanolHtml: Value(espanolHtml),
@@ -7082,7 +7062,6 @@ class JpnEspExampleTableData extends DataClass
     return JpnEspExampleTableData(
       exampleId: serializer.fromJson<int>(json['exampleId']),
       dictionaryId: serializer.fromJson<int>(json['dictionaryId']),
-      wordId: serializer.fromJson<int>(json['wordId']),
       exampleNo: serializer.fromJson<int>(json['exampleNo']),
       japaneseText: serializer.fromJson<String>(json['japaneseText']),
       espanolHtml: serializer.fromJson<String>(json['espanolHtml']),
@@ -7095,7 +7074,6 @@ class JpnEspExampleTableData extends DataClass
     return <String, dynamic>{
       'exampleId': serializer.toJson<int>(exampleId),
       'dictionaryId': serializer.toJson<int>(dictionaryId),
-      'wordId': serializer.toJson<int>(wordId),
       'exampleNo': serializer.toJson<int>(exampleNo),
       'japaneseText': serializer.toJson<String>(japaneseText),
       'espanolHtml': serializer.toJson<String>(espanolHtml),
@@ -7106,7 +7084,6 @@ class JpnEspExampleTableData extends DataClass
   JpnEspExampleTableData copyWith(
           {int? exampleId,
           int? dictionaryId,
-          int? wordId,
           int? exampleNo,
           String? japaneseText,
           String? espanolHtml,
@@ -7114,7 +7091,6 @@ class JpnEspExampleTableData extends DataClass
       JpnEspExampleTableData(
         exampleId: exampleId ?? this.exampleId,
         dictionaryId: dictionaryId ?? this.dictionaryId,
-        wordId: wordId ?? this.wordId,
         exampleNo: exampleNo ?? this.exampleNo,
         japaneseText: japaneseText ?? this.japaneseText,
         espanolHtml: espanolHtml ?? this.espanolHtml,
@@ -7126,7 +7102,6 @@ class JpnEspExampleTableData extends DataClass
       dictionaryId: data.dictionaryId.present
           ? data.dictionaryId.value
           : this.dictionaryId,
-      wordId: data.wordId.present ? data.wordId.value : this.wordId,
       exampleNo: data.exampleNo.present ? data.exampleNo.value : this.exampleNo,
       japaneseText: data.japaneseText.present
           ? data.japaneseText.value
@@ -7143,7 +7118,6 @@ class JpnEspExampleTableData extends DataClass
     return (StringBuffer('JpnEspExampleTableData(')
           ..write('exampleId: $exampleId, ')
           ..write('dictionaryId: $dictionaryId, ')
-          ..write('wordId: $wordId, ')
           ..write('exampleNo: $exampleNo, ')
           ..write('japaneseText: $japaneseText, ')
           ..write('espanolHtml: $espanolHtml, ')
@@ -7153,7 +7127,7 @@ class JpnEspExampleTableData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(exampleId, dictionaryId, wordId, exampleNo,
+  int get hashCode => Object.hash(exampleId, dictionaryId, exampleNo,
       japaneseText, espanolHtml, espanolText);
   @override
   bool operator ==(Object other) =>
@@ -7161,7 +7135,6 @@ class JpnEspExampleTableData extends DataClass
       (other is JpnEspExampleTableData &&
           other.exampleId == this.exampleId &&
           other.dictionaryId == this.dictionaryId &&
-          other.wordId == this.wordId &&
           other.exampleNo == this.exampleNo &&
           other.japaneseText == this.japaneseText &&
           other.espanolHtml == this.espanolHtml &&
@@ -7171,7 +7144,6 @@ class JpnEspExampleTableData extends DataClass
 class JpnEspExamplesCompanion extends UpdateCompanion<JpnEspExampleTableData> {
   final Value<int> exampleId;
   final Value<int> dictionaryId;
-  final Value<int> wordId;
   final Value<int> exampleNo;
   final Value<String> japaneseText;
   final Value<String> espanolHtml;
@@ -7179,7 +7151,6 @@ class JpnEspExamplesCompanion extends UpdateCompanion<JpnEspExampleTableData> {
   const JpnEspExamplesCompanion({
     this.exampleId = const Value.absent(),
     this.dictionaryId = const Value.absent(),
-    this.wordId = const Value.absent(),
     this.exampleNo = const Value.absent(),
     this.japaneseText = const Value.absent(),
     this.espanolHtml = const Value.absent(),
@@ -7188,13 +7159,11 @@ class JpnEspExamplesCompanion extends UpdateCompanion<JpnEspExampleTableData> {
   JpnEspExamplesCompanion.insert({
     this.exampleId = const Value.absent(),
     required int dictionaryId,
-    required int wordId,
     required int exampleNo,
     required String japaneseText,
     required String espanolHtml,
     required String espanolText,
   })  : dictionaryId = Value(dictionaryId),
-        wordId = Value(wordId),
         exampleNo = Value(exampleNo),
         japaneseText = Value(japaneseText),
         espanolHtml = Value(espanolHtml),
@@ -7202,7 +7171,6 @@ class JpnEspExamplesCompanion extends UpdateCompanion<JpnEspExampleTableData> {
   static Insertable<JpnEspExampleTableData> custom({
     Expression<int>? exampleId,
     Expression<int>? dictionaryId,
-    Expression<int>? wordId,
     Expression<int>? exampleNo,
     Expression<String>? japaneseText,
     Expression<String>? espanolHtml,
@@ -7211,7 +7179,6 @@ class JpnEspExamplesCompanion extends UpdateCompanion<JpnEspExampleTableData> {
     return RawValuesInsertable({
       if (exampleId != null) 'jpn_esp_example_id': exampleId,
       if (dictionaryId != null) 'jpn_esp_dictionary_id': dictionaryId,
-      if (wordId != null) 'jpn_esp_dictionary_id': wordId,
       if (exampleNo != null) 'example_no': exampleNo,
       if (japaneseText != null) 'japanese_text': japaneseText,
       if (espanolHtml != null) 'espanol_html': espanolHtml,
@@ -7222,7 +7189,6 @@ class JpnEspExamplesCompanion extends UpdateCompanion<JpnEspExampleTableData> {
   JpnEspExamplesCompanion copyWith(
       {Value<int>? exampleId,
       Value<int>? dictionaryId,
-      Value<int>? wordId,
       Value<int>? exampleNo,
       Value<String>? japaneseText,
       Value<String>? espanolHtml,
@@ -7230,7 +7196,6 @@ class JpnEspExamplesCompanion extends UpdateCompanion<JpnEspExampleTableData> {
     return JpnEspExamplesCompanion(
       exampleId: exampleId ?? this.exampleId,
       dictionaryId: dictionaryId ?? this.dictionaryId,
-      wordId: wordId ?? this.wordId,
       exampleNo: exampleNo ?? this.exampleNo,
       japaneseText: japaneseText ?? this.japaneseText,
       espanolHtml: espanolHtml ?? this.espanolHtml,
@@ -7246,9 +7211,6 @@ class JpnEspExamplesCompanion extends UpdateCompanion<JpnEspExampleTableData> {
     }
     if (dictionaryId.present) {
       map['jpn_esp_dictionary_id'] = Variable<int>(dictionaryId.value);
-    }
-    if (wordId.present) {
-      map['jpn_esp_dictionary_id'] = Variable<int>(wordId.value);
     }
     if (exampleNo.present) {
       map['example_no'] = Variable<int>(exampleNo.value);
@@ -7270,7 +7232,6 @@ class JpnEspExamplesCompanion extends UpdateCompanion<JpnEspExampleTableData> {
     return (StringBuffer('JpnEspExamplesCompanion(')
           ..write('exampleId: $exampleId, ')
           ..write('dictionaryId: $dictionaryId, ')
-          ..write('wordId: $wordId, ')
           ..write('exampleNo: $exampleNo, ')
           ..write('japaneseText: $japaneseText, ')
           ..write('espanolHtml: $espanolHtml, ')
@@ -12840,11 +12801,11 @@ final class $$JpnEspDictionariesTableReferences extends BaseReferences<
           MultiTypedResultKey.fromTable(db.jpnEspExamples,
               aliasName: $_aliasNameGenerator(
                   db.jpnEspDictionaries.dictionaryId,
-                  db.jpnEspExamples.wordId));
+                  db.jpnEspExamples.dictionaryId));
 
   $$JpnEspExamplesTableProcessedTableManager get jpnEspExamplesRefs {
     final manager = $$JpnEspExamplesTableTableManager($_db, $_db.jpnEspExamples)
-        .filter((f) => f.wordId.dictionaryId
+        .filter((f) => f.dictionaryId.dictionaryId
             .sqlEquals($_itemColumn<int>('jpn_esp_dictionary_id')!));
 
     final cache = $_typedResult.readTableOrNull(_jpnEspExamplesRefsTable($_db));
@@ -12906,7 +12867,7 @@ class $$JpnEspDictionariesTableFilterComposer
         composer: this,
         getCurrentColumn: (t) => t.dictionaryId,
         referencedTable: $db.jpnEspExamples,
-        getReferencedColumn: (t) => t.wordId,
+        getReferencedColumn: (t) => t.dictionaryId,
         builder: (joinBuilder,
                 {$addJoinBuilderToRootComposer,
                 $removeJoinBuilderFromRootComposer}) =>
@@ -13024,7 +12985,7 @@ class $$JpnEspDictionariesTableAnnotationComposer
         composer: this,
         getCurrentColumn: (t) => t.dictionaryId,
         referencedTable: $db.jpnEspExamples,
-        getReferencedColumn: (t) => t.wordId,
+        getReferencedColumn: (t) => t.dictionaryId,
         builder: (joinBuilder,
                 {$addJoinBuilderToRootComposer,
                 $removeJoinBuilderFromRootComposer}) =>
@@ -13152,8 +13113,8 @@ class $$JpnEspDictionariesTableTableManager extends RootTableManager<
                             $$JpnEspDictionariesTableReferences(db, table, p0)
                                 .jpnEspExamplesRefs,
                         referencedItemsForCurrentItem:
-                            (item, referencedItems) => referencedItems
-                                .where((e) => e.wordId == item.dictionaryId),
+                            (item, referencedItems) => referencedItems.where(
+                                (e) => e.dictionaryId == item.dictionaryId),
                         typedResults: items)
                 ];
               },
@@ -13178,7 +13139,6 @@ typedef $$JpnEspExamplesTableCreateCompanionBuilder = JpnEspExamplesCompanion
     Function({
   Value<int> exampleId,
   required int dictionaryId,
-  required int wordId,
   required int exampleNo,
   required String japaneseText,
   required String espanolHtml,
@@ -13188,7 +13148,6 @@ typedef $$JpnEspExamplesTableUpdateCompanionBuilder = JpnEspExamplesCompanion
     Function({
   Value<int> exampleId,
   Value<int> dictionaryId,
-  Value<int> wordId,
   Value<int> exampleNo,
   Value<String> japaneseText,
   Value<String> espanolHtml,
@@ -13200,17 +13159,17 @@ final class $$JpnEspExamplesTableReferences extends BaseReferences<
   $$JpnEspExamplesTableReferences(
       super.$_db, super.$_table, super.$_typedResult);
 
-  static $JpnEspDictionariesTable _wordIdTable(_$DatabaseProvider db) =>
+  static $JpnEspDictionariesTable _dictionaryIdTable(_$DatabaseProvider db) =>
       db.jpnEspDictionaries.createAlias($_aliasNameGenerator(
-          db.jpnEspExamples.wordId, db.jpnEspDictionaries.dictionaryId));
+          db.jpnEspExamples.dictionaryId, db.jpnEspDictionaries.dictionaryId));
 
-  $$JpnEspDictionariesTableProcessedTableManager get wordId {
+  $$JpnEspDictionariesTableProcessedTableManager get dictionaryId {
     final $_column = $_itemColumn<int>('jpn_esp_dictionary_id')!;
 
     final manager =
         $$JpnEspDictionariesTableTableManager($_db, $_db.jpnEspDictionaries)
             .filter((f) => f.dictionaryId.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_wordIdTable($_db));
+    final item = $_typedResult.readTableOrNull(_dictionaryIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: [item]));
@@ -13229,9 +13188,6 @@ class $$JpnEspExamplesTableFilterComposer
   ColumnFilters<int> get exampleId => $composableBuilder(
       column: $table.exampleId, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get dictionaryId => $composableBuilder(
-      column: $table.dictionaryId, builder: (column) => ColumnFilters(column));
-
   ColumnFilters<int> get exampleNo => $composableBuilder(
       column: $table.exampleNo, builder: (column) => ColumnFilters(column));
 
@@ -13244,10 +13200,10 @@ class $$JpnEspExamplesTableFilterComposer
   ColumnFilters<String> get espanolText => $composableBuilder(
       column: $table.espanolText, builder: (column) => ColumnFilters(column));
 
-  $$JpnEspDictionariesTableFilterComposer get wordId {
+  $$JpnEspDictionariesTableFilterComposer get dictionaryId {
     final $$JpnEspDictionariesTableFilterComposer composer = $composerBuilder(
         composer: this,
-        getCurrentColumn: (t) => t.wordId,
+        getCurrentColumn: (t) => t.dictionaryId,
         referencedTable: $db.jpnEspDictionaries,
         getReferencedColumn: (t) => t.dictionaryId,
         builder: (joinBuilder,
@@ -13277,10 +13233,6 @@ class $$JpnEspExamplesTableOrderingComposer
   ColumnOrderings<int> get exampleId => $composableBuilder(
       column: $table.exampleId, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get dictionaryId => $composableBuilder(
-      column: $table.dictionaryId,
-      builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<int> get exampleNo => $composableBuilder(
       column: $table.exampleNo, builder: (column) => ColumnOrderings(column));
 
@@ -13294,10 +13246,10 @@ class $$JpnEspExamplesTableOrderingComposer
   ColumnOrderings<String> get espanolText => $composableBuilder(
       column: $table.espanolText, builder: (column) => ColumnOrderings(column));
 
-  $$JpnEspDictionariesTableOrderingComposer get wordId {
+  $$JpnEspDictionariesTableOrderingComposer get dictionaryId {
     final $$JpnEspDictionariesTableOrderingComposer composer = $composerBuilder(
         composer: this,
-        getCurrentColumn: (t) => t.wordId,
+        getCurrentColumn: (t) => t.dictionaryId,
         referencedTable: $db.jpnEspDictionaries,
         getReferencedColumn: (t) => t.dictionaryId,
         builder: (joinBuilder,
@@ -13327,9 +13279,6 @@ class $$JpnEspExamplesTableAnnotationComposer
   GeneratedColumn<int> get exampleId =>
       $composableBuilder(column: $table.exampleId, builder: (column) => column);
 
-  GeneratedColumn<int> get dictionaryId => $composableBuilder(
-      column: $table.dictionaryId, builder: (column) => column);
-
   GeneratedColumn<int> get exampleNo =>
       $composableBuilder(column: $table.exampleNo, builder: (column) => column);
 
@@ -13342,11 +13291,11 @@ class $$JpnEspExamplesTableAnnotationComposer
   GeneratedColumn<String> get espanolText => $composableBuilder(
       column: $table.espanolText, builder: (column) => column);
 
-  $$JpnEspDictionariesTableAnnotationComposer get wordId {
+  $$JpnEspDictionariesTableAnnotationComposer get dictionaryId {
     final $$JpnEspDictionariesTableAnnotationComposer composer =
         $composerBuilder(
             composer: this,
-            getCurrentColumn: (t) => t.wordId,
+            getCurrentColumn: (t) => t.dictionaryId,
             referencedTable: $db.jpnEspDictionaries,
             getReferencedColumn: (t) => t.dictionaryId,
             builder: (joinBuilder,
@@ -13375,7 +13324,7 @@ class $$JpnEspExamplesTableTableManager extends RootTableManager<
     $$JpnEspExamplesTableUpdateCompanionBuilder,
     (JpnEspExampleTableData, $$JpnEspExamplesTableReferences),
     JpnEspExampleTableData,
-    PrefetchHooks Function({bool wordId})> {
+    PrefetchHooks Function({bool dictionaryId})> {
   $$JpnEspExamplesTableTableManager(
       _$DatabaseProvider db, $JpnEspExamplesTable table)
       : super(TableManagerState(
@@ -13390,7 +13339,6 @@ class $$JpnEspExamplesTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<int> exampleId = const Value.absent(),
             Value<int> dictionaryId = const Value.absent(),
-            Value<int> wordId = const Value.absent(),
             Value<int> exampleNo = const Value.absent(),
             Value<String> japaneseText = const Value.absent(),
             Value<String> espanolHtml = const Value.absent(),
@@ -13399,7 +13347,6 @@ class $$JpnEspExamplesTableTableManager extends RootTableManager<
               JpnEspExamplesCompanion(
             exampleId: exampleId,
             dictionaryId: dictionaryId,
-            wordId: wordId,
             exampleNo: exampleNo,
             japaneseText: japaneseText,
             espanolHtml: espanolHtml,
@@ -13408,7 +13355,6 @@ class $$JpnEspExamplesTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             Value<int> exampleId = const Value.absent(),
             required int dictionaryId,
-            required int wordId,
             required int exampleNo,
             required String japaneseText,
             required String espanolHtml,
@@ -13417,7 +13363,6 @@ class $$JpnEspExamplesTableTableManager extends RootTableManager<
               JpnEspExamplesCompanion.insert(
             exampleId: exampleId,
             dictionaryId: dictionaryId,
-            wordId: wordId,
             exampleNo: exampleNo,
             japaneseText: japaneseText,
             espanolHtml: espanolHtml,
@@ -13429,7 +13374,7 @@ class $$JpnEspExamplesTableTableManager extends RootTableManager<
                     $$JpnEspExamplesTableReferences(db, table, e)
                   ))
               .toList(),
-          prefetchHooksCallback: ({wordId = false}) {
+          prefetchHooksCallback: ({dictionaryId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -13446,14 +13391,14 @@ class $$JpnEspExamplesTableTableManager extends RootTableManager<
                       dynamic,
                       dynamic,
                       dynamic>>(state) {
-                if (wordId) {
+                if (dictionaryId) {
                   state = state.withJoin(
                     currentTable: table,
-                    currentColumn: table.wordId,
+                    currentColumn: table.dictionaryId,
                     referencedTable:
-                        $$JpnEspExamplesTableReferences._wordIdTable(db),
+                        $$JpnEspExamplesTableReferences._dictionaryIdTable(db),
                     referencedColumn: $$JpnEspExamplesTableReferences
-                        ._wordIdTable(db)
+                        ._dictionaryIdTable(db)
                         .dictionaryId,
                   ) as T;
                 }
@@ -13479,7 +13424,7 @@ typedef $$JpnEspExamplesTableProcessedTableManager = ProcessedTableManager<
     $$JpnEspExamplesTableUpdateCompanionBuilder,
     (JpnEspExampleTableData, $$JpnEspExamplesTableReferences),
     JpnEspExampleTableData,
-    PrefetchHooks Function({bool wordId})>;
+    PrefetchHooks Function({bool dictionaryId})>;
 typedef $$EsEnConjugacionsTableCreateCompanionBuilder
     = EsEnConjugacionsCompanion Function({
   Value<String?> word,

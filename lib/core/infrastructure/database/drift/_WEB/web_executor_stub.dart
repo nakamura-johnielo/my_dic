@@ -1,6 +1,6 @@
-// ネイティブプラットフォーム用のWebDatabaseスタブ
+// ネイティブプラットフォーム用のWasmDatabaseスタブ
 import 'package:drift/drift.dart';
 
-QueryExecutor createWebExecutor(String name) {
-  throw UnsupportedError('WebDatabase is only supported on web platform');
+Future<QueryExecutor> createWebExecutor(String name) async {
+  throw UnsupportedError('WasmDatabase is only supported on web platform');
 }

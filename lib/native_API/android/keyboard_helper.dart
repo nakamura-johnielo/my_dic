@@ -1,5 +1,5 @@
 import 'dart:developer';
-import 'dart:io' if (dart.library.html) 'package:my_dic/core/infrastructure/database/drift/io_stub.dart';
+import 'dart:io' if (dart.library.html) 'package:my_dic/core/infrastructure/database/drift/_WEB/io_stub.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';

@@ -4,11 +4,11 @@ import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
 import 'package:my_dic/core/shared/consts/enviroment.dart';
 import 'dart:io' 
-    if (dart.library.html) 'package:my_dic/core/infrastructure/database/drift/io_stub.dart';
+    if (dart.library.html) 'package:my_dic/core/infrastructure/database/drift/_WEB/io_stub.dart';
 import 'package:my_dic/core/infrastructure/database/drift/_NATIVE/native_database_helper.dart'
-    if (dart.library.html) 'package:my_dic/core/infrastructure/database/drift/native_database_helper_web.dart';
+    if (dart.library.html) 'package:my_dic/core/infrastructure/database/drift/_NATIVE/native_database_helper_web.dart';
 import 'package:my_dic/core/infrastructure/database/drift/_WEB/web_executor.dart'
-    if (dart.library.io) 'package:my_dic/core/infrastructure/database/drift/web_executor_stub.dart';
+    if (dart.library.io) 'package:my_dic/core/infrastructure/database/drift/_WEB/web_executor_stub.dart';
 import 'package:my_dic/core/infrastructure/database/drift/daos/es_en_conjugacion_dao.dart';
 import 'package:my_dic/core/infrastructure/database/drift/daos/jpn_esp/jpn_esp_word_dao.dart';
 import 'package:my_dic/features/my_word/data/data_source/local/drift_my_word_dao.dart';
@@ -37,7 +37,7 @@ import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'dart:async';
 import 'package:my_dic/core/infrastructure/database/drift/_WEB/web_database_seeder.dart'
-    if (dart.library.io) 'package:my_dic/core/infrastructure/database/drift/web_database_seeder_stub.dart';
+    if (dart.library.io) 'package:my_dic/core/infrastructure/database/drift/_WEB/web_database_seeder_stub.dart';
 
 part '../../../../__generated/core/infrastructure/database/drift/database_provider.g.dart';
 
@@ -88,14 +88,46 @@ class DatabaseProvider extends _$DatabaseProvider {
     return MigrationStrategy(
       onCreate: (Migrator m) async {
         print("==== DB Migration create ===");
+        print("Platform: ${kIsWeb ? 'WEB' : 'NATIVE'}");
+        print("🔍 DEBUG: kIsWeb = $kIsWeb");
         await m.createAll();
+        print("Tables created successfully");
         
         // Web環境の場合、JSONからデータをシード
+        print("🔍 DEBUG: About to check kIsWeb for seeding...");
         if (kIsWeb) {
-          log("Web platform detected - seeding from JSON");
-          final seeder = WebDatabaseSeeder(this);
-          await seeder.seedFromJson();
+          print("🔍 DEBUG: INSIDE kIsWeb block - starting seeding");
+          log("🌐 Web platform detected - starting JSON seeding...");
+          final startTime = DateTime.now();
+          try {
+            final seeder = WebDatabaseSeeder(this);
+            print("🔍 DEBUG: WebDatabaseSeeder created");
+            await seeder.seedFromJson();
+            final duration = DateTime.now().difference(startTime);
+            log("✅ Web seeding completed in ${duration.inSeconds}s");
+            
+            // データが正常にインポートされたか確認
+            try {
+              final wordCount = await customSelect('SELECT COUNT(*) as count FROM words').getSingle();
+              final dictCount = await customSelect('SELECT COUNT(*) as count FROM dictionaries').getSingle();
+              final rankingCount = await customSelect('SELECT COUNT(*) as count FROM rankings').getSingle();
+             
+              print('✅ Database seeding verification:');
+              print('   - Words imported: ${wordCount.data['count']}');
+              print('   - Dictionaries imported: ${dictCount.data['count']}');
+              print('   - Rankings imported: ${rankingCount.data['count']}');
+            } catch (e) {
+              print('⚠️ Could not verify data import: $e');
+            }
+          } catch (e, stack) {
+            print("❌ ERROR in onCreate seeding: $e");
+            print("Stack trace: $stack");
+            rethrow;
+          }
+        } else {
+          print("🔍 DEBUG: kIsWeb is FALSE - skipping web seeding");
         }
+        print("🔍 DEBUG: onCreate completed");
       },
       onUpgrade: (Migrator m, int from, int to) async {
         print("==== DB Migration upgrade ===");
@@ -142,9 +174,12 @@ class DatabaseProvider extends _$DatabaseProvider {
       },
       beforeOpen: (details) async {
         print("==== DB Migration beforeOpen ===");
+        print("Platform: ${kIsWeb ? 'WEB (IndexedDB)' : 'NATIVE (SQLite)'}");
         print("==== DB version is ${details.versionNow} ===");
         if (details.wasCreated) {
-          log("DatabaseProvider - Database was created");
+          log("🆕 DatabaseProvider - Database was created (first time)");
+        } else {
+          log("📂 DatabaseProvider - Opening existing database");
         }
         //===== upgrade時の処理 =====//
         if (details.hadUpgrade) {
@@ -254,9 +289,9 @@ Future<String> copyAssetDbOnce(String assetDbFileName,
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
     if (kIsWeb) {
-      // Web: Use IndexedDB
-      log("DatabaseProvider - Using WebDatabase for web platform");
-      return createWebExecutor('my_dic_db');
+      // Web: Use WasmDatabase (IndexedDB)
+      log("DatabaseProvider - Using WasmDatabase for web platform");
+      return await createWebExecutor('my_dic_db');
     } else {
       // Mobile/Desktop: Use file-based SQLite
       final dbPath = await getDatabasePath(DB_NAME);
