@@ -23,7 +23,7 @@ class WebDatabaseSeeder {
   int _currentRows = 0;
   void _updateProgress(
       {double? progress, String? message, WebDBLoadingType? type}) {
-    print("current:$_currentRows, _totalRows:$_totalRows");
+    //print("current:$_currentRows, _totalRows:$_totalRows");
     globalDatabaseLoadingNotifier.updateProgress(progress, message, type);
   }
 
@@ -74,20 +74,29 @@ class WebDatabaseSeeder {
     _updateProgress(
         message: '($assetPath) compressed JSON ダウンロード中...',
         type: WebDBLoadingType.download);
+    await Future.delayed(Duration.zero);
     final byteData = await rootBundle.load(assetPath);
+    // UIスレッドに制御を返してプログレスアニメーションを開始させる
+    await Future.delayed(Duration.zero);
     _updateProgress(
         message: '($assetPath) compressed JSON 展開中...',
         type: WebDBLoadingType.decompressed);
+    await Future.delayed(Duration.zero);
     final compressed = byteData.buffer.asUint8List();
+    await Future.delayed(Duration.zero);
     print(
         '  Compressed size: ${(compressed.length / 1024 / 1024).toStringAsFixed(2)} MB');
     print(
         '  Compressed size: ${(compressed.length / 1024 / 1024).toStringAsFixed(2)} MB');
 
     print('  Decompressing...');
+    await Future.delayed(Duration.zero);
     final decompressed = GZipDecoder().decodeBytes(compressed);
+    // 展開完了後、UIスレッドに制御を返す
+    await Future.delayed(Duration.zero);
     _updateProgress(
         message: '($assetPath) jsonデコード中...', type: WebDBLoadingType.parsing);
+    await Future.delayed(Duration.zero);
     print(
         '  Decompressed: ${(decompressed.length / 1024 / 1024).toStringAsFixed(2)} MB');
     print(
@@ -96,10 +105,13 @@ class WebDatabaseSeeder {
     print('  Parsing JSON...');
     final jsonString = utf8.decode(decompressed);
     final result = jsonDecode(jsonString) as Map<String, dynamic>;
+    // JSONパース完了後、UIスレッドに制御を返す
+    await Future.delayed(Duration.zero);
     _updateProgress(
         message: '($assetPath) import開始',
         type: WebDBLoadingType.import,
         progress: 0);
+    await Future.delayed(Duration.zero);
     print('  ✓ JSON parsed successfully');
     return result;
   }
@@ -518,11 +530,11 @@ class WebDatabaseSeeder {
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
-          if (row['word_id'] == null || row['word'] == null) continue;
+          if (row['jpn_esp_word_id'] == null || row['word'] == null) continue;
           b.insert(
               db.jpnEspWords,
               JpnEspWordsCompanion.insert(
-                wordId: Value(_toIntRequired(row['word_id'])),
+                wordId: Value(_toIntRequired(row['jpn_esp_word_id'])),
                 word: row['word'] as String,
               ),
               mode: InsertMode.insertOrIgnore);
@@ -545,14 +557,16 @@ class WebDatabaseSeeder {
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
-          if (row['dictionary_id'] == null ||
-              row['word_id'] == null ||
-              row['word'] == null) continue;
+          if (row['jpn_esp_dictionary_id'] == null ||
+              row['jpn_esp_word_id'] == null ||
+              row['word'] == null) {
+            continue;
+          }
           b.insert(
               db.jpnEspDictionaries,
               JpnEspDictionariesCompanion.insert(
-                dictionaryId: Value(_toIntRequired(row['dictionary_id'])),
-                wordId: _toIntRequired(row['word_id']),
+                dictionaryId: Value(_toIntRequired(row['jpn_esp_dictionary_id'])),
+                wordId: _toIntRequired(row['jpn_esp_word_id']),
                 word: row['word'] as String,
                 excf: _toIntRequired(row['excf']),
                 headword: row['headword'] as String,
@@ -579,19 +593,19 @@ class WebDatabaseSeeder {
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
-          if (row['example_id'] == null ||
+          if (row['jpn_esp_example_id'] == null ||
               row['example_no'] == null ||
-              row['dictionary_id'] == null) continue;
+              row['jpn_esp_dictionary_id'] == null) {continue;}
           b.insert(
               db.jpnEspExamples,
               JpnEspExamplesCompanion.insert(
-                exampleId: Value(_toIntRequired(row['example_id'])),
-                dictionaryId: _toIntRequired(row['dictionary_id']),
+                exampleId: Value(_toIntRequired(row['jpn_esp_example_id'])),
+                dictionaryId: _toIntRequired(row['jpn_esp_dictionary_id']),
                 // wordId: _toIntRequired(row['word_id']),
                 exampleNo: _toIntRequired(row['example_no']),
-                japaneseText: row['japanese_text'] as String,
-                espanolHtml: row['espanol_html'] as String,
-                espanolText: row['espanol_text'] as String,
+                japaneseText: row['japanese_text'] as String? ?? '',
+                espanolHtml: row['espanol_html'] as String? ?? '',
+                espanolText: row['espanol_text'] as String? ?? '',
               ),
               mode: InsertMode.insertOrIgnore);
         }
@@ -768,11 +782,11 @@ class WebDatabaseSeeder {
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
-          if (row['word_id'] == null || row['edit_at'] == null) continue;
+          if (row['jpn_esp_word_id'] == null || row['edit_at'] == null) continue;
           b.insert(
               db.jpnEspWordStatus,
               JpnEspWordStatusCompanion.insert(
-                wordId: Value(_toIntRequired(row['word_id'])),
+                wordId: Value(_toIntRequired(row['jpn_esp_word_id'])),
                 isLearned: Value(_toIntRequired(row['is_learned'])),
                 isBookmarked: Value(_toIntRequired(row['is_bookmarked'])),
                 hasNote: Value(_toIntRequired(row['has_note'])),

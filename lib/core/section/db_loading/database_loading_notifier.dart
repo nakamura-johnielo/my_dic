@@ -6,7 +6,7 @@ class DatabaseLoadingNotifier extends StateNotifier<DatabaseLoadingState> {
   DatabaseLoadingNotifier() : super(const DatabaseLoadingState());
 
   void updateProgress(double? progress, String? message, WebDBLoadingType? loadingType) {
-    print("type: ${state.loadingType} ==========================");
+    //print("type: ${state.loadingType} ==========================");
     state = state.copyWith(
       isLoading: true,
       progress: progress!=null? (progress.isFinite

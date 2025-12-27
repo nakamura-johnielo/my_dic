@@ -43,32 +43,23 @@ class DatabaseLoadingOverlay extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  myIconBuilder(
-                      Icons.looks_one,
-                      Icons.looks_one_outlined,
-                      loadingState.loadingType ==
-                          WebDBLoadingType.download),
+                  myIconBuilder(Icons.looks_one, Icons.looks_one_outlined,
+                      loadingState.loadingType == WebDBLoadingType.download),
                   myIconBuilder(
                       Icons.looks_two,
                       Icons.looks_two_outlined,
                       loadingState.loadingType ==
                           WebDBLoadingType.decompressed),
-                  myIconBuilder(
-                      Icons.looks_3,
-                      Icons.looks_3_outlined,
-                      loadingState.loadingType ==
-                          WebDBLoadingType.parsing),
-                  myIconBuilder(
-                      Icons.looks_4,
-                      Icons.looks_4_outlined,
-                      loadingState.loadingType ==
-                          WebDBLoadingType.import),
+                  myIconBuilder(Icons.looks_3, Icons.looks_3_outlined,
+                      loadingState.loadingType == WebDBLoadingType.parsing),
+                  myIconBuilder(Icons.looks_4, Icons.looks_4_outlined,
+                      loadingState.loadingType == WebDBLoadingType.import),
                 ],
               ),
               SizedBox(height: 16),
               Text(
                 loadingState.loadingType.name,
-                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).colorScheme.primary,
                     ),
@@ -87,7 +78,14 @@ class DatabaseLoadingOverlay extends ConsumerWidget {
               SizedBox(
                 width: 300,
                 child: LinearProgressIndicator(
-                  value: loadingState.progress,
+                  value:
+                      (loadingState.loadingType == WebDBLoadingType.download ||
+                              loadingState.loadingType ==
+                                  WebDBLoadingType.decompressed ||
+                              loadingState.loadingType ==
+                                  WebDBLoadingType.parsing)
+                          ? null // インデターミネートモード
+                          : loadingState.progress,
                   minHeight: 8,
                   backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
                   valueColor: AlwaysStoppedAnimation<Color>(

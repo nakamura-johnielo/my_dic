@@ -9,10 +9,10 @@ class JpnEspDictionaries extends Table {
     .references(JpnEspWords, #wordId, onDelete: KeyAction.cascade)();
 
   // IntColumn get wordId => integer().named('jpn_esp_word_id')();
-  TextColumn get word => text()();
-  IntColumn get excf => integer()();
-  TextColumn get headword => text()();
-  TextColumn get content => text()();
+  TextColumn get word => text().named('word')();
+  IntColumn get excf => integer().named('excf')();
+  TextColumn get headword => text().named('headword')();
+  TextColumn get content => text().named('content')();
   TextColumn get htmlRaw => text().named('html_raw')();
 
   @override
