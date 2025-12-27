@@ -63,3 +63,11 @@ flutter_icons:
   windows:
     generate: true
     image_path: "assets/icon/mydic_icon2.png"
+  web:
+    generate: true
+    image_path: "assets/icon/mydic_web.png"
+
+flutter_native_splash:
+  #web:
+  image_web: "assets/icon/mydic_web.png" 
+  color: "#173409"  

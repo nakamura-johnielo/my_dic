@@ -13200,7 +13200,7 @@ class $$JpnEspExamplesTableFilterComposer
   ColumnFilters<String> get espanolText => $composableBuilder(
       column: $table.espanolText, builder: (column) => ColumnFilters(column));
 
-    $$JpnEspDictionariesTableFilterComposer get dictionaryId {
+  $$JpnEspDictionariesTableFilterComposer get dictionaryId {
     final $$JpnEspDictionariesTableFilterComposer composer = $composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.dictionaryId,
