@@ -56,6 +56,10 @@ class WikiEspRankingRepository implements IEspRankingRepository {
   @override
   Future<List<Ranking>> getRankingListByFilters(
       FilteredRankingListInputData input) async {
+    final test = await _rankingDao.getRankingById(1);
+    print("=====repo test word: ${test?.word}");
+    print(
+        " =====repo input requiredPage: ${input.requiredPage}, size: ${input.size}, posFilters: ${input.partOfSpeechFilters}, tagFilters: ${input.featureTagFilters}, posExclu: ${input.partOfSpeechExcludeFilters}, tagExclu: ${input.featureTagExcludeFilters}");
     final resp = await _rankingDao.getFilteredRankingWithStatusByPage(
         input.requiredPage,
         input.size,
@@ -63,7 +67,7 @@ class WikiEspRankingRepository implements IEspRankingRepository {
         input.featureTagFilters,
         input.partOfSpeechExcludeFilters,
         input.featureTagExcludeFilters);
-
+    print("=====repo resp length: ${resp?.length}");
     if (resp == null || resp.isEmpty) {
       List<Ranking> res = [];
       return res;
