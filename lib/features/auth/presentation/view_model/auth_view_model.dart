@@ -57,6 +57,12 @@ class AuthViewModel extends StateNotifier<UserState?> {
             failure: (error) => 'ログイン成功しましたが、確認メールの送信に失敗しました',
           );
         } else {
+          print( "**********signin success**********");
+          state = state?.copyWith(
+            id: authEntity.userId,
+            email: authEntity.email,
+            isAuthorized: authEntity.isVerified,
+          );
           return 'ログインに成功しました';
         }
       },

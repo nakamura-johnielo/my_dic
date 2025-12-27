@@ -5,6 +5,7 @@ import 'package:my_dic/features/search/domain/usecase/search_word/search_word_ou
 
 abstract class ISearchWordUseCase {
   Future<Result<SearchWordOutputData>> executeEspJpn(SearchWordInputData input);
+  //TODO result
   Future<List<QuizSearchedItem>> executeVerbs(SearchWordInputData input);
   SearchWordOutputData executeEmptyQuery();
   Future<Result<SearchJpnEspWordOutputData>> executeJpnEsp(

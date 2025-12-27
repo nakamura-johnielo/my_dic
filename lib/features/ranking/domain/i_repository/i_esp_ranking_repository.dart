@@ -2,6 +2,7 @@ import 'package:my_dic/features/ranking/domain/usecase/load_rankings/filtered_ra
 import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
 
 abstract class IEspRankingRepository {
+  //TODO result
   Future<List<Ranking>> getRankingList(int page, int size);
   Future<List<Ranking>> getRankingListByFilters(
       FilteredRankingListInputData input);

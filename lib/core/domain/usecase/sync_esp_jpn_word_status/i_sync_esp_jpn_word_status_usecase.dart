@@ -1,4 +1,5 @@
 abstract class ISyncEspJpnWordStatusUseCase {
+  //TODO RESULT
   // Future<DateTime?> getLastSyncDate(String key);
   Future<void> syncOnce(String userId);
   Stream<List<int>> watchRemoteChangedIds(String userId);
