@@ -79,8 +79,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       final inProfile = location.startsWith('/${ScreenTab.profile}');
       if (!inProfile) return null;
 
-      final loggedIn = auth?.isLogined == true;
-      final verified = auth?.isVerified == true;
+      final loggedIn = auth?.isLogined ?? false;
+      final verified = auth?.isVerified ?? false;
       final unauthorized = '/${ScreenTab.profile}/${ScreenPage.unAuthorized}';
       final authorized = '/${ScreenTab.profile}/${ScreenPage.authorized}';
       print('loggedIn: $loggedIn, verified: $verified');

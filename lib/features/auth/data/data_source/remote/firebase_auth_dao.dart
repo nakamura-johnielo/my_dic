@@ -6,9 +6,32 @@ class FirebaseAuthDao {
   FirebaseAuthDao(this._auth);
 
   Stream<AuthDTO?> authStateChanges() {
+   return _auth.userChanges().map(
+      (user) {
+        print("!!!!!!auth state changed!!!!");
+
+        final res = user != null ? AuthDTO.fromFirebaseUser(user) : null;
+        user != null ? _printBatch(user) : print("user nullr");
+        return res;
+      },
+    );
+
     return _auth.authStateChanges().map(
-          (user) => user != null ? AuthDTO.fromFirebaseUser(user) : null,
-        );
+      (user) {
+        print("!!!!!!auth state changed!!!!");
+
+        final res = user != null ? AuthDTO.fromFirebaseUser(user) : null;
+        user != null ? _printBatch(user) : print("user nullr");
+        return res;
+      },
+    );
+  }
+
+  void _printBatch(User user) {
+    print("emailVerified: ${user.emailVerified}");
+    print("provider: ${user.providerData}");
+    print("refreshtoken: ${user.refreshToken}");
+    //print("refreshtoken: ${user.}");
   }
 
   Future<AuthDTO> createUserWithEmailAndPassword(
@@ -22,6 +45,12 @@ class FirebaseAuthDao {
       String email, String password) async {
     final userCredential = await _auth.signInWithEmailAndPassword(
         email: email, password: password);
+    print("+++++++++++++++++++siginin 1");
+    if (userCredential.user != null) {
+      //await userCredential.user!.reload(); // Ensure user state is refreshed
+      _printBatch(userCredential.user!);
+      //await userCredential.user!.reload();
+    }
     return AuthDTO.fromFirebaseUserCredential(userCredential);
   }
 

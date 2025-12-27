@@ -17,7 +17,7 @@ class FirebaseAuthRepositoryImpl implements IAuthRepository {
   Stream<AppAuth?> observeAuthState() {
     return _authDao.authStateChanges().map((user) {
       if (user == null) return null;
-
+      print("*******observe: ${user.emailVerified}");
       return AppAuth(
         userId: user.userId,
         email: user.email,

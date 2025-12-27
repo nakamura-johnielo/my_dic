@@ -10,8 +10,14 @@ final authStreamProvider = StreamProvider<AppAuth?>((ref) {
   final useCase = ref.read(observeAuthStateUseCaseProvider);
   return useCase.execute().distinct((prev, next) {
     // userId と isLogined が両方同じなら重複とみなす
-    return prev?.userId == next?.userId && 
-           prev?.isLogined == next?.isLogined;
+    print(
+        "*****distinct check prev: ${prev?.userId}, isLogined: ${prev?.isLogined}, isVerified: ${prev?.isVerified} *****");
+    print(
+        "*****distinct check next: ${next?.userId}, isLogined: ${next?.isLogined}, isVerified: ${next?.isVerified} *****");
+    return 
+    prev?.userId == next?.userId &&
+           prev?.isLogined == next?.isLogined &&
+           prev?.isVerified == next?.isVerified;
   });
 });
 
@@ -66,25 +72,29 @@ Future<void> _handleSignIn(Ref ref, AppAuth currentAuth) async {
     await ref.read(userViewModelProvider.notifier).loadUser(currentAuth.userId);
 
     // 3. 認証情報を同期
-    ref.read(userViewModelProvider.notifier).setAuthInfo(currentAuth);
+    //ref.read(userViewModelProvider.notifier).setAuthInfo(currentAuth);
 
     // 4. 同期サービスを開始
     //await _startSyncService(ref, currentAuth.userId);
-  await ref.read(espJpnWordStatusSyncServiceProvider)
+    if(!currentAuth.isLogined || !currentAuth.isVerified){
+      print('[Auth Effect] User not verified, skipping sync service start');
+      return;
+    }
+    await ref
+        .read(espJpnWordStatusSyncServiceProvider)
         .syncOnce(currentAuth.userId)
         .then((_) {
-          print('[Auth Effect] Initial sync completed');
-        })
-        .catchError((error) {
-          print('[Auth Effect] Initial sync failed: $error');
-        });
-        
-    ref.read(espJpnWordStatusSyncServiceProvider)
+      print('[Auth Effect] Initial sync completed');
+    }).catchError((error) {
+      print('[Auth Effect] Initial sync failed: $error');
+    });
+
+    ref
+        .read(espJpnWordStatusSyncServiceProvider)
         .startSyncWithRemote(currentAuth.userId);
 
-            // 5. バックグラウンドで一回限りの同期を実行
+    // 5. バックグラウンドで一回限りの同期を実行
     // ユーザー操作をブロックしないようにawaitしない
-
   } catch (e) {
     print('[Auth Effect] Error during sign in: $e');
     // エラーハンドリング（必要に応じてUIにエラーを通知）
