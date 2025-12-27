@@ -1,7 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/application/state/word_status_state.dart';
 import 'package:my_dic/core/application/view_model/status_buttons_view_model.dart';
+import 'package:my_dic/core/di/global.dart';
 import 'package:my_dic/core/di/usecase/usecase_di.dart';
+import 'package:my_dic/core/section/db_loading/database_loading_notifier.dart';
+import 'package:my_dic/core/section/db_loading/database_loading_state.dart';
 
 // final espJpnWordStatusViewModelProvider =
 //     StateNotifierProvider<EspJpnWordStatusViewModel, WordStatusState>((ref) {
@@ -22,4 +25,9 @@ final espJpnWordStatusViewModelProvider = StateNotifierProvider.family
       updateUsecase,
     );
   },
+);
+
+final databaseLoadingProvider =
+    StateNotifierProvider<DatabaseLoadingNotifier, DatabaseLoadingState>(
+  (ref) => globalDatabaseLoadingNotifier,
 );

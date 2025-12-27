@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/core/section/db_loading/db_loader_overlay.dart';
 import 'package:my_dic/core/shared/consts/enviroment.dart';
 import 'package:my_dic/core/application/effects/auth_effect_provider.dart';
 import 'package:my_dic/core/presentation/theme/color_scheme.dart';
@@ -62,6 +63,15 @@ class MyApp extends ConsumerWidget {
               Theme.of(context).colorScheme.onSurfaceVariant, //未選択時の色
         ),
       ),
+       builder: (context, child) {
+        return Stack(
+          children: [
+            child ?? const SizedBox.shrink(),
+            // オーバーレイを常に表示
+            const DatabaseLoadingOverlay(),
+          ],
+        );
+      },
       //home: const MainActivity(),
     );
   }
