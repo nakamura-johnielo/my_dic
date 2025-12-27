@@ -1,7 +1,6 @@
 // Web環境用のWasmDatabaseヘルパー（drift/wasm.dart使用）
 import 'package:drift/drift.dart';
 import 'package:drift/wasm.dart';
-import 'package:sqlite3/wasm.dart';
 
 Future<QueryExecutor> createWebExecutor(String name) async {
   // // WasmSqlite3をロード
