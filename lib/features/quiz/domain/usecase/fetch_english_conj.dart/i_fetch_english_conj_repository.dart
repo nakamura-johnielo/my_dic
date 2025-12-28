@@ -1,4 +1,5 @@
+import 'package:my_dic/core/shared/utils/result.dart';
+
 abstract class IEsEnConjugacionRepository {
-  //TODO result
-  Future<Map<String, String>> getEnglishConjById(int id);
+  Future<Result<Map<String, String>>> getEnglishConjById(int id);
 }

@@ -11,7 +11,6 @@ import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
 
-//TODO QuizCardState enumを使用してしまってる
 //スマホ用
 class RankingCard extends ConsumerWidget {
   //
@@ -128,6 +127,7 @@ class RankingCard extends ConsumerWidget {
                 defaultIcon: Icons.handshake_rounded,
                 hoveredIconColor: const Color.fromARGB(255, 119, 119, 119),
                 onTap: () {
+                  //TODO Quiz 初期化をquiz内で行う
                   ref.read(quizGameViewModelProvider.notifier).initialize();
                   ref.read(quizCardStateProvider.notifier).state =
                       QuizCardState.question;

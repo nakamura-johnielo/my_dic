@@ -11,8 +11,8 @@ import 'package:my_dic/features/ranking/domain/usecase/update_ranking_filter/upd
 import 'package:my_dic/features/ranking/presentation/ui_model/ranking_ui_model.dart';
 import 'package:logging/logging.dart';
 
-class RankingViewModelV2 extends StateNotifier<RankingState> {
-  RankingViewModelV2(this._loadRankingsUseCase,
+class RankingViewModel extends StateNotifier<RankingState> {
+  RankingViewModel(this._loadRankingsUseCase,
       this._locateRankingPagenationUseCase, this._updateRankingFilterUseCase)
       : super(const RankingState());
 

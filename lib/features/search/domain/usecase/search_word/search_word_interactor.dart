@@ -1,13 +1,10 @@
+import 'package:my_dic/core/domain/entity/word/word.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
-import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/i_search_word_use_case.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/search_word_input_data.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/search_word_output_data.dart';
-import 'package:my_dic/core/domain/entity/jpn_esp/jpn_esp_word.dart';
 import 'package:my_dic/features/quiz/domain/entity/quiz_searched_item.dart';
-import 'package:my_dic/core/domain/entity/verb/conjugacion/result_conjugacions.dart';
-import 'package:my_dic/core/domain/entity/word/word.dart';
 import 'package:my_dic/core/domain/i_repository/i_conjugation_repository.dart';
 import 'package:my_dic/core/domain/i_repository/i_esj_word_repository.dart';
 import 'package:my_dic/core/domain/i_repository/i_jpn_esp_word_repository.dart';
@@ -36,19 +33,12 @@ class SearchWordInteractor implements ISearchWordUseCase {
   }
 
   @override
-  Future<List<QuizSearchedItem>> executeVerbs(SearchWordInputData input) async {
+  Future<Result<List<QuizSearchedItem>>> executeVerbs(SearchWordInputData input) async {
     // List<Word> l = await _wordRepository.getWordsByWord(input.word);
     final result = await _conjugacionsRepository
         .getQuizConjugacionByWordWithPage(input.word, input.size, input.page);
 
-    // Result<T>を展開して、エラー時は空のリストを返す
-    return result.when(
-      success: (items) => items,
-      failure: (error) {
-        print('クイズ用活用形の取得に失敗: $error');
-        return <QuizSearchedItem>[];
-      },
-    );
+    return result;
   }
 
   @override
