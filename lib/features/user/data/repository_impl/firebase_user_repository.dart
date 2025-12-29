@@ -5,29 +5,23 @@ import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/user/domain/entity/user.dart';
 import 'package:my_dic/features/user/domain/i_repository/i_user_repository.dart';
-import 'package:my_dic/features/user/data/data_source/remote/user_profile_dao.dart';
-import 'package:my_dic/features/user/data/dto/user_dto.dart';
+import 'package:my_dic/features/user/data/data_source/remote/i_user_remote_data_source.dart';
+
 
 class FirebaseUserRepository implements IUserRepository {
-  final UserDao _userProfileDao;
-  FirebaseUserRepository(this._userProfileDao);
+  final IUserRemoteDataSource _dataSource;
+  FirebaseUserRepository(this._dataSource);
 
   @override
   Future<Result<AppUser>> getUserById(String id) async {
     try {
-      final profileData = await _userProfileDao.getUser(id);
-      if (profileData == null) {
+      final profile = await _dataSource.getUserById(id);
+      if (profile == null) {
         return Result.failure(NotFoundError(
           message: 'ユーザーが見つかりません',
         ));
       }
-      final user = AppUser(
-        id: id,
-        email: profileData.email,
-        username: profileData.userName,
-        subscriptionStatus: profileData.subscriptionStatus,
-      );
-      return Result.success(user);
+      return Result.success(profile);
     } on FirebaseException catch (e, s) {
       return Result.failure(FirebaseError(
         message: 'ユーザー情報の取得に失敗しました: ${e.message}',
@@ -47,14 +41,7 @@ class FirebaseUserRepository implements IUserRepository {
   @override
   Future<Result<void>> updateUser(AppUser user) async {
     try {
-      final userEntity = UserDTO(
-        userId: user.id,
-        email: user.email,
-        userName: user.username,
-        subscriptionStatus: user.subscriptionStatus,
-        updatedAt: DateTime.now(),
-      );
-      await _userProfileDao.update(userEntity);
+      await _dataSource.updateUser(user);
       return const Result.success(null);
     } on FirebaseException catch (e, s) {
       return Result.failure(FirebaseError(

@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
+import 'package:my_dic/core/di/data/datasource.dart';
 import 'package:my_dic/core/domain/i_repository/i_conjugation_repository.dart';
 import 'package:my_dic/core/domain/i_repository/i_esj_dictionary_repository.dart';
 import 'package:my_dic/core/domain/i_repository/i_esj_word_repository.dart';
@@ -12,79 +13,63 @@ import 'package:my_dic/core/infrastructure/repositories/drift_word_status_reposi
 import 'package:my_dic/core/infrastructure/repositories/firebase_word_status_repository.dart';
 import 'package:my_dic/core/infrastructure/repositories/sync_status_repository.dart';
 import 'package:my_dic/core/infrastructure/repositories/wordstatus_repository.dart';
-import 'package:my_dic/features/quiz/data/repository_impl/drift_es_en_conjugacions_repository.dart';
 import 'package:my_dic/core/infrastructure/repositories/drift_esj_dictionary_repository.dart';
 import 'package:my_dic/core/infrastructure/repositories/drift_esj_word_repository.dart';
 import 'package:my_dic/core/infrastructure/repositories/drift_jpn_esp_dictionary_repository.dart';
 import 'package:my_dic/core/infrastructure/repositories/drift_jpn_esp_word_repository.dart';
 
+
 final esjDictionaryRepositoryProvider =
     Provider<IEsjDictionaryRepository>((ref) {
-  return DriftEsjDictionaryRepository(
-    ref.read(dictionaryDaoProvider),
-    ref.read(exampleDaoProvider),
-    ref.read(idiomDaoProvider),
-    ref.read(supplementDaoProvider),
-  );
+  final ds = ref.read(esjDictionaryDataSourceProvider);
+  return DriftEsjDictionaryRepository(ds);
 });
 
 final esjWordRepositoryProvider = Provider<IEsjWordRepository>((ref) {
-  return DriftEsjWordRepository(
-    ref.read(wordDaoProvider),
-    ref.read(localWordStatusDaoProvider),
-  );
+  final ds = ref.read(esjWordDataSourceProvider);
+  final statusDs = ref.read(localWordStatusDataSourceProvider);
+  return DriftEsjWordRepository(ds, statusDs);
 });
 
 final conjugacionsRepositoryProvider = Provider<IConjugacionsRepository>((ref) {
-  return DriftConjugacionRepository(ref.read(conjugationDaoProvider));
+  final ds = ref.read(conjugacionDataSourceProvider);
+  return DriftConjugacionRepository(ds);
 });
 
 final jpnEspWordRepositoryProvider = Provider<IJpnEspWordRepository>((ref) {
-  return DriftJpnEspWordRepository(
-    ref.read(jpnEspWordDaoProvider),
-    ref.read(jpnEspDictionaryDaoProvider),
-  );
+  final ds = ref.read(jpnEspWordDataSourceProvider);
+  final dictDs = ref.read(jpnEspDictionaryDataSourceProvider);
+  return DriftJpnEspWordRepository(ds, dictDs);
 });
 
 final jpnEspDictionaryRepositoryProvider =
     Provider<IJpnEspDictionaryRepository>((ref) {
-  return DriftJpnEspDictionaryRepository(
-    ref.read(jpnEspDictionaryDaoProvider),
-    ref.read(jpnEspExampleDaoProvider),
-  );
+  final ds = ref.read(jpnEspDictionaryDataSourceProvider);
+  return DriftJpnEspDictionaryRepository(ds);
 });
 
-final esEnConjugacionRepositoryProvider =
-    Provider<DriftEsEnConjugacionRepository>((ref) {
-  return DriftEsEnConjugacionRepository(ref.read(esEnConjugacionDaoProvider));
-});
+
 
 
 final wordStatusRepositoryProvider = Provider<IWordStatusRepository>((ref) {
-  final local = ref.read(localWordStatusDaoProvider);
-  final remote = ref.read(remoteWordStatusDaoProvider);
+  final local = ref.read(localWordStatusDataSourceProvider );
+  final remote = ref.read(remoteWordStatusDataSourceProvider);
   // final localDataSource = ref.watch(localWordStatusDaoProvider);
   // return WordStatusRepository(dataSource, localDataSource);
   return WordStatusRepository(remote, local);
 });
 
 final localEspJpnWordStatusRepositoryProvider = Provider<ILocalWordStatusRepository>((ref) {
-  final local = ref.read(localWordStatusDaoProvider);
-  // final localDataSource = ref.watch(localWordStatusDaoProvider);
-  // return WordStatusRepository(dataSource, localDataSource);
-  return DriftWordStatusRepository( local);
+  final ds = ref.read(localWordStatusDataSourceProvider);
+  return DriftWordStatusRepository(ds);
 });
 
 final remoteEspJpnWordStatusRepositoryProvider = Provider<IRemoteWordStatusRepository>((ref) {
-  final remote = ref.read(remoteWordStatusDaoProvider);
-  // final localDataSource = ref.watch(localWordStatusDaoProvider);
-  // return WordStatusRepository(dataSource, localDataSource);
-  return FirebaseWordStatusRepository( remote);
+  final ds = ref.read(remoteWordStatusDataSourceProvider);
+  return FirebaseWordStatusRepository(ds);
 });
 
 final syncStatusRepositoryProvider = Provider<ISyncStatusRepository>((ref) {
-  final local = ref.read(sharedPreferenceSyncStatusDaoProvider);
-  // final localDataSource = ref.watch(localWordStatusDaoProvider);
-  // return WordStatusRepository(dataSource, localDataSource);
-  return SharedPreferenceSyncStatusRepository(local);
+  final ds = ref.read(sharedPreferencesSyncStatusDataSourceProvider);
+  return SharedPreferenceSyncStatusRepository(ds);
 });

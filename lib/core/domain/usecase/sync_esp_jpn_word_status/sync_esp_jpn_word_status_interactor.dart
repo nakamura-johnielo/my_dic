@@ -5,6 +5,7 @@ import 'package:my_dic/core/domain/i_repository/i_word_status_repository.dart';
 import 'package:my_dic/core/domain/usecase/sync_esp_jpn_word_status/i_sync_esp_jpn_word_status_usecase.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 
+//TODO Repository化
 class SyncEspJpnWordStatusInteractor implements ISyncEspJpnWordStatusUseCase {
   final ISyncStatusRepository _localSyncStatusRepository;
 // final ISyncStatusRepository _remote;

@@ -1,68 +1,39 @@
 import 'package:my_dic/core/domain/entity/word/esp_word_status.dart';
 import 'package:my_dic/core/domain/i_repository/i_word_status_repository.dart';
-import 'package:my_dic/core/infrastructure/database/firebase/daos/firebase_word_status_dao.dart';
-import 'package:my_dic/core/infrastructure/dtos/wordStatusEntity.dart';
+import 'package:my_dic/core/infrastructure/datasource/word_status/i_remote_word_status_data_source.dart';
 
 class FirebaseWordStatusRepository implements IRemoteWordStatusRepository {
-  final FirebaseWordStatusDao _dao;
+  final IRemoteWordStatusDataSource _dataSource;
 
-  FirebaseWordStatusRepository(this._dao);
+  FirebaseWordStatusRepository(this._dataSource);
 
   @override
   Future<WordStatus?> getWordStatusById(String userId, int id) async {
-    final entity = await _dao.getWordStatus(userId, id);
-    if (entity == null) {
-      return WordStatus(wordId: id);
-    }
-    return entity.toEntity();
+    return await _dataSource.getWordStatusById(userId, id);
   }
 
   @override
-  Future<List<WordStatus>> getWordStatusAfter(
-      String userId, DateTime datetime) async {
-    final entities = await _dao.getWordStatusAfter(userId, datetime);
-    if (entities.isEmpty) {
-      return [];
-    }
-    // 複数ある場合は最新のものを返す（要件に応じて調整）
-    return entities.map((e) => e.toEntity()).toList();
+  Future<List<WordStatus>> getWordStatusAfter(String userId, DateTime datetime) async {
+    return await _dataSource.getWordStatusAfter(userId, datetime);
   }
 
   @override
   Future<void> updateWordStatus(String userId, WordStatus wordStatus) async {
-    final entity = WordStatusDTO.fromAppEntity(wordStatus);
-    await _dao.update(entity, userId);
+    await _dataSource.updateWordStatus(userId, wordStatus);
   }
 
   @override
   Stream<WordStatus> watchWordStatusById(String userId, int id) {
-    return _dao.watchAll(userId).map((entities) {
-      final entity = entities.firstWhere(
-        (e) => e.wordId == id,
-        orElse: () => WordStatusDTO(
-          wordId: id,
-          isLearned: 0,
-          isBookmarked: 0,
-          hasNote: 0,
-          updatedAt: DateTime.now().toUtc(),
-          createdAt: DateTime.now().toUtc(),
-        ),
-      );
-      return entity.toEntity();
-    });
+    return _dataSource.watchWordStatusById(userId, id);
   }
 
   @override
   Stream<List<int>> watchChangedIds(String userId) {
-    return _dao.watchChangedWordIds(userId);
+    return _dataSource.watchChangedIds(userId);
   }
 
   @override
-  Future<void> updateWordStatusBatch(
-      String userId, List<WordStatus> wordStatusList) async {
-    print("~~~~~~~~~~~~~remote Batch");
-    final inputData =
-        wordStatusList.map((d) => WordStatusDTO.fromAppEntity(d)).toList();
-    await _dao.updateBatch(userId, inputData);
+  Future<void> updateWordStatusBatch(String userId, List<WordStatus> wordStatusList) async {
+    await _dataSource.updateWordStatusBatch(userId, wordStatusList);
   }
 }

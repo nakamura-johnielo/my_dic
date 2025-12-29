@@ -5,35 +5,26 @@ import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
-import 'package:my_dic/features/auth/data/data_source/remote/firebase_auth_dao.dart';
-import 'package:my_dic/features/auth/data/dto/auth_dto.dart';
+import 'package:my_dic/features/auth/data/data_source/remote/i_auth_remote_data_source.dart';
 
 class FirebaseAuthRepositoryImpl implements IAuthRepository {
-  final FirebaseAuthDao _authDao;
+  final IAuthRemoteDataSource _authDataSource;
 
-  FirebaseAuthRepositoryImpl(this._authDao);
+  FirebaseAuthRepositoryImpl(this._authDataSource);
 
   @override
   Stream<AppAuth?> observeAuthState() {
-    return _authDao.authStateChanges().map((user) {
-      if (user == null) return null;
-      print("*******observe: ${user.emailVerified}");
-      return AppAuth(
-        userId: user.userId,
-        email: user.email,
-        isVerified: user.emailVerified,
-        isLogined: true,
-      );
+    return _authDataSource.observeAuthState().map((auth) {
+      if (auth == null) return null;
+      return auth.copyWith(isLogined: true);
     });
   }
 
   @override
-  Future<Result<AppAuth>> createUserWithEmailAndPassword(
-      {required String email, required String password}) async {
+  Future<Result<AppAuth>> createUserWithEmailAndPassword({required String email, required String password}) async {
     try {
-      final dto =
-          await _authDao.createUserWithEmailAndPassword(email, password);
-      return Result.success(_toEntity(dto));
+      final auth = await _authDataSource.createUserWithEmailAndPassword(email, password);
+      return Result.success(auth);
     } on firebase_auth.FirebaseAuthException catch (e, s) {
       switch (e.code) {
         case 'email-already-in-use':
@@ -80,8 +71,8 @@ class FirebaseAuthRepositoryImpl implements IAuthRepository {
     required String password,
   }) async {
     try {
-      final dto = await _authDao.signInWithEmailAndPassword(email, password);
-      return Result.success(_toEntity(dto).copyWith(isLogined: true));
+      final auth = await _authDataSource.signInWithEmailAndPassword(email, password);
+      return Result.success(auth.copyWith(isLogined: true));
     } on firebase_auth.FirebaseAuthException catch (e, s) {
       switch (e.code) {
         case 'user-not-found':
@@ -127,7 +118,7 @@ class FirebaseAuthRepositoryImpl implements IAuthRepository {
   @override
   Future<Result<void>> signOut() async {
     try {
-      await _authDao.signOut();
+      await _authDataSource.signOut();
       return const Result.success(null);
     } on firebase_auth.FirebaseAuthException catch (e, s) {
       return Result.failure(FirebaseError(
@@ -148,7 +139,7 @@ class FirebaseAuthRepositoryImpl implements IAuthRepository {
   @override
   Future<Result<void>> sendEmailVerification() async {
     try {
-      await _authDao.sendEmailVerification();
+      await _authDataSource.sendEmailVerification();
       return const Result.success(null);
     } on firebase_auth.FirebaseAuthException catch (e, s) {
       if (e.code == 'too-many-requests') {
@@ -177,7 +168,7 @@ class FirebaseAuthRepositoryImpl implements IAuthRepository {
   @override
   Future<Result<void>> sendPasswordResetEmail({required String email}) async {
     try {
-      await _authDao.sendPasswordResetEmail(email: email);
+      await _authDataSource.sendPasswordResetEmail(email: email);
       return const Result.success(null);
     } on firebase_auth.FirebaseAuthException catch (e, s) {
       switch (e.code) {
@@ -212,13 +203,5 @@ class FirebaseAuthRepositoryImpl implements IAuthRepository {
     }
   }
 
-  /// DTO → Domain Entity への変換
-  AppAuth _toEntity(AuthDTO dto) {
-    return AppAuth(
-      userId: dto.userId,
-      email: dto.email,
-      isVerified: dto.emailVerified,
-      //isLogined: false, // デフォルトは false、必要に応じて呼び出し側で上書き
-    );
-  }
+
 }

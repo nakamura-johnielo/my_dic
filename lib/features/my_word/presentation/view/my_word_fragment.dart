@@ -55,13 +55,11 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
   }
 
   void _setCurrentItemLength() {
-    //TODO read watch
     final viewModel = ref.read(myWordViewModelProvider);
     _previousItemLength = viewModel.myWords.length;
   }
 
   bool _canFetch() {
-    //TODO read watch
     final viewModel = ref.read(myWordViewModelProvider);
     final currentItemLength = viewModel.myWords.length;
     return currentItemLength > _previousItemLength;
