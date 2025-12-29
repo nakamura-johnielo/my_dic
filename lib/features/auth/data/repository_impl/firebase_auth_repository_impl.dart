@@ -7,10 +7,10 @@ import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
 import 'package:my_dic/features/auth/data/data_source/remote/i_auth_remote_data_source.dart';
 
-class FirebaseAuthRepositoryImpl implements IAuthRepository {
+class AuthRepositoryImpl implements IAuthRepository {
   final IAuthRemoteDataSource _authDataSource;
 
-  FirebaseAuthRepositoryImpl(this._authDataSource);
+  AuthRepositoryImpl(this._authDataSource);
 
   @override
   Stream<AppAuth?> observeAuthState() {

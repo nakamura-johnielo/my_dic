@@ -4,10 +4,10 @@ import 'package:my_dic/features/quiz/data/data_source/local/i_quiz_local_data_so
 import 'package:my_dic/features/quiz/domain/usecase/english_conj_sub/i_fetch_english_conj_sub_repository.dart';
 
 
-class JsonQuizRepositoryImpl implements IEnglishConjSubRepository {
+class QuizRepositoryImpl implements IEnglishConjSubRepository {
   final IQuizLocalDataSource localDataSource;
 
-  JsonQuizRepositoryImpl({required this.localDataSource});
+  QuizRepositoryImpl({required this.localDataSource});
 
   @override
   Future<Result<Map<String, String>>> getConjEnglishGuide() async {

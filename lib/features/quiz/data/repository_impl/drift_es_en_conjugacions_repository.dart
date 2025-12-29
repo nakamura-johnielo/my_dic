@@ -4,10 +4,10 @@ import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/quiz/data/data_source/local/i_es_en_conjugacion_local_data_source.dart';
 import 'package:my_dic/features/quiz/domain/usecase/fetch_english_conj.dart/i_fetch_english_conj_repository.dart';
 
-class DriftEsEnConjugacionRepository implements IEsEnConjugacionRepository{
+class EsEnConjugacionRepository implements IEsEnConjugacionRepository{
   final IEsEnConjugacionLocalDataSource _dataSource;
 
-  DriftEsEnConjugacionRepository(this._dataSource);
+  EsEnConjugacionRepository(this._dataSource);
 
   @override
   Future<Result<Map<String, String>>> getEnglishConjById(int id) async {

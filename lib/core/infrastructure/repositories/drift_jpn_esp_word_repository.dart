@@ -10,10 +10,10 @@ import 'package:my_dic/core/infrastructure/datasource/jpn_esp/i_jpn_esp_dictiona
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 
-class DriftJpnEspWordRepository implements IJpnEspWordRepository {
+class JpnEspWordRepository implements IJpnEspWordRepository {
   final IJpnEspWordLocalDataSource _wordDataSource;
   final IJpnEspDictionaryLocalDataSource _dictionaryDataSource;
-  DriftJpnEspWordRepository(this._wordDataSource, this._dictionaryDataSource);
+  JpnEspWordRepository(this._wordDataSource, this._dictionaryDataSource);
 
   @override
   Future<Result<List<JpnEspWord>>> getWordsByWord(

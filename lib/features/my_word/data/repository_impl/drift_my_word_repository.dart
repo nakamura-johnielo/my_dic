@@ -15,10 +15,10 @@ import 'package:my_dic/features/my_word/domain/usecase/load_my_word/load_my_word
 import 'package:my_dic/features/my_word/data/data_source/local/i_my_word_local_data_source.dart';
 
 
-class DriftMyWordRepository implements IMyWordRepository {
+class MyWordRepository implements IMyWordRepository {
   final IMyWordLocalDataSource _dataSource;
 
-  DriftMyWordRepository(this._dataSource);
+  MyWordRepository(this._dataSource);
 
   @override
   Future<Result<MyWord>> getById(int id) async {

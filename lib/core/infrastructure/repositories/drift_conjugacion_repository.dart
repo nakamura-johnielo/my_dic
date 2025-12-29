@@ -7,9 +7,9 @@ import 'package:my_dic/core/infrastructure/datasource/conjugacion/i_conjugacion_
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 
-class DriftConjugacionRepository implements IConjugacionsRepository {
+class ConjugacionRepository implements IConjugacionsRepository {
   final IConjugacionLocalDataSource _dataSource;
-  DriftConjugacionRepository(this._dataSource);
+  ConjugacionRepository(this._dataSource);
 
   // @override
   // Future<Conjugacions?> getConjugacionByWordId(int id)async {

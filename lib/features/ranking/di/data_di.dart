@@ -16,5 +16,5 @@ final rankingLocalDataSourceProvider =
 });
 
 final espRankingRepositoryProvider = Provider<IEspRankingRepository>((ref) {
-  return WikiEspRankingRepository(ref.read(rankingLocalDataSourceProvider));
+  return RankingRepository(ref.read(rankingLocalDataSourceProvider));
 });

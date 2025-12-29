@@ -5,10 +5,10 @@ import 'package:my_dic/core/infrastructure/datasource/sync/i_sync_status_data_so
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 
-class SharedPreferenceSyncStatusRepository implements ISyncStatusRepository {
+class SyncStatusRepository implements ISyncStatusRepository {
   // final FirebaseWordStatusDao _remote;
   final ISyncStatusDataSource _dataSource;
-  SharedPreferenceSyncStatusRepository(this._dataSource);
+  SyncStatusRepository(this._dataSource);
 
   @override
   Future<Result<DateTime?>> getLastSyncDate() async {

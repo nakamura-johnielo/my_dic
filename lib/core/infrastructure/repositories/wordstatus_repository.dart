@@ -7,8 +7,6 @@ import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/domain/entity/word/esp_word_status.dart';
 import 'package:my_dic/core/domain/i_repository/i_word_status_repository.dart';
 
-import 'package:my_dic/core/infrastructure/dtos/wordStatusEntity.dart';
-
 class WordStatusRepository implements IWordStatusRepository {
   final IRemoteWordStatusDataSource _remote;
   final ILocalWordStatusDataSource _local;

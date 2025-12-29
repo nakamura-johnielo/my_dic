@@ -12,10 +12,10 @@ import 'package:my_dic/core/domain/i_repository/i_esj_word_repository.dart';
 import 'package:my_dic/core/infrastructure/datasource/esj/i_esj_word_data_source.dart';
 import 'package:my_dic/core/infrastructure/datasource/word_status/i_local_word_status_data_source.dart';
 
-class DriftEsjWordRepository implements IEsjWordRepository {
+class EsjWordRepository implements IEsjWordRepository {
   final IEsjWordLocalDataSource _wordDataSource;
   final ILocalWordStatusDataSource _wordStatusDataSource;
-  DriftEsjWordRepository(this._wordDataSource, this._wordStatusDataSource);
+  EsjWordRepository(this._wordDataSource, this._wordStatusDataSource);
 
   @override
   Future<Result<List<EspJpnWord>>> getWordsByWord(String word) async {

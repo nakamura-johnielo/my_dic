@@ -54,6 +54,7 @@ final fetchJpnEspDictionaryUseCaseProvider =
 });
 
 
+//TODO 消す
 final syncEspJpnWordStatusUseCaseProvider=
     Provider<ISyncEspJpnWordStatusUseCase>((ref) {
   return SyncEspJpnWordStatusInteractor(

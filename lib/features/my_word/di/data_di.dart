@@ -30,7 +30,7 @@ final myWordLocalDataSourceProvider = Provider<IMyWordLocalDataSource>((ref) {
 // ============================================================================
 
 final myWordRepositoryProvider = Provider<IMyWordRepository>((ref) {
-  return DriftMyWordRepository(
+  return MyWordRepository(
     ref.read(myWordLocalDataSourceProvider),
   );
 });

@@ -6,10 +6,10 @@ import 'package:my_dic/core/infrastructure/datasource/jpn_esp/i_jpn_esp_dictiona
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 
-class DriftJpnEspDictionaryRepository implements IJpnEspDictionaryRepository {
+class JpnEspDictionaryRepository implements IJpnEspDictionaryRepository {
   final IJpnEspDictionaryLocalDataSource _dataSource;
 
-  DriftJpnEspDictionaryRepository(this._dataSource);
+  JpnEspDictionaryRepository(this._dataSource);
 
   @override
   Future<Result<List<JpnEspDictionary>>> getDictionaryByWordId(

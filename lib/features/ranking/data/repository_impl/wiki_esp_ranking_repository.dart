@@ -6,9 +6,9 @@ import 'package:my_dic/features/ranking/domain/i_repository/i_esp_ranking_reposi
 import 'package:my_dic/features/ranking/data/data_source/local/i_ranking_local_data_source.dart';
 
 
-class WikiEspRankingRepository implements IEspRankingRepository {
+class RankingRepository implements IEspRankingRepository {
   final IRankingLocalDataSource _dataSource;
-  WikiEspRankingRepository(this._dataSource);
+  RankingRepository(this._dataSource);
 
   @override
   Future<Result<List<Ranking>>> getRankingList(int page, int size) async {

@@ -27,7 +27,7 @@ final authDataSourceProvider = Provider<IAuthRemoteDataSource>((ref) {
 //repository
 final firebaseAuthRepositoryProvider = Provider<IAuthRepository>((ref) {
   final ds = ref.read(authDataSourceProvider);
-  return FirebaseAuthRepositoryImpl(ds);
+  return AuthRepositoryImpl(ds);
 });
 
 //Usecase

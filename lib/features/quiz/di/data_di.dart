@@ -24,14 +24,14 @@ final quizLocalDataSourceProvider = Provider<IQuizLocalDataSource>((ref) {
 
 final fetchEnglishConjSubRepositoryProvider =
     Provider<IEnglishConjSubRepository>((ref) {
-  return JsonQuizRepositoryImpl(
+  return QuizRepositoryImpl(
     localDataSource: ref.read(quizLocalDataSourceProvider),
   );
 });
 
 final esEnConjugacionRepositoryProvider =
     Provider<IEsEnConjugacionRepository>((ref) {
-  return DriftEsEnConjugacionRepository(ref.read(esEnConjugacionDataSourceProvider));
+  return EsEnConjugacionRepository(ref.read(esEnConjugacionDataSourceProvider));
 });
 
 final esEnConjugacionDataSourceProvider =

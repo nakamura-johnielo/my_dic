@@ -5,9 +5,9 @@ import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/domain/entity/dictionary/esj_dictionary.dart';
 import 'package:my_dic/core/domain/i_repository/i_esj_dictionary_repository.dart';
 
-class DriftEsjDictionaryRepository implements IEsjDictionaryRepository {
+class EsjDictionaryRepository implements IEsjDictionaryRepository {
   final IEsjDictionaryLocalDataSource _dataSource;
-  DriftEsjDictionaryRepository(this._dataSource);
+  EsjDictionaryRepository(this._dataSource);
 
   @override
   Future<Result<List<EspJpnDictionary>>> getDictionaryByWordId(int wordId) async {

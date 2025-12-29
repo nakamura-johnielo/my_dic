@@ -15,5 +15,5 @@ final userRemoteDataSourceProvider =
 
 final firebaseUserRepositoryProvider = Provider<IUserRepository>((ref) {
   final dataSource = ref.watch(userRemoteDataSourceProvider);
-  return FirebaseUserRepository(dataSource);
+  return UserRepository(dataSource);
 });

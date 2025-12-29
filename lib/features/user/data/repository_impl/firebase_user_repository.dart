@@ -8,9 +8,9 @@ import 'package:my_dic/features/user/domain/i_repository/i_user_repository.dart'
 import 'package:my_dic/features/user/data/data_source/remote/i_user_remote_data_source.dart';
 
 
-class FirebaseUserRepository implements IUserRepository {
+class UserRepository implements IUserRepository {
   final IUserRemoteDataSource _dataSource;
-  FirebaseUserRepository(this._dataSource);
+  UserRepository(this._dataSource);
 
   @override
   Future<Result<AppUser>> getUserById(String id) async {

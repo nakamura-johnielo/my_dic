@@ -22,30 +22,30 @@ import 'package:my_dic/core/infrastructure/repositories/drift_jpn_esp_word_repos
 final esjDictionaryRepositoryProvider =
     Provider<IEsjDictionaryRepository>((ref) {
   final ds = ref.read(esjDictionaryDataSourceProvider);
-  return DriftEsjDictionaryRepository(ds);
+  return EsjDictionaryRepository(ds);
 });
 
 final esjWordRepositoryProvider = Provider<IEsjWordRepository>((ref) {
   final ds = ref.read(esjWordDataSourceProvider);
   final statusDs = ref.read(localWordStatusDataSourceProvider);
-  return DriftEsjWordRepository(ds, statusDs);
+  return EsjWordRepository(ds, statusDs);
 });
 
 final conjugacionsRepositoryProvider = Provider<IConjugacionsRepository>((ref) {
   final ds = ref.read(conjugacionDataSourceProvider);
-  return DriftConjugacionRepository(ds);
+  return ConjugacionRepository(ds);
 });
 
 final jpnEspWordRepositoryProvider = Provider<IJpnEspWordRepository>((ref) {
   final ds = ref.read(jpnEspWordDataSourceProvider);
   final dictDs = ref.read(jpnEspDictionaryDataSourceProvider);
-  return DriftJpnEspWordRepository(ds, dictDs);
+  return JpnEspWordRepository(ds, dictDs);
 });
 
 final jpnEspDictionaryRepositoryProvider =
     Provider<IJpnEspDictionaryRepository>((ref) {
   final ds = ref.read(jpnEspDictionaryDataSourceProvider);
-  return DriftJpnEspDictionaryRepository(ds);
+  return JpnEspDictionaryRepository(ds);
 });
 
 
@@ -62,14 +62,14 @@ final wordStatusRepositoryProvider = Provider<IWordStatusRepository>((ref) {
 final localEspJpnWordStatusRepositoryProvider = Provider<ILocalWordStatusRepository>((ref) {
   final ds = ref.read(localWordStatusDataSourceProvider);
   return DriftWordStatusRepository(ds);
-});
+});//TODO 消す
 
 final remoteEspJpnWordStatusRepositoryProvider = Provider<IRemoteWordStatusRepository>((ref) {
   final ds = ref.read(remoteWordStatusDataSourceProvider);
   return FirebaseWordStatusRepository(ds);
-});
+});//TODO 消す
 
 final syncStatusRepositoryProvider = Provider<ISyncStatusRepository>((ref) {
   final ds = ref.read(sharedPreferencesSyncStatusDataSourceProvider);
-  return SharedPreferenceSyncStatusRepository(ds);
+  return SyncStatusRepository(ds);
 });
