@@ -4,6 +4,7 @@ import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart
 
 part '../../../../../__generated/core/infrastructure/database/drift/daos/es_en_conjugacion_dao.g.dart';
 
+//TODO 移動quiz
 @DriftAccessor(tables: [EsEnConjugacions])
 class EsEnConjugacionDao extends DatabaseAccessor<DatabaseProvider>
     with _$EsEnConjugacionDaoMixin {

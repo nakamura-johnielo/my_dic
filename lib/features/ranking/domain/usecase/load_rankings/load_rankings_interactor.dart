@@ -6,7 +6,6 @@ import 'package:my_dic/features/ranking/domain/usecase/load_rankings/i_load_rank
 import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
 import 'package:my_dic/features/ranking/domain/i_repository/i_esp_ranking_repository.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 
 class LoadRankingsInteractor implements ILoadRankingsUseCase {
@@ -100,10 +99,10 @@ class LoadRankingsInteractor implements ILoadRankingsUseCase {
             : requiredPages[0], //current -> required
         input.size);
 
-    List<Ranking> resp =
+    final result =
         await _wikiEspRankingRepository.getRankingListByFilters(inputData);
 
-    return Result.success(resp);
+    return result;
     } catch (e, stackTrace) {
       return Result.failure(DatabaseError(
         message: 'ランキングデータの取得に失敗しました',

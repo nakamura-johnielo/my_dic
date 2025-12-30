@@ -18,7 +18,6 @@ class EspJpnWordStatusSyncService {
   /// 同期開始。onSynced: 同期処理後に最新 updatedAt を渡す
 
   void startSyncWithRemote(
-    //TODO datetimeでフィルタ入れて効率化
     String userId,
   ) {
     _handleOnRemoteChange(userId);

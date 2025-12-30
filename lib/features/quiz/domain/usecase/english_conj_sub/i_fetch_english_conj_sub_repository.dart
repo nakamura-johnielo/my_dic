@@ -1,5 +1,6 @@
+import 'package:my_dic/core/shared/utils/result.dart';
+
 abstract class IEnglishConjSubRepository {
-  //TODO result
-  Future<Map<String, String>> getConjEnglishGuide();
-  Future<Map<String, Map<String, String>>> getConjOfBe();
+  Future<Result<Map<String, String>>> getConjEnglishGuide();
+  Future<Result<Map<String, Map<String, String>>>> getConjOfBe();
 }

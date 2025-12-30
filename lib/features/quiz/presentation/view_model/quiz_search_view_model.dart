@@ -1,5 +1,6 @@
 // lib/features/search/presentation/view_model/search_view_model.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/quiz/presentation/ui_model/quiz_search_model.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/i_search_word_use_case.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/search_word_input_data.dart';
@@ -65,10 +66,22 @@ class QuizSearchViewModel extends StateNotifier<QuizSearchState> {
     final input = SearchWordInputData(word, size, page, true);
     print("_searchQuizEnableWord");
     final result = await _searchWordUseCase.executeVerbs(input);
-    print(result.length.toString() + " in viewmodel");
-    state = state.copyWith(
-      quizSearchedItems: [...state.quizSearchedItems, ...result],
-      isLoading: false,
+    
+    result.when(
+      success: (items) {
+        print(items.length.toString() + " in viewmodel");
+        state = state.copyWith(
+          quizSearchedItems: [...state.quizSearchedItems, ...items],
+          isLoading: false,
+        );
+      },
+      failure: (error) {
+        print('クイズ用活用形の取得に失敗: ${error.message}');
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: error.message,
+        );
+      },
     );
   }
 }

@@ -6,7 +6,6 @@ import 'package:my_dic/features/ranking/domain/usecase/update_ranking_filter/upd
 
 
 class UpdateRankingFilterInteractor implements IUpdateRankingFilterUseCase {
-  // final IUpdateRankingFilterPresenter _filterPresenterImpl;//TODO delete
   UpdateRankingFilterInteractor();
 
   @override

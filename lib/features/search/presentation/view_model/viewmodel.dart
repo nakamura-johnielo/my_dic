@@ -85,7 +85,13 @@ class SearchViewModel extends StateNotifier<SearchState> {
   DictionaryType _judgeDictionaryType(String word) {
     final judgeInput = JudgeSearchWordInputData(word);
     final result = _judgeSearchWordUseCase.execute(judgeInput);
-    return result.dictionaryType;
+    return result.when(
+      success: (data) => data.dictionaryType,
+      failure: (error) {
+        _logger.warning('判定失敗: ${error.message}');
+        return DictionaryType.espJpn; // Default fallback
+      },
+    );
   }
 
   /// 西和検索

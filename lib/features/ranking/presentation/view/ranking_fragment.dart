@@ -76,10 +76,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
 
   @override
   Widget build(BuildContext context) {
-    // final rankingController = ref.read(rankingControllerProvider);
     final viewModel = ref.watch(rankingViewModelProvider);
-    //final wordStatusController = ref.read(wordStatusViewModelProvider(1).notifier);//TODO wordID
-    //_rankingController.loadNext();
     const margin = EdgeInsets.symmetric(vertical: 1, horizontal: 16);
     final userId = ref.watch(userViewModelProvider)?.id ?? "anonymous";
     
@@ -118,6 +115,8 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
               final id = viewModel.items[index].wordId;
 
               //TODO streamproviderで監視
+              //パフォーマンス要注意
+              //MVVMに変更したのでviewmodel経由で取得するようにする???
               // final wordStatus = ref.watch(wordStatusByIdProvider(id));
               final wordStatus = ref.watch(espJpnWordStatusViewModelProvider(id));
               final wordStatusNotifier = ref.read(espJpnWordStatusViewModelProvider(id).notifier);

@@ -59,13 +59,11 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
   }
 
   void _setCurrentItemLength() {
-    //TODO read watch
     final viewModel = ref.read(quizSearchViewModelProvider);
     _previousItemLength = viewModel.quizSearchedItems.length;
   }
 
   bool _canFetch() {
-    //TODO read watch
     final viewModel = ref.read(quizSearchViewModelProvider);
     final currentItemLength = viewModel.quizSearchedItems.length;
     return currentItemLength > _previousItemLength;
@@ -75,7 +73,6 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
     final int id = quizWord.wordId;
 
     //Quiz game の初期化
-    //TODO: quizStateProvider  -> viewmodel
     ref.read(quizGameViewModelProvider.notifier).initialize();
 
     // ref.read(quizStateProvider.notifier).init();

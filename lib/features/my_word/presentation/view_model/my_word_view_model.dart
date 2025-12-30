@@ -52,13 +52,13 @@ class MyWordViewModel extends StateNotifier<MyWordState> {
     );
   }
 
-  void updateWordStatus(
+  Future<void> updateWordStatus(
     int index,
     int wordId,
     bool isBookmarked,
     bool isLearned,
     //bool hasNote,
-  ) {
+  ) async {
     log("updatecontroller");
 
     Set<FeatureTag> status = {
@@ -67,7 +67,15 @@ class MyWordViewModel extends StateNotifier<MyWordState> {
     };
     UpdateMyWordStatusInputData input =
         UpdateMyWordStatusInputData(wordId, status, index);
-    _updateMyWordStatusInteractor.execute(input);
+    final result = await _updateMyWordStatusInteractor.execute(input);
+    result.when(
+      success: (_) {
+        // Success - status updated
+      },
+      failure: (error) {
+        log('Failed to update status: ${error.message}');
+      },
+    );
   }
 
   void registerWord(
