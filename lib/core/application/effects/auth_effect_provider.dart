@@ -1,9 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/di/service/sync.dart';
-import 'package:my_dic/features/auth/di/data_di.dart';
 import 'package:my_dic/core/domain/entity/auth.dart';
+import 'package:my_dic/features/auth/di/usecase_di.dart';
 import 'package:my_dic/features/user/di/viewmodel.dart';
 
+//TODO Auth feat importしてる
 /// 認証状態のストリームプロバイダー
 /// Authを常に監視
 final authStreamProvider = StreamProvider<AppAuth?>((ref) {

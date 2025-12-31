@@ -1,17 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/auth/domain/usecase/signin.dart';
-import 'package:my_dic/features/auth/domain/usecase/signout.dart';
-import 'package:my_dic/features/auth/domain/usecase/signup.dart';
-import 'package:my_dic/features/auth/domain/usecase/verify_email.dart';
+import 'package:my_dic/features/auth/domain/usecase/i_sign_in_use_case.dart';
+import 'package:my_dic/features/auth/domain/usecase/i_sign_out_use_case.dart';
+import 'package:my_dic/features/auth/domain/usecase/i_sign_up_use_case.dart';
+import 'package:my_dic/features/auth/domain/usecase/i_verify_email_use_case.dart';
 import 'package:my_dic/core/domain/entity/auth.dart';
 import 'package:my_dic/features/user/presentation/model/user_ui_model.dart';
 
 class AuthViewModel extends StateNotifier<UserState?> {
-  final SignInInteractor _signInInteractor;
-  final SignUpInteractor _signUpInteractor;
-  final VerifyEmailInteractor _verficateInteractor;
-  final SignOutInteractor _signOutInteractor;
+  final ISignInUseCase _signInInteractor;
+  final ISignUpUseCase _signUpInteractor;
+  final IVerifyEmailUseCase _verficateInteractor;
+  final ISignOutUseCase _signOutInteractor;
 
   AuthViewModel(this._signInInteractor, this._signUpInteractor,
       this._verficateInteractor, this._signOutInteractor)
@@ -57,7 +57,7 @@ class AuthViewModel extends StateNotifier<UserState?> {
             failure: (error) => 'ログイン成功しましたが、確認メールの送信に失敗しました',
           );
         } else {
-          print( "**********signin success**********");
+          print("**********signin success**********");
           state = state?.copyWith(
             id: authEntity.userId,
             email: authEntity.email,

@@ -34,7 +34,7 @@ dart scripts/export_db_to_json_compressed.dart
 ### 2. Web向けビルド
 
 ```bash
-flutter build web --release
+flutter build web --release --tree-shake-icons
 ```
 
 ### 3. デプロイ

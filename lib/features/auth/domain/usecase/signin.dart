@@ -2,11 +2,13 @@ import 'package:my_dic/core/domain/entity/auth.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
+import 'package:my_dic/features/auth/domain/usecase/i_sign_in_use_case.dart';
 
-class SignInInteractor {
+class SignInInteractor implements ISignInUseCase {
   final IAuthRepository _authRepository;
   SignInInteractor(this._authRepository);
 
+  @override
   Future<Result<AppAuth>> execute(String email, String password) async {
     // Input validation
     final validationError = _validateInput(email, password);
