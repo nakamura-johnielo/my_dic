@@ -57,6 +57,15 @@ class FakeWordStatusRepository implements IWordStatusRepository {
   }
 
   @override
+  Future<Result<void>> updateWordStatus(
+    WordStatus wordStatus,
+    DateTime now,
+    String userId,
+  ) async {
+    return const Result.success(null);
+  }
+
+  @override
   Future<Result<void>> updateLocalWordStatus(
     WordStatus wordStatus,
     DateTime now,

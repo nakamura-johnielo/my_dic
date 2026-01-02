@@ -11,6 +11,8 @@ import 'package:my_dic/core/domain/entity/word/esp_word_status.dart';
 import 'package:my_dic/core/domain/i_repository/i_esj_word_repository.dart';
 import 'package:my_dic/core/infrastructure/datasource/esj/i_esj_word_data_source.dart';
 import 'package:my_dic/core/infrastructure/datasource/word_status/i_local_word_status_data_source.dart';
+import 'package:my_dic/core/infrastructure/repositories/converters/esj_word_converter.dart';
+import 'package:my_dic/core/infrastructure/repositories/converters/word_status_converter.dart';
 
 class EsjWordRepository implements IEsjWordRepository {
   final IEsjWordLocalDataSource _wordDataSource;
@@ -20,9 +22,9 @@ class EsjWordRepository implements IEsjWordRepository {
   @override
   Future<Result<List<EspJpnWord>>> getWordsByWord(String word) async {
     try {
-      final words = await _wordDataSource.getWordsByWord(word);
-      if (words.isEmpty) return const Result.success([]);
-      return Result.success(words);
+      final tableDataList = await _wordDataSource.getWordsByWord(word);
+      final entities = EsjWordConverter.toEntityList(tableDataList);
+      return Result.success(entities);
     } catch (e, s) {
       return Result.failure(DatabaseError(
         message: '単語の検索に失敗しました',
@@ -51,9 +53,9 @@ class EsjWordRepository implements IEsjWordRepository {
   Future<Result<List<EspJpnWord>>> getWordsByWordByPage(
       String word, int size, int currentPage, bool forQuiz) async {
     try {
-      final words = await _wordDataSource.getWordsByWordByPage(word, size, currentPage, forQuiz);
-      if (words.isEmpty) return const Result.success([]);
-      return Result.success(words);
+      final tableDataList = await _wordDataSource.getWordsByWordByPage(word, size, currentPage, forQuiz);
+      final entities = EsjWordConverter.toEntityList(tableDataList);
+      return Result.success(entities);
     } catch (e, s) {
       return Result.failure(DatabaseError(
         message: '単語リストの取得に失敗しました',
@@ -63,13 +65,13 @@ class EsjWordRepository implements IEsjWordRepository {
     }
   }
 
-  @override //!TODO delete
+  @override
   Future<Result<List<EspJpnWord>>> getQuizWordsByWordByPage(
       String word, int size, int currentPage) async {
     try {
-      final words = await _wordDataSource.getQuizWordsByWordByPage(word, size, currentPage);
-      if (words.isEmpty) return const Result.success([]);
-      return Result.success(words);
+      final tableDataList = await _wordDataSource.getQuizWordsByWordByPage(word, size, currentPage);
+      final entities = EsjWordConverter.toEntityList(tableDataList);
+      return Result.success(entities);
     } catch (e, s) {
       return Result.failure(DatabaseError(
         message: 'クイズ用単語リストの取得に失敗しました',
@@ -82,8 +84,9 @@ class EsjWordRepository implements IEsjWordRepository {
   @override
   Future<Result<WordStatus>> getStatusById(int wordId) async {
     try {
-      final status = await _wordStatusDataSource.getWordStatusById(wordId);
-      return Result.success(status);
+      final tableData = await _wordStatusDataSource.getWordStatusById(wordId);
+      final entity = WordStatusConverter.toEntity(tableData, wordId);
+      return Result.success(entity);
     } catch (e, s) {
       return Result.failure(DatabaseError(
         message: '単語ステータスの取得に失敗しました',

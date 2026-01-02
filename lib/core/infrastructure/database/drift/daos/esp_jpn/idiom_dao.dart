@@ -12,7 +12,7 @@ class EspJpnIdiomDao extends DatabaseAccessor<DatabaseProvider> with _$EspJpnIdi
         .getSingleOrNull();
   }
 
-  Future<List<EspJpnIdiomTableData?>> getExampleByDictionaryId(int id) {
+  Future<List<EspJpnIdiomTableData>> getExampleByDictionaryId(int id) {
     return (select(espJpnIdioms)
           ..where((tbl) => tbl.dictionaryId.equals(id))
           ..orderBy([(tbl) => OrderingTerm(expression: tbl.idiomId)]))

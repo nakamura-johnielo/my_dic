@@ -2,6 +2,9 @@ import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/domain/entity/word/esp_word_status.dart';
 
 abstract class IWordStatusRepository {
+  Future<Result<void>> updateWordStatus(
+      WordStatus wordStatus, DateTime now, String userId,);
+      //
   Future<Result<void>> updateLocalWordStatus(
       WordStatus wordStatus, DateTime now, String userId,);
   Future<Result<void>> updateRemoteWordStatus(

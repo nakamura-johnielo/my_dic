@@ -4,6 +4,7 @@ import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/domain/entity/dictionary/esj_dictionary.dart';
 import 'package:my_dic/core/domain/i_repository/i_esj_dictionary_repository.dart';
+import 'package:my_dic/core/infrastructure/repositories/converters/esj_dictionary_converter.dart';
 
 class EsjDictionaryRepository implements IEsjDictionaryRepository {
   final IEsjDictionaryLocalDataSource _dataSource;
@@ -12,13 +13,14 @@ class EsjDictionaryRepository implements IEsjDictionaryRepository {
   @override
   Future<Result<List<EspJpnDictionary>>> getDictionaryByWordId(int wordId) async {
     try {
-      final res = await _dataSource.getDictionaryByWordId(wordId);
-      if (res.isEmpty) {
+      final dataSets = await _dataSource.getDictionaryByWordId(wordId);
+      if (dataSets.isEmpty) {
         return Result.failure(NotFoundError(
           message: '辞書データが見つかりません',
         ));
       }
-      return Result.success(res);
+      final entities = EsjDictionaryConverter.toEntityList(dataSets);
+      return Result.success(entities);
     } catch (e, s) {
       return Result.failure(DatabaseError(
         message: '辞書データの取得に失敗しました',

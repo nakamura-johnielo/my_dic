@@ -6,12 +6,19 @@ import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/domain/entity/word/esp_word_status.dart';
 import 'package:my_dic/core/domain/i_repository/i_word_status_repository.dart';
+import 'package:my_dic/core/infrastructure/repositories/converters/word_status_converter.dart';
 
 class WordStatusRepository implements IWordStatusRepository {
   final IRemoteWordStatusDataSource _remote;
   final ILocalWordStatusDataSource _local;
   WordStatusRepository(this._remote, this._local);
 
+  @override
+  Future<Result<void>> updateWordStatus(WordStatus wordStatus, DateTime now, String userId) {
+    // TODO: implement updateWordStatus
+    throw UnimplementedError();
+  }
+  
   @override
   Future<Result<void>> updateLocalWordStatus(
     WordStatus wordStatus,
@@ -20,8 +27,9 @@ class WordStatusRepository implements IWordStatusRepository {
   ) async {
     try {
       final input = wordStatus.copyWith(editAt: now);
+      final tableData = WordStatusConverter.toTableData(input);
 
-      await _local.updateWordStatus(input);
+      await _local.updateWordStatus(tableData);
 
       return const Result.success(null);
     } catch (e, s) {
@@ -70,7 +78,7 @@ class WordStatusRepository implements IWordStatusRepository {
     try {
       final res = await _local.getWordStatusById(id);
       if (res != null) {
-        return Result.success(res);
+        return Result.success(WordStatusConverter.toEntity(res, id));
       }
       return Result.success(null);
     } catch (e, s) {
@@ -84,6 +92,10 @@ class WordStatusRepository implements IWordStatusRepository {
 
   @override
   Stream<WordStatus> watchWordStatusById(int id) {
-    return _local.watchWordStatusById(id);
+    return _local.watchWordStatusById(id).map((data) {
+      if (data == null) throw Exception('Word status not found for id: $id');
+      return WordStatusConverter.toEntity(data, id);
+    });
   }
+  
 }

@@ -1,5 +1,5 @@
-import 'package:my_dic/core/domain/entity/dictionary/esj_dictionary.dart';
+import 'package:my_dic/core/infrastructure/datasource/esj/esj_dictionary_dataset.dart';
 
 abstract class IEsjDictionaryLocalDataSource {
-  Future<List<EspJpnDictionary>> getDictionaryByWordId(int wordId);
+  Future<List<EsjDictionaryDataSet>> getDictionaryByWordId(int wordId);
 }

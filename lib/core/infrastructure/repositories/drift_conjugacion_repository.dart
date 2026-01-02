@@ -6,24 +6,18 @@ import 'package:my_dic/core/domain/i_repository/i_conjugation_repository.dart';
 import 'package:my_dic/core/infrastructure/datasource/conjugacion/i_conjugacion_local_datasource.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
+import 'package:my_dic/core/infrastructure/repositories/converters/conjugacion_converter.dart';
 
 class ConjugacionRepository implements IConjugacionsRepository {
   final IConjugacionLocalDataSource _dataSource;
   ConjugacionRepository(this._dataSource);
 
-  // @override
-  // Future<Conjugacions?> getConjugacionByWordId(int id)async {
-  //   final res = await _conjugacionDao.getConjugationById(id);
-  //   if (res == null) {
-  //     return null; // 結果がnullの場合はnullを返す
-  //   }
-  //   return Conjugacions(wordId: res.wordId, conjugacions: convertToConjugations(res));
-  // }
   @override
   Future<Result<EspConjugacions?>> getConjugacionByWordId(int id) async {
     try {
-      final res = await _dataSource.getConjugacionByWordId(id);
-      return Result.success(res);
+      final tableData = await _dataSource.getConjugacionByWordId(id);
+      final entity = ConjugacionConverter.toEntity(tableData);
+      return Result.success(entity);
     } catch (e, stackTrace) {
       return Result.failure(DatabaseError(
         message: '活用形の取得に失敗しました',
@@ -37,13 +31,11 @@ class ConjugacionRepository implements IConjugacionsRepository {
   Future<Result<List<SearchResultConjugacions>>> getConjugacionByWordWithPage(
       String word, int size, int currentPage) async {
     try {
-      print("================================{conjugaciones?.length}");
-        final conjugaciones = await _dataSource.getConjugacionByWordWithPage(
+      final tableDataList = await _dataSource.getConjugacionByWordWithPage(
           word, size, currentPage);
-      List<SearchResultConjugacions> res = [];
-      if (conjugaciones == null) return Result.success(res);
-
-      return Result.success(conjugaciones);
+      final entities = tableDataList.map((data) => 
+        ConjugacionConverter.toSearchResult(data)).toList();
+      return Result.success(entities);
     } catch (e, stackTrace) {
       return Result.failure(DatabaseError(
         message: '活用形検索に失敗しました',
@@ -57,12 +49,11 @@ class ConjugacionRepository implements IConjugacionsRepository {
   Future<Result<List<QuizSearchedItem>>> getQuizConjugacionByWordWithPage(
       String word, int size, int currentPage) async {
     try {
-        final conjugaciones = await _dataSource.getQuizConjugacionByWordWithPage(word, size, currentPage);
-      List<QuizSearchedItem> res = [];
-      if (conjugaciones == null) return Result.success(res);
-
-      
-      return Result.success(conjugaciones);
+      final tableDataList = await _dataSource.getQuizConjugacionByWordWithPage(
+          word, size, currentPage);
+      final entities = tableDataList.map((data) => 
+        ConjugacionConverter.toQuizItem(data)).toList();
+      return Result.success(entities);
     } catch (e, stackTrace) {
       return Result.failure(DatabaseError(
         message: 'クイズ用活用形検索に失敗しました',
@@ -71,5 +62,4 @@ class ConjugacionRepository implements IConjugacionsRepository {
       ));
     }
   }
-
- }
+}

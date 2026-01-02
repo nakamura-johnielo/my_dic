@@ -26,7 +26,6 @@ class RankingDriftDataSource implements IRankingLocalDataSource {
   @override
   Future<List<Ranking>> getRankingListByPage(int page, int size) async {
     final list = await _dao.getRankingListByPage(page, size);
-    if (list == null) return [];
     return list.map((d) {
       return Ranking(
         rank: d.rankingNo,
@@ -46,7 +45,6 @@ class RankingDriftDataSource implements IRankingLocalDataSource {
       Set<FeatureTag> featureTagFilters) async {
     final list = await _dao.getFilteredRankingListByPage(
         requiredPage, size, partOfSpeechFilters, featureTagFilters);
-    if (list == null) return [];
     return list.map((d) {
       return Ranking(
         rank: d.rankingNo,
