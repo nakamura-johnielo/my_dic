@@ -1,5 +1,4 @@
 import 'package:my_dic/core/infrastructure/database/firebase/daos/firebase_word_status_dao.dart';
-import 'package:my_dic/core/domain/entity/word/esp_word_status.dart';
 import 'package:my_dic/core/infrastructure/dtos/wordStatusEntity.dart';
 
 import 'i_remote_word_status_data_source.dart';
@@ -9,31 +8,29 @@ class FirebaseWordStatusDataSource implements IRemoteWordStatusDataSource {
   FirebaseWordStatusDataSource(this._dao);
 
   @override
-  Future<WordStatus?> getWordStatusById(String userId, int id) async {
+  Future<WordStatusDTO?> getWordStatusById(String userId, int id) async {
     final dto = await _dao.getWordStatus(userId, id);
-    if (dto == null) return null;
-    return dto.toEntity();
+    return dto;
   }
 
   @override
-  Future<List<WordStatus>> getWordStatusAfter(String userId, DateTime datetime) async {
+  Future<List<WordStatusDTO>> getWordStatusAfter(String userId, DateTime datetime) async {
     final list = await _dao.getWordStatusAfter(userId, datetime);
-    return list.map((e) => e.toEntity()).toList();
+    return list;
   }
 
   @override
-  Future<void> updateWordStatus(String userId, WordStatus wordStatus) async {
-    final dto = WordStatusDTO.fromAppEntity(wordStatus);
-    await _dao.update(dto, userId);
+  Future<void> updateWordStatus(String userId, WordStatusDTO wordStatus) async {
+    await _dao.update(wordStatus, userId);
   }
 
   @override
-  Stream<WordStatus> watchWordStatusById(String userId, int id) {
+  Stream<WordStatusDTO> watchWordStatusById(String userId, int id) {
     return _dao.watchAll(userId).map((entities) {
       final e = entities.firstWhere((e) => e.wordId == id,
           orElse: () => WordStatusDTO(
               wordId: id, isLearned: 0, isBookmarked: 0, hasNote: 0, updatedAt: DateTime.now().toUtc(), createdAt: DateTime.now().toUtc()));
-      return e.toEntity();
+      return e;
     });
   }
 
@@ -41,8 +38,7 @@ class FirebaseWordStatusDataSource implements IRemoteWordStatusDataSource {
   Stream<List<int>> watchChangedIds(String userId) => _dao.watchChangedWordIds(userId);
 
   @override
-  Future<void> updateWordStatusBatch(String userId, List<WordStatus> wordStatusList) async {
-    final input = wordStatusList.map((w) => WordStatusDTO.fromAppEntity(w)).toList();
-    await _dao.updateBatch(userId, input);
+  Future<void> updateWordStatusBatch(String userId, List<WordStatusDTO> wordStatusList) async {
+    await _dao.updateBatch(userId, wordStatusList);
   }
 }
