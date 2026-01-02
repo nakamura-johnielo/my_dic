@@ -23,13 +23,20 @@ class MyWordRepository implements IMyWordRepository {
   @override
   Future<Result<MyWord>> getById(int id) async {
     try {
-      final res = await _dataSource.getMyWordById(id);
-      if (res == null) {
+      final data = await _dataSource.getMyWordById(id);
+      if (data == null) {
         return Result.failure(NotFoundError(
           message: '指定された単語が見つかりません',
         ));
       }
-      return Result.success(res);
+      final entity = MyWord(
+        wordId: data.myWordId,
+        word: data.word,
+        contents: data.contents ?? '',
+        isLearned: false,
+        isBookmarked: false,
+      );
+      return Result.success(entity);
     } catch (e, s) {
       return Result.failure(DatabaseError(
         message: '単語の取得に失敗しました',
@@ -43,11 +50,18 @@ class MyWordRepository implements IMyWordRepository {
   Future<Result<List<MyWord>>> getFilteredByPage(
       LoadMyWordRepositoryInputData input) async {
     try {
-        final res = await _dataSource.getFilteredMyWordByPage(input.size, input.offset);
-        if (res == null) {
+        final dataList = await _dataSource.getFilteredMyWordByPage(input.size, input.offset);
+        if (dataList == null) {
           return const Result.success([]);
         }
-        return Result.success(res);
+        final entities = dataList.map((data) => MyWord(
+          wordId: data.myWordId,
+          word: data.word,
+          contents: data.contents ?? '',
+          isLearned: false,
+          isBookmarked: false,
+        )).toList();
+        return Result.success(entities);
     } catch (e, s) {
       return Result.failure(DatabaseError(
         message: '単語リストの取得に失敗しました',

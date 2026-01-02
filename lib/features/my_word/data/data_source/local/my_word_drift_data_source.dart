@@ -2,7 +2,6 @@ import 'package:my_dic/features/my_word/data/data_source/local/drift_my_word_dao
 import 'package:my_dic/features/my_word/data/data_source/local/drift_my_word_status_dao.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart' as db;
 import 'package:my_dic/features/my_word/data/data_source/local/i_my_word_local_data_source.dart';
-import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
 
 class MyWordDriftDataSource implements IMyWordLocalDataSource {
   final MyWordDao _myWordDao;
@@ -10,33 +9,15 @@ class MyWordDriftDataSource implements IMyWordLocalDataSource {
 
   MyWordDriftDataSource(this._myWordDao, this._wordStatusDao);
 
-    @override
-    Future<MyWord?> getMyWordById(int id) async {
-        final data = await _myWordDao.getMyWordById(id);
-        if (data == null) return null;
-        return MyWord(
-            wordId: data.myWordId,
-            word: data.word,
-            contents: data.contents ?? '',
-            isLearned: false,
-            isBookmarked: false,
-        );
-    }
+  @override
+  Future<db.MyWordTableData?> getMyWordById(int id) async {
+    return await _myWordDao.getMyWordById(id);
+  }
 
-    @override
-    Future<List<MyWord>?> getFilteredMyWordByPage(int size, int offset) async {
-        final list = await _myWordDao.getFilteredMyWordByPage(size, offset);
-        if (list == null) return null;
-        return list
-                .map((data) => MyWord(
-                            wordId: data.myWordId,
-                            word: data.word,
-                            contents: data.contents ?? '',
-                            isLearned: false,
-                            isBookmarked: false,
-                        ))
-                .toList();
-    }
+  @override
+  Future<List<db.MyWordTableData>?> getFilteredMyWordByPage(int size, int offset) async {
+    return await _myWordDao.getFilteredMyWordByPage(size, offset);
+  }
 
   @override
   Future<int> insertMyWord(String headword, String description, String dateTime) =>

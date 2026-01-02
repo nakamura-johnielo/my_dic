@@ -12,7 +12,14 @@ class EsEnConjugacionRepository implements IEsEnConjugacionRepository{
   @override
   Future<Result<Map<String, String>>> getEnglishConjById(int id) async {
     try {
-      final result = await _dataSource.getEnglishConjById(id);
+      final data = await _dataSource.getEnglishConjById(id);
+      final result = {
+        EnglishMoodTense.participlePresent.toString(): data?.presentP ?? "V-ing",
+        EnglishMoodTense.participlePast.toString(): data?.pastP ?? "V-en",
+        EnglishMoodTense.indicativePresent.toString(): data?.english ?? "V",
+        EnglishMoodTense.indicativePresent3rd.toString(): data?.present3rd ?? "Vs",
+        EnglishMoodTense.indicativePast.toString(): data?.past ?? "V-ed",
+      };
       return Result.success(result);
     } catch (e, stackTrace) {
       return Result.failure(DatabaseError(

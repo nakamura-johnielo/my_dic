@@ -1,11 +1,11 @@
-import 'package:my_dic/core/domain/entity/auth.dart';
+import 'package:my_dic/features/auth/data/dto/auth_dto.dart';
 
 abstract class IAuthRemoteDataSource {
-  Stream<AppAuth?> observeAuthState();
+  Stream<AuthDTO?> observeAuthState();
 
-  Future<AppAuth> createUserWithEmailAndPassword(String email, String password);
+  Future<AuthDTO> createUserWithEmailAndPassword(String email, String password);
 
-  Future<AppAuth> signInWithEmailAndPassword(String email, String password);
+  Future<AuthDTO> signInWithEmailAndPassword(String email, String password);
 
   Future<void> signOut();
 

@@ -1,4 +1,3 @@
-import 'package:my_dic/features/user/domain/entity/user.dart';
 import 'package:my_dic/features/user/data/data_source/remote/user_profile_dao.dart';
 import 'package:my_dic/features/user/data/dto/user_dto.dart';
 import 'i_user_remote_data_source.dart';
@@ -8,39 +7,17 @@ class FirebaseUserRemoteDataSource implements IUserRemoteDataSource {
   FirebaseUserRemoteDataSource(this._dao);
 
   @override
-  Future<AppUser?> getUserById(String id) async {
-    final dto = await _dao.getUser(id);
-    if (dto == null) return null;
-    return AppUser(
-      id: dto.userId,
-      email: dto.email,
-      username: dto.userName,
-      subscriptionStatus: dto.subscriptionStatus,
-    );
+  Future<UserDTO?> getUserById(String id) async {
+    return await _dao.getUser(id);
   }
 
   @override
-  Future<void> updateUser(AppUser user) async {
-    final dto = UserDTO(
-      userId: user.id,
-      email: user.email,
-      userName: user.username,
-      subscriptionStatus: user.subscriptionStatus,
-      updatedAt: DateTime.now(),
-    );
-    await _dao.update(dto);
+  Future<void> updateUser(UserDTO user) async {
+    await _dao.update(user);
   }
 
   @override
-  Future<void> createUser(AppUser user) async {
-    final dto = UserDTO(
-      userId: user.id,
-      email: user.email,
-      userName: user.username,
-      subscriptionStatus: user.subscriptionStatus,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    );
-    await _dao.create(dto);
+  Future<void> createUser(UserDTO user) async {
+    await _dao.create(user);
   }
 }

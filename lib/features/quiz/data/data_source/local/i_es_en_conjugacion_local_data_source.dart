@@ -1,3 +1,5 @@
+import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
+
 abstract class IEsEnConjugacionLocalDataSource {
-  Future<Map<String, String>> getEnglishConjById(int id);
+  Future<EsEnConjugacionTableData?> getEnglishConjById(int id);
 }

@@ -14,16 +14,27 @@ class AuthRepositoryImpl implements IAuthRepository {
 
   @override
   Stream<AppAuth?> observeAuthState() {
-    return _authDataSource.observeAuthState().map((auth) {
-      if (auth == null) return null;
-      return auth.copyWith(isLogined: true);
+    return _authDataSource.observeAuthState().map((dto) {
+      if (dto == null) return null;
+      return AppAuth(
+        userId: dto.userId,
+        email: dto.email,
+        isVerified: dto.emailVerified,
+        isLogined: true,
+      );
     });
   }
 
   @override
   Future<Result<AppAuth>> createUserWithEmailAndPassword({required String email, required String password}) async {
     try {
-      final auth = await _authDataSource.createUserWithEmailAndPassword(email, password);
+      final dto = await _authDataSource.createUserWithEmailAndPassword(email, password);
+      final auth = AppAuth(
+        userId: dto.userId,
+        email: dto.email,
+        isVerified: dto.emailVerified,
+        isLogined: false,
+      );
       return Result.success(auth);
     } on firebase_auth.FirebaseAuthException catch (e, s) {
       switch (e.code) {
@@ -71,8 +82,14 @@ class AuthRepositoryImpl implements IAuthRepository {
     required String password,
   }) async {
     try {
-      final auth = await _authDataSource.signInWithEmailAndPassword(email, password);
-      return Result.success(auth.copyWith(isLogined: true));
+      final dto = await _authDataSource.signInWithEmailAndPassword(email, password);
+      final auth = AppAuth(
+        userId: dto.userId,
+        email: dto.email,
+        isVerified: dto.emailVerified,
+        isLogined: true,
+      );
+      return Result.success(auth);
     } on firebase_auth.FirebaseAuthException catch (e, s) {
       switch (e.code) {
         case 'user-not-found':

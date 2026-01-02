@@ -1,9 +1,9 @@
-import 'package:my_dic/features/user/domain/entity/user.dart';
+import 'package:my_dic/features/user/data/dto/user_dto.dart';
 
 abstract class IUserRemoteDataSource {
-  Future<AppUser?> getUserById(String id);
+  Future<UserDTO?> getUserById(String id);
 
-  Future<void> updateUser(AppUser user);
+  Future<void> updateUser(UserDTO user);
 
-  Future<void> createUser(AppUser user);
+  Future<void> createUser(UserDTO user);
 }
