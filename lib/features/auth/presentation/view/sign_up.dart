@@ -69,7 +69,6 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    final authRepository = ref.watch(firebaseAuthRepositoryProvider);
     final authViewModel = ref.read(authViewModelProvider.notifier);
 
     return Scaffold(
@@ -135,8 +134,8 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
                         return;
                       }
                       try {
-                        await authRepository.sendPasswordResetEmail(
-                            email: email);
+                        await authViewModel.resetEmailPassword(
+                            email);
                         setState(() => message = 'リセットメールを送信しました');
                       } on FirebaseAuthException catch (e) {
                         setState(() => message = e.message);

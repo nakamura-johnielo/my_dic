@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/features/auth/domain/usecase/i_send_email_use_case.dart';
 import 'package:my_dic/features/auth/domain/usecase/i_sign_in_use_case.dart';
 import 'package:my_dic/features/auth/domain/usecase/i_sign_out_use_case.dart';
 import 'package:my_dic/features/auth/domain/usecase/i_sign_up_use_case.dart';
@@ -12,9 +13,10 @@ class AuthViewModel extends StateNotifier<UserState?> {
   final ISignUpUseCase _signUpInteractor;
   final IVerifyEmailUseCase _verficateInteractor;
   final ISignOutUseCase _signOutInteractor;
+  final IResetEmailPasswordUseCase _resetEPasswordUseCase;
 
   AuthViewModel(this._signInInteractor, this._signUpInteractor,
-      this._verficateInteractor, this._signOutInteractor)
+      this._verficateInteractor, this._signOutInteractor,this._resetEPasswordUseCase)
       : super(null);
 
   void setAuthInfo(AppAuth appAuth) {
@@ -41,6 +43,14 @@ class AuthViewModel extends StateNotifier<UserState?> {
     final result = await _verficateInteractor.execute();
     return result.when(
       success: (_) => '確認メールを送信しました',
+      failure: (error) => '送信に失敗しました: ${error.message}',
+    );
+  }
+
+  Future<String> resetEmailPassword(String email) async {
+    final result = await _resetEPasswordUseCase.execute(email);
+    return result.when(
+      success: (_) => 'リセット用メールを送信しました',
       failure: (error) => '送信に失敗しました: ${error.message}',
     );
   }

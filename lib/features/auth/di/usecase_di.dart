@@ -1,11 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/features/auth/di/data_di.dart';
 import 'package:my_dic/features/auth/domain/usecase/i_observe_auth_state_use_case.dart';
+import 'package:my_dic/features/auth/domain/usecase/i_send_email_use_case.dart';
 import 'package:my_dic/features/auth/domain/usecase/i_sign_in_use_case.dart';
 import 'package:my_dic/features/auth/domain/usecase/i_sign_out_use_case.dart';
 import 'package:my_dic/features/auth/domain/usecase/i_sign_up_use_case.dart';
 import 'package:my_dic/features/auth/domain/usecase/i_verify_email_use_case.dart';
 import 'package:my_dic/features/auth/domain/usecase/observe_auth_state_interactor.dart';
+import 'package:my_dic/features/auth/domain/usecase/send_email_interactor.dart';
 import 'package:my_dic/features/auth/domain/usecase/signin.dart';
 import 'package:my_dic/features/auth/domain/usecase/signout.dart';
 import 'package:my_dic/features/auth/domain/usecase/signup.dart';
@@ -33,4 +35,8 @@ final signOutInteractorProvider = Provider<ISignOutUseCase>(
 
 final verificateInteractorProvider = Provider<IVerifyEmailUseCase>(
   (ref) => VerifyEmailInteractor(ref.watch(firebaseAuthRepositoryProvider)),
+);
+
+final resetEmailPasswordInteractorProvider = Provider<IResetEmailPasswordUseCase>(
+  (ref) => ResetEmailPasswordInteractor(ref.watch(firebaseAuthRepositoryProvider)),
 );
