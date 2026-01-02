@@ -60,8 +60,7 @@ Future<void> _handleSignOut(Ref ref, AppAuth? previousAuth) async {
   }
 
   // 同期サービスを停止
-  //ref.read(wordStatusSyncServiceProvider).dispose();
-  ref.read(espJpnWordStatusSyncServiceProvider).dispose();
+  //ref.read(espJpnWordStatusSyncServiceProvider).dispose();
 }
 
 /// サインイン時の処理
@@ -81,18 +80,17 @@ Future<void> _handleSignIn(Ref ref, AppAuth currentAuth) async {
       print('[Auth Effect] User not verified, skipping sync service start');
       return;
     }
-    await ref
+    
+    final syncResult = await ref
         .read(espJpnWordStatusSyncServiceProvider)
-        .syncOnce(currentAuth.userId)
-        .then((_) {
-      print('[Auth Effect] Initial sync completed');
-    }).catchError((error) {
-      print('[Auth Effect] Initial sync failed: $error');
-    });
+        .syncOnce(currentAuth.userId);
+    
+    // Note: syncOnce already logs the result internally via .when()
+    // No need for additional .then() or .catchError()
 
-    ref
-        .read(espJpnWordStatusSyncServiceProvider)
-        .startSyncWithRemote(currentAuth.userId);
+    // ref
+    //     .read(espJpnWordStatusSyncServiceProvider)
+    //     .startSyncWithRemote(currentAuth.userId);
 
     // 5. バックグラウンドで一回限りの同期を実行
     // ユーザー操作をブロックしないようにawaitしない

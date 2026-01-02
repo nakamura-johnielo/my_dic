@@ -81,8 +81,8 @@ class FakeWordStatusRepository implements IWordStatusRepository {
   @override
   Future<Result<void>> updateRemoteWordStatus(
     WordStatus wordStatus,
-    DateTime now,
     String userId,
+    DateTime? now,
   ) async {
     remoteUpdateCallCount++;
     lastRemoteWordStatus = wordStatus;
@@ -109,5 +109,52 @@ class FakeWordStatusRepository implements IWordStatusRepository {
     return Stream.value(
       WordStatus(wordId: id, isBookmarked: false, isLearned: false),
     );
+  }
+
+  @override
+  Future<Result<List<WordStatus>>> getRemoteWordStatusAfter(
+    String userId,
+    DateTime datetime,
+  ) async {
+    return Result.success([]);
+  }
+
+  @override
+  Future<Result<WordStatus?>> getRemoteWordStatusById(
+    String userId,
+    int id,
+  ) async {
+    return Result.success(null);
+  }
+
+  @override
+  Future<Result<List<WordStatus>>> getLocalWordStatusAfter(
+    DateTime datetime,
+  ) async {
+    return Result.success([]);
+  }
+
+  @override
+  Future<Result<WordStatus?>> getLocalWordStatusById(int id) async {
+    return Result.success(null);
+  }
+
+  @override
+  Future<Result<void>> updateBatchRemoteWordStatus(
+    List<WordStatus> wordStatusList,
+    String userId,
+    DateTime? now,
+  ) async {
+    return const Result.success(null);
+  }
+
+  @override
+  Stream<List<int>> watchRemoteChangedIds(String userId) {
+    return Stream.value([]);
+  }
+
+  @override
+  Stream<List<int>> watchLocalChangedIds(DateTime datetime) {
+    return Stream.value([]);
   }
 }

@@ -37,7 +37,7 @@ class UpdateStatusInteractor implements IUpdateStatusUseCase {
     // ログインユーザーの場合のみリモート更新を実行
     if (input.userId != "logout" && input.userId != "anonymous") {
       final remoteResult = await _wordStatusRepository.updateRemoteWordStatus(
-          repoInput, dateTime, input.userId);
+          repoInput, input.userId, dateTime);
       
       // リモート更新が失敗してもローカルは更新済みなのでログのみ
       if (remoteResult.isFailure) {
