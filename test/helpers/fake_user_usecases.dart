@@ -22,27 +22,26 @@ class FakeGetUserInteractor implements IGetUserUseCase {
     lastId = id;
 
     return _executeResult ??
-        Result.success(AppUser(id: id, email: 'test@example.com'));
+        Result.success(AppUser(accountId: id, email: 'test@example.com'));
   }
 }
 
 /// Fake UpdateUserInteractor for testing
 class FakeUpdateUserInteractor implements IUpdateUserUseCase {
-  final Exception? _exception;
+  final Result<void>? _executeResult;
 
   int callCount = 0;
   AppUser? lastUser;
 
-  FakeUpdateUserInteractor({Exception? exception}) : _exception = exception;
+  FakeUpdateUserInteractor({Result<void>? executeResult})
+      : _executeResult = executeResult;
 
   @override
-  Future<void> execute(AppUser user) async {
+  Future<Result<void>> execute(AppUser user) async {
     callCount++;
     lastUser = user;
 
-    if (_exception != null) {
-      throw _exception!;
-    }
+    return _executeResult ?? const Result.success(null);
   }
 }
 
@@ -62,6 +61,6 @@ class FakeEnsureUserExistsInteractor implements IEnsureUserExistsUseCase {
     lastId = id;
 
     return _executeResult ??
-        Result.success(AppUser(id: id, email: 'test@example.com'));
+        Result.success(AppUser(accountId: id, email: 'test@example.com'));
   }
 }

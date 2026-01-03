@@ -27,6 +27,9 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+   // SharedPreferencesを事前初期化
+   //TODO shapref inicialize
+  
   runApp(const ProviderScope(child: MyApp()));
   //runApp(const MyApp());
 }

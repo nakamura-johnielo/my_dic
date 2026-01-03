@@ -1,4 +1,4 @@
-import 'package:my_dic/core/domain/entity/auth.dart';
+import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';

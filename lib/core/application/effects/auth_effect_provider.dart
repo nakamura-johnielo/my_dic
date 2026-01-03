@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/di/service/sync.dart';
-import 'package:my_dic/core/domain/entity/auth.dart';
+import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
 import 'package:my_dic/features/auth/di/usecase_di.dart';
 import 'package:my_dic/features/user/di/viewmodel.dart';
 
@@ -10,15 +10,15 @@ import 'package:my_dic/features/user/di/viewmodel.dart';
 final authStreamProvider = StreamProvider<AppAuth?>((ref) {
   final useCase = ref.read(observeAuthStateUseCaseProvider);
   return useCase.execute().distinct((prev, next) {
-    // userId と isLogined が両方同じなら重複とみなす
+    // accountId と isLogined が両方同じなら重複とみなす
     print(
-        "*****distinct check prev: ${prev?.userId}, isLogined: ${prev?.isLogined}, isVerified: ${prev?.isVerified} *****");
+        "*****distinct check prev: ${prev?.accountId}, isLogined: ${prev?.isLogined}, isAuthenticated: ${prev?.isAuthenticated} *****");
     print(
-        "*****distinct check next: ${next?.userId}, isLogined: ${next?.isLogined}, isVerified: ${next?.isVerified} *****");
+        "*****distinct check next: ${next?.accountId}, isLogined: ${next?.isLogined}, isAuthenticated: ${next?.isAuthenticated} *****");
     return 
-    prev?.userId == next?.userId &&
+    prev?.accountId == next?.accountId &&
            prev?.isLogined == next?.isLogined &&
-           prev?.isVerified == next?.isVerified;
+           prev?.isAuthenticated == next?.isAuthenticated;
   });
 });
 
@@ -55,7 +55,7 @@ Future<void> _handleSignOut(Ref ref, AppAuth? previousAuth) async {
   // ViewModelの状態をクリア
   if (previousAuth != null) {
     ref.read(userViewModelProvider.notifier).setAuthInfo(
-          AppAuth(userId: 'logout', isLogined: false),
+          AppAuth(accountId: 'logout', isLogined: false),
         );
   }
 
@@ -65,32 +65,32 @@ Future<void> _handleSignOut(Ref ref, AppAuth? previousAuth) async {
 
 /// サインイン時の処理
 Future<void> _handleSignIn(Ref ref, AppAuth currentAuth) async {
-  print('[Auth Effect] User signed in: ${currentAuth.userId}');
+  print('[Auth Effect] User signed in: ${currentAuth.accountId}');
 
   try {
     // 2. ユーザー情報をロード
-    await ref.read(userViewModelProvider.notifier).loadUser(currentAuth.userId);
+    await ref.read(userViewModelProvider.notifier).loadUser(currentAuth.accountId);
 
     // 3. 認証情報を同期
     //ref.read(userViewModelProvider.notifier).setAuthInfo(currentAuth);
 
     // 4. 同期サービスを開始
-    //await _startSyncService(ref, currentAuth.userId);
-    if(!currentAuth.isLogined || !currentAuth.isVerified){
+    //await _startSyncService(ref, currentAuth.accountId);
+    if(!currentAuth.isLogined || !currentAuth.isAuthenticated){
       print('[Auth Effect] User not verified, skipping sync service start');
       return;
     }
     
     final syncResult = await ref
         .read(espJpnWordStatusSyncServiceProvider)
-        .syncOnce(currentAuth.userId);
+        .syncOnce(currentAuth.accountId);
     
     // Note: syncOnce already logs the result internally via .when()
     // No need for additional .then() or .catchError()
 
     // ref
     //     .read(espJpnWordStatusSyncServiceProvider)
-    //     .startSyncWithRemote(currentAuth.userId);
+    //     .startSyncWithRemote(currentAuth.accountId);
 
     // 5. バックグラウンドで一回限りの同期を実行
     // ユーザー操作をブロックしないようにawaitしない
@@ -102,10 +102,10 @@ Future<void> _handleSignIn(Ref ref, AppAuth currentAuth) async {
 
 /// 新規ユーザー登録時の処理
 // Future<void> _handleNewUserSignUp(Ref ref, AppAuth auth) async {
-//   print('[Auth Effect] Creating new user profile: ${auth.userId}');
+//   print('[Auth Effect] Creating new user profile: ${auth.accountId}');
 
 //   final newUser = AppUser(
-//     id: auth.userId,
+//     id: auth.accountId,
 //     email: auth.email,
 //     username: auth.email?.split('@')[0] ?? 'User',
 //     subscriptionStatus: SubscriptionStatus.trial,
@@ -116,7 +116,7 @@ Future<void> _handleSignIn(Ref ref, AppAuth currentAuth) async {
 //     await ref.read(userViewModelProvider.notifier).updateUser(newUser);
 
 //     // メール認証送信
-//     if (!auth.isVerified) {
+//     if (!auth.isAuthenticated) {
 //       await ref.read(authViewModelProvider.notifier).verifyEmail();
 //       print('[Auth Effect] Verification email sent');
 //     }
@@ -129,7 +129,7 @@ Future<void> _handleSignIn(Ref ref, AppAuth currentAuth) async {
 
 //
 /// 同期サービスの開始
-// Future<void> _startSyncService(Ref ref, String userId) async {
+// Future<void> _startSyncService(Ref ref, String accountId) async {
 //   final syncDao = ref.read(sharedPreferenceSyncStatusDaoProvider);
 //   final lastSync = await syncDao.getLastSyncDate();
 
@@ -137,7 +137,7 @@ Future<void> _handleSignIn(Ref ref, AppAuth currentAuth) async {
 //       lastSync ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
 
 //   ref.read(wordStatusSyncServiceProvider).startSync(
-//     userId,
+//     accountId,
 //     startPoint,
 //     (newLastSync) async {
 //       await syncDao.updateLastSyncDate(newLastSync);

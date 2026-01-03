@@ -11,7 +11,7 @@ class EnsureUserExistsInteractor implements IEnsureUserExistsUseCase {
 
   @override
   Future<Result<AppUser>> execute(String id) async {
-    final user = await _userRepository.getUserById(id);
+    final user = await _userRepository.getUserByAccountId(id);
 
     return user.when(
         success: (user) => Result.success(user),
@@ -25,7 +25,7 @@ class EnsureUserExistsInteractor implements IEnsureUserExistsUseCase {
   }
 
   Future<Result<AppUser>> _registerNewUser(String id) async {
-    final newUser = AppUser(id: id);
+    final newUser = AppUser(accountId: id);
     final res = await _userRepository.updateUser(newUser);
     return res.when(
         success: (_) => Result.success(newUser),

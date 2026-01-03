@@ -2,70 +2,140 @@ import 'dart:developer';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/enums/subscription_status.dart';
+import 'package:my_dic/core/shared/enums/ui/button_status.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/features/auth/auth_service.dart';
 import 'package:my_dic/features/user/domain/usecase/i_ensure_user_exists_use_case.dart';
 import 'package:my_dic/features/user/domain/usecase/i_get_user_use_case.dart';
 import 'package:my_dic/core/domain/entity/auth.dart';
 import 'package:my_dic/features/user/domain/entity/user.dart';
 import 'package:my_dic/features/user/presentation/model/user_ui_model.dart';
 import 'package:my_dic/features/user/domain/usecase/i_update_user_use_case.dart';
+import 'package:my_dic/features/user/service.dart';
 
-class UserViewModel extends StateNotifier<UserState?> {
-  final IGetUserUseCase _getUserInteractor;
-  final IUpdateUserUseCase _updateUserInteractor;
-  final IEnsureUserExistsUseCase _ensureUserExistsInteractor;
+class UserViewModel extends StateNotifier<UserProfileUIState> {
+  final UserService _userService;
+  final AuthService _authService ;
 
-  UserViewModel(this._getUserInteractor, this._updateUserInteractor,
-      this._ensureUserExistsInteractor)
-      : super(null);
+  UserViewModel(this._userService, this._authService) : super(UserProfileUIState());
 
-  Future<void> updateUser(
-      {String? name,
-      SubscriptionStatus? subscriptionStatus,
-      String? email,
-      String? id}) async {
-    final user = AppUser(
-        id: id ?? state?.id ?? "",
-        email: email ?? state?.email,
-        username: name ?? state?.username,
-        subscriptionStatus: subscriptionStatus ?? state?.subscriptionStatus);
-    await _updateUserInteractor.execute(user);
-    state = UserState.fromEntity(user,
-        isLogined: state?.isLoggedIn ?? false,
-        isAuthorized: state?.isAuthorized ?? false);
+  Future<void> save({String? email, String? username}) async {
+    state = state.copyWith(savingButtonStatus: ButtonStatus.waiting);
+    final res = await _userService.updateUser(
+        accountId: accountId, email: email, username: username);
+    res.when(
+        success: (_) =>
+            state = state.copyWith(savingButtonStatus: ButtonStatus.success),
+        failure: (error){
+          log("ユーザー情報の更新に失敗しました: ${error.message}");
+          state = state.copyWith(savingButtonStatus: ButtonStatus.error);
+        });
   }
 
-  Future<void> createUser(AppUser user) async {
-    await _updateUserInteractor.execute(user);
-    state = UserState.fromEntity(user,
-        isLogined: state?.isLoggedIn ?? false,
-        isAuthorized: state?.isAuthorized ?? false);
+  Future<void> signOut() async {
+    await _authService.signOut();
   }
 
-  Future<AppUser> loadUser(String id) async {
-    final res = await _ensureUserExistsInteractor.execute(id);
-    return res.when(success: (user) {
-      state = UserState.fromEntity(user,
-          isLogined: state?.isLoggedIn ?? false,
-          isAuthorized: state?.isAuthorized ?? false);
-      return user;
-    }, failure: (error) {
-      log("loaduserユーザー情報の取得に失敗しました: ${error.message}");
-      return AppUser(id: id, username: "load fail");
-      //throw Exception('ユーザー情報の取得に失敗しました: ${error.message}');
-    });
-    // final AppUser user = await _getUserInteractor.execute(id);
-    // state = UserState.fromEntity(user,
-    //     isLogined: state?.isLoggedIn ?? false,
-    //     isAuthorized: state?.isAuthorized ?? false);
-    //return user;
-  }
+ }
 
-  void setAuthInfo(AppAuth appAuth) {
-    state = state?.copyWith(
-      id: appAuth.userId,
-      email: appAuth.email,
-      isAuthorized: appAuth.isVerified,
-    );
-  }
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import 'dart:developer';
+
+// import 'package:flutter_riverpod/flutter_riverpod.dart';
+// import 'package:my_dic/core/shared/enums/subscription_status.dart';
+// import 'package:my_dic/core/shared/utils/result.dart';
+// import 'package:my_dic/features/user/domain/usecase/i_ensure_user_exists_use_case.dart';
+// import 'package:my_dic/features/user/domain/usecase/i_get_user_use_case.dart';
+// import 'package:my_dic/core/domain/entity/auth.dart';
+// import 'package:my_dic/features/user/domain/entity/user.dart';
+// import 'package:my_dic/features/user/presentation/model/user_ui_model.dart';
+// import 'package:my_dic/features/user/domain/usecase/i_update_user_use_case.dart';
+
+// class UserViewModel extends StateNotifier<UserState?> {
+//   final IGetUserUseCase _getUserInteractor;
+//   final IUpdateUserUseCase _updateUserInteractor;
+//   final IEnsureUserExistsUseCase _ensureUserExistsInteractor;
+
+//   UserViewModel(this._getUserInteractor, this._updateUserInteractor,
+//       this._ensureUserExistsInteractor)
+//       : super(null);
+
+//   Future<String> updateUser(
+//       {String? name,
+//       SubscriptionStatus? subscriptionStatus,
+//       String? email,
+//       String? id}) async {
+//     final user = AppUser(
+//         accountId: id ?? state?.id ?? "",
+//         email: email ?? state?.email,
+//         username: name ?? state?.username,
+//         subscriptionStatus: subscriptionStatus ?? state?.subscriptionStatus);
+    
+//     final result = await _updateUserInteractor.execute(user);
+    
+//     return result.when(
+//       success: (_) {
+//         state = UserState.fromEntity(user,
+//             isLogined: state?.isLoggedIn ?? false,
+//             isAuthorized: state?.isAuthorized ?? false);
+//         return '更新しました';
+//       },
+//       failure: (error) => 'ユーザー情報の更新に失敗しました: ${error.message}',
+//     );
+//   }
+
+//   Future<String> createUser(AppUser user) async {
+//     final result = await _updateUserInteractor.execute(user);
+    
+//     return result.when(
+//       success: (_) {
+//         state = UserState.fromEntity(user,
+//             isLogined: state?.isLoggedIn ?? false,
+//             isAuthorized: state?.isAuthorized ?? false);
+//         return 'ユーザーを作成しました';
+//       },
+//       failure: (error) => 'ユーザーの作成に失敗しました: ${error.message}',
+//     );
+//   }
+
+//   Future<AppUser> loadUser(String id) async {
+//     final res = await _ensureUserExistsInteractor.execute(id);
+//     return res.when(success: (user) {
+//       state = UserState.fromEntity(user,
+//           isLogined: state?.isLoggedIn ?? false,
+//           isAuthorized: state?.isAuthorized ?? false);
+//       return user;
+//     }, failure: (error) {
+//       log("loaduserユーザー情報の取得に失敗しました: ${error.message}");
+//       return AppUser(accountId: id, username: "load fail");
+//       //throw Exception('ユーザー情報の取得に失敗しました: ${error.message}');
+//     });
+//     // final AppUser user = await _getUserInteractor.execute(id);
+//     // state = UserState.fromEntity(user,
+//     //     isLogined: state?.isLoggedIn ?? false,
+//     //     isAuthorized: state?.isAuthorized ?? false);
+//     //return user;
+//   }
+
+//   void setAuthInfo(AppAuth appAuth) {
+//     state = state?.copyWith(
+//       id: appAuth.userId,
+//       email: appAuth.email,
+//       isAuthorized: appAuth.isVerified,
+//     );
+//   }
+// }

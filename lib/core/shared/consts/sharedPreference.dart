@@ -1,3 +1,4 @@
 class SharedPreferenceKeys{
-  static const String lastSyncKey = 'lastSync_wordStatus';
+  static const String lastSyncDate = 'lastSync_wordStatus';
+  static const String deviceId = 'device_id';
 }

@@ -10,7 +10,8 @@ class UserDTO {
   static const String fieldUpdatedAt = "updatedAt";
   static const String fieldSubscriptionStatus = "subscriptionStatus";
 
-  final String userId;
+  final String userId;//TODO accountID
+  //TODO List devices
   final String? email;
   final String? userName;
   final DateTime? createdAt;

@@ -1,4 +1,4 @@
-import 'package:my_dic/core/domain/entity/auth.dart';
+import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
 
 abstract interface class IObserveAuthStateUseCase {
   Stream<AppAuth?> execute();

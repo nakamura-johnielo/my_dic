@@ -6,7 +6,7 @@ class FirebaseAuthDao {
   FirebaseAuthDao(this._auth);
 
   Stream<AuthDTO?> authStateChanges() {
-   return _auth.userChanges().map(
+    return _auth.userChanges().map(
       (user) {
         print("!!!!!!auth state changed!!!!");
 
@@ -34,14 +34,16 @@ class FirebaseAuthDao {
     //print("refreshtoken: ${user.}");
   }
 
-  Future<AuthDTO> createUserWithEmailAndPassword(
+  Future<AuthDTO?> createUserWithEmailAndPassword(
       String email, String password) async {
     final userCredential = await _auth.createUserWithEmailAndPassword(
         email: email, password: password);
+
+    if (userCredential.user == null) return null;
     return AuthDTO.fromFirebaseUserCredential(userCredential);
   }
 
-  Future<AuthDTO> signInWithEmailAndPassword(
+  Future<AuthDTO?> signInWithEmailAndPassword(
       String email, String password) async {
     final userCredential = await _auth.signInWithEmailAndPassword(
         email: email, password: password);
@@ -51,6 +53,7 @@ class FirebaseAuthDao {
       _printBatch(userCredential.user!);
       //await userCredential.user!.reload();
     }
+    if (userCredential.user == null) return null;
     return AuthDTO.fromFirebaseUserCredential(userCredential);
   }
 

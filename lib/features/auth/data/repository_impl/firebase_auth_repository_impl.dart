@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
-import 'package:my_dic/core/domain/entity/auth.dart';
+import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/errors/unexpected_error.dart';
@@ -17,24 +17,34 @@ class AuthRepositoryImpl implements IAuthRepository {
     return _authDataSource.observeAuthState().map((dto) {
       if (dto == null) return null;
       return AppAuth(
-        userId: dto.userId,
-        email: dto.email,
-        isVerified: dto.emailVerified,
+        isAuthenticated: dto.isVerified,
         isLogined: true,
+        accountId: dto.accountId,
+        provider: dto.provider,
       );
     });
   }
 
   @override
-  Future<Result<AppAuth>> createUserWithEmailAndPassword({required String email, required String password}) async {
+  Future<Result<AppAuth>> createUserWithEmailAndPassword(
+      {required String email, required String password}) async {
     try {
-      final dto = await _authDataSource.createUserWithEmailAndPassword(email, password);
+      final dto =
+          await _authDataSource.createUserWithEmailAndPassword(email, password);
+
+      if (dto == null) {
+        return Result.failure(UnexpectedError(
+          message: 'アカウント作成に失敗しました',
+        ));
+      }
+
       final auth = AppAuth(
-        userId: dto.userId,
-        email: dto.email,
-        isVerified: dto.emailVerified,
-        isLogined: false,
+        isAuthenticated: dto.isVerified,
+        isLogined: true,
+        accountId: dto.accountId,
+        provider: dto.provider,
       );
+
       return Result.success(auth);
     } on firebase_auth.FirebaseAuthException catch (e, s) {
       switch (e.code) {
@@ -82,12 +92,19 @@ class AuthRepositoryImpl implements IAuthRepository {
     required String password,
   }) async {
     try {
-      final dto = await _authDataSource.signInWithEmailAndPassword(email, password);
+      final dto =
+          await _authDataSource.signInWithEmailAndPassword(email, password);
+      
+      if (dto == null) {
+        return Result.failure(UnexpectedError(
+          message: 'アカウントを取得できませんでした',
+        ));
+      }
       final auth = AppAuth(
-        userId: dto.userId,
-        email: dto.email,
-        isVerified: dto.emailVerified,
+        isAuthenticated: dto.isVerified,
         isLogined: true,
+        accountId: dto.accountId,
+        provider: dto.provider,
       );
       return Result.success(auth);
     } on firebase_auth.FirebaseAuthException catch (e, s) {
@@ -219,6 +236,4 @@ class AuthRepositoryImpl implements IAuthRepository {
       ));
     }
   }
-
-
 }

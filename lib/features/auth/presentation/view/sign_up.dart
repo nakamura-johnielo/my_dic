@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_dic/core/presentation/components/icons/rotating_icon.dart';
+import 'package:my_dic/core/shared/enums/ui/button_status.dart';
 import 'package:my_dic/core/shared/enums/ui/tab.dart';
 import 'package:my_dic/features/auth/di/data_di.dart';
 import 'package:my_dic/features/auth/di/view_model_di.dart';
@@ -17,14 +19,27 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
   //final auth = FirebaseAuth.instance;
   final emailCtrl = TextEditingController();
   final passCtrl = TextEditingController();
-  bool loading = false;
+  final IconData waitingIcon = Icons.refresh;
+  //bool loading = false;
   String? message;
+
+  bool _isActive(ButtonStatus status) {
+    return status == ButtonStatus.normal || status == ButtonStatus.error;
+  }
+
+  Widget _iconBuilder(ButtonStatus status,IconData defaultIcon) {
+    if (status == ButtonStatus.waiting) {
+      return RotatingIcon(icon: waitingIcon);
+    } else {
+      return  Icon(defaultIcon);
+    }
+  }
 
   Future<void> _handleAuth(
     Future<String> Function() action,
   ) async {
     setState(() {
-      loading = true;
+      //loading = true;
       message = null;
     });
     try {
@@ -36,9 +51,9 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
     } on FirebaseAuthException catch (e) {
       message = e.message;
     } finally {
-      if (mounted) {
-        setState(() => loading = false);
-      }
+      // if (mounted) {
+      //   //setState(() => loading = false);
+      // }
     }
   }
 
@@ -69,7 +84,8 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    final authViewModel = ref.read(authViewModelProvider.notifier);
+    final authNotifier = ref.read(signInViewModelProvider.notifier);
+    final authViewModel = ref.watch(signInViewModelProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Email / Password Auth')),
@@ -93,12 +109,12 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
               Text(message!, style: const TextStyle(color: Colors.red)),
             const Spacer(),
             ElevatedButton.icon(
-              onPressed: loading
+              onPressed:  _isActive(authViewModel.isWaitingSignUp)
                   ? null
                   : () {
                       if (!_validInputs()) return;
                       _handleAuth(() async {
-                        await authViewModel.signUp(
+                        await authNotifier.signUp(
                           emailCtrl.text.trim(),
                           passCtrl.text.trim(),
                         );
@@ -106,26 +122,26 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
                       });
                       ;
                     },
-              icon: const Icon(Icons.person_add),
+              icon:  _iconBuilder(authViewModel.isWaitingSignUp, Icons.person_add),
               label: const Text('Sign Up'),
             ),
             const SizedBox(height: 8),
             OutlinedButton.icon(
-              onPressed: loading
+              onPressed: _isActive(authViewModel.isWaitingSignIn)
                   ? null
                   : () {
                       if (!_validInputs()) return;
-                      _handleAuth(() => authViewModel.signIn(
+                      _handleAuth(() => authNotifier.signIn(
                             emailCtrl.text.trim(),
                             passCtrl.text.trim(),
                           ));
                     },
-              icon: const Icon(Icons.login),
+              icon:  _iconBuilder(authViewModel.isWaitingSignIn, Icons.login),
               label: const Text('Sign In'),
             ),
             const SizedBox(height: 16),
             TextButton(
-              onPressed: loading
+              onPressed: _isActive(authViewModel.isWaitingResetPassword)
                   ? null
                   : () async {
                       final email = emailCtrl.text.trim();
@@ -134,7 +150,7 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
                         return;
                       }
                       try {
-                        await authViewModel.resetEmailPassword(
+                        await authNotifier.resetEmailPassword(
                             email);
                         setState(() => message = 'リセットメールを送信しました');
                       } on FirebaseAuthException catch (e) {
@@ -145,17 +161,17 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
             ),
             const SizedBox(height: 12),
             TextButton.icon(
-              onPressed: loading
+              onPressed: _isActive(authViewModel.isWaitingSignOut)
                   ? null
                   : () async {
                       try {
-                        await authViewModel.signOut();
+                        await authNotifier.signOut();
                         setState(() => message = 'ログアウトしました');
                       } on FirebaseAuthException catch (e) {
                         setState(() => message = e.message);
                       }
                     },
-              icon: const Icon(Icons.logout),
+              icon:  _iconBuilder(authViewModel.isWaitingSignOut, Icons.logout),
               label: const Text('Sign Out'),
             ),
           ],
