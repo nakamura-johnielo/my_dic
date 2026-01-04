@@ -1,5 +1,4 @@
 // プロフィールページ（UID/Email/ユーザーネーム表示、ユーザーネーム編集可）
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -35,8 +34,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       _msg = null;
     });
 
-    final message =
-        await ref.read(userViewModelProvider.notifier).save(username: name);
+    await ref.read(userProfileViewModelProvider.notifier).save(username: name);
+
+    final message = ref.read(userProfileViewModelProvider).errorMessage;
 
     if (mounted) {
       setState(() {
@@ -48,9 +48,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(appUserStoreProvider);
-    final userNotifier = ref.read(userViewModelProvider.notifier);
-    final userUiViewModel = ref.watch(userViewModelProvider);
+    final user = ref.watch(appUserStoreNotifierProvider);
+    final vmNotifier = ref.read(userProfileViewModelProvider.notifier);
+    final viewModel = ref.watch(userProfileViewModelProvider);
 
     if (user != null && _nameCtrl.text != user.username) {
       _nameCtrl.text = user.username;
@@ -63,7 +63,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             IconButton(
               icon: const Icon(Icons.logout),
               onPressed: () async {
-                await userNotifier.signOut();
+                await vmNotifier.signOut();
                 if (!mounted) return;
                 context.replace(
                     '/${ScreenTab.profile}/${ScreenPage.unAuthorized}');
@@ -97,8 +97,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     const Spacer(),
                     FilledButton.icon(
                       onPressed: _saving ? null : _save,
-                      icon: userUiViewModel.savingButtonStatus ==
-                              ButtonStatus.waiting
+                      icon: viewModel.savingButtonStatus == ButtonStatus.waiting
                           ? RotatingIcon(icon: Icons.refresh)
                           : const Icon(Icons.save),
                       label: _saving

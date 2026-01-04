@@ -53,7 +53,7 @@ final espJpnWordStatusSyncProvider = Provider.autoDispose.family<void, String>((
 
 // ラッパープロバイダーで自動化
 final autoEspJpnWordStatusSyncProvider = Provider.autoDispose<void>((ref) {
-  final userId = ref.watch(userViewModelProvider)?.id;
+  final userId = ref.watch(userViewModelProviderLegacy)?.id;
   
   if (userId == null || userId.isEmpty|| userId != "logout" || userId != "anonymous") {
     return;

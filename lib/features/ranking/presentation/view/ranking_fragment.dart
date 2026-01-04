@@ -78,7 +78,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
   Widget build(BuildContext context) {
     final viewModel = ref.watch(rankingViewModelProvider);
     const margin = EdgeInsets.symmetric(vertical: 1, horizontal: 16);
-    final userId = ref.watch(userViewModelProvider)?.id ?? "anonymous";
+    final userId = ref.watch(userViewModelProviderLegacy)?.id ?? "anonymous";
     
     ref.watch(rankingFilterEffectProvider(_resetPageCallback));
 

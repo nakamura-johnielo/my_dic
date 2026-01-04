@@ -29,7 +29,7 @@ class StatusButtons extends ConsumerWidget {
         ref.read(espJpnWordStatusViewModelProvider(wordId).notifier);
     //controller.init(wordId); //初期化
 
-    final userId = ref.watch(userViewModelProvider)?.id ?? "anonymous";
+    final userId = ref.watch(userViewModelProviderLegacy)?.id ?? "anonymous";
 
     return Row(
       mainAxisSize: MainAxisSize.min,

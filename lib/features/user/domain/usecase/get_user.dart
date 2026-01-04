@@ -1,4 +1,4 @@
-import 'package:my_dic/core/shared/errors/domain_errors.dart';
+
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/user/domain/entity/user.dart';
 import 'package:my_dic/features/user/domain/i_repository/i_user_repository.dart';

@@ -72,3 +72,16 @@ class UnauthorizedError extends AppError {
           code: code ?? 'UNAUTHORIZED',
         );
 }
+
+
+class AlreadyExistsError extends AppError {
+  AlreadyExistsError({
+    required super.message,
+    String? code,
+    super.originalError,
+    super.stackTrace,
+  }) : super(
+          code: code ?? 'ALREADY_EXISTS',
+        );
+}
+

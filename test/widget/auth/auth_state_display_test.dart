@@ -21,7 +21,7 @@ import 'package:my_dic/features/auth/domain/usecase/signout.dart';
 import 'package:my_dic/features/auth/domain/usecase/signup.dart';
 import 'package:my_dic/features/auth/domain/usecase/verify_email.dart';
 import 'package:my_dic/features/auth/presentation/view_model/auth_view_model.dart';
-import 'package:my_dic/features/user/presentation/model/user_ui_model.dart';
+import 'package:my_dic/features/user/presentation/model/user_profile_ui_model.dart';
 
 void main() {
   group('Auth State Display Widget Test', () {

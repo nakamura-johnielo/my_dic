@@ -20,6 +20,13 @@ class AppUser {
   })  : username = username ?? UserConsts.username,
         subscriptionStatus = subscriptionStatus ?? UserConsts.subscriptionStatus;
 
+  // factory AppUser.init() {
+  //   return AppUser(
+  //     accountId: UserConsts.accountId,
+  //     username: UserConsts.username,
+  //     subscriptionStatus: UserConsts.subscriptionStatus,
+  //   );
+  // }
   AppUser copyWith({
     String? accountId,
     String? deviceId,

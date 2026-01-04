@@ -140,4 +140,17 @@ class UserRepository implements IUserRepository {
       ));
     }
   }
+  
+  @override
+  Future<Result<String>> getThisDeviceId() async{
+    final localUser=await _local.getUser();
+
+    if(localUser?.deviceId.isEmpty ?? true){
+      return Result.failure(DeviceNotFoundError(
+        message: 'device ID が生成されていません',
+      ));
+    }
+    return Result.success(localUser!.deviceId);
+
+  }
 }

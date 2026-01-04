@@ -5,7 +5,7 @@ import 'package:my_dic/features/auth/di/usecase_di.dart';
 import 'package:my_dic/features/auth/domain/usecase/send_email_interactor.dart';
 import 'package:my_dic/features/auth/presentation/ui_model/sign_in_model.dart';
 import 'package:my_dic/features/auth/presentation/view_model/sign_in_view_model.dart';
-import 'package:my_dic/features/user/presentation/model/user_ui_model.dart';
+import 'package:my_dic/features/user/presentation/model/user_profile_ui_model.dart';
 import 'package:my_dic/features/auth/presentation/view_model/auth_view_model.dart';
 
 // final authViewModelProvider =

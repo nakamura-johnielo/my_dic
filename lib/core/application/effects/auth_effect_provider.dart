@@ -54,7 +54,7 @@ Future<void> _handleSignOut(Ref ref, AppAuth? previousAuth) async {
 
   // ViewModelの状態をクリア
   if (previousAuth != null) {
-    ref.read(userViewModelProvider.notifier).setAuthInfo(
+    ref.read(userViewModelProviderLegacy.notifier).setAuthInfo(
           AppAuth(accountId: 'logout', isLogined: false),
         );
   }
@@ -69,7 +69,7 @@ Future<void> _handleSignIn(Ref ref, AppAuth currentAuth) async {
 
   try {
     // 2. ユーザー情報をロード
-    await ref.read(userViewModelProvider.notifier).loadUser(currentAuth.accountId);
+    await ref.read(userViewModelProviderLegacy.notifier).loadUser(currentAuth.accountId);
 
     // 3. 認証情報を同期
     //ref.read(userViewModelProvider.notifier).setAuthInfo(currentAuth);

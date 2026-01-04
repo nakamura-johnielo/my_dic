@@ -5,13 +5,15 @@ class UserProfileUIState {
   final ButtonStatus savingButtonStatus;
   final String? errorMessage;
 
-  UserProfileUIState({this.savingButtonStatus=ButtonStatus.normal});
+  UserProfileUIState({this.savingButtonStatus=ButtonStatus.normal, this.errorMessage});
 
   UserProfileUIState copyWith({
     ButtonStatus? savingButtonStatus,
+    String? errorMessage,
   }) {
     return UserProfileUIState(
       savingButtonStatus: savingButtonStatus ?? this.savingButtonStatus,
+      errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 }

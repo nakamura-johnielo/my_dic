@@ -10,7 +10,7 @@ import 'package:my_dic/features/auth/presentation/view_model/i_auth_store.dart';
 //これを使う
 final authStoreProvider =
     Provider<IAuthStore>((ref) {
-  return ref.read(_authStoreNotifierProvider.notifier);
+  return ref.read(authStoreNotifierProvider.notifier);
 });
 
 
@@ -41,7 +41,7 @@ final authServiceProvider = Provider<AuthService>((ref) {
 
 
 // statenotifier これは使わない
-final _authStoreNotifierProvider =
+final authStoreNotifierProvider =
     StateNotifierProvider<AuthStoreNotifier, AppAuth?>((ref) {
   return AuthStoreNotifier();
 });
