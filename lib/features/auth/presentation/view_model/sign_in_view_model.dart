@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/enums/ui/button_status.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/auth/auth_service.dart';
+import 'package:my_dic/features/auth/auth_coordinator.dart';
 import 'package:my_dic/features/auth/presentation/ui_model/sign_in_model.dart';
 
 class SignInViewModel extends StateNotifier<SignInUIState> {
@@ -10,14 +10,15 @@ class SignInViewModel extends StateNotifier<SignInUIState> {
   // final IVerifyEmailUseCase _verficateInteractor;
   // final ISignOutUseCase _signOutInteractor;
   // final IResetEmailPasswordUseCase _resetEPasswordUseCase;
-  final AuthService _authService;
+  // final AuthService _authService;
+  final AppAuthCoordinator _authCoordinator;
 
-  SignInViewModel(this._authService) : super(SignInUIState());
+  SignInViewModel(this._authCoordinator) : super(SignInUIState());
 
   Future<String> signOut() async {
     state = state.copyWith(isWaitingSignOut: ButtonStatus.waiting);
 
-    final result = await _authService.signOut();
+    final result = await _authCoordinator.signOut();
 
     return result.when(
       success: (_) {
@@ -34,7 +35,7 @@ class SignInViewModel extends StateNotifier<SignInUIState> {
 
   Future<String> verifyEmail() async {
     state = state.copyWith(isWaitingVerifyEmail: ButtonStatus.waiting);
-    final result = await _authService.verifyEmail();
+    final result = await _authCoordinator.verifyEmail();
     return result.when(
       success: (_) {
         state = state.copyWith(isWaitingVerifyEmail: ButtonStatus.success);
@@ -49,7 +50,7 @@ class SignInViewModel extends StateNotifier<SignInUIState> {
 
   Future<String> resetEmailPassword(String email) async {
     state = state.copyWith(isWaitingResetPassword: ButtonStatus.waiting);
-    final result = await _authService.resetEmailPassword(email);
+    final result = await _authCoordinator.resetEmailPassword(email);
     return result.when(
       success: (_) {
         state = state.copyWith(isWaitingResetPassword: ButtonStatus.success);
@@ -64,7 +65,7 @@ class SignInViewModel extends StateNotifier<SignInUIState> {
 
   Future<String> signIn(String email, String password) async {
     state = state.copyWith(isWaitingSignIn: ButtonStatus.waiting);
-    final result = await _authService.signIn(email, password);
+    final result = await _authCoordinator.signIn(email, password);
 
     return result.when(
       success: (appAuth) async {
@@ -76,7 +77,7 @@ class SignInViewModel extends StateNotifier<SignInUIState> {
         state = state.copyWith(isWaitingSignIn: ButtonStatus.success);
         return 'ログインに成功しました';
       },
-      failure: (error) {      
+      failure: (error) {
         state = state.copyWith(isWaitingSignIn: ButtonStatus.error);
         return error.message;
       },
@@ -85,18 +86,17 @@ class SignInViewModel extends StateNotifier<SignInUIState> {
 
   Future<String> signUp(String email, String password) async {
     state = state.copyWith(isWaitingSignUp: ButtonStatus.waiting);
-    final result = await _authService.signUp(email, password);
+    final result = await _authCoordinator.signUp(email, password);
 
     return result.when(
       success: (appAuth) async {
         state = state.copyWith(isWaitingSignUp: ButtonStatus.success);
-        
+
         if (!appAuth.isAuthenticated) {
           verifyEmail();
           // メール未確認でも認証情報は返す（確認メールは送信済み）
         }
-          return 'アカウント作成に成功しました';
-       
+        return 'アカウント作成に成功しました';
       },
       failure: (error) {
         state = state.copyWith(isWaitingSignUp: ButtonStatus.error);

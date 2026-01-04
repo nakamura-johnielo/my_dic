@@ -1,4 +1,6 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/features/auth/di/service.dart';
 import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
 import 'package:my_dic/features/auth/domain/usecase/i_observe_auth_state_use_case.dart';
 import 'package:my_dic/features/auth/domain/usecase/i_send_email_use_case.dart';
@@ -6,10 +8,10 @@ import 'package:my_dic/features/auth/domain/usecase/i_sign_in_use_case.dart';
 import 'package:my_dic/features/auth/domain/usecase/i_sign_out_use_case.dart';
 import 'package:my_dic/features/auth/domain/usecase/i_sign_up_use_case.dart';
 import 'package:my_dic/features/auth/domain/usecase/i_verify_email_use_case.dart';
-import 'package:my_dic/features/auth/presentation/view_model/i_auth_store.dart';
+import 'package:my_dic/features/auth/presentation/view_model/auth_store.dart';
 
-class AuthService {
-  final IAuthStore _authStore;
+class AppAuthCoordinator {
+  final Ref ref;
 
   final IObserveAuthStateUseCase _observeAuthStateUseCase;
   final IResetEmailPasswordUseCase _resetEmailPasswordUseCase;
@@ -18,21 +20,18 @@ class AuthService {
   final ISignOutUseCase _signOutUseCase;
   final IVerifyEmailUseCase _verifyEmailUseCase;
 
-  AuthService(
-      {required IAuthStore authStore,
-      required IObserveAuthStateUseCase observeAuthStateUseCase,
-      required IResetEmailPasswordUseCase resetEmailPasswordUseCase,
-      required ISignInUseCase signInUseCase,
-      required ISignUpUseCase signUpUseCase,
-      required ISignOutUseCase signOutUseCase,
-      required IVerifyEmailUseCase verifyEmailUseCase})
-      : _authStore = authStore,
-        _observeAuthStateUseCase = observeAuthStateUseCase,
-        _resetEmailPasswordUseCase = resetEmailPasswordUseCase,
-        _signInUseCase = signInUseCase,
-        _signUpUseCase = signUpUseCase,
-        _signOutUseCase = signOutUseCase,
-        _verifyEmailUseCase = verifyEmailUseCase;
+  AppAuthCoordinator(
+      this.ref,
+      this._observeAuthStateUseCase,
+      this._resetEmailPasswordUseCase,
+      this._signInUseCase,
+      this._signUpUseCase,
+      this._signOutUseCase,
+      this._verifyEmailUseCase);
+
+      //AppAuth? get _authStore => ref.read(authStoreNotifierProvider);
+      AuthStoreNotifier get _authStoreNotifier =>
+      ref.read(authStoreNotifierProvider.notifier);
 
   // void setAuthInfo(AppAuth appAuth) {
   //   state = state?.copyWith(
@@ -44,17 +43,17 @@ class AuthService {
 
   Future<Result<void>> signOut() async {
     final result = await _signOutUseCase.execute();
-    return result.map((_) => _authStore.signOut());
+    return result.map((_) => _authStoreNotifier.signOut());
   }
 
   Future<Result<void>> verifyEmail() async {
     final result = await _verifyEmailUseCase.execute();
-    return result.map((_) => _authStore.sendVerifyEmail());
+    return result;
   }
 
   Future<Result<void>> resetEmailPassword(String email) async {
     final result = await _resetEmailPasswordUseCase.execute(email);
-    return result.map((_) => _authStore.sendResetEmailPassword());
+    return result;
   }
 
   Future<Result<AppAuth>> signIn(String email, String password) async {
@@ -67,11 +66,11 @@ class AuthService {
         //   // メール未確認でも認証情報は返す（確認メールは送信済み）
         // }
         print("**********signin success**********");
-        _authStore.update(appAuth);
+        _authStoreNotifier.setAuth(appAuth);
         return Result.success(appAuth);
       },
       failure: (error) {
-        _authStore.clear();
+        _authStoreNotifier.clear();
         return Result.failure(error);
       },
     );
@@ -86,11 +85,11 @@ class AuthService {
         //   verifyEmail();
         //   // メール未確認でも認証情報は返す（確認メールは送信済み）
         // }
-        _authStore.update(appAuth);
+        _authStoreNotifier.setAuth(appAuth);
         return Result.success(appAuth);
       },
       failure: (error) {
-        _authStore.clear();
+        _authStoreNotifier.clear();
         return Result.failure(error);
       },
     );

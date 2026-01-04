@@ -14,7 +14,7 @@ AppAuth createTestAuth({
   DateTime? updatedAt,
 }) {
   return AppAuth(
-    userId: userId,
+    accountId: userId,
     email: email,
     userName: userName,
     isLogined: isLogined,

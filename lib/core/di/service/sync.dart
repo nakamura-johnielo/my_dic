@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/application/services/remote_word_status_sync_service.dart';
 import 'package:my_dic/core/di/usecase/usecase_di.dart';
+import 'package:my_dic/features/auth/di/service.dart';
 // import 'package:my_dic/core/application/services/remote_word_status_sync_service.dart';
 import 'package:my_dic/features/user/di/viewmodel.dart';
 
@@ -53,7 +54,7 @@ final espJpnWordStatusSyncProvider = Provider.autoDispose.family<void, String>((
 
 // ラッパープロバイダーで自動化
 final autoEspJpnWordStatusSyncProvider = Provider.autoDispose<void>((ref) {
-  final userId = ref.watch(userViewModelProviderLegacy)?.id;
+  final userId = ref.watch(authStoreNotifierProvider.select((a)=>a?.accountId));
   
   if (userId == null || userId.isEmpty|| userId != "logout" || userId != "anonymous") {
     return;

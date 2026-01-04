@@ -21,7 +21,7 @@ class WordStatusRepository implements IWordStatusRepository {
     String userId,
   ) async {
     // Update local first
-    final localResult = await updateLocalWordStatus(wordStatus, now, userId);
+    final localResult = await updateLocalWordStatus(wordStatus, now);
     if (localResult.isFailure) {
       return localResult;
     }
@@ -41,8 +41,7 @@ class WordStatusRepository implements IWordStatusRepository {
   @override
   Future<Result<void>> updateLocalWordStatus(
     WordStatus wordStatus,
-    DateTime now,
-    String userId,
+    DateTime now
   ) async {
     try {
       final input = wordStatus.copyWith(editAt: now);

@@ -231,8 +231,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncEspJpnWordStatusUseCase {
       // ローカルに存在しない場合は、リモートのデータでローカルを作成
       final updateResult = await _wordStatusRepository.updateLocalWordStatus(
         remoteItem,
-        remoteItem.editAt,
-        userId,
+        remoteItem.editAt
       );
       if (updateResult.isFailure) {
         return Result.failure(updateResult.errorOrNull!);
@@ -252,7 +251,6 @@ class SyncEspJpnWordStatusInteractor implements ISyncEspJpnWordStatusUseCase {
       final updateResult = await _wordStatusRepository.updateLocalWordStatus(
         remoteItem,
         remoteItem.editAt,
-        userId,
       );
       if (updateResult.isFailure) {
         return Result.failure(updateResult.errorOrNull!);

@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/features/user/di/usecase_di.dart';
 import 'package:my_dic/features/user/domain/entity/user.dart';
 import 'package:my_dic/features/user/presentation/view_model/app_user_store.dart';
-import 'package:my_dic/features/user/service.dart';
+
 
 // final userServiceProvider = Provider<UserService>((ref) {
 //   final getUserInteractor = ref.watch(getUserInteractorProvider);

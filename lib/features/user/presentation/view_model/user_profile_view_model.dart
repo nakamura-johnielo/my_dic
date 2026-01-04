@@ -5,6 +5,7 @@ import 'package:my_dic/core/shared/enums/subscription_status.dart';
 import 'package:my_dic/core/shared/enums/ui/button_status.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/features/auth/auth_coordinator.dart';
 import 'package:my_dic/features/auth/di/service.dart';
 import 'package:my_dic/features/auth/presentation/view_model/auth_store.dart';
 import 'package:my_dic/features/user/di/service.dart';
@@ -26,6 +27,7 @@ class UserProfileViewModel extends StateNotifier<UserProfileUIState> {
   // final ICreateNewUserUseCase _createNewUserInteractor;
   //final Ref ref;
   final AppUserCoordinator _coordinator;
+  final AppAuthCoordinator _authCoordinator;
 
   // AppUser? get _userStore => ref.read(appUserStoreNotifierProvider);
   // AppUserStoreNotifier get _storeNotifier =>
@@ -36,8 +38,22 @@ class UserProfileViewModel extends StateNotifier<UserProfileUIState> {
       // this._updateUserInteractor,
       // this._ensureUserExistsInteractor,
       // this._createNewUserInteractor,
-      this._coordinator)
+      this._coordinator,
+      this._authCoordinator)
       : super(UserProfileUIState());
+  Future<void> signOut() async {
+    // state = state.copyWith(: ButtonStatus.waiting);
+
+    final result = await _authCoordinator.signOut();
+
+    result.when(success: (_) {
+      // state = state.copyWith(signOutButtonStatus: ButtonStatus.success);
+      log("ログアウトしました");
+    }, failure: (error) {
+      state = state.copyWith(errorMessage:  "ログアウトに失敗しました: ${error.message}");
+      log("ログアウトに失敗しました: ${error.message}");
+    });
+  }
 
   Future<void> save({String? email, String? username}) async {
     state = state.copyWith(savingButtonStatus: ButtonStatus.waiting);
