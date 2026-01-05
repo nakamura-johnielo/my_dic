@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_dic/core/shared/consts/firebase.dart';
-import 'package:my_dic/core/infrastructure/dtos/wordStatusEntity.dart';
+import 'package:my_dic/features/esp_jpn_word_status/data/wordStatusEntity.dart';
 import 'package:my_dic/features/user/data/dto/user_dto.dart';
 
 class FirebaseWordStatusDao {

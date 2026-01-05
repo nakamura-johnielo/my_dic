@@ -1,6 +1,6 @@
-import 'package:my_dic/core/domain/usecase/fetch_esp_jpn_status/fetch_esp_jpn_status_usecase.dart';
-import 'package:my_dic/core/domain/entity/word/esp_word_status.dart';
-import 'package:my_dic/core/domain/i_repository/i_word_status_repository.dart';
+import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/fetch_esp_jpn_status/fetch_esp_jpn_status_usecase.dart';
+import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';
+import 'package:my_dic/features/esp_jpn_word_status/domain/i_word_status_repository.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 
 class FetchEspJpnWordStatusInteractor implements FetchEspJpnWordStatusUsecase {

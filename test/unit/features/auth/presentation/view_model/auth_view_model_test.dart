@@ -13,7 +13,7 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/core/shared/enums/subscription_status.dart';
+import 'package:my_dic/core/shared/enums/auth/subscription_status.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/auth/di/usecase_di.dart';

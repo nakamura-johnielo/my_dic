@@ -3,9 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:flutter/material.dart';
 import 'package:my_dic/core/presentation/components/button/my_icon_button.dart';
-import 'package:my_dic/core/di/view_model/view_model.dart';
+import 'package:my_dic/features/esp_jpn_word_status/di/di.dart';
 import 'package:my_dic/features/auth/di/service.dart';
-import 'package:my_dic/features/user/di/viewmodel.dart';
 
 class StatusButtons extends ConsumerWidget {
   const StatusButtons({super.key, required this.wordId});

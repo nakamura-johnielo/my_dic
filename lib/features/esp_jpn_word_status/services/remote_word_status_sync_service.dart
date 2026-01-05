@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:my_dic/core/domain/usecase/sync_esp_jpn_word_status/i_sync_esp_jpn_word_status_usecase.dart';
+import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/sync_esp_jpn_word_status/i_sync_esp_jpn_word_status_usecase.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 
 class EspJpnWordStatusSyncService {

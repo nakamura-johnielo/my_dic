@@ -2,10 +2,10 @@ import 'dart:developer';
 
 import 'package:my_dic/core/shared/enums/feature_tag.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/core/domain/entity/word/esp_word_status.dart';
-import 'package:my_dic/core/domain/i_repository/i_word_status_repository.dart';
-import 'package:my_dic/core/domain/usecase/update_status/update_status_input_data.dart';
-import 'package:my_dic/core/domain/usecase/update_status/i_update_status_use_case.dart';
+import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';
+import 'package:my_dic/features/esp_jpn_word_status/domain/i_word_status_repository.dart';
+import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/update_status_input_data.dart';
+import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/i_update_status_use_case.dart';
 
 
 class UpdateStatusInteractor implements IUpdateStatusUseCase {

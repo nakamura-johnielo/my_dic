@@ -1,8 +1,8 @@
 /// Fake implementation of IWordStatusRepository for testing
 /// Demonstrates local + remote sync logic testing
 
-import 'package:my_dic/core/domain/entity/word/esp_word_status.dart';
-import 'package:my_dic/core/domain/i_repository/i_word_status_repository.dart';
+import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';
+import 'package:my_dic/features/esp_jpn_word_status/domain/i_word_status_repository.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 

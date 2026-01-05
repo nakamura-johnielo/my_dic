@@ -6,10 +6,8 @@ import 'package:my_dic/core/domain/i_repository/i_esj_word_repository.dart';
 import 'package:my_dic/core/domain/i_repository/i_jpn_esp_dictionary_repository.dart';
 import 'package:my_dic/core/domain/i_repository/i_jpn_esp_word_repository.dart';
 import 'package:my_dic/core/domain/i_repository/i_sync_status_repository.dart';
-import 'package:my_dic/core/domain/i_repository/i_word_status_repository.dart';
 import 'package:my_dic/core/infrastructure/repositories/drift_conjugacion_repository.dart';
 import 'package:my_dic/core/infrastructure/repositories/sync_status_repository.dart';
-import 'package:my_dic/core/infrastructure/repositories/wordstatus_repository.dart';
 import 'package:my_dic/core/infrastructure/repositories/drift_esj_dictionary_repository.dart';
 import 'package:my_dic/core/infrastructure/repositories/drift_esj_word_repository.dart';
 import 'package:my_dic/core/infrastructure/repositories/drift_jpn_esp_dictionary_repository.dart';
@@ -24,8 +22,7 @@ final esjDictionaryRepositoryProvider =
 
 final esjWordRepositoryProvider = Provider<IEsjWordRepository>((ref) {
   final ds = ref.read(esjWordDataSourceProvider);
-  final statusDs = ref.read(localWordStatusDataSourceProvider);
-  return EsjWordRepository(ds, statusDs);
+  return EsjWordRepository(ds);
 });
 
 final conjugacionsRepositoryProvider = Provider<IConjugacionsRepository>((ref) {
@@ -48,13 +45,6 @@ final jpnEspDictionaryRepositoryProvider =
 
 
 
-final wordStatusRepositoryProvider = Provider<IWordStatusRepository>((ref) {
-  final local = ref.read(localWordStatusDataSourceProvider );
-  final remote = ref.read(remoteWordStatusDataSourceProvider);
-  // final localDataSource = ref.watch(localWordStatusDaoProvider);
-  // return WordStatusRepository(dataSource, localDataSource);
-  return WordStatusRepository(remote, local);
-});
 
 // final localEspJpnWordStatusRepositoryProvider = Provider<ILocalWordStatusRepository>((ref) {
 //   final ds = ref.read(localWordStatusDataSourceProvider);

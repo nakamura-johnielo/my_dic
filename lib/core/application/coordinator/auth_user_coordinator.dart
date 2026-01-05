@@ -6,7 +6,7 @@ import 'package:my_dic/features/auth/di/service.dart';
 import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
 import 'package:my_dic/features/user/di/service.dart';
 import 'package:my_dic/features/user/domain/entity/user.dart';
-import 'package:my_dic/features/user/presentation/view_model/user_coodinator.dart';
+import 'package:my_dic/features/user/user_coodinator.dart';
 
 class AuthUserCoordinator {
   final AppAuthCoordinator auth;

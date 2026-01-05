@@ -1,5 +1,5 @@
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/core/domain/entity/word/esp_word_status.dart';
+import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';
 
 abstract class IWordStatusRepository {
   Future<Result<void>> updateWordStatus(

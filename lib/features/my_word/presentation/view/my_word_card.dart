@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:my_dic/core/presentation/components/button/my_icon_button.dart';
-import 'package:my_dic/core/shared/word_card_view_click_listener.dart';
+import 'package:my_dic/core/shared/enums/ui/word_card_view_click_listener.dart';
 import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
 
 const Map<String, IconData> _bookmarkIcon = {

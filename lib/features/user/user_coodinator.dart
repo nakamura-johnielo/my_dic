@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/core/shared/enums/subscription_status.dart';
+import 'package:my_dic/core/shared/enums/auth/subscription_status.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/user/di/service.dart';

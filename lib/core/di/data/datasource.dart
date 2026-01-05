@@ -53,15 +53,6 @@ final jpnEspDictionaryDataSourceProvider =
   );
 });
 
-final localWordStatusDataSourceProvider =
-    Provider<ILocalWordStatusDataSource>((ref) {
-  return DriftWordStatusDataSource(ref.read(localWordStatusDaoProvider));
-});
-
-final remoteWordStatusDataSourceProvider =
-    Provider<IRemoteWordStatusDataSource>((ref) {
-  return FirebaseWordStatusDataSource(ref.read(remoteWordStatusDaoProvider));
-});
 
 final sharedPreferencesSyncStatusDataSourceProvider =
     Provider<ISyncStatusDataSource>((ref) {
