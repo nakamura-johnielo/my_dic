@@ -1,7 +1,7 @@
 import 'package:tuple/tuple.dart';
 import 'package:my_dic/features/ranking/data/data_source/local/ranking_dao.dart';
 import 'package:my_dic/features/ranking/data/data_source/local/rankings_entity.dart';
-import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
+import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/features/ranking/data/data_source/local/i_ranking_local_data_source.dart';
 import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
 import 'package:my_dic/core/shared/enums/feature_tag.dart';
@@ -11,55 +11,27 @@ class RankingDriftDataSource implements IRankingLocalDataSource {
   RankingDriftDataSource(this._dao);
 
   @override
-  Future<Ranking?> getRankingById(int id) async {
-    final data = await _dao.getRankingById(id);
-    if (data == null) return null;
-    return Ranking(
-      rank: data.rankingNo,
-      rankedWord: data.word ?? "---",
-      lemma: data.wordOrigin ?? "---",
-      wordId: data.wordId ?? -1,
-      hasConj: data.hasConj == 1,
-    );
+  Future<RankingTableData?> getRankingById(int id) async {
+    return await _dao.getRankingById(id);
   }
 
   @override
-  Future<List<Ranking>> getRankingListByPage(int page, int size) async {
-    final list = await _dao.getRankingListByPage(page, size);
-    if (list == null) return [];
-    return list.map((d) {
-      return Ranking(
-        rank: d.rankingNo,
-        rankedWord: d.word ?? "---",
-        lemma: d.wordOrigin ?? "---",
-        wordId: d.wordId ?? -1,
-        hasConj: d.hasConj == 1,
-      );
-    }).toList();
+  Future<List<RankingTableData>> getRankingListByPage(int page, int size) async {
+    return await _dao.getRankingListByPage(page, size);
   }
 
   @override
-  Future<List<Ranking>> getFilteredRankingListByPage(
+  Future<List<RankingTableData>> getFilteredRankingListByPage(
       int requiredPage,
       int size,
       Set<PartOfSpeech> partOfSpeechFilters,
       Set<FeatureTag> featureTagFilters) async {
-    final list = await _dao.getFilteredRankingListByPage(
+    return await _dao.getFilteredRankingListByPage(
         requiredPage, size, partOfSpeechFilters, featureTagFilters);
-    if (list == null) return [];
-    return list.map((d) {
-      return Ranking(
-        rank: d.rankingNo,
-        rankedWord: d.word ?? "",
-        lemma: d.wordOrigin ?? "",
-        wordId: d.wordId ?? -1,
-        hasConj: d.hasConj == 1,
-      );
-    }).toList();
   }
 
   @override
-  Future<List<Ranking>> getFilteredRankingWithStatusByPage(
+  Future<List<Tuple2<RankingTableData, EspJpnWordStatusTableData>>> getFilteredRankingWithStatusByPage(
       int requiredPage,
       int size,
       Set<PartOfSpeech> partOfSpeechFilters,
@@ -74,20 +46,6 @@ class RankingDriftDataSource implements IRankingLocalDataSource {
       partOfSpeechExcludeFilters,
       featureTagExcludeFilters,
     );
-    if (resp == null || resp.isEmpty) return [];
-    return resp.map((tuple) {
-      final r = tuple.item1;
-      final s = tuple.item2;
-      return Ranking(
-        rank: r.rankingNo,
-        rankedWord: r.word ?? "",
-        lemma: r.wordOrigin ?? "",
-        wordId: r.wordId ?? -1,
-        isLearned: s.isLearned == 1,
-        isBookmarked: s.isBookmarked == 1,
-        hasNote: s.hasNote == 1,
-        hasConj: r.hasConj == 1,
-      );
-    }).toList();
+    return resp ?? [];
   }
 }

@@ -20,14 +20,14 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
         .getSingleOrNull();
   }
 
-  Future<List<RankingTableData>?> getRankingListByPage(int page, int size) {
+  Future<List<RankingTableData>> getRankingListByPage(int page, int size) {
     return (select(rankings)
           ..limit(size, offset: size * page)
           ..orderBy([(tbl) => OrderingTerm(expression: tbl.rankingId)]))
         .get();
   }
 
-  Future<List<RankingTableData>?> getFilteredRankingListByPage(
+  Future<List<RankingTableData>> getFilteredRankingListByPage(
       int requiredPage,
       int size,
       Set<PartOfSpeech> partOfSpeechFilters,

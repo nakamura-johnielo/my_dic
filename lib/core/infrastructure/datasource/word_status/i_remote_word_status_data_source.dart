@@ -1,10 +1,10 @@
-import 'package:my_dic/core/domain/entity/word/esp_word_status.dart';
+import 'package:my_dic/core/infrastructure/dtos/wordStatusEntity.dart';
 
 abstract class IRemoteWordStatusDataSource {
-  Future<WordStatus?> getWordStatusById(String userId, int id);
-  Future<List<WordStatus>> getWordStatusAfter(String userId, DateTime datetime);
-  Future<void> updateWordStatus(String userId, WordStatus wordStatus);
-  Stream<WordStatus> watchWordStatusById(String userId, int id);
+  Future<WordStatusDTO?> getWordStatusById(String userId, int id);
+  Future<List<WordStatusDTO>> getWordStatusAfter(String userId, DateTime datetime);
+  Future<void> updateWordStatus(String userId, WordStatusDTO wordStatus);
+  Stream<WordStatusDTO> watchWordStatusById(String userId, int id);
   Stream<List<int>> watchChangedIds(String userId);
-  Future<void> updateWordStatusBatch(String userId, List<WordStatus> list);
+  Future<void> updateWordStatusBatch(String userId, List<WordStatusDTO> list);
 }

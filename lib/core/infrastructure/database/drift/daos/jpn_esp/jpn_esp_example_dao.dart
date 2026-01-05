@@ -9,7 +9,7 @@ part '../../../../../../__generated/core/infrastructure/database/drift/daos/jpn_
 class JpnEspExampleDao extends DatabaseAccessor<DatabaseProvider>
     with _$JpnEspExampleDaoMixin {
   JpnEspExampleDao(super.database);
-  Future<List<JpnEspExampleTableData?>> getExampleByDictionaryId(int id) {
+  Future<List<JpnEspExampleTableData>> getExampleByDictionaryId(int id) {
     return (select(jpnEspExamples)
           ..where((tbl) => tbl.dictionaryId.equals(id))
           ..orderBy([(tbl) => OrderingTerm(expression: tbl.exampleId)]))

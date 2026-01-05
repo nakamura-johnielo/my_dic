@@ -1,9 +1,9 @@
+import 'package:my_dic/core/shared/utils/result.dart';
+
 abstract class ISyncEspJpnWordStatusUseCase {
-  //TODO RESULT
-  // Future<DateTime?> getLastSyncDate(String key);
-  Future<void> syncOnce(String userId);
+  Future<Result<void>> syncOnce(String userId);
   Stream<List<int>> watchRemoteChangedIds(String userId);
   Stream<List<int>> watchLocalChangedIds();
-  Future<void> syncOnUpdatedLocal(String userId,int wordId);
-  Future<void> syncOnUpdatedRemote(String userId,int wordId);
+  Future<Result<void>> syncOnUpdatedLocal(String userId,int wordId);
+  Future<Result<void>> syncOnUpdatedRemote(String userId,int wordId);
 }

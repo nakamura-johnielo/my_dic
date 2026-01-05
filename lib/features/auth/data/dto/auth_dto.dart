@@ -1,16 +1,19 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:my_dic/core/shared/enums/auth/provider_type.dart';
 
 /// Firebase Authentication の生データを表すDTO
 /// Data層内でのみ使用し、Domain層の AppAuth へ変換される
 class AuthDTO {
-  final String userId;
+  final String accountId;
   final String? email;
-  final bool emailVerified;
+  final bool isVerified;
+  final ProviderType provider; 
 
-  AuthDTO({
-    required this.userId,
+  AuthDTO( {
+    required this.accountId,
     this.email,
-    required this.emailVerified,
+    required this.isVerified,
+    this.provider=ProviderType.unknown,
   });
 
   // データ不正 -> exception
@@ -25,10 +28,14 @@ class AuthDTO {
       throw Exception('User ID is empty');
     }
 
+    final provider=userCredential.credential?.providerId;
+    print("auth Email: ${user.email}");
+
     return AuthDTO(
-      userId: user.uid,
+      accountId: user.uid,
       email: user.email, // null 許容（匿名認証対応）
-      emailVerified: user.emailVerified,
+      isVerified: user.emailVerified,
+      provider: ProviderTypeExtension.fromFirebaseProviderId( provider)
     );
   }
 
@@ -39,9 +46,9 @@ class AuthDTO {
     }
 
     return AuthDTO(
-      userId: user.uid,
+      accountId: user.uid,
       email: user.email,
-      emailVerified: user.emailVerified,
+      isVerified: user.emailVerified,
     );
   }
 }

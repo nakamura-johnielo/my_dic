@@ -1,6 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/core/di/service/sync.dart';
+import 'package:my_dic/core/infrastructure/database/shared_preferences/shared_preferences.dart';
 import 'package:my_dic/core/section/db_loading/db_loader_overlay.dart';
 import 'package:my_dic/core/shared/consts/enviroment.dart';
 import 'package:my_dic/core/application/effects/auth_effect_provider.dart';
@@ -8,6 +10,7 @@ import 'package:my_dic/core/presentation/theme/color_scheme.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
 import 'package:my_dic/router.dart';
 import 'package:my_dic/firebase_options.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // 1. エントリーポイントのmain関数
 void main() async {
@@ -26,7 +29,16 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const ProviderScope(child: MyApp()));
+   // SharedPreferencesを事前初期化
+   //TODO shapref inicialize
+    // SharedPreferencesを事前初期化
+  final sharedPreferences = await SharedPreferences.getInstance();
+  
+  
+  runApp( ProviderScope(
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(sharedPreferences),
+      ],child: MyApp()));
   //runApp(const MyApp());
 }
 
@@ -39,7 +51,8 @@ class MyApp extends ConsumerWidget {
     //!TODO databseの初回読み込みちゃんとする！！
     ref.read(databaseProvider).customSelect('SELECT 1').get();
 
-    ref.watch(authEffectProvider);
+    ref.watch(authEffectProvider);//認証状態の変化を監視し副作用を実行 synconce
+    ref.watch(autoEspJpnWordStatusSyncProvider);//自動同期開始
     final goRouter = ref.watch(routerProvider);
 
     return MaterialApp.router(
@@ -63,7 +76,7 @@ class MyApp extends ConsumerWidget {
               Theme.of(context).colorScheme.onSurfaceVariant, //未選択時の色
         ),
       ),
-       builder: (context, child) {
+      builder: (context, child) {
         return Stack(
           children: [
             child ?? const SizedBox.shrink(),

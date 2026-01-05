@@ -1,9 +1,9 @@
-import 'package:my_dic/core/domain/entity/word/esp_word_status.dart';
+import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 
 abstract class ILocalWordStatusDataSource {
-  Future<WordStatus> getWordStatusById(int id);
-  Future<List<WordStatus>> getWordStatusAfter(DateTime datetime);
-  Future<void> updateWordStatus(WordStatus wordStatus);
-  Stream<WordStatus> watchWordStatusById(int id);
+  Future<EspJpnWordStatusTableData?> getWordStatusById(int id);
+  Future<List<EspJpnWordStatusTableData>> getWordStatusAfter(DateTime datetime);
+  Future<void> updateWordStatus(EspJpnWordStatusTableData wordStatus);
+  Stream<EspJpnWordStatusTableData?> watchWordStatusById(int id);
   Stream<List<int>> watchChangedIds(DateTime datetime);
 }

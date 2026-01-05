@@ -1,28 +1,42 @@
+import 'package:my_dic/core/shared/consts/user/default.dart';
 import 'package:my_dic/core/shared/enums/subscription_status.dart';
 
 class AppUser {
-  final String id;
-  final String email;
+  // accountIdはデバイスに対して１つ
+  //provider等から割り当てられるやつ
+  //acountIdはAuth確認には使わない！！！
+  final String accountId;
+  final String? deviceId;
+  final String? email;
   final String username;
   final SubscriptionStatus subscriptionStatus;
 
   AppUser({
-    required this.id,
-    String? email,
+    required this.accountId,
+     this.deviceId,
+    this.email,
     String? username,
     SubscriptionStatus? subscriptionStatus,
-  })  : email = email ?? '',
-        username = username ?? 'Guest',
-        subscriptionStatus = subscriptionStatus ?? SubscriptionStatus.free;
+  })  : username = username ?? UserConsts.username,
+        subscriptionStatus = subscriptionStatus ?? UserConsts.subscriptionStatus;
 
+  // factory AppUser.init() {
+  //   return AppUser(
+  //     accountId: UserConsts.accountId,
+  //     username: UserConsts.username,
+  //     subscriptionStatus: UserConsts.subscriptionStatus,
+  //   );
+  // }
   AppUser copyWith({
-    String? id,
+    String? accountId,
+    String? deviceId,
     String? email,
     String? username,
     SubscriptionStatus? subscriptionStatus,
   }) {
     return AppUser(
-      id: id ?? this.id,
+      accountId: accountId ?? this.accountId,
+      deviceId: deviceId ?? this.deviceId,
       email: email ?? this.email,
       username: username ?? this.username,
       subscriptionStatus: subscriptionStatus ?? this.subscriptionStatus,

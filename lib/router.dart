@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/core/application/effects/auth_effect_provider.dart';
-import 'package:my_dic/core/domain/entity/auth.dart';
+import 'package:my_dic/features/auth/di/service.dart';
 import 'package:my_dic/features/auth/presentation/view/sign_up.dart';
 import 'package:my_dic/main_activity.dart';
 import 'package:my_dic/core/shared/enums/ui/tab.dart';
@@ -13,6 +13,8 @@ import 'package:my_dic/features/quiz/presentation/view/quiz_search_fragment.dart
 import 'package:my_dic/features/search/presentation/view/search_fragment.dart';
 import 'package:my_dic/features/user/presentation/view/profile.dart';
 import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
+
+import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
 
 // GlobalKeyをProvider内で作成して使い回す
 final rootNavigatorKeyProvider = Provider<GlobalKey<NavigatorState>>((ref) {
@@ -65,7 +67,6 @@ final routerProvider = Provider<GoRouter>((ref) {
     navigatorKey: rootKey,
     refreshListenable: authNotifier,
     redirect: (context, state) {
-      final auth = ref.read(authStreamProvider).value;
 
       final location = state.matchedLocation;
       final uri = state.uri.toString();
@@ -76,20 +77,33 @@ final routerProvider = Provider<GoRouter>((ref) {
       print('uri: $uri');
       print('fullPath: $fullPath');
 
+      // login系のページじゃなければ強勢移動させない
       final inProfile = location.startsWith('/${ScreenTab.profile}');
       if (!inProfile) return null;
 
-      final loggedIn = auth?.isLogined ?? false;
-      final verified = auth?.isVerified ?? false;
+      final auth = ref.read(authStoreNotifierProvider);
       final unauthorized = '/${ScreenTab.profile}/${ScreenPage.unAuthorized}';
       final authorized = '/${ScreenTab.profile}/${ScreenPage.authorized}';
+      
+      if (auth==null) {
+        print('auth is null');
+        return unauthorized;
+      } 
+
+      final loggedIn = auth.isLogined ;
+      final verified = auth.isAuthenticated ;
       print('loggedIn: $loggedIn, verified: $verified');
+
       if (!loggedIn || !verified) {
+        print("current location: ${location == unauthorized ? null : unauthorized} ");
         return location == unauthorized ? null : unauthorized;
       }
+        print("current location: ${location == authorized ? null : authorized} ");
       return location == authorized ? null : authorized;
     },
+
     initialLocation: '/${ScreenTab.search}',
+
     routes: [
       StatefulShellRoute.indexedStack(
         parentNavigatorKey: rootKey,

@@ -1,5 +1,5 @@
 class AppAuth {
-  final String userId;
+  final String accountId;
   final String? email;
   final String? userName;
   final bool isLogined;
@@ -9,7 +9,7 @@ class AppAuth {
   final DateTime? updatedAt;
 
   AppAuth({
-    required this.userId,
+    required this.accountId,
     this.email,
     this.userName,
     this.isLogined = false,
@@ -30,7 +30,7 @@ class AppAuth {
     DateTime? updatedAt,
   }) {
     return AppAuth(
-      userId: userId ?? this.userId,
+      accountId: userId ?? this.accountId,
       email: email ?? this.email,
       userName: userName ?? this.userName,
       isLogined: isLogined ?? this.isLogined,
@@ -43,6 +43,6 @@ class AppAuth {
 
   @override
   String toString() {
-    return 'AppAuth(userId: $userId, email: $email, isLogined: $isLogined, isVerified: $isVerified)';
+    return 'AppAuth(userId: $accountId, email: $email, isLogined: $isLogined, isVerified: $isVerified)';
   }
 }

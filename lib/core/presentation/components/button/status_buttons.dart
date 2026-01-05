@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:my_dic/core/presentation/components/button/my_icon_button.dart';
 import 'package:my_dic/core/di/view_model/view_model.dart';
+import 'package:my_dic/features/auth/di/service.dart';
 import 'package:my_dic/features/user/di/viewmodel.dart';
 
 class StatusButtons extends ConsumerWidget {
@@ -29,7 +30,7 @@ class StatusButtons extends ConsumerWidget {
         ref.read(espJpnWordStatusViewModelProvider(wordId).notifier);
     //controller.init(wordId); //初期化
 
-    final userId = ref.watch(userViewModelProvider)?.id ?? "anonymous";
+    final userId = ref.watch(authStoreNotifierProvider.select((a)=>a?.accountId)) ;
 
     return Row(
       mainAxisSize: MainAxisSize.min,

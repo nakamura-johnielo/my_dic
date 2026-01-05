@@ -14,7 +14,7 @@ class EspJpnSupplementDao extends DatabaseAccessor<DatabaseProvider>
         .getSingleOrNull();
   }
 
-  Future<List<EspJpnSupplementTableData?>> getExampleByDictionaryId(int id) {
+  Future<List<EspJpnSupplementTableData>> getExampleByDictionaryId(int id) {
     return (select(espJpnSupplements)
           ..where((tbl) => tbl.dictionaryId.equals(id))
           ..orderBy([(tbl) => OrderingTerm(expression: tbl.supplementId)]))

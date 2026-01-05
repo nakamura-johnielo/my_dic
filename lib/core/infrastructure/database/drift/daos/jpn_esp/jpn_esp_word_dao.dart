@@ -25,7 +25,7 @@ class JpnEspWordDao extends DatabaseAccessor<DatabaseProvider>
   Future<void> deleteWord(Insertable<JpnEspWordTableData> tableName) =>
       delete(jpnEspWords).delete(tableName);
 
-  Future<List<JpnEspWordTableData>?> getWordsByWord(
+  Future<List<JpnEspWordTableData>> getWordsByWord(
       String searchWord, int size, int currentPage) async {
     final int offset = size * currentPage; // ページ番号に基づいてスキップする件数を計算
 

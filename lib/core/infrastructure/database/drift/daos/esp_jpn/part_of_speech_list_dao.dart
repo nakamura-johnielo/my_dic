@@ -8,7 +8,7 @@ class PartOfSpeechListDao extends DatabaseAccessor<DatabaseProvider>
     with _$PartOfSpeechListDaoMixin {
   PartOfSpeechListDao(super.database);
 
-  Future<List<String>?> getPartOfSpeechListByWordId(int id) {
+  Future<List<String>> getPartOfSpeechListByWordId(int id) {
     return (select(partOfSpeechLists)
           ..addColumns([partOfSpeechLists.partOfSpeech])
           ..where((tbl) => tbl.wordId.equals(id)))

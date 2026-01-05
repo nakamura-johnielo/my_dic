@@ -1,9 +1,11 @@
 // プロフィールページ（UID/Email/ユーザーネーム表示、ユーザーネーム編集可）
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_dic/core/presentation/components/icons/rotating_icon.dart';
+import 'package:my_dic/core/shared/enums/ui/button_status.dart';
 import 'package:my_dic/core/shared/enums/ui/tab.dart';
+import 'package:my_dic/features/user/di/service.dart';
 import 'package:my_dic/features/user/di/viewmodel.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
@@ -31,19 +33,24 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       _saving = true;
       _msg = null;
     });
-    try {
-      await ref.read(userViewModelProvider.notifier).updateUser(name: name);
-      setState(() => _msg = '保存しました');
-    } catch (e) {
-      setState(() => _msg = '保存に失敗しました: $e');
-    } finally {
-      if (mounted) setState(() => _saving = false);
+
+    await ref.read(userProfileViewModelProvider.notifier).save(username: name);
+
+    final message = ref.read(userProfileViewModelProvider).errorMessage;
+
+    if (mounted) {
+      setState(() {
+        _msg = message;
+        _saving = false;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(userViewModelProvider);
+    final user = ref.watch(appUserStoreNotifierProvider);
+    final vmNotifier = ref.read(userProfileViewModelProvider.notifier);
+    final viewModel = ref.watch(userProfileViewModelProvider);
 
     if (user != null && _nameCtrl.text != user.username) {
       _nameCtrl.text = user.username;
@@ -56,7 +63,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             IconButton(
               icon: const Icon(Icons.logout),
               onPressed: () async {
-                await FirebaseAuth.instance.signOut();
+                await vmNotifier.signOut();
                 if (!mounted) return;
                 context.replace(
                     '/${ScreenTab.profile}/${ScreenPage.unAuthorized}');
@@ -71,7 +78,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SelectableText('User ID: ${user.id}'),
+                    SelectableText('User ID: ${user.accountId}'),
                     const SizedBox(height: 8),
                     SelectableText('Email: ${user.email}'),
                     const SizedBox(height: 16),
@@ -90,7 +97,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     const Spacer(),
                     FilledButton.icon(
                       onPressed: _saving ? null : _save,
-                      icon: const Icon(Icons.save),
+                      icon: viewModel.savingButtonStatus == ButtonStatus.waiting
+                          ? RotatingIcon(icon: Icons.refresh)
+                          : const Icon(Icons.save),
                       label: _saving
                           ? const Text('Saving...')
                           : const Text('Save'),

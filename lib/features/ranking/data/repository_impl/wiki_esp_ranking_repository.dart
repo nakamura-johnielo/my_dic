@@ -14,8 +14,14 @@ class RankingRepository implements IEspRankingRepository {
   Future<Result<List<Ranking>>> getRankingList(int page, int size) async {
     try {
       //log("############################################ranking dao");
-      final res = await _dataSource.getRankingListByPage(page, size);
-      return Result.success(res);
+      final dataList = await _dataSource.getRankingListByPage(page, size);
+      final entities = dataList.map((data) => Ranking(
+        rank: data.rankingNo,
+        rankedWord: data.word ?? "",
+        lemma: data.wordOrigin ?? "",
+        wordId: data.wordId ?? -1,
+      )).toList();
+      return Result.success(entities);
     } catch (e, stackTrace) {
       return Result.failure(DatabaseError(
         message: 'ランキング取得に失敗しました',
@@ -59,7 +65,7 @@ class RankingRepository implements IEspRankingRepository {
       // debug: removed direct DAO access
       print(
           " =====repo input requiredPage: ${input.requiredPage}, size: ${input.size}, posFilters: ${input.partOfSpeechFilters}, tagFilters: ${input.featureTagFilters}, posExclu: ${input.partOfSpeechExcludeFilters}, tagExclu: ${input.featureTagExcludeFilters}");
-      final resp = await _dataSource.getFilteredRankingWithStatusByPage(
+      final tupleList = await _dataSource.getFilteredRankingWithStatusByPage(
         input.requiredPage,
         input.size,
         input.partOfSpeechFilters,
@@ -67,7 +73,20 @@ class RankingRepository implements IEspRankingRepository {
         input.partOfSpeechExcludeFilters,
         input.featureTagExcludeFilters,
       );
-      return Result.success(resp);
+      final entities = tupleList.map((tuple) {
+        final rankingData = tuple.item1;
+        final statusData = tuple.item2;
+        return Ranking(
+          rank: rankingData.rankingNo,
+          rankedWord: rankingData.word ?? "",
+          lemma: rankingData.wordOrigin ?? "",
+          wordId: rankingData.wordId ?? -1,
+          hasConj: rankingData.hasConj == 1,
+          isLearned: statusData.isLearned == 1,
+          isBookmarked: statusData.isBookmarked == 1,
+        );
+      }).toList();
+      return Result.success(entities);
     } catch (e, stackTrace) {
       return Result.failure(DatabaseError(
         message: 'ランキングデータの取得に失敗しました',

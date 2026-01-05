@@ -22,11 +22,11 @@ class EspJpnWordDao extends DatabaseAccessor<DatabaseProvider> with _$EspJpnWord
   Future<void> deleteWord(Insertable<EspJpnWordTableData> tableName) =>
       delete(espJpnWords).delete(tableName);
 
-  Future<List<EspJpnWordTableData>?> getWordsByWord(String searchWord) async {
+  Future<List<EspJpnWordTableData>> getWordsByWord(String searchWord) async {
     return (select(espJpnWords)..where((tbl) => tbl.word.like('$searchWord%'))).get();
   }
 
-  Future<List<EspJpnWordTableData>?> getWordsByWordByPage(
+  Future<List<EspJpnWordTableData>> getWordsByWordByPage(
       String searchWord, int size, int currentPage) async {
     final int offset = size * currentPage; // ページ番号に基づいてスキップする件数を計算
 

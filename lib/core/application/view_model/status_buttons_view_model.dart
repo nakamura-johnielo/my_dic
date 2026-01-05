@@ -51,22 +51,22 @@ class EspJpnWordStatusViewModel extends StateNotifier<WordStatusState> {
   //   );
   // }
 
-  void toggleBookmark( String userId) {
+  void toggleBookmark( String? userId) {
   final wordId=_wordId;
     _setBookmark(wordId, !state.isBookmarked, userId);
   }
 
-  void toggleLearned( String userId) {
+  void toggleLearned( String? userId) {
   final wordId=_wordId;
     _setLearned(wordId, !state.isLearned, userId);
   }
 
-  void toggleHasNote( String userId) {
+  void toggleHasNote( String? userId) {
   final wordId=_wordId;
     _setHasNote(wordId, !state.hasNote, userId);
   }
 
-  void _setBookmark(int wordId, bool value, String userId) {
+  void _setBookmark(int wordId, bool value, String? userId) {
     state = state.copyWith(isBookmarked: value);
     _updateInteractor.execute(
       UpdateStatusInputData(
@@ -81,7 +81,7 @@ class EspJpnWordStatusViewModel extends StateNotifier<WordStatusState> {
     );
   }
 
-  void _setLearned(int wordId, bool value, String userId) {
+  void _setLearned(int wordId, bool value, String? userId) {
     state = state.copyWith(isLearned: value);
     _updateInteractor.execute(
       UpdateStatusInputData(
@@ -96,7 +96,7 @@ class EspJpnWordStatusViewModel extends StateNotifier<WordStatusState> {
     );
   }
 
-  void _setHasNote(int wordId, bool value, String userId) {
+  void _setHasNote(int wordId, bool value, String? userId) {
     state = state.copyWith(hasNote: value);
 
     _updateInteractor.execute(

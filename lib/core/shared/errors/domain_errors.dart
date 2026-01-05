@@ -12,6 +12,28 @@ class NotFoundError extends AppError {
         );
 }
 
+class UserNotFoundError extends NotFoundError {
+  UserNotFoundError({
+    required super.message,
+    String? code,
+    super.originalError,
+    super.stackTrace,
+  }) : super(
+          code: code ?? 'USER_NOT_FOUND',
+        );
+}
+
+class DeviceNotFoundError extends NotFoundError {
+  DeviceNotFoundError({
+    required super.message,
+    String? code,
+    super.originalError,
+    super.stackTrace,
+  }) : super(
+          code: code ?? 'DEVICE_ID_NOT_FOUND',
+        );
+}
+
 /// バリデーションエラー
 class ValidationError extends AppError {
   final Map<String, List<String>>? fieldErrors;
@@ -50,3 +72,16 @@ class UnauthorizedError extends AppError {
           code: code ?? 'UNAUTHORIZED',
         );
 }
+
+
+class AlreadyExistsError extends AppError {
+  AlreadyExistsError({
+    required super.message,
+    String? code,
+    super.originalError,
+    super.stackTrace,
+  }) : super(
+          code: code ?? 'ALREADY_EXISTS',
+        );
+}
+

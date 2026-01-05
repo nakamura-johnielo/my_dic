@@ -23,7 +23,7 @@ class ConjugationDao extends DatabaseAccessor<DatabaseProvider>
         .getSingleOrNull();
   } */
 
-  Future<List<EspConjugationTableData>?> getConjugationByWordWithPage(
+  Future<List<EspConjugationTableData>> getConjugationByWordWithPage(
     String word,
     int size,
     int requiredPage,
@@ -114,7 +114,7 @@ class ConjugationDao extends DatabaseAccessor<DatabaseProvider>
     }).toList();
   }
 
-  Future<List<EspConjugationTableData>?> getConjugationInAllTableByWordWithPage(
+  Future<List<EspConjugationTableData>> getConjugationInAllTableByWordWithPage(
     String word,
     int size,
     int requiredPage,
