@@ -32,20 +32,23 @@ class UserRepository implements IUserRepository {
   @override
   Future<Result<AppUser>> getUserByAccountId(String id) async {
     try {
+      print("reposiotry.getbyid");
       final deviceId = (await _local.getUser())?.deviceId;
       if (deviceId == null) {
         return Result.failure(DeviceNotFoundError(
           message: 'device ID が生成されていません',
         ));
       }
-
+      print("deviceId=$deviceId");
       final dto = await _remote.getUserById(id);
+      print("pass dto found==${dto?.userId}");
       if (dto == null) {
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!dto null");
         return Result.failure(UserNotFoundError(
           message: 'ユーザーが見つかりません',
         ));
       }
-
+      print("dto found==${dto.userId}");
       final user = AppUser(
         accountId: dto.userId,
         username: dto.userName,
@@ -117,7 +120,8 @@ class UserRepository implements IUserRepository {
       );
 
       final dto = UserDTO(
-        userId: user.accountId!,
+        subscriptionStatus: user.subscriptionStatus ,
+        userId: user.accountId,
         userName: user.username,
         email: user.email,
         createdAt: null,
@@ -140,17 +144,16 @@ class UserRepository implements IUserRepository {
       ));
     }
   }
-  
-  @override
-  Future<Result<String>> getThisDeviceId() async{
-    final localUser=await _local.getUser();
 
-    if(localUser?.deviceId.isEmpty ?? true){
+  @override
+  Future<Result<String>> getThisDeviceId() async {
+    final localUser = await _local.getUser();
+
+    if (localUser?.deviceId.isEmpty ?? true) {
       return Result.failure(DeviceNotFoundError(
         message: 'device ID が生成されていません',
       ));
     }
     return Result.success(localUser!.deviceId);
-
   }
 }

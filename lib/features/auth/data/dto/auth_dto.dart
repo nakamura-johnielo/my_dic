@@ -29,6 +29,7 @@ class AuthDTO {
     }
 
     final provider=userCredential.credential?.providerId;
+    print("auth Email: ${user.email}");
 
     return AuthDTO(
       accountId: user.uid,

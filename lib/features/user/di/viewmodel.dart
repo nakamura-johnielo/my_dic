@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/core/di/coordinator/corrdinator.dart';
 import 'package:my_dic/features/auth/di/service.dart';
 import 'package:my_dic/features/auth/di/view_model_di.dart';
 import 'package:my_dic/features/user/di/service.dart';
@@ -40,6 +41,6 @@ final userProfileViewModelProvider =
   // final ensureUserExistsInteractor =
   //     ref.watch(ensureUserExistsInteractorProvider);
   final coordinator = ref.watch(appUserCoordinatorProvider);
-  final authCoordinator=ref.watch(authCoordinatorProvider);
-  return UserProfileViewModel(coordinator, authCoordinator);
+  final authuserCoordinator=ref.watch(authUserCoordinatorProvider);
+  return UserProfileViewModel(coordinator, authuserCoordinator);
 });

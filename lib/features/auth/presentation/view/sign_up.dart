@@ -26,11 +26,11 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
     return status == ButtonStatus.normal || status == ButtonStatus.error;
   }
 
-  Widget _iconBuilder(ButtonStatus status,IconData defaultIcon) {
+  Widget _iconBuilder(ButtonStatus status, IconData defaultIcon) {
     if (status == ButtonStatus.waiting) {
       return RotatingIcon(icon: waitingIcon);
     } else {
-      return  Icon(defaultIcon);
+      return Icon(defaultIcon);
     }
   }
 
@@ -108,9 +108,8 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
               Text(message!, style: const TextStyle(color: Colors.red)),
             const Spacer(),
             ElevatedButton.icon(
-              onPressed:  _isActive(authViewModel.isWaitingSignUp)
-                  ? null
-                  : () {
+              onPressed: _isActive(authViewModel.isWaitingSignUp)
+                  ?  () {
                       if (!_validInputs()) return;
                       _handleAuth(() async {
                         await authNotifier.signUp(
@@ -120,57 +119,55 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
                         return '登録に成功しました。確認メールを送信しました。';
                       });
                       ;
-                    },
-              icon:  _iconBuilder(authViewModel.isWaitingSignUp, Icons.person_add),
+                    }
+                  :null,
+              icon:
+                  _iconBuilder(authViewModel.isWaitingSignUp, Icons.person_add),
               label: const Text('Sign Up'),
             ),
             const SizedBox(height: 8),
             OutlinedButton.icon(
               onPressed: _isActive(authViewModel.isWaitingSignIn)
-                  ? null
-                  : () {
+                  ? () {
                       if (!_validInputs()) return;
                       _handleAuth(() => authNotifier.signIn(
                             emailCtrl.text.trim(),
                             passCtrl.text.trim(),
                           ));
-                    },
-              icon:  _iconBuilder(authViewModel.isWaitingSignIn, Icons.login),
+                    }:null,
+              icon: _iconBuilder(authViewModel.isWaitingSignIn, Icons.login),
               label: const Text('Sign In'),
             ),
             const SizedBox(height: 16),
             TextButton(
               onPressed: _isActive(authViewModel.isWaitingResetPassword)
-                  ? null
-                  : () async {
+                  ? () async {
                       final email = emailCtrl.text.trim();
                       if (email.isEmpty) {
                         setState(() => message = 'メールを入力してください');
                         return;
                       }
                       try {
-                        await authNotifier.resetEmailPassword(
-                            email);
+                        await authNotifier.resetEmailPassword(email);
                         setState(() => message = 'リセットメールを送信しました');
                       } on FirebaseAuthException catch (e) {
                         setState(() => message = e.message);
                       }
-                    },
+                    }:null,
               child: const Text('Forgot password?'),
             ),
             const SizedBox(height: 12),
             TextButton.icon(
               onPressed: _isActive(authViewModel.isWaitingSignOut)
-                  ? null
-                  : () async {
+                  ? () async {
                       try {
                         await authNotifier.signOut();
                         setState(() => message = 'ログアウトしました');
                       } on FirebaseAuthException catch (e) {
                         setState(() => message = e.message);
                       }
-                    },
-              icon:  _iconBuilder(authViewModel.isWaitingSignOut, Icons.logout),
+                    }:null,
+              icon: _iconBuilder(authViewModel.isWaitingSignOut, Icons.logout),
               label: const Text('Sign Out'),
             ),
           ],

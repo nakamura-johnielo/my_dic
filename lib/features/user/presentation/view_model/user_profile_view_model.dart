@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/core/application/coordinator/auth_user_coordinator.dart';
 import 'package:my_dic/core/shared/enums/subscription_status.dart';
 import 'package:my_dic/core/shared/enums/ui/button_status.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
@@ -27,7 +28,7 @@ class UserProfileViewModel extends StateNotifier<UserProfileUIState> {
   // final ICreateNewUserUseCase _createNewUserInteractor;
   //final Ref ref;
   final AppUserCoordinator _coordinator;
-  final AppAuthCoordinator _authCoordinator;
+  final AuthUserCoordinator _authUserCoordinator;
 
   // AppUser? get _userStore => ref.read(appUserStoreNotifierProvider);
   // AppUserStoreNotifier get _storeNotifier =>
@@ -38,13 +39,12 @@ class UserProfileViewModel extends StateNotifier<UserProfileUIState> {
       // this._updateUserInteractor,
       // this._ensureUserExistsInteractor,
       // this._createNewUserInteractor,
-      this._coordinator,
-      this._authCoordinator)
+      this._coordinator, this._authUserCoordinator)
       : super(UserProfileUIState());
   Future<void> signOut() async {
     // state = state.copyWith(: ButtonStatus.waiting);
 
-    final result = await _authCoordinator.signOut();
+    final result = await _authUserCoordinator.signOut();
 
     result.when(success: (_) {
       // state = state.copyWith(signOutButtonStatus: ButtonStatus.success);
@@ -86,15 +86,15 @@ class UserProfileViewModel extends StateNotifier<UserProfileUIState> {
   //   });
   // }
 
-  Future<void> refreshUser() async {
-    final res = await _coordinator.refreshUser();
+  // Future<void> refreshUser() async {
+  //   final res = await _coordinator.refreshUser();
 
-    res.when(success: (_) {
-      log("ユーザー再取得に成功しました。");
-    }, failure: (error) {
-      log("ユーザー情報の更新に失敗しました: ${error.message}");
-      state =
-          state.copyWith(errorMessage: "ユーザー情報の更新に失敗しました: ${error.message}");
-    });
-  }
+  //   res.when(success: (_) {
+  //     log("ユーザー再取得に成功しました。");
+  //   }, failure: (error) {
+  //     log("ユーザー情報の更新に失敗しました: ${error.message}");
+  //     state =
+  //         state.copyWith(errorMessage: "ユーザー情報の更新に失敗しました: ${error.message}");
+  //   });
+  // }
 }

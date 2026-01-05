@@ -12,6 +12,7 @@ import 'package:my_dic/core/shared/word_card_view_click_listener.dart';
 import 'package:my_dic/core/shared/enums/ui/tab.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
 import 'package:my_dic/features/ranking/di/view_model_di.dart';
+import 'package:my_dic/features/user/di/service.dart';
 import 'package:my_dic/features/user/di/viewmodel.dart';
 import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
 
@@ -78,8 +79,9 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
   Widget build(BuildContext context) {
     final viewModel = ref.watch(rankingViewModelProvider);
     const margin = EdgeInsets.symmetric(vertical: 1, horizontal: 16);
-    final userId = ref.watch(userViewModelProviderLegacy)?.id ?? "anonymous";
-    
+    // final userId = ref.watch(appUserStoreNotifierProvider)?.id ?? "anonymous";
+    final userId = ref.watch(appUserStoreNotifierProvider.select((u) => u?.accountId)) ?? 'anonymous';
+
     ref.watch(rankingFilterEffectProvider(_resetPageCallback));
 
     return Scaffold(

@@ -1,3 +1,4 @@
+import 'package:my_dic/core/shared/errors/app_error.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/shared/utils/uuid.dart';
@@ -11,23 +12,47 @@ class CreateNewUserInteractor implements ICreateNewUserUseCase {
   CreateNewUserInteractor(this._userRepository);
 
   @override
-  Future<Result<AppUser>> execute(String accountId) async {
+  Future<Result<AppUser>> execute(AppUser appUser) async {
     // if (user.accountId.isEmpty) {
     //   return Result.failure(
     //       UnauthorizedError(message: "User ID cannot be empty. Must Login"));
     // }
 
     final res = await _userRepository.getThisDeviceId();
+    //
+    String deviceId = MyUUID.generate();
 
-    //すでにDeviceidが存在する場合はエラーを返す
-    return res.when(success: (id) {
-      return Result.failure(AlreadyExistsError(
-          message: "User already exists with the device ID $id"));
-    }, failure: (failure) async {
-      final uuid = MyUUID.generate();
-      final newUser = AppUser(accountId: accountId, deviceId: uuid);
-      final res = await _userRepository.createNewUser(newUser);
-      return res.map((_) => newUser);
+    res.when(
+        success: (id) {
+          deviceId = id;
+        },
+        failure: (failure) {});
+
+    final existingUserRes = await _userRepository.getUserByAccountId(appUser.accountId);
+    
+    return existingUserRes.when(success: (user) {
+      // すでに存在する場合はそれを返す
+      return Result.success(user);
+    }, failure: (error) async {
+      // NotFoundError以外のエラーはそのまま返す
+      if (error is UserNotFoundError) {
+        final name= appUser.email==null ? null : _convertUserName(appUser.email!);
+        final newUser = appUser.copyWith(deviceId: deviceId, username: name);
+        final resUser = await _userRepository.createNewUser(newUser);
+
+        return resUser.when(
+            success: (_) => Result.success(newUser),
+            failure: (failure) => Result.failure(failure));
+      }
+      return Result.failure(error);
     });
+  }
+
+  String _convertUserName(String email) {
+    final atIndex = email.indexOf('@');
+    if (atIndex == -1) {
+      return email;
+    }
+    return email.substring(0, atIndex);
   }
 }

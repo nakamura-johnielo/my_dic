@@ -11,12 +11,14 @@ class GetUserInteractor implements IGetUserUseCase {
 
   @override
   Future<Result<AppUser>> execute(String id) async {
+    print( "GetUserInteractor execute==================$id");
     final result = await _userRepository.getUserByAccountId(id);
     
     // NotFoundErrorの場合はデフォルトユーザーを返す
     return result.when(
       success: (user) => Result.success(user),
       failure: (error) {
+        print("GetUserInteractor error========${error.message}");
         return Result.failure(error);
       },
     );

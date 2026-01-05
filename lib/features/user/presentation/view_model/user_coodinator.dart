@@ -63,32 +63,46 @@ class AppUserCoordinator {
 
 //TODO errorの時の再試行
 
-  Future<Result<void>> createUser() async {
-    if (_userStore == null) {
-      log("accountIdがありません。");
-      return Result.failure(
-          UserNotFoundError(message: "ユーザー情報accountIdがありません"));
-    }
+  Future<Result<void>> createUser(AppUser appUser) async {
 
-    final res = await _createNewUserInteractor.execute(_userStore!.accountId);
+    final res = await _createNewUserInteractor.execute(appUser);
     return res.map((user) {
+      print("AppUserCoordinator createUser user=${user.toString()}");
       _storeNotifier.setUser(user);
     });
   }
 
-  Future<Result<void>> refreshUser() async {
-    if (_userStore == null) {
-      log("accountIdがありません。");
-      return Result.failure(UserNotFoundError(message: "ユーザー情報がありません"));
-    }
+  Result<void> clear() {
+    _storeNotifier.clear();
+    return Result.success(null);
+  }
 
-    final res = await _getUserInteractor.execute(_userStore!.accountId);
+  Future<Result<void>> fetchUser(String accountId) async {
+    // if (_userStore == null && accountId == null) {
+    //   print("accountIdがありません。");
+    //   return Result.failure(UserNotFoundError(message: "ユーザー情報がありません"));
+    // }
+
+    final res =
+        await _getUserInteractor.execute( accountId);
 
     return res.when(success: (user) {
+      print("ユーザー情報をリフレッシュしました。${user.toString()}");
       _storeNotifier.setUser(user);
       return Result.success(null);
-    }, failure: (error) {
-      log("ユーザー情報の更新に失敗しました: ${error.message}");
+    }, failure: (error) async {
+      print("ユーザー情報の更新に失敗しました: ${error.message}");
+      // if (error is DeviceNotFoundError ||
+      //     error is UserNotFoundError ||
+      //     error is NotFoundError) {
+      //   final user = _userStore ??
+      //       AppUser(
+      //         accountId: _userStore?.accountId ?? accountId!,
+      //       );
+      // print("ユーザー新規制作: ${error.message}");
+
+      //   return await createUser(user);
+      // }
       return Result.failure(error);
     });
   }

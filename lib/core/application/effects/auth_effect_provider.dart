@@ -1,20 +1,19 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/core/di/coordinator/corrdinator.dart';
 import 'package:my_dic/core/di/service/sync.dart';
+import 'package:my_dic/features/auth/di/view_model_di.dart';
 import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
-import 'package:my_dic/features/auth/di/usecase_di.dart';
-import 'package:my_dic/features/user/di/viewmodel.dart';
 
-//TODO Auth feat importしてる
 /// 認証状態のストリームプロバイダー
 /// Authを常に監視
 final authStreamProvider = StreamProvider<AppAuth?>((ref) {
-  final useCase = ref.read(observeAuthStateUseCaseProvider);
-  return useCase.execute().distinct((prev, next) {
+  final authCoordinator = ref.read(authCoordinatorProvider);
+  return authCoordinator.observeAuthState().distinct((prev, next) {
     // accountId と isLogined が両方同じなら重複とみなす
-    print(
-        "*****distinct check prev: ${prev?.accountId}, isLogined: ${prev?.isLogined}, isAuthenticated: ${prev?.isAuthenticated} *****");
-    print(
-        "*****distinct check next: ${next?.accountId}, isLogined: ${next?.isLogined}, isAuthenticated: ${next?.isAuthenticated} *****");
+    // print(
+    //     "*****distinct check prev: ${prev?.accountId}, isLogined: ${prev?.isLogined}, isAuthenticated: ${prev?.isAuthenticated} *****");
+    // print(
+    //     "*****distinct check next: ${next?.accountId}, isLogined: ${next?.isLogined}, isAuthenticated: ${next?.isAuthenticated} *****");
     return 
     prev?.accountId == next?.accountId &&
            prev?.isLogined == next?.isLogined &&
@@ -27,7 +26,7 @@ final authEffectProvider = Provider<void>((ref) {
   ref.listen<AsyncValue<AppAuth?>>(
     authStreamProvider,
     (previous, next) async {
-      await _handleAuthStateChange(ref, previous?.value, next.value);
+     // await _handleAuthStateChange(ref, previous?.value, next.value);
     },
   );
 });
@@ -52,12 +51,14 @@ Future<void> _handleAuthStateChange(
 Future<void> _handleSignOut(Ref ref, AppAuth? previousAuth) async {
   print('[Auth Effect] User signed out');
 
+  final authUserCoordinator=ref.read(authUserCoordinatorProvider);
+  await  authUserCoordinator.signOut();
   // ViewModelの状態をクリア
-  if (previousAuth != null) {
-    ref.read(userViewModelProviderLegacy.notifier).setAuthInfo(
-          AppAuth(accountId: 'logout', isLogined: false),
-        );
-  }
+  // if (previousAuth != null) {
+  //   ref.read(userViewModelProviderLegacy.notifier).setAuthInfo(
+  //         AppAuth(accountId: 'logout', isLogined: false),
+  //       );
+  // }
 
   // 同期サービスを停止
   //ref.read(espJpnWordStatusSyncServiceProvider).dispose();
@@ -68,8 +69,11 @@ Future<void> _handleSignIn(Ref ref, AppAuth currentAuth) async {
   print('[Auth Effect] User signed in: ${currentAuth.accountId}');
 
   try {
+    
+  final authUserCoordinator=ref.read(authUserCoordinatorProvider);
+  await  authUserCoordinator.updateAuth(currentAuth);
     // 2. ユーザー情報をロード
-    await ref.read(userViewModelProviderLegacy.notifier).loadUser(currentAuth.accountId);
+    // await ref.read(userViewModelProviderLegacy.notifier).loadUser(currentAuth.accountId);
 
     // 3. 認証情報を同期
     //ref.read(userViewModelProvider.notifier).setAuthInfo(currentAuth);

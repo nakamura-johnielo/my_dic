@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/core/shared/errors/domain_errors.dart';
+import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/auth/di/service.dart';
 import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
@@ -29,8 +31,8 @@ class AppAuthCoordinator {
       this._signOutUseCase,
       this._verifyEmailUseCase);
 
-      //AppAuth? get _authStore => ref.read(authStoreNotifierProvider);
-      AuthStoreNotifier get _authStoreNotifier =>
+  //AppAuth? get _authStore => ref.read(authStoreNotifierProvider);
+  AuthStoreNotifier get _authStoreNotifier =>
       ref.read(authStoreNotifierProvider.notifier);
 
   // void setAuthInfo(AppAuth appAuth) {
@@ -40,6 +42,9 @@ class AppAuthCoordinator {
   //     isAuthorized: appAuth.isVerified,
   //   );
   // }
+
+
+  Stream<AppAuth?> observeAuthState() => _observeAuthStateUseCase.execute();
 
   Future<Result<void>> signOut() async {
     final result = await _signOutUseCase.execute();
@@ -74,6 +79,15 @@ class AppAuthCoordinator {
         return Result.failure(error);
       },
     );
+  }
+
+  Result<void> setAuth(AppAuth appAuth)  {
+    try {
+      _authStoreNotifier.setAuth(appAuth);
+      return Result.success(null);
+    } catch (e) {
+      return Result.failure(UnexpectedError(message: e.toString()));
+    }
   }
 
   Future<Result<AppAuth>> signUp(String email, String password) async {

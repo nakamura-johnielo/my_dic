@@ -21,6 +21,7 @@ class AuthRepositoryImpl implements IAuthRepository {
         isLogined: true,
         accountId: dto.accountId,
         provider: dto.provider,
+        email: dto.email,
       );
     });
   }
@@ -43,6 +44,7 @@ class AuthRepositoryImpl implements IAuthRepository {
         isLogined: true,
         accountId: dto.accountId,
         provider: dto.provider,
+        email: dto.email,
       );
 
       return Result.success(auth);
@@ -105,6 +107,7 @@ class AuthRepositoryImpl implements IAuthRepository {
         isLogined: true,
         accountId: dto.accountId,
         provider: dto.provider,
+        email: dto.email,
       );
       return Result.success(auth);
     } on firebase_auth.FirebaseAuthException catch (e, s) {

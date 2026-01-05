@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/core/di/coordinator/corrdinator.dart';
 import 'package:my_dic/features/auth/auth_coordinator.dart';
 import 'package:my_dic/features/auth/di/service.dart';
 import 'package:my_dic/features/auth/di/usecase_di.dart';
@@ -39,6 +40,7 @@ final authCoordinatorProvider=Provider<AppAuthCoordinator>((ref){
 });
 
 final signInViewModelProvider=StateNotifierProvider<SignInViewModel, SignInUIState>((ref) {
-  final coordinator=ref.watch(authCoordinatorProvider);
-  return SignInViewModel(coordinator);
+  final authCoordinator=ref.watch(authCoordinatorProvider);
+ final authUserCoordinator=ref.watch(authUserCoordinatorProvider);
+  return SignInViewModel(authCoordinator, authUserCoordinator);
 });

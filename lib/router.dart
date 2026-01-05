@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/core/application/effects/auth_effect_provider.dart';
+import 'package:my_dic/features/auth/di/service.dart';
 import 'package:my_dic/features/auth/presentation/view/sign_up.dart';
 import 'package:my_dic/main_activity.dart';
 import 'package:my_dic/core/shared/enums/ui/tab.dart';
@@ -80,7 +81,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       final inProfile = location.startsWith('/${ScreenTab.profile}');
       if (!inProfile) return null;
 
-      final auth = ref.read(authStreamProvider).value;
+      final auth = ref.read(authStoreNotifierProvider);
       final unauthorized = '/${ScreenTab.profile}/${ScreenPage.unAuthorized}';
       final authorized = '/${ScreenTab.profile}/${ScreenPage.authorized}';
       
@@ -94,8 +95,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       print('loggedIn: $loggedIn, verified: $verified');
 
       if (!loggedIn || !verified) {
+        print("current location: ${location == unauthorized ? null : unauthorized} ");
         return location == unauthorized ? null : unauthorized;
       }
+        print("current location: ${location == authorized ? null : authorized} ");
       return location == authorized ? null : authorized;
     },
 

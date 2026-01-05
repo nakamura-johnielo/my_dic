@@ -34,7 +34,8 @@ class UserDTO {
     final data = doc.data()!;
     return UserDTO(
       subscriptionStatus: SubscriptionStatus.values
-          .firstWhere((e) => e.subscriptionCode == data['subscriptionStatus']),
+          .firstWhere((e) => e.subscriptionCode == data[fieldSubscriptionStatus],
+      orElse: () => SubscriptionStatus.free,),
       userId: doc.id,
       email: data[fieldEmail] ?? "",
       userName: data[fieldUserName],
@@ -82,5 +83,9 @@ class UserDTO {
       updatedAt: DateTime.now().toUtc(),
       subscriptionStatus: subscriptionStatus ?? this.subscriptionStatus,
     );
+  }
+
+  String toString() {
+    return 'UserDTO{userId: $userId, email: $email, userName: $userName, createdAt: $createdAt, updatedAt: $updatedAt, subscriptionStatus: $subscriptionStatus}';
   }
 }

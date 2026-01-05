@@ -7,12 +7,13 @@ class AppAuth {
   final bool isLogined;
   final bool isAuthenticated;
   final ProviderType provider;
+  final String? email;
 
   AppAuth({
     required this.accountId,
     bool? isLogined,
     bool? isAuthenticated,
-    ProviderType? provider,
+    ProviderType? provider, this.email,
   })  : isLogined = isLogined ?? false,
         isAuthenticated = isAuthenticated ?? false,
         provider = provider ?? ProviderType.anonymous;
@@ -22,12 +23,14 @@ class AppAuth {
     bool? isLogined,
     bool? isAuthenticated,
     ProviderType? provider,
+    String? email,
   }) {
     return AppAuth(
       accountId: id ?? this.accountId,
       isLogined: isLogined ?? this.isLogined,
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
       provider: provider ?? this.provider,
+      email: email ?? this.email,
     );
   }
 }

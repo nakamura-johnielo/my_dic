@@ -29,7 +29,11 @@ class AppUserStoreNotifier extends StateNotifier<AppUser?>
   }
 
   
-  Future<void> setUser(AppUser user) async {
+  void setUser(AppUser user) async {
     state = user.copyWith();
+  }
+
+  void clear() async {
+    state = null;
   }
 }

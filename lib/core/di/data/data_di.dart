@@ -19,8 +19,6 @@ import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart
 import 'package:my_dic/core/infrastructure/database/drift/daos/esp_jpn/part_of_speech_list_dao.dart';
 import 'package:my_dic/core/infrastructure/database/firebase/firebase_provider.dart';
 
-
-
 final databaseProvider = Provider<DatabaseProvider>((ref) {
   return DatabaseProvider();
 });
@@ -83,4 +81,5 @@ final localWordStatusDaoProvider = Provider<EspJpnWordStatusDao>((ref) {
 final remoteWordStatusDaoProvider =
     Provider((ref) => FirebaseWordStatusDao(ref.watch(firestoreDBProvider)));
 
-final sharedPreferenceSyncStatusDaoProvider = Provider((ref) => SharedPreferencesSyncStatusDao(ref.watch(sharedPreferencesProvider)));
+final sharedPreferenceSyncStatusDaoProvider = Provider((ref) =>
+    SharedPreferencesSyncStatusDao(ref.watch(sharedPreferencesProvider)));
