@@ -4,10 +4,10 @@ import 'package:my_dic/core/infrastructure/datasource/word_status/i_remote_word_
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/core/domain/entity/word/esp_word_status.dart';
-import 'package:my_dic/core/domain/i_repository/i_word_status_repository.dart';
+import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';
+import 'package:my_dic/features/esp_jpn_word_status/domain/i_word_status_repository.dart';
 import 'package:my_dic/core/infrastructure/repositories/converters/word_status_converter.dart';
-import 'package:my_dic/core/infrastructure/dtos/wordStatusEntity.dart';
+import 'package:my_dic/features/esp_jpn_word_status/data/wordStatusEntity.dart';
 
 class WordStatusRepository implements IWordStatusRepository {
   final IRemoteWordStatusDataSource _remote;

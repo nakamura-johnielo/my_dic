@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/core/application/state/word_status_state.dart';
-import 'package:my_dic/core/application/view_model/status_buttons_view_model.dart';
+import 'package:my_dic/features/esp_jpn_word_status/components/status_button/word_status_state.dart';
+import 'package:my_dic/features/esp_jpn_word_status/components/status_button/status_buttons_view_model.dart';
 import 'package:my_dic/core/di/global.dart';
 import 'package:my_dic/core/di/usecase/usecase_di.dart';
 import 'package:my_dic/core/section/db_loading/database_loading_notifier.dart';
@@ -13,19 +13,6 @@ import 'package:my_dic/core/section/db_loading/database_loading_state.dart';
 //   return EspJpnWordStatusViewModel(fetchUsecase, updateUsecase);
 // });
 
-final espJpnWordStatusViewModelProvider = StateNotifierProvider.family
-    .autoDispose<EspJpnWordStatusViewModel, WordStatusState, int>(
-  (ref, wordId) {
-    final fetchUsecase = ref.watch(fetchEspJpnWordStatusInteractorProvider);
-    final updateUsecase = ref.watch(updateStatusUseCaseProvider);
-    
-    return EspJpnWordStatusViewModel(
-      wordId,
-      fetchUsecase,
-      updateUsecase,
-    );
-  },
-);
 
 final databaseLoadingProvider =
     StateNotifierProvider<DatabaseLoadingNotifier, DatabaseLoadingState>(

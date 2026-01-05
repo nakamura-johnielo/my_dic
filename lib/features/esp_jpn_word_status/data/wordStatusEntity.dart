@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_dic/core/shared/consts/dates.dart';
-import 'package:my_dic/core/domain/entity/word/esp_word_status.dart';
+import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';
 
 class WordStatusDTO {
   static const String collectionName = "WordStatus";

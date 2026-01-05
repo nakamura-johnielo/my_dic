@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/di/coordinator/corrdinator.dart';
-import 'package:my_dic/core/di/service/sync.dart';
+import 'package:my_dic/features/esp_jpn_word_status/di/di.dart';
 import 'package:my_dic/features/auth/di/view_model_di.dart';
 import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
 

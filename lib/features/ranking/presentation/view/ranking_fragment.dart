@@ -3,12 +3,13 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_dic/features/esp_jpn_word_status/di/di.dart';
 import 'package:my_dic/features/ranking/presentation/view/ranking_filter_modal.dart';
 import 'package:my_dic/core/shared/enums/word/word_type.dart';
 import 'package:my_dic/core/di/view_model/view_model.dart';
 import 'package:my_dic/features/ranking/presentation/effect_provider.dart';
 import 'package:my_dic/features/ranking/presentation/view/ranking_card.dart';
-import 'package:my_dic/core/shared/word_card_view_click_listener.dart';
+import 'package:my_dic/core/shared/enums/ui/word_card_view_click_listener.dart';
 import 'package:my_dic/core/shared/enums/ui/tab.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
 import 'package:my_dic/features/ranking/di/view_model_di.dart';
@@ -120,6 +121,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
               //パフォーマンス要注意
               //MVVMに変更したのでviewmodel経由で取得するようにする???
               // final wordStatus = ref.watch(wordStatusByIdProvider(id));
+              //TODO import 考慮
               final wordStatus = ref.watch(espJpnWordStatusViewModelProvider(id));
               final wordStatusNotifier = ref.read(espJpnWordStatusViewModelProvider(id).notifier);
 

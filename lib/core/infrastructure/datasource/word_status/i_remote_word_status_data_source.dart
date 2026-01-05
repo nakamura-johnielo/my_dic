@@ -1,4 +1,4 @@
-import 'package:my_dic/core/infrastructure/dtos/wordStatusEntity.dart';
+import 'package:my_dic/features/esp_jpn_word_status/data/wordStatusEntity.dart';
 
 abstract class IRemoteWordStatusDataSource {
   Future<WordStatusDTO?> getWordStatusById(String userId, int id);

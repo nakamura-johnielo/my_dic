@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 // import 'package:my_dic/Components/infinity_scroll_list_view.dart';
 import 'package:my_dic/features/my_word/presentation/view/my_word_card.dart';
 import 'package:my_dic/features/my_word/presentation/view/my_word_card_modal.dart';
-import 'package:my_dic/core/shared/word_card_view_click_listener.dart';
+import 'package:my_dic/core/shared/enums/ui/word_card_view_click_listener.dart';
 import 'package:my_dic/features/my_word/di/view_model_di.dart';
 import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
 import 'package:my_dic/features/my_word/presentation/view/create_word_modal.dart';

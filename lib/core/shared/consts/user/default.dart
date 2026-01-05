@@ -1,4 +1,4 @@
-import 'package:my_dic/core/shared/enums/subscription_status.dart';
+import 'package:my_dic/core/shared/enums/auth/subscription_status.dart';
 
 class UserConsts {
   static const String username = 'Guest';

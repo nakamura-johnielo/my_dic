@@ -7,7 +7,7 @@ import 'package:my_dic/features/user/presentation/view_model/user_profile_view_m
 import 'package:my_dic/features/user/presentation/model/user_profile_ui_model.dart';
 
 import 'package:my_dic/features/user/di/usecase_di.dart';
-import 'package:my_dic/features/user/presentation/view_model/user_coodinator.dart';
+import 'package:my_dic/features/user/user_coodinator.dart';
 
 // final userViewModelProvider =
 //     StateNotifierProvider<UserViewModel, UserProfileUIState>((ref) {

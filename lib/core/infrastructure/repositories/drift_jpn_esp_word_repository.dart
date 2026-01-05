@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:my_dic/core/shared/enums/feature_tag.dart';
 import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
-import 'package:my_dic/core/domain/usecase/update_status/update_status_repository_input_data.dart';
+import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/update_status_repository_input_data.dart';
 import 'package:my_dic/core/domain/entity/jpn_esp/jpn_esp_word.dart';
 import 'package:my_dic/core/domain/i_repository/i_jpn_esp_word_repository.dart';
 import 'package:my_dic/core/infrastructure/datasource/jpn_esp/i_jpn_esp_word_data_source.dart';

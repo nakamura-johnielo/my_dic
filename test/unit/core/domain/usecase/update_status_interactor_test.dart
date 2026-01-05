@@ -8,8 +8,8 @@
 /// - Fake repository for testing sync logic
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/core/domain/usecase/update_status/update_status_input_data.dart';
-import 'package:my_dic/core/domain/usecase/update_status/update_status_interactor.dart';
+import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/update_status_input_data.dart';
+import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/update_status_interactor.dart';
 import 'package:my_dic/core/shared/enums/feature_tag.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 
