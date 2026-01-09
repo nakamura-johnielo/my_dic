@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_dic/core/presentation/custom_floating_button_location.dart';
+import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/features/esp_jpn_word_status/components/status_button/status_buttons.dart';
 import 'package:my_dic/features/quiz/consts/card_state.dart';
 import 'package:my_dic/core/shared/enums/ui/tab.dart';
@@ -212,7 +214,8 @@ class _TabWordPageState extends ConsumerState<_TabWordPage>
         children: _tabBodies,
       ),
       floatingActionButton: widget.input.floatingButton,
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
+      floatingActionButtonLocation:
+          FloatAboveNavBar(UIConsts.bottomBarCompleteHeight),
     );
   }
 }
@@ -235,7 +238,8 @@ class _SingleWordPage extends StatelessWidget {
       ),
       body: input.body,
       floatingActionButton: input.floatingButton,
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
+      floatingActionButtonLocation:
+          FloatAboveNavBar(UIConsts.bottomBarCompleteHeight),
     );
   }
 }

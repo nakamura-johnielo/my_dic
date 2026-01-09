@@ -111,6 +111,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           return MainActivity(navigationShell: navigationShell);
         },
         branches: [
+
+          // My word
           StatefulShellBranch(
             navigatorKey: myWordKey,
             routes: [
@@ -123,6 +125,8 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
+
+          // Quiz
           StatefulShellBranch(
             navigatorKey: quizKey,
             routes: [
@@ -133,6 +137,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                   child: QuizSearchFragment(),
                 ),
                 routes: [
+                  // quiz画面
                   GoRoute(
                     path: '${ScreenPage.quizDetail}',
                     parentNavigatorKey: quizKey,
@@ -142,6 +147,8 @@ final routerProvider = Provider<GoRouter>((ref) {
                           child: QuizGameFragment(input: input));
                     },
                   ),
+
+                  // word詳細画面
                   GoRoute(
                     path: '${ScreenPage.detail}',
                     parentNavigatorKey: quizKey,
@@ -155,6 +162,8 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
+
+          // Search
           StatefulShellBranch(
             navigatorKey: searchKey,
             routes: [
@@ -174,28 +183,12 @@ final routerProvider = Provider<GoRouter>((ref) {
                           child: WordPageFragment(input: input));
                     },
                   ),
-                  // GoRoute(
-                  //   path: '${ScreenPage.espJpnDetail}',
-                  //   parentNavigatorKey: searchKey,
-                  //   pageBuilder: (context, state) {
-                  //     final input = state.extra as EspJpnWordPageFragmentInput;
-                  //     return MaterialPage(
-                  //         child: EspJpnWordPageFragment(input: input));
-                  //   },
-                  // ),
-                  // GoRoute(
-                  //   path: '${ScreenPage.jpnEspDetail}',
-                  //   parentNavigatorKey: searchKey,
-                  //   pageBuilder: (context, state) {
-                  //     final input = state.extra as JpnEspWordPageFragmentInput;
-                  //     return MaterialPage(
-                  //         child: JpnEspWordPageFragment(input: input));
-                  //   },
-                  // ),
                 ],
               ),
             ],
           ),
+
+          //ranking
           StatefulShellBranch(
             navigatorKey: rankingKey,
             routes: [
@@ -216,51 +209,14 @@ final routerProvider = Provider<GoRouter>((ref) {
                           child: WordPageFragment(input: input));
                     },
                   ),
-                  // GoRoute(
-                  //   path: '${ScreenPage.espJpnDetail}',
-                  //   parentNavigatorKey: rankingKey,
-                  //   pageBuilder: (context, state) {
-                  //     final input = state.extra as EspJpnWordPageFragmentInput;
-                  //     return MaterialPage(
-                  //         child: EspJpnWordPageFragment(input: input));
-                  //   },
-                  // ),
                 ],
               ),
             ],
           ),
-
-          // StatefulShellBranch(
-          //   navigatorKey: profileKey,
-          //   routes: [
-          //     GoRoute(
-          //       path: '/${ScreenTab.profile}',
-          //       pageBuilder: (context, state) => NoTransitionPage(
-          //         key: state.pageKey,
-          //         child: EmailPasswordPage(),
-          //       ),
-          //       routes: [
-          //         GoRoute(
-          //           path: '${ScreenPage.unAuthorized}',
-          //           parentNavigatorKey: profileKey,
-          //           pageBuilder: (context, state) {
-          //             return MaterialPage(child: EmailPasswordPage());
-          //           },
-          //         ),
-          //         GoRoute(
-          //           path: '${ScreenPage.authorized}',
-          //           parentNavigatorKey: profileKey,
-          //           pageBuilder: (context, state) {
-          //             //final uid = state.extra as String;
-          //             return MaterialPage(child: ProfilePage(uid: "uid"));
-          //           },
-          //         ),
-          //       ],
-          //     ),
-          //   ],
-          // ),
         ],
       ),
+
+      // User Profile
       GoRoute(
         parentNavigatorKey: rootKey,
         path: '/${ScreenTab.profile}',
@@ -269,6 +225,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           child: EmailPasswordPage(),
         ),
         routes: [
+          // Singupページ
           GoRoute(
             parentNavigatorKey: rootKey,
             path: '${ScreenPage.unAuthorized}',
@@ -277,6 +234,8 @@ final routerProvider = Provider<GoRouter>((ref) {
               return MaterialPage(child: EmailPasswordPage());
             },
           ),
+
+          // signin済みプロフィールページ
           GoRoute(
             path: '${ScreenPage.authorized}',
             parentNavigatorKey: rootKey,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/core/presentation/custom_floating_button_location.dart';
+import 'package:my_dic/core/shared/consts/ui/ui.dart';
 // import 'package:my_dic/Components/infinity_scroll_list_view.dart';
 import 'package:my_dic/features/my_word/presentation/view/my_word_card.dart';
 import 'package:my_dic/features/my_word/presentation/view/my_word_card_modal.dart';
@@ -129,6 +131,8 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
         ],
       )),
       floatingActionButton: RegisterButton(),
+      floatingActionButtonLocation:
+          FloatAboveNavBar(UIConsts.bottomBarCompleteHeight),
     );
   }
 }

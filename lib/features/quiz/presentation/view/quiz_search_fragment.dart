@@ -96,7 +96,7 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('search'),
+        title: Text('Quiz'),
       ),
       body: Column(
         children: [

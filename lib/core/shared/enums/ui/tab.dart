@@ -41,3 +41,28 @@ enum ScreenPage {
   final String label;
   //final root;
 }
+
+
+enum StudyScreenTab {
+  dashboard('Dashboard', Icons.dashboard_outlined),
+  quiz('Quiz', Icons.handshake),
+  ranking('頻度別', Icons.assessment);
+
+  const StudyScreenTab(this.label, this.icon);
+  //const ScreenTab(this.label, this.icon,this.root);
+  final String label;
+  final IconData icon;
+  //final root;
+}
+
+enum StudyScreenPage {
+  search('検索'),
+  flashCard('フラッシュカード'),
+  rankCollection('ランキング'),
+  rankSection('セクション'),;
+
+  const StudyScreenPage(this.label);
+  //const ScreenTab(this.label, this.icon,this.root);
+  final String label;
+  //final root;
+}
