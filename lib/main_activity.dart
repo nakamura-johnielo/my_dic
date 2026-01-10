@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_dic/core/di/router/router.dart';
 import 'package:my_dic/core/di/ui/ui_di.dart';
 import 'package:my_dic/core/presentation/components/nav_bar/item.dart';
 import 'package:my_dic/core/presentation/components/nav_bar/studay_bottom_bar.dart';
@@ -16,11 +17,16 @@ class MainActivity extends ConsumerWidget {
 
   final StatefulNavigationShell navigationShell;
 
+  DestinatioinItem _buildDestinatioinItem(ScreenTab tab) {
+    return DestinatioinItem(icon: tab.icon, label: tab.label);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
- final double bottomBarHeight = UIConsts.bottomBarHeight + MediaQuery.of(context).padding.bottom;
+//  final double bottomBarHeight = UIConsts.bottomBarHeight + MediaQuery.of(context).padding.bottom;
 
     // ref.read(bottomBarHeightProvider.notifier).setHeight( bottomBarHeight);
+
 
     return Scaffold(
       extendBody: true,
@@ -37,23 +43,18 @@ class MainActivity extends ConsumerWidget {
               icon: Icon(Icons.person))
         ],
       ),
+
       body: navigationShell,
+
       bottomNavigationBar: FloatBottomBar(
         selectedIndex: navigationShell.currentIndex,
         destinations: [
-          DestinatioinItem(
-              icon: ScreenTab.myword.icon, label: ScreenTab.myword.label),
-          DestinatioinItem(
-              icon: ScreenTab.quiz.icon, label: ScreenTab.quiz.label),
-          DestinatioinItem(
-              icon: ScreenTab.search.icon, label: ScreenTab.search.label),
-          DestinatioinItem(
-              icon: ScreenTab.ranking.icon, label: ScreenTab.ranking.label),
+          _buildDestinatioinItem(ScreenTab.myword),
+          _buildDestinatioinItem(ScreenTab.search),
+          _buildDestinatioinItem(ScreenTab.study),
         ],
         onDestinationSelected: (index) {
-          // if (index > 2) {
-          //   return;
-          // }
+          ref.read(entryPointProvider.notifier).state=ScreenTab.values[index].entryPoint;
           navigationShell.goBranch(
             index,
             initialLocation: index == navigationShell.currentIndex,
@@ -117,53 +118,53 @@ class MainActivity extends ConsumerWidget {
   }
 }
 
-class MainActivity2 extends StatelessWidget {
-  const MainActivity2({
-    super.key,
-    required this.navigationShell,
-  });
+// class MainActivity2 extends StatelessWidget {
+//   const MainActivity2({
+//     super.key,
+//     required this.navigationShell,
+//   });
 
-  final StatefulNavigationShell navigationShell;
+//   final StatefulNavigationShell navigationShell;
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "My Dic",
-        ),
-        actions: [
-          IconButton(
-              onPressed: () {
-                context
-                    .push('/${ScreenTab.profile}/${ScreenPage.unAuthorized}');
-              },
-              icon: Icon(Icons.person))
-        ],
-      ),
-      body: navigationShell,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: navigationShell.currentIndex,
-        destinations: [
-          NavigationDestination(
-              icon: Icon(ScreenTab.myword.icon), label: ScreenTab.myword.label),
-          // NavigationDestination(
-          //     icon: Icon(ScreenTab.note.icon), label: ScreenTab.note.label),
-          NavigationDestination(
-              icon: Icon(ScreenTab.quiz.icon), label: ScreenTab.quiz.label),
-          NavigationDestination(
-              icon: Icon(ScreenTab.search.icon), label: ScreenTab.search.label),
-          NavigationDestination(
-              icon: Icon(ScreenTab.ranking.icon),
-              label: ScreenTab.ranking.label),
-        ],
-        onDestinationSelected: (index) {
-          navigationShell.goBranch(
-            index,
-            initialLocation: index == navigationShell.currentIndex,
-          );
-        },
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text(
+//           "My Dic",
+//         ),
+//         actions: [
+//           IconButton(
+//               onPressed: () {
+//                 context
+//                     .push('/${ScreenTab.profile}/${ScreenPage.unAuthorized}');
+//               },
+//               icon: Icon(Icons.person))
+//         ],
+//       ),
+//       body: navigationShell,
+//       bottomNavigationBar: NavigationBar(
+//         selectedIndex: navigationShell.currentIndex,
+//         destinations: [
+//           NavigationDestination(
+//               icon: Icon(ScreenTab.myword.icon), label: ScreenTab.myword.label),
+//           // NavigationDestination(
+//           //     icon: Icon(ScreenTab.note.icon), label: ScreenTab.note.label),
+//           NavigationDestination(
+//               icon: Icon(ScreenTab.quiz.icon), label: ScreenTab.quiz.label),
+//           NavigationDestination(
+//               icon: Icon(ScreenTab.search.icon), label: ScreenTab.search.label),
+//           NavigationDestination(
+//               icon: Icon(ScreenTab.ranking.icon),
+//               label: ScreenTab.ranking.label),
+//         ],
+//         onDestinationSelected: (index) {
+//           navigationShell.goBranch(
+//             index,
+//             initialLocation: index == navigationShell.currentIndex,
+//           );
+//         },
+//       ),
+//     );
+//   }
+// }

@@ -83,7 +83,8 @@ class WordPageFragment extends ConsumerWidget {
     final Map<String, Widget> tabs = {};
     FloatingActionButton? floatingButton;
 
-    final viewModel = ref.read(wordPageViewModelProvider(input.wordId).notifier);
+    final viewModel =
+        ref.read(wordPageViewModelProvider(input.wordId).notifier);
 
     if (input.wordType == WordType.jpnEsp) {
       viewModel.fetchJpnEspDictionaryById(input.wordId);
@@ -110,9 +111,15 @@ class WordPageFragment extends ConsumerWidget {
       onPressed: () {
         ref.read(quizGameViewModelProvider.notifier).initialize();
         ref.read(quizCardStateProvider.notifier).state = QuizCardState.question;
-        context.push('/${ScreenTab.quiz}/${ScreenPage.quizDetail}',
-            extra: QuizGameFragmentInput(
-                wordId: input.wordId, word: input.wordId.toString()));
+        //TODO gorouter check
+        final viewModel =
+            ref.read(wordPageViewModelProvider(input.wordId).notifier);
+        viewModel.goToQuiz(QuizGameFragmentInput(
+            wordId: input.wordId, word: input.wordId.toString()));
+        //context.push('/${ScreenTab.quiz}/${ScreenPage.quizDetail}',
+        // context.push('${StudyScreenPage.flashCard.name}',
+        //     extra: QuizGameFragmentInput(
+        //         wordId: input.wordId, word: input.wordId.toString()));
       },
       child: const Icon(Icons.handshake_rounded),
     );

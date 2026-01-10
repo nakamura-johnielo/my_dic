@@ -79,8 +79,12 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
     // ref.read(quizCardStateProvider.notifier).state = QuizCardState.question;
     ref.read(quizWordProvider.notifier).state = quizWord.word;
 
-    context.push('/${ScreenTab.quiz}/${ScreenPage.quizDetail}',
-        extra: QuizGameFragmentInput(wordId: id, word: quizWord.word));
+    //TODO gorouter check
+    //context.push('/${ScreenTab.quiz}/${ScreenPage.quizDetail}',
+    ref.read(quizSearchViewModelProvider.notifier).goToQuiz(
+        QuizGameFragmentInput(wordId: id, word: quizWord.word));
+    // context.push('/${StudyScreenPage.flashCard}',
+    //     extra: QuizGameFragmentInput(wordId: id, word: quizWord.word));
   }
 
   @override

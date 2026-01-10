@@ -2,18 +2,26 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/quiz/presentation/ui_model/quiz_search_model.dart';
+import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/i_search_word_use_case.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/search_word_input_data.dart';
+import 'package:my_dic/router/navigator_service.dart';
 
 /// 検索画面のViewModel
 class QuizSearchViewModel extends StateNotifier<QuizSearchState> {
   final ISearchWordUseCase _searchWordUseCase;
+  final AppNavigatorService _naviService;
 
   QuizSearchViewModel(
     this._searchWordUseCase,
+    this._naviService,
   ) : super(QuizSearchState());
 
   // ==================== Public Methods ====================
+
+void goToQuiz(QuizGameFragmentInput input){
+    _naviService.toFlashCard( input);
+  }
 
   /// 検索クエリを更新
   void updateQuery(String query) {

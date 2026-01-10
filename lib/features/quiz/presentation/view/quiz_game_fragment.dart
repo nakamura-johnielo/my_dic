@@ -108,14 +108,23 @@ class QuizGameFragment extends ConsumerWidget {
                       spacing: 20,
                       children: [
                         TextButton(
-                          onPressed: () => 
+                          onPressed: () =>
+                              // context.push(
+                              //     '/${ScreenTab.search}/${ScreenPage.detail}',
+                              //     extra: EspJpnWordPageFragmentInput(
+                              //         wordId: input.wordId, isVerb: true))
+                              //TODO gorouter check
+                              quizGameNotifier.goToWordDetail(WordPageInput(
+                                  wordId: input.wordId,
+                                  wordType: WordType.espJpn,
+                                  hasConj: true)),
                           // context.push(
-                          //     '/${ScreenTab.search}/${ScreenPage.detail}',
-                          //     extra: EspJpnWordPageFragmentInput(
-                          //         wordId: input.wordId, isVerb: true))
-                  context.push('/${ScreenTab.quiz}/${ScreenPage.detail}',
-                      extra: WordPageInput(
-                          wordId: input.wordId, wordType: WordType.espJpn, hasConj: true)),
+                          //     //'/${ScreenTab.quiz}/${ScreenPage.wordDetail}',
+                          //     '${ScreenPage.wordDetail.name}',
+                          //     extra: WordPageInput(
+                          //         wordId: input.wordId,
+                          //         wordType: WordType.espJpn,
+                          //         hasConj: true)),
                           child: Text("> 辞書確認"),
                         ),
                         StatusButtons(wordId: input.wordId),

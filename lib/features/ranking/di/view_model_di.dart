@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/features/ranking/presentation/ui_model/ranking_ui_model.dart';
 import 'package:my_dic/features/ranking/presentation/view_model/new_ranking_view_model.dart';
 import 'package:my_dic/features/ranking/di/usecase_di.dart';
+import 'package:my_dic/router/navigator_service.dart';
 
 
 // final rankingControllerProvider = Provider<RankingController>((ref) {
@@ -23,6 +24,7 @@ final rankingViewModelProvider =
     ref.read(loadRankingsUseCaseProvider),
     ref.read(locateRankingPagenationUseCaseProvider),
     ref.read(updateRankingFilterUseCaseProvider),
+    ref.read(appNavigatorServiceProvider)
   );
 });
 

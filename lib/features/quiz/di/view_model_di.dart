@@ -8,6 +8,7 @@ import 'package:my_dic/features/quiz/presentation/ui_model/quiz_search_model.dar
 import 'package:my_dic/features/quiz/presentation/view_model/quiz_game_viewmodel.dart';
 import 'package:my_dic/features/quiz/presentation/view_model/quiz_search_view_model.dart';
 import 'package:my_dic/features/search/di/usecase_di.dart';
+import 'package:my_dic/router/navigator_service.dart';
 
 /// クイズ検索結果リストのプロバイダー
 // final quizSearchedItemsProvider =
@@ -46,13 +47,16 @@ final quizWordProvider = StateProvider<String>((ref) => "");
 final quizSearchViewModelProvider =
     StateNotifierProvider<QuizSearchViewModel, QuizSearchState>((ref) {
   // final searchUsecase=
-  return QuizSearchViewModel(ref.read(searchWordUseCaseProvider));
+  return QuizSearchViewModel(ref.read(searchWordUseCaseProvider),
+      ref.read(appNavigatorServiceProvider));
 });
 
 final quizGameViewModelProvider =
     StateNotifierProvider<QuizGameViewModel, QuizGameState>((ref) {
   // final searchUsecase=
-  final fetchConjugationInteractor = ref.read(fetchEspConjugationUseCaseProvider);
+  final fetchConjugationInteractor =
+      ref.read(fetchEspConjugationUseCaseProvider);
   final fetchEnglishConjInteractor = ref.read(fetchEnglishConjUseCaseProvider);
-  return QuizGameViewModel(fetchConjugationInteractor, fetchEnglishConjInteractor);
+  return QuizGameViewModel(fetchConjugationInteractor,
+      fetchEnglishConjInteractor, ref.read(appNavigatorServiceProvider));
 });

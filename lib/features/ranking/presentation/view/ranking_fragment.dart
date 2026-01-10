@@ -172,11 +172,19 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
                   // context.push('/${ScreenTab.ranking}/${ScreenPage.detail}',
                   //     extra: EspJpnWordPageFragmentInput(
                   //         wordId: ranking.wordId, isVerb: ranking.hasConj));
-                  context.push('/${ScreenTab.ranking}/${ScreenPage.detail}',
-                      extra: WordPageInput(
+                  //TODO gorouter check
+                  //context.push('/${ScreenTab.ranking}/${ScreenPage.wordDetail}',
+                  ref.read(rankingViewModelProvider.notifier).goToDetail(
+                      WordPageInput(
                           wordId: ranking.wordId,
                           wordType: WordType.espJpn,
                           hasConj: ranking.hasConj));
+
+                  // context.push('/${ScreenPage.wordDetail}',
+                  //     extra: WordPageInput(
+                  //         wordId: ranking.wordId,
+                  //         wordType: WordType.espJpn,
+                  //         hasConj: ranking.hasConj));
                 },
                 clickListeners: clickListeners,
               );

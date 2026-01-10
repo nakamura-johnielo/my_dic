@@ -15,6 +15,9 @@ import 'package:my_dic/features/user/presentation/view/profile.dart';
 import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
 
 import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
+import 'package:my_dic/router/route_names.dart';
+import 'package:my_dic/router/study.dart';
+import 'package:my_dic/router/word_detail.dart';
 
 // GlobalKeyをProvider内で作成して使い回す
 final rootNavigatorKeyProvider = Provider<GlobalKey<NavigatorState>>((ref) {
@@ -41,6 +44,10 @@ final profileNavigatorKeyProvider = Provider<GlobalKey<NavigatorState>>((ref) {
   return GlobalKey<NavigatorState>(debugLabel: 'profile');
 });
 
+final studyNavigatorKeyProvider = Provider<GlobalKey<NavigatorState>>((ref) {
+  return GlobalKey<NavigatorState>(debugLabel: 'study');
+});
+
 class AuthChangeNotifier extends ChangeNotifier {
   AuthChangeNotifier(Ref ref) {
     ref.listen<AsyncValue<AppAuth?>>(
@@ -61,13 +68,13 @@ final routerProvider = Provider<GoRouter>((ref) {
   final quizKey = ref.watch(quizNavigatorKeyProvider);
   final myWordKey = ref.watch(myWordNavigatorKeyProvider);
   final rankingKey = ref.watch(rankingNavigatorKeyProvider);
+  final studyKey = ref.watch(studyNavigatorKeyProvider);
   // final profileKey = ref.watch(profileNavigatorKeyProvider);
 
   return GoRouter(
     navigatorKey: rootKey,
     refreshListenable: authNotifier,
     redirect: (context, state) {
-
       final location = state.matchedLocation;
       final uri = state.uri.toString();
       final fullPath = state.fullPath;
@@ -84,40 +91,40 @@ final routerProvider = Provider<GoRouter>((ref) {
       final auth = ref.read(authStoreNotifierProvider);
       final unauthorized = '/${ScreenTab.profile}/${ScreenPage.unAuthorized}';
       final authorized = '/${ScreenTab.profile}/${ScreenPage.authorized}';
-      
-      if (auth==null) {
+
+      if (auth == null) {
         print('auth is null');
         return unauthorized;
-      } 
+      }
 
-      final loggedIn = auth.isLogined ;
-      final verified = auth.isAuthenticated ;
+      final loggedIn = auth.isLogined;
+      final verified = auth.isAuthenticated;
       print('loggedIn: $loggedIn, verified: $verified');
 
       if (!loggedIn || !verified) {
-        print("current location: ${location == unauthorized ? null : unauthorized} ");
+        print(
+            "current location: ${location == unauthorized ? null : unauthorized} ");
         return location == unauthorized ? null : unauthorized;
       }
-        print("current location: ${location == authorized ? null : authorized} ");
+      print("current location: ${location == authorized ? null : authorized} ");
       return location == authorized ? null : authorized;
     },
-
-    initialLocation: '/${ScreenTab.search}',
-
+    initialLocation: '/${RoutePaths.search}',
     routes: [
+      //mainnavbar
       StatefulShellRoute.indexedStack(
         parentNavigatorKey: rootKey,
         builder: (context, state, navigationShell) {
           return MainActivity(navigationShell: navigationShell);
         },
         branches: [
-
           // My word
           StatefulShellBranch(
             navigatorKey: myWordKey,
             routes: [
               GoRoute(
-                path: '/${ScreenTab.myword}',
+                path: '/${RoutePaths.myWord}',
+                name: RouteNames.myWord,
                 pageBuilder: (context, state) => NoTransitionPage(
                   key: state.pageKey,
                   child: MyWordFragment(),
@@ -127,99 +134,133 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
 
           // Quiz
-          StatefulShellBranch(
-            navigatorKey: quizKey,
-            routes: [
-              GoRoute(
-                path: '/${ScreenTab.quiz}',
-                pageBuilder: (context, state) => NoTransitionPage(
-                  key: state.pageKey,
-                  child: QuizSearchFragment(),
-                ),
-                routes: [
-                  // quiz画面
-                  GoRoute(
-                    path: '${ScreenPage.quizDetail}',
-                    parentNavigatorKey: quizKey,
-                    pageBuilder: (context, state) {
-                      final input = state.extra as QuizGameFragmentInput;
-                      return MaterialPage(
-                          child: QuizGameFragment(input: input));
-                    },
-                  ),
+          // StatefulShellBranch(
+          //   navigatorKey: quizKey,
+          //   routes: [
+          //     GoRoute(
+          //       path: '/${ScreenTab.quiz}',
+          //       pageBuilder: (context, state) => NoTransitionPage(
+          //         key: state.pageKey,
+          //         child: QuizSearchFragment(),
+          //       ),
+          //       routes: [
+          //         // quiz画面
+          //         GoRoute(
+          //           path: '${ScreenPage.quizDetail}',
+          //           parentNavigatorKey: quizKey,
+          //           pageBuilder: (context, state) {
+          //             final input = state.extra as QuizGameFragmentInput;
+          //             return MaterialPage(
+          //                 child: QuizGameFragment(input: input));
+          //           },
+          //         ),
 
-                  // word詳細画面
-                  GoRoute(
-                    path: '${ScreenPage.detail}',
-                    parentNavigatorKey: quizKey,
-                    pageBuilder: (context, state) {
-                      final input = state.extra as WordPageInput;
-                      return MaterialPage(
-                          child: WordPageFragment(input: input));
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
+          //         // word詳細画面
+          //         GoRoute(
+          //           path: '${ScreenPage.wordDetail}',
+          //           parentNavigatorKey: quizKey,
+          //           pageBuilder: (context, state) {
+          //             final input = state.extra as WordPageInput;
+          //             return MaterialPage(
+          //                 child: WordPageFragment(input: input));
+          //           },
+          //         ),
+          //       ],
+          //     ),
+          //   ],
+          // ),
 
           // Search
           StatefulShellBranch(
             navigatorKey: searchKey,
             routes: [
               GoRoute(
-                path: '/${ScreenTab.search}',
+                path: '/${RoutePaths.search}',
+                name: RouteNames.search,
                 pageBuilder: (context, state) => NoTransitionPage(
                   key: state.pageKey,
                   child: SearchFragment(),
                 ),
                 routes: [
-                  GoRoute(
-                    path: '${ScreenPage.detail}',
-                    parentNavigatorKey: searchKey,
-                    pageBuilder: (context, state) {
-                      final input = state.extra as WordPageInput;
-                      return MaterialPage(
-                          child: WordPageFragment(input: input));
-                    },
-                  ),
+                  //Study
+                  flashCardRoute("${RouteNames.search}-${RouteNames.flashCard}",
+                      searchKey),
+
+                  //word詳細画面
+                  wordDetailRoute(
+                      "${RouteNames.search}-${RouteNames.wordDetail}",
+                      searchKey),
+                ],
+              ),
+            ],
+          ),
+
+          // study
+          StatefulShellBranch(
+            navigatorKey: studyKey,
+            initialLocation: "/${RoutePaths.study}/${RoutePaths.ranking}/${RoutePaths.rankCollection}/${RoutePaths.rankSection}",
+            routes: [
+              GoRoute(
+                path: '/${RoutePaths.study}',
+                name: RouteNames.study,
+
+                //TODO implement
+                pageBuilder: (context, state) {
+                  return MaterialPage(child: Placeholder());
+                },
+                routes: [
+                  // dashboard
+                  dashboardRoute,
+
+                  // ranking
+                  rankingRoute,
+
+                  // quiz
+                  quizRoute,
+                  //Study
+                  flashCardRoute(
+                      "${RouteNames.study}-${RouteNames.flashCard}", studyKey),
+
+                  //word詳細画面
+                  wordDetailRoute(
+                      "${RouteNames.study}-${RouteNames.wordDetail}", studyKey),
                 ],
               ),
             ],
           ),
 
           //ranking
-          StatefulShellBranch(
-            navigatorKey: rankingKey,
-            routes: [
-              GoRoute(
-                path: '/${ScreenTab.ranking}',
-                pageBuilder: (context, state) => NoTransitionPage(
-                  key: state.pageKey,
-                  child: RankingFragment(),
-                ),
-                routes: [
-                  
-                  GoRoute(
-                    path: '${ScreenPage.detail}',
-                    parentNavigatorKey: rankingKey,
-                    pageBuilder: (context, state) {
-                      final input = state.extra as WordPageInput;
-                      return MaterialPage(
-                          child: WordPageFragment(input: input));
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
+          // StatefulShellBranch(
+          //   navigatorKey: rankingKey,
+          //   routes: [
+          //     GoRoute(
+          //       path: '/${ScreenTab.ranking}',
+          //       pageBuilder: (context, state) => NoTransitionPage(
+          //         key: state.pageKey,
+          //         child: RankingFragment(),
+          //       ),
+          //       routes: [
+          //         GoRoute(
+          //           path: '${ScreenPage.wordDetail}',
+          //           parentNavigatorKey: rankingKey,
+          //           pageBuilder: (context, state) {
+          //             final input = state.extra as WordPageInput;
+          //             return MaterialPage(
+          //                 child: WordPageFragment(input: input));
+          //           },
+          //         ),
+          //       ],
+          //     ),
+          //   ],
+          // ),
         ],
       ),
 
       // User Profile
       GoRoute(
         parentNavigatorKey: rootKey,
-        path: '/${ScreenTab.profile}',
+        path: '/${RoutePaths.profile}',
+        name: RouteNames.profile,
         pageBuilder: (context, state) => NoTransitionPage(
           key: state.pageKey,
           child: EmailPasswordPage(),
@@ -228,7 +269,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           // Singupページ
           GoRoute(
             parentNavigatorKey: rootKey,
-            path: '${ScreenPage.unAuthorized}',
+            path: RoutePaths.unauthorized,
+            name: RouteNames.unauthorized,
             //parentNavigatorKey: profileKey,
             pageBuilder: (context, state) {
               return MaterialPage(child: EmailPasswordPage());
@@ -237,7 +279,8 @@ final routerProvider = Provider<GoRouter>((ref) {
 
           // signin済みプロフィールページ
           GoRoute(
-            path: '${ScreenPage.authorized}',
+            path: RoutePaths.authorized,
+            name: RouteNames.authorized,
             parentNavigatorKey: rootKey,
             pageBuilder: (context, state) {
               //final uid = state.extra as String;
@@ -246,6 +289,12 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
+
+      // //Study
+      // flashCardRoute(rootKey),
+
+      // //word詳細画面
+      // wordDetailRoute(rootKey),
     ],
   );
 });
