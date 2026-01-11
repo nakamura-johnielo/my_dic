@@ -62,7 +62,7 @@ class SingleWordPageInput {
       onPressed: () {
         ref.read(quizGameViewModelProvider.notifier).initialize();
         ref.read(quizCardStateProvider.notifier).state = QuizCardState.question;
-        context.push('/${ScreenTab.quiz}/${ScreenPage.quizDetail}',
+        context.push('/${MainScreenTab.quiz}/${ScreenPage.quizDetail}',
             extra: QuizGameFragmentInput(
                 wordId: widget.input.wordId,
                 word: widget.input.wordId.toString()));
@@ -116,7 +116,7 @@ class WordPageFragment extends ConsumerWidget {
             ref.read(wordPageViewModelProvider(input.wordId).notifier);
         viewModel.goToQuiz(QuizGameFragmentInput(
             wordId: input.wordId, word: input.wordId.toString()));
-        //context.push('/${ScreenTab.quiz}/${ScreenPage.quizDetail}',
+        //context.push('/${MainScreenTab.quiz}/${ScreenPage.quizDetail}',
         // context.push('${StudyScreenPage.flashCard.name}',
         //     extra: QuizGameFragmentInput(
         //         wordId: input.wordId, word: input.wordId.toString()));

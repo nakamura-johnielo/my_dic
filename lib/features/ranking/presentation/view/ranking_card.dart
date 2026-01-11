@@ -134,7 +134,7 @@ class RankingCard extends ConsumerWidget {
                       QuizCardState.question;
                   ref.read(quizWordProvider.notifier).state = ranking.lemma;
                   //TODO gorouter check
-                  //context.push('/${ScreenTab.quiz}/${ScreenPage.quizDetail}',
+                  //context.push('/${MainScreenTab.quiz}/${ScreenPage.quizDetail}',
                   ref.read(appNavigatorServiceProvider).toFlashCard(
                       QuizGameFragmentInput(
                           wordId: ranking.wordId, word: ranking.lemma));

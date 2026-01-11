@@ -19,15 +19,15 @@
 //       selectedIndex: navigationShell.currentIndex,
 //       destinations: [
 //         NavigationDestination(
-//             icon: Icon(ScreenTab.myword.icon), label: ScreenTab.myword.label),
+//             icon: Icon(MainScreenTab.myword.icon), label: MainScreenTab.myword.label),
 //         // NavigationDestination(
-//         //     icon: Icon(ScreenTab.note.icon), label: ScreenTab.note.label),
+//         //     icon: Icon(MainScreenTab.note.icon), label: MainScreenTab.note.label),
 //         NavigationDestination(
-//             icon: Icon(ScreenTab.quiz.icon), label: ScreenTab.quiz.label),
+//             icon: Icon(MainScreenTab.quiz.icon), label: MainScreenTab.quiz.label),
 //         NavigationDestination(
-//             icon: Icon(ScreenTab.search.icon), label: ScreenTab.search.label),
+//             icon: Icon(MainScreenTab.search.icon), label: MainScreenTab.search.label),
 //         NavigationDestination(
-//             icon: Icon(ScreenTab.ranking.icon), label: ScreenTab.ranking.label),
+//             icon: Icon(MainScreenTab.ranking.icon), label: MainScreenTab.ranking.label),
 //       ],
 //       onDestinationSelected: (index) {
 //         navigationShell.goBranch(
@@ -61,15 +61,15 @@
 //       selectedIndex: navigationShell.currentIndex,
 //       destinations: [
 //         NavigationDestination(
-//             icon: Icon(ScreenTab.myword.icon), label: ScreenTab.myword.label),
+//             icon: Icon(MainScreenTab.myword.icon), label: MainScreenTab.myword.label),
 //         // NavigationDestination(
-//         //     icon: Icon(ScreenTab.note.icon), label: ScreenTab.note.label),
+//         //     icon: Icon(MainScreenTab.note.icon), label: MainScreenTab.note.label),
 //         NavigationDestination(
-//             icon: Icon(ScreenTab.quiz.icon), label: ScreenTab.quiz.label),
+//             icon: Icon(MainScreenTab.quiz.icon), label: MainScreenTab.quiz.label),
 //         NavigationDestination(
-//             icon: Icon(ScreenTab.search.icon), label: ScreenTab.search.label),
+//             icon: Icon(MainScreenTab.search.icon), label: MainScreenTab.search.label),
 //         NavigationDestination(
-//             icon: Icon(ScreenTab.ranking.icon), label: ScreenTab.ranking.label),
+//             icon: Icon(MainScreenTab.ranking.icon), label: MainScreenTab.ranking.label),
 //       ],
 //       onDestinationSelected: (index) {
 //         navigationShell.goBranch(

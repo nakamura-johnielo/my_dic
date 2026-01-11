@@ -80,7 +80,7 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
     ref.read(quizWordProvider.notifier).state = quizWord.word;
 
     //TODO gorouter check
-    //context.push('/${ScreenTab.quiz}/${ScreenPage.quizDetail}',
+    //context.push('/${MainScreenTab.quiz}/${ScreenPage.quizDetail}',
     ref.read(quizSearchViewModelProvider.notifier).goToQuiz(
         QuizGameFragmentInput(wordId: id, word: quizWord.word));
     // context.push('/${StudyScreenPage.flashCard}',

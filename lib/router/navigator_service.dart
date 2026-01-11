@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/core/di/router/router.dart';
 import 'package:my_dic/core/shared/enums/entry_point.dart';
-import 'package:my_dic/core/shared/enums/ui/tab.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
 import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
 import 'package:my_dic/router/route_names.dart';
@@ -24,10 +23,12 @@ class AppNavigatorService {
     switch(_entryPoint){
       case EntryPoint.search:
         return RouteNames.search;
+      case EntryPoint.studyDashboard:
+        return RouteNames.dashboard;
       case EntryPoint.studyRanking:
-        return RouteNames.study;
+        return RouteNames.ranking;
       case EntryPoint.studyQuiz:
-        return RouteNames.study;
+        return RouteNames.quiz;
       case EntryPoint.myword:
         return RouteNames.myWord;
       case EntryPoint.profile:
@@ -35,12 +36,10 @@ class AppNavigatorService {
     }
   }
 
-  // Search → WordDetail
   void toWordDetail(WordPageInput input) {
     _router.pushNamed('${_getFormerName()}-${RouteNames.wordDetail}', extra: input);
   }
 
-  // Search → FlashCard
   void toFlashCard(QuizGameFragmentInput input) {
     _router.pushNamed('${_getFormerName()}-${RouteNames.flashCard}', extra: input);
   }

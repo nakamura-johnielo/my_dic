@@ -218,8 +218,6 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
 
-          
-
           // Study (ネストしたStatefulShellRoute)
           StatefulShellBranch(
             navigatorKey: studyKey,

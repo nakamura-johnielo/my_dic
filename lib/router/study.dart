@@ -65,12 +65,12 @@ final rankingRoute = GoRoute(
     ]);
 
 //========quiz========================
-final quizRoute = GoRoute(
+final quizRoute = GoRoute(//TODO 修正
     path: RoutePaths.quiz,
     name: RouteNames.quiz,
     //TODO implement
     pageBuilder: (context, state) {
-      return MaterialPage(child: Placeholder());
+      return MaterialPage(child: QuizSearchFragment());
     },
     routes: [
       //search & home

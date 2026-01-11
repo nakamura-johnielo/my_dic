@@ -169,11 +169,11 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
                 // ),
                 margin: margin,
                 onTap: () {
-                  // context.push('/${ScreenTab.ranking}/${ScreenPage.detail}',
+                  // context.push('/${MainScreenTab.ranking}/${ScreenPage.detail}',
                   //     extra: EspJpnWordPageFragmentInput(
                   //         wordId: ranking.wordId, isVerb: ranking.hasConj));
                   //TODO gorouter check
-                  //context.push('/${ScreenTab.ranking}/${ScreenPage.wordDetail}',
+                  //context.push('/${MainScreenTab.ranking}/${ScreenPage.wordDetail}',
                   ref.read(rankingViewModelProvider.notifier).goToDetail(
                       WordPageInput(
                           wordId: ranking.wordId,

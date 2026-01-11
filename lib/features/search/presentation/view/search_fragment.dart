@@ -132,7 +132,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                           word: jpnEspWord.word,
                           onTap: () {
                             // context.push(
-                            //     '/${ScreenTab.search}/${ScreenPage.jpnEspDetail}',
+                            //     '/${MainScreenTab.search}/${ScreenPage.jpnEspDetail}',
                             //     extra: JpnEspWordPageFragmentInput(
                             //         wordId: jpnEspWord.id));
 
@@ -142,7 +142,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                                 wordType: WordType.jpnEsp,
                                 hasConj: false));
                             //   context.push(
-                            //       // '/${ScreenTab.search}/${ScreenPage.wordDetail}',
+                            //       // '/${MainScreenTab.search}/${ScreenPage.wordDetail}',
                             //  '${ScreenPage.wordDetail.name}',
                             //       extra: WordPageInput(
                             //           wordId: jpnEspWord.id,
@@ -172,7 +172,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                             //meaning: viewModel.filteredItems[index].meaning,
                             onTap: () {
                               // context.push(
-                              //     '/${ScreenTab.search}/${ScreenPage.detail}',
+                              //     '/${MainScreenTab.search}/${ScreenPage.detail}',
                               //     extra: EspJpnWordPageFragmentInput(
                               //         wordId: conjugacion.wordId,
                               //         isVerb: true));
@@ -184,7 +184,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                                   wordType: WordType.espJpn,
                                   hasConj: true));
                               // context.push(
-                              //     // '/${ScreenTab.search}/${ScreenPage.wordDetail}',
+                              //     // '/${MainScreenTab.search}/${ScreenPage.wordDetail}',
                               //     '${ScreenPage.wordDetail.name}',
                               //     extra: WordPageInput(
                               //         wordId: conjugacion.wordId,
@@ -201,7 +201,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                           partOfSpeech: espJpnWord.partOfSpeech,
                           onTap: () {
                             // context.push(
-                            //     '/${ScreenTab.search}/${ScreenPage.detail}',
+                            //     '/${MainScreenTab.search}/${ScreenPage.detail}',
                             //     extra: EspJpnWordPageFragmentInput(
                             //         wordId: espJpnWord.wordId,
                             //         isVerb: espJpnWord.hasVerb()));
@@ -212,7 +212,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                                 wordType: WordType.espJpn,
                                 hasConj: espJpnWord.hasVerb()));
                             // context.push(
-                            //     // '/${ScreenTab.search}/${ScreenPage.wordDetail}',
+                            //     // '/${MainScreenTab.search}/${ScreenPage.wordDetail}',
                             //     '${ScreenPage.wordDetail.name}',
                             //     extra: WordPageInput(
                             //         wordId: espJpnWord.wordId,

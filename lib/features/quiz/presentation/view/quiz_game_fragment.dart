@@ -110,7 +110,7 @@ class QuizGameFragment extends ConsumerWidget {
                         TextButton(
                           onPressed: () =>
                               // context.push(
-                              //     '/${ScreenTab.search}/${ScreenPage.detail}',
+                              //     '/${MainScreenTab.search}/${ScreenPage.detail}',
                               //     extra: EspJpnWordPageFragmentInput(
                               //         wordId: input.wordId, isVerb: true))
                               //TODO gorouter check
@@ -119,7 +119,7 @@ class QuizGameFragment extends ConsumerWidget {
                                   wordType: WordType.espJpn,
                                   hasConj: true)),
                           // context.push(
-                          //     //'/${ScreenTab.quiz}/${ScreenPage.wordDetail}',
+                          //     //'/${MainScreenTab.quiz}/${ScreenPage.wordDetail}',
                           //     '${ScreenPage.wordDetail.name}',
                           //     extra: WordPageInput(
                           //         wordId: input.wordId,
