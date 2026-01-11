@@ -26,6 +26,28 @@ class MainActivity extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    
+    int _getDestinationShellIndex(index, changeBranch) {
+      final entryPoint = ref.read(entryPointProvider);
+      if (changeBranch) {
+        print("move index: ${ref.read(lastStudyBranchTabIndexProvider)}");
+        index= ref.read(lastStudyBranchTabIndexProvider);
+      }
+
+      if (entryPoint.category == EntryPointCategory.study) {
+        return index + 2;
+      }
+      return index == 2 ? ref.read(lastStudyBranchTabIndexProvider) : index;
+    }
+
+    int _navBarPhantomIndex(shellIndex) {
+      final entryPoint = ref.read(entryPointProvider);
+      if (entryPoint.category == EntryPointCategory.study) {
+        return shellIndex - 2;
+      }
+      return shellIndex; // == 2 ? ref.read(lastStudyBranchIndexProvider) : shellIndex;
+    }
+
 //  final double bottomBarHeight = UIConsts.bottomBarHeight + MediaQuery.of(context).padding.bottom;
 
     // ref.read(bottomBarHeightProvider.notifier).setHeight( bottomBarHeight);
@@ -48,101 +70,126 @@ class MainActivity extends ConsumerWidget {
 
       body: navigationShell,
 
-      bottomNavigationBar: entryPoint.category == EntryPointCategory.study
-          ? null
-          : SwitchableFloatBottomBar(
-              entryPoint: entryPoint,
-              selectedIndex: navigationShell.currentIndex,
-              destinationMap: {
-                EntryPointCategory.main:
-                    MainScreenTab.values.map(_buildDestinatioinItem).toList(),
-                //  [
-                //   _buildDestinatioinItem(MainScreenTab.myword),
-                //   _buildDestinatioinItem(MainScreenTab.search),
-                //   _buildDestinatioinItem(MainScreenTab.study),
-                // ],
-                EntryPointCategory.study:
-                    StudyScreenTab.values.map(_buildDestinatioinItem).toList(),
-                // [
-                //   _buildDestinatioinItem(StudyScreenTab.dashboard),
-                //   _buildDestinatioinItem(StudyScreenTab.ranking),
-                //   _buildDestinatioinItem(StudyScreenTab.quiz),
-                // ],
+      bottomNavigationBar: SwitchableFloatBottomBar(
+        entryPoint: entryPoint,
+        selectedIndex: _navBarPhantomIndex(navigationShell.currentIndex),
+        destinationMap: {
+          EntryPointCategory.main:
+              MainScreenTab.values.map(_buildDestinatioinItem).toList(),
+          //  [
+          //   _buildDestinatioinItem(MainScreenTab.myword),
+          //   _buildDestinatioinItem(MainScreenTab.search),
+          //   _buildDestinatioinItem(MainScreenTab.study),
+          // ],
+          EntryPointCategory.study:
+              StudyScreenTab.values.map(_buildDestinatioinItem).toList(),
+          // [
+          //   _buildDestinatioinItem(StudyScreenTab.dashboard),
+          //   _buildDestinatioinItem(StudyScreenTab.ranking),
+          //   _buildDestinatioinItem(StudyScreenTab.quiz),
+          // ],
 
-                // _buildDestinatioinItem2(StudyScreenTab.dashboard),
-                // _buildDestinatioinItem2(StudyScreenTab.ranking),
-                // _buildDestinatioinItem2(StudyScreenTab.quiz),
-              },
-              onDestinationSelected: (index) {
-                final entryPoint = ref.read(entryPointProvider);
-                print("||||||||||||||||||||entrypoint current: $entryPoint");
+          // _buildDestinatioinItem2(StudyScreenTab.dashboard),
+          // _buildDestinatioinItem2(StudyScreenTab.ranking),
+          // _buildDestinatioinItem2(StudyScreenTab.quiz),
+        },
+        onDestinationSelected: (tabIndex) {
+          final entryPoint = ref.read(entryPointProvider);
+          print("||||||||||||||||||||entrypoint current: $entryPoint");
 
-                if (entryPoint.category == EntryPointCategory.study) {
-                  // Study内のタブ切り替え
-                  print(
-                      "study ||||||||||||||||||||entrypoint move: ${StudyScreenTab.values[index].entryPoint}");
-                  ref.read(entryPointProvider.notifier).state =
-                      StudyScreenTab.values[index].entryPoint;
+          if (entryPoint.category == EntryPointCategory.study) {
+            // Study内のタブ切り替え
+            print(
+                "study ||||||||||||||||||||entrypoint move: ${StudyScreenTab.values[tabIndex].entryPoint}");
+            ref.read(entryPointProvider.notifier).state =
+                StudyScreenTab.values[tabIndex].entryPoint;
 
-                  // Study内のStatefulNavigationShellを取得して切り替え
-                  final nestedShell = navigationShell;
-                  // ネストしたShell内のタブを切り替え
-                  // nestedShell.goBranch(
-                  //   index,
-                  //   initialLocation: index == nestedShell.currentIndex,
-                  // );
-                } else {
-                  // Main階層のタブ切り替え
-                  print(
-                      "main ||||||||||||||||||||entrypoint move: ${MainScreenTab.values[index].entryPoint}");
-                  ref.read(entryPointProvider.notifier).state =
-                      MainScreenTab.values[index].entryPoint;
+            ref.read(lastStudyBranchTabIndexProvider.notifier).state = tabIndex;
 
-                  navigationShell.goBranch(
-                    index,
-                    initialLocation: index == navigationShell.currentIndex,
-                  );
-                }
-              },
-              // onDestinationSelected: (index) {
-              //   //entry point 設定
-              //   // ref.read(entryPointProvider.notifier).state =
-              //   //     MainScreenTab.values[index].entryPoint;
-              //   final entryPoint = ref.read(entryPointProvider);
-              //   print("||||||||||||||||||||entrypoint current: $entryPoint");
+            // Study内のStatefulNavigationShellを取得して切り替え
+            // final nestedShell = navigationShell;
+            // ネストしたShell内のタブを切り替え
+            navigationShell.goBranch(
+              _getDestinationShellIndex(tabIndex, false),
+              initialLocation:
+                  false, //tabIndex == navigationShell.currentIndex,
+            );
+          } else {
+            // Main階層のタブ切り替え
+            EntryPoint nextEntryPoint;
+            if (tabIndex == 2) {
+              final lastStudyIndex = ref.read(lastStudyBranchTabIndexProvider);
+              nextEntryPoint = StudyScreenTab.values[lastStudyIndex].entryPoint;
+            } else {
+              nextEntryPoint = MainScreenTab.values[tabIndex].entryPoint;
+              ref.read(lastMainBranchIndexProvider.notifier).state = tabIndex;
+            }
+            ref.read(entryPointProvider.notifier).state = nextEntryPoint;
+            print(
+                "main ||||||||||||||||||||entrypoint move: ${nextEntryPoint}");
 
-              //   if (entryPoint.category == EntryPointCategory.study) {
-              //   print("study ||||||||||||||||||||entrypoint move: ${StudyScreenTab.values[index].entryPoint}");
-              //     ref.read(entryPointProvider.notifier).state =
-              //         StudyScreenTab.values[index].entryPoint;
-              //   } else {
-              //      print("main ||||||||||||||||||||entrypoint move: ${MainScreenTab.values[index].entryPoint}");
+            // final activeIndex=ref.read(lastMainBranchIndexProvider);
+            navigationShell.goBranch(
+              _getDestinationShellIndex(
+                  tabIndex, nextEntryPoint.category != EntryPointCategory.main),
+              initialLocation: tabIndex == navigationShell.currentIndex,
+            );
+          }
+        },
+        // onDestinationSelected: (index) {
+        //   //entry point 設定
+        //   // ref.read(entryPointProvider.notifier).state =
+        //   //     MainScreenTab.values[index].entryPoint;
+        //   final entryPoint = ref.read(entryPointProvider);
+        //   print("||||||||||||||||||||entrypoint current: $entryPoint");
 
-              //     ref.read(entryPointProvider.notifier).state =
-              //         MainScreenTab.values[index].entryPoint;
-              //   }
+        //   if (entryPoint.category == EntryPointCategory.study) {
+        //   print("study ||||||||||||||||||||entrypoint move: ${StudyScreenTab.values[index].entryPoint}");
+        //     ref.read(entryPointProvider.notifier).state =
+        //         StudyScreenTab.values[index].entryPoint;
+        //   } else {
+        //      print("main ||||||||||||||||||||entrypoint move: ${MainScreenTab.values[index].entryPoint}");
 
-              //   // if (MainScreenTab.values[index] == MainScreenTab.study) {
-              //   //   ref.read(entryPointProvider.notifier).state =
-              //   //       EntryPoint.studyRanking;
-              //   // }
-              //   // if (MainScreenTab.values[index] == MainScreenTab.study) {
-              //   //   ref.read(entryPointProvider.notifier).state =
-              //   //       EntryPoint.studyRanking;
-              //   // } else {
-              //   // }
+        //     ref.read(entryPointProvider.notifier).state =
+        //         MainScreenTab.values[index].entryPoint;
+        //   }
 
-              //   //body切り替え
-              //   navigationShell.goBranch(
-              //     index,
-              //     initialLocation: index == navigationShell.currentIndex,
-              //   );
-              // },
-              onActionButtonSelected: () {
-                //navigationShell.goBranch(3, initialLocation: false);
-                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CLOSE BUTTON TAPPED");
-              },
-            ),
+        //   // if (MainScreenTab.values[index] == MainScreenTab.study) {
+        //   //   ref.read(entryPointProvider.notifier).state =
+        //   //       EntryPoint.studyRanking;
+        //   // }
+        //   // if (MainScreenTab.values[index] == MainScreenTab.study) {
+        //   //   ref.read(entryPointProvider.notifier).state =
+        //   //       EntryPoint.studyRanking;
+        //   // } else {
+        //   // }
+
+        //   //body切り替え
+        //   navigationShell.goBranch(
+        //     index,
+        //     initialLocation: index == navigationShell.currentIndex,
+        //   );
+        // },
+        onActionButtonSelected: () {
+          //navigationShell.goBranch(3, initialLocation: false);
+          print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CLOSE BUTTON TAPPED");
+          final lastIndex = ref.read(lastMainBranchIndexProvider);
+          EntryPoint lastEntryPoint;
+          if (lastIndex == 0) {
+            lastEntryPoint = EntryPoint.myword;
+          } else if (lastIndex == 1) {
+            lastEntryPoint = EntryPoint.search;
+          } else {
+            lastEntryPoint = EntryPoint.myword;
+          }
+
+          ref.read(entryPointProvider.notifier).state = lastEntryPoint;
+          navigationShell.goBranch(
+            ref.read(lastMainBranchIndexProvider),
+            //initialLocation: index == navigationShell.currentIndex,
+          );
+        },
+      ),
 
       // FloatBottomBar(
       //   selectedIndex: navigationShell.currentIndex,

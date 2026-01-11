@@ -189,7 +189,7 @@ class _TabWordPageState extends ConsumerState<_TabWordPage>
         curve: Curves.easeInOut,
       ); */
     }
-    setState(() {});
+    //setState(() {});
   }
 
   @override

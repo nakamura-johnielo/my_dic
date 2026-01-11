@@ -29,7 +29,7 @@ final rankingRoute = GoRoute(
     name: RouteNames.ranking,
     //TODO implement
     pageBuilder: (context, state) {
-      return MaterialPage(child: Placeholder());
+      return MaterialPage(child: RankingFragment());
     },
     routes: [
       //level一覧
@@ -89,8 +89,8 @@ final quizRoute = GoRoute(//TODO 修正
       ),
     ]);
 
-GoRoute flashCardRoute( String name,GlobalKey<NavigatorState>? key) => GoRoute(
-      path: RoutePaths.flashCard,
+GoRoute flashCardRoute(String parentPath, String name,GlobalKey<NavigatorState>? key) => GoRoute(
+      path: "$parentPath/${RoutePaths.flashCard}",
       name: name,
       //parentNavigatorKey: key,
       pageBuilder: (context, state) {

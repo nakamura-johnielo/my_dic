@@ -192,7 +192,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
           )),
         ],
       ),
-      floatingActionButton: FilterButton(),
+      floatingActionButton: const FilterButton(),
       floatingActionButtonLocation:
           FloatAboveNavBar(UIConsts.bottomBarCompleteHeight),
     );

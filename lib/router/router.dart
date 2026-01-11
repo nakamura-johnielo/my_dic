@@ -5,7 +5,6 @@ import 'package:my_dic/core/application/effects/auth_effect_provider.dart';
 import 'package:my_dic/features/auth/di/service.dart';
 import 'package:my_dic/features/auth/presentation/view/sign_up.dart';
 import 'package:my_dic/main_activity.dart';
-import 'package:my_dic/study_activity.dart';
 import 'package:my_dic/core/shared/enums/ui/tab.dart';
 import 'package:my_dic/features/my_word/presentation/view/my_word_fragment.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
@@ -142,6 +141,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
         branches: [
           // My word
+          //0
           StatefulShellBranch(
             navigatorKey: myWordKey,
             routes: [
@@ -194,6 +194,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           // ),
 
           // Search
+          //1
           StatefulShellBranch(
             navigatorKey: searchKey,
             routes: [
@@ -206,11 +207,12 @@ final routerProvider = Provider<GoRouter>((ref) {
                 ),
                 routes: [
                   //Study
-                  flashCardRoute("${RouteNames.search}-${RouteNames.flashCard}",
+                  flashCardRoute(RoutePaths.search,
+                    "${RouteNames.search}-${RouteNames.flashCard}",
                       searchKey),
 
                   //word詳細画面
-                  wordDetailRoute(
+                  wordDetailRoute(RoutePaths.search,
                       "${RouteNames.search}-${RouteNames.wordDetail}",
                       searchKey),
                 ],
@@ -218,127 +220,126 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
 
-          
-
-          // Study (ネストしたStatefulShellRoute)
+          // DashboardF
+          //2
           StatefulShellBranch(
-            navigatorKey: studyKey,
-            initialLocation:
-                "${RoutePaths.ranking}/${RoutePaths.rankCollection}/${RoutePaths.rankSection}",
-//
+            navigatorKey: studyDashboardKey,
             routes: [
-              StatefulShellRoute.indexedStack(
-                parentNavigatorKey: studyKey,
-                builder: (context, state, navigationShell) {
-                  // Study内のタブ切り替えはStudyActivityで管理
-                  return StudyActivity(navigationShell: navigationShell);
-                },
-                branches: [
-                  // Dashboard
-                  StatefulShellBranch(
-                    navigatorKey: studyDashboardKey,
-                    routes: [
-                      // dashboard
-                      dashboardRoute,
-                      // GoRoute(
-                      //   path: '/${RoutePaths.study}/${RoutePaths.dashboard}',
-                      //   name: RouteNames.dashboard,
-                      //   pageBuilder: (context, state) => NoTransitionPage(
-                      //     key: state.pageKey,
-                      //     child: Placeholder(), // DashboardFragment()に置き換え
-                      //   ),
-                      // ),
-                    ],
-                  ),
-                  // Quiz
-                  StatefulShellBranch(
-                    navigatorKey: studyQuizKey,
-                    routes: [
-                      // quiz
-                      quizRoute,
-
-                      wordDetailRoute(
-                          "${RouteNames.quiz}-${RouteNames.wordDetail}",
-                          studyQuizKey),
-                      flashCardRoute(
-                          "${RouteNames.quiz}-${RouteNames.flashCard}",
-                          studyQuizKey),
-                      // GoRoute(
-                      //   path: '/${RoutePaths.study}/${RoutePaths.quiz}',
-                      //   name: RouteNames.quiz,
-                      //   pageBuilder: (context, state) => NoTransitionPage(
-                      //     key: state.pageKey,
-                      //     child: QuizSearchFragment(),
-                      //   ),
-                      //   routes: [
-                      //     GoRoute(
-                      //       path: RoutePaths.quizSearch,
-                      //       name: RouteNames.quizSearch,
-                      //       pageBuilder: (context, state) {
-                      //         return MaterialPage(child: Placeholder());
-                      //       },
-                      //     ),
-                      //     wordDetailRoute(
-                      //         "${RouteNames.quiz}-${RouteNames.wordDetail}",
-                      //         studyQuizKey),
-                      //     flashCardRoute(
-                      //         "${RouteNames.quiz}-${RouteNames.flashCard}",
-                      //         studyQuizKey),
-                      //   ],
-                      // ),
-                    ],
-                  ),
-
-                  // Ranking
-                  StatefulShellBranch(
-                    navigatorKey: studyRankingKey,
-                    routes: [
-                      rankingRoute,
-
-                      wordDetailRoute(
-                          "${RouteNames.ranking}-${RouteNames.wordDetail}",
-                          studyRankingKey),
-                      flashCardRoute(
-                          "${RouteNames.ranking}-${RouteNames.flashCard}",
-                          studyRankingKey),
-                      // GoRoute(
-                      //   path: '/${RoutePaths.study}/${RoutePaths.ranking}',
-                      //   name: RouteNames.ranking,
-                      //   pageBuilder: (context, state) => NoTransitionPage(
-                      //     key: state.pageKey,
-                      //     child: RankingFragment(),
-                      //   ),
-                      //   routes: [
-                      //     GoRoute(
-                      //       path: RoutePaths.rankCollection,
-                      //       name: RouteNames.rankCollection,
-                      //       pageBuilder: (context, state) {
-                      //         return MaterialPage(child: Placeholder());
-                      //       },
-                      //       routes: [
-                      //         GoRoute(
-                      //           path: RoutePaths.rankSection,
-                      //           name: RouteNames.rankSection,
-                      //           pageBuilder: (context, state) {
-                      //             return MaterialPage(child: Placeholder());
-                      //           },
-                      //         ),
-                      //       ],
-                      //     ),
-                      //     wordDetailRoute(
-                      //         "${RouteNames.ranking}-${RouteNames.wordDetail}",
-                      //         studyRankingKey),
-                      //     flashCardRoute(
-                      //         "${RouteNames.ranking}-${RouteNames.flashCard}",
-                      //         studyRankingKey),
-                      //   ],
-                      // ),
-                    ],
-                  ),
-                ],
-              ),
+              // dashboard
+              dashboardRoute,
+              // GoRoute(
+              //   path: '/${RoutePaths.study}/${RoutePaths.dashboard}',
+              //   name: RouteNames.dashboard,
+              //   pageBuilder: (context, state) => NoTransitionPage(
+              //     key: state.pageKey,
+              //     child: Placeholder(), // DashboardFragment()に置き換え
+              //   ),
+              // ),
             ],
           ),
+
+          // Quiz
+          //3
+          StatefulShellBranch(
+            navigatorKey: studyQuizKey,
+            routes: [
+              // quiz
+              quizRoute,
+
+              wordDetailRoute(RoutePaths.quiz,
+                  "${RouteNames.quiz}-${RouteNames.wordDetail}", studyQuizKey),
+              flashCardRoute(RoutePaths.quiz,
+                  "${RouteNames.quiz}-${RouteNames.flashCard}", studyQuizKey),
+              // GoRoute(
+              //   path: '/${RoutePaths.study}/${RoutePaths.quiz}',
+              //   name: RouteNames.quiz,
+              //   pageBuilder: (context, state) => NoTransitionPage(
+              //     key: state.pageKey,
+              //     child: QuizSearchFragment(),
+              //   ),
+              //   routes: [
+              //     GoRoute(
+              //       path: RoutePaths.quizSearch,
+              //       name: RouteNames.quizSearch,
+              //       pageBuilder: (context, state) {
+              //         return MaterialPage(child: Placeholder());
+              //       },
+              //     ),
+              //     wordDetailRoute(
+              //         "${RouteNames.quiz}-${RouteNames.wordDetail}",
+              //         studyQuizKey),
+              //     flashCardRoute(
+              //         "${RouteNames.quiz}-${RouteNames.flashCard}",
+              //         studyQuizKey),
+              //   ],
+              // ),
+            ],
+          ),
+
+          // Ranking
+          //4
+          StatefulShellBranch(
+            navigatorKey: studyRankingKey,
+            routes: [
+              rankingRoute,
+
+              wordDetailRoute(RoutePaths.ranking,"${RouteNames.ranking}-${RouteNames.wordDetail}",
+                  studyRankingKey),
+              flashCardRoute(RoutePaths.ranking,"${RouteNames.ranking}-${RouteNames.flashCard}",
+                  studyRankingKey),
+              // GoRoute(
+              //   path: '/${RoutePaths.study}/${RoutePaths.ranking}',
+              //   name: RouteNames.ranking,
+              //   pageBuilder: (context, state) => NoTransitionPage(
+              //     key: state.pageKey,
+              //     child: RankingFragment(),
+              //   ),
+              //   routes: [
+              //     GoRoute(
+              //       path: RoutePaths.rankCollection,
+              //       name: RouteNames.rankCollection,
+              //       pageBuilder: (context, state) {
+              //         return MaterialPage(child: Placeholder());
+              //       },
+              //       routes: [
+              //         GoRoute(
+              //           path: RoutePaths.rankSection,
+              //           name: RouteNames.rankSection,
+              //           pageBuilder: (context, state) {
+              //             return MaterialPage(child: Placeholder());
+              //           },
+              //         ),
+              //       ],
+              //     ),
+              //     wordDetailRoute(
+              //         "${RouteNames.ranking}-${RouteNames.wordDetail}",
+              //         studyRankingKey),
+              //     flashCardRoute(
+              //         "${RouteNames.ranking}-${RouteNames.flashCard}",
+              //         studyRankingKey),
+              //   ],
+              // ),
+            ],
+          ),
+
+          // Study (ネストしたStatefulShellRoute)
+//           StatefulShellBranch(
+//             navigatorKey: studyKey,
+//             initialLocation:
+//                 "${RoutePaths.ranking}/${RoutePaths.rankCollection}/${RoutePaths.rankSection}",
+// //
+//             routes: [
+//               StatefulShellRoute.indexedStack(
+//                 parentNavigatorKey: studyKey,
+//                 builder: (context, state, navigationShell) {
+//                   // Study内のタブ切り替えはStudyActivityで管理
+//                   return StudyActivity(navigationShell: navigationShell);
+//                 },
+//                 branches: [
+//                    ],
+//               ),
+//             ],
+//           ),
 
           // study
 //           StatefulShellBranch(

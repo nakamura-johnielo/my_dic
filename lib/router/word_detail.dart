@@ -6,8 +6,8 @@ import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.d
 import 'package:my_dic/router/route_names.dart';
 import 'package:my_dic/router/study.dart';
 
-GoRoute wordDetailRoute(String name,GlobalKey<NavigatorState>? key) => GoRoute(
-      path: RoutePaths.wordDetail,
+GoRoute wordDetailRoute(String parentPath,String name,GlobalKey<NavigatorState>? key) => GoRoute(
+      path: '$parentPath/${RoutePaths.wordDetail}',
       name: name,
       //parentNavigatorKey: key,
       pageBuilder: (context, state) {
