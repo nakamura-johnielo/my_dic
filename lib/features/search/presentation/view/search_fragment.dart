@@ -132,16 +132,22 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                           word: jpnEspWord.word,
                           onTap: () {
                             // context.push(
-                            //     '/${ScreenTab.search}/${ScreenPage.jpnEspDetail}',
+                            //     '/${MainScreenTab.search}/${ScreenPage.jpnEspDetail}',
                             //     extra: JpnEspWordPageFragmentInput(
                             //         wordId: jpnEspWord.id));
 
-                            context.push(
-                                '/${ScreenTab.search}/${ScreenPage.detail}',
-                                extra: WordPageInput(
-                                    wordId: jpnEspWord.id,
-                                    wordType: WordType.jpnEsp,
-                                    hasConj: false));
+                            //TODO gorouter check
+                            viewModelNotifier.goToWordDetail(WordPageInput(
+                                wordId: jpnEspWord.id,
+                                wordType: WordType.jpnEsp,
+                                hasConj: false));
+                            //   context.push(
+                            //       // '/${MainScreenTab.search}/${ScreenPage.wordDetail}',
+                            //  '${ScreenPage.wordDetail.name}',
+                            //       extra: WordPageInput(
+                            //           wordId: jpnEspWord.id,
+                            //           wordType: WordType.jpnEsp,
+                            //           hasConj: false));
                           },
                         );
                       },
@@ -166,17 +172,24 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                             //meaning: viewModel.filteredItems[index].meaning,
                             onTap: () {
                               // context.push(
-                              //     '/${ScreenTab.search}/${ScreenPage.detail}',
+                              //     '/${MainScreenTab.search}/${ScreenPage.detail}',
                               //     extra: EspJpnWordPageFragmentInput(
                               //         wordId: conjugacion.wordId,
                               //         isVerb: true));
 
-                              context.push(
-                                  '/${ScreenTab.search}/${ScreenPage.detail}',
-                                  extra: WordPageInput(
-                                      wordId: conjugacion.wordId,
-                                      wordType: WordType.espJpn,
-                                      hasConj: true));
+                              //TODO gorouter check
+
+                              viewModelNotifier.goToWordDetail(WordPageInput(
+                                  wordId: conjugacion.wordId,
+                                  wordType: WordType.espJpn,
+                                  hasConj: true));
+                              // context.push(
+                              //     // '/${MainScreenTab.search}/${ScreenPage.wordDetail}',
+                              //     '${ScreenPage.wordDetail.name}',
+                              //     extra: WordPageInput(
+                              //         wordId: conjugacion.wordId,
+                              //         wordType: WordType.espJpn,
+                              //         hasConj: true));
                             },
                           );
                         }
@@ -188,17 +201,23 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                           partOfSpeech: espJpnWord.partOfSpeech,
                           onTap: () {
                             // context.push(
-                            //     '/${ScreenTab.search}/${ScreenPage.detail}',
+                            //     '/${MainScreenTab.search}/${ScreenPage.detail}',
                             //     extra: EspJpnWordPageFragmentInput(
                             //         wordId: espJpnWord.wordId,
                             //         isVerb: espJpnWord.hasVerb()));
 
-                            context.push(
-                                '/${ScreenTab.search}/${ScreenPage.detail}',
-                                extra: WordPageInput(
-                                    wordId: espJpnWord.wordId,
-                                    wordType: WordType.espJpn,
-                                    hasConj: espJpnWord.hasVerb()));
+                            //TODO gorouter check
+                            viewModelNotifier.goToWordDetail(WordPageInput(
+                                wordId: espJpnWord.wordId,
+                                wordType: WordType.espJpn,
+                                hasConj: espJpnWord.hasVerb()));
+                            // context.push(
+                            //     // '/${MainScreenTab.search}/${ScreenPage.wordDetail}',
+                            //     '${ScreenPage.wordDetail.name}',
+                            //     extra: WordPageInput(
+                            //         wordId: espJpnWord.wordId,
+                            //         wordType: WordType.espJpn,
+                            //         hasConj: espJpnWord.hasVerb()));
                           },
                         );
                       },

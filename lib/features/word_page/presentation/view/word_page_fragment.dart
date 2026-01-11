@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_dic/core/presentation/custom_floating_button_location.dart';
+import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/features/esp_jpn_word_status/components/status_button/status_buttons.dart';
 import 'package:my_dic/features/quiz/consts/card_state.dart';
 import 'package:my_dic/core/shared/enums/ui/tab.dart';
@@ -60,7 +62,7 @@ class SingleWordPageInput {
       onPressed: () {
         ref.read(quizGameViewModelProvider.notifier).initialize();
         ref.read(quizCardStateProvider.notifier).state = QuizCardState.question;
-        context.push('/${ScreenTab.quiz}/${ScreenPage.quizDetail}',
+        context.push('/${MainScreenTab.quiz}/${ScreenPage.quizDetail}',
             extra: QuizGameFragmentInput(
                 wordId: widget.input.wordId,
                 word: widget.input.wordId.toString()));
@@ -81,7 +83,8 @@ class WordPageFragment extends ConsumerWidget {
     final Map<String, Widget> tabs = {};
     FloatingActionButton? floatingButton;
 
-    final viewModel = ref.read(wordPageViewModelProvider(input.wordId).notifier);
+    final viewModel =
+        ref.read(wordPageViewModelProvider(input.wordId).notifier);
 
     if (input.wordType == WordType.jpnEsp) {
       viewModel.fetchJpnEspDictionaryById(input.wordId);
@@ -108,9 +111,15 @@ class WordPageFragment extends ConsumerWidget {
       onPressed: () {
         ref.read(quizGameViewModelProvider.notifier).initialize();
         ref.read(quizCardStateProvider.notifier).state = QuizCardState.question;
-        context.push('/${ScreenTab.quiz}/${ScreenPage.quizDetail}',
-            extra: QuizGameFragmentInput(
-                wordId: input.wordId, word: input.wordId.toString()));
+        //TODO gorouter check
+        final viewModel =
+            ref.read(wordPageViewModelProvider(input.wordId).notifier);
+        viewModel.goToQuiz(QuizGameFragmentInput(
+            wordId: input.wordId, word: input.wordId.toString()));
+        //context.push('/${MainScreenTab.quiz}/${ScreenPage.quizDetail}',
+        // context.push('${StudyScreenPage.flashCard.name}',
+        //     extra: QuizGameFragmentInput(
+        //         wordId: input.wordId, word: input.wordId.toString()));
       },
       child: const Icon(Icons.handshake_rounded),
     );
@@ -180,7 +189,7 @@ class _TabWordPageState extends ConsumerState<_TabWordPage>
         curve: Curves.easeInOut,
       ); */
     }
-    setState(() {});
+    //setState(() {});
   }
 
   @override
@@ -212,7 +221,8 @@ class _TabWordPageState extends ConsumerState<_TabWordPage>
         children: _tabBodies,
       ),
       floatingActionButton: widget.input.floatingButton,
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
+      floatingActionButtonLocation:
+          FloatAboveNavBar(UIConsts.bottomBarCompleteHeight),
     );
   }
 }
@@ -235,7 +245,8 @@ class _SingleWordPage extends StatelessWidget {
       ),
       body: input.body,
       floatingActionButton: input.floatingButton,
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
+      floatingActionButtonLocation:
+          FloatAboveNavBar(UIConsts.bottomBarCompleteHeight),
     );
   }
 }

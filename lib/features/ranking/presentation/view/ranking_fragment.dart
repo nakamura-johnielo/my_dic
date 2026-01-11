@@ -3,6 +3,9 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_dic/core/di/ui/ui_di.dart';
+import 'package:my_dic/core/presentation/custom_floating_button_location.dart';
+import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/features/esp_jpn_word_status/di/di.dart';
 import 'package:my_dic/features/ranking/presentation/view/ranking_filter_modal.dart';
 import 'package:my_dic/core/shared/enums/word/word_type.dart';
@@ -81,7 +84,9 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
     final viewModel = ref.watch(rankingViewModelProvider);
     const margin = EdgeInsets.symmetric(vertical: 1, horizontal: 16);
     // final userId = ref.watch(appUserStoreNotifierProvider)?.id ?? "anonymous";
-    final userId = ref.watch(appUserStoreNotifierProvider.select((u) => u?.accountId)) ?? 'anonymous';
+    final userId =
+        ref.watch(appUserStoreNotifierProvider.select((u) => u?.accountId)) ??
+            'anonymous';
 
     ref.watch(rankingFilterEffectProvider(_resetPageCallback));
 
@@ -122,19 +127,20 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
               //MVVMに変更したのでviewmodel経由で取得するようにする???
               // final wordStatus = ref.watch(wordStatusByIdProvider(id));
               //TODO import 考慮
-              final wordStatus = ref.watch(espJpnWordStatusViewModelProvider(id));
-              final wordStatusNotifier = ref.read(espJpnWordStatusViewModelProvider(id).notifier);
+              final wordStatus =
+                  ref.watch(espJpnWordStatusViewModelProvider(id));
+              final wordStatusNotifier =
+                  ref.read(espJpnWordStatusViewModelProvider(id).notifier);
 
               final ranking = viewModel.items[index].copyWith(
-                isBookmarked:
-                    wordStatus.isBookmarked ,
-                isLearned: wordStatus.isLearned ,
-                hasNote: wordStatus.hasNote ,
+                isBookmarked: wordStatus.isBookmarked,
+                isLearned: wordStatus.isLearned,
+                hasNote: wordStatus.hasNote,
               );
 
               Map<WordCardViewButton, VoidCallback>? clickListeners = {
                 WordCardViewButton.bookmark: () {
-                  wordStatusNotifier.toggleBookmark( userId);
+                  wordStatusNotifier.toggleBookmark(userId);
                   //   _rankingController.updateWordStatus(
                   //       index,
                   //       ranking.wordId,
@@ -143,7 +149,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
                   //       ranking.hasNote);
                 },
                 WordCardViewButton.learned: () {
-                  wordStatusNotifier.toggleLearned( userId);
+                  wordStatusNotifier.toggleLearned(userId);
                   //   _rankingController.updateWordStatus(
                   //       index,
                   //       ranking.wordId,
@@ -163,12 +169,22 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
                 // ),
                 margin: margin,
                 onTap: () {
-                  // context.push('/${ScreenTab.ranking}/${ScreenPage.detail}',
+                  // context.push('/${MainScreenTab.ranking}/${ScreenPage.detail}',
                   //     extra: EspJpnWordPageFragmentInput(
                   //         wordId: ranking.wordId, isVerb: ranking.hasConj));
-                  context.push('/${ScreenTab.ranking}/${ScreenPage.detail}',
-                      extra: WordPageInput(
-                          wordId: ranking.wordId, wordType: WordType.espJpn, hasConj: ranking.hasConj));
+                  //TODO gorouter check
+                  //context.push('/${MainScreenTab.ranking}/${ScreenPage.wordDetail}',
+                  ref.read(rankingViewModelProvider.notifier).goToDetail(
+                      WordPageInput(
+                          wordId: ranking.wordId,
+                          wordType: WordType.espJpn,
+                          hasConj: ranking.hasConj));
+
+                  // context.push('/${ScreenPage.wordDetail}',
+                  //     extra: WordPageInput(
+                  //         wordId: ranking.wordId,
+                  //         wordType: WordType.espJpn,
+                  //         hasConj: ranking.hasConj));
                 },
                 clickListeners: clickListeners,
               );
@@ -176,7 +192,9 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
           )),
         ],
       ),
-      floatingActionButton: FilterButton(),
+      floatingActionButton: const FilterButton(),
+      floatingActionButtonLocation:
+          FloatAboveNavBar(UIConsts.bottomBarCompleteHeight),
     );
   }
 }

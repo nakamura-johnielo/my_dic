@@ -10,6 +10,7 @@ import 'package:my_dic/core/shared/enums/ui/tab.dart';
 import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
+import 'package:my_dic/router/navigator_service.dart';
 
 //スマホ用
 class RankingCard extends ConsumerWidget {
@@ -132,9 +133,14 @@ class RankingCard extends ConsumerWidget {
                   ref.read(quizCardStateProvider.notifier).state =
                       QuizCardState.question;
                   ref.read(quizWordProvider.notifier).state = ranking.lemma;
-                  context.push('/${ScreenTab.quiz}/${ScreenPage.quizDetail}',
-                      extra: QuizGameFragmentInput(
+                  //TODO gorouter check
+                  //context.push('/${MainScreenTab.quiz}/${ScreenPage.quizDetail}',
+                  ref.read(appNavigatorServiceProvider).toFlashCard(
+                      QuizGameFragmentInput(
                           wordId: ranking.wordId, word: ranking.lemma));
+                  // context.push('/${StudyScreenPage.flashCard}',
+                  //     extra: QuizGameFragmentInput(
+                  //         wordId: ranking.wordId, word: ranking.lemma));
                 },
               ),
 

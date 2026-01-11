@@ -9,7 +9,7 @@ import 'package:my_dic/core/application/effects/auth_effect_provider.dart';
 import 'package:my_dic/core/presentation/theme/color_scheme.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
 import 'package:my_dic/features/esp_jpn_word_status/di/di.dart';
-import 'package:my_dic/router.dart';
+import 'package:my_dic/router/router.dart';
 import 'package:my_dic/firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

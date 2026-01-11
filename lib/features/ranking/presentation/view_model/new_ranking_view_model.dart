@@ -3,6 +3,7 @@ import 'package:my_dic/core/shared/enums/feature_tag.dart';
 import 'package:my_dic/core/shared/enums/i_enum.dart';
 import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
 import 'package:my_dic/features/ranking/domain/usecase/load_rankings/i_load_rankings_use_case.dart';
 import 'package:my_dic/features/ranking/domain/usecase/load_rankings/load_rankings_input_data.dart';
 import 'package:my_dic/features/ranking/domain/usecase/locate_ranking_pagenation/i_locate_ranking_pagenation_use_case.dart';
@@ -10,18 +11,30 @@ import 'package:my_dic/features/ranking/domain/usecase/update_ranking_filter/i_u
 import 'package:my_dic/features/ranking/domain/usecase/update_ranking_filter/update_ranking_filter_input_data.dart';
 import 'package:my_dic/features/ranking/presentation/ui_model/ranking_ui_model.dart';
 import 'package:logging/logging.dart';
+import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
+import 'package:my_dic/router/navigator_service.dart';
 
 class RankingViewModel extends StateNotifier<RankingState> {
   RankingViewModel(this._loadRankingsUseCase,
-      this._locateRankingPagenationUseCase, this._updateRankingFilterUseCase)
+      this._locateRankingPagenationUseCase, this._updateRankingFilterUseCase, this._naviService)
       : super(const RankingState());
 
   final ILoadRankingsUseCase _loadRankingsUseCase;
   final ILocateRankingPagenationUseCase _locateRankingPagenationUseCase;
   final IUpdateRankingFilterUseCase _updateRankingFilterUseCase;
+  final AppNavigatorService _naviService;
   final _logger = Logger('RankingViewModelV2');
 
   static const int _pageSize = 100;
+
+
+  void goToQuiz(QuizGameFragmentInput input){
+    _naviService.toFlashCard(input);
+  }
+
+  void goToDetail(WordPageInput input){
+    _naviService.toWordDetail( input);
+  }
 
   //TODO currentPage List<int> -> int
   Future<bool> loadNextPage(int nextPage) async {

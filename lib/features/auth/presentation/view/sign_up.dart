@@ -45,7 +45,7 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
       message = await action();
       //final user = cred.user;
       if (!mounted) return;
-      context.replace('/${ScreenTab.profile}/${ScreenPage.unAuthorized}');
+      context.replace('/${MetaScreenTab.profile}/${MetaScreenPage.unAuthorized}');
       return; // 以降のsetStateを避ける
     } on FirebaseAuthException catch (e) {
       message = e.message;

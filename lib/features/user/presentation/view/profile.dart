@@ -66,7 +66,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 await vmNotifier.signOut();
                 if (!mounted) return;
                 context.replace(
-                    '/${ScreenTab.profile}/${ScreenPage.unAuthorized}');
+                    '/${MetaScreenTab.profile}/${MetaScreenPage.unAuthorized}');
               },
             )
           ],
