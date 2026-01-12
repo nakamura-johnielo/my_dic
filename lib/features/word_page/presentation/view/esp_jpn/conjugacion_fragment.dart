@@ -2,9 +2,10 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/features/word_page/presentation/components/conjugacion_card.dart';
 import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
-import 'package:my_dic/core/shared/enums/ui/ui.dart';
+import 'package:my_dic/core/shared/consts/ui/ui2.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacions.dart';
 import 'package:my_dic/features/search/di/view_model_di.dart';
 import 'package:my_dic/features/word_page/di/view_model_di.dart';
@@ -45,10 +46,13 @@ class ConjugacionFragment extends ConsumerWidget {
           )))
         : (ListView(
             //shrinkWrap: true,
-            padding: const EdgeInsets.symmetric(
-                horizontal: PADDING_X_DISPLAY,
-                vertical: MARGIN_BOTTOM_SCROLLABLE_CHILD),
-
+            padding: 
+            // const EdgeInsets.symmetric(
+            //     horizontal: PADDING_X_DISPLAY,
+            //     vertical: MARGIN_BOTTOM_SCROLLABLE_CHILD),
+ const EdgeInsets.fromLTRB(PADDING_X_DISPLAY,MARGIN_BOTTOM_SCROLLABLE_CHILD, PADDING_X_DISPLAY, 
+            UIConsts.scrollBottomPadding, // FAB分の余白
+            ),
             children: conjugacions.conjugacions.entries.map((entry) {
               final moodTense = entry.key;
               final conjugation = entry.value;

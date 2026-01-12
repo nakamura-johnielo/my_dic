@@ -44,4 +44,10 @@ class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
         .getSingleOrNull();
     return existingColum != null ? true : false;
   }
+
+  Stream<MyWordStatusTableData?> watchWordStatus(int wordId) {
+    return (select(myWordStatus)
+          ..where((tbl) => tbl.myWordId.equals(wordId)))
+        .watchSingleOrNull();
+  }
 }

@@ -4,5 +4,6 @@ class UpdateMyWordStatusInputData {
   int index;
   int wordId;
   Set<FeatureTag> status;
-  UpdateMyWordStatusInputData(this.wordId, this.status, this.index);
+  String? userId;
+  UpdateMyWordStatusInputData(this.wordId, this.status, this.index,this.userId);
 }

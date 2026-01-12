@@ -21,6 +21,17 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
         .get();
   }
 
+
+  Future<List<int>?> getIdsFilteredMyWordByPage(int size, int offset) async {
+    final query = selectOnly(myWords)
+      ..addColumns([myWords.myWordId])
+      ..orderBy([OrderingTerm.desc(myWords.myWordId)])
+      ..limit(size, offset: offset);
+
+    final rows = await query.get();
+    return rows.map((row) => row.read(myWords.myWordId)!).toList();
+  }
+
   Future<int> insertMyWord(
       String headword, String description, String dateTime) async {
     return await into(myWords).insert(MyWordsCompanion(
@@ -52,5 +63,23 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
           contents: Value(contents),
           editAt: Value(dateTime)),
     );
+  }
+
+  Future<List<MyWordTableData>> getMyWordsAfter(String dateTime) {
+    return (select(myWords)..where((tbl) => tbl.editAt.isBiggerThanValue(dateTime)))
+        .get();
+  }
+
+  Stream<List<int>> watchMyWordIdsAfter(String dateTime) {
+    return (select(myWords)..where((tbl) => tbl.editAt.isBiggerThanValue(dateTime)))
+        .watch()
+        .map((rows) => rows.map((r) => r.myWordId).toList())
+        .distinct();
+  }
+
+
+  Stream<MyWordTableData?> streamMyWordById(int id) {
+    return (select(myWords)..where((tbl) => tbl.myWordId.equals(id)))
+        .watchSingleOrNull().distinct();
   }
 }

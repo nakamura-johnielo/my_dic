@@ -1,4 +1,4 @@
-import 'package:my_dic/core/shared/enums/ui/tab.dart';
+import 'package:my_dic/core/shared/consts/ui/tab.dart';
 
 class RouteNames {
   // Screen Tabs

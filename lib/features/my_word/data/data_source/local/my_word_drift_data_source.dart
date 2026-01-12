@@ -1,13 +1,11 @@
 import 'package:my_dic/features/my_word/data/data_source/local/drift_my_word_dao.dart';
-import 'package:my_dic/features/my_word/data/data_source/local/drift_my_word_status_dao.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart' as db;
 import 'package:my_dic/features/my_word/data/data_source/local/i_my_word_local_data_source.dart';
 
 class MyWordDriftDataSource implements IMyWordLocalDataSource {
   final MyWordDao _myWordDao;
-  final MyWordStatusDao _wordStatusDao;
 
-  MyWordDriftDataSource(this._myWordDao, this._wordStatusDao);
+  MyWordDriftDataSource(this._myWordDao);
 
   @override
   Future<db.MyWordTableData?> getMyWordById(int id) async {
@@ -17,6 +15,12 @@ class MyWordDriftDataSource implements IMyWordLocalDataSource {
   @override
   Future<List<db.MyWordTableData>?> getFilteredMyWordByPage(int size, int offset) async {
     return await _myWordDao.getFilteredMyWordByPage(size, offset);
+  }
+
+
+  @override
+  Future<List<int>?> getIdsFilteredMyWordByPage(int size, int offset) async {
+    return await _myWordDao.getIdsFilteredMyWordByPage(size, offset);
   }
 
   @override
@@ -31,11 +35,17 @@ class MyWordDriftDataSource implements IMyWordLocalDataSource {
       _myWordDao.updateMyWord(id, word, contents, dateTime);
 
   @override
-  Future<void> updateStatus(db.MyWordStatusTableData data) => _wordStatusDao.updateStatus(data);
+  Future<List<db.MyWordTableData>> getMyWordsAfter(String dateTime) {
+    return _myWordDao.getMyWordsAfter(dateTime);
+  }
 
   @override
-  Future<void> insertStatus(db.MyWordStatusTableData data) => _wordStatusDao.insertStatus(data);
-
+  Stream<List<int>> watchMyWordIdsAfter(String dateTime) {
+    return _myWordDao.watchMyWordIdsAfter(dateTime);
+  }
+  
   @override
-  Future<bool> existStatus(int id) => _wordStatusDao.exist(id);
+  Stream<db.MyWordTableData?> streamMyWordById(int id) {
+    return _myWordDao.streamMyWordById(id);
+  }
 }

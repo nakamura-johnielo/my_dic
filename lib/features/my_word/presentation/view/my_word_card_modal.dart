@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/components/button/my_icon_button.dart';
 import 'package:my_dic/core/shared/enums/my_icons.dart';
 import 'package:my_dic/core/shared/enums/ui/word_card_view_click_listener.dart';
+import 'package:my_dic/features/auth/di/service.dart';
 import 'package:my_dic/features/my_word/di/view_model_di.dart';
 import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
 
@@ -25,6 +26,7 @@ class MyWordCardModal extends ConsumerStatefulWidget {
       //required this.meaning,
       // required this.partOfSpeech,
       this.onTap,
+      this.onChanged,
       this.margin = const EdgeInsets.symmetric(vertical: 1, horizontal: 16),
       /* required this.word,
       required this.no,
@@ -42,6 +44,7 @@ class MyWordCardModal extends ConsumerStatefulWidget {
   //final String meaning;
   // final List<PartOfSpeech> partOfSpeech;
   final VoidCallback? onTap;
+  final VoidCallback? onChanged;
   final EdgeInsetsGeometry? margin;
   //final bool isBookmarked;
   //final bool isLearned;
@@ -229,12 +232,14 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
                       hoveredIconColor: const Color.fromARGB(255, 255, 0, 106),
                       onTap: () {
                         myWordController.deleteWord(
+                          userId: ref.read(authStoreNotifierProvider)?.accountId,
                             wordId: widget.myWord.wordId,
                             index: widget.index,
                             onComplete: () {
                               setState(() {
                                 Navigator.of(context).pop();
                               });
+                              widget.onChanged?.call();
                             });
                       },
                     ),
@@ -248,6 +253,7 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
                         child: FilledButton(
                             onPressed: () {
                               myWordController.updateWord(
+                                userId: ref.read(authStoreNotifierProvider)?.accountId,
                                   myWordId: widget.myWord.wordId,
                                   headword: headwordTextFieldController.text,
                                   description:

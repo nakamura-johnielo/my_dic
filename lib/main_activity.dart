@@ -9,8 +9,9 @@ import 'package:my_dic/core/presentation/components/nav_bar/item.dart';
 import 'package:my_dic/core/presentation/components/nav_bar/studay_bottom_bar.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/core/shared/enums/entry_point.dart';
-import 'package:my_dic/core/shared/enums/ui/tab.dart';
+import 'package:my_dic/core/shared/consts/ui/tab.dart';
 import 'package:my_dic/router/navigator_service.dart';
+import 'package:my_dic/router/route_names.dart';
 //import 'package:my_dic/Constants/screen_tab.dart';
 
 class MainActivity extends ConsumerWidget {
@@ -61,8 +62,9 @@ class MainActivity extends ConsumerWidget {
         actions: [
           IconButton(
               onPressed: () {
-                context.push(
-                    '/${MetaScreenTab.profile}/${MetaScreenPage.unAuthorized}');
+                // context.push(
+                //     '/${MetaScreenTab.profile}/${MetaScreenPage.unAuthorized}');
+                context.pushNamed(RouteNames.profile);
               },
               icon: Icon(Icons.person))
         ],

@@ -1,8 +1,8 @@
 import 'dart:developer';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/core/shared/enums/feature_tag.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
 import 'package:my_dic/features/my_word/domain/usecase/load_my_word/i_load_my_word_use_case.dart';
 import 'package:my_dic/features/my_word/domain/usecase/load_my_word/load_my_word_input_data.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word/create/handle_word_registration/handle_word_registration_input_data.dart';
@@ -13,13 +13,10 @@ import 'package:my_dic/features/my_word/domain/usecase/my_word/delete/delete_my_
 import 'package:my_dic/features/my_word/domain/usecase/my_word/delete/delete_my_word/i_delete_my_word_use_case.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word/update/update_my_word/i_update_my_word_use_case.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word/update/update_my_word/update_my_word_input_data.dart';
-import 'package:my_dic/features/my_word/domain/usecase/update_my_word_status/i_update_my_word_status_use_case.dart';
-import 'package:my_dic/features/my_word/domain/usecase/update_my_word_status/update_my_word_status_input_data.dart';
 import 'package:my_dic/features/my_word/presentation/ui_model/my_word_ui_model.dart';
 
-class MyWordViewModel extends StateNotifier<MyWordState> {
+class MyWordViewModel extends StateNotifier<MyWordStateNew> {
   final ILoadMyWordUseCase _loadMyWordInteractor;
-  final IUpdateMyWordStatusUseCase _updateMyWordStatusInteractor;
   final IRegisterMyWordUseCase _registerMyWordInteractor;
   final IHandleWordRegistrationUseCase _handleWordRegistrationInteractor;
   final IUpdateMyWordUseCase _updateMyWordInteractor;
@@ -27,53 +24,30 @@ class MyWordViewModel extends StateNotifier<MyWordState> {
 
   MyWordViewModel(
       this._loadMyWordInteractor,
-      this._updateMyWordStatusInteractor,
       this._registerMyWordInteractor,
       this._handleWordRegistrationInteractor,
       this._updateMyWordInteractor,
       this._deleteMyWordInteractor)
-      : super(MyWordState());
+      : super(MyWordStateNew());
+
+  void reset() {
+    state = MyWordStateNew();
+  }
 
   Future<void> loadNext(int size, int currentPage) async {
     log("lodNext");
     //List<int> requiredPages = [_viewModel.currentPage[0], _viewModel.currentPage[1]];
 
     LoadMyWordInputData input = LoadMyWordInputData(size, currentPage + 1);
-    final result = await _loadMyWordInteractor.execute(input);
+    final result = await _loadMyWordInteractor.executeIds(input);
     result.when(
       success: (words) {
-        final newData = [...state.myWords, ...words];
-        state = state.copyWith(myWords: newData);
+        final newData = [...state.myWordIds, ...words];
+        state = state.copyWith(myWordIds: newData);
       },
       failure: (error) {
         // エラーハンドリング - ログ出力やユーザーへの通知
         log('Failed to load words: ${error.message}');
-      },
-    );
-  }
-
-  Future<void> updateWordStatus(
-    int index,
-    int wordId,
-    bool isBookmarked,
-    bool isLearned,
-    //bool hasNote,
-  ) async {
-    log("updatecontroller");
-
-    Set<FeatureTag> status = {
-      if (isBookmarked) FeatureTag.isBookmarked,
-      if (isLearned) FeatureTag.isLearned,
-    };
-    UpdateMyWordStatusInputData input =
-        UpdateMyWordStatusInputData(wordId, status, index);
-    final result = await _updateMyWordStatusInteractor.execute(input);
-    result.when(
-      success: (_) {
-        // Success - status updated
-      },
-      failure: (error) {
-        log('Failed to update status: ${error.message}');
       },
     );
   }
@@ -83,14 +57,14 @@ class MyWordViewModel extends StateNotifier<MyWordState> {
       required String description,
       required void Function() onComplete,
       required void Function() onError,
-      required void Function() onInvalid}) async {
+      required void Function() onInvalid, String? userId}) async {
     if (headword.isEmpty) {
       onInvalid();
       return;
     }
 
     final result = await _registerMyWordInteractor
-        .execute(RegisterMyWordInputData(headword, description));
+        .execute(RegisterMyWordInputData(headword, description,userId));
 
     result.when(
       success: (_) {
@@ -109,8 +83,9 @@ class MyWordViewModel extends StateNotifier<MyWordState> {
     required int wordId,
     required int index,
     required void Function() onComplete,
+    String? userId
   }) async {
-    DeleteMyWordInputData input = DeleteMyWordInputData(wordId, index);
+    DeleteMyWordInputData input = DeleteMyWordInputData(wordId, index,userId);
     final result = await _deleteMyWordInteractor.execute(input);
     result.when(
       success: (_) {
@@ -131,9 +106,10 @@ class MyWordViewModel extends StateNotifier<MyWordState> {
     required String description,
     required int index,
     required void Function() onComplete,
+    String? userId
   }) async {
     UpdateMyWordInputData input =
-        UpdateMyWordInputData(myWordId, headword, description, index);
+        UpdateMyWordInputData(myWordId, headword, description, index, userId);
 
     final result = await _updateMyWordInteractor.execute(input);
 
@@ -149,4 +125,19 @@ class MyWordViewModel extends StateNotifier<MyWordState> {
     /* HandleWordUpdateInputData inputHandle = HandleWordUpdateInputData();
     _handleWordUpdateInteractor.execute(inputHandle); */
   }
+
+  Stream<MyWord> streamMyWordById(int id) {
+    return _loadMyWordInteractor.streamMyWordById(id);
+  }
+  
+  // Future<MyWord?> getMyWordById(int id) async {
+  //   final result = await _loadMyWordInteractor.getMyWordById(id);
+  //   return result.when(
+  //     success: (myWord) => myWord,
+  //     failure: (error) {
+  //       log('Failed to get MyWord by id $id: ${error.message}');
+  //       return null;
+  //     },
+  //   );
+  // }
 }

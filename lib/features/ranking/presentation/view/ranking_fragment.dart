@@ -13,7 +13,7 @@ import 'package:my_dic/core/di/view_model/view_model.dart';
 import 'package:my_dic/features/ranking/presentation/effect_provider.dart';
 import 'package:my_dic/features/ranking/presentation/view/ranking_card.dart';
 import 'package:my_dic/core/shared/enums/ui/word_card_view_click_listener.dart';
-import 'package:my_dic/core/shared/enums/ui/tab.dart';
+import 'package:my_dic/core/shared/consts/ui/tab.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
 import 'package:my_dic/features/ranking/di/view_model_di.dart';
 import 'package:my_dic/features/user/di/service.dart';
@@ -192,9 +192,10 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
           )),
         ],
       ),
-      floatingActionButton: const FilterButton(),
+      floatingActionButton: const FilterButton(key: ValueKey("ranking-fl-btn"),),
       floatingActionButtonLocation:
           FloatAboveNavBar(UIConsts.bottomBarCompleteHeight),
+          floatingActionButtonAnimator:const NoScaleFloatingActionButtonAnimator(),
     );
   }
 }

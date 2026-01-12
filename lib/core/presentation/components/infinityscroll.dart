@@ -26,6 +26,8 @@ class InfinityScrollListView extends StatefulWidget {
     this.physics,
   });
 
+  //
+
   /// 親が持っている現在の要素数（Riverpod等の state の length）
   final int itemCount;
 

@@ -7,7 +7,7 @@ import 'package:my_dic/core/presentation/components/auto_focus_text_field.dart';
 import 'package:my_dic/features/search/presentation/components/conjugacion_search_card.dart';
 import 'package:my_dic/features/search/presentation/components/jpn_esp_searh_card.dart';
 import 'package:my_dic/features/search/presentation/components/search_card.dart';
-import 'package:my_dic/core/shared/enums/ui/tab.dart';
+import 'package:my_dic/core/shared/consts/ui/tab.dart';
 import 'package:my_dic/core/shared/enums/word/word_type.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
 import 'package:my_dic/features/search/di/view_model_di.dart';

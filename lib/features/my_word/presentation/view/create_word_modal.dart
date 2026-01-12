@@ -3,11 +3,15 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:my_dic/features/auth/di/service.dart';
 import 'package:my_dic/features/my_word/di/view_model_di.dart';
 import 'package:my_dic/features/my_word/presentation/view_model/my_word_view_model.dart';
+import 'package:my_dic/features/user/di/service.dart';
 
 class WordRegistrationModal extends ConsumerStatefulWidget {
-  const WordRegistrationModal({super.key});
+  const WordRegistrationModal({super.key, this.onRegistered});
+
+  final VoidCallback? onRegistered;
 
   @override
   ConsumerState<WordRegistrationModal> createState() =>
@@ -123,6 +127,7 @@ class _WordRegistrationModalState extends ConsumerState<WordRegistrationModal> {
                             ),
                             onPressed: () {
                               controller.registerWord(
+                                userId: ref.read(authStoreNotifierProvider)?.accountId,
                                   headword: headwordTextFieldController.text,
                                   description:
                                       descriptionTextFieldController.text,
@@ -131,6 +136,7 @@ class _WordRegistrationModalState extends ConsumerState<WordRegistrationModal> {
                                     //headwordTextFieldController.clear();
                                     //モーダル閉じる
                                     Navigator.of(context).pop();
+                                    widget.onRegistered?.call();
                                     //showToast("registered successfully!");
                                   },
                                   onError: () {

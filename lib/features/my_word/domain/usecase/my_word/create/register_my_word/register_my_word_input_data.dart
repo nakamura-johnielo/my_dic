@@ -1,5 +1,6 @@
 class RegisterMyWordInputData {
   String headword;
   String description;
-  RegisterMyWordInputData(this.headword, this.description);
+  String? userId;
+  RegisterMyWordInputData(this.headword, this.description, this.userId);
 }
