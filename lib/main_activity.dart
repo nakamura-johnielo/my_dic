@@ -10,6 +10,7 @@ import 'package:my_dic/core/presentation/components/nav_bar/studay_bottom_bar.da
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/core/shared/enums/entry_point.dart';
 import 'package:my_dic/core/shared/enums/ui/tab.dart';
+import 'package:my_dic/router/navigator_service.dart';
 //import 'package:my_dic/Constants/screen_tab.dart';
 
 class MainActivity extends ConsumerWidget {
@@ -26,12 +27,11 @@ class MainActivity extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    
     int _getDestinationShellIndex(index, changeBranch) {
       final entryPoint = ref.read(entryPointProvider);
       if (changeBranch) {
         print("move index: ${ref.read(lastStudyBranchTabIndexProvider)}");
-        index= ref.read(lastStudyBranchTabIndexProvider);
+        index = ref.read(lastStudyBranchTabIndexProvider);
       }
 
       if (entryPoint.category == EntryPointCategory.study) {
@@ -94,6 +94,13 @@ class MainActivity extends ConsumerWidget {
           // _buildDestinatioinItem2(StudyScreenTab.quiz),
         },
         onDestinationSelected: (tabIndex) {
+          if (tabIndex == _navBarPhantomIndex(navigationShell.currentIndex)) {
+            print("00000000000000000000000000000");
+            ref
+                .read(appNavigatorServiceProvider)
+                .clearCurrentBranchHistoryAndGoRoot();
+            return;
+          }
           final entryPoint = ref.read(entryPointProvider);
           print("||||||||||||||||||||entrypoint current: $entryPoint");
 

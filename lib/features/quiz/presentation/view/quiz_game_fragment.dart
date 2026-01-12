@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/features/quiz/presentation/components/quiz_card.dart';
 import 'package:my_dic/features/esp_jpn_word_status/components/status_button/status_buttons.dart';
 import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
@@ -89,87 +90,90 @@ class QuizGameFragment extends ConsumerWidget {
           appBar: AppBar(
             title: Text('Quiz Game - ${input.word}'),
           ),
-          body: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              spacing: 40,
-              children: [
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  spacing: 7,
-                  children: [
+          body: Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, UIConsts.bottomBarCompleteHeight),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 40,
+                children: [
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: 7,
+                    children: [
+                      Text(
+                        '${input.word} の活用',
+                        style:
+                            TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        spacing: 20,
+                        children: [
+                          TextButton(
+                            onPressed: () =>
+                                // context.push(
+                                //     '/${MainScreenTab.search}/${ScreenPage.detail}',
+                                //     extra: EspJpnWordPageFragmentInput(
+                                //         wordId: input.wordId, isVerb: true))
+                                //TODO gorouter check
+                                quizGameNotifier.goToWordDetail(WordPageInput(
+                                    wordId: input.wordId,
+                                    wordType: WordType.espJpn,
+                                    hasConj: true)),
+                            // context.push(
+                            //     //'/${MainScreenTab.quiz}/${ScreenPage.wordDetail}',
+                            //     '${ScreenPage.wordDetail.name}',
+                            //     extra: WordPageInput(
+                            //         wordId: input.wordId,
+                            //         wordType: WordType.espJpn,
+                            //         hasConj: true)),
+                            child: Text("> 辞書確認"),
+                          ),
+                          StatusButtons(wordId: input.wordId),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Row(spacing: 10, mainAxisSize: MainAxisSize.min, children: [
                     Text(
-                      '${input.word} の活用',
-                      style:
-                          TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                      (quizGame.currentIndex + 1).toString(),
+                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
                     ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: 20,
-                      children: [
-                        TextButton(
-                          onPressed: () =>
-                              // context.push(
-                              //     '/${MainScreenTab.search}/${ScreenPage.detail}',
-                              //     extra: EspJpnWordPageFragmentInput(
-                              //         wordId: input.wordId, isVerb: true))
-                              //TODO gorouter check
-                              quizGameNotifier.goToWordDetail(WordPageInput(
-                                  wordId: input.wordId,
-                                  wordType: WordType.espJpn,
-                                  hasConj: true)),
-                          // context.push(
-                          //     //'/${MainScreenTab.quiz}/${ScreenPage.wordDetail}',
-                          //     '${ScreenPage.wordDetail.name}',
-                          //     extra: WordPageInput(
-                          //         wordId: input.wordId,
-                          //         wordType: WordType.espJpn,
-                          //         hasConj: true)),
-                          child: Text("> 辞書確認"),
-                        ),
-                        StatusButtons(wordId: input.wordId),
-                      ],
+                    Text(
+                      "/",
+                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
                     ),
-                  ],
-                ),
-                Row(spacing: 10, mainAxisSize: MainAxisSize.min, children: [
-                  Text(
-                    (quizGame.currentIndex + 1).toString(),
-                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    "/",
-                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    quizGame.allLength.toString(),
-                    style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
-                  )
-                ]),
-                QuizCard(
-                    onSwipe: onSwipe,
-                    moodTense: quizGame.currentTense,
-                    conjugacion: displayConjugacion(conjugaciones,
-                        quizGame.currentSubject, quizGame.currentTense),
-                    subject: quizGame.currentSubject,
-                    englishSub: quizGameNotifier.quiz1EnglishSub(
-                        englishSubMap, beConj, englishConj),
-                    onToggle: quizGameNotifier.toggleQuizCardStatus),
-                Row(spacing: 34, mainAxisSize: MainAxisSize.min, children: [
-                  IconButton(
-                      onPressed: () => onSwipe("left"),
-                      icon: Icon(Icons.arrow_left_rounded)),
-                  ElevatedButton(
-                    onPressed: () {
-                      quizGameNotifier.toggleQuizCardStatus();
-                    },
-                    child: Text("FLIP!"),
-                  ),
-                  IconButton(
-                      onPressed: () => onSwipe("right"),
-                      icon: Icon(Icons.arrow_right_rounded)),
-                ])
-              ],
+                    Text(
+                      quizGame.allLength.toString(),
+                      style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
+                    )
+                  ]),
+                  QuizCard(
+                      onSwipe: onSwipe,
+                      moodTense: quizGame.currentTense,
+                      conjugacion: displayConjugacion(conjugaciones,
+                          quizGame.currentSubject, quizGame.currentTense),
+                      subject: quizGame.currentSubject,
+                      englishSub: quizGameNotifier.quiz1EnglishSub(
+                          englishSubMap, beConj, englishConj),
+                      onToggle: quizGameNotifier.toggleQuizCardStatus),
+                  Row(spacing: 34, mainAxisSize: MainAxisSize.min, children: [
+                    IconButton(
+                        onPressed: () => onSwipe("left"),
+                        icon: Icon(Icons.arrow_left_rounded)),
+                    ElevatedButton(
+                      onPressed: () {
+                        quizGameNotifier.toggleQuizCardStatus();
+                      },
+                      child: Text("FLIP!"),
+                    ),
+                    IconButton(
+                        onPressed: () => onSwipe("right"),
+                        icon: Icon(Icons.arrow_right_rounded)),
+                  ])
+                ],
+              ),
             ),
           ),
         );
