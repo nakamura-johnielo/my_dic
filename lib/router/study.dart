@@ -1,7 +1,7 @@
 //word詳細画面
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_dic/core/shared/enums/ui/tab.dart';
+import 'package:my_dic/core/shared/consts/ui/tab.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_search_fragment.dart';
 import 'package:my_dic/features/ranking/presentation/view/ranking_fragment.dart';

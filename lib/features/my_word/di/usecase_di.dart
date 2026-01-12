@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/core/di/data/repository_di.dart';
 import 'package:my_dic/features/my_word/di/data_di.dart';
 import 'package:my_dic/features/my_word/domain/usecase/load_my_word/i_load_my_word_use_case.dart';
 import 'package:my_dic/features/my_word/domain/usecase/load_my_word/load_my_word_interactor.dart';
@@ -10,8 +11,12 @@ import 'package:my_dic/features/my_word/domain/usecase/my_word/create/register_m
 import 'package:my_dic/features/my_word/domain/usecase/my_word/create/register_my_word/register_my_word_interactor.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word/update/update_my_word/i_update_my_word_use_case.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word/update/update_my_word/update_my_word_interactor.dart';
+import 'package:my_dic/features/my_word/domain/usecase/sync_my_word/i_sync_my_word_usecase.dart';
+import 'package:my_dic/features/my_word/domain/usecase/sync_my_word/sync_my_word_interactor.dart';
 import 'package:my_dic/features/my_word/domain/usecase/update_my_word_status/i_update_my_word_status_use_case.dart';
 import 'package:my_dic/features/my_word/domain/usecase/update_my_word_status/update_my_word_status_interactor.dart';
+import 'package:my_dic/features/my_word/domain/usecase/watch_my_word_status/watch_my_word_status_usecase.dart';
+import 'package:my_dic/features/my_word/domain/usecase/watch_my_word_status/watch_my_word_status_interactor.dart';
 
 
 // ============================================================================
@@ -28,7 +33,7 @@ final loadMyWordUseCaseProvider = Provider<ILoadMyWordUseCase>((ref) {
 final updateMyWordStatusUseCaseProvider =
     Provider<IUpdateMyWordStatusUseCase>((ref) {
   return UpdateMyWordStatusInteractor(
-    ref.read(myWordRepositoryProvider),
+    ref.read(myWordStatusRepositoryProvider),
   );
 });
 
@@ -51,6 +56,19 @@ final updateMyWordUseCaseProvider = Provider<IUpdateMyWordUseCase>((ref) {
 
 final deleteMyWordUseCaseProvider = Provider<IDeleteMyWordUseCase>((ref) {
   return DeleteMyWordInteractor(
+    ref.read(myWordRepositoryProvider),
+  );
+});
+
+final watchMyWordStatusUseCaseProvider = Provider<WatchMyWordStatusUsecase>((ref) {
+  return WatchMyWordStatusInteractor(
+    ref.read(myWordStatusRepositoryProvider),
+  );
+});
+
+final syncMyWordUseCaseProvider = Provider<ISyncMyWordUseCase>((ref) {
+  return SyncMyWordInteractor(
+    ref.read(syncStatusRepositoryProvider),
     ref.read(myWordRepositoryProvider),
   );
 });

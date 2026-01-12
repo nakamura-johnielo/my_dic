@@ -2,7 +2,8 @@ class UpdateMyWordRepositoryInputData {
   int myWordId;
   String headword;
   String description;
-  String editAt;
+  DateTime editAt;
+  String? userId;
   UpdateMyWordRepositoryInputData(
-      this.myWordId, this.headword, this.description, this.editAt);
+      this.myWordId, this.headword, this.description, this.editAt, this.userId);
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/custom_floating_button_location.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
+import 'package:my_dic/features/auth/di/service.dart';
 // import 'package:my_dic/Components/infinity_scroll_list_view.dart';
 import 'package:my_dic/features/my_word/presentation/view/my_word_card.dart';
 import 'package:my_dic/features/my_word/presentation/view/my_word_card_modal.dart';
@@ -56,20 +57,24 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
     });
   }
 
+  void _reloadMyWords() {
+    ref.read(myWordViewModelProvider.notifier).reset();
+    _resetPage();
+  }
+
   void _setCurrentItemLength() {
     final viewModel = ref.read(myWordViewModelProvider);
-    _previousItemLength = viewModel.myWords.length;
+    _previousItemLength = viewModel.myWordIds.length;
   }
 
   bool _canFetch() {
     final viewModel = ref.read(myWordViewModelProvider);
-    final currentItemLength = viewModel.myWords.length;
+    final currentItemLength = viewModel.myWordIds.length;
     return currentItemLength > _previousItemLength;
   }
 
   @override
   Widget build(BuildContext context) {
-    final myWordController = ref.read(myWordViewModelProvider.notifier);
     final myWordViewModel = ref.watch(myWordViewModelProvider);
 
     return Scaffold(
@@ -83,56 +88,71 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
         children: [
           Expanded(
               child: InfinityScrollListView(
+                padding: const EdgeInsets.only(
+                  bottom: UIConsts.bottomBarCompleteHeight*2, // FAB分の余白
+                ),
             initialPage: _initialPage,
             controller: _infinityScrollController,
             autoLoadFirstPage: true,
             onLoadMore: loadNextPage,
             // loadNext: myWordController.loadNext,
-            itemCount: myWordViewModel.myWords.length,
+            itemCount: myWordViewModel.myWordIds.length,
             itemBuilder: (context, index) {
-              final myword = myWordViewModel.myWords[index];
+              final id = myWordViewModel.myWordIds[index];
 
-              //!
-              //TODO clicklisternerがmodalとリアルタイムで更新されない
-              //!
+              // MyWordをStream監視（リアルタイム更新）
+              final myWordAsync = ref.watch(myWordStreamProvider(id));
+              
+              // Stream監視でリアルタイムにステータスを取得（Rankingと同じパターン）
+              final wordStatus = ref.watch(myWordStatusViewModelProvider(id));
+              final wordStatusNotifier = ref.read(myWordStatusViewModelProvider(id).notifier);
 
-              final clickListeners = {
-                WordCardViewButton.bookmark: () {
-                  myWordController.updateWordStatus(
-                    index,
-                    myword.wordId,
-                    !myword.isBookmarked,
-                    myword.isLearned,
-                    //myword.hasNote
+              return myWordAsync.when(
+                data: (myWord) {
+                  // 最新のステータスで MyWord を更新
+                  final updatedMyWord = myWord.copyWith(
+                    isBookmarked: wordStatus.isBookmarked,
+                    isLearned: wordStatus.isLearned,
+                  );
+
+                  final clickListeners = {
+                    WordCardViewButton.bookmark: () {
+                      wordStatusNotifier.toggleBookmark(ref.read(authStoreNotifierProvider)?.accountId);
+                    },
+                    WordCardViewButton.learned: () {
+                      wordStatusNotifier.toggleLearned(ref.read(authStoreNotifierProvider)?.accountId);
+                    },
+                  };
+                  
+                  return Padding(
+                    key: ValueKey(id), // パフォーマンス最適化のためKeyを付与
+                    padding: const EdgeInsets.only(bottom: 7.0),
+                    child: MyWordCard(
+                      onTap: () {
+                        openDetailModal(
+                          context,
+                          clickListeners,
+                          index,
+                          updatedMyWord,
+                          onChanged: _reloadMyWords,
+                        );
+                      },
+                      myWord: updatedMyWord,
+                      clickListeners: clickListeners,
+                    ),
                   );
                 },
-                WordCardViewButton.learned: () {
-                  myWordController.updateWordStatus(
-                    index,
-                    myword.wordId,
-                    myword.isBookmarked,
-                    !myword.isLearned,
-                    //myword.hasNote
-                  );
-                },
-              };
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 7.0),
-                child: MyWordCard(
-                  onTap: () {
-                    openDetailModal(context, clickListeners, index, myword);
-                  },
-                  myWord: myword,
-                  clickListeners: clickListeners,
-                ),
+                loading: () => const SizedBox.shrink(), //TODO PlaceHolder
+                error: (error, stack) => const SizedBox.shrink(), // エラー時は非表示
               );
             },
           )),
         ],
       )),
-      floatingActionButton: RegisterButton(),
+      floatingActionButton: RegisterButton(onRegistered: _reloadMyWords),
       floatingActionButtonLocation:
           FloatAboveNavBar(UIConsts.bottomBarCompleteHeight),
+      floatingActionButtonAnimator: const NoScaleFloatingActionButtonAnimator(),
     );
   }
 }
@@ -142,7 +162,9 @@ void openDetailModal(
     BuildContext context,
     Map<WordCardViewButton, void Function()> clickListeners,
     int index,
-    MyWord myword) {
+    MyWord myword, {
+    VoidCallback? onChanged,
+  }) {
   showDialog<void>(
     context: context,
     barrierDismissible: true, // カード外タップで閉じる
@@ -162,6 +184,7 @@ void openDetailModal(
                 myWord: myword,
                 clickListeners: clickListeners,
                 index: index,
+                onChanged: onChanged,
               ),
             ),
           ),
@@ -172,7 +195,9 @@ void openDetailModal(
 }
 
 class RegisterButton extends StatelessWidget {
-  const RegisterButton({super.key});
+  const RegisterButton({super.key, this.onRegistered});
+
+  final VoidCallback? onRegistered;
 
   @override
   Widget build(BuildContext context) {
@@ -191,7 +216,7 @@ class RegisterButton extends StatelessWidget {
                   constraints: const BoxConstraints(maxWidth: 560),
                   child: Material(
                     type: MaterialType.transparency, // Material 祖先を提供
-                    child: WordRegistrationModal(),
+                    child: WordRegistrationModal(onRegistered: onRegistered),
                   ),
                 ),
               ),
@@ -203,7 +228,6 @@ class RegisterButton extends StatelessWidget {
     );
   }
 }
-
 
 void openDetailModal2(
     BuildContext context,

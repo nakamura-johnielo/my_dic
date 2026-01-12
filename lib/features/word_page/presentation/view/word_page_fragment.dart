@@ -5,7 +5,7 @@ import 'package:my_dic/core/presentation/custom_floating_button_location.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/features/esp_jpn_word_status/components/status_button/status_buttons.dart';
 import 'package:my_dic/features/quiz/consts/card_state.dart';
-import 'package:my_dic/core/shared/enums/ui/tab.dart';
+import 'package:my_dic/core/shared/consts/ui/tab.dart';
 import 'package:my_dic/core/shared/enums/word/word_type.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
@@ -223,6 +223,8 @@ class _TabWordPageState extends ConsumerState<_TabWordPage>
       floatingActionButton: widget.input.floatingButton,
       floatingActionButtonLocation:
           FloatAboveNavBar(UIConsts.bottomBarCompleteHeight),
+          floatingActionButtonAnimator:const NoScaleFloatingActionButtonAnimator(),
+   
     );
   }
 }

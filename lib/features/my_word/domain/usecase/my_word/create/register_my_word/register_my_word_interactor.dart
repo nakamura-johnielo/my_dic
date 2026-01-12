@@ -19,10 +19,10 @@ class RegisterMyWordInteractor implements IRegisterMyWordUseCase {
       return Result.failure(validationError);
     }
 
-    String dateTime = getNowUTCDateHour();
+    DateTime dateTime = DateTime.now().toUtc();
     RegisterMyWordRepositoryInputData repositoryInput =
         RegisterMyWordRepositoryInputData(
-            input.headword.trim(), input.description.trim(), dateTime);
+            input.headword.trim(), input.description.trim(), dateTime,input.userId);
 
     return await _driftMyWordRepository.registerWord(repositoryInput);
   }

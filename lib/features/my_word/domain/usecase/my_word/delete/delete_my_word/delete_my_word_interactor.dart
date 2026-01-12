@@ -15,7 +15,7 @@ class DeleteMyWordInteractor implements IDeleteMyWordUseCase {
     String dateTime = getNowUTCDateHour();
 
     DeleteMyWordRepositoryInputData repositoryInput =
-        DeleteMyWordRepositoryInputData(input.id, dateTime);
+        DeleteMyWordRepositoryInputData(input.id, dateTime,input.userId);
 
     return await _driftMyWordRepository.deleteWord(repositoryInput);
   }

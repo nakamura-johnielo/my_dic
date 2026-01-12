@@ -3,7 +3,8 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/core/shared/enums/ui/ui.dart';
+import 'package:my_dic/core/shared/consts/ui/ui.dart';
+import 'package:my_dic/core/shared/consts/ui/ui2.dart';
 import 'package:my_dic/core/domain/entity/jpn_esp/jpn_esp_dictionary.dart';
 import 'package:my_dic/features/word_page/di/view_model_di.dart';
 import 'package:my_dic/features/word_page/presentation/view/html_style_kotobank.dart';
@@ -50,7 +51,9 @@ class JpnEspDictionaryFragment extends ConsumerWidget {
             margin: const EdgeInsets.only(
                 top: MARGIN_TOP_SCROLLABLE_CHILD,
                 bottom: MARGIN_BOTTOM_SCROLLABLE_CHILD),
-            padding: const EdgeInsets.symmetric(horizontal: PADDING_X_DISPLAY),
+            padding: const EdgeInsets.fromLTRB(PADDING_X_DISPLAY,0, PADDING_X_DISPLAY, 
+            UIConsts.scrollBottomPadding,  // FAB分の余白
+            ),
             child: Column(
               children: [
                 Text(

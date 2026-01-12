@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/core/presentation/components/icons/rotating_icon.dart';
 import 'package:my_dic/core/shared/enums/ui/button_status.dart';
-import 'package:my_dic/core/shared/enums/ui/tab.dart';
+import 'package:my_dic/core/shared/consts/ui/tab.dart';
 import 'package:my_dic/features/user/di/service.dart';
 import 'package:my_dic/features/user/di/viewmodel.dart';
 

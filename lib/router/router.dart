@@ -5,7 +5,7 @@ import 'package:my_dic/core/application/effects/auth_effect_provider.dart';
 import 'package:my_dic/features/auth/di/service.dart';
 import 'package:my_dic/features/auth/presentation/view/sign_up.dart';
 import 'package:my_dic/main_activity.dart';
-import 'package:my_dic/core/shared/enums/ui/tab.dart';
+import 'package:my_dic/core/shared/consts/ui/tab.dart';
 import 'package:my_dic/features/my_word/presentation/view/my_word_fragment.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
 import 'package:my_dic/features/ranking/presentation/view/ranking_fragment.dart';
@@ -105,14 +105,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       print('fullPath: $fullPath');
 
       // login系のページじゃなければ強勢移動させない
-      final inProfile = location.startsWith('/${MetaScreenTab.profile}');
+      final inProfile = location.startsWith('/${RoutePaths.profile}');
       if (!inProfile) return null;
 
       final auth = ref.read(authStoreNotifierProvider);
       final unauthorized =
-          '/${MetaScreenTab.profile}/${MetaScreenPage.unAuthorized}';
+          '/${RoutePaths.profile}/${RoutePaths.unauthorized}';
       final authorized =
-          '/${MetaScreenTab.profile}/${MetaScreenPage.authorized}';
+          '/${RoutePaths.profile}/${RoutePaths.authorized}';
 
       if (auth == null) {
         print('auth is null');

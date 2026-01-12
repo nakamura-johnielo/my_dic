@@ -1,7 +1,8 @@
 class RegisterMyWordRepositoryInputData {
   String headword;
   String description;
-  String dateTime;
+  DateTime dateTime;
+  String? userId;
   RegisterMyWordRepositoryInputData(
-      this.headword, this.description, this.dateTime);
+      this.headword, this.description, this.dateTime, this.userId);
 }

@@ -11,7 +11,7 @@ class LoadMyWordInteractor implements ILoadMyWordUseCase {
 
   LoadMyWordInteractor(this._driftLoadMyWordRepository);
 
-  @override
+  @override//TODO 使っていない
   Future<Result<List<MyWord>>> execute(LoadMyWordInputData input) async {
     // Validation
     final validationError = _validateInput(input);
@@ -41,4 +41,30 @@ class LoadMyWordInteractor implements ILoadMyWordUseCase {
 
     return null;
   }
+  
+  @override
+  Future<Result<List<int>>> executeIds(LoadMyWordInputData input)async {
+    // Validation
+    final validationError = _validateInput(input);
+    if (validationError != null) {
+      return Result.failure(validationError);
+    }
+
+    int offset = input.requiredPage * input.size;
+    LoadMyWordRepositoryInputData repositoryInput =
+        LoadMyWordRepositoryInputData(input.size, offset);
+
+    return await _driftLoadMyWordRepository.getIdsFilteredByPage(repositoryInput);
+  
+  }
+  
+  @override
+  Stream<MyWord> streamMyWordById(int id) {
+    return _driftLoadMyWordRepository.streamMyWord(id);
+  }
+  
+  // @override
+  // Future<Result<MyWord>> getMyWordById(int id) async {
+  //   return await _driftLoadMyWordRepository.getById(id);
+  // }
 }

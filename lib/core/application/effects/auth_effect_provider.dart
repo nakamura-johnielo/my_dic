@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/di/coordinator/corrdinator.dart';
 import 'package:my_dic/features/esp_jpn_word_status/di/di.dart';
+import 'package:my_dic/features/my_word/di/service_di.dart';
 import 'package:my_dic/features/auth/di/view_model_di.dart';
 import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
 
@@ -23,10 +24,14 @@ final authStreamProvider = StreamProvider<AppAuth?>((ref) {
 
 /// 認証状態の変化を監視し、副作用を実行
 final authEffectProvider = Provider<void>((ref) {
+  // Keep sync services alive while this effect provider is alive.
+  ref.watch(espJpnWordStatusSyncServiceProvider);
+  ref.watch(myWordSyncServiceProvider);
+
   ref.listen<AsyncValue<AppAuth?>>(
     authStreamProvider,
     (previous, next) async {
-     // await _handleAuthStateChange(ref, previous?.value, next.value);
+      await _handleAuthStateChange(ref, previous?.value, next.value);
     },
   );
 });
@@ -88,6 +93,10 @@ Future<void> _handleSignIn(Ref ref, AppAuth currentAuth) async {
     final syncResult = await ref
         .read(espJpnWordStatusSyncServiceProvider)
         .syncOnce(currentAuth.accountId);
+
+    await ref
+      .read(myWordSyncServiceProvider)
+      .syncOnce(currentAuth.accountId);
     
     // Note: syncOnce already logs the result internally via .when()
     // No need for additional .then() or .catchError()

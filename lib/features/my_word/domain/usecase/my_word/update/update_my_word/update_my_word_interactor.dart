@@ -20,11 +20,11 @@ class UpdateMyWordInteractor implements IUpdateMyWordUseCase {
       return Result.failure(validationError);
     }
 
-    String dateTime = getNowUTCDateHour();
+    final dateTime = DateTime.now().toUtc();
 
     UpdateMyWordRepositoryInputData repositoryInput =
         UpdateMyWordRepositoryInputData(
-            input.myWordId, input.headword.trim(), input.description.trim(), dateTime);
+            input.myWordId, input.headword.trim(), input.description.trim(), dateTime,input.userId);
 
     return await _driftMyWordRepository.updateWord(repositoryInput);
   }
