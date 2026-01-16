@@ -32,8 +32,9 @@ class SyncEspJpnWordStatusInteractor implements ISyncEspJpnWordStatusUseCase {
     final localLastSyncDate = await _getLastSyncDate();
 
     //remoteのその時刻以降の更新データを取得
-    final remoteDataResult = await _wordStatusRepository.getRemoteWordStatusAfter(
-        userId, localLastSyncDate);
+    final remoteDataResult = await _wordStatusRepository
+        .getRemoteWordStatusAfter(userId, localLastSyncDate);
+    // print(">>>>>>unsync remoteData");
 
     final remoteData = remoteDataResult.when(
       success: (data) => data,
@@ -47,6 +48,8 @@ class SyncEspJpnWordStatusInteractor implements ISyncEspJpnWordStatusUseCase {
     if (remoteData is AppError) {
       return Result.failure(remoteData);
     }
+
+    (remoteData as List<WordStatus> ).map((e) => print(">>>>>>unsync remote wordId: ${e.wordId}"));
 
     //remoteの値でlocalを更新した場合、そのwordIdを格納
     final List<int> wordIdsUpdatedByRemote = [];
@@ -88,7 +91,8 @@ class SyncEspJpnWordStatusInteractor implements ISyncEspJpnWordStatusUseCase {
         await _wordStatusRepository.getLocalWordStatusAfter(datetime);
 
     if (localDataResult.isFailure) {
-      print('Failed to get local word status after: ${localDataResult.errorOrNull?.message}');
+      print(
+          'Failed to get local word status after: ${localDataResult.errorOrNull?.message}');
       return Result.failure(localDataResult.errorOrNull!);
     }
 
@@ -117,7 +121,8 @@ class SyncEspJpnWordStatusInteractor implements ISyncEspJpnWordStatusUseCase {
         await _wordStatusRepository.getRemoteWordStatusById(userId, wordId);
 
     if (remoteItemResult.isFailure) {
-      print('Failed to get remote word status by id: ${remoteItemResult.errorOrNull?.message}');
+      print(
+          'Failed to get remote word status by id: ${remoteItemResult.errorOrNull?.message}');
       return Result.failure(remoteItemResult.errorOrNull!);
     }
 
@@ -129,7 +134,8 @@ class SyncEspJpnWordStatusInteractor implements ISyncEspJpnWordStatusUseCase {
           await _wordStatusRepository.getLocalWordStatusById(wordId);
 
       if (localDataResult.isFailure) {
-        print('Failed to get local word status by id: ${localDataResult.errorOrNull?.message}');
+        print(
+            'Failed to get local word status by id: ${localDataResult.errorOrNull?.message}');
         return Result.failure(localDataResult.errorOrNull!);
       }
 
@@ -166,7 +172,8 @@ class SyncEspJpnWordStatusInteractor implements ISyncEspJpnWordStatusUseCase {
         await _wordStatusRepository.getRemoteWordStatusById(userId, wordId);
 
     if (remoteItemResult.isFailure) {
-      print('Failed to get remote word status by id: ${remoteItemResult.errorOrNull?.message}');
+      print(
+          'Failed to get remote word status by id: ${remoteItemResult.errorOrNull?.message}');
       return Result.failure(remoteItemResult.errorOrNull!);
     }
 
@@ -221,7 +228,8 @@ class SyncEspJpnWordStatusInteractor implements ISyncEspJpnWordStatusUseCase {
         await _wordStatusRepository.getLocalWordStatusById(remoteItem.wordId);
 
     if (localDataResult.isFailure) {
-      print('Failed to get local word status by id: ${localDataResult.errorOrNull?.message}');
+      print(
+          'Failed to get local word status by id: ${localDataResult.errorOrNull?.message}');
       return Result.failure(localDataResult.errorOrNull!);
     }
 
@@ -230,9 +238,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncEspJpnWordStatusUseCase {
     if (localData == null) {
       // ローカルに存在しない場合は、リモートのデータでローカルを作成
       final updateResult = await _wordStatusRepository.updateLocalWordStatus(
-        remoteItem,
-        remoteItem.editAt
-      );
+          remoteItem, remoteItem.editAt);
       if (updateResult.isFailure) {
         return Result.failure(updateResult.errorOrNull!);
       }

@@ -64,7 +64,8 @@ class MainActivity extends ConsumerWidget {
               onPressed: () {
                 // context.push(
                 //     '/${MetaScreenTab.profile}/${MetaScreenPage.unAuthorized}');
-                context.pushNamed(RouteNames.profile);
+                //context.pushNamed(RouteNames.profile);
+              ref.read(appNavigatorServiceProvider).toProfile();
               },
               icon: Icon(Icons.person))
         ],

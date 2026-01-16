@@ -86,6 +86,32 @@ final espJpnWordStatusViewModelProvider = StateNotifierProvider.family
   },
 );
 
+// final espJpnWordStatusViewModelProvider2 = StateNotifierProvider
+//     .autoDispose<EspJpnWordStatusViewModel, WordStatusState>(
+//   (ref) {
+//     final fetchUsecase = ref.watch(fetchEspJpnWordStatusUsecaseProvider);
+//     final updateUsecase = ref.watch(updateStatusUseCaseProvider);
+    
+//     return EspJpnWordStatusViewModel(
+//       fetchUsecase,
+//       updateUsecase,
+//     );
+//   },
+// );
+
+
+
+// final espJpnWordStatusViewModelWatchProvider =Provider.family
+//     .autoDispose(
+//   (ref,int wordId) {
+//     final viewModel = ref.read(espJpnWordStatusViewModelProvider2.notifier);
+//     final sub=viewModel.startWatching(wordId);
+//     ref.onDispose(() {
+//       sub?.cancel();
+//     });
+//   },
+// );
+
 
 
 

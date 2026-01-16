@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/core/di/router/router.dart';
 import 'package:my_dic/core/shared/enums/entry_point.dart';
+import 'package:my_dic/features/auth/di/service.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
 import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
 import 'package:my_dic/router/route_names.dart';
@@ -20,8 +21,8 @@ class AppNavigatorService {
 
   EntryPoint get _entryPoint => ref.read(entryPointProvider);
 
-  String _getFormerName(){
-    switch(_entryPoint){
+  String _getFormerName() {
+    switch (_entryPoint) {
       case EntryPoint.search:
         return RouteNames.search;
       case EntryPoint.studyDashboard:
@@ -38,13 +39,14 @@ class AppNavigatorService {
   }
 
   void toWordDetail(WordPageInput input) {
-    _router.pushNamed('${_getFormerName()}-${RouteNames.wordDetail}', extra: input);
+    _router.pushNamed('${_getFormerName()}-${RouteNames.wordDetail}',
+        extra: input);
   }
 
   void toFlashCard(QuizGameFragmentInput input) {
-    _router.pushNamed('${_getFormerName()}-${RouteNames.flashCard}', extra: input);
+    _router.pushNamed('${_getFormerName()}-${RouteNames.flashCard}',
+        extra: input);
   }
-
 
   // 戻る
   void pop() {
@@ -53,8 +55,6 @@ class AppNavigatorService {
 
   //
 
-
-  
   // 指定エントリーポイントに対応するNavigatorKeyを返す
   GlobalKey<NavigatorState>? _navigatorKeyForEntryPoint(EntryPoint entry) {
     switch (entry) {
@@ -111,4 +111,33 @@ class AppNavigatorService {
   void clearCurrentBranchHistoryAndGoRoot() {
     clearBranchHistoryAndGoRoot(_entryPoint);
   }
+
+  void toProfile() {
+    print('========-Go to profile========');
+      _router.replaceNamed(RouteNames.unauthorized);
+     
+
+    // login系のページじゃなければ強勢移動させない
+  //   final inProfile = _entryPoint == EntryPoint.profile;
+  //   if (!inProfile) return;
+
+  //   final auth = ref.read(authStoreNotifierProvider);
+
+  //   if (auth == null) {
+  //     print('auth is null');
+  //     _router.replaceNamed(RouteNames.unauthorized);
+  //     return;
+  //   }
+
+  //   final loggedIn = auth.isLogined;
+  //   final verified = auth.isAuthenticated;
+  //   print('loggedIn: $loggedIn, verified: $verified');
+
+  //   if (!loggedIn || !verified) {
+  //     _router.replaceNamed(RouteNames.unauthorized);
+  //     return;
+  //   }
+  //     _router.replaceNamed(RouteNames.authorized);
+  //     return;
+   }
 }

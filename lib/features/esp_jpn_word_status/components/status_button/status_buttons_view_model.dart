@@ -38,6 +38,27 @@ class EspJpnWordStatusViewModel extends StateNotifier<WordStatusState> {
     );
   }
 
+  StreamSubscription<WordStatus>? startWatching(int wordId) {
+    return _fetchEspJpnStatusUsecase.watch(wordId).listen(
+      (status) {
+        state = state.copyWith(
+          isBookmarked: status.isBookmarked,
+          isLearned: status.isLearned,
+          hasNote: status.hasNote,
+        );
+        // WordStatusState(
+        //   isBookmarked: status.isBookmarked,
+        //   isLearned: status.isLearned,
+        //   hasNote: status.hasNote,
+        // );
+      },
+      onError: (error) {
+        // エラーハンドリング
+        print('Error watching word status $_wordId: $error');
+      },
+    );
+  }
+
   // Future<void> init(int wordId) async {
   //   await fetchStatus(wordId);
   // }

@@ -4,7 +4,7 @@ import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
 import 'package:my_dic/features/my_word/presentation/ui_model/my_word_ui_model.dart';
 import 'package:my_dic/features/my_word/presentation/view_model/my_word_view_model.dart';
 import 'package:my_dic/features/my_word/presentation/view_model/my_word_status_view_model.dart';
-import 'package:my_dic/features/my_word/presentation/view_model/my_word_status_state.dart';
+import 'package:my_dic/features/my_word/presentation/ui_model/my_word_status_state.dart';
 
 
 

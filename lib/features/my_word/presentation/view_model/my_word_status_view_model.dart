@@ -5,7 +5,7 @@ import 'package:my_dic/features/my_word/domain/entity/my_word_status.dart';
 import 'package:my_dic/features/my_word/domain/usecase/update_my_word_status/i_update_my_word_status_use_case.dart';
 import 'package:my_dic/features/my_word/domain/usecase/update_my_word_status/update_my_word_status_input_data.dart';
 import 'package:my_dic/features/my_word/domain/usecase/watch_my_word_status/watch_my_word_status_usecase.dart';
-import 'package:my_dic/features/my_word/presentation/view_model/my_word_status_state.dart';
+import 'package:my_dic/features/my_word/presentation/ui_model/my_word_status_state.dart';
 
 class MyWordStatusViewModel extends StateNotifier<MyWordStatusState> {
   MyWordStatusViewModel(
