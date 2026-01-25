@@ -5,14 +5,14 @@ class AppUser {
   // accountIdはaccountに対して１つ
   //provider等から割り当てられるやつ
   //acountIdはAuth確認には使わない！！！
-  final String accountId;
+  // final String accountId;
   final String? deviceId;
   final String? email;
   final String username;
   final SubscriptionStatus subscriptionStatus;
 
   AppUser({
-    required this.accountId,
+    // required this.accountId,
      this.deviceId,
     this.email,
     String? username,
@@ -28,14 +28,14 @@ class AppUser {
   //   );
   // }
   AppUser copyWith({
-    String? accountId,
+    // String? accountId,
     String? deviceId,
     String? email,
     String? username,
     SubscriptionStatus? subscriptionStatus,
   }) {
     return AppUser(
-      accountId: accountId ?? this.accountId,
+      // accountId: accountId ?? this.accountId,
       deviceId: deviceId ?? this.deviceId,
       email: email ?? this.email,
       username: username ?? this.username,

@@ -32,26 +32,26 @@ class AppUserCoordinator {
 
   Future<Result<void>> updateUser({
     //TOODO accountIdの供給法
-    String? accountId,
+    // String? accountId,
     String? deviceId,
     String? email,
     String? username,
     SubscriptionStatus? subscriptionStatus,
   }) async {
-    String? thisAccountId = accountId ?? _userStore?.accountId;
-    if (thisAccountId == null) {
-      log("アカウントIDが存在しません。");
-      return Result.failure(UserNotFoundError(message: "アカウントIDが存在しません。"));
-    }
+    // String? thisAccountId = accountId ?? _userStore?.accountId;
+    // if (thisAccountId == null) {
+    //   log("アカウントIDが存在しません。");
+    //   return Result.failure(UserNotFoundError(message: "アカウントIDが存在しません。"));
+    // }
 
     final user = _userStore?.copyWith(
             deviceId: deviceId,
-            accountId: thisAccountId,
+            // accountId: thisAccountId,
             email: email,
             username: username,
             subscriptionStatus: subscriptionStatus) ??
         AppUser(
-            accountId: thisAccountId,
+            // accountId: thisAccountId,
             deviceId: deviceId,
             email: email,
             username: username,

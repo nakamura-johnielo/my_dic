@@ -11,7 +11,6 @@ import 'package:my_dic/features/my_word/presentation/view_model/my_word_view_mod
 import 'package:my_dic/features/my_word/presentation/ui_model/my_word_status_state.dart';
 import 'package:my_dic/features/my_word/presentation/view_model/my_word_item_view_model.dart';
 import 'package:my_dic/features/my_word/presentation/view_model/my_word_status_view_model.dart';
-import 'package:my_dic/features/user/di/service.dart';
 
 final myWordFragmentViewModelProvider =
     StateNotifierProvider<MyWordFragmentViewModel, MyWordFragmentState>((ref) {
@@ -73,13 +72,8 @@ final myWordStatusCommandProvider = StateNotifierProvider.family
     .autoDispose<MyWordStatusCommand, MyWordStatusCommandEvent?, int>(
   (ref, wordId) {
     final updateUsecase = ref.read(updateMyWordStatusUseCaseProvider);
-    final currentUser = ref.watch(appUserStoreNotifierProvider);
 
-    return MyWordStatusCommand(
-      wordId,
-      currentUser?.accountId,
-      updateUsecase,
-    );
+    return MyWordStatusCommand(wordId, updateUsecase);
   },
 );
 
@@ -88,14 +82,8 @@ final myWordCommandProvider = StateNotifierProvider.family
   (ref, wordId) {
     final updateUsecase = ref.read(updateMyWordUseCaseProvider);
     final deleteUsecase = ref.read(deleteMyWordUseCaseProvider);
-    final currentUser = ref.watch(appUserStoreNotifierProvider);
 
-    return MyWordCommand(
-      wordId,
-      currentUser?.accountId,
-      updateUsecase,
-      deleteUsecase,
-    );
+    return MyWordCommand(wordId, updateUsecase, deleteUsecase);
   },
 );
 

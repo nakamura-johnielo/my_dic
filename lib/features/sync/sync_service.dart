@@ -26,10 +26,10 @@ class SyncService {
     return grouped;
   }
 
-  Future<void> syncOnceAll(String userId) async {
+  Future<void> syncOnceAll() async {
     // Execute groups (same priority) in parallel, groups sequentially
     for (final group in syncUsecasePriorityGroups) {
-      final futures = group.map((uc) => uc.syncOnce(userId)).toList();
+      final futures = group.map((uc) => uc.syncOnce()).toList();
       final results = await Future.wait(futures);
 
       for (var i = 0; i < group.length; i++) {
@@ -44,22 +44,20 @@ class SyncService {
       }
     }
 
-    // await Future.wait(_syncUseCases.map((usecase) => usecase.syncOnce(userId)));
+    // await Future.wait(_syncUseCases.map((usecase) => usecase.syncOnce()));
   }
 
-  StreamSubscription startSyncWithRemote(
-    String userId,
-  ) {
+  StreamSubscription startSyncWithRemote() {
     print("--------------------syncservice start sync withremote");
-    final streams = _syncUseCases.map((usecase) =>
-        usecase.watchRemoteChangedIds(userId).map((ids) => (usecase, ids)));
+    final streams = _syncUseCases
+        .map((usecase) => usecase.watchRemoteChangedIds().map((ids) => (usecase, ids)));
 
     return StreamGroup.merge(streams).listen((pair) async {
       print(
           ">>>>>>>mergestream:${pair.$1.runtimeType} changed ids: ${pair.$2}");
       final (usecase, ids) = pair;
       for (final id in ids) {
-        await usecase.syncOnUpdatedRemote(userId, id.toString());
+        await usecase.syncOnUpdatedRemote(id.toString());
       }
     });
   }

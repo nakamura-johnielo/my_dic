@@ -17,10 +17,10 @@ class MyWordFragmentViewModel extends StateNotifier<MyWordFragmentState> {
   final IHandleWordRegistrationUseCase _handleWordRegistrationInteractor;
 
   MyWordFragmentViewModel(
-      this._loadMyWordInteractor,
-      this._registerMyWordInteractor,
-      this._handleWordRegistrationInteractor,)
-      : super(MyWordFragmentState());
+    this._loadMyWordInteractor,
+    this._registerMyWordInteractor,
+    this._handleWordRegistrationInteractor,
+  ) : super(MyWordFragmentState());
 
   void reset() {
     state = MyWordFragmentState();
@@ -49,14 +49,17 @@ class MyWordFragmentViewModel extends StateNotifier<MyWordFragmentState> {
       required String description,
       required void Function() onComplete,
       required void Function() onError,
-      required void Function() onInvalid, String? userId}) async {
+      required void Function() onInvalid}) async {
     if (headword.isEmpty) {
       onInvalid();
       return;
     }
 
-    final result = await _registerMyWordInteractor
-        .execute(RegisterMyWordInputData(headword, description,userId));
+    final result =
+        await _registerMyWordInteractor.execute(RegisterMyWordInputData(
+      headword,
+      description,
+    ));
 
     result.when(
       success: (_) {
@@ -70,5 +73,4 @@ class MyWordFragmentViewModel extends StateNotifier<MyWordFragmentState> {
       },
     );
   }
-
 }

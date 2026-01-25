@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:my_dic/core/shared/enums/feature_tag.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/i_word_status_repository.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/update_status_input_data.dart';
@@ -9,8 +10,9 @@ import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status
 
 class UpdateStatusInteractor implements IUpdateStatusUseCase {
   final IWordStatusRepository _wordStatusRepository;
+  final IAuthRepository _authRepository;
 
-  UpdateStatusInteractor(this._wordStatusRepository);
+  UpdateStatusInteractor(this._wordStatusRepository, this._authRepository);
 
   int? converterIntFromBool(bool? value) {
     if (value == null) {
@@ -41,7 +43,24 @@ class UpdateStatusInteractor implements IUpdateStatusUseCase {
     }
 
     // ログインユーザーの場合のみリモート更新を実行
-    if (input.accountId != null) {
+    
+    //TODO authjudge
+    String? accountId;
+    try {
+      final authResult = await _authRepository.getCurrentAuth();
+      authResult.when(
+        success: (auth) {
+          if (auth.isAuthenticated && auth.accountId.isNotEmpty) {
+            accountId = auth.accountId;
+          }
+        },
+        failure: (_) {},
+      );
+    } catch (_) {
+      // ignore and treat as unauthenticated
+    }
+
+    if (accountId != null) {
       WordStatus repoInput = WordStatus(
         wordId: input.wordId,
         isBookmarked: input.isBookmarked ?? false,
@@ -64,7 +83,7 @@ class UpdateStatusInteractor implements IUpdateStatusUseCase {
 
       //TODO authenticated追加
       final remoteResult = await _wordStatusRepository.updateRemoteWordStatus(
-          repoInput, input.accountId!, dateTime);
+          repoInput, accountId!, dateTime);
 
       // リモート更新が失敗してもローカルは更新済みなのでログのみ
       if (remoteResult.isFailure) {

@@ -21,6 +21,7 @@ import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status
 import 'package:my_dic/features/esp_jpn_word_status/data/wordstatus_repository.dart';
 import 'package:my_dic/features/esp_jpn_word_status/components/status_button/word_status_state.dart';
 import 'package:my_dic/features/auth/di/service.dart';
+import 'package:my_dic/features/auth/di/data_di.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/watch/i_watch_esp_jpn_word_status_usecase.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/watch/watch_esp_jpn_word_status_interactor.dart';
 import 'package:my_dic/features/user/di/service.dart';
@@ -31,6 +32,7 @@ final syncEspJpnWordStatusUseCaseProvider = Provider<ISyncUseCase>((ref) {
   return SyncEspJpnWordStatusInteractor(
     ref.read(syncStatusRepositoryProvider),
     ref.read(wordStatusRepositoryProvider),
+    ref.read(firebaseAuthRepositoryProvider),
   );
 });
 
@@ -49,6 +51,7 @@ final watchEspJpnWordStatusUsecaseProvider =
 final updateStatusUseCaseProvider = Provider<IUpdateStatusUseCase>((ref) {
   return UpdateStatusInteractor(
     ref.read(wordStatusRepositoryProvider),
+    ref.read(firebaseAuthRepositoryProvider),
   );
 });
 
@@ -102,11 +105,8 @@ final espJpnWordStatusCommandProvider = StateNotifierProvider.family
     .autoDispose<EspJpnWordStatusCommand, WordStatusCommandEvent?, int>(
   (ref, wordId) {
     final updateUsecase = ref.read(updateStatusUseCaseProvider);
-    final currentUser = ref.watch(appUserStoreNotifierProvider);
-
     return EspJpnWordStatusCommand(
       wordId,
-      currentUser?.accountId,
       updateUsecase,
     );
   },

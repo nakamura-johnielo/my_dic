@@ -1,5 +1,4 @@
 class DeleteMyWordInputData {
   int id;
-  String? userId;
-  DeleteMyWordInputData(this.id,this.userId);
+  DeleteMyWordInputData(this.id);
 }

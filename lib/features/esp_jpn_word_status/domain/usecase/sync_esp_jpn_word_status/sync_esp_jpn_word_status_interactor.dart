@@ -8,6 +8,7 @@ import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/sync_esp_jpn_
 import 'package:my_dic/core/shared/errors/app_error.dart';
 import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
 
 //TODO Repository化
 class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
@@ -17,19 +18,38 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
   // final ILocalWordStatusRepository _localWordStatusRepository;
   // final IRemoteWordStatusRepository _remoteWordStatusRepository;
   final IWordStatusRepository _wordStatusRepository;
+  final IAuthRepository _authRepository;
 
   SyncEspJpnWordStatusInteractor(
       this._localSyncStatusRepository,
       // this._wordStatusRepository,
       // this._localWordStatusRepository,
       // this._remoteWordStatusRepository,
-      this._wordStatusRepository);
+      this._wordStatusRepository,
+      this._authRepository);
+
+  Future<String?> _getCurrentAccountId() async {
+    try {
+      final authResult = await _authRepository.getCurrentAuth();
+      return authResult.when(
+        success: (auth) =>
+            auth.isAuthenticated && auth.accountId.isNotEmpty ? auth.accountId : null,
+        failure: (_) => null,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
 
   @override
   int get priority => Syncpriority.baseStatus;
 
   @override
-  Future<Result<void>> syncOnce(String userId) async {
+  Future<Result<void>> syncOnce() async {
+    final accountId = await _getCurrentAccountId();
+    if (accountId == null) {
+      return const Result.success(null);
+    }
     print("syncOnce start");
     //最終同期時刻以降の差分を同期する
 
@@ -38,7 +58,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
 
     //remoteのその時刻以降の更新データを取得
     final remoteDataResult = await _wordStatusRepository
-        .getRemoteWordStatusAfter(userId, localLastSyncDate);
+      .getRemoteWordStatusAfter(accountId, localLastSyncDate);
     // print(">>>>>>unsync remoteData");
 
     final remoteData = remoteDataResult.when(
@@ -61,7 +81,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
 
     if ((remoteData as List<WordStatus>).isNotEmpty) {
       for (var remoteItem in remoteData) {
-        final idResult = await _syncHandle(userId, remoteItem);
+        final idResult = await _syncHandle(accountId, remoteItem);
         final id = idResult.when(
           success: (data) => data,
           failure: (error) {
@@ -76,7 +96,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
     }
 
     final uploadResult = await _uploadLocal2Remote(
-        userId, localLastSyncDate, wordIdsUpdatedByRemote);
+      accountId, localLastSyncDate, wordIdsUpdatedByRemote);
 
     if (uploadResult.isFailure) {
       return uploadResult;
@@ -91,12 +111,16 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
   }
 
   @override
-  Future<Result<void>> syncOnUpdatedLocal(String userId, String wordId) async {
+  Future<Result<void>> syncOnUpdatedLocal(String wordId) async {
+    final accountId = await _getCurrentAccountId();
+    if (accountId == null) {
+      return const Result.success(null);
+    }
     print("syncOnUpdatedLocal called for wordId: $wordId");
     //remoteへの反映処理
     //remoteの時刻が古ければ更新
     final remoteItemResult = await _wordStatusRepository
-        .getRemoteWordStatusById(userId, int.parse(wordId));
+      .getRemoteWordStatusById(accountId, int.parse(wordId));
 
     if (remoteItemResult.isFailure) {
       print(
@@ -125,7 +149,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
       }
 
       final updateResult = await _wordStatusRepository.updateRemoteWordStatus(
-          localData, userId, null);
+          localData, accountId, null);
       if (updateResult.isFailure) {
         return updateResult;
       }
@@ -133,7 +157,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
       return await _updateLocalLastSyncDate();
     }
 
-    final syncResult = await _syncHandle(userId, remoteItem);
+    final syncResult = await _syncHandle(accountId, remoteItem);
     if (syncResult.isFailure) {
       return Result.failure(syncResult.errorOrNull!);
     }
@@ -142,12 +166,16 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
   }
 
   @override
-  Future<Result<void>> syncOnUpdatedRemote(String userId, String wordId) async {
+  Future<Result<void>> syncOnUpdatedRemote(String wordId) async {
+    final accountId = await _getCurrentAccountId();
+    if (accountId == null) {
+      return const Result.success(null);
+    }
     print("syncOnUpdatedRemote called for wordId: $wordId");
     //時刻判定
     //localの時刻が古ければ更新
     final remoteItemResult = await _wordStatusRepository
-        .getRemoteWordStatusById(userId, int.parse(wordId));
+      .getRemoteWordStatusById(accountId, int.parse(wordId));
 
     if (remoteItemResult.isFailure) {
       print(
@@ -164,7 +192,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
       ));
     }
 
-    final syncResult = await _syncHandleOnRemoteChanged(userId, remoteItem);
+    final syncResult = await _syncHandleOnRemoteChanged(accountId, remoteItem);
     if (syncResult.isFailure) {
       return Result.failure(syncResult.errorOrNull!);
     }
@@ -173,10 +201,13 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
   }
 
   @override
-  Stream<List<int>> watchRemoteChangedIds(String userId) {
-    //final lastSyncTime =await _getLastSyncDate();
-    //final lastSyncTime = DateTime.now().toUtc();
-    return _wordStatusRepository.watchRemoteChangedIds(userId);
+  Stream<List<int>> watchRemoteChangedIds() {
+    return Stream.fromFuture(_getCurrentAccountId()).asyncExpand((accountId) {
+      if (accountId == null) {
+        return Stream.value(const <int>[]);
+      }
+      return _wordStatusRepository.watchRemoteChangedIds(accountId);
+    });
   }
 
 //=========Local method========================================================================

@@ -9,14 +9,14 @@ class AppUserStoreNotifier extends StateNotifier<AppUser?>
   AppUserStoreNotifier() : super(null);
 
   void updateUser({
-    String? accountId,
+    // String? accountId,
     String? deviceId,
     String? email,
     String? username,
     SubscriptionStatus? subscriptionStatus,
   }) async {
     state = state?.copyWith(
-        accountId: accountId,
+        // accountId: accountId,
         deviceId: deviceId,
         email: email,
         username: username,

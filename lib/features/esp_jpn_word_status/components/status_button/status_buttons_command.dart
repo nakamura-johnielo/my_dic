@@ -10,10 +10,9 @@ import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/update_status_input_data.dart';
 
 class EspJpnWordStatusCommand extends StateNotifier<WordStatusCommandEvent?> {
-  EspJpnWordStatusCommand(this._wordId,this._userId, this._updateInteractor) : super(null);
+  EspJpnWordStatusCommand(this._wordId, this._updateInteractor) : super(null);
 
   final int _wordId;
-  final String? _userId;
   // final FetchEspJpnWordStatusUsecase _fetchEspJpnStatusUsecase;
   final IUpdateStatusUseCase _updateInteractor;
 
@@ -34,7 +33,7 @@ class EspJpnWordStatusCommand extends StateNotifier<WordStatusCommandEvent?> {
     //state = state.copyWith(isBookmarked: value);
     final res = await _updateInteractor.execute(
       UpdateStatusInputData(
-          accountId: _userId, wordId: _wordId, isBookmarked: value),
+          wordId: _wordId, isBookmarked: value),
     );
     print("Complete toggle bookmark");
     if (!mounted) return;
@@ -50,7 +49,6 @@ class EspJpnWordStatusCommand extends StateNotifier<WordStatusCommandEvent?> {
   Future<void> _setLearned( bool value) async {
     final res = await _updateInteractor.execute(
       UpdateStatusInputData(
-        accountId: _userId,
         wordId: _wordId,
         isLearned: value,
       ),
@@ -67,7 +65,6 @@ class EspJpnWordStatusCommand extends StateNotifier<WordStatusCommandEvent?> {
   Future<void> _setHasNote( bool value) async {
     final res = await _updateInteractor.execute(
       UpdateStatusInputData(
-        accountId: _userId,
         wordId: _wordId,
         hasNote: value,
       ),

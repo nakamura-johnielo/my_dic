@@ -10,12 +10,14 @@ class FirebaseAuthRemoteDataSource implements IAuthRemoteDataSource {
   Stream<AuthDTO?> observeAuthState() => _dao.authStateChanges();
 
   @override
-  Future<AuthDTO?> createUserWithEmailAndPassword(String email, String password) async {
+  Future<AuthDTO?> createUserWithEmailAndPassword(
+      String email, String password) async {
     return await _dao.createUserWithEmailAndPassword(email, password);
   }
 
   @override
-  Future<AuthDTO?> signInWithEmailAndPassword(String email, String password) async {
+  Future<AuthDTO?> signInWithEmailAndPassword(
+      String email, String password) async {
     return await _dao.signInWithEmailAndPassword(email, password);
   }
 
@@ -28,4 +30,9 @@ class FirebaseAuthRemoteDataSource implements IAuthRemoteDataSource {
   @override
   Future<void> sendPasswordResetEmail({required String email}) =>
       _dao.sendPasswordResetEmail(email: email);
+
+  @override
+  Future<AuthDTO?> getCurrentAuth() {
+    return _dao.getCurrentAuth();
+  }
 }

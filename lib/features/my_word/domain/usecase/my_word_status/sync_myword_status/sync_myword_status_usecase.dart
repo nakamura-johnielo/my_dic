@@ -6,6 +6,7 @@ import 'package:my_dic/core/shared/consts/syncPriority.dart';
 import 'package:my_dic/core/shared/errors/app_error.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
 import 'package:my_dic/features/my_word/domain/entity/my_word_status.dart';
 import 'package:my_dic/features/my_word/domain/i_repository/i_my_word_status_repository.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word_status/update_my_word_status/update_my_word_status_repository_input_data.dart';
@@ -16,17 +17,39 @@ class SyncMyWordStatusUsecase implements ISyncUseCase{
   
   final ISyncStatusRepository _localSyncStatusRepository;
   final IMyWordStatusRepository _myWordStatusRepository;
+  final IAuthRepository _authRepository;
 
-  SyncMyWordStatusUsecase(this._localSyncStatusRepository, this._myWordStatusRepository);
+  SyncMyWordStatusUsecase(
+    this._localSyncStatusRepository,
+    this._myWordStatusRepository,
+    this._authRepository,
+  );
+
+  Future<String?> _getCurrentAccountId() async {
+    try {
+      final authResult = await _authRepository.getCurrentAuth();
+      return authResult.when(
+        success: (auth) =>
+            auth.isAuthenticated && auth.accountId.isNotEmpty ? auth.accountId : null,
+        failure: (_) => null,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
 
 
 
   @override
-  Future<Result<void>> syncOnce(String userId) async {
+  Future<Result<void>> syncOnce() async {
+    final accountId = await _getCurrentAccountId();
+    if (accountId == null) {
+      return const Result.success(null);
+    }
     final localLastSyncDate = await _getLastSyncDate();
 
     final remoteDataResult =
-        await _myWordStatusRepository.getRemoteStatusAfter(userId, localLastSyncDate);
+        await _myWordStatusRepository.getRemoteStatusAfter(accountId, localLastSyncDate);
 
     final remoteData = remoteDataResult.when(
       success: (data) => data,
@@ -41,7 +64,7 @@ class SyncMyWordStatusUsecase implements ISyncUseCase{
 
     if ((remoteData as List<MyWordStatus>).isNotEmpty) {
       for (final remoteItem in remoteData) {
-        final idResult = await _syncHandleOnOnce(userId, remoteItem);
+        final idResult = await _syncHandleOnOnce(accountId, remoteItem);
         final updatedId = idResult.when(
           success: (data) => data,
           failure: (_) => null,
@@ -53,7 +76,7 @@ class SyncMyWordStatusUsecase implements ISyncUseCase{
     }
 
     final uploadResult =
-        await _uploadLocal2Remote(userId, localLastSyncDate, wordIdsUpdatedByRemote);
+      await _uploadLocal2Remote(accountId, localLastSyncDate, wordIdsUpdatedByRemote);
     if (uploadResult.isFailure) {
       return uploadResult;
     }
@@ -67,9 +90,13 @@ class SyncMyWordStatusUsecase implements ISyncUseCase{
   }
 
   @override
-  Future<Result<void>> syncOnUpdatedLocal(String userId, String wordId) async {
+  Future<Result<void>> syncOnUpdatedLocal(String wordId) async {
+    final accountId = await _getCurrentAccountId();
+    if (accountId == null) {
+      return const Result.success(null);
+    }
     final remoteItemResult =
-        await _myWordStatusRepository.getRemoteStatusById(userId, int.parse(wordId));
+        await _myWordStatusRepository.getRemoteStatusById(accountId, int.parse(wordId));
 
     if (remoteItemResult.isFailure) {
       return Result.failure(remoteItemResult.errorOrNull!);
@@ -92,7 +119,7 @@ class SyncMyWordStatusUsecase implements ISyncUseCase{
       }
 
       final updateResult =
-          await _myWordStatusRepository.updateRemoteStatus(userId, localData, null);
+          await _myWordStatusRepository.updateRemoteStatus(accountId, localData, null);
 
       if (updateResult.isFailure) {
         return updateResult;
@@ -101,7 +128,7 @@ class SyncMyWordStatusUsecase implements ISyncUseCase{
       return _updateLocalLastSyncDate();
     }
 
-    final syncResult = await _syncHandle(userId, remoteItem);
+    final syncResult = await _syncHandle(accountId, remoteItem);
     if (syncResult.isFailure) {
       return Result.failure(syncResult.errorOrNull!);
     }
@@ -110,9 +137,13 @@ class SyncMyWordStatusUsecase implements ISyncUseCase{
   }
 
   @override
-  Future<Result<void>> syncOnUpdatedRemote(String userId, String wordId) async {
+  Future<Result<void>> syncOnUpdatedRemote(String wordId) async {
+    final accountId = await _getCurrentAccountId();
+    if (accountId == null) {
+      return const Result.success(null);
+    }
     final remoteItemResult =
-        await _myWordStatusRepository.getRemoteStatusById(userId, int.parse(wordId));
+        await _myWordStatusRepository.getRemoteStatusById(accountId, int.parse(wordId));
 
     if (remoteItemResult.isFailure) {
       return Result.failure(remoteItemResult.errorOrNull!);
@@ -126,7 +157,7 @@ class SyncMyWordStatusUsecase implements ISyncUseCase{
       ));
     }
 
-    final syncResult = await _syncHandleOnRemoteChanged(userId, remoteItem);
+    final syncResult = await _syncHandleOnRemoteChanged(accountId, remoteItem);
     if (syncResult.isFailure) {
       return Result.failure(syncResult.errorOrNull!);
     }
@@ -135,8 +166,13 @@ class SyncMyWordStatusUsecase implements ISyncUseCase{
   }
 
  @override
-  Stream<List<int>> watchRemoteChangedIds(String userId) {
-    return _myWordStatusRepository.watchRemoteChangedIds(userId);
+  Stream<List<int>> watchRemoteChangedIds() {
+    return Stream.fromFuture(_getCurrentAccountId()).asyncExpand((accountId) {
+      if (accountId == null) {
+        return Stream.value(const <int>[]);
+      }
+      return _myWordStatusRepository.watchRemoteChangedIds(accountId);
+    });
   }
 
 //========local method================================================

@@ -71,4 +71,9 @@ class FirebaseAuthDao {
   Future<void> sendPasswordResetEmail({required String email}) {
     return _auth.sendPasswordResetEmail(email: email);
   }
+
+  Future<AuthDTO?> getCurrentAuth() async {
+    if (_auth.currentUser == null) return null;
+    return AuthDTO.fromFirebaseUser(_auth.currentUser!);
+  }
 }
