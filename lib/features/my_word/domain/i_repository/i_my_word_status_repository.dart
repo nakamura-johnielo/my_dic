@@ -19,7 +19,10 @@ abstract class IMyWordStatusRepository {
 
   Future<Result<List<MyWordStatus>>> getLocalStatusAfter(DateTime datetime);
   Future<Result<MyWordStatus?>> getLocalStatusById(int myWordId);
-  Future<Result<void>> updateLocalStatus(MyWordStatus status, DateTime now);
+  // Future<Result<void>> updateLocalStatus(MyWordStatus status, DateTime now);
+  Future<Result<void>> updateLocalStatus(UpdateMyWordStatusRepositoryInputData input);
+  
+      
 
   Stream<List<int>> watchRemoteChangedIds(String userId);
   Stream<List<int>> watchLocalChangedIds(DateTime datetime);

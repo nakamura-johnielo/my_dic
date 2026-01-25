@@ -93,8 +93,7 @@ class FirebaseWordStatusDao {
                 change.type == DocumentChangeType.added)
             .map((change) =>
                 change.doc.data()?[WordStatusDTO.fieldwordId] as int)
-            .toList())
-        .distinct();
+            .toList());
   }
 
   Stream<List<WordStatusDTO>> watchUpdatedAfter(

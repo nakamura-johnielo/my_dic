@@ -5,14 +5,14 @@ import 'package:my_dic/core/domain/usecase/i_sync_usecase.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 
 class SyncService {
-   final List<ISyncUseCase> _syncUseCases;
-    List<List<ISyncUseCase>> get syncUsecasePriorityGroups => _groupByPriority();
+  final List<ISyncUseCase> _syncUseCases;
+  List<List<ISyncUseCase>> get syncUsecasePriorityGroups => _groupByPriority();
 
   SyncService(List<ISyncUseCase> syncUseCases)
-      : _syncUseCases = syncUseCases..sort((a, b) => a.priority.compareTo(b.priority));
+      : _syncUseCases = syncUseCases
+          ..sort((a, b) => a.priority.compareTo(b.priority));
 
-
-   List<List<ISyncUseCase>> _groupByPriority() {
+  List<List<ISyncUseCase>> _groupByPriority() {
     final grouped = <List<ISyncUseCase>>[];
     final seen = <int>{};
     for (final uc in _syncUseCases) {
@@ -25,7 +25,6 @@ class SyncService {
     }
     return grouped;
   }
-
 
   Future<void> syncOnceAll(String userId) async {
     // Execute groups (same priority) in parallel, groups sequentially
@@ -51,11 +50,13 @@ class SyncService {
   StreamSubscription startSyncWithRemote(
     String userId,
   ) {
-       final streams = _syncUseCases
-        .map((usecase) => usecase.watchRemoteChangedIds(userId)
-            .map((ids) => (usecase, ids)));
+    print("--------------------syncservice start sync withremote");
+    final streams = _syncUseCases.map((usecase) =>
+        usecase.watchRemoteChangedIds(userId).map((ids) => (usecase, ids)));
 
     return StreamGroup.merge(streams).listen((pair) async {
+      print(
+          ">>>>>>>mergestream:${pair.$1.runtimeType} changed ids: ${pair.$2}");
       final (usecase, ids) = pair;
       for (final id in ids) {
         await usecase.syncOnUpdatedRemote(userId, id.toString());

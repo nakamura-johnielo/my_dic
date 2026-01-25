@@ -35,6 +35,6 @@ abstract class IMyWordRepository {
 
   Stream<List<int>> watchRemoteChangedIds(String userId);
   Stream<List<int>> watchLocalChangedIds(DateTime datetime);
-  Stream<MyWord> streamMyWord(int id);
+  Stream<MyWord> watchMyWord(int id);
 }
  

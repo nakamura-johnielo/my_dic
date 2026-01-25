@@ -90,8 +90,8 @@ class FirebaseMyWordStatusDao {
                 change.type == DocumentChangeType.added)
             .map((change) =>
                 change.doc.data()?[MyWordStatusDTO.fieldMyWordId] as int)
-            .toList())
-        .distinct();
+            .toList());
+        //.distinct();
   }
 
   /// Watch MyWordStatus updated after a specific timestamp (stream)

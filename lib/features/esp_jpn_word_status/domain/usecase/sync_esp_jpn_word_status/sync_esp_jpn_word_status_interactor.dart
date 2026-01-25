@@ -164,7 +164,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
       ));
     }
 
-    final syncResult = await _syncHandle(userId, remoteItem);
+    final syncResult = await _syncHandleOnRemoteChanged(userId, remoteItem);
     if (syncResult.isFailure) {
       return Result.failure(syncResult.errorOrNull!);
     }
@@ -301,6 +301,60 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
       //remote更新
       //await _remoteWordStatusRepository.updateWordStatus(userId, localData);
     }
+    return const Result.success(null);
+  }
+
+  Future<Result<int?>> _syncHandleOnRemoteChanged(String userId, WordStatus remoteItem) async {
+    //remoteの値でlocalが更新された場合、wordId そうではない場合null
+    //与えられたWordStatusとlocalの時刻を最新の法を同期
+    //localに反映、remoteに反映
+
+    final localDataResult =
+        await _wordStatusRepository.getLocalWordStatusById(remoteItem.wordId);
+
+    if (localDataResult.isFailure) {
+      print(
+          'Failed to get local word status by id: ${localDataResult.errorOrNull?.message}');
+      return Result.failure(localDataResult.errorOrNull!);
+    }
+
+    final localData = localDataResult.dataOrNull;
+
+    if (localData == null) {
+      // ローカルに存在しない場合は、リモートのデータでローカルを作成
+      final updateResult = await _wordStatusRepository.updateLocalWordStatus(
+          remoteItem.wordId,
+          remoteItem.isLearned ? 1 : null,
+          remoteItem.isBookmarked ? 1 : null,
+          remoteItem.hasNote ? 1 : null,
+          remoteItem.editAt);
+      if (updateResult.isFailure) {
+        return Result.failure(updateResult.errorOrNull!);
+      }
+      return Result.success(remoteItem.wordId);
+    }
+
+    final remoteUpdatedAt = remoteItem.editAt;
+    final localUpdatedAt = localData.editAt;
+
+    print("~~~~~~ Remote: $remoteUpdatedAt, Local: $localUpdatedAt");
+
+    if (remoteUpdatedAt.isAfter(localUpdatedAt)) {
+      print("Remote is newer for wordId: ${remoteItem.wordId}");
+      // リモートの方が新しい場合
+      // local更新
+      final updateResult = await _wordStatusRepository.updateLocalWordStatus(
+          remoteItem.wordId,
+          remoteItem.isLearned ? 1 : null,
+          remoteItem.isBookmarked ? 1 : null,
+          remoteItem.hasNote ? 1 : null,
+          remoteItem.editAt);
+
+      if (updateResult.isFailure) {
+        return Result.failure(updateResult.errorOrNull!);
+      }
+      return Result.success(remoteItem.wordId);
+    } 
     return const Result.success(null);
   }
 }

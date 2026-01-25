@@ -21,8 +21,6 @@ class EspJpnWordStatusDao extends DatabaseAccessor<DatabaseProvider>
   } */
 
   Stream<EspJpnWordStatusTableData?> watchWordStatus(int wordId) {
-    // 変更された wordId のリストを監視するクエリを実装
-    // ここでは単純に全てのレコードの wordId を返す例を示します
     return (select(espJpnWordStatus)..where((tbl) => tbl.wordId.equals(wordId)))
         .watchSingleOrNull()
         .distinct();

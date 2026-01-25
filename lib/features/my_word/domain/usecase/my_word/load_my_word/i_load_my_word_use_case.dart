@@ -4,7 +4,6 @@ import 'package:my_dic/features/my_word/domain/usecase/my_word/load_my_word/load
 
 abstract class ILoadMyWordUseCase {
   Future<Result<List<MyWord>>> execute(LoadMyWordInputData input);
-  Stream<MyWord> streamMyWordById(int id);
   Future<Result<List<int>>> executeIds(LoadMyWordInputData input);
   // Future<Result<MyWord>> getMyWordById(int id);
 }

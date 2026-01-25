@@ -8,6 +8,7 @@ import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/my_word/domain/entity/my_word_status.dart';
 import 'package:my_dic/features/my_word/domain/i_repository/i_my_word_status_repository.dart';
+import 'package:my_dic/features/my_word/domain/usecase/my_word_status/update_my_word_status/update_my_word_status_repository_input_data.dart';
 
 class SyncMyWordStatusUsecase implements ISyncUseCase{
   @override
@@ -40,7 +41,7 @@ class SyncMyWordStatusUsecase implements ISyncUseCase{
 
     if ((remoteData as List<MyWordStatus>).isNotEmpty) {
       for (final remoteItem in remoteData) {
-        final idResult = await _syncHandle(userId, remoteItem);
+        final idResult = await _syncHandleOnOnce(userId, remoteItem);
         final updatedId = idResult.when(
           success: (data) => data,
           failure: (_) => null,
@@ -125,7 +126,7 @@ class SyncMyWordStatusUsecase implements ISyncUseCase{
       ));
     }
 
-    final syncResult = await _syncHandle(userId, remoteItem);
+    final syncResult = await _syncHandleOnRemoteChanged(userId, remoteItem);
     if (syncResult.isFailure) {
       return Result.failure(syncResult.errorOrNull!);
     }
@@ -165,7 +166,15 @@ class SyncMyWordStatusUsecase implements ISyncUseCase{
     final localData = localDataResult.dataOrNull;
 
     if (localData == null) {
-      final createResult = await _myWordStatusRepository.updateLocalStatus(remoteItem, remoteItem.editAt);
+      final input=UpdateMyWordStatusRepositoryInputData (
+        remoteItem.wordId,
+        remoteItem.isLearned?1:0,
+        remoteItem.isBookmarked?1:0,
+        null,// remoteItem.hasNote?1:0,
+        remoteItem.editAt,
+        null
+      );
+      final createResult = await _myWordStatusRepository.updateLocalStatus(input);
       if (createResult.isFailure) {
         return Result.failure(createResult.errorOrNull!);
       }
@@ -176,8 +185,17 @@ class SyncMyWordStatusUsecase implements ISyncUseCase{
     final localUpdatedAt = localData.editAt;
 
     if (remoteUpdatedAt.isAfter(localUpdatedAt)) {
+      
+      final input=UpdateMyWordStatusRepositoryInputData (
+        remoteItem.wordId,
+        remoteItem.isLearned?1:0,
+        remoteItem.isBookmarked?1:0,
+        null,// remoteItem.hasNote?1:0,
+        remoteItem.editAt,
+        null
+      );
       final updateResult =
-          await _myWordStatusRepository.updateLocalStatus(remoteItem, remoteItem.editAt);
+          await _myWordStatusRepository.updateLocalStatus(input);
       if (updateResult.isFailure) {
         return Result.failure(updateResult.errorOrNull!);
       }
@@ -190,6 +208,116 @@ class SyncMyWordStatusUsecase implements ISyncUseCase{
       if (updateResult.isFailure) {
         return Result.failure(updateResult.errorOrNull!);
       }
+    }
+
+    return const Result.success(null);
+  }
+
+
+  Future<Result<int?>> _syncHandleOnOnce(String userId, MyWordStatus remoteItem) async {
+    final localDataResult =
+        await _myWordStatusRepository.getLocalStatusById(remoteItem.wordId);
+
+    if (localDataResult.isFailure) {
+      return Result.failure(localDataResult.errorOrNull!);
+    }
+
+    final localData = localDataResult.dataOrNull;
+
+    if (localData == null) {
+      final input=UpdateMyWordStatusRepositoryInputData (
+        remoteItem.wordId,
+        remoteItem.isLearned?1:0,
+        remoteItem.isBookmarked?1:0,
+        null,// remoteItem.hasNote?1:0,
+        remoteItem.editAt,
+        null
+      );
+      final createResult = await _myWordStatusRepository.updateLocalStatus(input);
+      if (createResult.isFailure) {
+        return Result.failure(createResult.errorOrNull!);
+      }
+      return Result.success(remoteItem.wordId);
+    }
+
+    final remoteUpdatedAt = remoteItem.editAt;
+    final localUpdatedAt = localData.editAt;
+
+    if (remoteUpdatedAt.isAfter(localUpdatedAt)) {
+      
+      final input=UpdateMyWordStatusRepositoryInputData (
+        remoteItem.wordId,
+        remoteItem.isLearned?1:0,
+        remoteItem.isBookmarked?1:0,
+        null,// remoteItem.hasNote?1:0,
+        remoteItem.editAt,
+        null
+      );
+      final updateResult =
+          await _myWordStatusRepository.updateLocalStatus(input);
+      if (updateResult.isFailure) {
+        return Result.failure(updateResult.errorOrNull!);
+      }
+      return Result.success(remoteItem.wordId);
+    }
+
+    if (localUpdatedAt.isAfter(remoteUpdatedAt)) {
+      final updateResult =
+          await _myWordStatusRepository.updateRemoteStatus(userId, localData, null);
+      if (updateResult.isFailure) {
+        return Result.failure(updateResult.errorOrNull!);
+      }
+    }
+
+    return const Result.success(null);
+  }
+
+
+  Future<Result<int?>> _syncHandleOnRemoteChanged(String userId, MyWordStatus remoteItem) async {
+    final localDataResult =
+        await _myWordStatusRepository.getLocalStatusById(remoteItem.wordId);
+
+    if (localDataResult.isFailure) {
+      return Result.failure(localDataResult.errorOrNull!);
+    }
+
+    final localData = localDataResult.dataOrNull;
+
+    if (localData == null) {
+      final input=UpdateMyWordStatusRepositoryInputData (
+        remoteItem.wordId,
+        remoteItem.isLearned?1:0,
+        remoteItem.isBookmarked?1:0,
+        null,// remoteItem.hasNote?1:0,
+        remoteItem.editAt,
+        null
+      );
+      final createResult = await _myWordStatusRepository.updateLocalStatus(input);
+      if (createResult.isFailure) {
+        return Result.failure(createResult.errorOrNull!);
+      }
+      return Result.success(remoteItem.wordId);
+    }
+
+    final remoteUpdatedAt = remoteItem.editAt;
+    final localUpdatedAt = localData.editAt;
+
+    if (remoteUpdatedAt.isAfter(localUpdatedAt)) {
+      
+      final input=UpdateMyWordStatusRepositoryInputData (
+        remoteItem.wordId,
+        remoteItem.isLearned?1:0,
+        remoteItem.isBookmarked?1:0,
+        null,// remoteItem.hasNote?1:0,
+        remoteItem.editAt,
+        null
+      );
+      final updateResult =
+          await _myWordStatusRepository.updateLocalStatus(input);
+      if (updateResult.isFailure) {
+        return Result.failure(updateResult.errorOrNull!);
+      }
+      return Result.success(remoteItem.wordId);
     }
 
     return const Result.success(null);

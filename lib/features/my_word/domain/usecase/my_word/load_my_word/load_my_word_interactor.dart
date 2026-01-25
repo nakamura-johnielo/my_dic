@@ -58,10 +58,7 @@ class LoadMyWordInteractor implements ILoadMyWordUseCase {
   
   }
   
-  @override
-  Stream<MyWord> streamMyWordById(int id) {
-    return _driftLoadMyWordRepository.streamMyWord(id);
-  }
+
   
   // @override
   // Future<Result<MyWord>> getMyWordById(int id) async {

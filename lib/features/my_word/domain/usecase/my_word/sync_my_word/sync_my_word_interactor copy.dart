@@ -12,7 +12,7 @@ import 'package:my_dic/features/my_word/domain/usecase/my_word/sync_my_word/i_sy
 class SyncMyWordInteractor implements ISyncUseCase {
   final ISyncStatusRepository _localSyncStatusRepository;
   final IMyWordRepository _myWordRepository;
-  
+
   @override
   int get priority => Syncpriority.base;
 
@@ -21,14 +21,12 @@ class SyncMyWordInteractor implements ISyncUseCase {
     this._myWordRepository,
   );
 
-
-
   @override
   Future<Result<void>> syncOnce(String userId) async {
     final localLastSyncDate = await _getLastSyncDate();
 
-    final remoteDataResult =
-        await _myWordRepository.getRemoteMyWordsAfter(userId, localLastSyncDate);
+    final remoteDataResult = await _myWordRepository.getRemoteMyWordsAfter(
+        userId, localLastSyncDate);
 
     final remoteData = remoteDataResult.when(
       success: (data) => data,
@@ -54,8 +52,8 @@ class SyncMyWordInteractor implements ISyncUseCase {
       }
     }
 
-    final uploadResult =
-        await _uploadLocal2Remote(userId, localLastSyncDate, wordIdsUpdatedByRemote);
+    final uploadResult = await _uploadLocal2Remote(
+        userId, localLastSyncDate, wordIdsUpdatedByRemote);
     if (uploadResult.isFailure) {
       return uploadResult;
     }
@@ -80,7 +78,8 @@ class SyncMyWordInteractor implements ISyncUseCase {
     final remoteItem = remoteItemResult.dataOrNull;
 
     if (remoteItem == null) {
-      final localDataResult = await _myWordRepository.getLocalMyWordById(int.parse(wordId));
+      final localDataResult =
+          await _myWordRepository.getLocalMyWordById(int.parse(wordId));
 
       if (localDataResult.isFailure) {
         return Result.failure(localDataResult.errorOrNull!);
@@ -128,7 +127,7 @@ class SyncMyWordInteractor implements ISyncUseCase {
       ));
     }
 
-    final syncResult = await _syncHandle(userId, remoteItem);
+    final syncResult = await _syncHandleOnRemoteChanged(userId, remoteItem);
     if (syncResult.isFailure) {
       return Result.failure(syncResult.errorOrNull!);
     }
@@ -136,7 +135,7 @@ class SyncMyWordInteractor implements ISyncUseCase {
     return _updateLocalLastSyncDate();
   }
 
- @override
+  @override
   Stream<List<int>> watchRemoteChangedIds(String userId) {
     return _myWordRepository.watchRemoteChangedIds(userId);
   }
@@ -168,7 +167,8 @@ class SyncMyWordInteractor implements ISyncUseCase {
     final localData = localDataResult.dataOrNull;
 
     if (localData == null) {
-      final createResult = await _myWordRepository.createLocalMyWord(remoteItem);
+      final createResult =
+          await _myWordRepository.createLocalMyWord(remoteItem);
       if (createResult.isFailure) {
         return Result.failure(createResult.errorOrNull!);
       }
@@ -179,8 +179,8 @@ class SyncMyWordInteractor implements ISyncUseCase {
     final localUpdatedAt = localData.editAt;
 
     if (remoteUpdatedAt.isAfter(localUpdatedAt)) {
-      final updateResult =
-          await _myWordRepository.updateLocalMyWord(remoteItem, remoteItem.editAt);
+      final updateResult = await _myWordRepository.updateLocalMyWord(
+          remoteItem, remoteItem.editAt);
       if (updateResult.isFailure) {
         return Result.failure(updateResult.errorOrNull!);
       }
@@ -198,28 +198,70 @@ class SyncMyWordInteractor implements ISyncUseCase {
     return const Result.success(null);
   }
 
+  Future<Result<int?>> _syncHandleOnRemoteChanged(
+      String userId, MyWord remoteItem) async {
+    print("MyWord remote changed handle");
+    final localDataResult =
+        await _myWordRepository.getLocalMyWordById(remoteItem.wordId);
+
+    if (localDataResult.isFailure) {
+      return Result.failure(localDataResult.errorOrNull!);
+    }
+
+    final localData = localDataResult.dataOrNull;
+
+    if (localData == null) {
+      print("local null");
+      final createResult =
+          await _myWordRepository.createLocalMyWord(remoteItem);
+      if (createResult.isFailure) {
+        return Result.failure(createResult.errorOrNull!);
+      }
+      return Result.success(remoteItem.wordId);
+    }
+
+    final remoteUpdatedAt = remoteItem.editAt;
+    final localUpdatedAt = localData.editAt;
+
+    print("local exist ${localUpdatedAt.toIso8601String()}");
+    if (remoteUpdatedAt.isAfter(localUpdatedAt)) {
+      final updateResult = await _myWordRepository.updateLocalMyWord(
+          remoteItem, remoteItem.editAt);
+      if (updateResult.isFailure) {
+        print("Fil!!!!!!");
+        return Result.failure(updateResult.errorOrNull!);
+      }
+      print(
+          "MyWord remote changed sync local updated: ${remoteItem.wordId}, ${remoteItem.word}");
+      return Result.success(remoteItem.wordId);
+    }
+    print("paassse");
+
+    return const Result.success(null);
+  }
+
   Future<Result<void>> _uploadLocal2Remote(
     String userId,
     DateTime datetime,
     List<int> idsUpdatedByRemote,
   ) async {
-    final localDataResult = await _myWordRepository.getLocalMyWordsAfter(datetime);
+    final localDataResult =
+        await _myWordRepository.getLocalMyWordsAfter(datetime);
 
     if (localDataResult.isFailure) {
       return Result.failure(localDataResult.errorOrNull!);
     }
 
     final localData = localDataResult.dataOrNull!;
-    
+
     print("local myword sync length: ${localData.length}");
-    
+
     if (localData.isEmpty) {
       return const Result.success(null);
     }
 
-    final filtered = localData
-        .where((w) => !idsUpdatedByRemote.contains(w.wordId))
-        .toList();
+    final filtered =
+        localData.where((w) => !idsUpdatedByRemote.contains(w.wordId)).toList();
 
     if (filtered.isEmpty) {
       return const Result.success(null);
@@ -227,8 +269,4 @@ class SyncMyWordInteractor implements ISyncUseCase {
 
     return _myWordRepository.updateBatchRemoteMyWords(userId, filtered);
   }
-
- 
-  
-
 }

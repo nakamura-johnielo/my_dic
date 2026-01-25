@@ -37,6 +37,7 @@ class MyWordRepository implements IMyWordRepository {
         contents: data.contents ?? '',
         isLearned: false,
         isBookmarked: false,
+        editAt: DateTime.parse(data.editAt).toUtc(),
       );
       return Result.success(entity);
     } catch (e, s) {
@@ -64,6 +65,7 @@ class MyWordRepository implements IMyWordRepository {
                 contents: data.contents ?? '',
                 isLearned: false,
                 isBookmarked: false,
+                editAt: DateTime.parse(data.editAt).toUtc(),
               ))
           .toList();
       return Result.success(entities);
@@ -76,7 +78,6 @@ class MyWordRepository implements IMyWordRepository {
     }
   }
 
-
   @override
   Future<Result<List<int>>> getIdsFilteredByPage(
       LoadMyWordRepositoryInputData input) async {
@@ -86,7 +87,7 @@ class MyWordRepository implements IMyWordRepository {
       if (dataList == null) {
         return const Result.success([]);
       }
-      
+
       return Result.success(dataList);
     } catch (e, s) {
       return Result.failure(DatabaseError(
@@ -115,8 +116,8 @@ class MyWordRepository implements IMyWordRepository {
           editAt: input.dateTime);
 
       if (input.userId == null) return Result.success(wordId);
-      await _remoteDataSource.updateMyWord(
-          input.userId!, MyWordDTO.fromAppEntity(myWord));
+      await _remoteDataSource.updateMyWord(input.userId!,
+          MyWordDTO.fromAppEntity(myWord, dateTime: input.dateTime));
       // input.headword, input.description, input.dateTime);
       return Result.success(wordId);
     } catch (e, s) {
@@ -406,9 +407,9 @@ class MyWordRepository implements IMyWordRepository {
     return _localDataSource
         .watchMyWordIdsAfter(datetime.toUtc().toIso8601String());
   }
-  
+
   @override
-  Stream<MyWord> streamMyWord(int id) {
+  Stream<MyWord> watchMyWord(int id) {
     return _localDataSource.streamMyWordById(id).map((data) {
       if (data == null) {
         throw NotFoundError(message: '指定された単語が見つかりません');
@@ -419,6 +420,7 @@ class MyWordRepository implements IMyWordRepository {
         contents: data.contents ?? '',
         isLearned: false,
         isBookmarked: false,
+        editAt: DateTime.parse(data.editAt).toUtc()
       );
     });
   }

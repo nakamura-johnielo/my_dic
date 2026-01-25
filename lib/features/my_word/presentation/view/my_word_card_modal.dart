@@ -7,6 +7,7 @@ import 'package:my_dic/core/shared/enums/ui/word_card_view_click_listener.dart';
 import 'package:my_dic/features/auth/di/service.dart';
 import 'package:my_dic/features/my_word/di/view_model_di.dart';
 import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
+import 'package:my_dic/features/my_word/presentation/ui_model/my_word_ui_model.dart';
 
 const Map<String, IconData> _bookmarkIcon = {
   "true": Icons.bookmark_rounded,
@@ -36,7 +37,7 @@ class MyWordCardModal extends ConsumerStatefulWidget {
       required this.clickListeners});
 
   //final MyWordController _myWordController;
-  final MyWord myWord;
+  final MyWordUiState myWord;
   final int index;
   //final String word;
   //final int no;
@@ -105,9 +106,11 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
 
   @override
   Widget build(BuildContext context) {
-    final myWordController = ref.read(myWordViewModelProvider.notifier);
+    final myWordCommand = ref.read(myWordCommandProvider(widget.myWord.wordId).notifier);
+
     Color descriptionColor = Theme.of(context).colorScheme.onSurfaceVariant;
     Color headwordColor = Theme.of(context).colorScheme.onSurface;
+
     return GestureDetector(
       onTap: onTap,
       child: Card(
@@ -231,15 +234,12 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
                       defaultIconColor: const Color.fromARGB(255, 217, 60, 60),
                       hoveredIconColor: const Color.fromARGB(255, 255, 0, 106),
                       onTap: () {
-                        myWordController.deleteWord(
-                          userId: ref.read(authStoreNotifierProvider)?.accountId,
-                            wordId: widget.myWord.wordId,
-                            index: widget.index,
+                        myWordCommand.deleteWord(
                             onComplete: () {
+                              widget.onChanged?.call();
                               setState(() {
                                 Navigator.of(context).pop();
                               });
-                              widget.onChanged?.call();
                             });
                       },
                     ),
@@ -252,9 +252,7 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
                     Expanded(
                         child: FilledButton(
                             onPressed: () {
-                              myWordController.updateWord(
-                                userId: ref.read(authStoreNotifierProvider)?.accountId,
-                                  myWordId: widget.myWord.wordId,
+                              myWordCommand.updateWord(
                                   headword: headwordTextFieldController.text,
                                   description:
                                       descriptionTextFieldController.text,

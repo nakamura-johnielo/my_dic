@@ -14,6 +14,8 @@ import 'package:my_dic/features/my_word/domain/usecase/my_word/update/update_my_
 import 'package:my_dic/features/my_word/domain/usecase/my_word/update/update_my_word/update_my_word_interactor.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word/sync_my_word/i_sync_my_word_usecase.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word/sync_my_word/sync_my_word_interactor%20copy.dart';
+import 'package:my_dic/features/my_word/domain/usecase/my_word/watch/watch_my_word_interactor.dart';
+import 'package:my_dic/features/my_word/domain/usecase/my_word/watch/watch_my_word_usecase.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word_status/sync_myword_status/sync_myword_status_usecase.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word_status/update_my_word_status/i_update_my_word_status_use_case.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word_status/update_my_word_status/update_my_word_status_interactor.dart';
@@ -65,6 +67,12 @@ final deleteMyWordUseCaseProvider = Provider<IDeleteMyWordUseCase>((ref) {
 final watchMyWordStatusUseCaseProvider = Provider<WatchMyWordStatusUsecase>((ref) {
   return WatchMyWordStatusInteractor(
     ref.read(myWordStatusRepositoryProvider),
+  );
+});
+
+final watchMyWordUseCaseProvider = Provider<WatchMyWordUsecase>((ref) {
+  return WatchMyWordInteractor(
+    ref.read(myWordRepositoryProvider),
   );
 });
 

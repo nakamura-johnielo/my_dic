@@ -1,10 +1,29 @@
 import 'package:my_dic/core/shared/enums/feature_tag.dart';
 
-class UpdateMyWordStatusRepositoryInputData {
-  int wordId;
-  Set<FeatureTag> status;
-  DateTime editAt;
-  String? userId;
+// class UpdateMyWordStatusRepositoryInputData {
+//   int wordId;
+//   Set<FeatureTag> status;
+//   DateTime editAt;
+//   String? userId;
   
-  UpdateMyWordStatusRepositoryInputData(this.wordId, this.status, this.editAt,this.userId);
+  
+//   UpdateMyWordStatusRepositoryInputData(this.wordId, this.status, this.editAt,this.userId);
+// }
+
+class UpdateMyWordStatusRepositoryInputData {
+  final int wordId;
+  final int? isLearned;
+  final int? isBookmarked;
+  final int? hasNote;
+  DateTime editAt;
+  final String? userId;
+
+  UpdateMyWordStatusRepositoryInputData(
+      this.wordId,
+      this.isLearned,
+      this.isBookmarked,  
+      this.hasNote,
+      this.editAt,
+      this.userId,
+      );
 }

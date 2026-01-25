@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/custom_floating_button_location.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/features/auth/di/service.dart';
+import 'package:my_dic/features/my_word/presentation/ui_model/my_word_ui_model.dart';
 // import 'package:my_dic/Components/infinity_scroll_list_view.dart';
 import 'package:my_dic/features/my_word/presentation/view/my_word_card.dart';
 import 'package:my_dic/features/my_word/presentation/view/my_word_card_modal.dart';
@@ -34,7 +35,7 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
   }
 
   Future<bool> loadNextPage(int nextPage) async {
-    final viewModel = ref.read(myWordViewModelProvider.notifier);
+    final viewModel = ref.read(myWordFragmentViewModelProvider.notifier);
 
     _setCurrentItemLength();
 
@@ -58,24 +59,24 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
   }
 
   void _reloadMyWords() {
-    ref.read(myWordViewModelProvider.notifier).reset();
+    ref.read(myWordFragmentViewModelProvider.notifier).reset();
     _resetPage();
   }
 
   void _setCurrentItemLength() {
-    final viewModel = ref.read(myWordViewModelProvider);
+    final viewModel = ref.read(myWordFragmentViewModelProvider);
     _previousItemLength = viewModel.myWordIds.length;
   }
 
   bool _canFetch() {
-    final viewModel = ref.read(myWordViewModelProvider);
+    final viewModel = ref.read(myWordFragmentViewModelProvider);
     final currentItemLength = viewModel.myWordIds.length;
     return currentItemLength > _previousItemLength;
   }
 
   @override
   Widget build(BuildContext context) {
-    final myWordViewModel = ref.watch(myWordViewModelProvider);
+    final myWordViewModel = ref.watch(myWordFragmentViewModelProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -88,9 +89,9 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
         children: [
           Expanded(
               child: InfinityScrollListView(
-                padding: const EdgeInsets.only(
-                  bottom: UIConsts.bottomBarCompleteHeight*2, // FAB分の余白
-                ),
+            padding: const EdgeInsets.only(
+              bottom: UIConsts.bottomBarCompleteHeight * 2, // FAB分の余白
+            ),
             initialPage: _initialPage,
             controller: _infinityScrollController,
             autoLoadFirstPage: true,
@@ -101,49 +102,48 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
               final id = myWordViewModel.myWordIds[index];
 
               // MyWordをStream監視（リアルタイム更新）
-              final myWordAsync = ref.watch(myWordStreamProvider(id));
-              
+              // final myWordAsync = ref.watch(myWordStreamProvider(id));
+              final myWord = ref.watch(myWordUiStateProvider(id));
+              //final myWordCommand=ref.read(myWordCommandProvider(id).notifier);
+
               // Stream監視でリアルタイムにステータスを取得（Rankingと同じパターン）
-              final wordStatus = ref.watch(myWordStatusViewModelProvider(id));
-              final wordStatusNotifier = ref.read(myWordStatusViewModelProvider(id).notifier);
+              // final wordStatus = ref.watch(myWordStatusViewModelProvider(id));
+              // final wordStatusNotifier = ref.read(myWordStatusViewModelProvider(id).notifier);
+              final wordStatus = ref.watch(myWordStatusUiStateProvider(id));
+              final wordStatusCommand =
+                  ref.read(myWordStatusCommandProvider(id).notifier);
 
-              return myWordAsync.when(
-                data: (myWord) {
-                  // 最新のステータスで MyWord を更新
-                  final updatedMyWord = myWord.copyWith(
-                    isBookmarked: wordStatus.isBookmarked,
-                    isLearned: wordStatus.isLearned,
-                  );
+              // 最新のステータスで MyWord を更新
+              //final updatedMyWord = MyWordUiState(wordId: myWord.wordId, word: myWord.word, contents: myWord.contents, editAt: myWord.editAt)
 
-                  final clickListeners = {
-                    WordCardViewButton.bookmark: () {
-                      wordStatusNotifier.toggleBookmark(ref.read(authStoreNotifierProvider)?.accountId);
-                    },
-                    WordCardViewButton.learned: () {
-                      wordStatusNotifier.toggleLearned(ref.read(authStoreNotifierProvider)?.accountId);
-                    },
-                  };
-                  
-                  return Padding(
-                    key: ValueKey(id), // パフォーマンス最適化のためKeyを付与
-                    padding: const EdgeInsets.only(bottom: 7.0),
-                    child: MyWordCard(
-                      onTap: () {
-                        openDetailModal(
-                          context,
-                          clickListeners,
-                          index,
-                          updatedMyWord,
-                          onChanged: _reloadMyWords,
-                        );
-                      },
-                      myWord: updatedMyWord,
-                      clickListeners: clickListeners,
-                    ),
-                  );
+              final clickListeners = {
+                WordCardViewButton.bookmark: () {
+                  wordStatusCommand.toggleBookmark(wordStatus.isBookmarked);
                 },
-                loading: () => const SizedBox.shrink(), //TODO PlaceHolder
-                error: (error, stack) => const SizedBox.shrink(), // エラー時は非表示
+                WordCardViewButton.learned: () {
+                  wordStatusCommand.toggleLearned(wordStatus.isLearned);
+                },
+              };
+
+              return Padding(
+                key: ValueKey(
+                    "MyWordCard-${myWord.wordId}"), // パフォーマンス最適化のためKeyを付与
+                padding: const EdgeInsets.only(bottom: 7.0),
+                child: MyWordCard(
+                  //key: ValueKey("MyWordCard-${myWord.wordId}"),
+                  onTap: () {
+                    openDetailModal(
+                      context,
+                      clickListeners,
+                      index,
+                      myWord,
+                      onChanged: _reloadMyWords,
+                    );
+                  },
+                  myWord: myWord,
+                  wordStatus: wordStatus,
+                  clickListeners: clickListeners,
+                ),
               );
             },
           )),
@@ -159,12 +159,12 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
 
 // ...existing code...
 void openDetailModal(
-    BuildContext context,
-    Map<WordCardViewButton, void Function()> clickListeners,
-    int index,
-    MyWord myword, {
-    VoidCallback? onChanged,
-  }) {
+  BuildContext context,
+  Map<WordCardViewButton, void Function()> clickListeners,
+  int index,
+  MyWordUiState myword, {
+  VoidCallback? onChanged,
+}) {
   showDialog<void>(
     context: context,
     barrierDismissible: true, // カード外タップで閉じる
@@ -229,23 +229,23 @@ class RegisterButton extends StatelessWidget {
   }
 }
 
-void openDetailModal2(
-    BuildContext context,
-    Map<WordCardViewButton, void Function()> clickListeners,
-    int index,
-    MyWord myword) {
-  showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      enableDrag: false,
-      //showDragHandle: true,
-      //barrierColor: Colors.black.withValues(alpha: .5),
-      builder: (context) {
-        return MyWordCardModal(
-            myWord: myword, clickListeners: clickListeners, index: index);
-      });
-}
+// void openDetailModal2(
+//     BuildContext context,
+//     Map<WordCardViewButton, void Function()> clickListeners,
+//     int index,
+//     MyWord myword) {
+//   showModalBottomSheet<void>(
+//       context: context,
+//       backgroundColor: Colors.transparent,
+//       isScrollControlled: true,
+//       enableDrag: false,
+//       //showDragHandle: true,
+//       //barrierColor: Colors.black.withValues(alpha: .5),
+//       builder: (context) {
+//         return MyWordCardModal(
+//             myWord: myword, clickListeners: clickListeners, index: index);
+//       });
+// }
 
 /* class MyWordFragment extends ConsumerStatefulWidget {
   const MyWordFragment(this._myWordController, {super.key});

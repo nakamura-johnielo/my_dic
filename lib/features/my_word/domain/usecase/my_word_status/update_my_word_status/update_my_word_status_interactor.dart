@@ -16,10 +16,10 @@ class UpdateMyWordStatusInteractor implements IUpdateMyWordStatusUseCase {
   @override
   Future<Result<void>> execute(UpdateMyWordStatusInputData input) async {
     try {
-      final dateTime =  DateTime.now().toUtc();
+      final dateTime = DateTime.now().toUtc();
       UpdateMyWordStatusRepositoryInputData repositoryInput =
-          UpdateMyWordStatusRepositoryInputData(
-              input.wordId, input.status, dateTime,input.userId);
+          UpdateMyWordStatusRepositoryInputData(input.wordId, input.isLearned,
+              input.isBookmarked, input.hasNote, dateTime, input.userId);
 
       await _myWordStatusRepository.updateStatus(repositoryInput);
 

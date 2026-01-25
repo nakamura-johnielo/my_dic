@@ -39,8 +39,8 @@ final autoSyncProvider = Provider.autoDispose<void>((ref) {
 
   if (userId == null ||
       userId.isEmpty ||
-      userId != "logout" ||
-      userId != "anonymous") {
+      userId == "logout" ||
+      userId == "anonymous") {
     return;
   }
 

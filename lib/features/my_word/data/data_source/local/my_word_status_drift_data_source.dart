@@ -8,7 +8,12 @@ class MyWordStatusDriftDataSource implements IMyWordStatusLocalDataSource {
   MyWordStatusDriftDataSource(this._wordStatusDao);
 
   @override
-  Future<void> updateStatus(db.MyWordStatusTableData data) => _wordStatusDao.updateStatus(data);
+  Future<void> updateStatus(
+  final int myWordId,
+  final int? isLearned,
+  final int? isBookmarked,
+  final int? hasNote,
+  final String editAt,) => _wordStatusDao.updateStatus(myWordId, isLearned, isBookmarked, hasNote, editAt);
 
   @override
   Future<void> insertStatus(db.MyWordStatusTableData data) => _wordStatusDao.insertStatus(data);
@@ -18,4 +23,9 @@ class MyWordStatusDriftDataSource implements IMyWordStatusLocalDataSource {
 
   @override
   Stream<db.MyWordStatusTableData?> watchWordStatus(int wordId) => _wordStatusDao.watchWordStatus(wordId);
+  
+  @override
+  Future<db.MyWordStatusTableData?> getWordStatus(int wordId) async {
+    return await _wordStatusDao.getWordStatus(wordId);
+  }
 }

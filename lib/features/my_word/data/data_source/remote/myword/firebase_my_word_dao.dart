@@ -86,15 +86,12 @@ class FirebaseMyWordDao {
             .where((change) =>
                 change.type == DocumentChangeType.modified ||
                 change.type == DocumentChangeType.added)
-            .map((change) =>
-                change.doc.data()?[MyWordDTO.fieldMyWordId] as int)
-            .toList())
-        .distinct();
+            .map((change) => change.doc.data()?[MyWordDTO.fieldMyWordId] as int)
+            .toList());
   }
 
   /// Watch MyWords updated after a specific timestamp (stream)
-  Stream<List<MyWordDTO>> watchUpdatedAfter(
-      String userId, DateTime lastSync) {
+  Stream<List<MyWordDTO>> watchUpdatedAfter(String userId, DateTime lastSync) {
     return _db
         .collection(UserDTO.collectionName)
         .doc(userId)
