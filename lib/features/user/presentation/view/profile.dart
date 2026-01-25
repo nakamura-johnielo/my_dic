@@ -7,6 +7,7 @@ import 'package:my_dic/core/shared/enums/ui/button_status.dart';
 import 'package:my_dic/core/shared/consts/ui/tab.dart';
 import 'package:my_dic/features/user/di/service.dart';
 import 'package:my_dic/features/user/di/viewmodel.dart';
+import 'package:my_dic/router/navigator_service.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key, required this.uid});
@@ -65,8 +66,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               onPressed: () async {
                 await vmNotifier.signOut();
                 if (!mounted) return;
-                context.replace(
-                    '/${MetaScreenTab.profile}/${MetaScreenPage.unAuthorized}');
+                ref.read(appNavigatorServiceProvider).toProfile();
+                // context.replace(
+                //     '/${MetaScreenTab.profile}/${MetaScreenPage.unAuthorized}');
               },
             )
           ],

@@ -11,7 +11,7 @@ class FirebaseAuthDao {
         print("!!!!!!auth state changed!!!!");
 
         final res = user != null ? AuthDTO.fromFirebaseUser(user) : null;
-        user != null ? _printBatch(user) : print("user nullr");
+        user != null ? _printBatch(user) : print("user null");
         return res;
       },
     );
@@ -28,9 +28,9 @@ class FirebaseAuthDao {
   }
 
   void _printBatch(User user) {
-    print("emailVerified: ${user.emailVerified}");
-    print("provider: ${user.providerData}");
-    print("refreshtoken: ${user.refreshToken}");
+    print("  emailVerified: ${user.emailVerified}");
+    print("  provider: ${user.providerData}");
+    print("  refreshtoken: ${user.refreshToken}");
     //print("refreshtoken: ${user.}");
   }
 

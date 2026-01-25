@@ -64,16 +64,40 @@ final studyQuizNavigatorKeyProvider =
   return GlobalKey<NavigatorState>(debugLabel: 'studyQuiz');
 });
 
+
+
 class AuthChangeNotifier extends ChangeNotifier {
   AuthChangeNotifier(Ref ref) {
-    ref.listen<AsyncValue<AppAuth?>>(
-      authStreamProvider,
+    ref.listen<AppAuth?>(
+      authStoreNotifierProvider,
+      //authStreamProvider,
       (previous, next) {
+        if (previous?.isAuthenticated == next?.isAuthenticated) {
+          print('redirect - [Auth Effect] No change in auth state detected===============================================');
+          return;
+        }
+        print("redirect -- authchangenotifier==============================================================");
         notifyListeners();
       },
     );
   }
 }
+
+// class AuthChangeNotifier extends ChangeNotifier {
+//   AuthChangeNotifier(Ref ref) {
+//     ref.listen<AsyncValue<AppAuth?>>(
+//       authStreamProvider,
+//       (previous, next) {
+//         if (previous?.value?.isAuthenticated == next.value?.isAuthenticated) {
+//           print('[Auth Effect] No change in auth state detected');
+//           return;
+//         }
+//         print("redirect -- authchangenotifier==========================");
+//         notifyListeners();
+//       },
+//     );
+//   }
+// }
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authNotifier = AuthChangeNotifier(ref);
@@ -95,24 +119,26 @@ final routerProvider = Provider<GoRouter>((ref) {
     navigatorKey: rootKey,
     refreshListenable: authNotifier,
     redirect: (context, state) {
+      //TODO AUTH変化でbottombarのpathが返ってくる
       final location = state.matchedLocation;
       final uri = state.uri.toString();
+      final uri2 = state.uri.path.toString();
       final fullPath = state.fullPath;
 
       print('========-GoRouter redirect========');
       print('matchedLocation: $location');
       print('uri: $uri');
+      print('uri: $uri2');
       print('fullPath: $fullPath');
+      if (location == null) return null;
 
       // login系のページじゃなければ強勢移動させない
       final inProfile = location.startsWith('/${RoutePaths.profile}');
       if (!inProfile) return null;
 
       final auth = ref.read(authStoreNotifierProvider);
-      final unauthorized =
-          '/${RoutePaths.profile}/${RoutePaths.unauthorized}';
-      final authorized =
-          '/${RoutePaths.profile}/${RoutePaths.authorized}';
+      final unauthorized = '/${RoutePaths.profile}/${RoutePaths.unauthorized}';
+      final authorized = '/${RoutePaths.profile}/${RoutePaths.authorized}';
 
       if (auth == null) {
         print('auth is null');
@@ -207,12 +233,14 @@ final routerProvider = Provider<GoRouter>((ref) {
                 ),
                 routes: [
                   //Study
-                  flashCardRoute(RoutePaths.search,
-                    "${RouteNames.search}-${RouteNames.flashCard}",
+                  flashCardRoute(
+                      RoutePaths.search,
+                      "${RouteNames.search}-${RouteNames.flashCard}",
                       searchKey),
 
                   //word詳細画面
-                  wordDetailRoute(RoutePaths.search,
+                  wordDetailRoute(
+                      RoutePaths.search,
                       "${RouteNames.search}-${RouteNames.wordDetail}",
                       searchKey),
                 ],
@@ -283,9 +311,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               rankingRoute,
 
-              wordDetailRoute(RoutePaths.ranking,"${RouteNames.ranking}-${RouteNames.wordDetail}",
+              wordDetailRoute(
+                  RoutePaths.ranking,
+                  "${RouteNames.ranking}-${RouteNames.wordDetail}",
                   studyRankingKey),
-              flashCardRoute(RoutePaths.ranking,"${RouteNames.ranking}-${RouteNames.flashCard}",
+              flashCardRoute(
+                  RoutePaths.ranking,
+                  "${RouteNames.ranking}-${RouteNames.flashCard}",
                   studyRankingKey),
               // GoRoute(
               //   path: '/${RoutePaths.study}/${RoutePaths.ranking}',
@@ -435,6 +467,29 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
+
+      // User Profile
+       // Singupページ
+          // GoRoute(
+          //   parentNavigatorKey: rootKey,
+          //   path: '/${RoutePaths.profile}/${RoutePaths.unauthorized}',
+          //   name: RouteNames.unauthorized,
+          //   //parentNavigatorKey: profileKey,
+          //   pageBuilder: (context, state) {
+          //     return MaterialPage(child: EmailPasswordPage());
+          //   },
+          // ),
+
+          // // signin済みプロフィールページ
+          // GoRoute(
+          //   path: '/${RoutePaths.profile}/${RoutePaths.authorized}',
+          //   name: RouteNames.authorized,
+          //   parentNavigatorKey: rootKey,
+          //   pageBuilder: (context, state) {
+          //     //final uid = state.extra as String;
+          //     return MaterialPage(child: ProfilePage(uid: "uid"));
+          //   },
+          // ),
 
       // //Study
       // flashCardRoute(rootKey),

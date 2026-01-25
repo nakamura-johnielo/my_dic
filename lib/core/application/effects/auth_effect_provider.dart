@@ -4,6 +4,7 @@ import 'package:my_dic/features/esp_jpn_word_status/di/di.dart';
 import 'package:my_dic/features/my_word/di/service_di.dart';
 import 'package:my_dic/features/auth/di/view_model_di.dart';
 import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
+import 'package:my_dic/features/sync/di.dart';
 
 /// 認証状態のストリームプロバイダー
 /// Authを常に監視
@@ -11,22 +12,21 @@ final authStreamProvider = StreamProvider<AppAuth?>((ref) {
   final authCoordinator = ref.read(authCoordinatorProvider);
   return authCoordinator.observeAuthState().distinct((prev, next) {
     // accountId と isLogined が両方同じなら重複とみなす
-    // print(
-    //     "*****distinct check prev: ${prev?.accountId}, isLogined: ${prev?.isLogined}, isAuthenticated: ${prev?.isAuthenticated} *****");
-    // print(
-    //     "*****distinct check next: ${next?.accountId}, isLogined: ${next?.isLogined}, isAuthenticated: ${next?.isAuthenticated} *****");
-    return 
-    prev?.accountId == next?.accountId &&
-           prev?.isLogined == next?.isLogined &&
-           prev?.isAuthenticated == next?.isAuthenticated;
+    print(
+        "*****distinct check prev: ${prev?.accountId}, isLogined: ${prev?.isLogined}, isAuthenticated: ${prev?.isAuthenticated} *****");
+    print(
+        "*****distinct check next: ${next?.accountId}, isLogined: ${next?.isLogined}, isAuthenticated: ${next?.isAuthenticated} *****");
+    return prev?.accountId == next?.accountId &&
+        prev?.isLogined == next?.isLogined &&
+        prev?.isAuthenticated == next?.isAuthenticated;
   });
 });
 
 /// 認証状態の変化を監視し、副作用を実行
 final authEffectProvider = Provider<void>((ref) {
   // Keep sync services alive while this effect provider is alive.
-  ref.watch(espJpnWordStatusSyncServiceProvider);
-  ref.watch(myWordSyncServiceProvider);
+  //ref.watch(espJpnWordStatusSyncServiceProvider);
+  //ref.watch(myWordSyncServiceProvider);
 
   ref.listen<AsyncValue<AppAuth?>>(
     authStreamProvider,
@@ -42,13 +42,22 @@ Future<void> _handleAuthStateChange(
   AppAuth? previousAuth,
   AppAuth? currentAuth,
 ) async {
+  if (/* previousAuth?.accountId == currentAuth?.accountId &&
+      previousAuth?.isLogined == currentAuth?.isLogined && */
+      previousAuth?.isAuthenticated == currentAuth?.isAuthenticated) {
+    print('[Auth Effect] No change in auth state detected');
+    return;
+  }
+
   // ログアウト処理
   if (currentAuth == null) {
+    print("signout handle");
     await _handleSignOut(ref, previousAuth);
     return;
   }
 
   // ログイン処理
+  print("signin handle");
   await _handleSignIn(ref, currentAuth);
 }
 
@@ -56,8 +65,9 @@ Future<void> _handleAuthStateChange(
 Future<void> _handleSignOut(Ref ref, AppAuth? previousAuth) async {
   print('[Auth Effect] User signed out');
 
-  final authUserCoordinator=ref.read(authUserCoordinatorProvider);
-  await  authUserCoordinator.signOut();
+  final authUserCoordinator = ref.read(authUserCoordinatorProvider);
+  await authUserCoordinator.signOut();
+
   // ViewModelの状態をクリア
   // if (previousAuth != null) {
   //   ref.read(userViewModelProviderLegacy.notifier).setAuthInfo(
@@ -74,9 +84,8 @@ Future<void> _handleSignIn(Ref ref, AppAuth currentAuth) async {
   print('[Auth Effect] User signed in: ${currentAuth.accountId}');
 
   try {
-    
-  final authUserCoordinator=ref.read(authUserCoordinatorProvider);
-  await  authUserCoordinator.updateAuth(currentAuth);
+    final authUserCoordinator = ref.read(authUserCoordinatorProvider);
+    await authUserCoordinator.updateAuth(currentAuth);
     // 2. ユーザー情報をロード
     // await ref.read(userViewModelProviderLegacy.notifier).loadUser(currentAuth.accountId);
 
@@ -85,19 +94,21 @@ Future<void> _handleSignIn(Ref ref, AppAuth currentAuth) async {
 
     // 4. 同期サービスを開始
     //await _startSyncService(ref, currentAuth.accountId);
-    if(!currentAuth.isLogined || !currentAuth.isAuthenticated){
+    if (!currentAuth.isLogined || !currentAuth.isAuthenticated) {
       print('[Auth Effect] User not verified, skipping sync service start');
       return;
     }
-    
-    final syncResult = await ref
-        .read(espJpnWordStatusSyncServiceProvider)
-        .syncOnce(currentAuth.accountId);
-
     await ref
-      .read(myWordSyncServiceProvider)
-      .syncOnce(currentAuth.accountId);
-    
+        .read(syncServiceProvider)
+        .syncOnceAll(currentAuth.accountId);
+
+    //esp_jpn_wordstatus sync
+    // final syncResult = await ref
+    //     .read(espJpnWordStatusSyncServiceProvider)
+    //     .syncOnce(currentAuth.accountId);
+
+    // await ref.read(myWordSyncServiceProvider).syncOnce(currentAuth.accountId);
+
     // Note: syncOnce already logs the result internally via .when()
     // No need for additional .then() or .catchError()
 

@@ -1,8 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:my_dic/core/presentation/components/button/my_icon_button.dart';
 import 'package:my_dic/core/shared/enums/ui/word_card_view_click_listener.dart';
 import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
+import 'package:my_dic/features/my_word/presentation/ui_model/my_word_status_state.dart';
+import 'package:my_dic/features/my_word/presentation/ui_model/my_word_ui_model.dart';
 
 const Map<String, IconData> _bookmarkIcon = {
   "true": Icons.bookmark_rounded,
@@ -20,6 +21,7 @@ class MyWordCard extends StatelessWidget {
   const MyWordCard(
       {super.key,
       required this.myWord,
+      required this.wordStatus,
       //required this.meaning,
       // required this.partOfSpeech,
       this.onTap,
@@ -31,7 +33,8 @@ class MyWordCard extends StatelessWidget {
       required this.isLearned, */
       required this.clickListeners});
 
-  final MyWord myWord;
+  final MyWordUiState myWord;
+  final MyWordStatusState wordStatus;
   //final String word;
   //final int no;
   //final String original;
@@ -118,8 +121,8 @@ class MyWordCard extends StatelessWidget {
                     //
                     clickListeners: clickListeners,
                     isFlags: {
-                      WordCardViewButton.learned: myWord.isLearned,
-                      WordCardViewButton.bookmark: myWord.isBookmarked
+                      WordCardViewButton.learned: wordStatus.isLearned,
+                      WordCardViewButton.bookmark: wordStatus.isBookmarked
                     },
                     iconSizes: {
                       WordCardViewButton.learned: 22,

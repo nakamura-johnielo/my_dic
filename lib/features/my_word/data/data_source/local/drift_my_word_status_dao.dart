@@ -19,9 +19,32 @@ class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
             hasNote: Value(hasNote)));
   } */
 
-  Future<void> updateStatus(MyWordStatusTableData data) async {
+  // Future<void> updateStatus(MyWordStatusTableData data) async {
+  //   log("update");
+  //   await update(myWordStatus).replace(data);
+  // }
+
+  
+  Future<void> updateStatus(
+  final int myWordId,
+  final int? isLearned,
+  final int? isBookmarked,
+  final int? hasNote,
+  final String editAt,
+  ) async {
     log("update");
-    await update(myWordStatus).replace(data);
+    //await update(espJpnWordStatus).replace(data);
+    await (update(myWordStatus)..where((t) => t.myWordId.equals(myWordId)))
+        .write(
+      MyWordStatusCompanion(
+        //wordId: Value(wordId),
+        isLearned: isLearned != null ? Value(isLearned) : Value.absent(),
+        isBookmarked:
+            isBookmarked != null ? Value(isBookmarked) : Value.absent(),
+        hasNote: hasNote != null ? Value(hasNote) : Value.absent(),
+        editAt: Value(editAt),
+      ),
+    );
   }
 
   /* Future<void> insertStatus(
@@ -48,6 +71,13 @@ class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
   Stream<MyWordStatusTableData?> watchWordStatus(int wordId) {
     return (select(myWordStatus)
           ..where((tbl) => tbl.myWordId.equals(wordId)))
-        .watchSingleOrNull();
+        .watchSingleOrNull().distinct();
+  }
+
+  Future<MyWordStatusTableData?> getWordStatus(int wordId) async {
+    final data = await (select(myWordStatus)
+          ..where((tbl) => tbl.myWordId.equals(wordId)))
+        .getSingleOrNull();
+    return data;
   }
 }

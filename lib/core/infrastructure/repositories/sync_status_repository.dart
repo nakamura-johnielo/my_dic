@@ -14,7 +14,7 @@ class SyncStatusRepository implements ISyncStatusRepository {
   Future<Result<DateTime?>> getLastSyncDate() async {
     try {
       final date = await _dataSource.getLastSyncDate();
-      print("lastsync: $date");
+      //print("lastsync: $date");
       //return DateTime(1999,1,11);//TODO fix
       return Result.success(date);
     } catch (e, stackTrace) {
@@ -30,7 +30,7 @@ class SyncStatusRepository implements ISyncStatusRepository {
   Future<Result<void>> updateSyncDate(DateTime date) async {
     try {
       await _dataSource.updateSyncDate(date);
-      print("lastsync updated: ${await _dataSource.getLastSyncDate()}");
+      print("---lastsync updated: ${await _dataSource.getLastSyncDate()}");
       return Result.success(null);
     } catch (e, stackTrace) {
       return Result.failure(CacheError(

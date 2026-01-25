@@ -10,8 +10,11 @@ class FirebaseWordStatusDao {
 
   Future<void> updateBatch(
       String userId, List<WordStatusDTO> wordStatusList) async {
-        //batch sizeごとにまとめて実行
+    //batch sizeごとにまとめて実行
     final batchSize = FirebaseConsts.batchSize;
+    print("======================updateBatch=====================");
+    print("userID : ${userId}");
+    wordStatusList.map((e) => print("wordId: ${e.wordId}"));
 
     for (int i = 0; i < wordStatusList.length; i += batchSize) {
       final batch = _db.batch();
@@ -21,7 +24,8 @@ class FirebaseWordStatusDao {
 
       for (int j = i; j < end; j++) {
         final wordStatus = wordStatusList[j];
-        final batch = _db.batch();
+        print("$j Updating wordId: ${wordStatus.wordId}");
+        //final batch = _db.batch();
         final docRef = _db
             .collection(UserDTO.collectionName)
             .doc(userId)
@@ -70,7 +74,8 @@ class FirebaseWordStatusDao {
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => WordStatusDTO.fromFirebase(doc))
-            .toList()).distinct();
+            .toList())
+        .distinct();
   }
 
   /// リアルタイムで更新を監視し、変更されたドキュメントのIDのみを返す
@@ -88,7 +93,7 @@ class FirebaseWordStatusDao {
                 change.type == DocumentChangeType.added)
             .map((change) =>
                 change.doc.data()?[WordStatusDTO.fieldwordId] as int)
-            .toList()).distinct();
+            .toList());
   }
 
   Stream<List<WordStatusDTO>> watchUpdatedAfter(
@@ -101,7 +106,8 @@ class FirebaseWordStatusDao {
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => WordStatusDTO.fromFirebase(doc))
-            .toList()).distinct();
+            .toList())
+        .distinct();
   }
 
   Future<List<WordStatusDTO>> getWordStatusAfter(

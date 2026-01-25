@@ -1,6 +1,6 @@
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/my_word/domain/entity/my_word_status.dart';
-import 'package:my_dic/features/my_word/domain/usecase/update_my_word_status/update_my_word_status_repository_input_data.dart';
+import 'package:my_dic/features/my_word/domain/usecase/my_word_status/update_my_word_status/update_my_word_status_repository_input_data.dart';
 
 abstract class IMyWordStatusRepository {
   // Local methods
@@ -19,7 +19,10 @@ abstract class IMyWordStatusRepository {
 
   Future<Result<List<MyWordStatus>>> getLocalStatusAfter(DateTime datetime);
   Future<Result<MyWordStatus?>> getLocalStatusById(int myWordId);
-  Future<Result<void>> updateLocalStatus(MyWordStatus status, DateTime now);
+  // Future<Result<void>> updateLocalStatus(MyWordStatus status, DateTime now);
+  Future<Result<void>> updateLocalStatus(UpdateMyWordStatusRepositoryInputData input);
+  
+      
 
   Stream<List<int>> watchRemoteChangedIds(String userId);
   Stream<List<int>> watchLocalChangedIds(DateTime datetime);

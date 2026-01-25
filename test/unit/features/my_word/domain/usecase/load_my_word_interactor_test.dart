@@ -11,8 +11,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
-import 'package:my_dic/features/my_word/domain/usecase/load_my_word/load_my_word_input_data.dart';
-import 'package:my_dic/features/my_word/domain/usecase/load_my_word/load_my_word_interactor.dart';
+import 'package:my_dic/features/my_word/domain/usecase/my_word/load_my_word/load_my_word_input_data.dart';
+import 'package:my_dic/features/my_word/domain/usecase/my_word/load_my_word/load_my_word_interactor.dart';
 
 import '../../../../../helpers/fake_my_word_repository.dart';
 

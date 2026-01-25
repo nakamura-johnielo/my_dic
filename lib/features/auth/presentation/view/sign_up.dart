@@ -6,6 +6,8 @@ import 'package:my_dic/core/presentation/components/icons/rotating_icon.dart';
 import 'package:my_dic/core/shared/enums/ui/button_status.dart';
 import 'package:my_dic/core/shared/consts/ui/tab.dart';
 import 'package:my_dic/features/auth/di/view_model_di.dart';
+import 'package:my_dic/router/navigator_service.dart';
+import 'package:my_dic/router/route_names.dart';
 
 class EmailPasswordPage extends ConsumerStatefulWidget {
   const EmailPasswordPage({super.key});
@@ -45,7 +47,8 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
       message = await action();
       //final user = cred.user;
       if (!mounted) return;
-      context.replace('/${MetaScreenTab.profile}/${MetaScreenPage.unAuthorized}');
+      ref.read(appNavigatorServiceProvider).toProfile();
+      //context.replace('/${RoutePaths.profile}/${RoutePaths.unauthorized}');
       return; // 以降のsetStateを避ける
     } on FirebaseAuthException catch (e) {
       message = e.message;
@@ -109,7 +112,7 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
             const Spacer(),
             ElevatedButton.icon(
               onPressed: _isActive(authViewModel.isWaitingSignUp)
-                  ?  () {
+                  ? () {
                       if (!_validInputs()) return;
                       _handleAuth(() async {
                         await authNotifier.signUp(
@@ -120,7 +123,7 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
                       });
                       ;
                     }
-                  :null,
+                  : null,
               icon:
                   _iconBuilder(authViewModel.isWaitingSignUp, Icons.person_add),
               label: const Text('Sign Up'),
@@ -134,7 +137,8 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
                             emailCtrl.text.trim(),
                             passCtrl.text.trim(),
                           ));
-                    }:null,
+                    }
+                  : null,
               icon: _iconBuilder(authViewModel.isWaitingSignIn, Icons.login),
               label: const Text('Sign In'),
             ),
@@ -153,7 +157,8 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
                       } on FirebaseAuthException catch (e) {
                         setState(() => message = e.message);
                       }
-                    }:null,
+                    }
+                  : null,
               child: const Text('Forgot password?'),
             ),
             const SizedBox(height: 12),
@@ -161,12 +166,14 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
               onPressed: _isActive(authViewModel.isWaitingSignOut)
                   ? () async {
                       try {
-                        await authNotifier.signOut();
+                       await  _handleAuth(() => authNotifier.signOut( ));
+                        //await authNotifier.signOut();
                         setState(() => message = 'ログアウトしました');
                       } on FirebaseAuthException catch (e) {
                         setState(() => message = e.message);
                       }
-                    }:null,
+                    }
+                  : null,
               icon: _iconBuilder(authViewModel.isWaitingSignOut, Icons.logout),
               label: const Text('Sign Out'),
             ),

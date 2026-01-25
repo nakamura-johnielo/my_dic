@@ -21,13 +21,13 @@ class WordRegistrationModal extends ConsumerStatefulWidget {
 class _WordRegistrationModalState extends ConsumerState<WordRegistrationModal> {
   final headwordTextFieldController = TextEditingController();
   final descriptionTextFieldController = TextEditingController();
-  late final MyWordViewModel controller;
+  late final MyWordFragmentViewModel controller;
 
   @override
   void initState() {
     super.initState();
     //controller = widget._controller;
-    controller = ref.read(myWordViewModelProvider.notifier);
+    controller = ref.read(myWordFragmentViewModelProvider.notifier);
   }
 
   @override
@@ -135,8 +135,8 @@ class _WordRegistrationModalState extends ConsumerState<WordRegistrationModal> {
                                     //descriptionTextFieldController.clear();
                                     //headwordTextFieldController.clear();
                                     //モーダル閉じる
-                                    Navigator.of(context).pop();
                                     widget.onRegistered?.call();
+                                    Navigator.of(context).pop();
                                     //showToast("registered successfully!");
                                   },
                                   onError: () {

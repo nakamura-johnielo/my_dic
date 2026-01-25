@@ -27,20 +27,20 @@ class EsjWordRepository implements IEsjWordRepository {
     }
   }
 
-  @override
-  Future<Result<void>> updateStatus(UpdateStatusRepositoryInputData input) async {
-    try {
-      log("updatestatusrepo");
-      await _wordDataSource.updateStatus(input);
-      return const Result.success(null);
-    } catch (e, s) {
-      return Result.failure(DatabaseError(
-        message: '単語ステータスの更新に失敗しました',
-        originalError: e,
-        stackTrace: s,
-      ));
-    }
-  }
+  // @override
+  // Future<Result<void>> updateStatus(UpdateStatusRepositoryInputData input) async {
+  //   try {
+  //     log("updatestatusrepo");
+  //     await _wordDataSource.updateStatus(input);
+  //     return const Result.success(null);
+  //   } catch (e, s) {
+  //     return Result.failure(DatabaseError(
+  //       message: '単語ステータスの更新に失敗しました',
+  //       originalError: e,
+  //       stackTrace: s,
+  //     ));
+  //   }
+  // }
 
   @override
   Future<Result<List<EspJpnWord>>> getWordsByWordByPage(

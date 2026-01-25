@@ -1,7 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/core/di/service/sync.dart';
 import 'package:my_dic/core/infrastructure/database/shared_preferences/shared_preferences.dart';
 import 'package:my_dic/core/section/db_loading/db_loader_overlay.dart';
 import 'package:my_dic/core/shared/consts/enviroment.dart';
@@ -9,6 +8,7 @@ import 'package:my_dic/core/application/effects/auth_effect_provider.dart';
 import 'package:my_dic/core/presentation/theme/color_scheme.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
 import 'package:my_dic/features/esp_jpn_word_status/di/di.dart';
+import 'package:my_dic/features/sync/di.dart';
 import 'package:my_dic/router/router.dart';
 import 'package:my_dic/firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -53,7 +53,9 @@ class MyApp extends ConsumerWidget {
     ref.read(databaseProvider).customSelect('SELECT 1').get();
 
     ref.watch(authEffectProvider);//認証状態の変化を監視し副作用を実行 synconce
-    ref.watch(autoEspJpnWordStatusSyncProvider);//自動同期開始
+    // ref.watch(autoEspJpnWordStatusSyncProvider);//自動同期開始
+    ref.watch(autoSyncProvider);//自動同期開始
+    
     final goRouter = ref.watch(routerProvider);
 
     return MaterialApp.router(

@@ -84,14 +84,14 @@ class MyWordDTO {
     };
   }
 
-  factory MyWordDTO.fromAppEntity(MyWord data) {
+  factory MyWordDTO.fromAppEntity(MyWord data, {DateTime? dateTime}) {
     //final data = doc.data()!;
     return MyWordDTO(
         myWordId: data.wordId,
         word: data.word,
         contents: data.contents,
         updateBy: "data.updateBy",
-        createdAt: MyDateTime.sentinel,
+        createdAt:dateTime?? MyDateTime.sentinel,
         updatedAt: data.editAt);
   }
 

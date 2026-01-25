@@ -5,16 +5,16 @@ import 'package:my_dic/core/shared/consts/dates.dart';
 /// Converter class for transforming word status TableData to domain entities
 class WordStatusConverter {
   /// Convert EspJpnWordStatusTableData to WordStatus entity
-  static WordStatus toEntity(EspJpnWordStatusTableData? data, int wordId) {
-    if (data == null) {
-      return WordStatus(
-        wordId: wordId,
-        isLearned: false,
-        isBookmarked: false,
-        hasNote: false,
-        editAt: MyDateTime.sentinel,
-      );
-    }
+  static WordStatus toEntity(EspJpnWordStatusTableData data) {
+  
+      // return WordStatus(
+      //   wordId: data.wordId,
+      //   isLearned: false,
+      //   isBookmarked: false,
+      //   hasNote: false,
+      //   editAt: MyDateTime.sentinel,
+      // );
+    
     
     return WordStatus(
       wordId: data.wordId,
@@ -27,7 +27,7 @@ class WordStatusConverter {
 
   /// Convert list of TableData to list of entities
   static List<WordStatus> toEntityList(List<EspJpnWordStatusTableData> dataList) {
-    return dataList.map((data) => toEntity(data, data.wordId)).toList();
+    return dataList.map((data) => toEntity(data)).toList();
   }
 
   /// Convert WordStatus entity to TableData
