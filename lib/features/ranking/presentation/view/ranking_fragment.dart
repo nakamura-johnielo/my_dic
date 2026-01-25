@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -82,11 +83,11 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(rankingViewModelProvider);
+  //  final items = ref.watch(rankingViewModelProvider.select((vm) => vm.items));
     const margin = EdgeInsets.symmetric(vertical: 1, horizontal: 16);
     // final userId = ref.watch(appUserStoreNotifierProvider)?.id ?? "anonymous";
-    final userId =
-        ref.watch(appUserStoreNotifierProvider.select((u) => u?.accountId)) ??
-            'anonymous';
+    // final userId =
+    //     ref.watch(appUserStoreNotifierProvider.select((u) => u?.accountId));
 
     ref.watch(rankingFilterEffectProvider(_resetPageCallback));
 
@@ -120,47 +121,51 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
             // loadNext: rankingController.loadNext,
             itemCount: viewModel.items.length,
             itemBuilder: (context, index) {
-              final id = viewModel.items[index].wordId;
+              //final id = viewModel.items[index].wordId;
 
               //TODO streamproviderで監視
               //パフォーマンス要注意
               //MVVMに変更したのでviewmodel経由で取得するようにする???
               // final wordStatus = ref.watch(wordStatusByIdProvider(id));
               //TODO import 考慮
-              final wordStatus =
-                  ref.watch(espJpnWordStatusViewModelProvider(id));
-              final wordStatusNotifier =
-                  ref.read(espJpnWordStatusViewModelProvider(id).notifier);
+              // final wordStatus = ref.watch(espJpnWordStatusUiStateProvider(id));
+              // final command =
+              //     ref.read(espJpnWordStatusCommandProvider(id).notifier);
+              // print(
+              //     "###${id}: isBookmarked: ${wordStatus.isBookmarked}, isLearned: ${wordStatus.isLearned}");
+              final ranking = viewModel.items[index];
+              // .copyWith(
+              //   isBookmarked: wordStatus.isBookmarked,
+              //   isLearned: wordStatus.isLearned,
+              //   hasNote: wordStatus.hasNote,
+              // );
 
-              final ranking = viewModel.items[index].copyWith(
-                isBookmarked: wordStatus.isBookmarked,
-                isLearned: wordStatus.isLearned,
-                hasNote: wordStatus.hasNote,
-              );
-
-              Map<WordCardViewButton, VoidCallback>? clickListeners = {
-                WordCardViewButton.bookmark: () {
-                  wordStatusNotifier.toggleBookmark(userId);
-                  //   _rankingController.updateWordStatus(
-                  //       index,
-                  //       ranking.wordId,
-                  //       !ranking.isBookmarked,
-                  //       ranking.isLearned,
-                  //       ranking.hasNote);
-                },
-                WordCardViewButton.learned: () {
-                  wordStatusNotifier.toggleLearned(userId);
-                  //   _rankingController.updateWordStatus(
-                  //       index,
-                  //       ranking.wordId,
-                  //       ranking.isBookmarked,
-                  //       !ranking.isLearned,
-                  //       ranking.hasNote);
-                },
-                WordCardViewButton.note: () => log("note clicked"),
-              };
+              // Map<WordCardViewButton, VoidCallback>? clickListeners = {
+              //   WordCardViewButton.bookmark: () async {
+              //     // unawaited(command.toggleBookmark(userId, wordStatus.isBookmarked));
+              //     await command.toggleBookmark(userId, wordStatus.isBookmarked);
+              //     //   _rankingController.updateWordStatus(
+              //     //       index,
+              //     //       ranking.wordId,
+              //     //       !ranking.isBookmarked,
+              //     //       ranking.isLearned,
+              //     //       ranking.hasNote);
+              //   },
+              //   WordCardViewButton.learned: () async {
+              //     // unawaited(command.toggleLearned(userId, ranking.isLearned));
+              //     await command.toggleLearned(userId, ranking.isLearned);
+              //     //   _rankingController.updateWordStatus(
+              //     //       index,
+              //     //       ranking.wordId,
+              //     //       ranking.isBookmarked,
+              //     //       !ranking.isLearned,
+              //     //       ranking.hasNote);
+              //   },
+              //   WordCardViewButton.note: () => log("note clicked"),
+              // };
 
               return RankingCard(
+                key: ValueKey("ranking-card-${ranking.wordId}"),
                 ranking: ranking,
                 // rankingbase.copyWith(
                 //   isBookmarked:
@@ -186,16 +191,18 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
                   //         wordType: WordType.espJpn,
                   //         hasConj: ranking.hasConj));
                 },
-                clickListeners: clickListeners,
+                // clickListeners: clickListeners,
               );
             },
           )),
         ],
       ),
-      floatingActionButton: const FilterButton(key: ValueKey("ranking-fl-btn"),),
+      floatingActionButton: const FilterButton(
+        key: ValueKey("ranking-fl-btn"),
+      ),
       floatingActionButtonLocation:
           FloatAboveNavBar(UIConsts.bottomBarCompleteHeight),
-          floatingActionButtonAnimator:const NoScaleFloatingActionButtonAnimator(),
+      floatingActionButtonAnimator: const NoScaleFloatingActionButtonAnimator(),
     );
   }
 }

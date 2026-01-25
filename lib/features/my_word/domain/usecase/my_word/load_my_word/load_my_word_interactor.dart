@@ -1,8 +1,8 @@
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/my_word/domain/usecase/load_my_word/load_my_word_input_data.dart';
-import 'package:my_dic/features/my_word/domain/usecase/load_my_word/i_load_my_word_use_case.dart';
-import 'package:my_dic/features/my_word/domain/usecase/load_my_word/load_my_word_repository_input_data.dart';
+import 'package:my_dic/features/my_word/domain/usecase/my_word/load_my_word/load_my_word_input_data.dart';
+import 'package:my_dic/features/my_word/domain/usecase/my_word/load_my_word/i_load_my_word_use_case.dart';
+import 'package:my_dic/features/my_word/domain/usecase/my_word/load_my_word/load_my_word_repository_input_data.dart';
 import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
 import 'package:my_dic/features/my_word/domain/i_repository/i_my_word_repository.dart';
 

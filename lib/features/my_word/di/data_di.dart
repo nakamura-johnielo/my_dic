@@ -15,7 +15,7 @@ import 'package:my_dic/features/my_word/data/data_source/remote/myword/i_my_word
 import 'package:my_dic/features/my_word/data/data_source/remote/status/firebase_my_word_status_dao.dart';
 import 'package:my_dic/features/my_word/data/data_source/remote/status/firebase_my_word_status_data_source.dart';
 import 'package:my_dic/features/my_word/data/data_source/remote/status/i_my_word_status_remote_data_source.dart';
-import 'package:my_dic/features/my_word/data/repository_impl/drift_my_word_repository.dart';
+import 'package:my_dic/features/my_word/data/repository_impl/my_word_repository.dart';
 import 'package:my_dic/features/my_word/data/repository_impl/my_word_status_repository.dart';
 
 // ============================================================================

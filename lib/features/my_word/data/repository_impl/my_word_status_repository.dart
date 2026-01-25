@@ -8,7 +8,7 @@ import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/my_word/domain/entity/my_word_status.dart';
 import 'package:my_dic/features/my_word/domain/i_repository/i_my_word_status_repository.dart';
-import 'package:my_dic/features/my_word/domain/usecase/update_my_word_status/update_my_word_status_repository_input_data.dart';
+import 'package:my_dic/features/my_word/domain/usecase/my_word_status/update_my_word_status/update_my_word_status_repository_input_data.dart';
 import 'package:my_dic/features/my_word/data/data_source/local/i_my_word_status_local_data_source.dart';
 import 'package:my_dic/features/my_word/data/data_source/remote/status/i_my_word_status_remote_data_source.dart';
 import 'package:my_dic/features/my_word/data/data_source/remote/status/firebase_my_word_status_dto.dart';

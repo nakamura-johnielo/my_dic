@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/core/presentation/components/button/my_icon_button.dart';
+import 'package:my_dic/features/esp_jpn_word_status/di/di.dart';
 import 'package:my_dic/features/quiz/consts/card_state.dart';
 import 'package:my_dic/core/shared/enums/ui/word_card_view_click_listener.dart';
 import 'package:my_dic/core/shared/consts/ui/tab.dart';
 import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
+import 'package:my_dic/features/user/di/service.dart';
 import 'package:my_dic/router/navigator_service.dart';
 
 //スマホ用
@@ -26,8 +28,9 @@ class RankingCard extends ConsumerWidget {
       required this.no,
       required this.original,
       required this.isBookmarked,
-      required this.isLearned, */
-      required this.clickListeners});
+      required this.isLearned, 
+      required this.clickListeners*/
+      });
 
   final Ranking ranking;
   //final String word;
@@ -39,7 +42,7 @@ class RankingCard extends ConsumerWidget {
   final EdgeInsetsGeometry? margin;
   //final bool isBookmarked;
   //final bool isLearned;
-  final Map<WordCardViewButton, VoidCallback> clickListeners;
+  // final Map<WordCardViewButton, VoidCallback> clickListeners;
 
   static const Color hinshiColor = Color.fromARGB(255, 40, 40, 40);
   static const Color wordColor = Colors.black;
@@ -57,9 +60,14 @@ class RankingCard extends ConsumerWidget {
   };
   //Future<void>? currentAction;
 
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    log("wordID: ${ranking.rankedWord}");
+    final command = ref.read(espJpnWordStatusCommandProvider(ranking.wordId).notifier);
+    final wordStatus=ref.watch(espJpnWordStatusUiStateProvider(ranking.wordId));
+    // final userId=ref.watch(appUserStoreNotifierProvider.select((a)=>a?.accountId));
+
+    print("rankingcard wordID: ${ranking.rankedWord}");
     return GestureDetector(
       onTap: onTap,
       child: Card(
@@ -148,29 +156,31 @@ class RankingCard extends ConsumerWidget {
 
             MyIconButton(
               iconSize: 22,
-              defaultIcon: ranking.isLearned
+              defaultIcon: wordStatus.isLearned
                   ? learnedIcon["true"] ?? Icons.error
                   : learnedIcon["false"] ?? Icons.error,
-              hoveredIcon: ranking.isLearned
+              hoveredIcon: wordStatus.isLearned
                   ? learnedIcon["true"] ?? Icons.error
                   : learnedIcon["false"] ?? Icons.error,
               hoveredIconColor: const Color.fromARGB(255, 119, 119, 119),
               onTap: () {
-                clickListeners[WordCardViewButton.learned]!();
+                command.toggleLearned( wordStatus.isLearned);
+                // clickListeners[WordCardViewButton.learned]!();
               },
             ),
             SizedBox(width: 3),
             MyIconButton(
               iconSize: 24,
-              defaultIcon: ranking.isBookmarked
+              defaultIcon: wordStatus.isBookmarked
                   ? bookmarkIcon["true"] ?? Icons.error
                   : bookmarkIcon["false"] ?? Icons.error,
-              hoveredIcon: ranking.isBookmarked
+              hoveredIcon: wordStatus.isBookmarked
                   ? bookmarkIcon["true"] ?? Icons.error
                   : bookmarkIcon["false"] ?? Icons.error,
               hoveredIconColor: const Color.fromARGB(255, 119, 119, 119),
               onTap: () {
-                clickListeners[WordCardViewButton.bookmark]!();
+                // clickListeners[WordCardViewButton.bookmark]!();
+                command.toggleBookmark(wordStatus.isBookmarked);
               },
             ),
           ]),

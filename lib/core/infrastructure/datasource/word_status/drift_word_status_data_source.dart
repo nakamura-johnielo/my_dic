@@ -14,17 +14,35 @@ class DriftWordStatusDataSource implements ILocalWordStatusDataSource {
   }
 
   @override
-  Future<List<EspJpnWordStatusTableData>> getWordStatusAfter(DateTime datetime) async {
+  Future<List<EspJpnWordStatusTableData>> getWordStatusAfter(
+      DateTime datetime) async {
     final list = await _dao.getWordStatusAfter(datetime);
     return list;
   }
 
   @override
-  Future<void> updateWordStatus(EspJpnWordStatusTableData wordStatus) async {
-    if (await _dao.exist(wordStatus.wordId)) {
-      await _dao.updateStatus(wordStatus);
+  Future<void> updateWordStatus(
+    int wordId,
+    int? isLearned,
+    int? isBookmarked,
+    int? hasNote,
+    String editAt,
+  ) async {
+    if (await _dao.exist(wordId)) {
+      await _dao.updateStatus(
+        wordId,
+        isLearned,
+        isBookmarked,
+        hasNote,
+        editAt,
+      );
     } else {
-      await _dao.insertStatus(wordStatus);
+      await _dao.insertStatus(EspJpnWordStatusTableData(
+          wordId: wordId,
+          isLearned: isLearned ?? 0,
+          isBookmarked: isBookmarked ?? 0,
+          hasNote: hasNote ?? 0,
+          editAt: editAt));
     }
   }
 

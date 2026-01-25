@@ -4,6 +4,7 @@ import 'package:my_dic/features/esp_jpn_word_status/di/di.dart';
 import 'package:my_dic/features/my_word/di/service_di.dart';
 import 'package:my_dic/features/auth/di/view_model_di.dart';
 import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
+import 'package:my_dic/features/sync/di.dart';
 
 /// 認証状態のストリームプロバイダー
 /// Authを常に監視
@@ -64,8 +65,8 @@ Future<void> _handleAuthStateChange(
 Future<void> _handleSignOut(Ref ref, AppAuth? previousAuth) async {
   print('[Auth Effect] User signed out');
 
-  //final authUserCoordinator = ref.read(authUserCoordinatorProvider);
-  //await authUserCoordinator.signOut();
+  final authUserCoordinator = ref.read(authUserCoordinatorProvider);
+  await authUserCoordinator.signOut();
 
   // ViewModelの状態をクリア
   // if (previousAuth != null) {
@@ -83,8 +84,8 @@ Future<void> _handleSignIn(Ref ref, AppAuth currentAuth) async {
   print('[Auth Effect] User signed in: ${currentAuth.accountId}');
 
   try {
-    //final authUserCoordinator = ref.read(authUserCoordinatorProvider);
-    //await authUserCoordinator.updateAuth(currentAuth);
+    final authUserCoordinator = ref.read(authUserCoordinatorProvider);
+    await authUserCoordinator.updateAuth(currentAuth);
     // 2. ユーザー情報をロード
     // await ref.read(userViewModelProviderLegacy.notifier).loadUser(currentAuth.accountId);
 
@@ -97,13 +98,16 @@ Future<void> _handleSignIn(Ref ref, AppAuth currentAuth) async {
       print('[Auth Effect] User not verified, skipping sync service start');
       return;
     }
+    await ref
+        .read(syncServiceProvider)
+        .syncOnceAll(currentAuth.accountId);
 
     //esp_jpn_wordstatus sync
-    final syncResult = await ref
-        .read(espJpnWordStatusSyncServiceProvider)
-        .syncOnce(currentAuth.accountId);
+    // final syncResult = await ref
+    //     .read(espJpnWordStatusSyncServiceProvider)
+    //     .syncOnce(currentAuth.accountId);
 
-    await ref.read(myWordSyncServiceProvider).syncOnce(currentAuth.accountId);
+    // await ref.read(myWordSyncServiceProvider).syncOnce(currentAuth.accountId);
 
     // Note: syncOnce already logs the result internally via .when()
     // No need for additional .then() or .catchError()

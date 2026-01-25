@@ -1,3 +1,6 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';
+
 class WordStatusState {
   final bool isLearned;
   final bool isBookmarked;
@@ -19,5 +22,18 @@ class WordStatusState {
       isBookmarked: isBookmarked ?? this.isBookmarked,
       hasNote: hasNote ?? this.hasNote,
     );
+  }
+
+  factory WordStatusState.fromAsync(AsyncValue<WordStatus> asyncValue) {
+    return asyncValue.when(
+      data: (status) => WordStatusState(
+        isLearned: status.isLearned,
+        isBookmarked: status.isBookmarked,
+        hasNote: status.hasNote,
+      ),
+      loading: () => WordStatusState(),
+      error: (_, __) => WordStatusState(),
+    );
+
   }
 }

@@ -14,43 +14,61 @@ class WordStatusRepository implements IWordStatusRepository {
   final ILocalWordStatusDataSource _local;
   WordStatusRepository(this._remote, this._local);
 
-  @override
-  Future<Result<void>> updateWordStatus(
-    WordStatus wordStatus,
-    DateTime now,
-    String userId,
-  ) async {
-    // Update local first
-    final localResult = await updateLocalWordStatus(wordStatus, now);
-    if (localResult.isFailure) {
-      return localResult;
-    }
+  // @override
+  // Future<Result<void>> updateWordStatus(
+  //   String userId,
+  //   int wordId,
+  //   int? isLearned,
+  //   int? isBookmarked,
+  //   int? hasNote,
+  //   String editAt,
+  // ) async {
+  //   // Update local first
+  //   final localResult = await updateLocalWordStatus(
+  //     wordId,
+  //     isLearned,
+  //     isBookmarked,
+  //     hasNote,
+  //     editAt,
+  //   );
+  //   if (localResult.isFailure) {
+  //     return localResult;
+  //   }
 
-    // Then update remote if user is logged in
-    if (userId != "logout" && userId != "anonymous" && userId.isNotEmpty) {
-      final remoteResult = await updateRemoteWordStatus(wordStatus, userId, now);
-      // Log but don't fail if remote fails (local is already updated)
-      if (remoteResult.isFailure) {
-        print('Remote update failed: ${remoteResult.errorOrNull?.message}');
-      }
-    }
+  //   // Then update remote if user is logged in
+  //   if (userId != "logout" && userId != "anonymous" && userId.isNotEmpty) {
+  //     final remoteResult =
+  //         await updateRemoteWordStatus(wordStatus, userId, (editAt));
+  //     // Log but don't fail if remote fails (local is already updated)
+  //     if (remoteResult.isFailure) {
+  //       print('Remote update failed: ${remoteResult.errorOrNull?.message}');
+  //     }
+  //   }
 
-    return const Result.success(null);
-  }
-  
+  //   return const Result.success(null);
+  // }
+
   @override
   Future<Result<void>> updateLocalWordStatus(
-    WordStatus wordStatus,
-    DateTime now
+    int wordId,
+    int? isLearned,
+    int? isBookmarked,
+    int? hasNote,
+    DateTime editAt,
   ) async {
     try {
-      final input = wordStatus.copyWith(editAt: now);
-      final tableData = WordStatusConverter.toTableData(input);
+      await _local.updateWordStatus(
+        wordId,
+        isLearned,
+        isBookmarked,
+        hasNote,
+        editAt.toIso8601String(),
+      );
 
-      await _local.updateWordStatus(tableData);
-
+      print("Local update success");
       return const Result.success(null);
     } catch (e, s) {
+      print("Local update failed: $e");
       return Result.failure(DatabaseError(
         message: 'ローカルの単語ステータス更新に失敗しました',
         originalError: e,
@@ -97,7 +115,7 @@ class WordStatusRepository implements IWordStatusRepository {
     try {
       final res = await _local.getWordStatusById(id);
       if (res != null) {
-        return Result.success(WordStatusConverter.toEntity(res, id));
+        return Result.success(WordStatusConverter.toEntity(res));
       }
       return Result.success(null);
     } catch (e, s) {
@@ -113,10 +131,10 @@ class WordStatusRepository implements IWordStatusRepository {
   Stream<WordStatus> watchWordStatusById(int id) {
     return _local.watchWordStatusById(id).map((data) {
       if (data == null) throw Exception('Word status not found for id: $id');
-      return WordStatusConverter.toEntity(data, id);
+      return WordStatusConverter.toEntity(data);
     });
   }
-  
+
   @override
   Future<Result<List<WordStatus>>> getLocalWordStatusAfter(
     DateTime datetime,
@@ -133,7 +151,7 @@ class WordStatusRepository implements IWordStatusRepository {
       ));
     }
   }
-  
+
   @override
   Future<Result<WordStatus?>> getLocalWordStatusById(int id) async {
     try {
@@ -141,7 +159,7 @@ class WordStatusRepository implements IWordStatusRepository {
       if (data == null) {
         return Result.success(null);
       }
-      return Result.success(WordStatusConverter.toEntity(data, id));
+      return Result.success(WordStatusConverter.toEntity(data));
     } catch (e, s) {
       return Result.failure(DatabaseError(
         message: 'ローカルの単語ステータス取得に失敗しました',
@@ -150,7 +168,7 @@ class WordStatusRepository implements IWordStatusRepository {
       ));
     }
   }
-  
+
   @override
   Future<Result<List<WordStatus>>> getRemoteWordStatusAfter(
     String userId,
@@ -175,7 +193,7 @@ class WordStatusRepository implements IWordStatusRepository {
       ));
     }
   }
-  
+
   @override
   Future<Result<WordStatus?>> getRemoteWordStatusById(
     String userId,
@@ -202,7 +220,7 @@ class WordStatusRepository implements IWordStatusRepository {
       ));
     }
   }
-  
+
   @override
   Future<Result<void>> updateBatchRemoteWordStatus(
     List<WordStatus> wordStatusList,
@@ -232,15 +250,14 @@ class WordStatusRepository implements IWordStatusRepository {
       ));
     }
   }
-  
+
   @override
   Stream<List<int>> watchLocalChangedIds(DateTime datetime) {
     return _local.watchChangedIds(datetime);
   }
-  
+
   @override
   Stream<List<int>> watchRemoteChangedIds(String userId) {
     return _remote.watchChangedIds(userId);
   }
-  
 }

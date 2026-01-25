@@ -10,7 +10,7 @@ import 'package:my_dic/features/my_word/domain/usecase/my_word/delete/delete_my_
 import 'package:my_dic/features/my_word/domain/usecase/my_word/update/update_my_word/update_my_word_repository_input_data.dart';
 import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
 import 'package:my_dic/features/my_word/domain/i_repository/i_my_word_repository.dart';
-import 'package:my_dic/features/my_word/domain/usecase/load_my_word/load_my_word_repository_input_data.dart';
+import 'package:my_dic/features/my_word/domain/usecase/my_word/load_my_word/load_my_word_repository_input_data.dart';
 import 'package:my_dic/features/my_word/data/data_source/local/i_my_word_local_data_source.dart';
 import 'package:my_dic/features/my_word/data/data_source/remote/myword/i_my_word_remote_data_source.dart';
 import 'package:my_dic/features/my_word/data/data_source/remote/myword/firebase_my_word_dto.dart';

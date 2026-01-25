@@ -112,32 +112,36 @@ class AppNavigatorService {
     clearBranchHistoryAndGoRoot(_entryPoint);
   }
 
+  void pushToProfile() {
+    print('========-Go to profile========');
+    _router.pushNamed(RouteNames.unauthorized);
+  }
+
   void toProfile() {
     print('========-Go to profile========');
-      _router.replaceNamed(RouteNames.unauthorized);
-     
+    _router.replaceNamed(RouteNames.unauthorized);
 
     // login系のページじゃなければ強勢移動させない
-  //   final inProfile = _entryPoint == EntryPoint.profile;
-  //   if (!inProfile) return;
+    //   final inProfile = _entryPoint == EntryPoint.profile;
+    //   if (!inProfile) return;
 
-  //   final auth = ref.read(authStoreNotifierProvider);
+    //   final auth = ref.read(authStoreNotifierProvider);
 
-  //   if (auth == null) {
-  //     print('auth is null');
-  //     _router.replaceNamed(RouteNames.unauthorized);
-  //     return;
-  //   }
+    //   if (auth == null) {
+    //     print('auth is null');
+    //     _router.replaceNamed(RouteNames.unauthorized);
+    //     return;
+    //   }
 
-  //   final loggedIn = auth.isLogined;
-  //   final verified = auth.isAuthenticated;
-  //   print('loggedIn: $loggedIn, verified: $verified');
+    //   final loggedIn = auth.isLogined;
+    //   final verified = auth.isAuthenticated;
+    //   print('loggedIn: $loggedIn, verified: $verified');
 
-  //   if (!loggedIn || !verified) {
-  //     _router.replaceNamed(RouteNames.unauthorized);
-  //     return;
-  //   }
-  //     _router.replaceNamed(RouteNames.authorized);
-  //     return;
-   }
+    //   if (!loggedIn || !verified) {
+    //     _router.replaceNamed(RouteNames.unauthorized);
+    //     return;
+    //   }
+    //     _router.replaceNamed(RouteNames.authorized);
+    //     return;
+  }
 }

@@ -64,20 +64,40 @@ final studyQuizNavigatorKeyProvider =
   return GlobalKey<NavigatorState>(debugLabel: 'studyQuiz');
 });
 
+
+
 class AuthChangeNotifier extends ChangeNotifier {
   AuthChangeNotifier(Ref ref) {
-    ref.listen<AsyncValue<AppAuth?>>(
-      authStreamProvider,
+    ref.listen<AppAuth?>(
+      authStoreNotifierProvider,
+      //authStreamProvider,
       (previous, next) {
-        if (previous?.value?.isAuthenticated == next.value?.isAuthenticated) {
-          print('[Auth Effect] No change in auth state detected');
+        if (previous?.isAuthenticated == next?.isAuthenticated) {
+          print('redirect - [Auth Effect] No change in auth state detected===============================================');
           return;
         }
+        print("redirect -- authchangenotifier==============================================================");
         notifyListeners();
       },
     );
   }
 }
+
+// class AuthChangeNotifier extends ChangeNotifier {
+//   AuthChangeNotifier(Ref ref) {
+//     ref.listen<AsyncValue<AppAuth?>>(
+//       authStreamProvider,
+//       (previous, next) {
+//         if (previous?.value?.isAuthenticated == next.value?.isAuthenticated) {
+//           print('[Auth Effect] No change in auth state detected');
+//           return;
+//         }
+//         print("redirect -- authchangenotifier==========================");
+//         notifyListeners();
+//       },
+//     );
+//   }
+// }
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authNotifier = AuthChangeNotifier(ref);
@@ -110,7 +130,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       print('uri: $uri');
       print('uri: $uri2');
       print('fullPath: $fullPath');
-      //if (location == null) return null;
+      if (location == null) return null;
 
       // login系のページじゃなければ強勢移動させない
       final inProfile = location.startsWith('/${RoutePaths.profile}');
@@ -415,44 +435,19 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
 
       // User Profile
-      // GoRoute(
-      //   parentNavigatorKey: rootKey,
-      //   path: '/${RoutePaths.profile}',
-      //   name: RouteNames.profile,
-      //   pageBuilder: (context, state) => NoTransitionPage(
-      //     key: state.pageKey,
-      //     child: EmailPasswordPage(),
-      //   ),
-      //   routes: [
-      //     // Singupページ
-      //     GoRoute(
-      //       parentNavigatorKey: rootKey,
-      //       path: RoutePaths.unauthorized,
-      //       name: RouteNames.unauthorized,
-      //       //parentNavigatorKey: profileKey,
-      //       pageBuilder: (context, state) {
-      //         return MaterialPage(child: EmailPasswordPage());
-      //       },
-      //     ),
-
-      //     // signin済みプロフィールページ
-      //     GoRoute(
-      //       path: RoutePaths.authorized,
-      //       name: RouteNames.authorized,
-      //       parentNavigatorKey: rootKey,
-      //       pageBuilder: (context, state) {
-      //         //final uid = state.extra as String;
-      //         return MaterialPage(child: ProfilePage(uid: "uid"));
-      //       },
-      //     ),
-      //   ],
-      // ),
-
-      // User Profile
-       // Singupページ
+      GoRoute(
+        parentNavigatorKey: rootKey,
+        path: '/${RoutePaths.profile}',
+        name: RouteNames.profile,
+        pageBuilder: (context, state) => NoTransitionPage(
+          key: state.pageKey,
+          child: EmailPasswordPage(),
+        ),
+        routes: [
+          // Singupページ
           GoRoute(
             parentNavigatorKey: rootKey,
-            path: '/${RoutePaths.profile}/${RoutePaths.unauthorized}',
+            path: RoutePaths.unauthorized,
             name: RouteNames.unauthorized,
             //parentNavigatorKey: profileKey,
             pageBuilder: (context, state) {
@@ -462,7 +457,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 
           // signin済みプロフィールページ
           GoRoute(
-            path: '/${RoutePaths.profile}/${RoutePaths.authorized}',
+            path: RoutePaths.authorized,
             name: RouteNames.authorized,
             parentNavigatorKey: rootKey,
             pageBuilder: (context, state) {
@@ -470,6 +465,31 @@ final routerProvider = Provider<GoRouter>((ref) {
               return MaterialPage(child: ProfilePage(uid: "uid"));
             },
           ),
+        ],
+      ),
+
+      // User Profile
+       // Singupページ
+          // GoRoute(
+          //   parentNavigatorKey: rootKey,
+          //   path: '/${RoutePaths.profile}/${RoutePaths.unauthorized}',
+          //   name: RouteNames.unauthorized,
+          //   //parentNavigatorKey: profileKey,
+          //   pageBuilder: (context, state) {
+          //     return MaterialPage(child: EmailPasswordPage());
+          //   },
+          // ),
+
+          // // signin済みプロフィールページ
+          // GoRoute(
+          //   path: '/${RoutePaths.profile}/${RoutePaths.authorized}',
+          //   name: RouteNames.authorized,
+          //   parentNavigatorKey: rootKey,
+          //   pageBuilder: (context, state) {
+          //     //final uid = state.extra as String;
+          //     return MaterialPage(child: ProfilePage(uid: "uid"));
+          //   },
+          // ),
 
       // //Study
       // flashCardRoute(rootKey),

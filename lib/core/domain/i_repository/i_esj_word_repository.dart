@@ -8,7 +8,7 @@ abstract class IEsjWordRepository {
       String word, int size, int currentPage, bool forQuiz);
   Future<Result<List<EspJpnWord>>> getQuizWordsByWordByPage(
       String word, int size, int currentPage);
-  Future<Result<void>> updateStatus(UpdateStatusRepositoryInputData input);
+  // Future<Result<void>> updateStatus(UpdateStatusRepositoryInputData input);
 
   // Future<Result<WordStatus>> getStatusById(int wordId);
 }

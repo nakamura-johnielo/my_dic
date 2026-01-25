@@ -20,32 +20,55 @@ class EspJpnWordStatusDao extends DatabaseAccessor<DatabaseProvider>
             hasNote: Value(hasNote)));
   } */
 
- Stream<EspJpnWordStatusTableData?> watchWordStatus(int wordId) {
+  Stream<EspJpnWordStatusTableData?> watchWordStatus(int wordId) {
     // 変更された wordId のリストを監視するクエリを実装
     // ここでは単純に全てのレコードの wordId を返す例を示します
-    return (select(espJpnWordStatus)
-    ..where((tbl) => tbl.wordId.equals(wordId)))
-    .watchSingleOrNull();
-      }
+    return (select(espJpnWordStatus)..where((tbl) => tbl.wordId.equals(wordId)))
+        .watchSingleOrNull()
+        .distinct();
+  }
 
   Stream<List<int>> watchChangedWordIdsWithFilter(DateTime since) {
-  return (select(espJpnWordStatus)
-        ..where((tbl) => tbl.editAt.isBiggerThanValue(since.toIso8601String())))
-      .watch()
-      .map((rows) => rows.map((row) => row.wordId).toList());
-}
+    return (select(espJpnWordStatus)
+          ..where(
+              (tbl) => tbl.editAt.isBiggerThanValue(since.toIso8601String())))
+        .watch()
+        .map((rows) => rows.map((row) => row.wordId).toList())
+        .distinct();
+  }
 
-  Future<void> updateStatus(EspJpnWordStatusTableData data) async {
+  Future<void> updateStatus(
+    int wordId,
+    int? isLearned,
+    int? isBookmarked,
+    int? hasNote,
+    String editAt,
+  ) async {
     log("update");
-    await update(espJpnWordStatus).replace(data);
+    //await update(espJpnWordStatus).replace(data);
+    await (update(espJpnWordStatus)..where((t) => t.wordId.equals(wordId)))
+        .write(
+      EspJpnWordStatusCompanion(
+        //wordId: Value(wordId),
+        isLearned: isLearned != null ? Value(isLearned) : Value.absent(),
+        isBookmarked:
+            isBookmarked != null ? Value(isBookmarked) : Value.absent(),
+        hasNote: hasNote != null ? Value(hasNote) : Value.absent(),
+        editAt: Value(editAt),
+      ),
+    );
   }
 
   Future<EspJpnWordStatusTableData?> getStatusById(int wordId) {
     return (select(espJpnWordStatus)..where((tbl) => tbl.wordId.equals(wordId)))
         .getSingleOrNull();
   }
-  Future<List<EspJpnWordStatusTableData>> getWordStatusAfter(DateTime datetime) {
-    return (select(espJpnWordStatus)..where((tbl) => tbl.editAt.isBiggerThanValue(datetime.toIso8601String())))
+
+  Future<List<EspJpnWordStatusTableData>> getWordStatusAfter(
+      DateTime datetime) {
+    return (select(espJpnWordStatus)
+          ..where((tbl) =>
+              tbl.editAt.isBiggerThanValue(datetime.toIso8601String())))
         .get();
   }
 

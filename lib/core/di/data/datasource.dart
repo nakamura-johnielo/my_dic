@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
 
 import 'package:my_dic/core/infrastructure/datasource/esj/esj_drift_dictionary_data_source.dart';
-import 'package:my_dic/core/infrastructure/datasource/esj/esj_drift_word_data_source.dart';
+import 'package:my_dic/core/infrastructure/datasource/esj/drift_esjpn_word_data_source.dart';
 import 'package:my_dic/core/infrastructure/datasource/esj/i_esj_dictionary_data_source.dart';
 import 'package:my_dic/core/infrastructure/datasource/esj/i_esj_word_data_source.dart';
 import 'package:my_dic/core/infrastructure/datasource/conjugacion/conjugacion_drift_datasource.dart';
@@ -31,7 +31,7 @@ final esjDictionaryDataSourceProvider = Provider<IEsjDictionaryLocalDataSource>(
 });
 
 final esjWordDataSourceProvider = Provider<IEsjWordLocalDataSource>((ref) {
-  return EsjDriftWordDataSource(
+  return DriftEspJpnWordDataSource(
     ref.read(wordDaoProvider),
     ref.read(localWordStatusDaoProvider),
   );
