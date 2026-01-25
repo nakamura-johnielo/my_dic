@@ -1,12 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-//
-
 import 'package:flutter/material.dart';
 import 'package:my_dic/core/presentation/components/button/my_icon_button.dart';
 import 'package:my_dic/features/esp_jpn_word_status/di/di.dart';
-import 'package:my_dic/features/auth/di/service.dart';
 
 class StatusButtons extends ConsumerWidget {
   const StatusButtons({super.key, required this.wordId});
@@ -25,46 +22,39 @@ class StatusButtons extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // final wordStatus = ref.watch(wordStatusByIdProvider(wordId));
-    final wordStatus = ref.watch(espJpnWordStatusUiStateProvider(wordId));
-    final command =
-        ref.read(espJpnWordStatusCommandProvider(wordId).notifier);
-    //controller.init(wordId); //初期化
-
-    // final userId = ref.watch(authStoreNotifierProvider.select((a)=>a?.accountId)) ;
+    final vm = ref.watch(espJpnWordStatusViewModelProvider(wordId));
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         MyIconButton(
           iconSize: 22,
-          defaultIcon: wordStatus.isLearned 
+          defaultIcon: vm.isLearned
               ? learnedIcon["true"] ?? Icons.error
               : learnedIcon["false"] ?? Icons.error,
-          hoveredIcon: wordStatus.isLearned 
+          hoveredIcon: vm.isLearned
               ? learnedIcon["true"] ?? Icons.error
               : learnedIcon["false"] ?? Icons.error,
           hoveredIconColor: const Color.fromARGB(255, 119, 119, 119),
           onTap: () {
-            unawaited(command.toggleLearned( wordStatus.isLearned));
+            unawaited(vm.toggleLearned());
           },
         ),
         const SizedBox(width: 3),
         MyIconButton(
           iconSize: 24,
-          defaultIcon: wordStatus.isBookmarked 
+          defaultIcon: vm.isBookmarked
               ? bookmarkIcon["true"] ?? Icons.error
               : bookmarkIcon["false"] ?? Icons.error,
-          hoveredIcon: wordStatus.isBookmarked 
+          hoveredIcon: vm.isBookmarked
               ? bookmarkIcon["true"] ?? Icons.error
               : bookmarkIcon["false"] ?? Icons.error,
           hoveredIconColor: const Color.fromARGB(255, 119, 119, 119),
           onTap: () {
-            unawaited(command.toggleBookmark( wordStatus.isBookmarked));
+            unawaited(vm.toggleBookmark());
           },
         ),
       ],
     );
   }
 }
-

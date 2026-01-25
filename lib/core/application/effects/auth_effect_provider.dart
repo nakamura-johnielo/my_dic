@@ -42,8 +42,8 @@ Future<void> _handleAuthStateChange(
   AppAuth? previousAuth,
   AppAuth? currentAuth,
 ) async {
-  if (/* previousAuth?.accountId == currentAuth?.accountId &&
-      previousAuth?.isLogined == currentAuth?.isLogined && */
+  if (previousAuth?.accountId == currentAuth?.accountId &&
+      previousAuth?.isLogined == currentAuth?.isLogined &&
       previousAuth?.isAuthenticated == currentAuth?.isAuthenticated) {
     print('[Auth Effect] No change in auth state detected');
     return;

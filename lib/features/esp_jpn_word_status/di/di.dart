@@ -24,6 +24,7 @@ import 'package:my_dic/features/auth/di/service.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/watch/i_watch_esp_jpn_word_status_usecase.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/watch/watch_esp_jpn_word_status_interactor.dart';
 import 'package:my_dic/features/user/di/service.dart';
+import 'package:my_dic/features/esp_jpn_word_status/components/status_button/viewmodel.dart';
 
 //==========Usecase=====================
 final syncEspJpnWordStatusUseCaseProvider = Provider<ISyncUseCase>((ref) {
@@ -104,7 +105,8 @@ final espJpnWordStatusCommandProvider = StateNotifierProvider.family
     final currentUser = ref.watch(appUserStoreNotifierProvider);
 
     return EspJpnWordStatusCommand(
-      wordId,currentUser?.accountId,
+      wordId,
+      currentUser?.accountId,
       updateUsecase,
     );
   },
@@ -123,4 +125,13 @@ final espJpnWordStatusUiStateProvider =
   final statusAsync = ref.watch(_espJpnWordStatusStreamProvider(wordId));
 
   return WordStatusState.fromAsync(statusAsync);
+});
+
+//~~~~~~~~ViewModel~~~~~~~~~~~~~~~~
+final espJpnWordStatusViewModelProvider =
+    Provider.autoDispose.family<EspJpnWordStatusViewModel, int>((ref, wordId) {
+  final uiState = ref.watch(espJpnWordStatusUiStateProvider(wordId));
+  final command = ref.read(espJpnWordStatusCommandProvider(wordId).notifier);
+
+  return EspJpnWordStatusViewModel(uiState, command);
 });

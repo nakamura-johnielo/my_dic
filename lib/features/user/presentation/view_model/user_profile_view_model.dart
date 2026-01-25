@@ -2,30 +2,12 @@ import 'dart:developer';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/application/coordinator/auth_user_coordinator.dart';
-import 'package:my_dic/core/shared/enums/auth/subscription_status.dart';
 import 'package:my_dic/core/shared/enums/ui/button_status.dart';
-import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/auth/auth_coordinator.dart';
-import 'package:my_dic/features/auth/di/service.dart';
-import 'package:my_dic/features/auth/presentation/view_model/auth_store.dart';
-import 'package:my_dic/features/user/di/service.dart';
-import 'package:my_dic/features/user/domain/usecase/i_create_new_user_use_case.dart';
-import 'package:my_dic/features/user/domain/usecase/i_ensure_user_exists_use_case.dart';
-import 'package:my_dic/features/user/domain/usecase/i_get_user_use_case.dart';
-import 'package:my_dic/core/domain/entity/auth.dart';
-import 'package:my_dic/features/user/domain/entity/user.dart';
-import 'package:my_dic/features/user/domain/usecase/i_update_user_use_case.dart';
 import 'package:my_dic/features/user/presentation/model/user_profile_ui_model.dart';
-import 'package:my_dic/features/user/presentation/view_model/app_user_store.dart';
 import 'package:my_dic/features/user/user_coodinator.dart';
 
 class UserProfileViewModel extends StateNotifier<UserProfileUIState> {
-  //TODO こっちが本物
-  // final IGetUserUseCase _getUserInteractor;
-  // final IUpdateUserUseCase _updateUserInteractor;
-  // final IEnsureUserExistsUseCase _ensureUserExistsInteractor;
-  // final ICreateNewUserUseCase _createNewUserInteractor;
   //final Ref ref;
   final AppUserCoordinator _coordinator;
   final AuthUserCoordinator _authUserCoordinator;

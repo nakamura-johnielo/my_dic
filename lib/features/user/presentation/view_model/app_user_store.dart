@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/enums/auth/subscription_status.dart';
@@ -6,10 +5,6 @@ import 'package:my_dic/features/user/domain/entity/user.dart';
 
 class AppUserStoreNotifier extends StateNotifier<AppUser?>
      {
-  //TODO こっちが本物
-  // final IGetUserUseCase _getUserInteractor;
-  // final IUpdateUserUseCase _updateUserInteractor;
-  // final IEnsureUserExistsUseCase _ensureUserExistsInteractor;
 
   AppUserStoreNotifier() : super(null);
 

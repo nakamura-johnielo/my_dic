@@ -2,7 +2,7 @@ import 'package:my_dic/core/shared/consts/user/default.dart';
 import 'package:my_dic/core/shared/enums/auth/subscription_status.dart';
 
 class AppUser {
-  // accountIdはデバイスに対して１つ
+  // accountIdはaccountに対して１つ
   //provider等から割り当てられるやつ
   //acountIdはAuth確認には使わない！！！
   final String accountId;
