@@ -3,6 +3,7 @@ import 'package:my_dic/core/domain/usecase/i_sync_usecase.dart';
 import 'package:my_dic/core/shared/consts/dates.dart';
 import 'package:my_dic/core/shared/consts/syncPriority.dart';
 import 'package:my_dic/core/shared/errors/app_error.dart';
+import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
@@ -28,8 +29,9 @@ class SyncMyWordInteractor implements ISyncUseCase {
     try {
       final authResult = await _authRepository.getCurrentAuth();
       return authResult.when(
-        success: (auth) =>
-            auth.isAuthenticated && auth.accountId.isNotEmpty ? auth.accountId : null,
+        success: (auth) => auth.isAuthenticated && auth.accountId.isNotEmpty
+            ? auth.accountId
+            : null,
         failure: (_) => null,
       );
     } catch (_) {
@@ -57,7 +59,7 @@ class SyncMyWordInteractor implements ISyncUseCase {
       return Result.failure(remoteData);
     }
 
-    final List<int> wordIdsUpdatedByRemote = [];
+    final List<String> wordIdsUpdatedByRemote = [];
 
     if ((remoteData as List<MyWord>).isNotEmpty) {
       for (final remoteItem in remoteData) {
@@ -73,7 +75,7 @@ class SyncMyWordInteractor implements ISyncUseCase {
     }
 
     final uploadResult = await _uploadLocal2Remote(
-      accountId, localLastSyncDate, wordIdsUpdatedByRemote);
+        accountId, localLastSyncDate, wordIdsUpdatedByRemote);
     if (uploadResult.isFailure) {
       return uploadResult;
     }
@@ -93,7 +95,7 @@ class SyncMyWordInteractor implements ISyncUseCase {
       return const Result.success(null);
     }
     final remoteItemResult =
-        await _myWordRepository.getRemoteMyWordById(accountId, int.parse(wordId));
+        await _myWordRepository.getRemoteMyWordById(accountId, wordId);
 
     if (remoteItemResult.isFailure) {
       return Result.failure(remoteItemResult.errorOrNull!);
@@ -103,21 +105,22 @@ class SyncMyWordInteractor implements ISyncUseCase {
 
     if (remoteItem == null) {
       final localDataResult =
-          await _myWordRepository.getLocalMyWordById(int.parse(wordId));
+          await _myWordRepository.getLocalMyWordById(wordId);
 
-      if (localDataResult.isFailure) {
+      if (localDataResult.runtimeType != NotFoundError&& localDataResult.runtimeType == AppError) {
+    
         return Result.failure(localDataResult.errorOrNull!);
       }
 
       final localData = localDataResult.dataOrNull;
-      if (localData == null) {
+      if (localData == null||localDataResult.runtimeType == NotFoundError) {
         return Result.failure(UnexpectedError(
           message: 'ローカルのMyWordが見つかりません',
         ));
       }
 
-      final updateResult =
-          await _myWordRepository.updateRemoteMyWord(accountId, localData, null);
+      final updateResult = await _myWordRepository.updateRemoteMyWord(
+          accountId, localData, null);
 
       if (updateResult.isFailure) {
         return updateResult;
@@ -141,7 +144,7 @@ class SyncMyWordInteractor implements ISyncUseCase {
       return const Result.success(null);
     }
     final remoteItemResult =
-        await _myWordRepository.getRemoteMyWordById(accountId, int.parse(wordId));
+        await _myWordRepository.getRemoteMyWordById(accountId, wordId);
 
     if (remoteItemResult.isFailure) {
       return Result.failure(remoteItemResult.errorOrNull!);
@@ -155,6 +158,7 @@ class SyncMyWordInteractor implements ISyncUseCase {
       ));
     }
 
+    print("remote:${remoteItem.word}");
     final syncResult = await _syncHandleOnRemoteChanged(accountId, remoteItem);
     if (syncResult.isFailure) {
       return Result.failure(syncResult.errorOrNull!);
@@ -164,10 +168,10 @@ class SyncMyWordInteractor implements ISyncUseCase {
   }
 
   @override
-  Stream<List<int>> watchRemoteChangedIds() {
+  Stream<List<String>> watchRemoteChangedIds() {
     return Stream.fromFuture(_getCurrentAccountId()).asyncExpand((accountId) {
       if (accountId == null) {
-        return Stream.value(const <int>[]);
+        return Stream.value(const <String>[]);
       }
       return _myWordRepository.watchRemoteChangedIds(accountId);
     });
@@ -189,11 +193,12 @@ class SyncMyWordInteractor implements ISyncUseCase {
     );
   }
 
-  Future<Result<int?>> _syncHandle(String userId, MyWord remoteItem) async {
+  Future<Result<String?>> _syncHandle(String userId, MyWord remoteItem) async {
     final localDataResult =
         await _myWordRepository.getLocalMyWordById(remoteItem.wordId);
 
-    if (localDataResult.isFailure) {
+    if (localDataResult.runtimeType != NotFoundError&& localDataResult.runtimeType == AppError) {
+    
       return Result.failure(localDataResult.errorOrNull!);
     }
 
@@ -221,7 +226,7 @@ class SyncMyWordInteractor implements ISyncUseCase {
     }
 
     if (localUpdatedAt.isAfter(remoteUpdatedAt)) {
-        final updateResult =
+      final updateResult =
           await _myWordRepository.updateRemoteMyWord(userId, localData, null);
       if (updateResult.isFailure) {
         return Result.failure(updateResult.errorOrNull!);
@@ -231,19 +236,19 @@ class SyncMyWordInteractor implements ISyncUseCase {
     return const Result.success(null);
   }
 
-  Future<Result<int?>> _syncHandleOnRemoteChanged(
+  Future<Result<String?>> _syncHandleOnRemoteChanged(
       String userId, MyWord remoteItem) async {
     print("MyWord remote changed handle");
     final localDataResult =
         await _myWordRepository.getLocalMyWordById(remoteItem.wordId);
 
-    if (localDataResult.isFailure) {
+    if (localDataResult.runtimeType != NotFoundError&& localDataResult.runtimeType == AppError) {
       return Result.failure(localDataResult.errorOrNull!);
     }
 
     final localData = localDataResult.dataOrNull;
 
-    if (localData == null) {
+    if (localData == null||localDataResult.runtimeType == NotFoundError) {
       print("local null");
       final createResult =
           await _myWordRepository.createLocalMyWord(remoteItem);
@@ -276,12 +281,13 @@ class SyncMyWordInteractor implements ISyncUseCase {
   Future<Result<void>> _uploadLocal2Remote(
     String userId,
     DateTime datetime,
-    List<int> idsUpdatedByRemote,
+    List<String> idsUpdatedByRemote,
   ) async {
     final localDataResult =
         await _myWordRepository.getLocalMyWordsAfter(datetime);
 
-    if (localDataResult.isFailure) {
+    if (localDataResult.runtimeType != NotFoundError&& localDataResult.runtimeType == AppError) {
+    
       return Result.failure(localDataResult.errorOrNull!);
     }
 
@@ -289,7 +295,7 @@ class SyncMyWordInteractor implements ISyncUseCase {
 
     print("local myword sync length: ${localData.length}");
 
-    if (localData.isEmpty) {
+    if (localData.isEmpty||localDataResult.runtimeType == NotFoundError) {
       return const Result.success(null);
     }
 

@@ -60,7 +60,7 @@ class SyncMyWordStatusUsecase implements ISyncUseCase{
       return Result.failure(remoteData);
     }
 
-    final List<int> wordIdsUpdatedByRemote = [];
+    final List<String> wordIdsUpdatedByRemote = [];
 
     if ((remoteData as List<MyWordStatus>).isNotEmpty) {
       for (final remoteItem in remoteData) {
@@ -96,7 +96,7 @@ class SyncMyWordStatusUsecase implements ISyncUseCase{
       return const Result.success(null);
     }
     final remoteItemResult =
-        await _myWordStatusRepository.getRemoteStatusById(accountId, int.parse(wordId));
+        await _myWordStatusRepository.getRemoteStatusById(accountId, wordId);
 
     if (remoteItemResult.isFailure) {
       return Result.failure(remoteItemResult.errorOrNull!);
@@ -105,9 +105,10 @@ class SyncMyWordStatusUsecase implements ISyncUseCase{
     final remoteItem = remoteItemResult.dataOrNull;
 
     if (remoteItem == null) {
-      final localDataResult = await _myWordStatusRepository.getLocalStatusById(int.parse(wordId));
+      final localDataResult = await _myWordStatusRepository.getLocalStatusById(wordId);
 
-      if (localDataResult.isFailure) {
+      if (localDataResult.runtimeType != NotFoundError&& localDataResult.runtimeType == AppError) {
+    
         return Result.failure(localDataResult.errorOrNull!);
       }
 
@@ -143,7 +144,7 @@ class SyncMyWordStatusUsecase implements ISyncUseCase{
       return const Result.success(null);
     }
     final remoteItemResult =
-        await _myWordStatusRepository.getRemoteStatusById(accountId, int.parse(wordId));
+        await _myWordStatusRepository.getRemoteStatusById(accountId, wordId);
 
     if (remoteItemResult.isFailure) {
       return Result.failure(remoteItemResult.errorOrNull!);
@@ -166,10 +167,10 @@ class SyncMyWordStatusUsecase implements ISyncUseCase{
   }
 
  @override
-  Stream<List<int>> watchRemoteChangedIds() {
+  Stream<List<String>> watchRemoteChangedIds() {
     return Stream.fromFuture(_getCurrentAccountId()).asyncExpand((accountId) {
       if (accountId == null) {
-        return Stream.value(const <int>[]);
+        return Stream.value(const <String>[]);
       }
       return _myWordStatusRepository.watchRemoteChangedIds(accountId);
     });
@@ -191,17 +192,18 @@ class SyncMyWordStatusUsecase implements ISyncUseCase{
     );
   }
 
-  Future<Result<int?>> _syncHandle(String userId, MyWordStatus remoteItem) async {
+  Future<Result<String?>> _syncHandle(String userId, MyWordStatus remoteItem) async {
     final localDataResult =
         await _myWordStatusRepository.getLocalStatusById(remoteItem.wordId);
 
-    if (localDataResult.isFailure) {
+    if (localDataResult.runtimeType != NotFoundError&& localDataResult.runtimeType == AppError) {
+    
       return Result.failure(localDataResult.errorOrNull!);
     }
 
     final localData = localDataResult.dataOrNull;
 
-    if (localData == null) {
+    if (localData == null||localDataResult.runtimeType == NotFoundError) {
       final input=UpdateMyWordStatusRepositoryInputData (
         remoteItem.wordId,
         remoteItem.isLearned?1:0,
@@ -250,17 +252,18 @@ class SyncMyWordStatusUsecase implements ISyncUseCase{
   }
 
 
-  Future<Result<int?>> _syncHandleOnOnce(String userId, MyWordStatus remoteItem) async {
+  Future<Result<String?>> _syncHandleOnOnce(String userId, MyWordStatus remoteItem) async {
     final localDataResult =
         await _myWordStatusRepository.getLocalStatusById(remoteItem.wordId);
 
-    if (localDataResult.isFailure) {
+    if (localDataResult.runtimeType != NotFoundError&& localDataResult.runtimeType == AppError) {
+    
       return Result.failure(localDataResult.errorOrNull!);
     }
 
     final localData = localDataResult.dataOrNull;
 
-    if (localData == null) {
+    if (localData == null||localDataResult.runtimeType == NotFoundError) {
       final input=UpdateMyWordStatusRepositoryInputData (
         remoteItem.wordId,
         remoteItem.isLearned?1:0,
@@ -309,17 +312,18 @@ class SyncMyWordStatusUsecase implements ISyncUseCase{
   }
 
 
-  Future<Result<int?>> _syncHandleOnRemoteChanged(String userId, MyWordStatus remoteItem) async {
+  Future<Result<String?>> _syncHandleOnRemoteChanged(String userId, MyWordStatus remoteItem) async {
     final localDataResult =
         await _myWordStatusRepository.getLocalStatusById(remoteItem.wordId);
 
-    if (localDataResult.isFailure) {
+    if (localDataResult.runtimeType != NotFoundError&& localDataResult.runtimeType == AppError) {
+    
       return Result.failure(localDataResult.errorOrNull!);
     }
 
     final localData = localDataResult.dataOrNull;
 
-    if (localData == null) {
+    if (localData == null||localDataResult.runtimeType == NotFoundError) {
       final input=UpdateMyWordStatusRepositoryInputData (
         remoteItem.wordId,
         remoteItem.isLearned?1:0,
@@ -362,18 +366,19 @@ class SyncMyWordStatusUsecase implements ISyncUseCase{
   Future<Result<void>> _uploadLocal2Remote(
     String userId,
     DateTime datetime,
-    List<int> idsUpdatedByRemote,
+    List<String> idsUpdatedByRemote,
   ) async {
     final localDataResult = await _myWordStatusRepository.getLocalStatusAfter(datetime);
 
-    if (localDataResult.isFailure) {
+    if (localDataResult.runtimeType != NotFoundError&& localDataResult.runtimeType == AppError) {
+    
       return Result.failure(localDataResult.errorOrNull!);
     }
 
     final localData = localDataResult.dataOrNull!;
     print("local myword status sync length: ${localData.length}");
     
-    if (localData.isEmpty) {
+    if (localData.isEmpty||localDataResult.runtimeType == NotFoundError) {
       return const Result.success(null);
     }
 

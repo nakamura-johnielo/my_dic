@@ -5448,13 +5448,9 @@ class $MyWordsTable extends MyWords
   static const VerificationMeta _myWordIdMeta =
       const VerificationMeta('myWordId');
   @override
-  late final GeneratedColumn<int> myWordId = GeneratedColumn<int>(
+  late final GeneratedColumn<String> myWordId = GeneratedColumn<String>(
       'my_word_id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _wordMeta = const VerificationMeta('word');
   @override
   late final GeneratedColumn<String> word = GeneratedColumn<String>(
@@ -5486,6 +5482,8 @@ class $MyWordsTable extends MyWords
     if (data.containsKey('my_word_id')) {
       context.handle(_myWordIdMeta,
           myWordId.isAcceptableOrUnknown(data['my_word_id']!, _myWordIdMeta));
+    } else if (isInserting) {
+      context.missing(_myWordIdMeta);
     }
     if (data.containsKey('word')) {
       context.handle(
@@ -5513,7 +5511,7 @@ class $MyWordsTable extends MyWords
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return MyWordTableData(
       myWordId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}my_word_id'])!,
+          .read(DriftSqlType.string, data['${effectivePrefix}my_word_id'])!,
       word: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}word'])!,
       contents: attachedDatabase.typeMapping
@@ -5530,7 +5528,7 @@ class $MyWordsTable extends MyWords
 }
 
 class MyWordTableData extends DataClass implements Insertable<MyWordTableData> {
-  final int myWordId;
+  final String myWordId;
   final String word;
   final String? contents;
   final String editAt;
@@ -5542,7 +5540,7 @@ class MyWordTableData extends DataClass implements Insertable<MyWordTableData> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['my_word_id'] = Variable<int>(myWordId);
+    map['my_word_id'] = Variable<String>(myWordId);
     map['word'] = Variable<String>(word);
     if (!nullToAbsent || contents != null) {
       map['contents'] = Variable<String>(contents);
@@ -5566,7 +5564,7 @@ class MyWordTableData extends DataClass implements Insertable<MyWordTableData> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return MyWordTableData(
-      myWordId: serializer.fromJson<int>(json['myWordId']),
+      myWordId: serializer.fromJson<String>(json['myWordId']),
       word: serializer.fromJson<String>(json['word']),
       contents: serializer.fromJson<String?>(json['contents']),
       editAt: serializer.fromJson<String>(json['editAt']),
@@ -5576,7 +5574,7 @@ class MyWordTableData extends DataClass implements Insertable<MyWordTableData> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'myWordId': serializer.toJson<int>(myWordId),
+      'myWordId': serializer.toJson<String>(myWordId),
       'word': serializer.toJson<String>(word),
       'contents': serializer.toJson<String?>(contents),
       'editAt': serializer.toJson<String>(editAt),
@@ -5584,7 +5582,7 @@ class MyWordTableData extends DataClass implements Insertable<MyWordTableData> {
   }
 
   MyWordTableData copyWith(
-          {int? myWordId,
+          {String? myWordId,
           String? word,
           Value<String?> contents = const Value.absent(),
           String? editAt}) =>
@@ -5627,47 +5625,55 @@ class MyWordTableData extends DataClass implements Insertable<MyWordTableData> {
 }
 
 class MyWordsCompanion extends UpdateCompanion<MyWordTableData> {
-  final Value<int> myWordId;
+  final Value<String> myWordId;
   final Value<String> word;
   final Value<String?> contents;
   final Value<String> editAt;
+  final Value<int> rowid;
   const MyWordsCompanion({
     this.myWordId = const Value.absent(),
     this.word = const Value.absent(),
     this.contents = const Value.absent(),
     this.editAt = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
   MyWordsCompanion.insert({
-    this.myWordId = const Value.absent(),
+    required String myWordId,
     required String word,
     this.contents = const Value.absent(),
     required String editAt,
-  })  : word = Value(word),
+    this.rowid = const Value.absent(),
+  })  : myWordId = Value(myWordId),
+        word = Value(word),
         editAt = Value(editAt);
   static Insertable<MyWordTableData> custom({
-    Expression<int>? myWordId,
+    Expression<String>? myWordId,
     Expression<String>? word,
     Expression<String>? contents,
     Expression<String>? editAt,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (myWordId != null) 'my_word_id': myWordId,
       if (word != null) 'word': word,
       if (contents != null) 'contents': contents,
       if (editAt != null) 'edit_at': editAt,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
   MyWordsCompanion copyWith(
-      {Value<int>? myWordId,
+      {Value<String>? myWordId,
       Value<String>? word,
       Value<String?>? contents,
-      Value<String>? editAt}) {
+      Value<String>? editAt,
+      Value<int>? rowid}) {
     return MyWordsCompanion(
       myWordId: myWordId ?? this.myWordId,
       word: word ?? this.word,
       contents: contents ?? this.contents,
       editAt: editAt ?? this.editAt,
+      rowid: rowid ?? this.rowid,
     );
   }
 
@@ -5675,7 +5681,7 @@ class MyWordsCompanion extends UpdateCompanion<MyWordTableData> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     if (myWordId.present) {
-      map['my_word_id'] = Variable<int>(myWordId.value);
+      map['my_word_id'] = Variable<String>(myWordId.value);
     }
     if (word.present) {
       map['word'] = Variable<String>(word.value);
@@ -5686,6 +5692,9 @@ class MyWordsCompanion extends UpdateCompanion<MyWordTableData> {
     if (editAt.present) {
       map['edit_at'] = Variable<String>(editAt.value);
     }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
     return map;
   }
 
@@ -5695,7 +5704,8 @@ class MyWordsCompanion extends UpdateCompanion<MyWordTableData> {
           ..write('myWordId: $myWordId, ')
           ..write('word: $word, ')
           ..write('contents: $contents, ')
-          ..write('editAt: $editAt')
+          ..write('editAt: $editAt, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -5710,9 +5720,9 @@ class $MyWordStatusTable extends MyWordStatus
   static const VerificationMeta _myWordIdMeta =
       const VerificationMeta('myWordId');
   @override
-  late final GeneratedColumn<int> myWordId = GeneratedColumn<int>(
+  late final GeneratedColumn<String> myWordId = GeneratedColumn<String>(
       'my_word_id', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: false);
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _isLearnedMeta =
       const VerificationMeta('isLearned');
   @override
@@ -5753,6 +5763,8 @@ class $MyWordStatusTable extends MyWordStatus
     if (data.containsKey('my_word_id')) {
       context.handle(_myWordIdMeta,
           myWordId.isAcceptableOrUnknown(data['my_word_id']!, _myWordIdMeta));
+    } else if (isInserting) {
+      context.missing(_myWordIdMeta);
     }
     if (data.containsKey('is_learned')) {
       context.handle(_isLearnedMeta,
@@ -5784,7 +5796,7 @@ class $MyWordStatusTable extends MyWordStatus
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return MyWordStatusTableData(
       myWordId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}my_word_id'])!,
+          .read(DriftSqlType.string, data['${effectivePrefix}my_word_id'])!,
       isLearned: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}is_learned']),
       isBookmarked: attachedDatabase.typeMapping
@@ -5804,7 +5816,7 @@ class $MyWordStatusTable extends MyWordStatus
 
 class MyWordStatusTableData extends DataClass
     implements Insertable<MyWordStatusTableData> {
-  final int myWordId;
+  final String myWordId;
   final int? isLearned;
   final int? isBookmarked;
   final int? hasNote;
@@ -5818,7 +5830,7 @@ class MyWordStatusTableData extends DataClass
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['my_word_id'] = Variable<int>(myWordId);
+    map['my_word_id'] = Variable<String>(myWordId);
     if (!nullToAbsent || isLearned != null) {
       map['is_learned'] = Variable<int>(isLearned);
     }
@@ -5852,7 +5864,7 @@ class MyWordStatusTableData extends DataClass
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return MyWordStatusTableData(
-      myWordId: serializer.fromJson<int>(json['myWordId']),
+      myWordId: serializer.fromJson<String>(json['myWordId']),
       isLearned: serializer.fromJson<int?>(json['isLearned']),
       isBookmarked: serializer.fromJson<int?>(json['isBookmarked']),
       hasNote: serializer.fromJson<int?>(json['hasNote']),
@@ -5863,7 +5875,7 @@ class MyWordStatusTableData extends DataClass
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'myWordId': serializer.toJson<int>(myWordId),
+      'myWordId': serializer.toJson<String>(myWordId),
       'isLearned': serializer.toJson<int?>(isLearned),
       'isBookmarked': serializer.toJson<int?>(isBookmarked),
       'hasNote': serializer.toJson<int?>(hasNote),
@@ -5872,7 +5884,7 @@ class MyWordStatusTableData extends DataClass
   }
 
   MyWordStatusTableData copyWith(
-          {int? myWordId,
+          {String? myWordId,
           Value<int?> isLearned = const Value.absent(),
           Value<int?> isBookmarked = const Value.absent(),
           Value<int?> hasNote = const Value.absent(),
@@ -5924,31 +5936,36 @@ class MyWordStatusTableData extends DataClass
 }
 
 class MyWordStatusCompanion extends UpdateCompanion<MyWordStatusTableData> {
-  final Value<int> myWordId;
+  final Value<String> myWordId;
   final Value<int?> isLearned;
   final Value<int?> isBookmarked;
   final Value<int?> hasNote;
   final Value<String> editAt;
+  final Value<int> rowid;
   const MyWordStatusCompanion({
     this.myWordId = const Value.absent(),
     this.isLearned = const Value.absent(),
     this.isBookmarked = const Value.absent(),
     this.hasNote = const Value.absent(),
     this.editAt = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
   MyWordStatusCompanion.insert({
-    this.myWordId = const Value.absent(),
+    required String myWordId,
     this.isLearned = const Value.absent(),
     this.isBookmarked = const Value.absent(),
     this.hasNote = const Value.absent(),
     required String editAt,
-  }) : editAt = Value(editAt);
+    this.rowid = const Value.absent(),
+  })  : myWordId = Value(myWordId),
+        editAt = Value(editAt);
   static Insertable<MyWordStatusTableData> custom({
-    Expression<int>? myWordId,
+    Expression<String>? myWordId,
     Expression<int>? isLearned,
     Expression<int>? isBookmarked,
     Expression<int>? hasNote,
     Expression<String>? editAt,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (myWordId != null) 'my_word_id': myWordId,
@@ -5956,21 +5973,24 @@ class MyWordStatusCompanion extends UpdateCompanion<MyWordStatusTableData> {
       if (isBookmarked != null) 'is_bookmarked': isBookmarked,
       if (hasNote != null) 'has_note': hasNote,
       if (editAt != null) 'edit_at': editAt,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
   MyWordStatusCompanion copyWith(
-      {Value<int>? myWordId,
+      {Value<String>? myWordId,
       Value<int?>? isLearned,
       Value<int?>? isBookmarked,
       Value<int?>? hasNote,
-      Value<String>? editAt}) {
+      Value<String>? editAt,
+      Value<int>? rowid}) {
     return MyWordStatusCompanion(
       myWordId: myWordId ?? this.myWordId,
       isLearned: isLearned ?? this.isLearned,
       isBookmarked: isBookmarked ?? this.isBookmarked,
       hasNote: hasNote ?? this.hasNote,
       editAt: editAt ?? this.editAt,
+      rowid: rowid ?? this.rowid,
     );
   }
 
@@ -5978,7 +5998,7 @@ class MyWordStatusCompanion extends UpdateCompanion<MyWordStatusTableData> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     if (myWordId.present) {
-      map['my_word_id'] = Variable<int>(myWordId.value);
+      map['my_word_id'] = Variable<String>(myWordId.value);
     }
     if (isLearned.present) {
       map['is_learned'] = Variable<int>(isLearned.value);
@@ -5992,6 +6012,9 @@ class MyWordStatusCompanion extends UpdateCompanion<MyWordStatusTableData> {
     if (editAt.present) {
       map['edit_at'] = Variable<String>(editAt.value);
     }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
     return map;
   }
 
@@ -6002,7 +6025,8 @@ class MyWordStatusCompanion extends UpdateCompanion<MyWordStatusTableData> {
           ..write('isLearned: $isLearned, ')
           ..write('isBookmarked: $isBookmarked, ')
           ..write('hasNote: $hasNote, ')
-          ..write('editAt: $editAt')
+          ..write('editAt: $editAt, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -11873,16 +11897,18 @@ typedef $$EspJpnWordStatusTableProcessedTableManager = ProcessedTableManager<
     EspJpnWordStatusTableData,
     PrefetchHooks Function({bool wordId})>;
 typedef $$MyWordsTableCreateCompanionBuilder = MyWordsCompanion Function({
-  Value<int> myWordId,
+  required String myWordId,
   required String word,
   Value<String?> contents,
   required String editAt,
+  Value<int> rowid,
 });
 typedef $$MyWordsTableUpdateCompanionBuilder = MyWordsCompanion Function({
-  Value<int> myWordId,
+  Value<String> myWordId,
   Value<String> word,
   Value<String?> contents,
   Value<String> editAt,
+  Value<int> rowid,
 });
 
 class $$MyWordsTableFilterComposer
@@ -11894,7 +11920,7 @@ class $$MyWordsTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<int> get myWordId => $composableBuilder(
+  ColumnFilters<String> get myWordId => $composableBuilder(
       column: $table.myWordId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get word => $composableBuilder(
@@ -11916,7 +11942,7 @@ class $$MyWordsTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<int> get myWordId => $composableBuilder(
+  ColumnOrderings<String> get myWordId => $composableBuilder(
       column: $table.myWordId, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get word => $composableBuilder(
@@ -11938,7 +11964,7 @@ class $$MyWordsTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get myWordId =>
+  GeneratedColumn<String> get myWordId =>
       $composableBuilder(column: $table.myWordId, builder: (column) => column);
 
   GeneratedColumn<String> get word =>
@@ -11977,28 +12003,32 @@ class $$MyWordsTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$MyWordsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
-            Value<int> myWordId = const Value.absent(),
+            Value<String> myWordId = const Value.absent(),
             Value<String> word = const Value.absent(),
             Value<String?> contents = const Value.absent(),
             Value<String> editAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
           }) =>
               MyWordsCompanion(
             myWordId: myWordId,
             word: word,
             contents: contents,
             editAt: editAt,
+            rowid: rowid,
           ),
           createCompanionCallback: ({
-            Value<int> myWordId = const Value.absent(),
+            required String myWordId,
             required String word,
             Value<String?> contents = const Value.absent(),
             required String editAt,
+            Value<int> rowid = const Value.absent(),
           }) =>
               MyWordsCompanion.insert(
             myWordId: myWordId,
             word: word,
             contents: contents,
             editAt: editAt,
+            rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -12024,19 +12054,21 @@ typedef $$MyWordsTableProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function()>;
 typedef $$MyWordStatusTableCreateCompanionBuilder = MyWordStatusCompanion
     Function({
-  Value<int> myWordId,
+  required String myWordId,
   Value<int?> isLearned,
   Value<int?> isBookmarked,
   Value<int?> hasNote,
   required String editAt,
+  Value<int> rowid,
 });
 typedef $$MyWordStatusTableUpdateCompanionBuilder = MyWordStatusCompanion
     Function({
-  Value<int> myWordId,
+  Value<String> myWordId,
   Value<int?> isLearned,
   Value<int?> isBookmarked,
   Value<int?> hasNote,
   Value<String> editAt,
+  Value<int> rowid,
 });
 
 class $$MyWordStatusTableFilterComposer
@@ -12048,7 +12080,7 @@ class $$MyWordStatusTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<int> get myWordId => $composableBuilder(
+  ColumnFilters<String> get myWordId => $composableBuilder(
       column: $table.myWordId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get isLearned => $composableBuilder(
@@ -12073,7 +12105,7 @@ class $$MyWordStatusTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<int> get myWordId => $composableBuilder(
+  ColumnOrderings<String> get myWordId => $composableBuilder(
       column: $table.myWordId, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get isLearned => $composableBuilder(
@@ -12099,7 +12131,7 @@ class $$MyWordStatusTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get myWordId =>
+  GeneratedColumn<String> get myWordId =>
       $composableBuilder(column: $table.myWordId, builder: (column) => column);
 
   GeneratedColumn<int> get isLearned =>
@@ -12143,11 +12175,12 @@ class $$MyWordStatusTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$MyWordStatusTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
-            Value<int> myWordId = const Value.absent(),
+            Value<String> myWordId = const Value.absent(),
             Value<int?> isLearned = const Value.absent(),
             Value<int?> isBookmarked = const Value.absent(),
             Value<int?> hasNote = const Value.absent(),
             Value<String> editAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
           }) =>
               MyWordStatusCompanion(
             myWordId: myWordId,
@@ -12155,13 +12188,15 @@ class $$MyWordStatusTableTableManager extends RootTableManager<
             isBookmarked: isBookmarked,
             hasNote: hasNote,
             editAt: editAt,
+            rowid: rowid,
           ),
           createCompanionCallback: ({
-            Value<int> myWordId = const Value.absent(),
+            required String myWordId,
             Value<int?> isLearned = const Value.absent(),
             Value<int?> isBookmarked = const Value.absent(),
             Value<int?> hasNote = const Value.absent(),
             required String editAt,
+            Value<int> rowid = const Value.absent(),
           }) =>
               MyWordStatusCompanion.insert(
             myWordId: myWordId,
@@ -12169,6 +12204,7 @@ class $$MyWordStatusTableTableManager extends RootTableManager<
             isBookmarked: isBookmarked,
             hasNote: hasNote,
             editAt: editAt,
+            rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

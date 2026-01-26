@@ -49,8 +49,8 @@ class SyncService {
 
   StreamSubscription startSyncWithRemote() {
     print("--------------------syncservice start sync withremote");
-    final streams = _syncUseCases
-        .map((usecase) => usecase.watchRemoteChangedIds().map((ids) => (usecase, ids)));
+    final streams = _syncUseCases.map((usecase) =>
+        usecase.watchRemoteChangedIds().map((ids) => (usecase, ids)));
 
     return StreamGroup.merge(streams).listen((pair) async {
       print(

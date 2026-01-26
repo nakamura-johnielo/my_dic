@@ -1,8 +1,4 @@
-
-
 class HandleWordRegistrationOutputData {
-	int id;
-	HandleWordRegistrationOutputData(this.id);
-	
-	
+  String id;
+  HandleWordRegistrationOutputData(this.id);
 }

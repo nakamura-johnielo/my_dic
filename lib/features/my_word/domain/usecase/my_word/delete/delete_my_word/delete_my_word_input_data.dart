@@ -1,4 +1,4 @@
 class DeleteMyWordInputData {
-  int id;
+  String id;
   DeleteMyWordInputData(this.id);
 }

@@ -9,7 +9,7 @@ class WatchMyWordInteractor implements WatchMyWordUsecase {
   WatchMyWordInteractor(this._repository);
 
   @override
-  Stream<MyWord> execute(int wordId) {
+  Stream<MyWord> execute(String wordId) {
     return _repository.watchMyWord(wordId);
   }
 }

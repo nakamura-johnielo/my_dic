@@ -5,6 +5,7 @@ import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/core/shared/utils/uuid.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word/create/register_my_word/register_my_word_repository_input_data.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word/delete/delete_my_word/delete_my_word_repository_input_data.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word/update/update_my_word/update_my_word_repository_input_data.dart';
@@ -23,7 +24,7 @@ class MyWordRepository implements IMyWordRepository {
   MyWordRepository(this._localDataSource, this._remoteDataSource);
 
   @override
-  Future<Result<MyWord>> getById(int id) async {
+  Future<Result<MyWord>> getById(String id) async {
     try {
       final data = await _localDataSource.getMyWordById(id);
       if (data == null) {
@@ -79,7 +80,7 @@ class MyWordRepository implements IMyWordRepository {
   }
 
   @override
-  Future<Result<List<int>>> getIdsFilteredByPage(
+  Future<Result<List<String>>> getIdsFilteredByPage(
       LoadMyWordRepositoryInputData input) async {
     try {
       final dataList = await _localDataSource.getIdsFilteredMyWordByPage(
@@ -99,15 +100,19 @@ class MyWordRepository implements IMyWordRepository {
   }
 
   @override
-  Future<Result<int>> registerWord(
+  Future<Result<String>> registerWord(
       RegisterMyWordRepositoryInputData input) async {
     try {
       // Check for duplicate words
       // Note: This would require a DAO method to check existence
       // For now, we'll handle the database constraint error
 
-      final wordId = await _localDataSource.insertMyWord(
-          input.headword, input.description, input.dateTime.toIso8601String());
+    final wordId = MyUUID.generate();
+    await _localDataSource.insertMyWord(
+      wordId,
+      input.headword,
+      input.description,
+      input.dateTime.toIso8601String());
 
       final myWord = MyWord(
           wordId: wordId,
@@ -219,7 +224,7 @@ class MyWordRepository implements IMyWordRepository {
 
   @override
   Future<Result<MyWord?>> getRemoteMyWordById(
-      String userId, int myWordId) async {
+      String userId, String myWordId) async {
     try {
       final dto = await _remoteDataSource.getMyWordById(userId, myWordId);
       return Result.success(dto?.toEntity());
@@ -289,7 +294,7 @@ class MyWordRepository implements IMyWordRepository {
   }
 
   @override
-  Future<Result<void>> deleteRemoteMyWord(String userId, int myWordId) async {
+  Future<Result<void>> deleteRemoteMyWord(String userId, String myWordId) async {
     try {
       await _remoteDataSource.deleteMyWord(userId, myWordId);
       return const Result.success(null);
@@ -339,7 +344,7 @@ class MyWordRepository implements IMyWordRepository {
   }
 
   @override
-  Future<Result<MyWord?>> getLocalMyWordById(int myWordId) async {
+  Future<Result<MyWord?>> getLocalMyWordById(String myWordId) async {
     return await getById(myWordId);
   }
 
@@ -379,6 +384,7 @@ class MyWordRepository implements IMyWordRepository {
   Future<Result<void>> createLocalMyWord(MyWord myWord) async {
     try {
       await _localDataSource.insertMyWord(
+        myWord.wordId,
         myWord.word,
         myWord.contents,
         myWord.editAt.toIso8601String(),
@@ -398,18 +404,18 @@ class MyWordRepository implements IMyWordRepository {
   // ============================================================================
 
   @override
-  Stream<List<int>> watchRemoteChangedIds(String userId) {
+  Stream<List<String>> watchRemoteChangedIds(String userId) {
     return _remoteDataSource.watchChangedIds(userId);
   }
 
   @override
-  Stream<List<int>> watchLocalChangedIds(DateTime datetime) {
+  Stream<List<String>> watchLocalChangedIds(DateTime datetime) {
     return _localDataSource
         .watchMyWordIdsAfter(datetime.toUtc().toIso8601String());
   }
 
   @override
-  Stream<MyWord> watchMyWord(int id) {
+  Stream<MyWord> watchMyWord(String id) {
     return _localDataSource.streamMyWordById(id).map((data) {
       if (data == null) {
         throw NotFoundError(message: '指定された単語が見つかりません');

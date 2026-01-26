@@ -14,7 +14,7 @@ class RegisterMyWordInteractor implements IRegisterMyWordUseCase {
   RegisterMyWordInteractor(this._driftMyWordRepository, this._authRepository);
 
   @override
-  Future<Result<int>> execute(RegisterMyWordInputData input) async {
+  Future<Result<String>> execute(RegisterMyWordInputData input) async {
     // Validation
     final validationError = _validateInput(input);
     if (validationError != null) {

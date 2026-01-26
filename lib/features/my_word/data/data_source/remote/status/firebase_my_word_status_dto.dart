@@ -12,7 +12,7 @@ class MyWordStatusDTO {
   static const String fieldCreatedAt = "createdAt";
   static const String fieldUpdatedAt = "updatedAt";
 
-  final int myWordId;
+  final String myWordId;
   int isLearned;
   int isBookmarked;
   String? updateBy;
@@ -33,7 +33,7 @@ class MyWordStatusDTO {
       DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data()!;
     return MyWordStatusDTO(
-      myWordId: data[fieldMyWordId] as int,
+      myWordId: data[fieldMyWordId] as String,
       isLearned: data[fieldIsLearned] as int,
       isBookmarked: data[fieldIsBookmarked] as int,
       updateBy: data[fieldUpdateBy] as String?,

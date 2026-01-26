@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
 import 'package:my_dic/core/shared/consts/enviroment.dart';
-import 'dart:io' 
+import 'dart:io'
     if (dart.library.html) 'package:my_dic/core/infrastructure/database/drift/_WEB/io_stub.dart';
 import 'package:my_dic/core/infrastructure/database/drift/_NATIVE/native_database_helper.dart'
     if (dart.library.html) 'package:my_dic/core/infrastructure/database/drift/_NATIVE/native_database_helper_web.dart';
@@ -31,6 +31,7 @@ import 'package:my_dic/features/ranking/data/data_source/local/rankings_entity.d
 import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/supplements.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/word_status.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/words.dart';
+import 'package:my_dic/core/shared/utils/uuid.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'package:flutter/services.dart';
@@ -79,9 +80,11 @@ class DatabaseProvider extends _$DatabaseProvider {
   }
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
   //2025/11/12
   // EsEnConjugacionsテーブル追加
+  // 2026/01/xx
+  // MyWord ID migration: INTEGER -> UUID(TEXT)
 
   @override
   MigrationStrategy get migration {
@@ -92,7 +95,7 @@ class DatabaseProvider extends _$DatabaseProvider {
         print("🔍 DEBUG: kIsWeb = $kIsWeb");
         await m.createAll();
         print("Tables created successfully");
-        
+
         // Web環境の場合、JSONからデータをシード
         print("🔍 DEBUG: About to check kIsWeb for seeding...");
         if (kIsWeb) {
@@ -105,13 +108,19 @@ class DatabaseProvider extends _$DatabaseProvider {
             await seeder.seedFromJson();
             final duration = DateTime.now().difference(startTime);
             log("✅ Web seeding completed in ${duration.inSeconds}s");
-            
+
             // データが正常にインポートされたか確認
             try {
-              final wordCount = await customSelect('SELECT COUNT(*) as count FROM words').getSingle();
-              final dictCount = await customSelect('SELECT COUNT(*) as count FROM dictionaries').getSingle();
-              final rankingCount = await customSelect('SELECT COUNT(*) as count FROM rankings').getSingle();
-             
+              final wordCount =
+                  await customSelect('SELECT COUNT(*) as count FROM words')
+                      .getSingle();
+              final dictCount = await customSelect(
+                      'SELECT COUNT(*) as count FROM dictionaries')
+                  .getSingle();
+              final rankingCount =
+                  await customSelect('SELECT COUNT(*) as count FROM rankings')
+                      .getSingle();
+
               print('✅ Database seeding verification:');
               print('   - Words imported: ${wordCount.data['count']}');
               print('   - Dictionaries imported: ${dictCount.data['count']}');
@@ -169,6 +178,102 @@ class DatabaseProvider extends _$DatabaseProvider {
             }
           } else {
             log("Web platform: es_en_conjugacions seeding skipped - needs web implementation");
+          }
+        }
+
+        if (from < 5) {
+          // If the DB was created after the UUID change but before version bump,
+          // tables are already TEXT and we must NOT remap IDs.
+          final myWordsInfo =
+              await customSelect("PRAGMA table_info('my_words');").get();
+          String? myWordIdType;
+          for (final row in myWordsInfo) {
+            if (row.data['name'] == 'my_word_id') {
+              myWordIdType = row.data['type']?.toString();
+              break;
+            }
+          }
+
+          final normalizedType = (myWordIdType ?? '').toUpperCase();
+          final needsIdMigration = normalizedType.contains('INT');
+          if (!needsIdMigration) {
+            log("MyWords.my_word_id is already TEXT; skipping UUID migration.");
+          } else {
+            await transaction(() async {
+              log('Migrating MyWord IDs from INTEGER to UUID(TEXT)...');
+
+              // Rename legacy tables
+              await customStatement(
+                  'ALTER TABLE my_words RENAME TO my_words_old;');
+              try {
+                await customStatement(
+                    'ALTER TABLE my_word_status RENAME TO my_word_status_old;');
+              } catch (_) {
+                // Status table may not exist in some environments.
+              }
+
+              // Create new tables using current schema
+              await m.createTable(myWords);
+              await m.createTable(myWordStatus);
+
+              // Build mapping oldId -> newUuid
+              final idMap = <String, String>{};
+              final oldWords = await customSelect(
+                'SELECT my_word_id, word, contents, edit_at FROM my_words_old;',
+              ).get();
+
+              for (final row in oldWords) {
+                // final oldId = row.data['my_word_id'].toString();
+                // final newId = MyUUID.generate();
+                // idMap[oldId] = newId;
+
+                await into(myWords).insert(
+                  MyWordsCompanion.insert(
+                    myWordId: row.data['my_word_id'].toString(),
+                    word: row.data['word']?.toString() ?? '',
+                    contents: Value(row.data['contents']?.toString()),
+                    editAt: row.data['edit_at']?.toString() ?? '',
+                  ),
+                );
+              }
+
+              // Migrate statuses using the same mapping
+              try {
+                final oldStatuses = await customSelect(
+                  'SELECT my_word_id, is_learned, is_bookmarked, has_note, edit_at FROM my_word_status_old;',
+                ).get();
+
+                for (final row in oldStatuses) {
+                  final oldId = row.data['my_word_id'].toString();
+                  final newId = idMap[oldId];
+                  if (newId == null) {
+                    continue;
+                  }
+
+                  await into(myWordStatus).insert(
+                    MyWordStatusCompanion.insert(
+                      myWordId: newId,
+                      editAt: row.data['edit_at']?.toString() ?? '',
+                      isLearned: Value(row.data['is_learned'] as int?),
+                      isBookmarked: Value(row.data['is_bookmarked'] as int?),
+                      hasNote: Value(row.data['has_note'] as int?),
+                    ),
+                  );
+                }
+              } catch (_) {
+                // If there was no old status table, nothing to migrate.
+              }
+
+              // Drop old tables
+              await customStatement('DROP TABLE my_words_old;');
+              try {
+                await customStatement('DROP TABLE my_word_status_old;');
+              } catch (_) {
+                // ignore
+              }
+
+              log('MyWord UUID migration completed.');
+            });
           }
         }
       },

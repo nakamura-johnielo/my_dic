@@ -37,14 +37,14 @@ final myWordFragmentViewModelProvider =
 
 // stream
 final _myWordStatusStreamProvider =
-    StreamProvider.family.autoDispose<MyWordStatus, int>(
+    StreamProvider.family.autoDispose<MyWordStatus, String>(
   (ref, wordId) {
     final watchUsecase = ref.read(watchMyWordStatusUseCaseProvider);
     return watchUsecase.execute(wordId);
   },
 );
 
-final _myWordStreamProviderNEW = StreamProvider.family.autoDispose<MyWord, int>(
+final _myWordStreamProviderNEW = StreamProvider.family.autoDispose<MyWord, String>(
   (ref, wordId) {
     final watchUsecase = ref.read(watchMyWordUseCaseProvider);
     return watchUsecase.execute(wordId);
@@ -53,14 +53,14 @@ final _myWordStreamProviderNEW = StreamProvider.family.autoDispose<MyWord, int>(
 
 // QUERY uistate
 final myWordStatusUiStateProvider =
-    Provider.autoDispose.family<MyWordStatusState, int>((ref, int wordId) {
+  Provider.autoDispose.family<MyWordStatusState, String>((ref, String wordId) {
   final statusAsync = ref.watch(_myWordStatusStreamProvider(wordId));
 
   return MyWordStatusState.fromAsync(statusAsync);
 });
 
 final myWordUiStateProvider =
-    Provider.autoDispose.family<MyWordUiState, int>((ref, int wordId) {
+  Provider.autoDispose.family<MyWordUiState, String>((ref, String wordId) {
   final statusAsync = ref.watch(_myWordStreamProviderNEW(wordId));
 
   return MyWordUiState.fromAsync(statusAsync);
@@ -69,7 +69,7 @@ final myWordUiStateProvider =
 // command
 
 final myWordStatusCommandProvider = StateNotifierProvider.family
-    .autoDispose<MyWordStatusCommand, MyWordStatusCommandEvent?, int>(
+    .autoDispose<MyWordStatusCommand, MyWordStatusCommandEvent?, String>(
   (ref, wordId) {
     final updateUsecase = ref.read(updateMyWordStatusUseCaseProvider);
 
@@ -78,7 +78,7 @@ final myWordStatusCommandProvider = StateNotifierProvider.family
 );
 
 final myWordCommandProvider = StateNotifierProvider.family
-    .autoDispose<MyWordCommand, MyWordCommandEvent?, int>(
+    .autoDispose<MyWordCommand, MyWordCommandEvent?, String>(
   (ref, wordId) {
     final updateUsecase = ref.read(updateMyWordUseCaseProvider);
     final deleteUsecase = ref.read(deleteMyWordUseCaseProvider);
@@ -89,7 +89,7 @@ final myWordCommandProvider = StateNotifierProvider.family
 
 // ViewModel (query + command wrapper)
 final myWordStatusViewModelProvider =
-    Provider.autoDispose.family<MyWordStatusViewModel, int>((ref, wordId) {
+  Provider.autoDispose.family<MyWordStatusViewModel, String>((ref, wordId) {
   final uiState = ref.watch(myWordStatusUiStateProvider(wordId));
   final command = ref.read(myWordStatusCommandProvider(wordId).notifier);
 
@@ -97,7 +97,7 @@ final myWordStatusViewModelProvider =
 });
 
 final myWordItemViewModelProvider =
-    Provider.autoDispose.family<MyWordItemViewModel, int>((ref, wordId) {
+  Provider.autoDispose.family<MyWordItemViewModel, String>((ref, wordId) {
   final uiState = ref.watch(myWordUiStateProvider(wordId));
   final command = ref.read(myWordCommandProvider(wordId).notifier);
 

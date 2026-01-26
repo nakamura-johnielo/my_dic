@@ -5,7 +5,7 @@ import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
 
 @DataClassName('MyWordTableData')
 class MyWords extends Table {
-  IntColumn get myWordId => integer().named('my_word_id').autoIncrement()();
+  TextColumn get myWordId => text().named('my_word_id')();
   TextColumn get word => text().named('word')();
   TextColumn get contents => text().named('contents').nullable()();
   TextColumn get editAt => text().named('edit_at')();
@@ -29,7 +29,7 @@ class MyWordDTO {
 
   //!TODO finalにすべき？copywith?
 
-  final int myWordId;
+  final String myWordId;
   String word;
   String contents;
   String? updateBy;
@@ -51,7 +51,7 @@ class MyWordDTO {
   factory MyWordDTO.fromFirebase(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data()!;
     return MyWordDTO(
-        myWordId: data[fieldMyWordId],
+      myWordId: data[fieldMyWordId] as String,
         word: data[fieldMyWord],
         contents: data[fieldContents],
         updateBy: data[fieldupdateBy],

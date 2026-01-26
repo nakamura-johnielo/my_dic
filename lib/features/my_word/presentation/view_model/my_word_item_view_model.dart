@@ -7,7 +7,7 @@ class MyWordItemViewModel {
 
   MyWordItemViewModel(this.word, this._command);
 
-  int get wordId => word.wordId;
+  String get wordId => word.wordId;
   String get headword => word.word;
   String get contents => word.contents;
 

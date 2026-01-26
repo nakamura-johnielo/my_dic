@@ -727,7 +727,7 @@ class WebDatabaseSeeder {
           b.insert(
               db.myWords,
               MyWordsCompanion.insert(
-                myWordId: Value(_toIntRequired(row['my_word_id'])),
+                myWordId: row['my_word_id'] as String,
                 contents: Value(row['contents'] as String?),
                 word: row['word'] as String,
                 editAt: row['edit_at'] as String,
@@ -756,7 +756,7 @@ class WebDatabaseSeeder {
           b.insert(
               db.myWordStatus,
               MyWordStatusCompanion.insert(
-                myWordId: Value(_toIntRequired(row['my_word_id'])),
+                myWordId: row['my_word_id'] as String,
                 isLearned: Value(_toIntRequired(row['is_learned'])),
                 isBookmarked: Value(_toIntRequired(row['is_bookmarked'])),
                 hasNote: Value(_toIntRequired(row['has_note'])),

@@ -9,39 +9,46 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
     with _$MyWordDaoMixin {
   MyWordDao(super.database);
 
-  Future<MyWordTableData?> getMyWordById(int id) {
+  Future<MyWordTableData?> getMyWordById(String id) {
     return (select(myWords)..where((tbl) => tbl.myWordId.equals(id)))
         .getSingleOrNull();
   }
 
   Future<List<MyWordTableData>?> getFilteredMyWordByPage(int size, int offset) async {
     return (select(myWords)
-          ..orderBy([(t) => OrderingTerm.desc(t.myWordId)])
+          ..orderBy([
+            (t) => OrderingTerm.desc(t.editAt),
+            // (t) => OrderingTerm.desc(t.myWordId),
+          ])
           ..limit(size, offset: offset))
         .get();
   }
 
 
-  Future<List<int>?> getIdsFilteredMyWordByPage(int size, int offset) async {
+  Future<List<String>?> getIdsFilteredMyWordByPage(int size, int offset) async {
     final query = selectOnly(myWords)
       ..addColumns([myWords.myWordId])
-      ..orderBy([OrderingTerm.desc(myWords.myWordId)])
+      ..orderBy([
+        OrderingTerm.desc(myWords.editAt),
+        // OrderingTerm.desc(myWords.myWordId),
+      ])
       ..limit(size, offset: offset);
 
     final rows = await query.get();
     return rows.map((row) => row.read(myWords.myWordId)!).toList();
   }
 
-  Future<int> insertMyWord(
-      String headword, String description, String dateTime) async {
-    return await into(myWords).insert(MyWordsCompanion(
+  Future<void> insertMyWord(
+      String id, String headword, String description, String dateTime) async {
+    await into(myWords).insert(MyWordsCompanion(
+      myWordId: Value(id),
       word: Value(headword),
       contents: Value(description),
       editAt: Value(dateTime),
     ));
   }
 
-  Future<int> deleteMyword(int wordId, String editAt) async {
+  Future<int> deleteMyword(String wordId, String editAt) async {
     return await transaction(() async {
       // 子テーブルのデータを削除
       await (delete(myWordStatus)..where((tbl) => tbl.myWordId.equals(wordId)))
@@ -55,7 +62,7 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
       update(myWords).replace(tableName); */
 
   Future<int> updateMyWord(
-      int id, String word, String contents, String dateTime) async {
+      String id, String word, String contents, String dateTime) async {
     return await (update(myWords)..where((tbl) => tbl.myWordId.equals(id))).write(
       MyWordsCompanion(
           myWordId: Value(id),
@@ -70,7 +77,7 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
         .get();
   }
 
-  Stream<List<int>> watchMyWordIdsAfter(String dateTime) {
+  Stream<List<String>> watchMyWordIdsAfter(String dateTime) {
     return (select(myWords)..where((tbl) => tbl.editAt.isBiggerThanValue(dateTime)))
         .watch()
         .map((rows) => rows.map((r) => r.myWordId).toList())
@@ -78,7 +85,7 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
   }
 
 
-  Stream<MyWordTableData?> streamMyWordById(int id) {
+  Stream<MyWordTableData?> streamMyWordById(String id) {
     return (select(myWords)..where((tbl) => tbl.myWordId.equals(id)))
         .watchSingleOrNull().distinct();
   }

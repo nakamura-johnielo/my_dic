@@ -6,7 +6,7 @@ import 'package:my_dic/features/my_word/presentation/ui_model/my_word_status_com
 
 class MyWordStatusCommand extends StateNotifier<MyWordStatusCommandEvent?> {
   MyWordStatusCommand(this._wordId, this._updateUsecase) : super(null);
-  final int _wordId;
+  final String _wordId;
   final IUpdateMyWordStatusUseCase _updateUsecase;
 
   void toggleBookmark(bool value) {

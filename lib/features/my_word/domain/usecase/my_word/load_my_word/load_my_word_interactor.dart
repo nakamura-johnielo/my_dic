@@ -43,7 +43,7 @@ class LoadMyWordInteractor implements ILoadMyWordUseCase {
   }
   
   @override
-  Future<Result<List<int>>> executeIds(LoadMyWordInputData input)async {
+  Future<Result<List<String>>> executeIds(LoadMyWordInputData input)async {
     // Validation
     final validationError = _validateInput(input);
     if (validationError != null) {

@@ -9,7 +9,7 @@ import 'package:my_dic/features/my_word/domain/usecase/my_word/update/update_my_
 import 'package:my_dic/features/my_word/presentation/ui_model/my_word_event.dart';
 
 class MyWordCommand extends StateNotifier<MyWordCommandEvent?> {
-  final int _wordId;
+  final String _wordId;
   final IUpdateMyWordUseCase _updateMyWordInteractor;
   final IDeleteMyWordUseCase _deleteMyWordInteractor;
 

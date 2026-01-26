@@ -12,7 +12,7 @@ import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
 
 class MyWordUiState {
   // final MyWord myWords;
-  final int wordId;
+  final String wordId;
   final String word;
   final String contents;
   final DateTime editAt;
@@ -26,7 +26,7 @@ class MyWordUiState {
   });
 
   MyWordUiState copyWith({
-    int? wordId,
+    String? wordId,
     String? word,
     String? contents,
     DateTime? editAt,
@@ -52,13 +52,13 @@ class MyWordUiState {
     return async.when(
       data: (myWord) => MyWordUiState.fromMyWord(myWord),
       loading: () => MyWordUiState(
-        wordId: -1,
+        wordId: '',
         word: 'loading',
         contents: 'loading',
         editAt: DateTime.now(),
       ),
       error: (error, stack) => MyWordUiState(
-        wordId: -1,
+        wordId: '',
         word: 'error',
         contents: 'error',
         editAt: DateTime.now(),
@@ -69,10 +69,10 @@ class MyWordUiState {
 }
 
 class MyWordFragmentState {
-  final List<int> myWordIds;
+  final List<String> myWordIds;
   MyWordFragmentState({this.myWordIds=const[]});
 
-  MyWordFragmentState copyWith({List<int>? myWordIds}) {
+  MyWordFragmentState copyWith({List<String>? myWordIds}) {
     return MyWordFragmentState(myWordIds: myWordIds ?? this.myWordIds);
   }
 }
