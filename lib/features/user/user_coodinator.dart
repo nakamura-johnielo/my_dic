@@ -32,7 +32,7 @@ class AppUserCoordinator {
 
   Future<Result<void>> updateUser({
     //TOODO accountIdの供給法
-    // String? accountId,
+    //  String? accountId,
     String? deviceId,
     String? email,
     String? username,
@@ -77,14 +77,14 @@ class AppUserCoordinator {
     return Result.success(null);
   }
 
-  Future<Result<void>> fetchUser(String accountId) async {
+  Future<Result<void>> refresh() async {
     // if (_userStore == null && accountId == null) {
     //   print("accountIdがありません。");
     //   return Result.failure(UserNotFoundError(message: "ユーザー情報がありません"));
     // }
 
     final res =
-        await _getUserInteractor.execute( accountId);
+        await _getUserInteractor.execute( );
 
     return res.when(success: (user) {
       print("ユーザー情報をリフレッシュしました。${user.toString()}");

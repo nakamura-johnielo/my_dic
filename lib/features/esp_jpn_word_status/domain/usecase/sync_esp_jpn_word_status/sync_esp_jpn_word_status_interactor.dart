@@ -355,9 +355,9 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
       // ローカルに存在しない場合は、リモートのデータでローカルを作成
       final updateResult = await _wordStatusRepository.updateLocalWordStatus(
           remoteItem.wordId,
-          remoteItem.isLearned ? 1 : null,
-          remoteItem.isBookmarked ? 1 : null,
-          remoteItem.hasNote ? 1 : null,
+          remoteItem.isLearned ? 1 : 0,
+          remoteItem.isBookmarked ? 1 : 0,
+          remoteItem.hasNote ? 1 : 0,
           remoteItem.editAt);
       if (updateResult.isFailure) {
         return Result.failure(updateResult.errorOrNull!);
@@ -376,9 +376,9 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
       // local更新
       final updateResult = await _wordStatusRepository.updateLocalWordStatus(
           remoteItem.wordId,
-          remoteItem.isLearned ? 1 : null,
-          remoteItem.isBookmarked ? 1 : null,
-          remoteItem.hasNote ? 1 : null,
+          remoteItem.isLearned ? 1 : 0,
+          remoteItem.isBookmarked ? 1 : 0,
+          remoteItem.hasNote ? 1 : 0,
           remoteItem.editAt);
 
       if (updateResult.isFailure) {

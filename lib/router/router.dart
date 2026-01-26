@@ -64,19 +64,21 @@ final studyQuizNavigatorKeyProvider =
   return GlobalKey<NavigatorState>(debugLabel: 'studyQuiz');
 });
 
-
-
 class AuthChangeNotifier extends ChangeNotifier {
   AuthChangeNotifier(Ref ref) {
     ref.listen<AppAuth?>(
       authStoreNotifierProvider,
       //authStreamProvider,
       (previous, next) {
-        if (previous?.isAuthenticated == next?.isAuthenticated) {
-          print('redirect - [Auth Effect] No change in auth state detected===============================================');
+        if (previous?.isAuthenticated == next?.isAuthenticated &&
+            previous?.isLogined == next?.isLogined &&
+            previous?.accountId == next?.accountId) {
+          print(
+              'redirect - [Auth Effect] No change in auth state detected===============================================');
           return;
         }
-        print("redirect -- authchangenotifier==============================================================");
+        print(
+            "redirect -- authchangenotifier==============================================================");
         notifyListeners();
       },
     );
@@ -114,6 +116,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   final studyDashboardKey = ref.watch(studyDashboardNavigatorKeyProvider);
   final studyRankingKey = ref.watch(studyRankingNavigatorKeyProvider);
   final studyQuizKey = ref.watch(studyQuizNavigatorKeyProvider);
+  print("===============routerProvider created======================");
 
   return GoRouter(
     navigatorKey: rootKey,
@@ -469,27 +472,27 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
 
       // User Profile
-       // Singupページ
-          // GoRoute(
-          //   parentNavigatorKey: rootKey,
-          //   path: '/${RoutePaths.profile}/${RoutePaths.unauthorized}',
-          //   name: RouteNames.unauthorized,
-          //   //parentNavigatorKey: profileKey,
-          //   pageBuilder: (context, state) {
-          //     return MaterialPage(child: EmailPasswordPage());
-          //   },
-          // ),
+      // Singupページ
+      // GoRoute(
+      //   parentNavigatorKey: rootKey,
+      //   path: '/${RoutePaths.profile}/${RoutePaths.unauthorized}',
+      //   name: RouteNames.unauthorized,
+      //   //parentNavigatorKey: profileKey,
+      //   pageBuilder: (context, state) {
+      //     return MaterialPage(child: EmailPasswordPage());
+      //   },
+      // ),
 
-          // // signin済みプロフィールページ
-          // GoRoute(
-          //   path: '/${RoutePaths.profile}/${RoutePaths.authorized}',
-          //   name: RouteNames.authorized,
-          //   parentNavigatorKey: rootKey,
-          //   pageBuilder: (context, state) {
-          //     //final uid = state.extra as String;
-          //     return MaterialPage(child: ProfilePage(uid: "uid"));
-          //   },
-          // ),
+      // // signin済みプロフィールページ
+      // GoRoute(
+      //   path: '/${RoutePaths.profile}/${RoutePaths.authorized}',
+      //   name: RouteNames.authorized,
+      //   parentNavigatorKey: rootKey,
+      //   pageBuilder: (context, state) {
+      //     //final uid = state.extra as String;
+      //     return MaterialPage(child: ProfilePage(uid: "uid"));
+      //   },
+      // ),
 
       // //Study
       // flashCardRoute(rootKey),

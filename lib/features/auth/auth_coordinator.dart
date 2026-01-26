@@ -21,6 +21,7 @@ class AppAuthCoordinator {
   final ISignUpUseCase _signUpUseCase;
   final ISignOutUseCase _signOutUseCase;
   final IVerifyEmailUseCase _verifyEmailUseCase;
+  
 
   AppAuthCoordinator(
       this.ref,
@@ -89,6 +90,15 @@ class AppAuthCoordinator {
       return Result.failure(UnexpectedError(message: e.toString()));
     }
   }
+
+  // Result<void> reloadAuth()  {
+  //   try {
+  //     _authStoreNotifier.setAuth(appAuth);
+  //     return Result.success(null);
+  //   } catch (e) {
+  //     return Result.failure(UnexpectedError(message: e.toString()));
+  //   }
+  // }
 
   Future<Result<AppAuth>> signUp(String email, String password) async {
     final result = await _signUpUseCase.execute(email, password);

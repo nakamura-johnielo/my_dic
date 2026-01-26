@@ -80,6 +80,12 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
     return Scaffold(
       appBar: AppBar(
         title: Text('My Word'),
+        actions: [IconButton(
+          icon: Icon(Icons.refresh),
+          onPressed: () {
+            _reloadMyWords();
+          },
+        )],
       ),
       body: Center(
           child: Column(

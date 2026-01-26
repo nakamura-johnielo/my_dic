@@ -25,8 +25,8 @@ class EnsureUserExistsInteractor implements IEnsureUserExistsUseCase {
   }
 
   Future<Result<AppUser>> _registerNewUser(String id) async {
-    final newUser = AppUser(accountId: id);
-    final res = await _userRepository.updateUser(newUser);
+    final newUser = AppUser();
+    final res = await _userRepository.updateUser(newUser,id);
     return res.when(
         success: (_) => Result.success(newUser),
         failure: (error) => Result.failure(error));

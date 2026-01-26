@@ -41,6 +41,6 @@ final userProfileViewModelProvider =
   // final ensureUserExistsInteractor =
   //     ref.watch(ensureUserExistsInteractorProvider);
   final coordinator = ref.watch(appUserCoordinatorProvider);
-  final authuserCoordinator=ref.watch(authUserCoordinatorProvider);
-  return UserProfileViewModel(coordinator, authuserCoordinator);
+  final authCoordinator=ref.watch(authCoordinatorProvider);
+  return UserProfileViewModel(coordinator, authCoordinator);
 });

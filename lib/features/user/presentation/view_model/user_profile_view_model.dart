@@ -4,29 +4,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/application/coordinator/auth_user_coordinator.dart';
 import 'package:my_dic/core/shared/enums/ui/button_status.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/features/auth/auth_coordinator.dart';
 import 'package:my_dic/features/user/presentation/model/user_profile_ui_model.dart';
 import 'package:my_dic/features/user/user_coodinator.dart';
 
 class UserProfileViewModel extends StateNotifier<UserProfileUIState> {
   //final Ref ref;
   final AppUserCoordinator _coordinator;
-  final AuthUserCoordinator _authUserCoordinator;
+  final AppAuthCoordinator _authCoordinator;
 
   // AppUser? get _userStore => ref.read(appUserStoreNotifierProvider);
   // AppUserStoreNotifier get _storeNotifier =>
   //     ref.read(appUserStoreNotifierProvider.notifier);
 
   UserProfileViewModel(
-      // this._getUserInteractor,
-      // this._updateUserInteractor,
-      // this._ensureUserExistsInteractor,
-      // this._createNewUserInteractor,
-      this._coordinator, this._authUserCoordinator)
+      this._coordinator, this._authCoordinator)
       : super(UserProfileUIState());
-  Future<void> signOut() async {
-    // state = state.copyWith(: ButtonStatus.waiting);
 
-    final result = await _authUserCoordinator.signOut();
+  Future<void> signOut() async {
+    final result = await _authCoordinator.signOut();
 
     result.when(success: (_) {
       // state = state.copyWith(signOutButtonStatus: ButtonStatus.success);

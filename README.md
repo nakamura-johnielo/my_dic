@@ -116,10 +116,10 @@ web用に最適化していないため少々重いです。
 
 # 3. **技術ハイライト** <a id="engineering-highlights"></a>
 
-### **1. Feature x Clean Architecture による高い拡張性**
+### **1. Feature Module x Clean Architecture による高い拡張性**
 
 - 変更、機能追加に強い構造
-- 責務を意識して分離
+- 保守性、拡張性、責務を意識して分離
     
 
 ### **２. Stream × Riverpod でリアルタイム更新＆パフォーマンス最適化**
