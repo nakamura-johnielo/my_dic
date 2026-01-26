@@ -26,7 +26,7 @@ class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
 
   
   Future<void> updateStatus(
-  final int myWordId,
+  final String myWordId,
   final int? isLearned,
   final int? isBookmarked,
   final int? hasNote,
@@ -61,20 +61,20 @@ class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
     log("insert");
   }
 
-  Future<bool> exist(int id) async {
+  Future<bool> exist(String id) async {
     final existingColum = await (select(myWordStatus)
           ..where((t) => t.myWordId.equals(id)))
         .getSingleOrNull();
     return existingColum != null ? true : false;
   }
 
-  Stream<MyWordStatusTableData?> watchWordStatus(int wordId) {
+  Stream<MyWordStatusTableData?> watchWordStatus(String wordId) {
     return (select(myWordStatus)
           ..where((tbl) => tbl.myWordId.equals(wordId)))
         .watchSingleOrNull().distinct();
   }
 
-  Future<MyWordStatusTableData?> getWordStatus(int wordId) async {
+  Future<MyWordStatusTableData?> getWordStatus(String wordId) async {
     final data = await (select(myWordStatus)
           ..where((tbl) => tbl.myWordId.equals(wordId)))
         .getSingleOrNull();

@@ -8,7 +8,7 @@ class FirebaseMyWordStatusDataSource
   FirebaseMyWordStatusDataSource(this._dao);
 
   @override
-  Future<MyWordStatusDTO?> getStatusById(String userId, int myWordId) async {
+  Future<MyWordStatusDTO?> getStatusById(String userId, String myWordId) async {
     return await _dao.getStatus(userId, myWordId);
   }
 
@@ -24,7 +24,7 @@ class FirebaseMyWordStatusDataSource
   }
 
   @override
-  Stream<List<int>> watchChangedIds(String userId) =>
+  Stream<List<String>> watchChangedIds(String userId) =>
       _dao.watchChangedStatusIds(userId);
 
   @override
@@ -34,7 +34,7 @@ class FirebaseMyWordStatusDataSource
   }
 
   @override
-  Future<void> deleteStatus(String userId, int myWordId) async {
+  Future<void> deleteStatus(String userId, String myWordId) async {
     await _dao.delete(userId, myWordId);
   }
 }

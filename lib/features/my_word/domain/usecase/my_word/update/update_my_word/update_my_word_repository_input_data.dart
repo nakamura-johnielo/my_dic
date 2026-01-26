@@ -1,5 +1,5 @@
 class UpdateMyWordRepositoryInputData {
-  int myWordId;
+  String myWordId;
   String headword;
   String description;
   DateTime editAt;

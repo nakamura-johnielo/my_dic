@@ -8,7 +8,7 @@ class MyWordDriftDataSource implements IMyWordLocalDataSource {
   MyWordDriftDataSource(this._myWordDao);
 
   @override
-  Future<db.MyWordTableData?> getMyWordById(int id) async {
+  Future<db.MyWordTableData?> getMyWordById(String id) async {
     return await _myWordDao.getMyWordById(id);
   }
 
@@ -19,19 +19,22 @@ class MyWordDriftDataSource implements IMyWordLocalDataSource {
 
 
   @override
-  Future<List<int>?> getIdsFilteredMyWordByPage(int size, int offset) async {
+    Future<List<String>?> getIdsFilteredMyWordByPage(int size, int offset) async {
     return await _myWordDao.getIdsFilteredMyWordByPage(size, offset);
   }
 
   @override
-  Future<int> insertMyWord(String headword, String description, String dateTime) =>
-      _myWordDao.insertMyWord(headword, description, dateTime);
+    Future<void> insertMyWord(
+        String id, String headword, String description, String dateTime) =>
+      _myWordDao.insertMyWord(id, headword, description, dateTime);
 
   @override
-  Future<int> deleteMyword(int wordId, String editAt) => _myWordDao.deleteMyword(wordId, editAt);
+    Future<int> deleteMyword(String wordId, String editAt) =>
+      _myWordDao.deleteMyword(wordId, editAt);
 
   @override
-  Future<int> updateMyWord(int id, String word, String contents, String dateTime) =>
+    Future<int> updateMyWord(
+        String id, String word, String contents, String dateTime) =>
       _myWordDao.updateMyWord(id, word, contents, dateTime);
 
   @override
@@ -40,12 +43,12 @@ class MyWordDriftDataSource implements IMyWordLocalDataSource {
   }
 
   @override
-  Stream<List<int>> watchMyWordIdsAfter(String dateTime) {
+  Stream<List<String>> watchMyWordIdsAfter(String dateTime) {
     return _myWordDao.watchMyWordIdsAfter(dateTime);
   }
   
   @override
-  Stream<db.MyWordTableData?> streamMyWordById(int id) {
+  Stream<db.MyWordTableData?> streamMyWordById(String id) {
     return _myWordDao.streamMyWordById(id);
   }
 }

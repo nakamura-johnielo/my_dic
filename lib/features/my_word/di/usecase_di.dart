@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/di/data/repository_di.dart';
 import 'package:my_dic/core/domain/usecase/i_sync_usecase.dart';
+import 'package:my_dic/features/auth/di/data_di.dart';
 import 'package:my_dic/features/my_word/di/data_di.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word/load_my_word/i_load_my_word_use_case.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word/load_my_word/load_my_word_interactor.dart';
@@ -22,11 +23,9 @@ import 'package:my_dic/features/my_word/domain/usecase/my_word_status/update_my_
 import 'package:my_dic/features/my_word/domain/usecase/my_word_status/watch_my_word_status/watch_my_word_status_usecase.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word_status/watch_my_word_status/watch_my_word_status_interactor.dart';
 
-
 // ============================================================================
 // UseCase Providers
 // ============================================================================
-
 
 final loadMyWordUseCaseProvider = Provider<ILoadMyWordUseCase>((ref) {
   return LoadMyWordInteractor(
@@ -38,12 +37,14 @@ final updateMyWordStatusUseCaseProvider =
     Provider<IUpdateMyWordStatusUseCase>((ref) {
   return UpdateMyWordStatusInteractor(
     ref.read(myWordStatusRepositoryProvider),
+    ref.read(firebaseAuthRepositoryProvider),
   );
 });
 
 final registerMyWordUseCaseProvider = Provider<IRegisterMyWordUseCase>((ref) {
   return RegisterMyWordInteractor(
     ref.read(myWordRepositoryProvider),
+    ref.read(firebaseAuthRepositoryProvider),
   );
 });
 
@@ -55,16 +56,19 @@ final handleWordRegistrationUseCaseProvider =
 final updateMyWordUseCaseProvider = Provider<IUpdateMyWordUseCase>((ref) {
   return UpdateMyWordInteractor(
     ref.read(myWordRepositoryProvider),
+    ref.read(firebaseAuthRepositoryProvider),
   );
 });
 
 final deleteMyWordUseCaseProvider = Provider<IDeleteMyWordUseCase>((ref) {
   return DeleteMyWordInteractor(
     ref.read(myWordRepositoryProvider),
+    ref.read(firebaseAuthRepositoryProvider),
   );
 });
 
-final watchMyWordStatusUseCaseProvider = Provider<WatchMyWordStatusUsecase>((ref) {
+final watchMyWordStatusUseCaseProvider =
+    Provider<WatchMyWordStatusUsecase>((ref) {
   return WatchMyWordStatusInteractor(
     ref.read(myWordStatusRepositoryProvider),
   );
@@ -83,18 +87,18 @@ final watchMyWordUseCaseProvider = Provider<WatchMyWordUsecase>((ref) {
 //   );
 // });
 
-
 final syncMyWordUseCaseProvider = Provider<ISyncUseCase>((ref) {
   return SyncMyWordInteractor(
     ref.read(syncStatusRepositoryProvider),
     ref.read(myWordRepositoryProvider),
+    ref.read(firebaseAuthRepositoryProvider),
   );
 });
-
 
 final syncMyWordStatusUseCaseProvider = Provider<ISyncUseCase>((ref) {
   return SyncMyWordStatusUsecase(
     ref.read(syncStatusRepositoryProvider),
     ref.read(myWordStatusRepositoryProvider),
+    ref.read(firebaseAuthRepositoryProvider),
   );
 });

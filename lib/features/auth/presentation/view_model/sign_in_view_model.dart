@@ -13,16 +13,15 @@ class SignInViewModel extends StateNotifier<SignInUIState> {
   // final ISignOutUseCase _signOutInteractor;
   // final IResetEmailPasswordUseCase _resetEPasswordUseCase;
   // final AuthService _authService;
-  final AuthUserCoordinator _authUserCoordinator;
   final AppAuthCoordinator _authCoordinator;
 
-  SignInViewModel(this._authCoordinator, this._authUserCoordinator)
+  SignInViewModel(this._authCoordinator)
       : super(SignInUIState());
 
   Future<String> signOut() async {
     state = state.copyWith(isWaitingSignOut: ButtonStatus.waiting);
 
-    final result = await _authUserCoordinator.signOut();
+    final result = await _authCoordinator.signOut();
 
     return result.when(
       success: (_) {
@@ -70,7 +69,7 @@ class SignInViewModel extends StateNotifier<SignInUIState> {
 
   Future<String> signIn(String email, String password) async {
     state = state.copyWith(isWaitingSignIn: ButtonStatus.waiting);
-    final result = await _authUserCoordinator.signIn(email, password);
+    final result = await _authCoordinator.signIn(email, password);
 
     return result.when(
       success: (appAuth) async {
@@ -97,7 +96,7 @@ class SignInViewModel extends StateNotifier<SignInUIState> {
 
   Future<String> signUp(String email, String password) async {
     state = state.copyWith(isWaitingSignUp: ButtonStatus.waiting);
-    final result = await _authUserCoordinator.signUp(email, password);
+    final result = await _authCoordinator.signUp(email, password);
 
     return result.when(
       success: (appAuth) async {

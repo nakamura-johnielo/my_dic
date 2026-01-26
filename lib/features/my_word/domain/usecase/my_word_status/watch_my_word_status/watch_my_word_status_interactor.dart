@@ -8,7 +8,7 @@ class WatchMyWordStatusInteractor implements WatchMyWordStatusUsecase {
   WatchMyWordStatusInteractor(this._repository);
 
   @override
-  Stream<MyWordStatus> execute(int wordId) {
+  Stream<MyWordStatus> execute(String wordId) {
     return _repository.watchStatus(wordId);
   }
 }

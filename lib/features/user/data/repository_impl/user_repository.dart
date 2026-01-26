@@ -4,6 +4,7 @@ import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/core/shared/utils/uuid.dart';
 import 'package:my_dic/features/user/data/data_source/local/i_user_local_data_source.dart';
 import 'package:my_dic/features/user/data/dto/local_user_dto.dart';
 import 'package:my_dic/features/user/domain/entity/user.dart';
@@ -16,25 +17,41 @@ class UserRepository implements IUserRepository {
   final IUserLocalDataSource _local;
   UserRepository(this._remote, this._local);
 
-  AppError? _handleIdError(AppUser user) {
+  AppError? _handleIdError(AppUser user, String? accountId) {
     if (user.deviceId?.isEmpty ?? true) {
       return DeviceNotFoundError(
         message: 'device ID が生成されていません',
       );
     }
-    if (user.accountId?.isEmpty ?? true) {
+    if (accountId?.isEmpty ?? true) {
       return UnauthorizedError(
           message: "Account ID cannot be empty. Must Login");
     }
     return null;
   }
 
+  Future<String> _getDeviceId() async {
+    try {
+      final deviceId = (await _local.getUser())?.deviceId;
+      if (deviceId == null || deviceId.isEmpty) {
+        //なかったら新たに生成
+        final deviceIdCreated = MyUUID.generate();
+        await _local.updateUser(LocalUserDTO(deviceId: deviceIdCreated));
+        return deviceIdCreated;
+      }
+      return deviceId;
+    } catch (_) {
+      return "";
+    }
+  }
+
   @override
   Future<Result<AppUser>> getUserByAccountId(String id) async {
     try {
       print("reposiotry.getbyid");
-      final deviceId = (await _local.getUser())?.deviceId;
-      if (deviceId == null) {
+      final deviceId = await _getDeviceId();
+
+      if (deviceId.isEmpty) {
         return Result.failure(DeviceNotFoundError(
           message: 'device ID が生成されていません',
         ));
@@ -50,7 +67,6 @@ class UserRepository implements IUserRepository {
       }
       print("dto found==${dto.userId}");
       final user = AppUser(
-        accountId: dto.userId,
         username: dto.userName,
         email: dto.email,
         deviceId: deviceId,
@@ -73,15 +89,15 @@ class UserRepository implements IUserRepository {
   }
 
   @override
-  Future<Result<void>> updateUser(AppUser user) async {
+  Future<Result<void>> updateUser(AppUser user, String? accountId) async {
     try {
-      final error = _handleIdError(user);
+      final error = _handleIdError(user, accountId);
       if (error != null) {
         return Result.failure(error);
       }
 
       final dto = UserDTO(
-        userId: user.accountId,
+        userId: accountId!,
         userName: user.username,
         email: user.email,
         createdAt: null,
@@ -106,9 +122,9 @@ class UserRepository implements IUserRepository {
   }
 
   @override
-  Future<Result<void>> createNewUser(AppUser user) async {
+  Future<Result<void>> createNewUser(AppUser user, String? accountId) async {
     try {
-      final error = _handleIdError(user);
+      final error = _handleIdError(user, accountId);
       if (error != null) {
         return Result.failure(error);
       }
@@ -120,8 +136,8 @@ class UserRepository implements IUserRepository {
       );
 
       final dto = UserDTO(
-        subscriptionStatus: user.subscriptionStatus ,
-        userId: user.accountId,
+        subscriptionStatus: user.subscriptionStatus,
+        userId: accountId!,
         userName: user.username,
         email: user.email,
         createdAt: null,

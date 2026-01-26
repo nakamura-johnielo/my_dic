@@ -41,6 +41,6 @@ final authCoordinatorProvider=Provider<AppAuthCoordinator>((ref){
 
 final signInViewModelProvider=StateNotifierProvider<SignInViewModel, SignInUIState>((ref) {
   final authCoordinator=ref.watch(authCoordinatorProvider);
- final authUserCoordinator=ref.watch(authUserCoordinatorProvider);
-  return SignInViewModel(authCoordinator, authUserCoordinator);
+//  final authUserCoordinator=ref.watch(authUserCoordinatorProvider);
+  return SignInViewModel(authCoordinator);
 });

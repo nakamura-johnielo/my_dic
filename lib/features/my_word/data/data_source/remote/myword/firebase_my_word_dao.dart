@@ -23,7 +23,7 @@ class FirebaseMyWordDao {
             .collection(UserDTO.collectionName)
             .doc(userId)
             .collection(MyWordDTO.collectionName)
-            .doc(myWord.myWordId.toString());
+            .doc(myWord.myWordId);
         batch.set(docRef, myWord.toFirebase(), SetOptions(merge: true));
       }
       await batch.commit();
@@ -31,12 +31,12 @@ class FirebaseMyWordDao {
   }
 
   /// Get a single MyWord by ID
-  Future<MyWordDTO?> getMyWord(String userId, int myWordId) async {
+  Future<MyWordDTO?> getMyWord(String userId, String myWordId) async {
     final doc = await _db
         .collection(UserDTO.collectionName)
         .doc(userId)
         .collection(MyWordDTO.collectionName)
-        .doc(myWordId.toString())
+        .doc(myWordId)
         .get();
     if (!doc.exists || doc.data() == null) return null;
     return MyWordDTO.fromFirebase(doc);
@@ -48,7 +48,7 @@ class FirebaseMyWordDao {
         .collection(UserDTO.collectionName)
         .doc(userId)
         .collection(MyWordDTO.collectionName)
-        .doc(myWord.myWordId.toString());
+        .doc(myWord.myWordId);
     await docRef.set(myWord.toFirebase(), SetOptions(merge: true));
   }
 
@@ -58,7 +58,7 @@ class FirebaseMyWordDao {
         .collection(UserDTO.collectionName)
         .doc(userId)
         .collection(MyWordDTO.collectionName)
-        .doc(myWord.myWordId.toString());
+        .doc(myWord.myWordId);
     await docRef.set(myWord.toFirebase());
   }
 
@@ -75,7 +75,7 @@ class FirebaseMyWordDao {
   }
 
   /// Watch changed MyWord IDs (for sync)
-  Stream<List<int>> watchChangedWordIds(String userId) {
+    Stream<List<String>> watchChangedWordIds(String userId) {
     return _db
         .collection(UserDTO.collectionName)
         .doc(userId)
@@ -86,7 +86,8 @@ class FirebaseMyWordDao {
             .where((change) =>
                 change.type == DocumentChangeType.modified ||
                 change.type == DocumentChangeType.added)
-            .map((change) => change.doc.data()?[MyWordDTO.fieldMyWordId] as int)
+        .map((change) =>
+          change.doc.data()?[MyWordDTO.fieldMyWordId] as String)
             .toList());
   }
 
@@ -122,12 +123,12 @@ class FirebaseMyWordDao {
   }
 
   /// Delete a MyWord (soft delete - set isDeleted flag if implemented, or hard delete)
-  Future<void> delete(String userId, int myWordId) async {
+  Future<void> delete(String userId, String myWordId) async {
     final docRef = _db
         .collection(UserDTO.collectionName)
         .doc(userId)
         .collection(MyWordDTO.collectionName)
-        .doc(myWordId.toString());
+        .doc(myWordId);
     await docRef.delete();
   }
 }

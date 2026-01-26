@@ -24,7 +24,7 @@ class FirebaseMyWordStatusDao {
             .collection(UserDTO.collectionName)
             .doc(userId)
             .collection(MyWordStatusDTO.collectionName)
-            .doc(status.myWordId.toString());
+            .doc(status.myWordId);
         batch.set(docRef, status.toFirebase(), SetOptions(merge: true));
       }
       await batch.commit();
@@ -32,12 +32,12 @@ class FirebaseMyWordStatusDao {
   }
 
   /// Get a single MyWordStatus by word ID
-  Future<MyWordStatusDTO?> getStatus(String userId, int myWordId) async {
+  Future<MyWordStatusDTO?> getStatus(String userId, String myWordId) async {
     final doc = await _db
         .collection(UserDTO.collectionName)
         .doc(userId)
         .collection(MyWordStatusDTO.collectionName)
-        .doc(myWordId.toString())
+        .doc(myWordId)
         .get();
     if (!doc.exists || doc.data() == null) return null;
     return MyWordStatusDTO.fromFirebase(doc);
@@ -49,7 +49,7 @@ class FirebaseMyWordStatusDao {
         .collection(UserDTO.collectionName)
         .doc(userId)
         .collection(MyWordStatusDTO.collectionName)
-        .doc(status.myWordId.toString());
+        .doc(status.myWordId);
     await docRef.set(status.toFirebase(), SetOptions(merge: true));
   }
 
@@ -59,7 +59,7 @@ class FirebaseMyWordStatusDao {
         .collection(UserDTO.collectionName)
         .doc(userId)
         .collection(MyWordStatusDTO.collectionName)
-        .doc(status.myWordId.toString());
+        .doc(status.myWordId);
     await docRef.set(status.toFirebase());
   }
 
@@ -77,7 +77,7 @@ class FirebaseMyWordStatusDao {
   }
 
   /// Watch changed MyWordStatus IDs (for sync)
-  Stream<List<int>> watchChangedStatusIds(String userId) {
+    Stream<List<String>> watchChangedStatusIds(String userId) {
     return _db
         .collection(UserDTO.collectionName)
         .doc(userId)
@@ -89,7 +89,7 @@ class FirebaseMyWordStatusDao {
                 change.type == DocumentChangeType.modified ||
                 change.type == DocumentChangeType.added)
             .map((change) =>
-                change.doc.data()?[MyWordStatusDTO.fieldMyWordId] as int)
+          change.doc.data()?[MyWordStatusDTO.fieldMyWordId] as String)
             .toList());
         //.distinct();
   }
@@ -128,12 +128,12 @@ class FirebaseMyWordStatusDao {
   }
 
   /// Delete a MyWordStatus
-  Future<void> delete(String userId, int myWordId) async {
+  Future<void> delete(String userId, String myWordId) async {
     final docRef = _db
         .collection(UserDTO.collectionName)
         .doc(userId)
         .collection(MyWordStatusDTO.collectionName)
-        .doc(myWordId.toString());
+        .doc(myWordId);
     await docRef.delete();
   }
 }

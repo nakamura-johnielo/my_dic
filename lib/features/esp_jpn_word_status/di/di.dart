@@ -6,6 +6,7 @@ import 'package:my_dic/core/domain/usecase/i_sync_usecase.dart';
 import 'package:my_dic/features/esp_jpn_word_status/components/status_button/status_buttons_command.dart';
 import 'package:my_dic/features/esp_jpn_word_status/components/status_button/word_status_command_event.dart';
 import 'package:my_dic/features/esp_jpn_word_status/data/sync_esp_jpn_wordstatus_repository.dart';
+import 'package:my_dic/features/esp_jpn_word_status/di/viewmodel.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/fetch_esp_jpn_status/fetch__esp_jpn_status_interactor.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/fetch_esp_jpn_status/fetch_esp_jpn_status_usecase.dart';
@@ -21,6 +22,7 @@ import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status
 import 'package:my_dic/features/esp_jpn_word_status/data/wordstatus_repository.dart';
 import 'package:my_dic/features/esp_jpn_word_status/components/status_button/word_status_state.dart';
 import 'package:my_dic/features/auth/di/service.dart';
+import 'package:my_dic/features/auth/di/data_di.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/watch/i_watch_esp_jpn_word_status_usecase.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/watch/watch_esp_jpn_word_status_interactor.dart';
 import 'package:my_dic/features/user/di/service.dart';
@@ -30,6 +32,7 @@ final syncEspJpnWordStatusUseCaseProvider = Provider<ISyncUseCase>((ref) {
   return SyncEspJpnWordStatusInteractor(
     ref.read(syncStatusRepositoryProvider),
     ref.read(wordStatusRepositoryProvider),
+    ref.read(firebaseAuthRepositoryProvider),
   );
 });
 
@@ -48,6 +51,7 @@ final watchEspJpnWordStatusUsecaseProvider =
 final updateStatusUseCaseProvider = Provider<IUpdateStatusUseCase>((ref) {
   return UpdateStatusInteractor(
     ref.read(wordStatusRepositoryProvider),
+    ref.read(firebaseAuthRepositoryProvider),
   );
 });
 
@@ -101,10 +105,8 @@ final espJpnWordStatusCommandProvider = StateNotifierProvider.family
     .autoDispose<EspJpnWordStatusCommand, WordStatusCommandEvent?, int>(
   (ref, wordId) {
     final updateUsecase = ref.read(updateStatusUseCaseProvider);
-    final currentUser = ref.watch(appUserStoreNotifierProvider);
-
     return EspJpnWordStatusCommand(
-      wordId,currentUser?.accountId,
+      wordId,
       updateUsecase,
     );
   },
@@ -123,4 +125,13 @@ final espJpnWordStatusUiStateProvider =
   final statusAsync = ref.watch(_espJpnWordStatusStreamProvider(wordId));
 
   return WordStatusState.fromAsync(statusAsync);
+});
+
+//~~~~~~~~ViewModel~~~~~~~~~~~~~~~~
+final espJpnWordStatusViewModelProvider =
+    Provider.autoDispose.family<EspJpnWordStatusViewModel, int>((ref, wordId) {
+  final uiState = ref.watch(espJpnWordStatusUiStateProvider(wordId));
+  final command = ref.read(espJpnWordStatusCommandProvider(wordId).notifier);
+
+  return EspJpnWordStatusViewModel(uiState, command);
 });

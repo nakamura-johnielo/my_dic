@@ -1,8 +1,4 @@
-
-
 class HandleWordRegistrationRepositoryInputData {
-	int id;
-	HandleWordRegistrationRepositoryInputData(this.id);
-	
-	
+  String id;
+  HandleWordRegistrationRepositoryInputData(this.id);
 }

@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/features/auth/di/data_di.dart';
 import 'package:my_dic/features/user/di/data_di.dart';
 import 'package:my_dic/features/user/domain/usecase/create_new_user.dart';
 import 'package:my_dic/features/user/domain/usecase/ensure_user_exists.dart';
@@ -10,15 +11,18 @@ import 'package:my_dic/features/user/domain/usecase/i_update_user_use_case.dart'
 import 'package:my_dic/features/user/domain/usecase/update_user.dart';
 
 final getUserInteractorProvider = Provider<IGetUserUseCase>(
-  (ref) => GetUserInteractor(ref.watch(firebaseUserRepositoryProvider)),
+  (ref) => GetUserInteractor(ref.watch(firebaseUserRepositoryProvider),
+      ref.watch(firebaseAuthRepositoryProvider)),
 );
 
 final createNewUserInteractorProvider = Provider<ICreateNewUserUseCase>(
-  (ref) => CreateNewUserInteractor(ref.watch(firebaseUserRepositoryProvider)),
+  (ref) => CreateNewUserInteractor(ref.watch(firebaseUserRepositoryProvider),
+      ref.watch(firebaseAuthRepositoryProvider)),
 );
 
 final updateUserInteractorProvider = Provider<IUpdateUserUseCase>(
-  (ref) => UpdateUserInteractor(ref.watch(firebaseUserRepositoryProvider)),
+  (ref) => UpdateUserInteractor(ref.watch(firebaseUserRepositoryProvider),
+      ref.watch(firebaseAuthRepositoryProvider)),
 );
 
 final ensureUserExistsInteractorProvider = Provider<IEnsureUserExistsUseCase>(

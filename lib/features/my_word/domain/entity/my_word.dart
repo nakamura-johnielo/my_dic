@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 
 @immutable
 class MyWord {
-  final int wordId;
+  final String wordId;
   final String word;
   final String contents;
   final bool isLearned;
@@ -19,7 +19,7 @@ class MyWord {
   }) : editAt = (editAt ?? DateTime.now()).toUtc();
 
   MyWord copyWith({
-    int? wordId,
+    String? wordId,
     String? word,
     String? contents,
     bool? isLearned,

@@ -7,7 +7,7 @@ class FirebaseMyWordDataSource implements IMyWordRemoteDataSource {
   FirebaseMyWordDataSource(this._dao);
 
   @override
-  Future<MyWordDTO?> getMyWordById(String userId, int myWordId) async {
+  Future<MyWordDTO?> getMyWordById(String userId, String myWordId) async {
     return await _dao.getMyWord(userId, myWordId);
   }
 
@@ -23,7 +23,7 @@ class FirebaseMyWordDataSource implements IMyWordRemoteDataSource {
   }
 
   @override
-  Stream<List<int>> watchChangedIds(String userId) =>
+  Stream<List<String>> watchChangedIds(String userId) =>
       _dao.watchChangedWordIds(userId);
 
   @override
@@ -33,7 +33,7 @@ class FirebaseMyWordDataSource implements IMyWordRemoteDataSource {
   }
 
   @override
-  Future<void> deleteMyWord(String userId, int myWordId) async {
+  Future<void> deleteMyWord(String userId, String myWordId) async {
     await _dao.delete(userId, myWordId);
   }
 }

@@ -1,9 +1,8 @@
 class UpdateMyWordInputData {
-  int myWordId;
+  String myWordId;
   String headword;
   String description;
-  int index;
-  String? userId;
+  int index;//TODO DELETE
   UpdateMyWordInputData(
-      this.myWordId, this.headword, this.description, this.index, this.userId);
+  this.myWordId, this.headword, this.description, this.index);
 }

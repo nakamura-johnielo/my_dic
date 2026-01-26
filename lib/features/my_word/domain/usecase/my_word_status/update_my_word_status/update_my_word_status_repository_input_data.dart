@@ -1,5 +1,3 @@
-import 'package:my_dic/core/shared/enums/feature_tag.dart';
-
 // class UpdateMyWordStatusRepositoryInputData {
 //   int wordId;
 //   Set<FeatureTag> status;
@@ -11,7 +9,7 @@ import 'package:my_dic/core/shared/enums/feature_tag.dart';
 // }
 
 class UpdateMyWordStatusRepositoryInputData {
-  final int wordId;
+  final String wordId;
   final int? isLearned;
   final int? isBookmarked;
   final int? hasNote;

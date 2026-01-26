@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/custom_floating_button_location.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
-import 'package:my_dic/features/auth/di/service.dart';
 import 'package:my_dic/features/my_word/presentation/ui_model/my_word_ui_model.dart';
 // import 'package:my_dic/Components/infinity_scroll_list_view.dart';
 import 'package:my_dic/features/my_word/presentation/view/my_word_card.dart';
@@ -81,6 +80,12 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
     return Scaffold(
       appBar: AppBar(
         title: Text('My Word'),
+        actions: [IconButton(
+          icon: Icon(Icons.refresh),
+          onPressed: () {
+            _reloadMyWords();
+          },
+        )],
       ),
       body: Center(
           child: Column(
@@ -101,33 +106,24 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
             itemBuilder: (context, index) {
               final id = myWordViewModel.myWordIds[index];
 
-              // MyWordをStream監視（リアルタイム更新）
-              // final myWordAsync = ref.watch(myWordStreamProvider(id));
-              final myWord = ref.watch(myWordUiStateProvider(id));
-              //final myWordCommand=ref.read(myWordCommandProvider(id).notifier);
-
-              // Stream監視でリアルタイムにステータスを取得（Rankingと同じパターン）
-              // final wordStatus = ref.watch(myWordStatusViewModelProvider(id));
-              // final wordStatusNotifier = ref.read(myWordStatusViewModelProvider(id).notifier);
-              final wordStatus = ref.watch(myWordStatusUiStateProvider(id));
-              final wordStatusCommand =
-                  ref.read(myWordStatusCommandProvider(id).notifier);
+              final myWordVm = ref.watch(myWordItemViewModelProvider(id));
+              final statusVm = ref.watch(myWordStatusViewModelProvider(id));
 
               // 最新のステータスで MyWord を更新
               //final updatedMyWord = MyWordUiState(wordId: myWord.wordId, word: myWord.word, contents: myWord.contents, editAt: myWord.editAt)
 
               final clickListeners = {
                 WordCardViewButton.bookmark: () {
-                  wordStatusCommand.toggleBookmark(wordStatus.isBookmarked);
+                  statusVm.toggleBookmark();
                 },
                 WordCardViewButton.learned: () {
-                  wordStatusCommand.toggleLearned(wordStatus.isLearned);
+                  statusVm.toggleLearned();
                 },
               };
 
               return Padding(
                 key: ValueKey(
-                    "MyWordCard-${myWord.wordId}"), // パフォーマンス最適化のためKeyを付与
+                    "MyWordCard-${myWordVm.wordId}"), // パフォーマンス最適化のためKeyを付与
                 padding: const EdgeInsets.only(bottom: 7.0),
                 child: MyWordCard(
                   //key: ValueKey("MyWordCard-${myWord.wordId}"),
@@ -136,12 +132,13 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
                       context,
                       clickListeners,
                       index,
-                      myWord,
+                      myWordVm.word,
                       onChanged: _reloadMyWords,
                     );
                   },
-                  myWord: myWord,
-                  wordStatus: wordStatus,
+                  
+                  myWord: myWordVm.word,
+                  wordStatus: statusVm.state,
                   clickListeners: clickListeners,
                 ),
               );

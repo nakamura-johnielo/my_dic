@@ -5,6 +5,7 @@ import 'package:my_dic/features/my_word/di/service_di.dart';
 import 'package:my_dic/features/auth/di/view_model_di.dart';
 import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
 import 'package:my_dic/features/sync/di.dart';
+import 'package:my_dic/features/user/di/viewmodel.dart';
 
 /// 認証状態のストリームプロバイダー
 /// Authを常に監視
@@ -42,8 +43,8 @@ Future<void> _handleAuthStateChange(
   AppAuth? previousAuth,
   AppAuth? currentAuth,
 ) async {
-  if (/* previousAuth?.accountId == currentAuth?.accountId &&
-      previousAuth?.isLogined == currentAuth?.isLogined && */
+  if (previousAuth?.accountId == currentAuth?.accountId &&
+      previousAuth?.isLogined == currentAuth?.isLogined &&
       previousAuth?.isAuthenticated == currentAuth?.isAuthenticated) {
     print('[Auth Effect] No change in auth state detected');
     return;
@@ -65,9 +66,12 @@ Future<void> _handleAuthStateChange(
 Future<void> _handleSignOut(Ref ref, AppAuth? previousAuth) async {
   print('[Auth Effect] User signed out');
 
-  final authUserCoordinator = ref.read(authUserCoordinatorProvider);
-  await authUserCoordinator.signOut();
+  final authCoordinator = ref.read(authCoordinatorProvider);
+  // await authCoordinator.signOut();
+   authCoordinator.setAuth(AppAuth(accountId: ""));
 
+  final userCoordinator = ref.read(appUserCoordinatorProvider);
+  userCoordinator.clear();
   // ViewModelの状態をクリア
   // if (previousAuth != null) {
   //   ref.read(userViewModelProviderLegacy.notifier).setAuthInfo(
@@ -84,8 +88,11 @@ Future<void> _handleSignIn(Ref ref, AppAuth currentAuth) async {
   print('[Auth Effect] User signed in: ${currentAuth.accountId}');
 
   try {
-    final authUserCoordinator = ref.read(authUserCoordinatorProvider);
-    await authUserCoordinator.updateAuth(currentAuth);
+    final authCoordinator = ref.read(authCoordinatorProvider);
+     authCoordinator.setAuth(currentAuth);
+     
+  final userCoordinator = ref.read(appUserCoordinatorProvider);
+  userCoordinator.refresh();
     // 2. ユーザー情報をロード
     // await ref.read(userViewModelProviderLegacy.notifier).loadUser(currentAuth.accountId);
 
@@ -100,7 +107,7 @@ Future<void> _handleSignIn(Ref ref, AppAuth currentAuth) async {
     }
     await ref
         .read(syncServiceProvider)
-        .syncOnceAll(currentAuth.accountId);
+        .syncOnceAll();
 
     //esp_jpn_wordstatus sync
     // final syncResult = await ref

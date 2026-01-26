@@ -1,6 +1,6 @@
 class UpdateMyWordStatusOutputData {
   int index;
-  int wordId;
+  String wordId;
   bool isBookmarked;
   bool isLearned;
   bool hasNote;

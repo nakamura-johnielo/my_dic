@@ -4,6 +4,7 @@ import 'package:my_dic/features/esp_jpn_word_status/di/di.dart';
 import 'package:my_dic/features/my_word/di/usecase_di.dart';
 import 'package:my_dic/features/sync/sync_service.dart';
 
+//TODO userid aync 調整
 final syncServiceProvider = Provider<SyncService>((ref) {
   return SyncService([
     ref.read(syncEspJpnWordStatusUseCaseProvider),
@@ -12,15 +13,9 @@ final syncServiceProvider = Provider<SyncService>((ref) {
   ]);
 });
 
-//userIdで
-final _syncWithRemoteProvider =
-    Provider.autoDispose.family<void, String>((ref, userId) {
-  if (userId.isEmpty) {
-    return;
-  }
-
+final _syncWithRemoteProvider = Provider.autoDispose<void>((ref) {
   final service = ref.read(syncServiceProvider);
-  final sub = service.startSyncWithRemote(userId);
+  final sub = service.startSyncWithRemote();
 
   ref.onDispose(() {
     sub.cancel();
@@ -34,16 +29,6 @@ final autoSyncProvider = Provider.autoDispose<void>((ref) {
       authStoreNotifierProvider.select((a) => a?.isAuthenticated ?? false));
   if (!isAuth) return;
 
-  final userId =
-      ref.watch(authStoreNotifierProvider.select((a) => a?.accountId));
-
-  if (userId == null ||
-      userId.isEmpty ||
-      userId == "logout" ||
-      userId == "anonymous") {
-    return;
-  }
-
-  // familyプロバイダーを呼び出し
-  ref.watch(_syncWithRemoteProvider(userId));
+  // userId は usecase 内で解決する
+  ref.watch(_syncWithRemoteProvider);
 });

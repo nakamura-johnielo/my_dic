@@ -103,7 +103,7 @@ class MyWordStatusRepository implements IMyWordStatusRepository {
   }
 
   @override
-  Stream<MyWordStatus> watchStatus(int wordId) {
+  Stream<MyWordStatus> watchStatus(String wordId) {
     return _localDataSource.watchWordStatus(wordId).map((statusData) {
       print("mywordstatus stream");
       if (statusData == null) {
@@ -152,7 +152,7 @@ class MyWordStatusRepository implements IMyWordStatusRepository {
 
   @override
   Future<Result<MyWordStatus?>> getRemoteStatusById(
-      String userId, int myWordId) async {
+      String userId, String myWordId) async {
     try {
       final dto = await _remoteDataSource.getStatusById(userId, myWordId);
       return Result.success(dto?.toEntity());
@@ -242,7 +242,7 @@ class MyWordStatusRepository implements IMyWordStatusRepository {
   }
 
   @override
-  Future<Result<MyWordStatus?>> getLocalStatusById(int myWordId) async {
+  Future<Result<MyWordStatus?>> getLocalStatusById(String myWordId) async {
     try {
       final statusData = await _localDataSource.watchWordStatus(myWordId).first;
       if (statusData == null) {
@@ -296,12 +296,12 @@ class MyWordStatusRepository implements IMyWordStatusRepository {
   // ============================================================================
 
   @override
-  Stream<List<int>> watchRemoteChangedIds(String userId) {
+  Stream<List<String>> watchRemoteChangedIds(String userId) {
     return _remoteDataSource.watchChangedIds(userId);
   }
 
   @override
-  Stream<List<int>> watchLocalChangedIds(DateTime datetime) {
+  Stream<List<String>> watchLocalChangedIds(DateTime datetime) {
     // Need to implement in local data source
     return Stream.value([]);
   }

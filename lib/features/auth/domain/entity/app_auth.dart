@@ -1,7 +1,7 @@
 import 'package:my_dic/core/shared/enums/auth/provider_type.dart';
 
 class AppAuth {
-  // accountIdはアカウントに対して１つ
+  // accountIdはaccountに対して１つ
   //provider等から割り当てられるやつ
   final String accountId;
   final bool isLogined;

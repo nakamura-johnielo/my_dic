@@ -9,19 +9,18 @@ import 'package:my_dic/features/my_word/domain/usecase/my_word/update/update_my_
 import 'package:my_dic/features/my_word/presentation/ui_model/my_word_event.dart';
 
 class MyWordCommand extends StateNotifier<MyWordCommandEvent?> {
-  final int _wordId;
-  final String? _userId;
+  final String _wordId;
   final IUpdateMyWordUseCase _updateMyWordInteractor;
   final IDeleteMyWordUseCase _deleteMyWordInteractor;
 
   MyWordCommand(
-      this._wordId,this._userId, this._updateMyWordInteractor, this._deleteMyWordInteractor)
-      : super(null);
+    this._wordId,
+    this._updateMyWordInteractor,
+    this._deleteMyWordInteractor,
+  ) : super(null);
 
-  void deleteWord(
-      {
-      required void Function() onComplete}) async {
-    DeleteMyWordInputData input = DeleteMyWordInputData(_wordId,  _userId);
+  void deleteWord({required void Function() onComplete}) async {
+    DeleteMyWordInputData input = DeleteMyWordInputData(_wordId);
     final result = await _deleteMyWordInteractor.execute(input);
     result.when(
       success: (_) {
@@ -43,8 +42,9 @@ class MyWordCommand extends StateNotifier<MyWordCommandEvent?> {
       required String description,
       required int index,
       required void Function() onComplete}) async {
+        // TODO delete index
     UpdateMyWordInputData input =
-        UpdateMyWordInputData(_wordId, headword, description, index, _userId);
+        UpdateMyWordInputData(_wordId, headword, description, index);
 
     final result = await _updateMyWordInteractor.execute(input);
 

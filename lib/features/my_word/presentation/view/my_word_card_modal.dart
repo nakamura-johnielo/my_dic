@@ -106,7 +106,8 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
 
   @override
   Widget build(BuildContext context) {
-    final myWordCommand = ref.read(myWordCommandProvider(widget.myWord.wordId).notifier);
+    final myWordVm =
+        ref.watch(myWordItemViewModelProvider(widget.myWord.wordId));
 
     Color descriptionColor = Theme.of(context).colorScheme.onSurfaceVariant;
     Color headwordColor = Theme.of(context).colorScheme.onSurface;
@@ -234,13 +235,12 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
                       defaultIconColor: const Color.fromARGB(255, 217, 60, 60),
                       hoveredIconColor: const Color.fromARGB(255, 255, 0, 106),
                       onTap: () {
-                        myWordCommand.deleteWord(
-                            onComplete: () {
-                              widget.onChanged?.call();
-                              setState(() {
-                                Navigator.of(context).pop();
-                              });
-                            });
+                        myWordVm.deleteWord(onComplete: () {
+                          widget.onChanged?.call();
+                          setState(() {
+                            Navigator.of(context).pop();
+                          });
+                        });
                       },
                     ),
                   ],
@@ -252,7 +252,7 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
                     Expanded(
                         child: FilledButton(
                             onPressed: () {
-                              myWordCommand.updateWord(
+                              myWordVm.updateWord(
                                   headword: headwordTextFieldController.text,
                                   description:
                                       descriptionTextFieldController.text,

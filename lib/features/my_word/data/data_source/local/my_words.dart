@@ -2,7 +2,7 @@ import 'package:drift/drift.dart';
 
 @DataClassName('MyWordTableData')
 class MyWords extends Table {
-  IntColumn get myWordId => integer().named('my_word_id').autoIncrement()();
+  TextColumn get myWordId => text().named('my_word_id')();
   TextColumn get word => text().named('word')();
   TextColumn get contents => text().named('contents').nullable()();
   TextColumn get editAt => text().named('edit_at')();

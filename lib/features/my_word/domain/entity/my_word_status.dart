@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 
 @immutable
 class MyWordStatus {
-  final int wordId;
+  final String wordId;
   final bool isLearned;
   final bool isBookmarked;
   final DateTime editAt;
@@ -15,7 +15,7 @@ class MyWordStatus {
   }) : editAt = (editAt ?? DateTime.now()).toUtc();
 
   MyWordStatus copyWith({
-    int? wordId,
+    String? wordId,
     bool? isLearned,
     bool? isBookmarked,
     DateTime? editAt,

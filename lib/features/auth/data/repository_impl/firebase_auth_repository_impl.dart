@@ -96,7 +96,7 @@ class AuthRepositoryImpl implements IAuthRepository {
     try {
       final dto =
           await _authDataSource.signInWithEmailAndPassword(email, password);
-      
+
       if (dto == null) {
         return Result.failure(UnexpectedError(
           message: 'アカウントを取得できませんでした',
@@ -236,6 +236,32 @@ class AuthRepositoryImpl implements IAuthRepository {
         message: 'パスワードリセット中に予期しないエラーが発生しました',
         originalError: e,
         stackTrace: s,
+      ));
+    }
+  }
+
+  @override
+  Future<Result<AppAuth>> getCurrentAuth() async {
+    try {
+      final auth = await _authDataSource.getCurrentAuth();
+      if (auth == null) {
+        return Result.success(AppAuth(
+          isAuthenticated: false,
+          isLogined: false,
+          accountId: "",
+        ));
+      }
+      final appAuth = AppAuth(
+        isAuthenticated: auth.isVerified,
+        isLogined: true,
+        accountId: auth.accountId,
+        provider: auth.provider,
+        email: auth.email,
+      );
+      return Result.success(appAuth);
+    } catch (e) {
+      return Result.failure(UnexpectedError(
+        message: 'アカウントを取得できませんでした',
       ));
     }
   }

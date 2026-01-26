@@ -9,7 +9,7 @@ class MyWordStatusDriftDataSource implements IMyWordStatusLocalDataSource {
 
   @override
   Future<void> updateStatus(
-  final int myWordId,
+  final String myWordId,
   final int? isLearned,
   final int? isBookmarked,
   final int? hasNote,
@@ -19,13 +19,14 @@ class MyWordStatusDriftDataSource implements IMyWordStatusLocalDataSource {
   Future<void> insertStatus(db.MyWordStatusTableData data) => _wordStatusDao.insertStatus(data);
 
   @override
-  Future<bool> existStatus(int id) => _wordStatusDao.exist(id);
+  Future<bool> existStatus(String id) => _wordStatusDao.exist(id);
 
   @override
-  Stream<db.MyWordStatusTableData?> watchWordStatus(int wordId) => _wordStatusDao.watchWordStatus(wordId);
+  Stream<db.MyWordStatusTableData?> watchWordStatus(String wordId) =>
+      _wordStatusDao.watchWordStatus(wordId);
   
   @override
-  Future<db.MyWordStatusTableData?> getWordStatus(int wordId) async {
+  Future<db.MyWordStatusTableData?> getWordStatus(String wordId) async {
     return await _wordStatusDao.getWordStatus(wordId);
   }
 }
