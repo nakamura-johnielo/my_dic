@@ -18,9 +18,9 @@
     5-3. Provider スコープ最適化<br>
     5-4. Drift Migration  <br>
     5-5. Python 効率化CLI  
-6. [**Architecture（構成図）**](#)
-7. [**Tech Stack（使用技術）**](#)
-8. [**Tooling（開発支援 CLI / Python）**](#)
+6. [**フォルダ構成図**](#architecture)
+7. [**使用技術**](#tech-stack)
+8. [**開発支援 (CLI / Python）**](#tooling)
 9. [**Data Preparation（辞書データ生成 / Python）**](#)
 10. [ **Technology Transition（技術選定の変遷）**](#)
 11. [ **In Development（開発中機能）**](#)
@@ -75,6 +75,7 @@ web用に最適化していないため少々重いです。
 - Clean Architecture
 - Feature Module
 - MVVM
+- CQRS
 
 ---
 
@@ -122,23 +123,24 @@ web用に最適化していないため少々重いです。
 - 保守性、拡張性、責務を意識して分離
     
 
-### **２. Stream × Riverpod でリアルタイム更新＆パフォーマンス最適化**
+### **２. Stream × CQRS でリアルタイム更新＆パフォーマンス最適化**
 
-- ブックマーク等の変更をアプリ全体へ即時反映
-- item 単位で provider をoverrideし、変更時のrebuild を最小化
-- リモートも監視し、差分確認後即時ローカルへ反映することで即時同期を実現
+- localをidごとにwatchし、UiStateとしてUIへ反映
+- remoteを変更追加のみ通知を得る用にwatchし、同期用に使用
+- 状態(stream -> UiState <- UI)と操作(command)を完全分離し、責務を明確化
 
 
 ### **3. Result型でエラーハンドリング**
 
 - エラー型とResult型を定義してエラーハンドリング
-- UsecaseとrepositoryはResult型を返す
+- UsecaseとrepositoryがResult型を返す
 
 
-### **4. Drift Migration による無停止スキーマ更新**
+### **4. Drift Migration による無停止スキーマ更新 & web対応IndexDB化**
 
 - ユーザーデータを保持したまま DB 更新が可能
 - バージョンごとにデータ、テーブルの操作
+- web対応のためDBのIndexDB化とimport処理へも対応
 
 ### **5.Python によるデータ整備 & 自動生成 CLI**
 
@@ -149,7 +151,7 @@ web用に最適化していないため少々重いです。
 ---
 
 
-#  **フォルダ構成(簡略)**
+# 4. **フォルダ構成(簡略)** <a id="architecture"></a>
 
 ```
 lib/
@@ -173,11 +175,10 @@ lib/
 ```
 
 Feature-Modular × Clean Architecture による拡張可能な構成。
-## repositoryの実装例
 
 ---
 
-# 🛠 **Tech Stack**
+# 5. **Tech Stack** <a id="tech-stack"></a>
 
 ### **App / Frontend**
 
@@ -191,7 +192,7 @@ Feature-Modular × Clean Architecture による拡張可能な構成。
 - Drift（ORM / Query Builder）
 - SQLite（ローカル DB）
 - IndexDB（Web用ローカル DB）
-- Firebase Firestore（同期）
+- Firebase Firestore（リモートDB）
     
 ### **Backend / Infrastructure**
 
@@ -202,11 +203,12 @@ Feature-Modular × Clean Architecture による拡張可能な構成。
 
 - Python（スクレイピング / データ整形）
 - Clean Architecture（責務分離）
+- CQRS（コマンドとクエリの分離）
     
 
 ---
 
-# 🔧 **Tooling（開発支援ツール / Python CLI）**
+# 6. **開発支援ツール (CLI / Python）** <a id="tooling"></a>
 
 - フィル名とタイプからフォルダとファイルを自動生成する  **Clean Architecture 用テンプレ生成 CLI（Windows）** を作成  
 - 設定ファイルに、責務タイプ、ファイル名を記入（他にも細かい設定あり）
@@ -216,10 +218,10 @@ Feature-Modular × Clean Architecture による拡張可能な構成。
 
 # 📦 **Data Preparation（辞書データ生成プロセス / Python）**
 
-アプリ実装とは独立した “データ整備工程” です。
+アプリ実装とは独立した**データ準備工程**です。
 - Webスクレイピング（Python + selenium）
 - 正規表現で語義・品詞・例文を解析し構造化
-- クレンジング → SQLite スキーマへ整形
+- SQLite スキーマへ整形
 
 ---
 
@@ -227,7 +229,7 @@ Feature-Modular × Clean Architecture による拡張可能な構成。
 
 - 初期版：Android / Java で辞書アプリを構築
 - → パフォーマンスの観点から Room + Kotlin を検討
-- → desktopでもアプリを使いたかった & デバイス間同期
+- → desktopでもアプリを使いたかった & 複数デバイスで使いたかった
 - → マルチプラットフォーム対応 **Flutterに移行**
     
 ベストプラクティスを求めた結果、いちから学びなおすなら「desktopとmobile両方対応で、前から興味があったflutterに乗り換えよう！」と決意
@@ -242,7 +244,7 @@ Feature-Modular × Clean Architecture による拡張可能な構成。
 - 忘却曲線アルゴリズムによるリマインド通知
 - 例文検索 / イディオム検索
 - AI を用いたスラング辞書生成
-- myWord 同期
+- ~~myWord 同期~~
 - オフライン同期プロセス強化
 - 検索アルゴリズム改善
 - 検索履歴
@@ -271,11 +273,10 @@ Feature-Modular × Clean Architecture による拡張可能な構成。
 
 ### **Clean Architecture の運用**
 
-ファイル責務の明確化に苦労したが、「変更に強く、読みやすい」構造を実感し運用が安定。
+ファイル責務の明確化に苦労したが、「変更追加に強い」構造を実感し開発が安定。
 
-### **Riverpod の増加管理**
-
-Provider が増えすぎて混乱 →  命名ルール / Feature 切りで整理。
+### **CQRS と StreamProvider の組み合わせ**
+状態と操作の完全分離で、リアルタイム更新とパフォーマンス最適化を両立できた。
 
 ### **StreamProvider のリアクティブ設計**
 
@@ -286,7 +287,7 @@ Provider が増えすぎて混乱 →  命名ルール / Feature 切りで整理
 
 # ✉️ **Contact**
 
-📩 [teketeke914@gmail.com](mailto:teketeke914@gmail.com)  
+📩 [nakamura.johnielo@gmail.com](mailto:nakamura.johnielo@gmail.com)  
 
 
 
