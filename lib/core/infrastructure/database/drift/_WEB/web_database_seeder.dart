@@ -45,6 +45,24 @@ class WebDatabaseSeeder {
     return _toInt(value) ?? defaultValue;
   }
 
+  /// JSON値を安全にString型に変換
+  String? _toString(dynamic value) {
+    if (value == null) return null;
+    if (value is String) return value;
+    if (value is num) {
+      if (value is int) return value.toString();
+      // if it's a double but represents an integer, keep integer form
+      if (value == value.toInt()) return value.toInt().toString();
+      return value.toString();
+    }
+    return value.toString();
+  }
+
+  /// 必須String値（nullをdefaultValueにフォールバック）
+  String _toStringRequired(dynamic value, {String defaultValue = ''}) {
+    return _toString(value) ?? defaultValue;
+  }
+
   /// Web環境でデータベースをシードする
   Future<void> seedFromJson() async {
     print('🚀 WebDatabaseSeeder.seedFromJson() CALLED');
@@ -723,14 +741,14 @@ class WebDatabaseSeeder {
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
-          if (row['word'] == null || row['edit_at'] == null) continue;
+          if (row['my_word_id'] == null || row['word'] == null || row['edit_at'] == null) continue;
           b.insert(
               db.myWords,
               MyWordsCompanion.insert(
-                myWordId: row['my_word_id'] as String,
+                myWordId: _toStringRequired(row['my_word_id']),
                 contents: Value(row['contents'] as String?),
                 word: row['word'] as String,
-                editAt: row['edit_at'] as String,
+                editAt: _toStringRequired(row['edit_at']),
               ),
               mode: InsertMode.insertOrIgnore);
         }
@@ -752,15 +770,15 @@ class WebDatabaseSeeder {
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
-          if (row['word'] == null || row['edit_at'] == null) continue;
+          if (row['my_word_id'] == null || row['word'] == null || row['edit_at'] == null) continue;
           b.insert(
               db.myWordStatus,
               MyWordStatusCompanion.insert(
-                myWordId: row['my_word_id'] as String,
+                myWordId: _toStringRequired(row['my_word_id']),
                 isLearned: Value(_toIntRequired(row['is_learned'])),
                 isBookmarked: Value(_toIntRequired(row['is_bookmarked'])),
                 hasNote: Value(_toIntRequired(row['has_note'])),
-                editAt: row['edit_at'] as String,
+                editAt: _toStringRequired(row['edit_at']),
               ),
               mode: InsertMode.insertOrIgnore);
         }
