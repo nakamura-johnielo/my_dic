@@ -1,6 +1,5 @@
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 
-/// Composite class to return all related TableData for a dictionary entry
 class EsjDictionaryDataSet {
   final EspJpnDictionaryTableData dictionary;
   final List<EspJpnExampleTableData> examples;

@@ -12,30 +12,21 @@ class AppUser {
   final SubscriptionStatus subscriptionStatus;
 
   AppUser({
-    // required this.accountId,
-     this.deviceId,
+    this.deviceId,
     this.email,
     String? username,
     SubscriptionStatus? subscriptionStatus,
   })  : username = username ?? UserConsts.username,
-        subscriptionStatus = subscriptionStatus ?? UserConsts.subscriptionStatus;
+        subscriptionStatus =
+            subscriptionStatus ?? UserConsts.subscriptionStatus;
 
-  // factory AppUser.init() {
-  //   return AppUser(
-  //     accountId: UserConsts.accountId,
-  //     username: UserConsts.username,
-  //     subscriptionStatus: UserConsts.subscriptionStatus,
-  //   );
-  // }
   AppUser copyWith({
-    // String? accountId,
     String? deviceId,
     String? email,
     String? username,
     SubscriptionStatus? subscriptionStatus,
   }) {
     return AppUser(
-      // accountId: accountId ?? this.accountId,
       deviceId: deviceId ?? this.deviceId,
       email: email ?? this.email,
       username: username ?? this.username,

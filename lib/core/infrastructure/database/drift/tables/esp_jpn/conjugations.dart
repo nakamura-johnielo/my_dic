@@ -3,18 +3,18 @@ import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/words.d
 
 @DataClassName('EspConjugationTableData')
 class EspConjugations extends Table {
-
   @override
   String get tableName => 'conjugations';
-  
-  // IntColumn get wordId =>
-  //     integer().named('word_id')(); // リレーションを簡単に記述// 外部キー制約をカラムに直接設定
+
+  IntColumn get wordId => integer()
+      .named('word_id')
+      .references(EspJpnWords, #wordId, onDelete: KeyAction.cascade)();
+
   TextColumn get word => text().named('word')();
   TextColumn get meaning => text().named('meaning').nullable()();
   TextColumn get presentParticiple =>
       text().named('present_participle').nullable()();
-  TextColumn get pastParticiple =>
-      text().named('past_participle').nullable()();
+  TextColumn get pastParticiple => text().named('past_participle').nullable()();
   TextColumn get indicativePresentYo =>
       text().named('indicative_present_yo').nullable()();
   TextColumn get indicativePresentTu =>
@@ -108,12 +108,6 @@ class EspConjugations extends Table {
   TextColumn get subjunctivePastEllos =>
       text().named('subjunctive_past_ellos').nullable()();
 
-  IntColumn get wordId => integer()
-    .named('word_id')
-    .references(EspJpnWords, #wordId, onDelete: KeyAction.cascade)();
-    
   @override
   Set<Column> get primaryKey => {wordId};
-
-
 }

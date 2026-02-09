@@ -12,10 +12,6 @@ import 'package:my_dic/features/word_page/presentation/ui_model/jpn_esp_state.da
 import 'package:logging/logging.dart';
 import 'package:my_dic/router/navigator_service.dart';
 
-/// ViewModelをプロバイダーで提供
-// final JpnEspWordPageViewModelProvider =
-//     ChangeNotifierProvider((ref) => ref.read(jpnEspWordPageViewModelProvider));
-
 class WordPageViewModel extends StateNotifier<WordPageState> {
   final IFetchJpnEspDictionaryUseCase _fetchDictionaryUseCase;
   final IFetchEspJpnDictionaryUseCase _fetchEspJpnDictionaryUsecase;
@@ -23,8 +19,11 @@ class WordPageViewModel extends StateNotifier<WordPageState> {
   final AppNavigatorService _naviService;
   final _logger = Logger('WordPageViewModel');
 
-  WordPageViewModel(this._fetchDictionaryUseCase,
-      this._fetchEspJpnDictionaryUsecase, this._fetchEspConjugacionUsecase, this._naviService)
+  WordPageViewModel(
+      this._fetchDictionaryUseCase,
+      this._fetchEspJpnDictionaryUsecase,
+      this._fetchEspConjugacionUsecase,
+      this._naviService)
       : super(WordPageState(wordType: WordType.espJpn));
 
   Future<void> fetchJpnEspDictionaryById(int wordId) async {
@@ -44,7 +43,7 @@ class WordPageViewModel extends StateNotifier<WordPageState> {
   }
 
   void goToQuiz(QuizGameFragmentInput input) {
-    _naviService.toFlashCard( input);
+    _naviService.toFlashCard(input);
   }
 
   Future<void> fetchEspJpnItemsById(int wordId) async {

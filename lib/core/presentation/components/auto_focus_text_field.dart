@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:my_dic/native_API/android/keyboard_helper.dart';
 
 class AutoFocusTextField extends StatefulWidget {
-  //final Key? key;
   final Object groupId;
   final TextEditingController? controller;
   final FocusNode? focusNode;
@@ -72,13 +71,11 @@ class AutoFocusTextField extends StatefulWidget {
   final String? restorationId;
   final bool scribbleEnabled;
   final bool enableIMEPersonalizedLearning;
-  //final Widget Function(BuildContext, EditableTextState)? contextMenuBuilder;
   final bool canRequestFocus;
   final SpellCheckConfiguration? spellCheckConfiguration;
   final TextMagnifierConfiguration? magnifierConfiguration;
 
   const AutoFocusTextField({
-    //this.key,
     Key? key,
     this.groupId = EditableText,
     this.controller,
@@ -96,7 +93,6 @@ class AutoFocusTextField extends StatefulWidget {
     this.readOnly = false,
     this.toolbarOptions,
     this.showCursor,
-    //this.autoFocus = false,
     this.statesController,
     this.obscuringCharacter = '•',
     this.obscureText = false,
@@ -142,7 +138,6 @@ class AutoFocusTextField extends StatefulWidget {
     this.restorationId,
     this.scribbleEnabled = true,
     this.enableIMEPersonalizedLearning = true,
-    /* this.contextMenuBuilder = _defaultContextMenuBuilder, */
     this.canRequestFocus = true,
     this.spellCheckConfiguration,
     this.magnifierConfiguration,
@@ -161,11 +156,7 @@ class _AutoFocusTextFieldState extends State<AutoFocusTextField> {
     _focusNode = widget.focusNode ?? FocusNode();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      /* await Future.delayed(Duration(milliseconds: 200));
       FocusScope.of(context).requestFocus(_focusNode);
-      await Future.delayed(Duration(milliseconds: 200)); */
-      FocusScope.of(context).requestFocus(_focusNode);
-      //SystemChannels.textInput.invokeMethod('TextInput.show'); //keyboard強制表示
       await KeyboardHelper.showKeyboard(); //android native　呼び出し。
     });
   }
@@ -196,7 +187,6 @@ class _AutoFocusTextFieldState extends State<AutoFocusTextField> {
         readOnly: widget.readOnly,
         toolbarOptions: widget.toolbarOptions,
         showCursor: widget.showCursor,
-        //autoFocus: widget.autoFocus,
         statesController: widget.statesController,
         obscuringCharacter: widget.obscuringCharacter,
         obscureText: widget.obscureText,
@@ -242,7 +232,6 @@ class _AutoFocusTextFieldState extends State<AutoFocusTextField> {
         restorationId: widget.restorationId,
         scribbleEnabled: widget.scribbleEnabled,
         enableIMEPersonalizedLearning: widget.enableIMEPersonalizedLearning,
-        //contextMenuBuilder: widget.contextMenuBuilder,
         canRequestFocus: widget.canRequestFocus,
         spellCheckConfiguration: widget.spellCheckConfiguration,
         magnifierConfiguration: widget.magnifierConfiguration);

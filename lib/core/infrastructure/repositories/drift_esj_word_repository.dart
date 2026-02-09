@@ -9,7 +9,6 @@ import 'package:my_dic/core/infrastructure/repositories/converters/esj_word_conv
 
 class EsjWordRepository implements IEsjWordRepository {
   final IEsjWordLocalDataSource _wordDataSource;
-  // final ILocalWordStatusDataSource _wordStatusDataSource;
   EsjWordRepository(this._wordDataSource);
 
   @override
@@ -27,26 +26,12 @@ class EsjWordRepository implements IEsjWordRepository {
     }
   }
 
-  // @override
-  // Future<Result<void>> updateStatus(UpdateStatusRepositoryInputData input) async {
-  //   try {
-  //     log("updatestatusrepo");
-  //     await _wordDataSource.updateStatus(input);
-  //     return const Result.success(null);
-  //   } catch (e, s) {
-  //     return Result.failure(DatabaseError(
-  //       message: '単語ステータスの更新に失敗しました',
-  //       originalError: e,
-  //       stackTrace: s,
-  //     ));
-  //   }
-  // }
-
   @override
   Future<Result<List<EspJpnWord>>> getWordsByWordByPage(
       String word, int size, int currentPage, bool forQuiz) async {
     try {
-      final tableDataList = await _wordDataSource.getWordsByWordByPage(word, size, currentPage, forQuiz);
+      final tableDataList = await _wordDataSource.getWordsByWordByPage(
+          word, size, currentPage, forQuiz);
       final entities = EsjWordConverter.toEntityList(tableDataList);
       return Result.success(entities);
     } catch (e, s) {
@@ -62,7 +47,8 @@ class EsjWordRepository implements IEsjWordRepository {
   Future<Result<List<EspJpnWord>>> getQuizWordsByWordByPage(
       String word, int size, int currentPage) async {
     try {
-      final tableDataList = await _wordDataSource.getQuizWordsByWordByPage(word, size, currentPage);
+      final tableDataList = await _wordDataSource.getQuizWordsByWordByPage(
+          word, size, currentPage);
       final entities = EsjWordConverter.toEntityList(tableDataList);
       return Result.success(entities);
     } catch (e, s) {
@@ -73,19 +59,4 @@ class EsjWordRepository implements IEsjWordRepository {
       ));
     }
   }
-
-  // @override
-  // Future<Result<WordStatus>> getStatusById(int wordId) async {
-  //   try {
-  //     final tableData = await _wordStatusDataSource.getWordStatusById(wordId);
-  //     final entity = WordStatusConverter.toEntity(tableData, wordId);
-  //     return Result.success(entity);
-  //   } catch (e, s) {
-  //     return Result.failure(DatabaseError(
-  //       message: '単語ステータスの取得に失敗しました',
-  //       originalError: e,
-  //       stackTrace: s,
-  //     ));
-  //   }
-  // }
 }

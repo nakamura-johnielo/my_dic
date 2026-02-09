@@ -60,11 +60,6 @@ extension PartOfSpeechExtension on PartOfSpeech {
   }
 }
 
-/* void main() {
-  PartOfSpeech pos = PartOfSpeech.noun;
-  print(pos.name); // 出力: 名詞
-}
- */
 
 
 /* 

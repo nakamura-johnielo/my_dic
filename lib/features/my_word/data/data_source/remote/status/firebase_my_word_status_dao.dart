@@ -77,7 +77,7 @@ class FirebaseMyWordStatusDao {
   }
 
   /// Watch changed MyWordStatus IDs (for sync)
-    Stream<List<String>> watchChangedStatusIds(String userId) {
+  Stream<List<String>> watchChangedStatusIds(String userId) {
     return _db
         .collection(UserDTO.collectionName)
         .doc(userId)
@@ -89,9 +89,8 @@ class FirebaseMyWordStatusDao {
                 change.type == DocumentChangeType.modified ||
                 change.type == DocumentChangeType.added)
             .map((change) =>
-          change.doc.data()?[MyWordStatusDTO.fieldMyWordId] as String)
+                change.doc.data()?[MyWordStatusDTO.fieldMyWordId] as String)
             .toList());
-        //.distinct();
   }
 
   /// Watch MyWordStatus updated after a specific timestamp (stream)

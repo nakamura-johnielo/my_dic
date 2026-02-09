@@ -9,7 +9,6 @@ class ConjugacionCard extends StatelessWidget {
 
   static const Color subjectColor = Color.fromARGB(255, 62, 62, 62);
   static const Color conjColor = Colors.black;
-  //final IconData icon;
   const ConjugacionCard(
       {super.key,
       required this.moodTense,
@@ -42,7 +41,6 @@ class ConjugacionCard extends StatelessWidget {
     Color? highlightTextColor = text.length == query.length
         ? Theme.of(context).colorScheme.onPrimary //Colors.indigo[200]!
         : null;
-    //Theme.of(context).colorScheme.onPrimary;
 
     return RichText(
       text: TextSpan(
@@ -151,42 +149,6 @@ class ConjugacionCard extends StatelessWidget {
                 _highlightMatch(context, conjugacion.vosotros, query),
                 SizedBox(height: 5),
                 _highlightMatch(context, conjugacion.ellos, query),
-
-                // Text(
-                //   conjugacion.yo,
-                //   style: TextStyle(fontSize: 16, color: conjColor),
-                //   textAlign: TextAlign.left,
-                // ),
-                // SizedBox(height: 5),
-                // Text(
-                //   conjugacion.tu,
-                //   style: TextStyle(fontSize: 16, color: conjColor),
-                //   textAlign: TextAlign.left,
-                // ),
-                // SizedBox(height: 5),
-                // Text(
-                //   conjugacion.el,
-                //   style: TextStyle(fontSize: 16, color: conjColor),
-                //   textAlign: TextAlign.left,
-                // ),
-                // SizedBox(height: 5),
-                // Text(
-                //   conjugacion.nosotros,
-                //   style: TextStyle(fontSize: 16, color: conjColor),
-                //   textAlign: TextAlign.left,
-                // ),
-                // SizedBox(height: 5),
-                // Text(
-                //   conjugacion.vosotros,
-                //   style: TextStyle(fontSize: 16, color: conjColor),
-                //   textAlign: TextAlign.left,
-                // ),
-                // SizedBox(height: 5),
-                // Text(
-                //   conjugacion.ellos,
-                //   style: TextStyle(fontSize: 16, color: conjColor),
-                //   textAlign: TextAlign.left,
-                // ),
               ]),
             ]),
           ],
@@ -203,7 +165,6 @@ class ParticipleCard extends StatelessWidget {
 
   static const Color subjectColor = Color.fromARGB(255, 62, 62, 62);
   static const Color conjColor = Colors.black;
-  //final IconData icon;
   const ParticipleCard(
       {super.key,
       required this.moodTense,

@@ -13,7 +13,6 @@ import 'package:my_dic/core/infrastructure/repositories/drift_esj_word_repositor
 import 'package:my_dic/core/infrastructure/repositories/drift_jpn_esp_dictionary_repository.dart';
 import 'package:my_dic/core/infrastructure/repositories/drift_jpn_esp_word_repository.dart';
 
-
 final esjDictionaryRepositoryProvider =
     Provider<IEsjDictionaryRepository>((ref) {
   final ds = ref.read(esjDictionaryDataSourceProvider);
@@ -41,20 +40,6 @@ final jpnEspDictionaryRepositoryProvider =
   final ds = ref.read(jpnEspDictionaryDataSourceProvider);
   return JpnEspDictionaryRepository(ds);
 });
-
-
-
-
-
-// final localEspJpnWordStatusRepositoryProvider = Provider<ILocalWordStatusRepository>((ref) {
-//   final ds = ref.read(localWordStatusDataSourceProvider);
-//   return DriftWordStatusRepository(ds);
-// });//TODO 消す
-
-// final remoteEspJpnWordStatusRepositoryProvider = Provider<IRemoteWordStatusRepository>((ref) {
-//   final ds = ref.read(remoteWordStatusDataSourceProvider);
-//   return FirebaseWordStatusRepository(ds);
-// });//TODO 消す
 
 final syncStatusRepositoryProvider = Provider<ISyncStatusRepository>((ref) {
   final ds = ref.read(sharedPreferencesSyncStatusDataSourceProvider);

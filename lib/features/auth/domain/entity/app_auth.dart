@@ -13,7 +13,8 @@ class AppAuth {
     required this.accountId,
     bool? isLogined,
     bool? isAuthenticated,
-    ProviderType? provider, this.email,
+    ProviderType? provider,
+    this.email,
   })  : isLogined = isLogined ?? false,
         isAuthenticated = isAuthenticated ?? false,
         provider = provider ?? ProviderType.anonymous;

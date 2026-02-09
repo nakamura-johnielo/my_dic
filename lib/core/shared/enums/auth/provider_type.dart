@@ -1,4 +1,4 @@
-enum ProviderType { google, apple, email, anonymous,unknown }
+enum ProviderType { google, apple, email, anonymous, unknown }
 
 extension ProviderTypeExtension on ProviderType {
   static ProviderType fromFirebaseProviderId(String? providerId) {

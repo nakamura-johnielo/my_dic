@@ -78,14 +78,13 @@ class DatabaseLoadingOverlay extends ConsumerWidget {
               SizedBox(
                 width: 300,
                 child: LinearProgressIndicator(
-                  value:
-                      (loadingState.loadingType == WebDBLoadingType.download ||
-                              loadingState.loadingType ==
-                                  WebDBLoadingType.decompressed ||
-                              loadingState.loadingType ==
-                                  WebDBLoadingType.parsing)
-                          ? null // インデターミネートモード
-                          : loadingState.progress,
+                  value: (loadingState.loadingType ==
+                              WebDBLoadingType.download ||
+                          loadingState.loadingType ==
+                              WebDBLoadingType.decompressed ||
+                          loadingState.loadingType == WebDBLoadingType.parsing)
+                      ? null // インデターミネートモード
+                      : loadingState.progress,
                   minHeight: 8,
                   backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
                   valueColor: AlwaysStoppedAnimation<Color>(

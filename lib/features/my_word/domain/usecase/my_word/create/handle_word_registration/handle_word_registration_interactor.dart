@@ -3,8 +3,6 @@ import 'package:my_dic/features/my_word/domain/usecase/my_word/create/handle_wor
 
 class HandleWordRegistrationInteractor
     implements IHandleWordRegistrationUseCase {
-  //final IMyWordFragmentPresenter _presenterImpl;
-  //HandleWordRegistrationInteractor(this._presenterImpl);
   HandleWordRegistrationInteractor();
 
   @override

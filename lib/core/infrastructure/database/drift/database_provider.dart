@@ -31,7 +31,6 @@ import 'package:my_dic/features/ranking/data/data_source/local/rankings_entity.d
 import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/supplements.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/word_status.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/words.dart';
-import 'package:my_dic/core/shared/utils/uuid.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'package:flutter/services.dart';
@@ -41,6 +40,16 @@ import 'package:my_dic/core/infrastructure/database/drift/_WEB/web_database_seed
     if (dart.library.io) 'package:my_dic/core/infrastructure/database/drift/_WEB/web_database_seeder_stub.dart';
 
 part '../../../../__generated/core/infrastructure/database/drift/database_provider.g.dart';
+
+//==========================-
+
+// 実行コマンド
+
+// dart run build_runner clean
+
+// dart run build_runner build --delete-conflicting-outputs
+
+//==========================
 
 @DriftDatabase(tables: [
   EspConjugations,
@@ -81,10 +90,12 @@ class DatabaseProvider extends _$DatabaseProvider {
 
   @override
   int get schemaVersion => 5;
+  //==============================================================
   //2025/11/12
   // EsEnConjugacionsテーブル追加
   // 2026/01/xx
   // MyWord ID migration: INTEGER -> UUID(TEXT)
+  //============================================================
 
   @override
   MigrationStrategy get migration {
@@ -142,7 +153,7 @@ class DatabaseProvider extends _$DatabaseProvider {
         print("==== DB Migration upgrade ===");
         print("DatabaseProvider - onUpgrade from $from to $to");
         if (from < 1) {
-          //await m.addColumn(todos, todos.content);
+          //no existing version, so create all tables
         }
         if (from < 4) {
           await m.createTable(esEnConjugacions);
@@ -223,10 +234,6 @@ class DatabaseProvider extends _$DatabaseProvider {
               ).get();
 
               for (final row in oldWords) {
-                // final oldId = row.data['my_word_id'].toString();
-                // final newId = MyUUID.generate();
-                // idMap[oldId] = newId;
-
                 await into(myWords).insert(
                   MyWordsCompanion.insert(
                     myWordId: row.data['my_word_id'].toString(),
@@ -291,41 +298,12 @@ class DatabaseProvider extends _$DatabaseProvider {
           log("DatabaseProvider - Database had upgrade");
           //===ver2=========//
           if (details.versionBefore! < 3) {
-            //   // ATTACH 用の軽量サブDB (assets/es_en_conjugacions.db) をコピーしてパス取得
-            //   final attachDbPath = await copyAssetDbOnce('es_en_conjugacions.db');
-            //   await transaction(() async {
-            //     print("start transaction");
-            //     await customStatement(
-            //         "ATTACH DATABASE '$attachDbPath' AS seeddb;");
-            //     print("attached database at $attachDbPath");
-            //     await customStatement("""
-            //     INSERT INTO es_en_conjugacions (word_id, word, english, present_3rd, present_p, past, past_p)
-            //     SELECT word_id, word, english, present_3rd, present_p, past, past_p FROM seeddb.es_en_conjugacions;
-            //   """);
-            //     await customStatement("DETACH DATABASE seeddb;");
-            //     await deleteDatabaseFile(attachDbPath);
-            //   });
+            // ATTACH 用の軽量サブDB (assets/es_en_conjugacions.db) をコピーしてパス取得
           }
         }
       },
     );
   }
-/*
-  @override
-  MigrationStrategy get migration => MigrationStrategy(
-        onUpgrade: (migrator, from, to) async {
-          if (from < to) {
-            // スキーマバージョン1からのアップグレード
-            _setDatabase(DB_NAME);
-          }
-        },
-        beforeOpen: (details) async {
-          if (details.wasCreated || details.hadUpgrade) {
-            // 新しいデータベースを上書きする
-            // 必要な初期データの挿入など
-          }
-        },
-      ); */
 }
 
 Future<String> getAppDir() async {
@@ -339,14 +317,11 @@ Future<String> getAppDir() async {
   return path;
 }
 
-// ...existing code...
 Future<void> deleteDatabaseFile(String dbName) async {
   if (kIsWeb) {
     log("deleteDatabaseFile called on web - no-op");
     return;
   }
-  // final documentsDirectory = await getApplicationSupportDirectory();
-  // final folderPath = join(documentsDirectory.path, "${APP_NAME}_DB");
   final folderPath = await getAppDir();
   final dbPath = join(folderPath, dbName);
   final dbFile = File(dbPath);
@@ -366,8 +341,6 @@ Future<String> copyAssetDbOnce(String assetDbFileName,
     return 'web_not_supported';
   }
   // 保存先フォルダ（既存の getDatabasePath と同じ場所）
-  // final documentsDirectory = await getApplicationSupportDirectory();
-  // final folderPath = join(documentsDirectory.path, "${APP_NAME}_DB");
   final folderPath = await getAppDir();
   final folder = Directory(folderPath);
   if (!await folder.exists()) {
@@ -414,14 +387,10 @@ Future<String> getDatabasePath(String dbName) async {
     return 'web_indexeddb';
   }
 
-  // final documentsDirectory = await getApplicationSupportDirectory();
-  // // 新しいフォルダのパスを作成
-  // final folderPath = join(documentsDirectory.path, "${APP_NAME}_DB");
   final folderPath = await getAppDir();
 
   // 新しいフォルダが存在しない場合は作成
   final folder = Directory(folderPath);
-  //await folder.create(recursive: false);
   if (!await folder.exists()) {
     await folder.create(recursive: true);
     log("Folder created at: $folderPath");
@@ -439,46 +408,5 @@ Future<String> getDatabasePath(String dbName) async {
     await File(dbPath).writeAsBytes(bytes);
     return dbPath;
   }
-
-  /* ByteData data = await rootBundle.load('assets/$dbName');
-  List<int> bytes =
-      data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-  await File(dbPath).writeAsBytes(bytes); */
   return dbPath;
 }
-
-/* void _setDatabase(String dbName) async {
-  final documentsDirectory = await getApplicationDocumentsDirectory();
-
-  // 新しいフォルダのパスを作成
-  final folderPath = join(documentsDirectory.path, "${APP_NAME}_DB");
-  // 新しいフォルダが存在しない場合は作成
-  final folder = Directory(folderPath);
-  if (!await folder.exists()) {
-    await folder.create(recursive: true);
-    log("Folder created at: $folderPath");
-  } else {
-    log("Folder already exists at: $folderPath");
-  }
-
-  // データベースファイルのパスを作成
-  final dbPath = join(folder.path, dbName);
-  // データベースが存在しない場合にコピー
-  ByteData data = await rootBundle.load('assets/$dbName');
-  List<int> bytes =
-      data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-  await File(dbPath).writeAsBytes(bytes);
-}
- */
-
-
-
-
-/* 
-実行コマンド
-
-dart run build_runner clean
-
-dart run build_runner build --delete-conflicting-outputs
-
- */

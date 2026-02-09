@@ -21,58 +21,42 @@ void main() async {
   //WidgetsBinding.instance.addObserver(AppLifecycleManager());
   // Windowsの場合、少し待機してからFirebaseを初期化
 
-  //DI注入
-  //setupLocator();
-
   //DBチェック、アクティブ化
   // 起動時にDBをオープンしてマイグレーションを実行
-  //await DI<DatabaseProvider>().customSelect('SELECT 1').get();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-   // SharedPreferencesを事前初期化
-   //TODO shapref inicialize
-    // SharedPreferencesを事前初期化
+  // SharedPreferencesを事前初期化
+  //TODO shapref inicialize
+  // SharedPreferencesを事前初期化
   final sharedPreferences = await SharedPreferences.getInstance();
-  
-  
-  runApp( ProviderScope(
-      overrides: [
-        sharedPreferencesProvider.overrideWithValue(sharedPreferences),
-      ],child: MyApp()));
-  //runApp(const MyApp());
+
+  runApp(ProviderScope(overrides: [
+    sharedPreferencesProvider.overrideWithValue(sharedPreferences),
+  ], child: MyApp()));
 }
 
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     //!TODO databseの初回読み込みちゃんとする！！
     ref.read(databaseProvider).customSelect('SELECT 1').get();
 
-    ref.watch(authEffectProvider);//認証状態の変化を監視し副作用を実行 synconce
-    // ref.watch(autoEspJpnWordStatusSyncProvider);//自動同期開始
-    ref.watch(autoSyncProvider);//自動同期開始
-    
+    ref.watch(authEffectProvider); //認証状態の変化を監視し副作用を実行 synconce
+    ref.watch(autoSyncProvider); //自動同期開始
+
     final goRouter = ref.watch(routerProvider);
 
     return MaterialApp.router(
       routerConfig: goRouter,
-      /* routerDelegate: goRouter.routerDelegate,
-      routeInformationParser: goRouter.routeInformationParser,
-      routeInformationProvider: goRouter.routeInformationProvider, */
 
       debugShowCheckedModeBanner: false, //debug banner非表示
       title: APP_NAME,
       theme: ThemeData(
         colorScheme: darkColorScheme,
-        //colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
-        // cardTheme: CardThemeData(
-        //   color: Theme.of(context).colorScheme.surfaceContainer,
-        // ),
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
           backgroundColor: Theme.of(context).colorScheme.surfaceDim,
           unselectedItemColor:
@@ -88,7 +72,6 @@ class MyApp extends ConsumerWidget {
           ],
         );
       },
-      //home: const MainActivity(),
     );
   }
 }

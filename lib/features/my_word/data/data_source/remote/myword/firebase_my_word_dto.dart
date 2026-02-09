@@ -9,9 +9,6 @@ class MyWords extends Table {
   TextColumn get word => text().named('word')();
   TextColumn get contents => text().named('contents').nullable()();
   TextColumn get editAt => text().named('edit_at')();
-  /* TextColumn get partOfSpeech => text().named('part_of_speech').nullable()();
-  TextColumn get partOfSpeechMark =>
-      text().named('part_of_speech_mark').nullable()(); */
 
   @override
   Set<Column> get primaryKey => {myWordId};
@@ -51,7 +48,7 @@ class MyWordDTO {
   factory MyWordDTO.fromFirebase(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data()!;
     return MyWordDTO(
-      myWordId: data[fieldMyWordId] as String,
+        myWordId: data[fieldMyWordId] as String,
         word: data[fieldMyWord],
         contents: data[fieldContents],
         updateBy: data[fieldupdateBy],
@@ -85,13 +82,12 @@ class MyWordDTO {
   }
 
   factory MyWordDTO.fromAppEntity(MyWord data, {DateTime? dateTime}) {
-    //final data = doc.data()!;
     return MyWordDTO(
         myWordId: data.wordId,
         word: data.word,
         contents: data.contents,
         updateBy: "data.updateBy",
-        createdAt:dateTime?? MyDateTime.sentinel,
+        createdAt: dateTime ?? MyDateTime.sentinel,
         updatedAt: data.editAt);
   }
 

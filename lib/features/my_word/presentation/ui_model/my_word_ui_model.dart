@@ -1,22 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
 
-// class MyWordStateOld {
-//   final List<MyWord> myWords;
-//   MyWordStateOld({this.myWords=const[]});
-
-//   MyWordStateOld copyWith({List<MyWord>? myWords}) {
-//     return MyWordStateOld(myWords: myWords ?? this.myWords);
-//   }
-// }
-
 class MyWordUiState {
-  // final MyWord myWords;
   final String wordId;
   final String word;
   final String contents;
   final DateTime editAt;
-  //MyWordState({this.myWords }):super(MyWord(wordId:0,word:'',contents:''));
 
   MyWordUiState({
     required this.wordId,
@@ -65,12 +54,11 @@ class MyWordUiState {
       ),
     );
   }
-
 }
 
 class MyWordFragmentState {
   final List<String> myWordIds;
-  MyWordFragmentState({this.myWordIds=const[]});
+  MyWordFragmentState({this.myWordIds = const []});
 
   MyWordFragmentState copyWith({List<String>? myWordIds}) {
     return MyWordFragmentState(myWordIds: myWordIds ?? this.myWordIds);

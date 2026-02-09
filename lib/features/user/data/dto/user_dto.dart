@@ -10,7 +10,7 @@ class UserDTO {
   static const String fieldUpdatedAt = "updatedAt";
   static const String fieldSubscriptionStatus = "subscriptionStatus";
 
-  final String userId;//TODO accountID
+  final String userId; //TODO accountID
   //TODO List devices
   final String? email;
   final String? userName;
@@ -33,14 +33,13 @@ class UserDTO {
   factory UserDTO.fromFirebase(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data()!;
     return UserDTO(
-      subscriptionStatus: SubscriptionStatus.values
-          .firstWhere((e) => e.subscriptionCode == data[fieldSubscriptionStatus],
-      orElse: () => SubscriptionStatus.free,),
+      subscriptionStatus: SubscriptionStatus.values.firstWhere(
+        (e) => e.subscriptionCode == data[fieldSubscriptionStatus],
+        orElse: () => SubscriptionStatus.free,
+      ),
       userId: doc.id,
       email: data[fieldEmail] ?? "",
       userName: data[fieldUserName],
-      //photoUrl: data['photoUrl'],
-      //devices: data['devices'],
       createdAt: (data[fieldCreatedAt] is Timestamp)
           ? (data[fieldCreatedAt] as Timestamp).toDate()
           : null,
@@ -58,8 +57,6 @@ class UserDTO {
       'email': email,
       'userName': userName,
       'subscriptionStatus': subscriptionStatus?.subscriptionCode,
-      //'photoUrl': photoUrl,
-      //'deviceId': devices,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
     };
@@ -77,8 +74,6 @@ class UserDTO {
       userId: userId,
       email: email ?? this.email,
       userName: userName ?? this.userName,
-      //photoUrl: photoUrl ?? this.photoUrl,
-      //devices: deviceId ?? this.devices,
       createdAt: createdAt,
       updatedAt: DateTime.now().toUtc(),
       subscriptionStatus: subscriptionStatus ?? this.subscriptionStatus,

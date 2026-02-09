@@ -6,16 +6,6 @@ import 'package:my_dic/core/shared/consts/dates.dart';
 class WordStatusConverter {
   /// Convert EspJpnWordStatusTableData to WordStatus entity
   static WordStatus toEntity(EspJpnWordStatusTableData data) {
-  
-      // return WordStatus(
-      //   wordId: data.wordId,
-      //   isLearned: false,
-      //   isBookmarked: false,
-      //   hasNote: false,
-      //   editAt: MyDateTime.sentinel,
-      // );
-    
-    
     return WordStatus(
       wordId: data.wordId,
       isLearned: data.isLearned == 1,
@@ -26,7 +16,8 @@ class WordStatusConverter {
   }
 
   /// Convert list of TableData to list of entities
-  static List<WordStatus> toEntityList(List<EspJpnWordStatusTableData> dataList) {
+  static List<WordStatus> toEntityList(
+      List<EspJpnWordStatusTableData> dataList) {
     return dataList.map((data) => toEntity(data)).toList();
   }
 

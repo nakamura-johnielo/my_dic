@@ -15,40 +15,53 @@ class EsjDictionaryConverter {
       headword: dataSet.dictionary.headword,
       content: dataSet.dictionary.htmlRaw,
       origin: dataSet.dictionary.origin,
-      examples: dataSet.examples.isNotEmpty ? _convertExamples(dataSet.examples) : null,
+      examples: dataSet.examples.isNotEmpty
+          ? _convertExamples(dataSet.examples)
+          : null,
       idioms: dataSet.idioms.isNotEmpty ? _convertIdioms(dataSet.idioms) : null,
-      supplements: dataSet.supplements.isNotEmpty ? _convertSupplements(dataSet.supplements) : null,
+      supplements: dataSet.supplements.isNotEmpty
+          ? _convertSupplements(dataSet.supplements)
+          : null,
     );
   }
 
   /// Convert list of DataSets to list of entities
-  static List<EspJpnDictionary> toEntityList(List<EsjDictionaryDataSet> dataSets) {
+  static List<EspJpnDictionary> toEntityList(
+      List<EsjDictionaryDataSet> dataSets) {
     return dataSets.map((dataSet) => toEntity(dataSet)).toList();
   }
 
   /// Convert example TableData list to entity list
-  static List<EspJpnExample> _convertExamples(List<EspJpnExampleTableData> exampleList) {
-    return exampleList.map((e) => EspJpnExample(
-      exampleId: e.exampleId,
-      japanese: e.japaneseText,
-      espanol: e.espanolText,
-    )).toList();
+  static List<EspJpnExample> _convertExamples(
+      List<EspJpnExampleTableData> exampleList) {
+    return exampleList
+        .map((e) => EspJpnExample(
+              exampleId: e.exampleId,
+              japanese: e.japaneseText,
+              espanol: e.espanolText,
+            ))
+        .toList();
   }
 
   /// Convert supplement TableData list to entity list
-  static List<Supplement> _convertSupplements(List<EspJpnSupplementTableData> supplementList) {
-    return supplementList.map((s) => Supplement(
-      supplementId: s.supplementId,
-      supplement: s.content,
-    )).toList();
+  static List<Supplement> _convertSupplements(
+      List<EspJpnSupplementTableData> supplementList) {
+    return supplementList
+        .map((s) => Supplement(
+              supplementId: s.supplementId,
+              supplement: s.content,
+            ))
+        .toList();
   }
 
   /// Convert idiom TableData list to entity list
   static List<Idiom> _convertIdioms(List<EspJpnIdiomTableData> idiomList) {
-    return idiomList.map((i) => Idiom(
-      idiomId: i.idiomId,
-      idiom: i.idiom,
-      description: i.description,
-    )).toList();
+    return idiomList
+        .map((i) => Idiom(
+              idiomId: i.idiomId,
+              idiom: i.idiom,
+              description: i.description,
+            ))
+        .toList();
   }
 }

@@ -14,7 +14,8 @@ class FirebaseWordStatusDataSource implements IRemoteWordStatusDataSource {
   }
 
   @override
-  Future<List<WordStatusDTO>> getWordStatusAfter(String userId, DateTime datetime) async {
+  Future<List<WordStatusDTO>> getWordStatusAfter(
+      String userId, DateTime datetime) async {
     final list = await _dao.getWordStatusAfter(userId, datetime);
     return list;
   }
@@ -29,16 +30,23 @@ class FirebaseWordStatusDataSource implements IRemoteWordStatusDataSource {
     return _dao.watchAll(userId).map((entities) {
       final e = entities.firstWhere((e) => e.wordId == id,
           orElse: () => WordStatusDTO(
-              wordId: id, isLearned: 0, isBookmarked: 0, hasNote: 0, updatedAt: DateTime.now().toUtc(), createdAt: DateTime.now().toUtc()));
+              wordId: id,
+              isLearned: 0,
+              isBookmarked: 0,
+              hasNote: 0,
+              updatedAt: DateTime.now().toUtc(),
+              createdAt: DateTime.now().toUtc()));
       return e;
     });
   }
 
   @override
-  Stream<List<int>> watchChangedIds(String userId) => _dao.watchChangedWordIds(userId);
+  Stream<List<int>> watchChangedIds(String userId) =>
+      _dao.watchChangedWordIds(userId);
 
   @override
-  Future<void> updateWordStatusBatch(String userId, List<WordStatusDTO> wordStatusList) async {
+  Future<void> updateWordStatusBatch(
+      String userId, List<WordStatusDTO> wordStatusList) async {
     await _dao.updateBatch(userId, wordStatusList);
   }
 }

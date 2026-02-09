@@ -6,16 +6,15 @@ import 'package:tuple/tuple.dart';
 
 part '../../../../../../__generated/core/infrastructure/database/drift/daos/esp_jpn/dictionary_dao.g.dart';
 
-
 @DriftAccessor(tables: [EspJpnDictionaries, EspJpnExamples])
 class EspjpnDictionaryDao extends DatabaseAccessor<DatabaseProvider>
     with _$EspjpnDictionaryDaoMixin {
-  //DictionaryDao(DatabaseProvider db) : super(db);
   EspjpnDictionaryDao(super.database);
 
   // 特定のword_idに基づいてエントリを取得するメソッド
   Future<List<EspJpnDictionaryTableData>> getDictionaryByWordId(int wordId) {
-    return (select(espJpnDictionaries)..where((tbl) => tbl.wordId.equals(wordId)))
+    return (select(espJpnDictionaries)
+          ..where((tbl) => tbl.wordId.equals(wordId)))
         .get();
   }
 
@@ -24,11 +23,14 @@ class EspjpnDictionaryDao extends DatabaseAccessor<DatabaseProvider>
       getDictionaryWithExamples(int wordId) {
     final query = select(espJpnDictionaries).join([
       innerJoin(
-          espJpnExamples, espJpnExamples.dictionaryId.equalsExp(espJpnDictionaries.dictionaryId))
+          espJpnExamples,
+          espJpnExamples.dictionaryId
+              .equalsExp(espJpnDictionaries.dictionaryId))
     ])
       ..where(espJpnDictionaries.wordId.equals(wordId));
     return query.map((row) {
-      return Tuple2(row.readTable(espJpnDictionaries), row.readTable(espJpnExamples));
+      return Tuple2(
+          row.readTable(espJpnDictionaries), row.readTable(espJpnExamples));
     }).get();
   }
 }

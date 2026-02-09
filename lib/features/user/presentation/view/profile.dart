@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:my_dic/core/presentation/components/icons/rotating_icon.dart';
 import 'package:my_dic/core/shared/enums/ui/button_status.dart';
 import 'package:my_dic/core/shared/consts/ui/tab.dart';
-import 'package:my_dic/features/auth/di/service.dart';
+import 'package:my_dic/features/auth/di/store.dart';
 import 'package:my_dic/features/user/di/service.dart';
 import 'package:my_dic/features/user/di/viewmodel.dart';
 import 'package:my_dic/router/navigator_service.dart';
@@ -51,7 +51,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(appUserStoreNotifierProvider);
-    final id = ref.watch(authStoreNotifierProvider.select((user) => user?.accountId))??"null";
+    final id = ref.watch(
+            authStoreNotifierProvider.select((user) => user?.accountId)) ??
+        "null";
     final vmNotifier = ref.read(userProfileViewModelProvider.notifier);
     final viewModel = ref.watch(userProfileViewModelProvider);
 
@@ -69,8 +71,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 await vmNotifier.signOut();
                 if (!mounted) return;
                 ref.read(appNavigatorServiceProvider).toProfile();
-                // context.replace(
-                //     '/${MetaScreenTab.profile}/${MetaScreenPage.unAuthorized}');
               },
             )
           ],

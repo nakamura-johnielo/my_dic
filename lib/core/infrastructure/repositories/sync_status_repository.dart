@@ -1,4 +1,3 @@
-
 import 'package:my_dic/core/domain/i_repository/i_sync_status_repository.dart';
 import 'package:my_dic/core/infrastructure/database/shared_preferences/shared_preferences_syncstatus_dao.dart';
 import 'package:my_dic/core/infrastructure/datasource/sync/i_sync_status_data_source.dart';
@@ -6,7 +5,6 @@ import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 
 class SyncStatusRepository implements ISyncStatusRepository {
-  // final FirebaseWordStatusDao _remote;
   final ISyncStatusDataSource _dataSource;
   SyncStatusRepository(this._dataSource);
 

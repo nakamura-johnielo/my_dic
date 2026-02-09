@@ -21,20 +21,6 @@ final myWordFragmentViewModelProvider =
   );
 });
 
-// final myWordStatusViewModelProvider = StateNotifierProvider.family
-//     .autoDispose<MyWordStatusViewModel, MyWordStatusState, int>(
-//   (ref, wordId) {
-//     final watchUsecase = ref.watch(watchMyWordStatusUseCaseProvider);
-//     final updateUsecase = ref.watch(updateMyWordStatusUseCaseProvider);
-
-//     return MyWordStatusViewModel(
-//       wordId,
-//       watchUsecase,
-//       updateUsecase,
-//     );
-//   },
-// );
-
 // stream
 final _myWordStatusStreamProvider =
     StreamProvider.family.autoDispose<MyWordStatus, String>(
@@ -44,7 +30,8 @@ final _myWordStatusStreamProvider =
   },
 );
 
-final _myWordStreamProviderNEW = StreamProvider.family.autoDispose<MyWord, String>(
+final _myWordStreamProviderNEW =
+    StreamProvider.family.autoDispose<MyWord, String>(
   (ref, wordId) {
     final watchUsecase = ref.read(watchMyWordUseCaseProvider);
     return watchUsecase.execute(wordId);
@@ -52,15 +39,15 @@ final _myWordStreamProviderNEW = StreamProvider.family.autoDispose<MyWord, Strin
 );
 
 // QUERY uistate
-final myWordStatusUiStateProvider =
-  Provider.autoDispose.family<MyWordStatusState, String>((ref, String wordId) {
+final myWordStatusUiStateProvider = Provider.autoDispose
+    .family<MyWordStatusState, String>((ref, String wordId) {
   final statusAsync = ref.watch(_myWordStatusStreamProvider(wordId));
 
   return MyWordStatusState.fromAsync(statusAsync);
 });
 
 final myWordUiStateProvider =
-  Provider.autoDispose.family<MyWordUiState, String>((ref, String wordId) {
+    Provider.autoDispose.family<MyWordUiState, String>((ref, String wordId) {
   final statusAsync = ref.watch(_myWordStreamProviderNEW(wordId));
 
   return MyWordUiState.fromAsync(statusAsync);
@@ -89,7 +76,7 @@ final myWordCommandProvider = StateNotifierProvider.family
 
 // ViewModel (query + command wrapper)
 final myWordStatusViewModelProvider =
-  Provider.autoDispose.family<MyWordStatusViewModel, String>((ref, wordId) {
+    Provider.autoDispose.family<MyWordStatusViewModel, String>((ref, wordId) {
   final uiState = ref.watch(myWordStatusUiStateProvider(wordId));
   final command = ref.read(myWordStatusCommandProvider(wordId).notifier);
 
@@ -97,7 +84,7 @@ final myWordStatusViewModelProvider =
 });
 
 final myWordItemViewModelProvider =
-  Provider.autoDispose.family<MyWordItemViewModel, String>((ref, wordId) {
+    Provider.autoDispose.family<MyWordItemViewModel, String>((ref, wordId) {
   final uiState = ref.watch(myWordUiStateProvider(wordId));
   final command = ref.read(myWordCommandProvider(wordId).notifier);
 

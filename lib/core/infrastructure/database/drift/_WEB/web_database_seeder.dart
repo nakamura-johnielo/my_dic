@@ -15,15 +15,12 @@ import 'package:my_dic/core/shared/enums/web/db.dart';
 
 class WebDatabaseSeeder {
   final DatabaseProvider db;
-  //final void Function(double? progress, String? message, WebDBLoadingType? type)? onProgress;
-
   WebDatabaseSeeder(this.db);
 
   int _totalRows = 120000;
   int _currentRows = 0;
   void _updateProgress(
       {double? progress, String? message, WebDBLoadingType? type}) {
-    //print("current:$_currentRows, _totalRows:$_totalRows");
     globalDatabaseLoadingNotifier.updateProgress(progress, message, type);
   }
 
@@ -120,7 +117,7 @@ class WebDatabaseSeeder {
     for (final table in tables.keys.toList()) {
       try {
         final tableData = tables[table];
-    final rows = tableData['rows'] as List;
+        final rows = tableData['rows'] as List;
         _totalRows += rows.length;
         print('🔍 Table "$table" has ${rows.length} rows.');
       } catch (e) {
@@ -244,11 +241,11 @@ class WebDatabaseSeeder {
     print('Importing ${rows.length} dictionaries...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'dictionary table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'dictionary table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
@@ -282,11 +279,11 @@ class WebDatabaseSeeder {
     print('Importing ${rows.length} examples...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'example table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'example table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
@@ -313,11 +310,11 @@ class WebDatabaseSeeder {
     print('Importing ${rows.length} idioms...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'idiom table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'idiom table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
@@ -343,11 +340,11 @@ class WebDatabaseSeeder {
     print('Importing ${rows.length} supplements...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'supplement table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'supplement table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
@@ -374,11 +371,11 @@ class WebDatabaseSeeder {
     print('Importing ${rows.length} conjugations (complex table)...');
     const batchSize = 100;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'conjugation table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'conjugation table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
@@ -492,11 +489,11 @@ class WebDatabaseSeeder {
     print('Importing ${rows.length} part_of_speech_lists...');
     const batchSize = 1000;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'part_of_speech_lists table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'part_of_speech_lists table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
@@ -522,11 +519,11 @@ class WebDatabaseSeeder {
     print('Importing ${rows.length} jpn_esp_words...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'jpn_esp_words table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'jpn_esp_words table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
@@ -549,11 +546,11 @@ class WebDatabaseSeeder {
     print('Importing ${rows.length} jpn_esp_dictionaries...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'jpn_esp_dictionaries table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'jpn_esp_dictionaries table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
@@ -565,7 +562,8 @@ class WebDatabaseSeeder {
           b.insert(
               db.jpnEspDictionaries,
               JpnEspDictionariesCompanion.insert(
-                dictionaryId: Value(_toIntRequired(row['jpn_esp_dictionary_id'])),
+                dictionaryId:
+                    Value(_toIntRequired(row['jpn_esp_dictionary_id'])),
                 wordId: _toIntRequired(row['jpn_esp_word_id']),
                 word: row['word'] as String,
                 excf: _toIntRequired(row['excf']),
@@ -585,17 +583,19 @@ class WebDatabaseSeeder {
     print('Importing ${rows.length} jpn_esp_examples...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'jpn_esp_examples table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'jpn_esp_examples table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
           if (row['jpn_esp_example_id'] == null ||
               row['example_no'] == null ||
-              row['jpn_esp_dictionary_id'] == null) {continue;}
+              row['jpn_esp_dictionary_id'] == null) {
+            continue;
+          }
           b.insert(
               db.jpnEspExamples,
               JpnEspExamplesCompanion.insert(
@@ -619,11 +619,11 @@ class WebDatabaseSeeder {
     print('Importing ${rows.length} rankings...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'rankings table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'rankings table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
@@ -653,11 +653,11 @@ class WebDatabaseSeeder {
     print('Importing ${rows.length} es_en_conjugacions...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'es_en_conjugacions table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'es_en_conjugacions table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
@@ -685,11 +685,11 @@ class WebDatabaseSeeder {
     print('Importing ${rows.length} esp_jpn_word_status...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'esp_jpn_word_status table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'esp_jpn_word_status table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
@@ -715,11 +715,11 @@ class WebDatabaseSeeder {
     print('Importing ${rows.length} my_words...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'my_words table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'my_words table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
@@ -744,11 +744,11 @@ class WebDatabaseSeeder {
     print('Importing ${rows.length} my_word_status...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'my_word_status table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'my_word_status table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
@@ -774,15 +774,16 @@ class WebDatabaseSeeder {
     print('Importing ${rows.length} jpn_esp_word_status...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'jpn_esp_word_status table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'jpn_esp_word_status table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
-          if (row['jpn_esp_word_id'] == null || row['edit_at'] == null) continue;
+          if (row['jpn_esp_word_id'] == null || row['edit_at'] == null)
+            continue;
           b.insert(
               db.jpnEspWordStatus,
               JpnEspWordStatusCompanion.insert(

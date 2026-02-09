@@ -13,22 +13,28 @@ class JpnEspDictionaryConverter {
       word: dataSet.dictionary.word,
       headword: dataSet.dictionary.headword,
       content: dataSet.dictionary.htmlRaw,
-      examples: dataSet.examples.isNotEmpty ? _convertExamples(dataSet.examples) : null,
+      examples: dataSet.examples.isNotEmpty
+          ? _convertExamples(dataSet.examples)
+          : null,
     );
   }
 
   /// Convert list of DataSets to list of entities
-  static List<JpnEspDictionary> toEntityList(List<JpnEspDictionaryDataSet> dataSets) {
+  static List<JpnEspDictionary> toEntityList(
+      List<JpnEspDictionaryDataSet> dataSets) {
     return dataSets.map((dataSet) => toEntity(dataSet)).toList();
   }
 
   /// Convert example TableData list to entity list
-  static List<JpnEspExampleWith> _convertExamples(List<JpnEspExampleTableData> exampleList) {
-    return exampleList.map((e) => JpnEspExampleWith(
-      exampleId: e.exampleId,
-      japanese: e.japaneseText,
-      espanol: e.espanolText,
-      espanolHtml: e.espanolHtml,
-    )).toList();
+  static List<JpnEspExampleWith> _convertExamples(
+      List<JpnEspExampleTableData> exampleList) {
+    return exampleList
+        .map((e) => JpnEspExampleWith(
+              exampleId: e.exampleId,
+              japanese: e.japaneseText,
+              espanol: e.espanolText,
+              espanolHtml: e.espanolHtml,
+            ))
+        .toList();
   }
 }

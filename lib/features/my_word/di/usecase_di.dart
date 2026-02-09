@@ -80,13 +80,6 @@ final watchMyWordUseCaseProvider = Provider<WatchMyWordUsecase>((ref) {
   );
 });
 
-// final syncMyWordUseCaseProvider = Provider<ISyncMyWordUseCase>((ref) {
-//   return SyncMyWordInteractor(
-//     ref.read(syncStatusRepositoryProvider),
-//     ref.read(myWordRepositoryProvider),
-//   );
-// });
-
 final syncMyWordUseCaseProvider = Provider<ISyncUseCase>((ref) {
   return SyncMyWordInteractor(
     ref.read(syncStatusRepositoryProvider),

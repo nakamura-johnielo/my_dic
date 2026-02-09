@@ -5,7 +5,6 @@ import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
 import 'package:my_dic/features/ranking/domain/i_repository/i_esp_ranking_repository.dart';
 import 'package:my_dic/features/ranking/data/data_source/local/i_ranking_local_data_source.dart';
 
-
 class RankingRepository implements IEspRankingRepository {
   final IRankingLocalDataSource _dataSource;
   RankingRepository(this._dataSource);
@@ -15,12 +14,14 @@ class RankingRepository implements IEspRankingRepository {
     try {
       //log("############################################ranking dao");
       final dataList = await _dataSource.getRankingListByPage(page, size);
-      final entities = dataList.map((data) => Ranking(
-        rank: data.rankingNo,
-        rankedWord: data.word ?? "",
-        lemma: data.wordOrigin ?? "",
-        wordId: data.wordId ?? -1,
-      )).toList();
+      final entities = dataList
+          .map((data) => Ranking(
+                rank: data.rankingNo,
+                rankedWord: data.word ?? "",
+                lemma: data.wordOrigin ?? "",
+                wordId: data.wordId ?? -1,
+              ))
+          .toList();
       return Result.success(entities);
     } catch (e, stackTrace) {
       return Result.failure(DatabaseError(
@@ -31,33 +32,6 @@ class RankingRepository implements IEspRankingRepository {
     }
   }
 
-  /* @override
-  Future<List<Ranking>> getRankingListByFilters(
-      FilteredRankingListInputData input) async {
-    final rankings = await _rankingDao.getFilteredRankingListByPage(
-        input.requiredPage,
-        input.size,
-        input.partOfSpeechFilters,
-        input.featureTagFilters);
-
-    if (rankings == null || rankings.isEmpty) {
-      List<Ranking> res = [];
-      return res;
-    }
-
-    /* for (int i = 0; i < 20; i++) {
-      log("word: ${rankings[i]}");
-    } */
-    return rankings.map((ranking) {
-      return Ranking(
-        rank: ranking.rankingNo,
-        rankedWord: ranking.word ?? "",
-        lemma: ranking.wordOrigin ?? "",
-        wordId: ranking.wordId ?? -1,
-      );
-    }).toList();
-  }
- */
   @override
   Future<Result<List<Ranking>>> getRankingListByFilters(
       FilteredRankingListInputData input) async {

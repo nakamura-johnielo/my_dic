@@ -17,11 +17,9 @@ class EmailPasswordPage extends ConsumerStatefulWidget {
 }
 
 class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
-  //final auth = FirebaseAuth.instance;
   final emailCtrl = TextEditingController();
   final passCtrl = TextEditingController();
   final IconData waitingIcon = Icons.refresh;
-  //bool loading = false;
   String? message;
 
   bool _isActive(ButtonStatus status) {
@@ -40,42 +38,17 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
     Future<String> Function() action,
   ) async {
     setState(() {
-      //loading = true;
       message = null;
     });
     try {
       message = await action();
-      //final user = cred.user;
       if (!mounted) return;
       ref.read(appNavigatorServiceProvider).toProfile();
-      //context.replace('/${RoutePaths.profile}/${RoutePaths.unauthorized}');
       return; // 以降のsetStateを避ける
     } on FirebaseAuthException catch (e) {
       message = e.message;
-    } finally {
-      // if (mounted) {
-      //   //setState(() => loading = false);
-      // }
-    }
+    } finally {}
   }
-
-  // Future<void> _ensureUserDoc(User user) async {
-  //   final docRef = FirebaseFirestore.instance.collection('users').doc(user.uid);
-  //   final snap = await docRef.get();
-  //   if (!snap.exists) {
-  //     await docRef.set({
-  //       'username': user.displayName ?? '',
-  //       'email': user.email,
-  //       'updatedAt': FieldValue.serverTimestamp(),
-  //     });
-  //   } else {
-  //     // email が変わった等の同期
-  //     await docRef.set({
-  //       'email': user.email,
-  //       'updatedAt': FieldValue.serverTimestamp(),
-  //     }, SetOptions(merge: true));
-  //   }
-  // }
 
   @override
   void dispose() {
@@ -166,8 +139,7 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
               onPressed: _isActive(authViewModel.isWaitingSignOut)
                   ? () async {
                       try {
-                       await  _handleAuth(() => authNotifier.signOut( ));
-                        //await authNotifier.signOut();
+                        await _handleAuth(() => authNotifier.signOut());
                         setState(() => message = 'ログアウトしました');
                       } on FirebaseAuthException catch (e) {
                         setState(() => message = e.message);

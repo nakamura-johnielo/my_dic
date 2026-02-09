@@ -2,19 +2,17 @@ import 'package:flutter/material.dart';
 
 @immutable
 class WordStatus {
-  //final bool hasConj;
   final int wordId;
   final bool isLearned;
   final bool isBookmarked;
   final bool hasNote;
   final DateTime editAt;
 
-   WordStatus({
+  WordStatus({
     required this.wordId,
-    //required this.hasConj,
     this.isBookmarked = false,
     this.isLearned = false,
-    this.hasNote = false, 
+    this.hasNote = false,
     DateTime? editAt,
   }) : editAt = editAt?.toUtc() ?? DateTime.now().toUtc();
 
@@ -28,7 +26,7 @@ class WordStatus {
       wordId: wordId,
       isBookmarked: isBookmarked ?? this.isBookmarked,
       isLearned: isLearned ?? this.isLearned,
-      hasNote: hasNote ?? this.hasNote, 
+      hasNote: hasNote ?? this.hasNote,
       editAt: editAt ?? this.editAt,
     );
   }

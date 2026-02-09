@@ -30,6 +30,5 @@ final beConjProvider =
 final englishConjByWordIdProvider =
     FutureProvider.family<Map<String, String>, int>((ref, wordId) async {
   final controller = ref.read(quizGameViewModelProvider.notifier);
-  // final controller = ref.read(quizControllerProvider);
   return controller.fetchEnglishConj(wordId);
 });

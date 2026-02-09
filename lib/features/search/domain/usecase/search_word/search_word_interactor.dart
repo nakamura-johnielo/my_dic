@@ -33,8 +33,8 @@ class SearchWordInteractor implements ISearchWordUseCase {
   }
 
   @override
-  Future<Result<List<QuizSearchedItem>>> executeVerbs(SearchWordInputData input) async {
-    // List<Word> l = await _wordRepository.getWordsByWord(input.word);
+  Future<Result<List<QuizSearchedItem>>> executeVerbs(
+      SearchWordInputData input) async {
     final result = await _conjugacionsRepository
         .getQuizConjugacionByWordWithPage(input.word, input.size, input.page);
 
@@ -43,15 +43,9 @@ class SearchWordInteractor implements ISearchWordUseCase {
 
   @override
   SearchWordOutputData executeEmptyQuery() {
-    /* List<Word> res = [
-      Word(wordId: 1, word: "aplle", partOfSpeech: PartOfSpeech.adverb),
-      Word(wordId: 1, word: "2aplle2", partOfSpeech: PartOfSpeech.adverb),
-      Word(wordId: 1, word: "3aplle", partOfSpeech: PartOfSpeech.adverb),
-    ]; */
     List<EspJpnWord> res = [];
     SearchWordOutputData result = SearchWordOutputData(res);
     return result;
-    //_presenter.execute(result);
   }
 
   @override

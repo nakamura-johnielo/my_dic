@@ -12,11 +12,7 @@ class QuizCard extends ConsumerWidget {
   final Function onSwipe;
   final String englishSub;
   final Function onToggle;
-  // final QuizCardState cardState;
 
-  // static const Color subjectColor = Color.fromARGB(255, 62, 62, 62);
-  // static const Color conjColor = Color.fromARGB(255, 3, 159, 52);
-  //final IconData icon;
   const QuizCard({
     super.key,
     required this.englishSub,
@@ -25,7 +21,6 @@ class QuizCard extends ConsumerWidget {
     required this.subject,
     required this.onSwipe,
     required this.onToggle,
-    // required this.cardState
   });
 
   @override
@@ -36,8 +31,6 @@ class QuizCard extends ConsumerWidget {
         onToggle();
       },
       onHorizontalDragEnd: (details) {
-        //ref.read(quizCardStateProvider.notifier).state = QuizCardState.question;
-
         if (details.primaryVelocity != null) {
           if (details.primaryVelocity! < 0) {
             // 右スワイプ
@@ -50,15 +43,7 @@ class QuizCard extends ConsumerWidget {
           }
         }
       },
-      child:
-
-          // (moodTense == MoodTense.participlePast ||
-          //         moodTense == MoodTense.participlePresent)
-          //     ? ParticipleCard(
-          //         moodTense: moodTense, conjugacion: conjugacion, subject: subject)
-          //     :
-
-          ConjCard(
+      child: ConjCard(
         moodTense: moodTense,
         conjugacion: conjugacion,
         subject: subject,
@@ -90,7 +75,6 @@ class ConjCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cardState = ref.watch(quizGameViewModelProvider).quizCardState;
     return Card(
-      //shadowColor: Colors.grey.withOpacity(0.5),
       elevation: 5,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
@@ -130,7 +114,6 @@ class ConjCard extends ConsumerWidget {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 Container(
-                  //color: subjectColor,
                   padding:
                       const EdgeInsets.symmetric(vertical: 4.0, horizontal: 9),
                   decoration: BoxDecoration(
@@ -140,9 +123,7 @@ class ConjCard extends ConsumerWidget {
                           : Theme.of(context).colorScheme.primary,
                       border: Border.all(
                           color: Theme.of(context).colorScheme.primary,
-                          width:
-                              2) //isOnAnswer(cardState) ? Border.all(color: subjectColor, width: 2): null,
-                      ),
+                          width: 2)),
                   child: Text(
                     conjugacion,
                     style: TextStyle(

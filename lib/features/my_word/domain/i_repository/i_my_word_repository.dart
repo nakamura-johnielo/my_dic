@@ -7,13 +7,13 @@ import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
 
 abstract class IMyWordRepository {
   // normal methods
-    Future<Result<MyWord>> getById(String id);
+  Future<Result<MyWord>> getById(String id);
   Future<Result<List<MyWord>>> getFilteredByPage(
-      LoadMyWordRepositoryInputData input);//TODO 使っていない
-    Future<Result<List<String>>> getIdsFilteredByPage(
+      LoadMyWordRepositoryInputData input); //TODO 使っていない
+  Future<Result<List<String>>> getIdsFilteredByPage(
       LoadMyWordRepositoryInputData input);
 
-    Future<Result<String>> registerWord(RegisterMyWordRepositoryInputData input);
+  Future<Result<String>> registerWord(RegisterMyWordRepositoryInputData input);
   Future<Result<void>> updateWord(UpdateMyWordRepositoryInputData input);
   Future<Result<void>> deleteWord(DeleteMyWordRepositoryInputData input);
 
@@ -29,12 +29,11 @@ abstract class IMyWordRepository {
 
   // Local methods
   Future<Result<List<MyWord>>> getLocalMyWordsAfter(DateTime datetime);
-    Future<Result<MyWord?>> getLocalMyWordById(String myWordId);
+  Future<Result<MyWord?>> getLocalMyWordById(String myWordId);
   Future<Result<void>> updateLocalMyWord(MyWord myWord, DateTime now);
   Future<Result<void>> createLocalMyWord(MyWord myWord);
 
-    Stream<List<String>> watchRemoteChangedIds(String userId);
-    Stream<List<String>> watchLocalChangedIds(DateTime datetime);
-    Stream<MyWord> watchMyWord(String id);
+  Stream<List<String>> watchRemoteChangedIds(String userId);
+  Stream<List<String>> watchLocalChangedIds(DateTime datetime);
+  Stream<MyWord> watchMyWord(String id);
 }
- 

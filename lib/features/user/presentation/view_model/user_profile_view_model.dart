@@ -9,26 +9,19 @@ import 'package:my_dic/features/user/presentation/model/user_profile_ui_model.da
 import 'package:my_dic/features/user/user_coodinator.dart';
 
 class UserProfileViewModel extends StateNotifier<UserProfileUIState> {
-  //final Ref ref;
   final AppUserCoordinator _coordinator;
   final AppAuthCoordinator _authCoordinator;
 
-  // AppUser? get _userStore => ref.read(appUserStoreNotifierProvider);
-  // AppUserStoreNotifier get _storeNotifier =>
-  //     ref.read(appUserStoreNotifierProvider.notifier);
-
-  UserProfileViewModel(
-      this._coordinator, this._authCoordinator)
+  UserProfileViewModel(this._coordinator, this._authCoordinator)
       : super(UserProfileUIState());
 
   Future<void> signOut() async {
     final result = await _authCoordinator.signOut();
 
     result.when(success: (_) {
-      // state = state.copyWith(signOutButtonStatus: ButtonStatus.success);
       log("ログアウトしました");
     }, failure: (error) {
-      state = state.copyWith(errorMessage:  "ログアウトに失敗しました: ${error.message}");
+      state = state.copyWith(errorMessage: "ログアウトに失敗しました: ${error.message}");
       log("ログアウトに失敗しました: ${error.message}");
     });
   }
@@ -53,26 +46,4 @@ class UserProfileViewModel extends StateNotifier<UserProfileUIState> {
   }
 
 //TODO errorの時の再試行
-
-  // Future<void> createUser(AppUser user) async {
-  //   final res = await _coordinator.createUser();
-  //   res.when(success: (_) {
-  //     log("ユーザー作成に成功しました。");
-  //   }, failure: (error) {
-  //     log("ユーザー作成に失敗しました: ${error.message}");
-  //     state = state.copyWith(savingButtonStatus: ButtonStatus.error);
-  //   });
-  // }
-
-  // Future<void> refreshUser() async {
-  //   final res = await _coordinator.refreshUser();
-
-  //   res.when(success: (_) {
-  //     log("ユーザー再取得に成功しました。");
-  //   }, failure: (error) {
-  //     log("ユーザー情報の更新に失敗しました: ${error.message}");
-  //     state =
-  //         state.copyWith(errorMessage: "ユーザー情報の更新に失敗しました: ${error.message}");
-  //   });
-  // }
 }

@@ -14,23 +14,21 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
         .getSingleOrNull();
   }
 
-  Future<List<MyWordTableData>?> getFilteredMyWordByPage(int size, int offset) async {
+  Future<List<MyWordTableData>?> getFilteredMyWordByPage(
+      int size, int offset) async {
     return (select(myWords)
           ..orderBy([
             (t) => OrderingTerm.desc(t.editAt),
-            // (t) => OrderingTerm.desc(t.myWordId),
           ])
           ..limit(size, offset: offset))
         .get();
   }
-
 
   Future<List<String>?> getIdsFilteredMyWordByPage(int size, int offset) async {
     final query = selectOnly(myWords)
       ..addColumns([myWords.myWordId])
       ..orderBy([
         OrderingTerm.desc(myWords.editAt),
-        // OrderingTerm.desc(myWords.myWordId),
       ])
       ..limit(size, offset: offset);
 
@@ -53,17 +51,17 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
       // 子テーブルのデータを削除
       await (delete(myWordStatus)..where((tbl) => tbl.myWordId.equals(wordId)))
           .go();
-      final rows = await (delete(myWords)..where((tbl) => tbl.myWordId.equals(wordId))).go();
+      final rows = await (delete(myWords)
+            ..where((tbl) => tbl.myWordId.equals(wordId)))
+          .go();
       return rows;
     });
   }
 
-  /* Future<void> updateMyWord(Insertable<MyWord> tableName) =>
-      update(myWords).replace(tableName); */
-
   Future<int> updateMyWord(
       String id, String word, String contents, String dateTime) async {
-    return await (update(myWords)..where((tbl) => tbl.myWordId.equals(id))).write(
+    return await (update(myWords)..where((tbl) => tbl.myWordId.equals(id)))
+        .write(
       MyWordsCompanion(
           myWordId: Value(id),
           word: Value(word),
@@ -73,20 +71,22 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
   }
 
   Future<List<MyWordTableData>> getMyWordsAfter(String dateTime) {
-    return (select(myWords)..where((tbl) => tbl.editAt.isBiggerThanValue(dateTime)))
+    return (select(myWords)
+          ..where((tbl) => tbl.editAt.isBiggerThanValue(dateTime)))
         .get();
   }
 
   Stream<List<String>> watchMyWordIdsAfter(String dateTime) {
-    return (select(myWords)..where((tbl) => tbl.editAt.isBiggerThanValue(dateTime)))
+    return (select(myWords)
+          ..where((tbl) => tbl.editAt.isBiggerThanValue(dateTime)))
         .watch()
         .map((rows) => rows.map((r) => r.myWordId).toList())
         .distinct();
   }
 
-
   Stream<MyWordTableData?> streamMyWordById(String id) {
     return (select(myWords)..where((tbl) => tbl.myWordId.equals(id)))
-        .watchSingleOrNull().distinct();
+        .watchSingleOrNull()
+        .distinct();
   }
 }

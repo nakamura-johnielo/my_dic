@@ -43,20 +43,4 @@ extension SubjectExtension on Subject {
         return EnglishSubject.they;
     }
   }
-  // String get displayJap {
-  //   switch (this) {
-  //     case Subject.yo:
-  //       return "1";
-  //     case Subject.tu:
-  //       return "Tú";
-  //     case Subject.el:
-  //       return "Él/Ella/Usted";
-  //     case Subject.nosotros:
-  //       return "Nosotr@s";
-  //     case Subject.vosotros:
-  //       return "Vosotr@s";
-  //     case Subject.ellos:
-  //       return "Ell@s/Ustedes";
-  //   }
-  // }
 }

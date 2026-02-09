@@ -4,11 +4,10 @@ import 'package:my_dic/core/infrastructure/database/drift/tables/jpn-esp/jpn_esp
 @DataClassName('JpnEspDictionaryTableData')
 class JpnEspDictionaries extends Table {
   IntColumn get dictionaryId => integer().named('jpn_esp_dictionary_id')();
-      IntColumn get wordId => integer()
-    .named('jpn_esp_word_id')
-    .references(JpnEspWords, #wordId, onDelete: KeyAction.cascade)();
+  IntColumn get wordId => integer()
+      .named('jpn_esp_word_id')
+      .references(JpnEspWords, #wordId, onDelete: KeyAction.cascade)();
 
-  // IntColumn get wordId => integer().named('jpn_esp_word_id')();
   TextColumn get word => text().named('word')();
   IntColumn get excf => integer().named('excf')();
   TextColumn get headword => text().named('headword')();
@@ -17,6 +16,4 @@ class JpnEspDictionaries extends Table {
 
   @override
   Set<Column> get primaryKey => {dictionaryId};
-
-  
 }

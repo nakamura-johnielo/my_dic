@@ -20,27 +20,13 @@ class JpnEspWordRepository implements IJpnEspWordRepository {
   Future<Result<List<JpnEspWord>>> getWordsByWord(
       String word, int size, int currentPage) async {
     try {
-      final tableDataList = await _wordDataSource.getWordsByWord(word, size, currentPage);
+      final tableDataList =
+          await _wordDataSource.getWordsByWord(word, size, currentPage);
       final entities = JpnEspWordConverter.toEntityList(tableDataList);
       return Result.success(entities);
     } catch (e, stackTrace) {
       return Result.failure(DatabaseError(
         message: '和西単語の検索に失敗しました',
-        originalError: e,
-        stackTrace: stackTrace,
-      ));
-    }
-  }
-
-  @override
-  Future<Result<void>> updateStatus(UpdateStatusRepositoryInputData input) async {
-    try {//TODO remove ここでは使わない
-      log("updatestatusrepo");
-      await _wordDataSource.updateStatus(input);
-      return Result.success(null);
-    } catch (e, stackTrace) {
-      return Result.failure(DatabaseError(
-        message: '和西単語ステータスの更新に失敗しました',
         originalError: e,
         stackTrace: stackTrace,
       ));

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/core/di/router/router.dart';
 import 'package:my_dic/core/shared/enums/entry_point.dart';
-import 'package:my_dic/features/auth/di/service.dart';
+import 'package:my_dic/features/auth/di/store.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
 import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
 import 'package:my_dic/router/route_names.dart';
@@ -96,15 +96,6 @@ class AppNavigatorService {
     final key = _navigatorKeyForEntryPoint(entry);
     // Navigator が存在すれば内部スタックを先頭まで戻す
     key?.currentState?.popUntil((route) => route.isFirst);
-
-    // // ブランチの初期画面に遷移（named route を使用）
-    // final name = _routeNameForEntryPoint(entry);
-    // try {
-    //   _router.goNamed(name);
-    // } catch (_) {
-    //   // 名前付きルートが設定されていないケースに備え pushNamed を試す
-    //   _router.pushNamed(name);
-    // }
   }
 
   // 現在の entryPoint に対してクリア→ルート遷移を行うショートカット
@@ -120,28 +111,5 @@ class AppNavigatorService {
   void toProfile() {
     print('========-Go to profile========');
     _router.replaceNamed(RouteNames.unauthorized);
-
-    // login系のページじゃなければ強勢移動させない
-    //   final inProfile = _entryPoint == EntryPoint.profile;
-    //   if (!inProfile) return;
-
-    //   final auth = ref.read(authStoreNotifierProvider);
-
-    //   if (auth == null) {
-    //     print('auth is null');
-    //     _router.replaceNamed(RouteNames.unauthorized);
-    //     return;
-    //   }
-
-    //   final loggedIn = auth.isLogined;
-    //   final verified = auth.isAuthenticated;
-    //   print('loggedIn: $loggedIn, verified: $verified');
-
-    //   if (!loggedIn || !verified) {
-    //     _router.replaceNamed(RouteNames.unauthorized);
-    //     return;
-    //   }
-    //     _router.replaceNamed(RouteNames.authorized);
-    //     return;
   }
 }

@@ -55,21 +55,16 @@ class QuizGameFragment extends ConsumerWidget {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     //
-    //final quizGame = ref.watch(quizStateProvider);
-    //final quizStateController = ref.read(quizStateProvider.notifier);
-    //final quizWord = ref.watch(quizWordProvider); //TODO quizword
+
     final conjugacionesAsync =
         ref.watch(quizConjugacionsProvider(input.wordId));
 
     void onSwipe(String dir) {
-      // ref.read(quizCardStateProvider.notifier).state = QuizCardState.question;
       quizGameNotifier.inicializeQuizCardStatus();
       if (dir == "right") {
         quizGameNotifier.next();
-        // quizStateController.quiz1Next();
       } else if (dir == "left") {
         quizGameNotifier.back();
-        // quizStateController.quiz1Back();
       }
     }
 
@@ -91,7 +86,8 @@ class QuizGameFragment extends ConsumerWidget {
             title: Text('Quiz Game - ${input.word}'),
           ),
           body: Padding(
-            padding: const EdgeInsets.fromLTRB(0, 0, 0, UIConsts.bottomBarCompleteHeight),
+            padding: const EdgeInsets.fromLTRB(
+                0, 0, 0, UIConsts.bottomBarCompleteHeight),
             child: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -103,8 +99,8 @@ class QuizGameFragment extends ConsumerWidget {
                     children: [
                       Text(
                         '${input.word} の活用',
-                        style:
-                            TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 26, fontWeight: FontWeight.bold),
                       ),
                       Row(
                         mainAxisSize: MainAxisSize.min,
@@ -112,22 +108,12 @@ class QuizGameFragment extends ConsumerWidget {
                         children: [
                           TextButton(
                             onPressed: () =>
-                                // context.push(
-                                //     '/${MainScreenTab.search}/${ScreenPage.detail}',
-                                //     extra: EspJpnWordPageFragmentInput(
-                                //         wordId: input.wordId, isVerb: true))
+
                                 //TODO gorouter check
                                 quizGameNotifier.goToWordDetail(WordPageInput(
                                     wordId: input.wordId,
                                     wordType: WordType.espJpn,
                                     hasConj: true)),
-                            // context.push(
-                            //     //'/${MainScreenTab.quiz}/${ScreenPage.wordDetail}',
-                            //     '${ScreenPage.wordDetail.name}',
-                            //     extra: WordPageInput(
-                            //         wordId: input.wordId,
-                            //         wordType: WordType.espJpn,
-                            //         hasConj: true)),
                             child: Text("> 辞書確認"),
                           ),
                           StatusButtons(wordId: input.wordId),
@@ -138,15 +124,18 @@ class QuizGameFragment extends ConsumerWidget {
                   Row(spacing: 10, mainAxisSize: MainAxisSize.min, children: [
                     Text(
                       (quizGame.currentIndex + 1).toString(),
-                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
                     ),
                     Text(
                       "/",
-                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
                     ),
                     Text(
                       quizGame.allLength.toString(),
-                      style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
                     )
                   ]),
                   QuizCard(

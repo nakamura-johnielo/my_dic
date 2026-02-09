@@ -52,24 +52,6 @@ class SingleWordPageInput {
 }
 
 //========input========================================================
-/* 
-    final tabs = {
-      "Dictionary": EspJpnDictionaryFragment(wordId: widget.input.wordId),
-      "Conjugacion": ConjugacionFragment(wordId: widget.input.wordId),
-    };
-
-    final floatingButton = FloatingActionButton(
-      onPressed: () {
-        ref.read(quizGameViewModelProvider.notifier).initialize();
-        ref.read(quizCardStateProvider.notifier).state = QuizCardState.question;
-        context.push('/${MainScreenTab.quiz}/${ScreenPage.quizDetail}',
-            extra: QuizGameFragmentInput(
-                wordId: widget.input.wordId,
-                word: widget.input.wordId.toString()));
-      },
-      child: const Icon(Icons.handshake_rounded),
-    );
- */
 
 //main fragment
 //wordId,dictionarytype
@@ -116,10 +98,6 @@ class WordPageFragment extends ConsumerWidget {
             ref.read(wordPageViewModelProvider(input.wordId).notifier);
         viewModel.goToQuiz(QuizGameFragmentInput(
             wordId: input.wordId, word: input.wordId.toString()));
-        //context.push('/${MainScreenTab.quiz}/${ScreenPage.quizDetail}',
-        // context.push('${StudyScreenPage.flashCard.name}',
-        //     extra: QuizGameFragmentInput(
-        //         wordId: input.wordId, word: input.wordId.toString()));
       },
       child: const Icon(Icons.handshake_rounded),
     );
@@ -151,7 +129,6 @@ class _WordPageFragmentBuilder extends StatelessWidget {
 
 class _TabWordPage extends ConsumerStatefulWidget {
   const _TabWordPage({super.key, required this.input});
-  // final Map<String, Widget> tabs;
   final TabWordPageInput input;
   @override
   ConsumerState<_TabWordPage> createState() => _TabWordPageState();
@@ -160,13 +137,8 @@ class _TabWordPage extends ConsumerStatefulWidget {
 class _TabWordPageState extends ConsumerState<_TabWordPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  //late PageController _pageController;
-  //final PageStorageBucket _bucket = PageStorageBucket();
-  // late TabWordPageInput input;
   late List<Widget> _tabBodies;
   late List<Widget> _tabBars;
-  // late Map<String, Widget> tabs; //TODO 名前とページwidgetつける
-  // late FloatingActionButton floatingButton;
 
   @override
   void initState() {
@@ -182,14 +154,7 @@ class _TabWordPageState extends ConsumerState<_TabWordPage>
   }
 
   void _tabListener() {
-    if (_tabController.indexIsChanging) {
-      /* _pageController.animateToPage(
-        _tabController.index,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      ); */
-    }
-    //setState(() {});
+    if (_tabController.indexIsChanging) {}
   }
 
   @override
@@ -223,8 +188,7 @@ class _TabWordPageState extends ConsumerState<_TabWordPage>
       floatingActionButton: widget.input.floatingButton,
       floatingActionButtonLocation:
           FloatAboveNavBar(UIConsts.bottomBarCompleteHeight),
-          floatingActionButtonAnimator:const NoScaleFloatingActionButtonAnimator(),
-   
+      floatingActionButtonAnimator: const NoScaleFloatingActionButtonAnimator(),
     );
   }
 }

@@ -15,8 +15,11 @@ import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.d
 import 'package:my_dic/router/navigator_service.dart';
 
 class RankingViewModel extends StateNotifier<RankingState> {
-  RankingViewModel(this._loadRankingsUseCase,
-      this._locateRankingPagenationUseCase, this._updateRankingFilterUseCase, this._naviService)
+  RankingViewModel(
+      this._loadRankingsUseCase,
+      this._locateRankingPagenationUseCase,
+      this._updateRankingFilterUseCase,
+      this._naviService)
       : super(const RankingState());
 
   final ILoadRankingsUseCase _loadRankingsUseCase;
@@ -27,21 +30,16 @@ class RankingViewModel extends StateNotifier<RankingState> {
 
   static const int _pageSize = 100;
 
-
-  void goToQuiz(QuizGameFragmentInput input){
+  void goToQuiz(QuizGameFragmentInput input) {
     _naviService.toFlashCard(input);
   }
 
-  void goToDetail(WordPageInput input){
-    _naviService.toWordDetail( input);
+  void goToDetail(WordPageInput input) {
+    _naviService.toWordDetail(input);
   }
 
   //TODO currentPage List<int> -> int
   Future<bool> loadNextPage(int nextPage) async {
-    //print("loadnext");
-    //if (state.isLoadingNext || !state.hasNext) return state.hasNext;
-
-    //state = state.copyWith(isLoadingNext: true);
     print("loadnext on VM, pageRange: ${state.currentPageRange}");
     print("loadnext on VM, nextpage: $nextPage");
 
@@ -53,10 +51,7 @@ class RankingViewModel extends StateNotifier<RankingState> {
           _pageSize,
           true,
           //TODO pagenationFilter
-          state.pagenationFilter
-
-          //nextPage - 1, // InfinityScroll仕様に合わせる（現行と同じ補正）
-          );
+          state.pagenationFilter);
 
       final result = await _loadRankingsUseCase.execute(input);
 
@@ -135,7 +130,6 @@ class RankingViewModel extends StateNotifier<RankingState> {
       newState = _updateFeatureTagFilter(data, value);
     }
     _resetPage(newState);
-    //loadNextPage(0);
   }
 
   RankingState _updatePartOfSpeechFilter(PartOfSpeech filter, int value) {
@@ -159,13 +153,11 @@ class RankingViewModel extends StateNotifier<RankingState> {
   }
 
   void _resetPage(RankingState? currentState) {
-    //log("updatefilter in presenter");
     if (currentState == null) {
       state = state.copyWith(currentPageRange: [-1, -1], items: []);
       return;
     }
     state = currentState.copyWith(currentPageRange: [-1, -1], items: []);
-    //_rankingViewModel.checkUpdateFilter();
   }
 
   ///============================================

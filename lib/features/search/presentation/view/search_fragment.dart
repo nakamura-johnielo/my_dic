@@ -26,7 +26,6 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
   int _previousConjItemLength = 0;
   int _previousEspJpnItemLength = 0;
   int _previousJpnEspItemLength = 0;
-  // bool _hasMore = true;
   late final InfinityScrollController _infinityScrollController;
   final int initialPage = 0;
 
@@ -38,7 +37,6 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
 
   Future<bool> _loadNextPage(int nextPage) async {
     print("_loadNextPage: $nextPage");
-    //if (ref.read(searchViewModelProvider).isLoading) return;
 
     final viewModel = ref.read(searchViewModelProvider.notifier);
 
@@ -47,7 +45,6 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
       _size,
       nextPage - 1,
     );
-    //print(viewModel.state.espJpnWords.length);
     final canFetch = _canFetch();
     print("canfetch:$canFetch");
     return canFetch;
@@ -84,11 +81,6 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
 
   @override
   Widget build(BuildContext context) {
-    // final BufferController bufferController =
-    //     ref.read(bufferControllerProvider);
-    //final int size = 30;
-
-    //final viewModel = ref.watch(searchViewModelProviderOld);
     final viewModel = ref.watch(searchViewModelProvider);
     final viewModelNotifier = ref.read(searchViewModelProvider.notifier);
     log("0 Fragment in build");
@@ -107,15 +99,9 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                 border: OutlineInputBorder(),
               ),
               onChanged: (value) {
-                //SchedulerBinding.instance.addPostFrameCallback((_) {
-                //viewModel.query = value;
                 viewModelNotifier.updateQuery(value);
                 viewModelNotifier.clearResults();
                 _resetPage();
-                // _loadNextPage(initialPage);
-                //});
-                //viewModel.query = value;
-                //_bufferController.searchWord(value);
               },
             ),
           ),
@@ -131,23 +117,11 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                         return JpnEspSearchCard(
                           word: jpnEspWord.word,
                           onTap: () {
-                            // context.push(
-                            //     '/${MainScreenTab.search}/${ScreenPage.jpnEspDetail}',
-                            //     extra: JpnEspWordPageFragmentInput(
-                            //         wordId: jpnEspWord.id));
-
                             //TODO gorouter check
                             viewModelNotifier.goToWordDetail(WordPageInput(
                                 wordId: jpnEspWord.id,
                                 wordType: WordType.jpnEsp,
                                 hasConj: false));
-                            //   context.push(
-                            //       // '/${MainScreenTab.search}/${ScreenPage.wordDetail}',
-                            //  '${ScreenPage.wordDetail.name}',
-                            //       extra: WordPageInput(
-                            //           wordId: jpnEspWord.id,
-                            //           wordType: WordType.jpnEsp,
-                            //           hasConj: false));
                           },
                         );
                       },
@@ -169,27 +143,13 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                             word: conjugacion.word,
                             conjugacions: conjugacion.matches,
                             query: query,
-                            //meaning: viewModel.filteredItems[index].meaning,
                             onTap: () {
-                              // context.push(
-                              //     '/${MainScreenTab.search}/${ScreenPage.detail}',
-                              //     extra: EspJpnWordPageFragmentInput(
-                              //         wordId: conjugacion.wordId,
-                              //         isVerb: true));
-
                               //TODO gorouter check
 
                               viewModelNotifier.goToWordDetail(WordPageInput(
                                   wordId: conjugacion.wordId,
                                   wordType: WordType.espJpn,
                                   hasConj: true));
-                              // context.push(
-                              //     // '/${MainScreenTab.search}/${ScreenPage.wordDetail}',
-                              //     '${ScreenPage.wordDetail.name}',
-                              //     extra: WordPageInput(
-                              //         wordId: conjugacion.wordId,
-                              //         wordType: WordType.espJpn,
-                              //         hasConj: true));
                             },
                           );
                         }
@@ -197,27 +157,13 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                         final espJpnWord = viewModel.espJpnWords[index];
                         return SearchCard(
                           word: espJpnWord.word,
-                          //meaning: viewModel.filteredItems[index].meaning,
                           partOfSpeech: espJpnWord.partOfSpeech,
                           onTap: () {
-                            // context.push(
-                            //     '/${MainScreenTab.search}/${ScreenPage.detail}',
-                            //     extra: EspJpnWordPageFragmentInput(
-                            //         wordId: espJpnWord.wordId,
-                            //         isVerb: espJpnWord.hasVerb()));
-
                             //TODO gorouter check
                             viewModelNotifier.goToWordDetail(WordPageInput(
                                 wordId: espJpnWord.wordId,
                                 wordType: WordType.espJpn,
                                 hasConj: espJpnWord.hasVerb()));
-                            // context.push(
-                            //     // '/${MainScreenTab.search}/${ScreenPage.wordDetail}',
-                            //     '${ScreenPage.wordDetail.name}',
-                            //     extra: WordPageInput(
-                            //         wordId: espJpnWord.wordId,
-                            //         wordType: WordType.espJpn,
-                            //         hasConj: espJpnWord.hasVerb()));
                           },
                         );
                       },

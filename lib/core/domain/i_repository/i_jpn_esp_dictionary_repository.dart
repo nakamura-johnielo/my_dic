@@ -5,5 +5,4 @@ import 'package:my_dic/core/shared/utils/result.dart';
 abstract class IJpnEspDictionaryRepository {
   Future<Result<List<JpnEspDictionary>>> getDictionaryByWordId(
       FetchJpnEspDictionaryRepositoryInputData input);
-  //Future<String> getBySomething(FetchJpnEspDictionaryRepositoryInputData input);
 }

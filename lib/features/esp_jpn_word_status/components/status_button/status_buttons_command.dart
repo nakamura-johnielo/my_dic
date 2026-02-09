@@ -13,27 +13,24 @@ class EspJpnWordStatusCommand extends StateNotifier<WordStatusCommandEvent?> {
   EspJpnWordStatusCommand(this._wordId, this._updateInteractor) : super(null);
 
   final int _wordId;
-  // final FetchEspJpnWordStatusUsecase _fetchEspJpnStatusUsecase;
   final IUpdateStatusUseCase _updateInteractor;
 
-  Future<void> toggleBookmark( bool currentValue) async {
+  Future<void> toggleBookmark(bool currentValue) async {
     print("toggle bookmark");
-    await _setBookmark( !currentValue);
+    await _setBookmark(!currentValue);
   }
 
-  Future<void> toggleLearned( bool currentValue) async {
+  Future<void> toggleLearned(bool currentValue) async {
     await _setLearned(!currentValue);
   }
 
-  Future<void> toggleHasNote( bool currentValue) async {
-    await _setHasNote(!currentValue );
+  Future<void> toggleHasNote(bool currentValue) async {
+    await _setHasNote(!currentValue);
   }
 
-  Future<void> _setBookmark( bool value) async {
-    //state = state.copyWith(isBookmarked: value);
+  Future<void> _setBookmark(bool value) async {
     final res = await _updateInteractor.execute(
-      UpdateStatusInputData(
-          wordId: _wordId, isBookmarked: value),
+      UpdateStatusInputData(wordId: _wordId, isBookmarked: value),
     );
     print("Complete toggle bookmark");
     if (!mounted) return;
@@ -46,7 +43,7 @@ class EspJpnWordStatusCommand extends StateNotifier<WordStatusCommandEvent?> {
     });
   }
 
-  Future<void> _setLearned( bool value) async {
+  Future<void> _setLearned(bool value) async {
     final res = await _updateInteractor.execute(
       UpdateStatusInputData(
         wordId: _wordId,
@@ -62,7 +59,7 @@ class EspJpnWordStatusCommand extends StateNotifier<WordStatusCommandEvent?> {
     });
   }
 
-  Future<void> _setHasNote( bool value) async {
+  Future<void> _setHasNote(bool value) async {
     final res = await _updateInteractor.execute(
       UpdateStatusInputData(
         wordId: _wordId,

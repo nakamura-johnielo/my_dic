@@ -1,9 +1,1 @@
-
-
-enum ButtonStatus{
-  normal,
-  waiting,
-  error,
-  success,
-  disabled
-}
+enum ButtonStatus { normal, waiting, error, success, disabled }

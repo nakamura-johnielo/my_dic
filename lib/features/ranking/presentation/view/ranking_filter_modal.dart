@@ -7,9 +7,7 @@ import 'package:my_dic/core/shared/enums/i_enum.dart';
 import 'package:my_dic/features/ranking/di/view_model_di.dart';
 
 class RankingFilterModal extends ConsumerWidget {
-  //const RankingFilterModal({super.key, required this.viewModel});
   const RankingFilterModal({super.key});
-  //final RankingController rankingController;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -28,7 +26,6 @@ class RankingFilterModal extends ConsumerWidget {
             topRight: Radius.circular(10),
           ),
         ),
-        //margin: EdgeInsets.only(top: 80),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -50,7 +47,6 @@ class RankingFilterModal extends ConsumerWidget {
                       chipsEnum: PartOfSpeech.values,
                       addFilter: rankingNotifier.addFilter,
                       deleteFilter: rankingNotifier.removeFilter,
-                      // viewModel: viewModel,
                     ),
                     SizedBox(
                       height: 20,
@@ -61,7 +57,6 @@ class RankingFilterModal extends ConsumerWidget {
                       chipsEnum: FeatureTag.values,
                       addFilter: rankingNotifier.addFilter,
                       deleteFilter: rankingNotifier.removeFilter,
-                      // viewModel: viewModel,
                     ),
                     SizedBox(
                       height: 20,
@@ -72,7 +67,6 @@ class RankingFilterModal extends ConsumerWidget {
                       chipsEnum: PartOfSpeech.values,
                       addFilter: rankingNotifier.addExcludeFilter,
                       deleteFilter: rankingNotifier.removeFilter,
-                      // viewModel: viewModel,
                     ),
                     SizedBox(
                       height: 20,
@@ -83,7 +77,6 @@ class RankingFilterModal extends ConsumerWidget {
                       chipsEnum: FeatureTag.values,
                       addFilter: rankingNotifier.addExcludeFilter,
                       deleteFilter: rankingNotifier.removeFilter,
-                      // viewModel: viewModel,
                     ),
                     SizedBox(
                       height: 20,
@@ -109,19 +102,19 @@ class RankingFilterModal extends ConsumerWidget {
 
 class FilterSection<ChipsEnum extends DisplayEnumMixin>
     extends StatelessWidget {
-  const FilterSection(
-      {super.key,
-      required this.label,
-      required this.chipsEnum,
-      required this.filters, required this.addFilter, required this.deleteFilter,
-      // required this.viewModel
-      });
+  const FilterSection({
+    super.key,
+    required this.label,
+    required this.chipsEnum,
+    required this.filters,
+    required this.addFilter,
+    required this.deleteFilter,
+  });
   final String label;
   final List<ChipsEnum> chipsEnum; //Enum
   final Map<ChipsEnum, int> filters;
   final Function(DisplayEnumMixin) addFilter;
   final Function(DisplayEnumMixin) deleteFilter;
-  // final RankingViewModel viewModel;
 
   @override
   Widget build(BuildContext context) {
@@ -146,26 +139,8 @@ class FilterSection<ChipsEnum extends DisplayEnumMixin>
               onSelected: (bool selected) {
                 if (selected) {
                   addFilter(chip);
-                  /* LoadRankingsControllerInputData inputLoadItems =
-                      LoadRankingsControllerInputData(
-                          viewModel.partOfSpeechFilters,
-                          viewModel.featureTagFilters,
-                          viewModel.currentPage[1],
-                          viewModel.size);
-                  rankingController.loadNext(inputLoadItems); */
-                  //filters.add(chip);
-                  //viewModel.addPartOfSpeechFilter(chip);
                 } else {
-                  //viewModel.deletePartOfSpeechFilter(chip);
-                 deleteFilter(chip);
-                  /* LoadRankingsControllerInputData inputLoadItems =
-                      LoadRankingsControllerInputData(
-                          viewModel.partOfSpeechFilters,
-                          viewModel.featureTagFilters,
-                          viewModel.currentPage[1],
-                          viewModel.size);
-                  rankingController.loadNext(inputLoadItems); */
-                  //filters.remove(chip);
+                  deleteFilter(chip);
                 }
               },
             );
@@ -178,19 +153,19 @@ class FilterSection<ChipsEnum extends DisplayEnumMixin>
 
 class FilterExclusionSection<ChipsEnum extends DisplayEnumMixin>
     extends StatelessWidget {
-  const FilterExclusionSection(
-      {super.key,
-      required this.label,
-      required this.chipsEnum,
-      required this.filters, required this.addFilter, required this.deleteFilter,
-      // required this.viewModel
-      });
+  const FilterExclusionSection({
+    super.key,
+    required this.label,
+    required this.chipsEnum,
+    required this.filters,
+    required this.addFilter,
+    required this.deleteFilter,
+  });
   final String label;
   final List<ChipsEnum> chipsEnum; //Enum
   final Map<ChipsEnum, int> filters;
   final Function(DisplayEnumMixin) addFilter;
   final Function(DisplayEnumMixin) deleteFilter;
-  // final RankingViewModel viewModel;
 
   @override
   Widget build(BuildContext context) {
@@ -209,8 +184,7 @@ class FilterExclusionSection<ChipsEnum extends DisplayEnumMixin>
           runSpacing: 5,
           children: chipsEnum.map((ChipsEnum chip) {
             //TODO ここだけ違う.ダブり表示ありを検索することはない
-      
-            
+
             if (chip == FeatureTag.multiLemma) {
               return SizedBox(
                 width: 0,
@@ -223,26 +197,8 @@ class FilterExclusionSection<ChipsEnum extends DisplayEnumMixin>
               onSelected: (bool selected) {
                 if (selected) {
                   addFilter(chip);
-                  /* LoadRankingsControllerInputData inputLoadItems =
-                      LoadRankingsControllerInputData(
-                          viewModel.partOfSpeechFilters,
-                          viewModel.featureTagFilters,
-                          viewModel.currentPage[1],
-                          viewModel.size);
-                  rankingController.loadNext(inputLoadItems); */
-                  //filters.add(chip);
-                  //viewModel.addPartOfSpeechFilter(chip);
                 } else {
-                  //viewModel.deletePartOfSpeechFilter(chip);
                   deleteFilter(chip);
-                  /* LoadRankingsControllerInputData inputLoadItems =
-                      LoadRankingsControllerInputData(
-                          viewModel.partOfSpeechFilters,
-                          viewModel.featureTagFilters,
-                          viewModel.currentPage[1],
-                          viewModel.size);
-                  rankingController.loadNext(inputLoadItems); */
-                  //filters.remove(chip);
                 }
               },
             );
@@ -257,7 +213,8 @@ class PagenationFilterSection extends StatelessWidget {
   const PagenationFilterSection(
       {super.key,
       required this.label,
-      required this.pagenationFilter, required this.locatePage});
+      required this.pagenationFilter,
+      required this.locatePage});
 
   final String label; //Enum
   final int pagenationFilter;
@@ -293,9 +250,7 @@ class PagenationFilterSection extends StatelessWidget {
               onSelected: (bool selected) {
                 if (selected) {
                   locatePage(page);
-                } else {
-                  //rankingController.deleteFilter(chip);
-                }
+                } else {}
               },
             );
           }).toList(),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 class RotatingIcon extends StatefulWidget {
   final IconData icon;
   final double size;

@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPreferencesSyncStatusDao {
   final SharedPreferences prefs;
-  final String _key=SharedPreferenceKeys.lastSyncDate;
+  final String _key = SharedPreferenceKeys.lastSyncDate;
 
   SharedPreferencesSyncStatusDao(this.prefs);
 

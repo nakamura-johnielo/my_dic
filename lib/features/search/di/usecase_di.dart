@@ -5,7 +5,6 @@ import 'package:my_dic/features/search/domain/usecase/judge_search_word/judge_se
 import 'package:my_dic/features/search/domain/usecase/search_word/i_search_word_use_case.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/search_word_interactor.dart';
 
-
 final searchWordUseCaseProvider = Provider<ISearchWordUseCase>((ref) {
   return SearchWordInteractor(
     ref.read(esjWordRepositoryProvider),
@@ -14,16 +13,6 @@ final searchWordUseCaseProvider = Provider<ISearchWordUseCase>((ref) {
   );
 });
 
-
 final judgeSearchWordUseCaseProvider = Provider<IJudgeSearchWordUseCase>((ref) {
   return JudgeSearchWordInteractor();
 });
-
-
-
-
-// LEGACY
-
-// final searchWordPresenterProvider = Provider((ref) {
-//   return SearchWordPresenterImpl(SearchViewModel());
-// });

@@ -7,10 +7,10 @@ class EspJpnDictionaries extends Table {
   String get tableName => 'dictionaries';
 
   IntColumn get dictionaryId => integer().named('dictionary_id')();
-  
+
   IntColumn get wordId => integer()
-    .named('word_id')
-    .references(EspJpnWords, #wordId, onDelete: KeyAction.cascade)();
+      .named('word_id')
+      .references(EspJpnWords, #wordId, onDelete: KeyAction.cascade)();
   TextColumn get word => text()();
   IntColumn get excf => integer().nullable()();
   TextColumn get headword => text().nullable()();
@@ -23,5 +23,4 @@ class EspJpnDictionaries extends Table {
 
   @override
   Set<Column> get primaryKey => {dictionaryId};
-
 }

@@ -29,15 +29,5 @@ class QuizSearchState {
   }
 
   /// 検索結果が空かどうか
-  bool get hasResults =>
-      quizSearchedItems.isNotEmpty ;
-
-  /// 現在のアクティブな辞書タイプを判定
-  // DictionaryType get activeDictionaryType {
-  //   if (jpnEspWords.isNotEmpty) return DictionaryType.jpnEsp;
-  //   if (quizSearchedItems.isNotEmpty || conjugacions.isNotEmpty) {
-  //     return DictionaryType.espJpn;
-  //   }
-  //   return DictionaryType.espJpn; // デフォルト
-  // }
+  bool get hasResults => quizSearchedItems.isNotEmpty;
 }

@@ -24,7 +24,6 @@ class _WordRegistrationModalState extends ConsumerState<WordRegistrationModal> {
   @override
   void initState() {
     super.initState();
-    //controller = widget._controller;
     controller = ref.read(myWordFragmentViewModelProvider.notifier);
   }
 
@@ -37,7 +36,6 @@ class _WordRegistrationModalState extends ConsumerState<WordRegistrationModal> {
 
   @override
   Widget build(BuildContext context) {
-    //final controller=ref.read(myWordControllerProvider);
     final Color bg = Theme.of(context).colorScheme.surfaceContainer;
     return FractionallySizedBox(
       heightFactor: 0.9,
@@ -52,10 +50,8 @@ class _WordRegistrationModalState extends ConsumerState<WordRegistrationModal> {
             topRight: Radius.circular(10),
           ),
         ),
-        //margin: EdgeInsets.only(top: 80),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          //mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               'My Word 登録',
@@ -68,13 +64,6 @@ class _WordRegistrationModalState extends ConsumerState<WordRegistrationModal> {
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    /* Text(
-                      "見出し語:",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(
-                      height: 6,
-                    ), */
                     TextField(
                       autofocus: true,
                       controller: headwordTextFieldController,
@@ -83,17 +72,9 @@ class _WordRegistrationModalState extends ConsumerState<WordRegistrationModal> {
                         hintText: '単語・フレーズを入力',
                       ),
                     ),
-
                     SizedBox(
                       height: 26,
                     ),
-                    /* Text(
-                      "メモ:",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(
-                      height: 6,
-                    ), */
                     TextField(
                       minLines: 3,
                       maxLines: null,
@@ -107,7 +88,6 @@ class _WordRegistrationModalState extends ConsumerState<WordRegistrationModal> {
                     SizedBox(
                       height: 56,
                     ),
-                    // Flutter1.22以降のみ
                     Row(
                       children: [
                         SizedBox(width: 20),
@@ -118,10 +98,6 @@ class _WordRegistrationModalState extends ConsumerState<WordRegistrationModal> {
                             style: ElevatedButton.styleFrom(
                               padding: EdgeInsets.symmetric(vertical: 20),
                               elevation: 0,
-                              // foregroundColor:
-                              //     const Color.fromARGB(255, 255, 255, 255),
-                              // backgroundColor:
-                              //     const Color.fromARGB(255, 44, 110, 215),
                             ),
                             onPressed: () {
                               controller.registerWord(
@@ -129,19 +105,13 @@ class _WordRegistrationModalState extends ConsumerState<WordRegistrationModal> {
                                   description:
                                       descriptionTextFieldController.text,
                                   onComplete: () {
-                                    //descriptionTextFieldController.clear();
-                                    //headwordTextFieldController.clear();
                                     //モーダル閉じる
                                     widget.onRegistered?.call();
                                     Navigator.of(context).pop();
-                                    //showToast("registered successfully!");
                                   },
-                                  onError: () {
-                                    //showToast("なにかしらERROR");
-                                  },
+                                  onError: () {},
                                   onInvalid: () {
                                     log("invalid input");
-                                    //showToast("入力してください");
                                   });
                             },
                             child: const Text('登録'),
@@ -150,15 +120,6 @@ class _WordRegistrationModalState extends ConsumerState<WordRegistrationModal> {
                         SizedBox(width: 20),
                       ],
                     ),
-                    /*  SizedBox(
-                      height: 20,
-                    ),
-                 Center(
-                      child: Text(
-                        "error",
-                        style: TextStyle(fontSize: 14, color: Colors.red),
-                      ),
-                    ) */
                   ]),
             )
           ],
@@ -173,12 +134,12 @@ void showToast(String message) {
     msg: message,
     toastLength: Toast.LENGTH_SHORT, // 表示時間: SHORT or LONG
     gravity: ToastGravity.BOTTOM, // 位置: BOTTOM, CENTER, TOP
-    // backgroundColor: Color.fromARGB(131, 0, 0, 0), // 背景色
-    // textColor: Colors.white, // テキスト色
+
     fontSize: 16.0, // フォントサイズ
   );
 }
 
+//===================================================
 class CreateWordModal2 extends StatelessWidget {
   CreateWordModal2({super.key});
 
@@ -198,7 +159,6 @@ class CreateWordModal2 extends StatelessWidget {
             topRight: Radius.circular(10),
           ),
         ),
-        //margin: EdgeInsets.only(top: 80),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -230,7 +190,6 @@ class CreateWordModal2 extends StatelessWidget {
                     SizedBox(
                       height: 56,
                     ),
-                    // Flutter1.22以降のみ
                     Row(
                       children: [
                         SizedBox(width: 20),

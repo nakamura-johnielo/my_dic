@@ -31,69 +31,6 @@ class MyIconButton extends StatefulWidget {
   _MyIconButtonState createState() => _MyIconButtonState();
 }
 
-/* class _MyIconButtonState extends State<MyIconButton> {
-  Future<void>? currentAction;
-  late final IconData defaultIcon;
-  late final IconData? pressedIcon;
-  late final IconData? hoveredIcon;
-  late final IconData? runnningIcon;
-  late final VoidCallback? onTap;
-
-  @override
-  void initState() {
-    super.initState();
-    defaultIcon = widget.defaultIcon;
-    pressedIcon = widget.pressedIcon;
-    hoveredIcon = widget.hoveredIcon;
-    runnningIcon = widget.runnningIcon;
-    onTap = widget.onTap;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return TextButton(
-      onPressed: () async {
-        late final Future<void> thisAction;
-        thisAction = Future<void>.delayed(const Duration(seconds: 1), () {
-          if (currentAction == thisAction) {
-            setState(() {
-              currentAction = null;
-            });
-          }
-        });
-        setState(() {
-          currentAction = thisAction;
-        });
-      },
-      style: TextButton.styleFrom(
-        overlayColor: Colors.transparent,
-        foregroundBuilder:
-            (BuildContext context, Set<WidgetState> states, Widget? child) {
-          late final IconData currentIcon;
-          if (currentAction != null) {
-            currentIcon = runnningIcon ?? defaultIcon;
-          } else if (states.contains(WidgetState.pressed)) {
-            currentIcon = pressedIcon ?? defaultIcon;
-          } else if (states.contains(WidgetState.hovered)) {
-            currentIcon = hoveredIcon ?? defaultIcon;
-          } else {
-            currentIcon = defaultIcon;
-          }
-          return AnimatedContainer(
-            padding: EdgeInsets.all(0),
-            margin: EdgeInsets.all(0),
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.fastOutSlowIn,
-            child: Icon(currentIcon),
-          );
-        },
-      ),
-      child: const Text('This child is not used'),
-    );
-  }
-}
- */
-
 class _MyIconButtonState extends State<MyIconButton> {
   Future<void>? currentAction;
   late VoidCallback? onTap;
@@ -163,7 +100,6 @@ class _MyIconButtonState extends State<MyIconButton> {
       },
       style: TextButton.styleFrom(
         minimumSize: Size(1, 1),
-        //maximumSize: Size(iconSize ?? 33, iconSize ?? 33),
         padding: padding ?? EdgeInsets.all(0),
         overlayColor: Colors.transparent,
         foregroundBuilder:
