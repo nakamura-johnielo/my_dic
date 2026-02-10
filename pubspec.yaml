@@ -56,6 +56,17 @@ flutter:
     # Web用Gzip圧縮JSONデータベース（ビルド時にexport_db_to_json_compressed.dartで生成）
     - assets/db_for_web/kotobank.json.gz
     - assets/db_for_web/es_en_conjugacions.json.gz
+    # icons
+    - assets/svg/bar_chart_4_bars.svg
+    - assets/svg/crown.svg
+    - assets/svg/explore_filled.svg
+    - assets/svg/explore.svg
+    - assets/svg/face_filled.svg
+    - assets/svg/face.svg
+    - assets/svg/Q.svg
+    - assets/svg/school_filled.svg
+    - assets/svg/school.svg
+    - assets/svg/trophy.svg
 
 flutter_icons:
   android: true

@@ -1,13 +1,8 @@
-import 'dart:math';
-
 import 'package:my_dic/core/shared/utils/logger.dart';
 
 import 'package:flutter/material.dart';
-import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/components/auto_focus_text_field.dart';
-import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
-import 'package:my_dic/features/search/presentation/components/card/card_view.dart';
 import 'package:my_dic/features/search/presentation/components/conjugacion_search_card.dart';
 import 'package:my_dic/features/search/presentation/components/jpn_esp_searh_card.dart';
 import 'package:my_dic/features/search/presentation/components/search_card.dart';
@@ -31,8 +26,6 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
   int _previousJpnEspItemLength = 0;
   late final InfinityScrollController _infinityScrollController;
   final int initialPage = 0;
-
-  final int conjDisplayCount = 2;
 
   @override
   void initState() {
@@ -112,112 +105,64 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
           ),
           Expanded(
               child: viewModel.jpnEspWords.isNotEmpty
-                  //========JPN ESP====================================
                   ? InfinityScrollListView(
-                      padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
                       autoLoadFirstPage: true,
                       initialPage: initialPage,
                       controller: _infinityScrollController,
                       itemCount: viewModel.jpnEspWords.length,
                       itemBuilder: (context, index) {
                         final jpnEspWord = viewModel.jpnEspWords[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 11),
-                          child: CardView(
-                            query: viewModel.query,
-                            wordId: 0, //jpnEspWord.id,
-                            ranking: 4 * index + index,
-                            rankingON: false,
-                            word: jpnEspWord.word,
-                            meaning: 'これは意味ですこれは意味ですこれは意味ですこれは意味ですこれは意味です',
-                            isBookmarked: false,
-                            isLearned: false,
-                            onTap: () {
-                              //TODO gorouter check
-                              viewModelNotifier.goToWordDetail(WordPageInput(
-                                  wordId: jpnEspWord.id,
-                                  wordType: WordType.jpnEsp,
-                                  hasConj: false));
-                            },
-                          ),
+                        return JpnEspSearchCard(
+                          word: jpnEspWord.word,
+                          onTap: () {
+                            //TODO gorouter check
+                            viewModelNotifier.goToWordDetail(WordPageInput(
+                                wordId: jpnEspWord.id,
+                                wordType: WordType.jpnEsp,
+                                hasConj: false));
+                          },
                         );
                       },
                       onLoadMore: _loadNextPage,
                     )
-                  //===========ESP JPN================================
                   : InfinityScrollListView(
-                      padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
                       autoLoadFirstPage: true,
                       initialPage: initialPage,
                       controller: _infinityScrollController,
-                      itemCount: ( //viewModel.conjugacions.length +
-                          min(conjDisplayCount, viewModel.conjugacions.length) +
-                              viewModel.espJpnWords.length),
+                      itemCount: (viewModel.conjugacions.length +
+                          viewModel.espJpnWords.length),
                       itemBuilder: (context, index) {
+                        final conjLength = viewModel.conjugacions.length;
                         final query = viewModel.query;
-                        //表示個数と実際に持っいる個数を比較
-                        final conjLength = min(
-                            conjDisplayCount, viewModel.conjugacions.length);
-
                         //先にconj
-                        if (index < conjLength ) {
+                        if (index < conjLength) {
                           final conjugacion = viewModel.conjugacions[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 11),
-                            child: CardView(
-                              goToQuiz: () => viewModelNotifier.goToQuiz(
-                                  QuizGameFragmentInput(
-                                      wordId: conjugacion.wordId,
-                                      word: conjugacion.word)),
-                              wordId: conjugacion.wordId,
-                              word: conjugacion.word,
-                              query: query,
-                              conjugacions: conjugacion.matches,
-                              ranking: 4 * index + index, //TODO ranking
-                              rankingON: true,
-                              meaning: 'これは意味ですこれは意味ですこれは意味ですこれは意味ですこれは意味です',
-                              isBookmarked: false,
-                              isLearned: false,
-                              onTap: () {
-                                //TODO gorouter check
-
-                                viewModelNotifier.goToWordDetail(WordPageInput(
-                                    wordId: conjugacion.wordId,
-                                    wordType: WordType.espJpn,
-                                    hasConj: true));
-                              },
-                            ),
-                          );
-                        }
-                        index = index - conjLength; //conjLength;
-                        final espJpnWord = viewModel.espJpnWords[index];
-
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 11),
-                          child: CardView(
-                            goToQuiz: () => viewModelNotifier.goToQuiz(
-                                QuizGameFragmentInput(
-                                    wordId: espJpnWord.wordId,
-                                    word: espJpnWord.word)),
+                          return ConjugacionSearchCard(
+                            word: conjugacion.word,
+                            conjugacions: conjugacion.matches,
                             query: query,
-                            wordId: espJpnWord.wordId, //jpnEspWord.id,
-                            ranking: 4 * index + index, //TODO ranking
-                            rankingON: true,
-                            // conjugations: index % 3 == 0
-                            //     ? "現在-yo: soy  現在-yo: soy  現在-yo: soy  現在-yo: soy  現在-yo: soy"
-                            //     : null,
-                            word: espJpnWord.word,
-                            meaning: 'これは意味ですこれは意味ですこれは意味ですこれは意味ですこれは意味です',
-                            isBookmarked: false,
-                            isLearned: false,
                             onTap: () {
                               //TODO gorouter check
+
                               viewModelNotifier.goToWordDetail(WordPageInput(
-                                  wordId: espJpnWord.wordId,
+                                  wordId: conjugacion.wordId,
                                   wordType: WordType.espJpn,
-                                  hasConj: espJpnWord.hasVerb()));
+                                  hasConj: true));
                             },
-                          ),
+                          );
+                        }
+                        index = index - conjLength;
+                        final espJpnWord = viewModel.espJpnWords[index];
+                        return SearchCard(
+                          word: espJpnWord.word,
+                          partOfSpeech: espJpnWord.partOfSpeech,
+                          onTap: () {
+                            //TODO gorouter check
+                            viewModelNotifier.goToWordDetail(WordPageInput(
+                                wordId: espJpnWord.wordId,
+                                wordType: WordType.espJpn,
+                                hasConj: espJpnWord.hasVerb()));
+                          },
                         );
                       },
                       onLoadMore: _loadNextPage,

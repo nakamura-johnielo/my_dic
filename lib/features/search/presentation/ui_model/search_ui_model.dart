@@ -5,6 +5,8 @@ import 'package:my_dic/core/domain/entity/word/word.dart';
 
 /// 検索画面の状態を表すクラス
 class SearchState {
+  //TODO ranking,simplemeaning
+  
   final String query;
   final List<EspJpnWord> espJpnWords;
   final List<JpnEspWord> jpnEspWords;
