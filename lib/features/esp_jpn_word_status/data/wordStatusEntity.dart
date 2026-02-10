@@ -49,14 +49,13 @@ class WordStatusDTO {
         updatedAt: (data[fieldUpdatedAt] as Timestamp).toDate().toUtc());
   }
 
-  WordStatus toEntity(){
+  WordStatus toEntity() {
     return WordStatus(
       wordId: wordId,
       isLearned: isLearned == 1 ? true : false,
       isBookmarked: isBookmarked == 1 ? true : false,
-      hasNote: hasNote == 1 ? true : false, 
+      hasNote: hasNote == 1 ? true : false,
       editAt: updatedAt,
-      //editAt: updatedAt,
     );
   }
 
@@ -76,7 +75,6 @@ class WordStatusDTO {
   }
 
   factory WordStatusDTO.fromAppEntity(WordStatus data) {
-    //final data = doc.data()!;
     return WordStatusDTO(
         wordId: data.wordId,
         isLearned: data.isLearned ? 1 : 0,

@@ -2,9 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/enums/auth/provider_type.dart';
 import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
 
-class AuthStoreNotifier extends StateNotifier<AppAuth?>  {
+class AuthStoreNotifier extends StateNotifier<AppAuth?> {
   AuthStoreNotifier() : super(null);
-
 
   void signOut() async {
     clear();
@@ -19,7 +18,7 @@ class AuthStoreNotifier extends StateNotifier<AppAuth?>  {
     bool? isLogined,
     bool? isAuthenticated,
     ProviderType? provider,
-  }){
+  }) {
     state = state?.copyWith(
         id: id,
         isLogined: isLogined,

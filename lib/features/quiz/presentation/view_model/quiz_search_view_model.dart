@@ -19,8 +19,8 @@ class QuizSearchViewModel extends StateNotifier<QuizSearchState> {
 
   // ==================== Public Methods ====================
 
-void goToQuiz(QuizGameFragmentInput input){
-    _naviService.toFlashCard( input);
+  void goToQuiz(QuizGameFragmentInput input) {
+    _naviService.toFlashCard(input);
   }
 
   /// 検索クエリを更新
@@ -59,7 +59,6 @@ void goToQuiz(QuizGameFragmentInput input){
   /// 検索結果をクリア
   void clearResults() {
     state = state.copyWith(
-      //query: '',
       quizSearchedItems: [],
       isLoading: false,
       errorMessage: null,
@@ -74,10 +73,10 @@ void goToQuiz(QuizGameFragmentInput input){
     final input = SearchWordInputData(word, size, page, true);
     print("_searchQuizEnableWord");
     final result = await _searchWordUseCase.executeVerbs(input);
-    
+
     result.when(
       success: (items) {
-        print(items.length.toString() + " in viewmodel");
+        print("${items.length} in viewmodel");
         state = state.copyWith(
           quizSearchedItems: [...state.quizSearchedItems, ...items],
           isLoading: false,

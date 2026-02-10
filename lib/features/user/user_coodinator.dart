@@ -1,12 +1,9 @@
-import 'dart:developer';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/enums/auth/subscription_status.dart';
-import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/user/di/service.dart';
 import 'package:my_dic/features/user/domain/usecase/i_create_new_user_use_case.dart';
-import 'package:my_dic/features/user/domain/usecase/i_ensure_user_exists_use_case.dart';
 import 'package:my_dic/features/user/domain/usecase/i_get_user_use_case.dart';
 import 'package:my_dic/features/user/domain/entity/user.dart';
 import 'package:my_dic/features/user/domain/usecase/i_update_user_use_case.dart';
@@ -15,7 +12,6 @@ import 'package:my_dic/features/user/presentation/view_model/app_user_store.dart
 class AppUserCoordinator {
   final IGetUserUseCase _getUserInteractor;
   final IUpdateUserUseCase _updateUserInteractor;
-  final IEnsureUserExistsUseCase _ensureUserExistsInteractor;
   final ICreateNewUserUseCase _createNewUserInteractor;
   final Ref ref;
 
@@ -23,35 +19,23 @@ class AppUserCoordinator {
   AppUserStoreNotifier get _storeNotifier =>
       ref.read(appUserStoreNotifierProvider.notifier);
 
-  AppUserCoordinator(
-      this._getUserInteractor,
-      this._updateUserInteractor,
-      this._ensureUserExistsInteractor,
-      this._createNewUserInteractor,
-      this.ref);
+  AppUserCoordinator(this._getUserInteractor, this._updateUserInteractor,
+      this._createNewUserInteractor, this.ref);
 
   Future<Result<void>> updateUser({
-    //TOODO accountIdの供給法
+    //TODO accountIdの供給法
     //  String? accountId,
     String? deviceId,
     String? email,
     String? username,
     SubscriptionStatus? subscriptionStatus,
   }) async {
-    // String? thisAccountId = accountId ?? _userStore?.accountId;
-    // if (thisAccountId == null) {
-    //   log("アカウントIDが存在しません。");
-    //   return Result.failure(UserNotFoundError(message: "アカウントIDが存在しません。"));
-    // }
-
     final user = _userStore?.copyWith(
             deviceId: deviceId,
-            // accountId: thisAccountId,
             email: email,
             username: username,
             subscriptionStatus: subscriptionStatus) ??
         AppUser(
-            // accountId: thisAccountId,
             deviceId: deviceId,
             email: email,
             username: username,
@@ -64,7 +48,6 @@ class AppUserCoordinator {
 //TODO errorの時の再試行
 
   Future<Result<void>> createUser(AppUser appUser) async {
-
     final res = await _createNewUserInteractor.execute(appUser);
     return res.map((user) {
       print("AppUserCoordinator createUser user=${user.toString()}");
@@ -78,13 +61,7 @@ class AppUserCoordinator {
   }
 
   Future<Result<void>> refresh() async {
-    // if (_userStore == null && accountId == null) {
-    //   print("accountIdがありません。");
-    //   return Result.failure(UserNotFoundError(message: "ユーザー情報がありません"));
-    // }
-
-    final res =
-        await _getUserInteractor.execute( );
+    final res = await _getUserInteractor.execute();
 
     return res.when(success: (user) {
       print("ユーザー情報をリフレッシュしました。${user.toString()}");
@@ -92,17 +69,7 @@ class AppUserCoordinator {
       return Result.success(null);
     }, failure: (error) async {
       print("ユーザー情報の更新に失敗しました: ${error.message}");
-      // if (error is DeviceNotFoundError ||
-      //     error is UserNotFoundError ||
-      //     error is NotFoundError) {
-      //   final user = _userStore ??
-      //       AppUser(
-      //         accountId: _userStore?.accountId ?? accountId!,
-      //       );
-      // print("ユーザー新規制作: ${error.message}");
 
-      //   return await createUser(user);
-      // }
       return Result.failure(error);
     });
   }

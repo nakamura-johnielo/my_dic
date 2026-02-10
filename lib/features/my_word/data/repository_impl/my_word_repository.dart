@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
@@ -107,12 +106,9 @@ class MyWordRepository implements IMyWordRepository {
       // Note: This would require a DAO method to check existence
       // For now, we'll handle the database constraint error
 
-    final wordId = MyUUID.generate();
-    await _localDataSource.insertMyWord(
-      wordId,
-      input.headword,
-      input.description,
-      input.dateTime.toIso8601String());
+      final wordId = MyUUID.generate();
+      await _localDataSource.insertMyWord(wordId, input.headword,
+          input.description, input.dateTime.toIso8601String());
 
       final myWord = MyWord(
           wordId: wordId,
@@ -123,7 +119,6 @@ class MyWordRepository implements IMyWordRepository {
       if (input.userId == null) return Result.success(wordId);
       await _remoteDataSource.updateMyWord(input.userId!,
           MyWordDTO.fromAppEntity(myWord, dateTime: input.dateTime));
-      // input.headword, input.description, input.dateTime);
       return Result.success(wordId);
     } catch (e, s) {
       // Check if it's a unique constraint violation
@@ -294,7 +289,8 @@ class MyWordRepository implements IMyWordRepository {
   }
 
   @override
-  Future<Result<void>> deleteRemoteMyWord(String userId, String myWordId) async {
+  Future<Result<void>> deleteRemoteMyWord(
+      String userId, String myWordId) async {
     try {
       await _remoteDataSource.deleteMyWord(userId, myWordId);
       return const Result.success(null);
@@ -421,13 +417,12 @@ class MyWordRepository implements IMyWordRepository {
         throw NotFoundError(message: '指定された単語が見つかりません');
       }
       return MyWord(
-        wordId: data.myWordId,
-        word: data.word,
-        contents: data.contents ?? '',
-        isLearned: false,
-        isBookmarked: false,
-        editAt: DateTime.parse(data.editAt).toUtc()
-      );
+          wordId: data.myWordId,
+          word: data.word,
+          contents: data.contents ?? '',
+          isLearned: false,
+          isBookmarked: false,
+          editAt: DateTime.parse(data.editAt).toUtc());
     });
   }
 }

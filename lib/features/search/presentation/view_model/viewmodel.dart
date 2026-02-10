@@ -21,20 +21,19 @@ class SearchViewModel extends StateNotifier<SearchState> {
 
   SearchViewModel(
     this._searchWordUseCase,
-    this._judgeSearchWordUseCase, this._naviService,
+    this._judgeSearchWordUseCase,
+    this._naviService,
   ) : super(SearchState());
 
   // ==================== Public Methods ====================
 
-void goToQuiz(QuizGameFragmentInput input){
-    _naviService.toFlashCard( input);
+  void goToQuiz(QuizGameFragmentInput input) {
+    _naviService.toFlashCard(input);
   }
 
-
-void goToWordDetail(WordPageInput input){
-    _naviService.toWordDetail( input);
+  void goToWordDetail(WordPageInput input) {
+    _naviService.toWordDetail(input);
   }
-
 
   /// 検索クエリを更新
   void updateQuery(String query) {
@@ -84,7 +83,6 @@ void goToWordDetail(WordPageInput input){
   /// 検索結果をクリア
   void clearResults() {
     state = state.copyWith(
-      //query: '',
       espJpnWords: [],
       jpnEspWords: [],
       conjugacions: [],
@@ -113,11 +111,11 @@ void goToWordDetail(WordPageInput input){
       {required int size, required int page}) async {
     final input = SearchWordInputData(word, size, page, false);
     final result = await _searchWordUseCase.executeEspJpn(input);
-    
+
     result.when(
       success: (data) {
-        print("result length " + data.wordList.length.toString());
-        
+        print("result length ${data.wordList.length}");
+
         if (page == 0) {
           // 初回は置き換え
           state = state.copyWith(

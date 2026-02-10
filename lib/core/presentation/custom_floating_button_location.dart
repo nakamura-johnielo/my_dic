@@ -11,12 +11,6 @@ class FloatAboveNavBar extends FloatingActionButtonLocation {
         scaffoldGeometry.floatingActionButtonSize.width -
         16.0 -
         adjustment;
-    // final double fabY = scaffoldGeometry.scaffoldSize.height -
-    //     scaffoldGeometry.floatingActionButtonSize.height -
-    //     scaffoldGeometry.minInsets.bottom -
-    //     bottomNavBarHeight -
-    //     16.0;
-    // Stable Y: avoid using scaffoldGeometry.minInsets.bottom which can change during scroll
     final double fabY = scaffoldGeometry.scaffoldSize.height -
         scaffoldGeometry.floatingActionButtonSize.height -
         bottomNavBarHeight -
@@ -37,13 +31,12 @@ class NoScaleFloatingActionButtonAnimator extends FloatingActionButtonAnimator {
       {required Offset begin, required Offset end, required double progress}) {
     // TODO: implement getOffset
     // print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
-    
+
     return begin;
   }
 
   @override
   Animation<double> getRotationAnimation({required Animation<double> parent}) {
-  
     return const AlwaysStoppedAnimation<double>(1.0);
   }
 }

@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/di/ui/ui_di.dart';
 import 'package:my_dic/core/presentation/components/nav_bar/animation.dart';
@@ -53,29 +52,7 @@ class MyNavigationBar extends StatelessWidget {
 }
  */
 
-//
 const double ICON_SIZE = 24; //default icon size
-// const double height = 80; //一応デフォルトnavbar height 80
-// const double margin = 10;
-
-/* 
-final NavigationBarThemeData navigationBarThemeData = NavigationBarThemeData(
-  backgroundColor: AppColors.surfaceDim,
-  indicatorColor: AppColors.primary,
-  //shadowColor: Colors.white,
-  //elevation: 10,
-  labelTextStyle: WidgetStateProperty.all(
-    const TextStyle(
-        fontWeight: FontWeight.w600, color: AppColors.onSurfaceVariant),
-  ),
-  iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((states) {
-    if (states.contains(WidgetState.selected)) {
-      return const IconThemeData(color: AppColors.onPrimary);
-    }
-    return const IconThemeData(color: AppColors.onSurfaceVariant);
-  }),
-); */
-//
 
 // class FloatBottomBar extends ConsumerWidget {
 //   const FloatBottomBar(
@@ -209,11 +186,19 @@ final NavigationBarThemeData navigationBarThemeData = NavigationBarThemeData(
 //   }
 // }
 
-class SwitchableFloatBottomBar extends ConsumerWidget {
-  const SwitchableFloatBottomBar(
+//
+///
+///
+///
+///
+
+//========================================================
+
+class FloatBottomBar extends ConsumerWidget {
+  const FloatBottomBar(
       {super.key,
       required this.selectedIndex,
-      required this.destinationMap,
+      required this.destinations,
       this.onDestinationSelected,
       this.onActionButtonSelected,
       this.backgroundColor = const Color.fromARGB(255, 249, 215, 255),
@@ -221,11 +206,9 @@ class SwitchableFloatBottomBar extends ConsumerWidget {
       this.iconColors = const SelectedColors(
           selected: Colors.black87, unselected: Colors.black54),
       this.labelColors = const SelectedColors(
-          selected: Colors.black87, unselected: Colors.black54),
-      required this.entryPoint});
+          selected: Colors.black87, unselected: Colors.black54)});
   final int selectedIndex;
-  final EntryPoint entryPoint;
-  final Map<EntryPointCategory, List<DestinatioinItem>> destinationMap;
+  final List<DestinatioinItem> destinations;
   final void Function(int)? onDestinationSelected;
   final void Function()? onActionButtonSelected;
   final Color backgroundColor;
@@ -255,10 +238,7 @@ class SwitchableFloatBottomBar extends ConsumerWidget {
     const margin = UIConsts.margin;
     const marginBottom = margin * 2;
 
-    // ref.read(bottomBarHeightProvider.notifier)
-    //     .setHeight(marginBottom + UIConsts.bottomBarHeight);
     return Container(
-      //width: double.infinity,
       margin: const EdgeInsets.fromLTRB(
           margin, 0, margin, marginBottom), //only(bottom: 20), //  all(10.0),
       color: Colors.transparent,
@@ -342,7 +322,7 @@ class SwitchableFloatBottomBar extends ConsumerWidget {
           // ),
 
           // navbar
-          Expanded(child: _buildBar(destinationMap[entryPoint.category] ?? [])),
+          Expanded(child: _buildBar(destinations)),
         ],
       ),
     );
@@ -365,39 +345,11 @@ class SwitchableFloatBottomBar extends ConsumerWidget {
           onDestinationSelected?.call(index);
         },
       ),
-
-      // CustomNavigationBar(
-      //   height: HEIGHT,
-      //   selectedIndex: selectedIndex,
-      //   destinations: destinations,
-      //   onDestinationSelected: onDestinationSelected,
-      //   backgroundColor: backgroundColor,
-      //   iconColors: iconColors,
-      //   labelColors: labelColors,
-      //   //backgroundColor: AppColors.surfaceDim,
-      //   indicatorColor: indicatorColor,
-      //   iconSize: ICON_SIZE,
-      // ),
-
-      //
-      /* NavigationBar(
-              height: HEIGHT,
-              selectedIndex: selectedIndex,
-              destinations: destinations,
-              onDestinationSelected: onDestinationSelected,
-              //backgroundColor: AppColors.surfaceDim,
-              //indicatorColor: AppColors.primary,
-            ), */
     );
   }
 }
 
-//
-///
-///
-///
-///
-
+//=====================================================
 class CustomNavigationBar extends StatelessWidget {
   const CustomNavigationBar(
       {super.key,
@@ -483,5 +435,3 @@ class CustomNavigationBar extends StatelessWidget {
     );
   }
 }
-
-//

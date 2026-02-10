@@ -1,5 +1,4 @@
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/update_status_repository_input_data.dart';
 import 'package:my_dic/core/domain/entity/word/word.dart';
 
 abstract class IEsjWordRepository {
@@ -8,7 +7,4 @@ abstract class IEsjWordRepository {
       String word, int size, int currentPage, bool forQuiz);
   Future<Result<List<EspJpnWord>>> getQuizWordsByWordByPage(
       String word, int size, int currentPage);
-  // Future<Result<void>> updateStatus(UpdateStatusRepositoryInputData input);
-
-  // Future<Result<WordStatus>> getStatusById(int wordId);
 }

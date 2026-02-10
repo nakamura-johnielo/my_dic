@@ -75,7 +75,7 @@ class FirebaseMyWordDao {
   }
 
   /// Watch changed MyWord IDs (for sync)
-    Stream<List<String>> watchChangedWordIds(String userId) {
+  Stream<List<String>> watchChangedWordIds(String userId) {
     return _db
         .collection(UserDTO.collectionName)
         .doc(userId)
@@ -86,8 +86,8 @@ class FirebaseMyWordDao {
             .where((change) =>
                 change.type == DocumentChangeType.modified ||
                 change.type == DocumentChangeType.added)
-        .map((change) =>
-          change.doc.data()?[MyWordDTO.fieldMyWordId] as String)
+            .map((change) =>
+                change.doc.data()?[MyWordDTO.fieldMyWordId] as String)
             .toList());
   }
 

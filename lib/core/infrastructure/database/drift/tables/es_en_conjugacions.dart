@@ -3,7 +3,10 @@ import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/words.d
 
 @DataClassName('EsEnConjugacionTableData')
 class EsEnConjugacions extends Table {
-  // IntColumn get wordId => integer().named('word_id').autoIncrement()();
+  IntColumn get wordId => integer()
+      .named('word_id')
+      .references(EspJpnWords, #wordId, onDelete: KeyAction.cascade)();
+
   TextColumn get word => text().nullable()();
   TextColumn get english => text().nullable()();
   TextColumn get present3rd => text().named('present_3rd').nullable()();
@@ -11,11 +14,6 @@ class EsEnConjugacions extends Table {
   TextColumn get past => text().nullable()();
   TextColumn get pastP => text().named('past_p').nullable()();
 
-  IntColumn get wordId => integer()
-    .named('word_id')
-    .references(EspJpnWords, #wordId, onDelete: KeyAction.cascade)();
-
   @override
   Set<Column> get primaryKey => {wordId};
-
 }

@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/features/auth/di/service.dart';
+import 'package:my_dic/features/auth/di/store.dart';
 import 'package:my_dic/features/esp_jpn_word_status/di/di.dart';
 import 'package:my_dic/features/my_word/di/usecase_di.dart';
 import 'package:my_dic/features/sync/sync_service.dart';

@@ -1,10 +1,4 @@
-enum WebDBLoadingType{
-  download,
-  decompressed,
-  parsing,
-  import
-}
-
+enum WebDBLoadingType { download, decompressed, parsing, import }
 
 extension WebDBLoadingTypeExtension on WebDBLoadingType {
   String get name {
@@ -17,7 +11,6 @@ extension WebDBLoadingTypeExtension on WebDBLoadingType {
         return 'jsonDecode (パース)';
       case WebDBLoadingType.import:
         return 'IndexDBの初期化 (インポート)';
-        
     }
   }
 }

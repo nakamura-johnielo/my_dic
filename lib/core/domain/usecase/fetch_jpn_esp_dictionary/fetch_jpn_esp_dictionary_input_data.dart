@@ -1,8 +1,4 @@
-
-
 class FetchJpnEspDictionaryInputData {
-	int id;
-	FetchJpnEspDictionaryInputData(this.id);
-	
-	
+  int id;
+  FetchJpnEspDictionaryInputData(this.id);
 }

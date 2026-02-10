@@ -21,8 +21,8 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
   final AppNavigatorService _naviService;
   final _logger = Logger('QuizGameViewModel');
 
-  QuizGameViewModel(
-      this._fetchConjugationInteractor, this._fetchEnglishConjInteractor, this._naviService)
+  QuizGameViewModel(this._fetchConjugationInteractor,
+      this._fetchEnglishConjInteractor, this._naviService)
       : super(QuizGameState.initial()) {
     _internalState = QuizInternalState.initial();
     _updatePublicState();
@@ -30,8 +30,8 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
 
   // ==================== Public Methods ====================
 
-  void goToWordDetail(WordPageInput input){
-    _naviService.toWordDetail( input);
+  void goToWordDetail(WordPageInput input) {
+    _naviService.toWordDetail(input);
   }
 
   void inicializeQuizCardStatus() {
@@ -51,7 +51,7 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
   Future<Map<String, String>> fetchEnglishConj(int wordId) async {
     final result = await _fetchEnglishConjInteractor.execute(wordId);
     print("!!!!!!!!!!!!!!!!!!!!!!!!!englishConj in QuizController");
-    
+
     return result.when(
       success: (englishConj) {
         print(englishConj);
@@ -66,12 +66,10 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
 
   Future<EspConjugacions?> getConjugaciones(int wordId) async {
     final FetchConjugationInputData input = FetchConjugationInputData(wordId);
-    // final FetchConjugationInputData inputDef =
-    //     FetchConjugationInputData(61663); //ser
-    final res = await _fetchConjugationInteractor.execute(input);
-    // await _fetchConjugationInteractor.execute(inputDef);
 
-   return res.when(
+    final res = await _fetchConjugationInteractor.execute(input);
+
+    return res.when(
         success: (data) => data,
         failure: (failure) {
           print("活用形の取得に失敗しました: $failure");
@@ -110,12 +108,11 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
       }
       sub = sub.replaceAll("#",
           beConj[englishMoodTense.toString()]![englishSubject.toString()]!);
-      // print("BEsub: $sub");
+
       return sub;
     }
     if (englishConj[EnglishMoodTense.indicativePresent.toString()]!
         .contains("be ")) {
-      //Map<String, Map<String, String>> beConj = json;
       if (moodTense == MoodTense.indicativeImperfect ||
           moodTense == MoodTense.indicativeFuture ||
           moodTense == MoodTense.indicativeConditional ||
@@ -130,7 +127,7 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
         "#",
         text,
       );
-      //print("BEsub: $sub");
+
       return sub;
     }
 
@@ -140,7 +137,7 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
       englishMoodTense = EnglishMoodTense.indicativePresent3rd;
     }
     sub = sub.replaceAll("#", englishConj[englishMoodTense.toString()]!);
-    //rprint("sub: $sub");
+
     return sub;
   }
 
@@ -183,17 +180,6 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
     return false;
   }
 
-  /// アクティブなアイテムを設定
-  // void setActiveItems(bool isActive, Enum item) {
-  //   if (item is Subject) {
-  //     _updateActiveSubjects(isActive, item);
-  //   } else if (item is MoodTense) {
-  //     _updateActiveMoodTenses(isActive, item);
-  //   }
-  //   _internalState.updateActiveKeys();
-  //   _updatePublicState();
-  // }
-
   // ==================== Private Methods ====================
 
   void _updateQuizCardStatus(QuizCardState status) {
@@ -203,9 +189,6 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
   /// 公開状態を更新
   void _updatePublicState() {
     state = state.copyWith(
-      // currentIndex: state.currentIndex,
-      // currentTense: state.currentTense,
-      // currentSubject: state.currentSubject,
       allLength: _internalState.activeKeys.length,
     );
   }

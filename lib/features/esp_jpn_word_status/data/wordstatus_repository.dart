@@ -14,40 +14,6 @@ class WordStatusRepository implements IWordStatusRepository {
   final ILocalWordStatusDataSource _local;
   WordStatusRepository(this._remote, this._local);
 
-  // @override
-  // Future<Result<void>> updateWordStatus(
-  //   String userId,
-  //   int wordId,
-  //   int? isLearned,
-  //   int? isBookmarked,
-  //   int? hasNote,
-  //   String editAt,
-  // ) async {
-  //   // Update local first
-  //   final localResult = await updateLocalWordStatus(
-  //     wordId,
-  //     isLearned,
-  //     isBookmarked,
-  //     hasNote,
-  //     editAt,
-  //   );
-  //   if (localResult.isFailure) {
-  //     return localResult;
-  //   }
-
-  //   // Then update remote if user is logged in
-  //   if (userId != "logout" && userId != "anonymous" && userId.isNotEmpty) {
-  //     final remoteResult =
-  //         await updateRemoteWordStatus(wordStatus, userId, (editAt));
-  //     // Log but don't fail if remote fails (local is already updated)
-  //     if (remoteResult.isFailure) {
-  //       print('Remote update failed: ${remoteResult.errorOrNull?.message}');
-  //     }
-  //   }
-
-  //   return const Result.success(null);
-  // }
-
   @override
   Future<Result<void>> updateLocalWordStatus(
     int wordId,

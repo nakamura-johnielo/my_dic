@@ -6,7 +6,7 @@ import 'package:my_dic/core/shared/enums/conjugacion/subject.dart';
 /// 外部に公開する Quiz の状態（読み取り専用）
 class QuizGameState {
   //TODO word,wordIdも入れる？？？
-  
+
   final int currentIndex;
   final MoodTense currentTense;
   final Subject currentSubject;

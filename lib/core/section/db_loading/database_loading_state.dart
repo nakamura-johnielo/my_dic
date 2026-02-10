@@ -1,5 +1,3 @@
-
-
 import 'package:my_dic/core/shared/enums/web/db.dart';
 
 class DatabaseLoadingState {
@@ -11,7 +9,8 @@ class DatabaseLoadingState {
   const DatabaseLoadingState({
     this.isLoading = false,
     this.progress = 0.0,
-    this.message = '',  this.loadingType=WebDBLoadingType.download,
+    this.message = '',
+    this.loadingType = WebDBLoadingType.download,
   });
 
   DatabaseLoadingState copyWith({

@@ -9,7 +9,6 @@ import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
 import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
 import 'package:my_dic/features/my_word/domain/i_repository/i_my_word_repository.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word/sync_my_word/i_sync_my_word_usecase.dart';
 
 class SyncMyWordInteractor implements ISyncUseCase {
   final ISyncStatusRepository _localSyncStatusRepository;
@@ -107,13 +106,13 @@ class SyncMyWordInteractor implements ISyncUseCase {
       final localDataResult =
           await _myWordRepository.getLocalMyWordById(wordId);
 
-      if (localDataResult.runtimeType != NotFoundError&& localDataResult.runtimeType == AppError) {
-    
+      if (localDataResult.runtimeType != NotFoundError &&
+          localDataResult.runtimeType == AppError) {
         return Result.failure(localDataResult.errorOrNull!);
       }
 
       final localData = localDataResult.dataOrNull;
-      if (localData == null||localDataResult.runtimeType == NotFoundError) {
+      if (localData == null || localDataResult.runtimeType == NotFoundError) {
         return Result.failure(UnexpectedError(
           message: 'ローカルのMyWordが見つかりません',
         ));
@@ -197,8 +196,8 @@ class SyncMyWordInteractor implements ISyncUseCase {
     final localDataResult =
         await _myWordRepository.getLocalMyWordById(remoteItem.wordId);
 
-    if (localDataResult.runtimeType != NotFoundError&& localDataResult.runtimeType == AppError) {
-    
+    if (localDataResult.runtimeType != NotFoundError &&
+        localDataResult.runtimeType == AppError) {
       return Result.failure(localDataResult.errorOrNull!);
     }
 
@@ -242,13 +241,14 @@ class SyncMyWordInteractor implements ISyncUseCase {
     final localDataResult =
         await _myWordRepository.getLocalMyWordById(remoteItem.wordId);
 
-    if (localDataResult.runtimeType != NotFoundError&& localDataResult.runtimeType == AppError) {
+    if (localDataResult.runtimeType != NotFoundError &&
+        localDataResult.runtimeType == AppError) {
       return Result.failure(localDataResult.errorOrNull!);
     }
 
     final localData = localDataResult.dataOrNull;
 
-    if (localData == null||localDataResult.runtimeType == NotFoundError) {
+    if (localData == null || localDataResult.runtimeType == NotFoundError) {
       print("local null");
       final createResult =
           await _myWordRepository.createLocalMyWord(remoteItem);
@@ -286,8 +286,8 @@ class SyncMyWordInteractor implements ISyncUseCase {
     final localDataResult =
         await _myWordRepository.getLocalMyWordsAfter(datetime);
 
-    if (localDataResult.runtimeType != NotFoundError&& localDataResult.runtimeType == AppError) {
-    
+    if (localDataResult.runtimeType != NotFoundError &&
+        localDataResult.runtimeType == AppError) {
       return Result.failure(localDataResult.errorOrNull!);
     }
 
@@ -295,7 +295,7 @@ class SyncMyWordInteractor implements ISyncUseCase {
 
     print("local myword sync length: ${localData.length}");
 
-    if (localData.isEmpty||localDataResult.runtimeType == NotFoundError) {
+    if (localData.isEmpty || localDataResult.runtimeType == NotFoundError) {
       return const Result.success(null);
     }
 

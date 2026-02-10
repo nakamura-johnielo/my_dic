@@ -5,7 +5,6 @@ import 'package:my_dic/features/my_word/domain/usecase/my_word/update/update_my_
 import 'package:my_dic/features/my_word/domain/usecase/my_word/update/update_my_word/i_update_my_word_use_case.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word/update/update_my_word/update_my_word_repository_input_data.dart';
 import 'package:my_dic/features/my_word/domain/i_repository/i_my_word_repository.dart';
-import 'package:my_dic/core/shared/utils/date_handler.dart';
 
 class UpdateMyWordInteractor implements IUpdateMyWordUseCase {
   final IMyWordRepository _driftMyWordRepository;

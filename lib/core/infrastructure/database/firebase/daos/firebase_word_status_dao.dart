@@ -13,7 +13,7 @@ class FirebaseWordStatusDao {
     //batch sizeごとにまとめて実行
     final batchSize = FirebaseConsts.batchSize;
     print("======================updateBatch=====================");
-    print("userID : ${userId}");
+    print("userID : $userId");
     wordStatusList.map((e) => print("wordId: ${e.wordId}"));
 
     for (int i = 0; i < wordStatusList.length; i += batchSize) {
@@ -37,7 +37,6 @@ class FirebaseWordStatusDao {
     }
   }
 
-  // Assume this class has a method to get user profile data from Firestore
   Future<WordStatusDTO?> getWordStatus(String userId, int wordId) async {
     final doc = await _db
         .collection(UserDTO.collectionName)
@@ -84,7 +83,6 @@ class FirebaseWordStatusDao {
         .collection(UserDTO.collectionName)
         .doc(userId)
         .collection(WordStatusDTO.collectionName)
-        //.where(WordStatusDTO.fieldUpdatedAt,isGreaterThan: Timestamp.fromDate(datetime))
         .snapshots()
         .skip(1)
         .map((snapshot) => snapshot.docChanges

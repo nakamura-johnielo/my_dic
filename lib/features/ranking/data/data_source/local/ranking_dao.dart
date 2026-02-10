@@ -10,7 +10,8 @@ import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart
 import 'package:tuple/tuple.dart';
 part '../../../../../__generated/features/ranking/data/data_source/local/ranking_dao.g.dart';
 
-@DriftAccessor(tables: [Rankings, PartOfSpeechLists, EspJpnWordStatus, EspConjugations])
+@DriftAccessor(
+    tables: [Rankings, PartOfSpeechLists, EspJpnWordStatus, EspConjugations])
 class RankingDao extends DatabaseAccessor<DatabaseProvider>
     with _$RankingDaoMixin {
   RankingDao(super.database);
@@ -35,7 +36,6 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
     //where句生成
     final whereQuery = _getEqualsQuery(partOfSpeechFilters, "part_of_speech");
 
-    //log("query: $whereQuery");
     final mainQuery = customSelect(
       '''
         with filtered_partofspeech as(
@@ -58,13 +58,6 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
     );
 
     final res = await mainQuery.get();
-    /* if (res.isEmpty) {
-      return null;
-    } */
-
-    for (int i = 0; i < 10; i++) {
-      //log("raw word: ${res[i].read<String?>('word')}");
-    }
 
     return res.map((row) {
       return RankingTableData(
@@ -72,7 +65,7 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
         rankingNo: row.read<int>('ranking_no'),
         word: row.read<String?>('word'),
         wordOrigin: row.read<String?>('word_origin'),
-        wordId: row.read<int?>('word_id')??-1,
+        wordId: row.read<int?>('word_id') ?? -1,
       );
     }).toList();
   }
@@ -96,7 +89,6 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
     final featureWhereQuery = _getWhereQueryWordStatus(
         featureTagFilters, featureTagExcludeFilters, "part_of_speech");
 
-    //log("query: $whereQuery");
     final mainQuery = customSelect(
       '''
         with rankingtable as(  
@@ -145,19 +137,23 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
       ''',
       //, f.part_of_speech_id,f.word_id,f.part_of_speech
       // 取得データrankingのみ
-      readsFrom: {rankings, partOfSpeechLists, espJpnWordStatus, espConjugations},
+      readsFrom: {
+        rankings,
+        partOfSpeechLists,
+        espJpnWordStatus,
+        espConjugations
+      },
     );
 
     final res = await mainQuery.get();
 
     return res.map((row) {
-      //final wordId = row.read<int>('word_id');
       final ranking = RankingTableData(
         rankingId: row.read<int>('ranking_id'),
         rankingNo: row.read<int>('ranking_no'),
         word: row.read<String?>('word'),
         wordOrigin: row.read<String?>('word_origin'),
-        wordId: row.read<int?>('word_id')??-1,
+        wordId: row.read<int?>('word_id') ?? -1,
         hasConj: row.read<int>('has_conj'),
       );
       final status = EspJpnWordStatusTableData(
@@ -170,73 +166,6 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
       return Tuple2(ranking, status);
     }).toList();
   }
-
-  /*   Future<List<Ranking>?> getRankingListByPage2(int page, int size) async {
-  // 部分クエリ（サブクエリの代替）
-  final subQuery = partOfSpeechLists.selectOnly()
-    ..addColumns([
-      partOfSpeechLists.partOfSpeechId.min(),
-      partOfSpeechLists.partOfSpeech,
-      partOfSpeechLists.wordId,
-    ])
-    ..where(
-      partOfSpeechLists.partOfSpeech.isIn(['名詞', '略語']),
-    )
-    ..groupBy([partOfSpeechLists.wordId])
-    ..orderBy([
-      OrderingTerm.asc(partOfSpeechLists.partOfSpeechId.min())
-    ]);
-
-  final filteredPartOfSpeechLists = await subQuery.get();
-
-  // メインクエリ
-  final query = select(rankings).join([
-    innerJoin(
-      QueryAlias(
-        subQuery.as('filtered'),
-        alias: 'f',
-      ),
-      filteredPartOfSpeechLists.word   //subQuery.get()  .wordId.equalsExp(rankings.wordId),
-    //subQuery.c[partOfSpeechLists.wordId].equalsExp(rankings.wordId),
-    ),
-  ])
-    ..orderBy([
-      OrderingTerm.asc(rankings.wordId)
-    ]);
-
-
-  // クエリ結果を取得
-  final results = await query.get();
-
-    return (select(rankings)
-          ..limit(size, offset: size * page)
-          ..orderBy([(tbl) => OrderingTerm(expression: tbl.rankingId)]))
-        .get();
-  }
-
-   Future<List<Ranking>?> getRankingListByPageWithFilter(
-      int page, int size, filters) {
-    // クエリの定義
-
-    final subqueryRanking = select(rankings)
-      ..where((tbl) => tbl.rankingNo.isBetweenValues(page, size));
-
-    final subqueryHinshi = selectOnly(partOfSpeechLists, distinct: true)
-                            ..addColumns([partOfSpeechLists.wordId.min(), partOfSpeechLists.partOfSpeech])
-                            ..groupBy([partOfSpeechLists.wordId]);
-
-final query = subqueryRanking.join([
-  leftOuterJoin(subqueryHinshi, subqueryHinshi.wordId.equalsExp(rankings.wordId))
-]);
-
-final result = await query.get();
-
-    return (select(rankings)
-          ..limit(size, offset: size * page)
-          ..orderBy([(tbl) => OrderingTerm(expression: tbl.rankingId)]))
-        .get();
-  }
- */
 }
 
 String _getEqualsQuery(Set<DisplayEnumMixin> data, String colName) {

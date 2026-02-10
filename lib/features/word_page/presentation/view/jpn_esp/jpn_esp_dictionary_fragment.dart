@@ -8,7 +8,6 @@ import 'package:my_dic/core/shared/consts/ui/ui2.dart';
 import 'package:my_dic/core/domain/entity/jpn_esp/jpn_esp_dictionary.dart';
 import 'package:my_dic/features/word_page/di/view_model_di.dart';
 import 'package:my_dic/features/word_page/presentation/view/html_style_kotobank.dart';
-//import 'package:my_dic/Infrastracture/DAO/kotobank_dictionary_dao.dart';
 
 class JpnEspDictionaryFragmentInputData {
   final int wordId;
@@ -18,27 +17,14 @@ class JpnEspDictionaryFragmentInputData {
 class JpnEspDictionaryFragment extends ConsumerWidget {
   final int wordId;
   const JpnEspDictionaryFragment({super.key, required this.wordId});
-  //final KotobankDictionaryDao _dao = KotobankDictionaryDao();
-  //final DatabaseProvider db = DatabaseProvider();
-  // final JpnEspWordPageController wordPageController;
-  //=DI<IEsjDictionaryRepository>();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     log("dic key: $key");
-    // final wordPageController = ref.read(jpnEspWordPageControllerProvider);
-    // final viewModel = ref.watch(jpnEspWordPageViewModelProvider);
-    // if (!viewModel.dictionaryCache.containsKey(wordId)) {
-    //   wordPageController.fetchDictionaryById(wordId);
-    //   return Center(
-    //     child: Text("Loading..."),
-    //   );
-    // }
-    
+
     final viewModel = ref.watch(wordPageViewModelProvider(wordId));
 
-    final List<JpnEspDictionary>? dictionaries =
-        viewModel.jpnEspDictionary;
+    final List<JpnEspDictionary>? dictionaries = viewModel.jpnEspDictionary;
 
     return dictionaries == null
         ? (Center(
@@ -51,13 +37,13 @@ class JpnEspDictionaryFragment extends ConsumerWidget {
             margin: const EdgeInsets.only(
                 top: MARGIN_TOP_SCROLLABLE_CHILD,
                 bottom: MARGIN_BOTTOM_SCROLLABLE_CHILD),
-            padding: const EdgeInsets.fromLTRB(PADDING_X_DISPLAY,0, PADDING_X_DISPLAY, 
-            UIConsts.scrollBottomPadding,  // FAB分の余白
+            padding: const EdgeInsets.fromLTRB(
+              PADDING_X_DISPLAY, 0, PADDING_X_DISPLAY,
+              UIConsts.scrollBottomPadding, // FAB分の余白
             ),
             child: Column(
               children: [
                 Text(
-                  //'Word: ${data['word']}',
                   dictionaries[0].word,
                   style: TextStyle(fontSize: 24),
                 ),
@@ -79,11 +65,6 @@ class DicSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        /* Text(
-          //'Word: ${data['word']}',
-          'Word: ${dictionary.word}',
-          style: TextStyle(fontSize: 24),
-        ), */
         Html(
           data: '<p class="hw">${dictionary.headword}</p>',
           style: htmlStyles,

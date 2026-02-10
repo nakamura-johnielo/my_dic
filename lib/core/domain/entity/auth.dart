@@ -30,7 +30,7 @@ class AppAuth {
     DateTime? updatedAt,
   }) {
     return AppAuth(
-      accountId: userId ?? this.accountId,
+      accountId: userId ?? accountId,
       email: email ?? this.email,
       userName: userName ?? this.userName,
       isLogined: isLogined ?? this.isLogined,

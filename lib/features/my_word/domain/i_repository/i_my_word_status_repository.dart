@@ -4,8 +4,9 @@ import 'package:my_dic/features/my_word/domain/usecase/my_word_status/update_my_
 
 abstract class IMyWordStatusRepository {
   // Local methods
-  Future<Result<void>> updateStatus(UpdateMyWordStatusRepositoryInputData input);
-    Stream<MyWordStatus> watchStatus(String wordId);
+  Future<Result<void>> updateStatus(
+      UpdateMyWordStatusRepositoryInputData input);
+  Stream<MyWordStatus> watchStatus(String wordId);
 
   // Remote sync methods
   Future<Result<List<MyWordStatus>>> getRemoteStatusAfter(
@@ -18,12 +19,11 @@ abstract class IMyWordStatusRepository {
       String userId, List<MyWordStatus> statusList);
 
   Future<Result<List<MyWordStatus>>> getLocalStatusAfter(DateTime datetime);
-    Future<Result<MyWordStatus?>> getLocalStatusById(String myWordId);
+  Future<Result<MyWordStatus?>> getLocalStatusById(String myWordId);
   // Future<Result<void>> updateLocalStatus(MyWordStatus status, DateTime now);
-  Future<Result<void>> updateLocalStatus(UpdateMyWordStatusRepositoryInputData input);
-  
-      
+  Future<Result<void>> updateLocalStatus(
+      UpdateMyWordStatusRepositoryInputData input);
 
-    Stream<List<String>> watchRemoteChangedIds(String userId);
-    Stream<List<String>> watchLocalChangedIds(DateTime datetime);
+  Stream<List<String>> watchRemoteChangedIds(String userId);
+  Stream<List<String>> watchLocalChangedIds(DateTime datetime);
 }

@@ -1,24 +1,15 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:my_dic/core/di/ui/ui_di.dart';
 import 'package:my_dic/core/presentation/custom_floating_button_location.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
-import 'package:my_dic/features/esp_jpn_word_status/di/di.dart';
 import 'package:my_dic/features/ranking/presentation/view/ranking_filter_modal.dart';
 import 'package:my_dic/core/shared/enums/word/word_type.dart';
-import 'package:my_dic/core/di/view_model/view_model.dart';
 import 'package:my_dic/features/ranking/presentation/effect_provider.dart';
 import 'package:my_dic/features/ranking/presentation/view/ranking_card.dart';
-import 'package:my_dic/core/shared/enums/ui/word_card_view_click_listener.dart';
-import 'package:my_dic/core/shared/consts/ui/tab.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
 import 'package:my_dic/features/ranking/di/view_model_di.dart';
-import 'package:my_dic/features/user/di/service.dart';
-import 'package:my_dic/features/user/di/viewmodel.dart';
 import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
 
 class RankingFragment extends ConsumerStatefulWidget {
@@ -29,11 +20,9 @@ class RankingFragment extends ConsumerStatefulWidget {
 }
 
 class _RankingFragmentState extends ConsumerState<RankingFragment> {
-  // int _currentPage = -1;
-  //final int _size = 30; //searchの1ページの取得件数
   int _previousItemLength = 0;
   final int _initialPage = 0;
-  // bool _hasMore = true;
+
   late final InfinityScrollController _infinityScrollController;
   late final VoidCallback _resetPageCallback; // = _resetPage;
 
@@ -45,7 +34,6 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
   }
 
   Future<bool> loadNextPage(int nextPage) async {
-    //final rankingController = ref.read(rankingControllerProvider);
     final viewModel = ref.read(rankingViewModelProvider.notifier);
 
     _setCurrentItemLength();
@@ -65,7 +53,6 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
 
     setState(() {
       _previousItemLength = 0;
-      // _currentPage = -1;
     });
   }
 
@@ -83,11 +70,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(rankingViewModelProvider);
-  //  final items = ref.watch(rankingViewModelProvider.select((vm) => vm.items));
     const margin = EdgeInsets.symmetric(vertical: 1, horizontal: 16);
-    // final userId = ref.watch(appUserStoreNotifierProvider)?.id ?? "anonymous";
-    // final userId =
-    //     ref.watch(appUserStoreNotifierProvider.select((u) => u?.accountId));
 
     ref.watch(rankingFilterEffectProvider(_resetPageCallback));
 
@@ -101,97 +84,27 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
             height: 12,
           ),
           Header(margin: margin),
-          /* SizedBox(
-            height: 2,
-          ), */
-          /* if (viewModel.items.isEmpty)
-            Expanded(
-                child: Center(
-              child: Text("Loading..."),
-            ))
-          else */
           Expanded(
               child: InfinityScrollListView(
             autoLoadFirstPage: true,
             initialPage: _initialPage,
             controller: _infinityScrollController,
             onLoadMore: loadNextPage,
-            //resetScroll: viewModel.resetIsOnUpdatedFilter,
-            // isOnUpdatedFilter: viewModel.isOnUpdatedFilter,
-            // loadNext: rankingController.loadNext,
             itemCount: viewModel.items.length,
             itemBuilder: (context, index) {
-              //final id = viewModel.items[index].wordId;
-
-              //TODO streamproviderで監視
-              //パフォーマンス要注意
-              //MVVMに変更したのでviewmodel経由で取得するようにする???
-              // final wordStatus = ref.watch(wordStatusByIdProvider(id));
-              //TODO import 考慮
-              // final wordStatus = ref.watch(espJpnWordStatusUiStateProvider(id));
-              // final command =
-              //     ref.read(espJpnWordStatusCommandProvider(id).notifier);
-              // print(
-              //     "###${id}: isBookmarked: ${wordStatus.isBookmarked}, isLearned: ${wordStatus.isLearned}");
               final ranking = viewModel.items[index];
-              // .copyWith(
-              //   isBookmarked: wordStatus.isBookmarked,
-              //   isLearned: wordStatus.isLearned,
-              //   hasNote: wordStatus.hasNote,
-              // );
-
-              // Map<WordCardViewButton, VoidCallback>? clickListeners = {
-              //   WordCardViewButton.bookmark: () async {
-              //     // unawaited(command.toggleBookmark(userId, wordStatus.isBookmarked));
-              //     await command.toggleBookmark(userId, wordStatus.isBookmarked);
-              //     //   _rankingController.updateWordStatus(
-              //     //       index,
-              //     //       ranking.wordId,
-              //     //       !ranking.isBookmarked,
-              //     //       ranking.isLearned,
-              //     //       ranking.hasNote);
-              //   },
-              //   WordCardViewButton.learned: () async {
-              //     // unawaited(command.toggleLearned(userId, ranking.isLearned));
-              //     await command.toggleLearned(userId, ranking.isLearned);
-              //     //   _rankingController.updateWordStatus(
-              //     //       index,
-              //     //       ranking.wordId,
-              //     //       ranking.isBookmarked,
-              //     //       !ranking.isLearned,
-              //     //       ranking.hasNote);
-              //   },
-              //   WordCardViewButton.note: () => log("note clicked"),
-              // };
 
               return RankingCard(
                 key: ValueKey("ranking-card-${ranking.wordId}"),
                 ranking: ranking,
-                // rankingbase.copyWith(
-                //   isBookmarked:
-                //       wordStatus?.isBookmarked ?? rankingbase.isBookmarked,
-                //   isLearned: wordStatus?.isLearned ?? rankingbase.isLearned,
-                // ),
                 margin: margin,
                 onTap: () {
-                  // context.push('/${MainScreenTab.ranking}/${ScreenPage.detail}',
-                  //     extra: EspJpnWordPageFragmentInput(
-                  //         wordId: ranking.wordId, isVerb: ranking.hasConj));
-                  //TODO gorouter check
-                  //context.push('/${MainScreenTab.ranking}/${ScreenPage.wordDetail}',
                   ref.read(rankingViewModelProvider.notifier).goToDetail(
                       WordPageInput(
                           wordId: ranking.wordId,
                           wordType: WordType.espJpn,
                           hasConj: ranking.hasConj));
-
-                  // context.push('/${ScreenPage.wordDetail}',
-                  //     extra: WordPageInput(
-                  //         wordId: ranking.wordId,
-                  //         wordType: WordType.espJpn,
-                  //         hasConj: ranking.hasConj));
                 },
-                // clickListeners: clickListeners,
               );
             },
           )),
@@ -215,11 +128,8 @@ class Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //const Color textColor = Colors.black;
-
     return Card(
       margin: margin,
-      //color: const Color.fromARGB(255, 234, 234, 234),
       elevation: 0,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
@@ -253,7 +163,6 @@ class Header extends StatelessWidget {
                 textAlign: TextAlign.left,
               ),
             ),
-            //const SizedBox(width: 15),
             Expanded(
               //width: 160,
               child: const Text(
@@ -283,74 +192,6 @@ class Header extends StatelessWidget {
   }
 }
 
-/* class Header extends StatelessWidget {
-  const Header({super.key, required this.margin});
-  final EdgeInsetsGeometry margin;
-
-  @override
-  Widget build(BuildContext context) {
-    const Color textColor = Colors.black;
-
-    return Card(
-      margin: margin,
-      color: const Color.fromARGB(255, 234, 234, 234),
-      elevation: 0,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(6.0),
-          topRight: Radius.circular(6.0),
-          bottomLeft: Radius.circular(0.0),
-          bottomRight: Radius.circular(0.0),
-        ),
-      ),
-      child: Container(
-        margin: const EdgeInsets.all(0),
-        padding: const EdgeInsets.all(0),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: const Color.fromARGB(255, 183, 183, 183),
-              width: 2.0,
-            ),
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 11),
-          child: Row(children: [
-            SizedBox(
-              width: 45,
-              child: const Text(
-                "No.",
-                style: TextStyle(fontSize: 15, color: textColor),
-                textAlign: TextAlign.left,
-              ),
-            ),
-            const SizedBox(width: 15),
-            SizedBox(
-              width: 160,
-              child: const Text(
-                "単語",
-                style: TextStyle(fontSize: 14, color: textColor),
-                textAlign: TextAlign.left,
-              ),
-            ),
-            const SizedBox(width: 15),
-            SizedBox(
-              width: 160,
-              child: const Text(
-                "原形",
-                style: TextStyle(fontSize: 15, color: textColor),
-                textAlign: TextAlign.left,
-              ),
-            ),
-          ]),
-        ),
-      ),
-    );
-  }
-}
- */
-
 class FilterButton extends StatelessWidget {
   const FilterButton({super.key});
 
@@ -364,13 +205,11 @@ class FilterButton extends StatelessWidget {
             backgroundColor: Colors.transparent,
             isScrollControlled: true,
             enableDrag: true,
-            //showDragHandle: true,
             barrierColor: Colors.black.withValues(alpha: .5),
             builder: (context) {
               return RankingFilterModal();
             });
       },
-      //backgroundColor: Colors.blue,
       child: Icon(Icons.filter_alt_rounded),
     );
   }

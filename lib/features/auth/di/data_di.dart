@@ -5,16 +5,6 @@ import 'package:my_dic/features/auth/data/data_source/remote/firebase_auth_remot
 import 'package:my_dic/features/auth/data/data_source/remote/i_auth_remote_data_source.dart';
 import 'package:my_dic/features/auth/data/repository_impl/firebase_auth_repository_impl.dart';
 import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
-import 'package:my_dic/features/auth/domain/usecase/i_observe_auth_state_use_case.dart';
-import 'package:my_dic/features/auth/domain/usecase/i_sign_in_use_case.dart';
-import 'package:my_dic/features/auth/domain/usecase/i_sign_out_use_case.dart';
-import 'package:my_dic/features/auth/domain/usecase/i_sign_up_use_case.dart';
-import 'package:my_dic/features/auth/domain/usecase/i_verify_email_use_case.dart';
-import 'package:my_dic/features/auth/domain/usecase/observe_auth_state_interactor.dart';
-import 'package:my_dic/features/auth/domain/usecase/signin.dart';
-import 'package:my_dic/features/auth/domain/usecase/signout.dart';
-import 'package:my_dic/features/auth/domain/usecase/signup.dart';
-import 'package:my_dic/features/auth/domain/usecase/verify_email.dart';
 
 // firebase
 // ====auth

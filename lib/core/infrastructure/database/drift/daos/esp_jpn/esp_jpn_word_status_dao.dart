@@ -11,15 +11,6 @@ class EspJpnWordStatusDao extends DatabaseAccessor<DatabaseProvider>
     with _$EspJpnWordStatusDaoMixin {
   EspJpnWordStatusDao(super.database);
 
-  /* Future<void> updateStatus(
-      int id, int isLearned, int isBookmarked, int hasNote) async {
-    await (update(wordStatus)..where((t) => t.wordId.equals(id))).write(
-        WordStatusCompanion(
-            isLearned: Value(isLearned),
-            isBookmarked: Value(isBookmarked),
-            hasNote: Value(hasNote)));
-  } */
-
   Stream<EspJpnWordStatusTableData?> watchWordStatus(int wordId) {
     return (select(espJpnWordStatus)..where((tbl) => tbl.wordId.equals(wordId)))
         .watchSingleOrNull()
@@ -43,11 +34,9 @@ class EspJpnWordStatusDao extends DatabaseAccessor<DatabaseProvider>
     String editAt,
   ) async {
     log("update");
-    //await update(espJpnWordStatus).replace(data);
     await (update(espJpnWordStatus)..where((t) => t.wordId.equals(wordId)))
         .write(
       EspJpnWordStatusCompanion(
-        //wordId: Value(wordId),
         isLearned: isLearned != null ? Value(isLearned) : Value.absent(),
         isBookmarked:
             isBookmarked != null ? Value(isBookmarked) : Value.absent(),
@@ -69,15 +58,6 @@ class EspJpnWordStatusDao extends DatabaseAccessor<DatabaseProvider>
               tbl.editAt.isBiggerThanValue(datetime.toIso8601String())))
         .get();
   }
-
-  /* Future<void> insertStatus(
-      int id, int isLearned, int isBookmarked, int hasNote) async {
-    into(espJpnWordStatus).insert(EspJpnWordStatusTableData(
-        wordId: id,
-        isLearned: isLearned,
-        isBookmarked: isBookmarked,
-        hasNote: hasNote));
-  } */
 
   Future<void> insertStatus(EspJpnWordStatusTableData data) async {
     await into(espJpnWordStatus).insert(data);

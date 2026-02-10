@@ -3,5 +3,6 @@ import 'package:my_dic/core/domain/usecase/fetch_jpn_esp_dictionary/fetch_jpn_es
 import 'package:my_dic/core/shared/utils/result.dart';
 
 abstract class IFetchJpnEspDictionaryUseCase {
-  Future<Result<List<JpnEspDictionary>>> execute(FetchJpnEspDictionaryInputData input);
+  Future<Result<List<JpnEspDictionary>>> execute(
+      FetchJpnEspDictionaryInputData input);
 }

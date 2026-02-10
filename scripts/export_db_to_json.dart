@@ -5,6 +5,7 @@
 /// 
 /// このスクリプトは assets/ 内の .db ファイルを読み込み、
 /// assets/data/ 配下にJSON形式でエクスポートします。
+library;
 
 import 'dart:io';
 import 'dart:convert';

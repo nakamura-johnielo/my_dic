@@ -7,13 +7,13 @@ class AuthDTO {
   final String accountId;
   final String? email;
   final bool isVerified;
-  final ProviderType provider; 
+  final ProviderType provider;
 
-  AuthDTO( {
+  AuthDTO({
     required this.accountId,
     this.email,
     required this.isVerified,
-    this.provider=ProviderType.unknown,
+    this.provider = ProviderType.unknown,
   });
 
   // データ不正 -> exception
@@ -28,15 +28,14 @@ class AuthDTO {
       throw Exception('User ID is empty');
     }
 
-    final provider=userCredential.credential?.providerId;
+    final provider = userCredential.credential?.providerId;
     print("auth Email: ${user.email}");
 
     return AuthDTO(
-      accountId: user.uid,
-      email: user.email, // null 許容（匿名認証対応）
-      isVerified: user.emailVerified,
-      provider: ProviderTypeExtension.fromFirebaseProviderId( provider)
-    );
+        accountId: user.uid,
+        email: user.email, // null 許容（匿名認証対応）
+        isVerified: user.emailVerified,
+        provider: ProviderTypeExtension.fromFirebaseProviderId(provider));
   }
 
   /// User から生成（authStateChanges 監視時）

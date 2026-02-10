@@ -5,13 +5,13 @@ import 'package:my_dic/core/shared/enums/web/db.dart';
 class DatabaseLoadingNotifier extends StateNotifier<DatabaseLoadingState> {
   DatabaseLoadingNotifier() : super(const DatabaseLoadingState());
 
-  void updateProgress(double? progress, String? message, WebDBLoadingType? loadingType) {
-    //print("type: ${state.loadingType} ==========================");
+  void updateProgress(
+      double? progress, String? message, WebDBLoadingType? loadingType) {
     state = state.copyWith(
       isLoading: true,
-      progress: progress!=null? (progress.isFinite
-      ? progress.clamp(0.0, 1.0)
-      : 0.0):null,
+      progress: progress != null
+          ? (progress.isFinite ? progress.clamp(0.0, 1.0) : 0.0)
+          : null,
       message: message,
       loadingType: loadingType,
     );
@@ -29,5 +29,3 @@ class DatabaseLoadingNotifier extends StateNotifier<DatabaseLoadingState> {
     state = const DatabaseLoadingState();
   }
 }
-
-

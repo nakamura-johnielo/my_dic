@@ -1,4 +1,3 @@
-
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:my_dic/core/shared/errors/app_error.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
@@ -9,7 +8,7 @@ part '../../../__generated/core/shared/utils/result.freezed.dart';
 @freezed
 class Result<T> with _$Result<T> {
   const Result._();
-  
+
   const factory Result.success(T data) = Success<T>;
   const factory Result.failure(AppError error) = Failure<T>;
 
@@ -25,9 +24,11 @@ class Result<T> with _$Result<T> {
         failure: (error) => error,
       );
 
+  //TODO 消す！！！！
   /// 成功かどうか
   bool get isSuccess => this is Success<T>;
 
+  //TODO 消す！！！！
   /// 失敗かどうか
   bool get isFailure => this is Failure<T>;
 

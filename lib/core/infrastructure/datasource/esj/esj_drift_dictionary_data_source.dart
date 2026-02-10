@@ -2,7 +2,6 @@ import 'package:my_dic/core/infrastructure/database/drift/daos/esp_jpn/dictionar
 import 'package:my_dic/core/infrastructure/database/drift/daos/esp_jpn/example_dao.dart';
 import 'package:my_dic/core/infrastructure/database/drift/daos/esp_jpn/idiom_dao.dart';
 import 'package:my_dic/core/infrastructure/database/drift/daos/esp_jpn/supplement_dao.dart';
-import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/core/infrastructure/datasource/esj/esj_dictionary_dataset.dart';
 
 import 'i_esj_dictionary_data_source.dart';

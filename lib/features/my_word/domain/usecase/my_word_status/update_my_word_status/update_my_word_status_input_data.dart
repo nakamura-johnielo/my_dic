@@ -1,11 +1,3 @@
-// class UpdateMyWordStatusInputData {
-//   int index;
-//   int wordId;
-//   Set<FeatureTag> status;
-//   String? userId;
-//   UpdateMyWordStatusInputData(this.wordId, this.status, this.index,this.userId);
-// }
-
 class UpdateMyWordStatusInputData {
   final String wordId;
   final int? isLearned;

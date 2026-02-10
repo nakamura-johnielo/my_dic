@@ -13,29 +13,17 @@ import 'package:my_dic/features/word_page/di/view_model_di.dart';
 class ConjugacionFragment extends ConsumerWidget {
   const ConjugacionFragment({super.key, required this.wordId});
 
-  //final WordPageController wordPageController;
-  //=DI<IConjugacionsRepository>();
   final int wordId;
 
-  //log("getwordbyid: ${result[]}");
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     log("conj key: $key");
-    // final wordPageController = ref.read(wordPageControllerProvider);
-    // final mainViewModel = ref.watch(mainViewModelProvider);
-    // if (!mainViewModel.conjugacionCache.containsKey(wordId)) {
-    //   wordPageController.fetchConjugacionById(wordId);
-    //   return Center(
-    //     child: Text("Loading..."),
-    //   );
-    // }
 
     final viewModel = ref.watch(wordPageViewModelProvider(wordId));
 
     //TODO ここ修正
     final EspConjugacions? conjugacions = viewModel.conjugacions;
 
-    // final query = ref.watch(searchViewModelProviderOld).query;
     final query = ref.watch(searchViewModelProvider).query;
 
     return conjugacions == null
@@ -45,13 +33,10 @@ class ConjugacionFragment extends ConsumerWidget {
             style: TextStyle(fontSize: 24),
           )))
         : (ListView(
-            //shrinkWrap: true,
-            padding: 
-            // const EdgeInsets.symmetric(
-            //     horizontal: PADDING_X_DISPLAY,
-            //     vertical: MARGIN_BOTTOM_SCROLLABLE_CHILD),
- const EdgeInsets.fromLTRB(PADDING_X_DISPLAY,MARGIN_BOTTOM_SCROLLABLE_CHILD, PADDING_X_DISPLAY, 
-            UIConsts.scrollBottomPadding, // FAB分の余白
+            padding: const EdgeInsets.fromLTRB(
+              PADDING_X_DISPLAY, MARGIN_BOTTOM_SCROLLABLE_CHILD,
+              PADDING_X_DISPLAY,
+              UIConsts.scrollBottomPadding, // FAB分の余白
             ),
             children: conjugacions.conjugacions.entries.map((entry) {
               final moodTense = entry.key;

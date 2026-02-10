@@ -18,13 +18,11 @@ class MyWordItemViewModel {
   void updateWord({
     required String headword,
     required String description,
-    required int index,
     required void Function() onComplete,
   }) {
     _command.updateWord(
       headword: headword,
       description: description,
-      index: index,
       onComplete: onComplete,
     );
   }

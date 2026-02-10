@@ -1,6 +1,7 @@
 /// Stub for non-web platforms
 /// This file is used when compiling for mobile/desktop platforms
 /// to avoid importing web-specific code
+library;
 
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 

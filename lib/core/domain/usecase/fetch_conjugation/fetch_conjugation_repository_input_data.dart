@@ -1,8 +1,4 @@
-
-
 class FetchConjugationRepositoryInputData {
-	int id;
-	FetchConjugationRepositoryInputData(this.id);
-	
-	
+  int id;
+  FetchConjugationRepositoryInputData(this.id);
 }

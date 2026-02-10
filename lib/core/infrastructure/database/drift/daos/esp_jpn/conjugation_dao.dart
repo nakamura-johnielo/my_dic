@@ -1,9 +1,6 @@
 import 'package:drift/drift.dart';
-import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
-import 'package:my_dic/core/shared/enums/conjugacion/subject.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/conjugations.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
-
 
 part '../../../../../../__generated/core/infrastructure/database/drift/daos/esp_jpn/conjugation_dao.g.dart';
 
@@ -16,12 +13,6 @@ class ConjugationDao extends DatabaseAccessor<DatabaseProvider>
     return (select(espConjugations)..where((tbl) => tbl.wordId.equals(id)))
         .getSingleOrNull();
   }
-
-/*   Future<EspConjugationTableData?> getConjugationByWordWithPage(
-      String word, int size, int currentPage) {
-    return (select(espConjugations)..where((tbl) => tbl.wordId.equals(id)))
-        .getSingleOrNull();
-  } */
 
   Future<List<EspConjugationTableData>> getConjugationByWordWithPage(
     String word,
@@ -36,10 +27,6 @@ class ConjugationDao extends DatabaseAccessor<DatabaseProvider>
       readsFrom: {espConjugations},
     );
     final res = await mainQuery.get();
-    // res.forEach((row) {
-    //   print("==============e: ${row.read<int>('word_id')}");
-    //   print("==============e: ${row.read<String>('word')}");
-    //   });
 
     return res.map((row) {
       return EspConjugationTableData(
@@ -128,24 +115,15 @@ class ConjugationDao extends DatabaseAccessor<DatabaseProvider>
     );
 
     print("````````````````````````````````` in dao");
-    // print('''
-    //   ${getAllQueryWithWordColumn(word)}  
-    //   limit $size offset ${size * requiredPage}
-    //   ''');
-    // print("````````````````````````````````` in dao");
 
-    try{
+    try {
       final resTest = await mainQuery.get();
-      print(resTest.length.toString() + " in dao test");
+      print("${resTest.length} in dao test");
     } catch (e) {
       print("Error in dao test: $e");
     }
     final res = await mainQuery.get();
-    print(res.length.toString() + " in dao");
-    // res.forEach((row) {
-    //   print("==============e: ${row.read<int>('word_id')}");
-    //   print("==============e: ${row.read<String>('word')}");
-    //   });
+    print("${res.length} in dao");
 
     return res.map((row) {
       return EspConjugationTableData(
@@ -231,37 +209,6 @@ class ConjugationDao extends DatabaseAccessor<DatabaseProvider>
   Future<void> deleteConjugation(
           Insertable<EspConjugationTableData> tableName) =>
       delete(espConjugations).delete(tableName);
-}
-
-String _getWhereQuery(String value) {
-  String res = "";
-  for (var tense in MoodTense.values) {
-    for (var subject in Subject.values) {
-      if (MoodTense.imperative == tense && Subject.yo == subject) {
-        continue;
-      }
-      res += "${tense.column}_${subject.name} = $value or";
-    }
-  }
-  res = res.substring(0, res.length - 2); //最後のorを削除
-
-  return res;
-}
-
-String _getColumns(String value) {
-  String res = "word_id, word";
-  for (var tense in MoodTense.values) {
-    for (var subject in Subject.values) {
-      if (MoodTense.imperative == tense && Subject.yo == subject) {
-        continue;
-      }
-      res +=
-          ", CASE WHEN ${tense.column}_${subject.name} LIKE $value THEN 1 ELSE 0 END AS ${tense.column}_${subject.name}";
-    }
-  }
-  res = res.substring(0, res.length - 2); //最後のorを削除
-
-  return res;
 }
 
 String getAllQuery(String query) {

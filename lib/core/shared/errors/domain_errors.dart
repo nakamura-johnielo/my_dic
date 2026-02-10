@@ -73,7 +73,6 @@ class UnauthorizedError extends AppError {
         );
 }
 
-
 class AlreadyExistsError extends AppError {
   AlreadyExistsError({
     required super.message,
@@ -84,4 +83,3 @@ class AlreadyExistsError extends AppError {
           code: code ?? 'ALREADY_EXISTS',
         );
 }
-

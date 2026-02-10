@@ -4,6 +4,7 @@
 /// dart scripts/export_db_to_json_compressed.dart
 /// 
 /// 出力: assets/data/*.json.gz (Gzip圧縮版)
+library;
 
 import 'dart:io';
 import 'dart:convert';

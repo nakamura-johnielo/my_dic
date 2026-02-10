@@ -11,7 +11,4 @@ class MyWordStatus extends Table {
   @override
   Set<Column> get primaryKey => {myWordId};
 
-/*   @override
-  List<String> get customConstraints =>
-      ['FOREIGN KEY(word_id) REFERENCES words(word_id)']; */
 }

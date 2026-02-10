@@ -28,8 +28,6 @@ class MyWordFragmentViewModel extends StateNotifier<MyWordFragmentState> {
 
   Future<void> loadNext(int size, int currentPage) async {
     log("lodNext");
-    //List<int> requiredPages = [_viewModel.currentPage[0], _viewModel.currentPage[1]];
-
     LoadMyWordInputData input = LoadMyWordInputData(size, currentPage + 1);
     final result = await _loadMyWordInteractor.executeIds(input);
     result.when(

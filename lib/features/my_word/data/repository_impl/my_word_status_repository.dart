@@ -18,44 +18,6 @@ class MyWordStatusRepository implements IMyWordStatusRepository {
 
   MyWordStatusRepository(this._localDataSource, this._remoteDataSource);
 
-  // @override
-  // Future<Result<void>> updateStatus(
-  //     UpdateMyWordStatusRepositoryInputData input) async {
-  //   try {
-  //     log("updatestatusrepo");
-  //     MyWordStatusTableData data = MyWordStatusTableData(
-  //       myWordId: input.wordId,
-  //       isLearned: input.status.contains(FeatureTag.isLearned) ? 1 : 0,
-  //       isBookmarked: input.status.contains(FeatureTag.isBookmarked) ? 1 : 0,
-  //       hasNote: input.status.contains(FeatureTag.hasNote) ? 1 : 0,
-  //       editAt: input.editAt.toIso8601String(),
-  //     );
-
-  //     if (await _localDataSource.existStatus(input.wordId)) {
-  //       await _localDataSource.updateStatus(data);
-  //     } else {
-  //       await _localDataSource.insertStatus(data);
-  //     }
-  //     if (input.userId == null) return const Result.success(null);
-  //     await _remoteDataSource.updateStatus(
-  //         input.userId!,
-  //         MyWordStatusDTO(
-  //             myWordId: input.wordId,
-  //             isLearned: input.status.contains(FeatureTag.isLearned) ? 1 : 0,
-  //             isBookmarked:
-  //                 input.status.contains(FeatureTag.isBookmarked) ? 1 : 0,
-  //             createdAt: input.editAt,
-  //             updatedAt: input.editAt));
-  //     return const Result.success(null);
-  //   } catch (e, s) {
-  //     return Result.failure(DatabaseError(
-  //       message: '単語ステータスの更新に失敗しました',
-  //       originalError: e,
-  //       stackTrace: s,
-  //     ));
-  //   }
-  // }
-
   @override
   Future<Result<void>> updateStatus(
       UpdateMyWordStatusRepositoryInputData input) async {
@@ -114,7 +76,8 @@ class MyWordStatusRepository implements IMyWordStatusRepository {
           isBookmarked: false,
         );
       }
-      print("mystatus ${statusData.myWordId}, learned:${statusData.isLearned}, bookmarked:${statusData.isBookmarked}");
+      print(
+          "mystatus ${statusData.myWordId}, learned:${statusData.isLearned}, bookmarked:${statusData.isBookmarked}");
       return MyWordStatus(
         wordId: statusData.myWordId,
         isLearned: statusData.isLearned == 1,

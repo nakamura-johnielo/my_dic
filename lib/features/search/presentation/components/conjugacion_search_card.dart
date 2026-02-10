@@ -7,26 +7,18 @@ class ConjugacionSearchCard extends StatelessWidget {
       {super.key,
       required this.word,
       required this.query,
-      //required this.meaning,
       required this.conjugacions,
       this.onTap});
 
   final String word;
   final String query;
-  //final String meaning;
   final Map<MoodTenseSubject, String> conjugacions;
   final VoidCallback? onTap;
-
-  // static const Color hinshiColor = Color.fromARGB(255, 40, 40, 40);
-  // static const Color wordColor = Colors.black;
-  // static const Color meaningColor = Colors.black;
 
   @override
   Widget build(BuildContext context) {
     conjugacions.forEach((key, value) {
-      if (value.isNotEmpty) {
-        // print("$key: $value");
-      }
+      if (value.isNotEmpty) {}
     });
 
     return GestureDetector(
@@ -36,7 +28,6 @@ class ConjugacionSearchCard extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
         decoration: BoxDecoration(
           border: Border(
-            //top: BorderSide(width: 2.0, color: Colors.black), // 上ボーダー
             bottom: BorderSide(
                 width: 1,
                 color: const Color.fromARGB(255, 157, 157, 157)), // 下ボーダー
@@ -48,8 +39,6 @@ class ConjugacionSearchCard extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(0),
           ),
-          /* child: Padding(
-              padding: const EdgeInsets.fromLTRB(15, 4, 15, 4), */
           child: Row(children: [
             Text(
               word,
@@ -66,7 +55,6 @@ class ConjugacionSearchCard extends StatelessWidget {
               ),
             ),
           ]),
-          //),
         ),
       ),
     );

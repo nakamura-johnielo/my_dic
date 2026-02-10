@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-import 'package:my_dic/core/shared/enums/feature_tag.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';

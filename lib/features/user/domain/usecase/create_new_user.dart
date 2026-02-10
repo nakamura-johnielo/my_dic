@@ -1,4 +1,3 @@
-import 'package:my_dic/core/shared/errors/app_error.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/shared/utils/uuid.dart';
@@ -15,13 +14,7 @@ class CreateNewUserInteractor implements ICreateNewUserUseCase {
 
   @override
   Future<Result<AppUser>> execute(AppUser appUser) async {
-    // if (user.accountId.isEmpty) {
-    //   return Result.failure(
-    //       UnauthorizedError(message: "User ID cannot be empty. Must Login"));
-    // }
-
     final res = await _userRepository.getThisDeviceId();
-    //
     String deviceId = MyUUID.generate();
 
     res.when(
@@ -72,7 +65,7 @@ class CreateNewUserInteractor implements ICreateNewUserUseCase {
           failure: (_) {},
         );
 
-        final resUser = await _userRepository.createNewUser(newUser,accountId);
+        final resUser = await _userRepository.createNewUser(newUser, accountId);
 
         return resUser.when(
             success: (_) => Result.success(newUser),

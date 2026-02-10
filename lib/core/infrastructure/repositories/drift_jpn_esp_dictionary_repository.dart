@@ -1,4 +1,3 @@
-import 'package:my_dic/core/domain/entity/jpn_esp/example/jpn_esp_example.dart';
 import 'package:my_dic/core/domain/entity/jpn_esp/jpn_esp_dictionary.dart';
 import 'package:my_dic/core/domain/i_repository/i_jpn_esp_dictionary_repository.dart';
 import 'package:my_dic/core/domain/usecase/fetch_jpn_esp_dictionary/fetch_jpn_esp_dictionary_repository_input_data.dart';

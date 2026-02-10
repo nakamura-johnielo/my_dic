@@ -6,7 +6,7 @@ import 'package:my_dic/core/domain/entity/verb/conjugacions.dart';
 
 @immutable
 class WordPageState {
-  WordPageState(
+  const WordPageState(
       {this.jpnEspDictionary,
       this.dictionaryCache,
       this.espJpnDictionary,

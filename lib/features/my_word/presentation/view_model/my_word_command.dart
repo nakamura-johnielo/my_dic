@@ -33,18 +33,14 @@ class MyWordCommand extends StateNotifier<MyWordCommandEvent?> {
         // エラーをUIに通知する必要がある場合はここで処理
       },
     );
-    /* HandleWordUpdateInputData inputHandle = HandleWordUpdateInputData();
-    _handleWordDeleteInteractor.execute(inputHandle); */
   }
 
   void updateWord(
       {required String headword,
       required String description,
-      required int index,
       required void Function() onComplete}) async {
-        // TODO delete index
     UpdateMyWordInputData input =
-        UpdateMyWordInputData(_wordId, headword, description, index);
+        UpdateMyWordInputData(_wordId, headword, description);
 
     final result = await _updateMyWordInteractor.execute(input);
 
@@ -59,7 +55,5 @@ class MyWordCommand extends StateNotifier<MyWordCommandEvent?> {
         // エラーをUIに通知する必要がある場合はここで処理
       },
     );
-    /* HandleWordUpdateInputData inputHandle = HandleWordUpdateInputData();
-    _handleWordUpdateInteractor.execute(inputHandle); */
   }
 }

@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/components/button/my_icon_button.dart';
 import 'package:my_dic/core/shared/enums/my_icons.dart';
 import 'package:my_dic/core/shared/enums/ui/word_card_view_click_listener.dart';
-import 'package:my_dic/features/auth/di/service.dart';
 import 'package:my_dic/features/my_word/di/view_model_di.dart';
 import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
 import 'package:my_dic/features/my_word/presentation/ui_model/my_word_ui_model.dart';
@@ -24,31 +23,16 @@ class MyWordCardModal extends ConsumerStatefulWidget {
       {super.key,
       required this.myWord,
       required this.index,
-      //required this.meaning,
-      // required this.partOfSpeech,
       this.onTap,
       this.onChanged,
       this.margin = const EdgeInsets.symmetric(vertical: 1, horizontal: 16),
-      /* required this.word,
-      required this.no,
-      required this.original,
-      required this.isBookmarked,
-      required this.isLearned, */
       required this.clickListeners});
 
-  //final MyWordController _myWordController;
   final MyWordUiState myWord;
   final int index;
-  //final String word;
-  //final int no;
-  //final String original;
-  //final String meaning;
-  // final List<PartOfSpeech> partOfSpeech;
   final VoidCallback? onTap;
   final VoidCallback? onChanged;
   final EdgeInsetsGeometry? margin;
-  //final bool isBookmarked;
-  //final bool isLearned;
   final Map<WordCardViewButton, VoidCallback> clickListeners;
 
   @override
@@ -56,19 +40,13 @@ class MyWordCardModal extends ConsumerStatefulWidget {
 }
 
 class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
-  //late final MyWord myWord;
   late String myHeaderWord;
   late String myDescription;
   late final VoidCallback? onTap;
   late final EdgeInsetsGeometry? margin;
-  //late Map<WordCardViewButton, VoidCallback> clickListeners;
 
   late final TextEditingController headwordTextFieldController;
   late final TextEditingController descriptionTextFieldController;
-  //late final MyWordController _myWordController;
-
-  // static const Color descriptionColor = Colors.black;
-  // static const Color headwordColor = Colors.black;
 
   bool _isOnEdit = false;
 
@@ -80,12 +58,8 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
 
     onTap = widget.onTap;
     margin = widget.margin;
-    //clickListeners = widget.clickListeners;
-    //log("initState called");
     headwordTextFieldController = TextEditingController();
     descriptionTextFieldController = TextEditingController();
-    //_myWordController = widget._myWordController;
-    //_myWordController = DI<MyWordController>();
   }
 
   void inicializeOnEdit() {
@@ -116,7 +90,6 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
       onTap: onTap,
       child: Card(
         margin: margin,
-        //color: const Color.fromARGB(255, 234, 234, 234),
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(6),
@@ -256,7 +229,6 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
                                   headword: headwordTextFieldController.text,
                                   description:
                                       descriptionTextFieldController.text,
-                                  index: widget.index,
                                   onComplete: () {
                                     print("~~~~~~~~update myword");
                                     setState(() {
@@ -268,10 +240,6 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
                                     });
                                   });
                             },
-                            // style: ElevatedButton.styleFrom(
-                            //   //backgroundColor: Colors.blue, // 背景色
-                            //   //foregroundColor: Colors.white, // テキスト色
-                            // ),
                             child: Text("save"))),
                     SizedBox(
                       width: 33,
@@ -307,27 +275,13 @@ class MyWordCardModal4 extends StatelessWidget {
   const MyWordCardModal4(
       {super.key,
       required this.myWord,
-      //required this.meaning,
-      // required this.partOfSpeech,
       this.onTap,
       this.margin = const EdgeInsets.symmetric(vertical: 1, horizontal: 16),
-      /* required this.word,
-      required this.no,
-      required this.original,
-      required this.isBookmarked,
-      required this.isLearned, */
       required this.clickListeners});
 
   final MyWord myWord;
-  //final String word;
-  //final int no;
-  //final String original;
-  //final String meaning;
-  // final List<PartOfSpeech> partOfSpeech;
   final VoidCallback? onTap;
   final EdgeInsetsGeometry? margin;
-  //final bool isBookmarked;
-  //final bool isLearned;
   final Map<WordCardViewButton, VoidCallback> clickListeners;
 
   static const Color hinshiColor = Color.fromARGB(255, 40, 40, 40);
@@ -344,7 +298,6 @@ class MyWordCardModal4 extends StatelessWidget {
     "true": Icons.check_circle_rounded,
     "false": Icons.check_circle_outline_rounded
   };
-  //Future<void>? currentAction;
 
   @override
   Widget build(BuildContext context) {
@@ -425,117 +378,6 @@ class MyWordCardModal4 extends StatelessWidget {
     );
   }
 }
-
-/* class MyWordCard extends StatelessWidget {
-  //
-  const MyWordCard(
-      {super.key,
-      required this.myWord,
-      //required this.meaning,
-      // required this.partOfSpeech,
-      this.onTap,
-      this.margin = const EdgeInsets.symmetric(vertical: 1, horizontal: 16),
-      /* required this.word,
-      required this.no,
-      required this.original,
-      required this.isBookmarked,
-      required this.isLearned, */
-      required this.clickListeners});
-
-  final MyWord myWord;
-  //final String word;
-  //final int no;
-  //final String original;
-  //final String meaning;
-  // final List<PartOfSpeech> partOfSpeech;
-  final VoidCallback? onTap;
-  final EdgeInsetsGeometry? margin;
-  //final bool isBookmarked;
-  //final bool isLearned;
-  final Map<WordCardViewButton, VoidCallback> clickListeners;
-
-  static const Color hinshiColor = Color.fromARGB(255, 40, 40, 40);
-  static const Color wordColor = Colors.black;
-  static const Color headwordColor = Colors.black;
-  static const Color meaningColor = Colors.black;
-
-  static const Map<String, IconData> bookmarkIcon = {
-    "true": Icons.bookmark_rounded,
-    "false": Icons.bookmark_border_rounded,
-    "added": Icons.bookmark_added_rounded
-  };
-  static const Map<String, IconData> learnedIcon = {
-    "true": Icons.check_circle_rounded,
-    "false": Icons.check_circle_outline_rounded
-  };
-  //Future<void>? currentAction;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Card(
-        margin: margin,
-        color: const Color.fromARGB(255, 234, 234, 234),
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 11),
-          child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  spacing: 0,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    //No.
-                    Container(
-                      //width: 45,
-                      child: Text(
-                        myWord.word,
-                        style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: headwordColor),
-                        textAlign: TextAlign.left,
-                      ),
-                    ),
-
-                    //Word
-                    Container(
-                      //width: 160,
-                      padding: const EdgeInsets.only(left: 4),
-                      child: Text(
-                        myWord.contents,
-                        style: TextStyle(fontSize: 15, color: wordColor),
-                        textAlign: TextAlign.left,
-                      ),
-                    ),
-                  ],
-                ),
-
-                // SizedBox(width: 15),
-                ButtonSection(
-                    //
-                    clickListeners: clickListeners,
-                    isFlags: {
-                      WordCardViewButton.learned: myWord.isLearned,
-                      WordCardViewButton.bookmark: myWord.isBookmarked
-                    },
-                    iconSizes: {
-                      WordCardViewButton.learned: 22,
-                      WordCardViewButton.bookmark: 24
-                    }),
-              ]),
-        ),
-      ),
-    );
-  }
-}
- */
 
 class ButtonSection extends StatelessWidget {
   const ButtonSection({
