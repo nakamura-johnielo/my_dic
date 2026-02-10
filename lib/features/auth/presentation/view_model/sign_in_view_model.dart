@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/enums/ui/button_status.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/features/auth/auth_coordinator.dart';
 import 'package:my_dic/features/auth/presentation/ui_model/sign_in_model.dart';
 
@@ -48,7 +49,7 @@ class SignInViewModel extends StateNotifier<SignInUIState> {
 
     return result.when(
       success: (appAuth) async {
-        print("**********signin success**********");
+        AppLogger.print("**********signin success**********");
         state = state.copyWith(isWaitingSignIn: ButtonStatus.success);
         return 'ログインに成功しました';
       },
@@ -66,7 +67,7 @@ class SignInViewModel extends StateNotifier<SignInUIState> {
 
     return result.when(
       success: (appAuth) async {
-        print("##########################signUP success");
+        AppLogger.print("##########################signUP success");
         state = state.copyWith(isWaitingSignUp: ButtonStatus.success);
 
         return 'アカウント作成に成功しました';

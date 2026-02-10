@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/conjugations.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 
@@ -114,16 +115,16 @@ class ConjugationDao extends DatabaseAccessor<DatabaseProvider>
       readsFrom: {espConjugations},
     );
 
-    print("````````````````````````````````` in dao");
+    AppLogger.print("````````````````````````````````` in dao");
 
     try {
       final resTest = await mainQuery.get();
-      print("${resTest.length} in dao test");
+      AppLogger.print("${resTest.length} in dao test");
     } catch (e) {
-      print("Error in dao test: $e");
+      AppLogger.print("Error in dao test: $e");
     }
     final res = await mainQuery.get();
-    print("${res.length} in dao");
+    AppLogger.print("${res.length} in dao");
 
     return res.map((row) {
       return EspConjugationTableData(

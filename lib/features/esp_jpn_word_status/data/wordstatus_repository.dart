@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/core/infrastructure/datasource/word_status/i_local_word_status_data_source.dart';
 import 'package:my_dic/core/infrastructure/datasource/word_status/i_remote_word_status_data_source.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
@@ -31,10 +32,10 @@ class WordStatusRepository implements IWordStatusRepository {
         editAt.toIso8601String(),
       );
 
-      print("Local update success");
+      AppLogger.print("Local update success");
       return const Result.success(null);
     } catch (e, s) {
-      print("Local update failed: $e");
+      AppLogger.print("Local update failed: $e");
       return Result.failure(DatabaseError(
         message: 'ローカルの単語ステータス更新に失敗しました',
         originalError: e,

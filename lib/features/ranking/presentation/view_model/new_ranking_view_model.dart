@@ -13,6 +13,7 @@ import 'package:my_dic/features/ranking/presentation/ui_model/ranking_ui_model.d
 import 'package:logging/logging.dart';
 import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
 import 'package:my_dic/router/navigator_service.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 
 class RankingViewModel extends StateNotifier<RankingState> {
   RankingViewModel(
@@ -40,8 +41,8 @@ class RankingViewModel extends StateNotifier<RankingState> {
 
   //TODO currentPage List<int> -> int
   Future<bool> loadNextPage(int nextPage) async {
-    print("loadnext on VM, pageRange: ${state.currentPageRange}");
-    print("loadnext on VM, nextpage: $nextPage");
+    AppLogger.print("loadnext on VM, pageRange: ${state.currentPageRange}");
+    AppLogger.print("loadnext on VM, nextpage: $nextPage");
 
     try {
       final input = LoadRankingsInputData(
@@ -57,7 +58,7 @@ class RankingViewModel extends StateNotifier<RankingState> {
 
       return result.when(
         success: (output) {
-          print("==================- ranking items: ${output.length}");
+          AppLogger.print("==================- ranking items: ${output.length}");
           final appended = [...state.items, ...output];
           final hasNext = output.length > _pageSize;
 
@@ -71,7 +72,7 @@ class RankingViewModel extends StateNotifier<RankingState> {
           return hasNext;
         },
         failure: (error) {
-          print("==================- ranking items:FAILURE");
+          AppLogger.print("==================- ranking items:FAILURE");
           _logger.warning('ランキングの読み込みに失敗しました', error);
           state = state.copyWith(isLoadingNext: false);
           return false;
@@ -135,7 +136,7 @@ class RankingViewModel extends StateNotifier<RankingState> {
   RankingState _updatePartOfSpeechFilter(PartOfSpeech filter, int value) {
     final newData = Map<PartOfSpeech, int>.from(state.partOfSpeechFilters)
       ..[filter] = value;
-    print('updated POS filter: $newData');
+    AppLogger.print('updated POS filter: $newData');
     return state.copyWith(
       partOfSpeechFilters: newData,
       hasNext: true,

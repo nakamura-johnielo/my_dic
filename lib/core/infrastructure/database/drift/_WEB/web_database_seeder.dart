@@ -5,6 +5,7 @@
 /// データベーススキーマと完全に同期している必要があります
 
 import 'dart:convert';
+import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:archive/archive.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:drift/drift.dart';
@@ -23,7 +24,6 @@ class WebDatabaseSeeder {
   int _currentRows = 0;
   void _updateProgress(
       {double? progress, String? message, WebDBLoadingType? type}) {
-    //print("current:$_currentRows, _totalRows:$_totalRows");
     globalDatabaseLoadingNotifier.updateProgress(progress, message, type);
   }
 
@@ -65,30 +65,30 @@ class WebDatabaseSeeder {
 
   /// Web環境でデータベースをシードする
   Future<void> seedFromJson() async {
-    print('🚀 WebDatabaseSeeder.seedFromJson() CALLED');
-    print(
+    AppLogger.print('🚀 WebDatabaseSeeder.seedFromJson() CALLED');
+    AppLogger.print(
         '🚀 WebDatabaseSeeder: Starting database seeding from compressed JSON...');
-    print('⚠️ This is first-time setup and may take 2-5 minutes');
+    AppLogger.print('⚠️ This is first-time setup and may take 2-5 minutes');
 
     try {
-      print('📦 Step 1: Loading kotobank data...');
+      AppLogger.print('📦 Step 1: Loading kotobank data...');
       await _seedKotobankData();
-      print('📦 Step 2: Loading es_en_conjugacions data...');
+      AppLogger.print('📦 Step 2: Loading es_en_conjugacions data...');
       await _seedEsEnConjugacions();
-      print('✅ WebDatabaseSeeder: Seeding completed successfully');
-      print('✅ WebDatabaseSeeder.seedFromJson() COMPLETED');
+      AppLogger.print('✅ WebDatabaseSeeder: Seeding completed successfully');
+      AppLogger.print('✅ WebDatabaseSeeder.seedFromJson() COMPLETED');
       _completeProgress('データベース初期化完了');
     } catch (e, stackTrace) {
-      print('❌ WebDatabaseSeeder ERROR: $e');
-      print('❌ WebDatabaseSeeder: Error - $e');
-      print('StackTrace: $stackTrace');
+      AppLogger.print('❌ WebDatabaseSeeder ERROR: $e');
+      AppLogger.print('❌ WebDatabaseSeeder: Error - $e');
+      AppLogger.print('StackTrace: $stackTrace');
       rethrow;
     }
   }
 
   Future<Map<String, dynamic>> _loadCompressedJson(String assetPath) async {
-    print('📂 Loading compressed JSON: $assetPath');
-    print('Loading: $assetPath');
+    AppLogger.print('📂 Loading compressed JSON: $assetPath');
+    AppLogger.print('Loading: $assetPath');
     _updateProgress(
         message: '($assetPath) compressed JSON ダウンロード中...',
         type: WebDBLoadingType.download);
@@ -102,12 +102,12 @@ class WebDatabaseSeeder {
     await Future.delayed(Duration.zero);
     final compressed = byteData.buffer.asUint8List();
     await Future.delayed(Duration.zero);
-    print(
+    AppLogger.print(
         '  Compressed size: ${(compressed.length / 1024 / 1024).toStringAsFixed(2)} MB');
-    print(
+    AppLogger.print(
         '  Compressed size: ${(compressed.length / 1024 / 1024).toStringAsFixed(2)} MB');
 
-    print('  Decompressing...');
+    AppLogger.print('  Decompressing...');
     await Future.delayed(Duration.zero);
     final decompressed = GZipDecoder().decodeBytes(compressed);
     // 展開完了後、UIスレッドに制御を返す
@@ -115,12 +115,12 @@ class WebDatabaseSeeder {
     _updateProgress(
         message: '($assetPath) jsonデコード中...', type: WebDBLoadingType.parsing);
     await Future.delayed(Duration.zero);
-    print(
+    AppLogger.print(
         '  Decompressed: ${(decompressed.length / 1024 / 1024).toStringAsFixed(2)} MB');
-    print(
+    AppLogger.print(
         '  Decompressed: ${(decompressed.length / 1024 / 1024).toStringAsFixed(2)} MB');
 
-    print('  Parsing JSON...');
+    AppLogger.print('  Parsing JSON...');
     final jsonString = utf8.decode(decompressed);
     final result = jsonDecode(jsonString) as Map<String, dynamic>;
     // JSONパース完了後、UIスレッドに制御を返す
@@ -130,7 +130,7 @@ class WebDatabaseSeeder {
         type: WebDBLoadingType.import,
         progress: 0);
     await Future.delayed(Duration.zero);
-    print('  ✓ JSON parsed successfully');
+    AppLogger.print('  ✓ JSON parsed successfully');
     return result;
   }
 
@@ -138,39 +138,40 @@ class WebDatabaseSeeder {
     for (final table in tables.keys.toList()) {
       try {
         final tableData = tables[table];
-    final rows = tableData['rows'] as List;
+        final rows = tableData['rows'] as List;
         _totalRows += rows.length;
-        print('🔍 Table "$table" has ${rows.length} rows.');
+        AppLogger.print('🔍 Table "$table" has ${rows.length} rows.');
       } catch (e) {
-        print('❌ Failed to retrieve row count for table "$table": $e');
+        AppLogger.print(
+            '❌ Failed to retrieve row count for table "$table": $e');
       }
     }
-    print('✅ Row count retrieval completed.');
+    AppLogger.print('✅ Row count retrieval completed.');
   }
 
   Future<void> _seedKotobankData() async {
-    print('🔍 _seedKotobankData() START');
+    AppLogger.print('🔍 _seedKotobankData() START');
     final data = await _loadCompressedJson(WebDb.kotobankPath);
-    print('🔍 JSON loaded, extracting tables...');
+    AppLogger.print('🔍 JSON loaded, extracting tables...');
     final tables = data['tables'] as Map<String, dynamic>;
     await _setTotalTableRows(tables);
-    print('🔍 Tables keys: ${tables.keys.toList()}');
+    AppLogger.print('🔍 Tables keys: ${tables.keys.toList()}');
 
     // Import in order respecting foreign key dependencies
-    print('🔍 Checking for "words" table...');
+    AppLogger.print('🔍 Checking for "words" table...');
     if (tables.containsKey('words')) {
-      print('🔍 Found "words" table, importing...');
+      AppLogger.print('🔍 Found "words" table, importing...');
       await _importWords(tables['words']);
     } else {
-      print('❌ "words" table NOT FOUND');
+      AppLogger.print('❌ "words" table NOT FOUND');
     }
 
-    print('🔍 Checking for "dictionaries" table...');
+    AppLogger.print('🔍 Checking for "dictionaries" table...');
     if (tables.containsKey('dictionaries')) {
-      print('🔍 Found "dictionaries" table, importing...');
+      AppLogger.print('🔍 Found "dictionaries" table, importing...');
       await _importDictionaries(tables['dictionaries']);
     } else {
-      print('❌ "dictionaries" table NOT FOUND');
+      AppLogger.print('❌ "dictionaries" table NOT FOUND');
     }
     if (tables.containsKey('part_of_speech_lists')) {
       await _importPartOfSpeechLists(tables['part_of_speech_lists']);
@@ -224,10 +225,10 @@ class WebDatabaseSeeder {
 
   // Simplified imports - Web環境では詳細なログは不要
   Future<void> _importWords(Map<String, dynamic> tableData) async {
-    print('🔍 _importWords() CALLED');
+    AppLogger.print('🔍 _importWords() CALLED');
     final rows = tableData['rows'] as List;
-    print('🔍 _importWords: rows count = ${rows.length}');
-    print('Importing ${rows.length} words...');
+    AppLogger.print('🔍 _importWords: rows count = ${rows.length}');
+    AppLogger.print('Importing ${rows.length} words...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
       _updateProgress(
@@ -235,7 +236,7 @@ class WebDatabaseSeeder {
           type: WebDBLoadingType.import,
           progress: (_currentRows / _totalRows));
       _currentRows += batchSize;
-      print(
+      AppLogger.print(
           '🔍 _importWords: Processing batch ${i ~/ batchSize + 1}/${(rows.length / batchSize).ceil()}');
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
@@ -254,19 +255,19 @@ class WebDatabaseSeeder {
         }
       });
     }
-    print('✓ words');
+    AppLogger.print('✓ words');
   }
 
   Future<void> _importDictionaries(Map<String, dynamic> tableData) async {
     final rows = tableData['rows'] as List;
-    print('Importing ${rows.length} dictionaries...');
+    AppLogger.print('Importing ${rows.length} dictionaries...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'dictionary table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'dictionary table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
@@ -291,20 +292,20 @@ class WebDatabaseSeeder {
         }
       });
     }
-    print('==========✓ dictionaries print');
-    print('✓ dictionaries');
+    AppLogger.print('==========✓ dictionaries print');
+    AppLogger.print('✓ dictionaries');
   }
 
   Future<void> _importExamples(Map<String, dynamic> tableData) async {
     final rows = tableData['rows'] as List;
-    print('Importing ${rows.length} examples...');
+    AppLogger.print('Importing ${rows.length} examples...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'example table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'example table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
@@ -323,19 +324,19 @@ class WebDatabaseSeeder {
         }
       });
     }
-    print('✓ examples');
+    AppLogger.print('✓ examples');
   }
 
   Future<void> _importIdioms(Map<String, dynamic> tableData) async {
     final rows = tableData['rows'] as List;
-    print('Importing ${rows.length} idioms...');
+    AppLogger.print('Importing ${rows.length} idioms...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'idiom table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'idiom table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
@@ -353,19 +354,19 @@ class WebDatabaseSeeder {
         }
       });
     }
-    print('✓ idioms');
+    AppLogger.print('✓ idioms');
   }
 
   Future<void> _importSupplements(Map<String, dynamic> tableData) async {
     final rows = tableData['rows'] as List;
-    print('Importing ${rows.length} supplements...');
+    AppLogger.print('Importing ${rows.length} supplements...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'supplement table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'supplement table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
@@ -384,19 +385,19 @@ class WebDatabaseSeeder {
         }
       });
     }
-    print('✓ supplements');
+    AppLogger.print('✓ supplements');
   }
 
   Future<void> _importConjugations(Map<String, dynamic> tableData) async {
     final rows = tableData['rows'] as List;
-    print('Importing ${rows.length} conjugations (complex table)...');
+    AppLogger.print('Importing ${rows.length} conjugations (complex table)...');
     const batchSize = 100;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'conjugation table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'conjugation table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
@@ -502,19 +503,19 @@ class WebDatabaseSeeder {
         }
       });
     }
-    print('✓ conjugations');
+    AppLogger.print('✓ conjugations');
   }
 
   Future<void> _importPartOfSpeechLists(Map<String, dynamic> tableData) async {
     final rows = tableData['rows'] as List;
-    print('Importing ${rows.length} part_of_speech_lists...');
+    AppLogger.print('Importing ${rows.length} part_of_speech_lists...');
     const batchSize = 1000;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'part_of_speech_lists table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'part_of_speech_lists table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
@@ -532,19 +533,19 @@ class WebDatabaseSeeder {
         }
       });
     }
-    print('✓ part_of_speech_lists');
+    AppLogger.print('✓ part_of_speech_lists');
   }
 
   Future<void> _importJpnEspWords(Map<String, dynamic> tableData) async {
     final rows = tableData['rows'] as List;
-    print('Importing ${rows.length} jpn_esp_words...');
+    AppLogger.print('Importing ${rows.length} jpn_esp_words...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'jpn_esp_words table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'jpn_esp_words table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
@@ -559,19 +560,19 @@ class WebDatabaseSeeder {
         }
       });
     }
-    print('✓ jpn_esp_words');
+    AppLogger.print('✓ jpn_esp_words');
   }
 
   Future<void> _importJpnEspDictionaries(Map<String, dynamic> tableData) async {
     final rows = tableData['rows'] as List;
-    print('Importing ${rows.length} jpn_esp_dictionaries...');
+    AppLogger.print('Importing ${rows.length} jpn_esp_dictionaries...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'jpn_esp_dictionaries table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'jpn_esp_dictionaries table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
@@ -583,7 +584,8 @@ class WebDatabaseSeeder {
           b.insert(
               db.jpnEspDictionaries,
               JpnEspDictionariesCompanion.insert(
-                dictionaryId: Value(_toIntRequired(row['jpn_esp_dictionary_id'])),
+                dictionaryId:
+                    Value(_toIntRequired(row['jpn_esp_dictionary_id'])),
                 wordId: _toIntRequired(row['jpn_esp_word_id']),
                 word: row['word'] as String,
                 excf: _toIntRequired(row['excf']),
@@ -595,25 +597,27 @@ class WebDatabaseSeeder {
         }
       });
     }
-    print('✓ jpn_esp_dictionaries');
+    AppLogger.print('✓ jpn_esp_dictionaries');
   }
 
   Future<void> _importJpnEspExamples(Map<String, dynamic> tableData) async {
     final rows = tableData['rows'] as List;
-    print('Importing ${rows.length} jpn_esp_examples...');
+    AppLogger.print('Importing ${rows.length} jpn_esp_examples...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'jpn_esp_examples table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'jpn_esp_examples table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
           if (row['jpn_esp_example_id'] == null ||
               row['example_no'] == null ||
-              row['jpn_esp_dictionary_id'] == null) {continue;}
+              row['jpn_esp_dictionary_id'] == null) {
+            continue;
+          }
           b.insert(
               db.jpnEspExamples,
               JpnEspExamplesCompanion.insert(
@@ -629,24 +633,25 @@ class WebDatabaseSeeder {
         }
       });
     }
-    print('✓ jpn_esp_examples');
+    AppLogger.print('✓ jpn_esp_examples');
   }
 
   Future<void> _importRankings(Map<String, dynamic> tableData) async {
     final rows = tableData['rows'] as List;
-    print('Importing ${rows.length} rankings...');
+    AppLogger.print('Importing ${rows.length} rankings...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'rankings table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'rankings table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
           if (row['ranking_id'] == null || row['ranking_no'] == null) {
-            print('~~~~~~skip ranking ${row['word'] ?? "unknown"} rankings...');
+            AppLogger.print(
+                '~~~~~~skip ranking ${row['word'] ?? "unknown"} rankings...');
             continue;
           }
           b.insert(
@@ -663,19 +668,19 @@ class WebDatabaseSeeder {
         }
       });
     }
-    print('✓ rankings');
+    AppLogger.print('✓ rankings');
   }
 
   Future<void> _importEsEnConjugacions(Map<String, dynamic> tableData) async {
     final rows = tableData['rows'] as List;
-    print('Importing ${rows.length} es_en_conjugacions...');
+    AppLogger.print('Importing ${rows.length} es_en_conjugacions...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'es_en_conjugacions table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'es_en_conjugacions table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
@@ -695,19 +700,19 @@ class WebDatabaseSeeder {
         }
       });
     }
-    print('✓ es_en_conjugacions');
+    AppLogger.print('✓ es_en_conjugacions');
   }
 
   Future<void> _importEspJpnWordStatus(Map<String, dynamic> tableData) async {
     final rows = tableData['rows'] as List;
-    print('Importing ${rows.length} esp_jpn_word_status...');
+    AppLogger.print('Importing ${rows.length} esp_jpn_word_status...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'esp_jpn_word_status table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'esp_jpn_word_status table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
@@ -725,23 +730,25 @@ class WebDatabaseSeeder {
         }
       });
     }
-    print('✓ esp_jpn_word_status');
+    AppLogger.print('✓ esp_jpn_word_status');
   }
 
   Future<void> _importMyWords(Map<String, dynamic> tableData) async {
     final rows = tableData['rows'] as List;
-    print('Importing ${rows.length} my_words...');
+    AppLogger.print('Importing ${rows.length} my_words...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'my_words table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'my_words table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
-          if (row['my_word_id'] == null || row['word'] == null || row['edit_at'] == null) continue;
+          if (row['my_word_id'] == null ||
+              row['word'] == null ||
+              row['edit_at'] == null) continue;
           b.insert(
               db.myWords,
               MyWordsCompanion.insert(
@@ -754,23 +761,25 @@ class WebDatabaseSeeder {
         }
       });
     }
-    print('✓ my_words');
+    AppLogger.print('✓ my_words');
   }
 
   Future<void> _importMyWordStatus(Map<String, dynamic> tableData) async {
     final rows = tableData['rows'] as List;
-    print('Importing ${rows.length} my_word_status...');
+    AppLogger.print('Importing ${rows.length} my_word_status...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'my_word_status table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'my_word_status table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
-          if (row['my_word_id'] == null || row['word'] == null || row['edit_at'] == null) continue;
+          if (row['my_word_id'] == null ||
+              row['word'] == null ||
+              row['edit_at'] == null) continue;
           b.insert(
               db.myWordStatus,
               MyWordStatusCompanion.insert(
@@ -784,23 +793,24 @@ class WebDatabaseSeeder {
         }
       });
     }
-    print('✓ my_word_status');
+    AppLogger.print('✓ my_word_status');
   }
 
   Future<void> _importJpnEspWordStatus(Map<String, dynamic> tableData) async {
     final rows = tableData['rows'] as List;
-    print('Importing ${rows.length} jpn_esp_word_status...');
+    AppLogger.print('Importing ${rows.length} jpn_esp_word_status...');
     const batchSize = 500;
     for (var i = 0; i < rows.length; i += batchSize) {
-          _updateProgress(
-              message: 'jpn_esp_word_status table 初期化中...',
-              type: WebDBLoadingType.import,
-              progress: (_currentRows / _totalRows));
-          _currentRows += batchSize;
+      _updateProgress(
+          message: 'jpn_esp_word_status table 初期化中...',
+          type: WebDBLoadingType.import,
+          progress: (_currentRows / _totalRows));
+      _currentRows += batchSize;
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
-          if (row['jpn_esp_word_id'] == null || row['edit_at'] == null) continue;
+          if (row['jpn_esp_word_id'] == null || row['edit_at'] == null)
+            continue;
           b.insert(
               db.jpnEspWordStatus,
               JpnEspWordStatusCompanion.insert(
@@ -814,6 +824,6 @@ class WebDatabaseSeeder {
         }
       });
     }
-    print('✓ jpn_esp_word_status');
+    AppLogger.print('✓ jpn_esp_word_status');
   }
 }

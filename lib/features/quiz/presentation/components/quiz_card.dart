@@ -4,6 +4,7 @@ import 'package:my_dic/features/quiz/consts/card_state.dart';
 import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
 import 'package:my_dic/core/shared/enums/conjugacion/subject.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 
 class QuizCard extends ConsumerWidget {
   final MoodTense moodTense;
@@ -34,11 +35,11 @@ class QuizCard extends ConsumerWidget {
         if (details.primaryVelocity != null) {
           if (details.primaryVelocity! < 0) {
             // 右スワイプ
-            print("swipe right");
+            AppLogger.print("swipe right");
             onSwipe('right');
           } else if (details.primaryVelocity! > 0) {
             // 左スワイプ
-            print("swipe left");
+            AppLogger.print("swipe left");
             onSwipe('left');
           }
         }

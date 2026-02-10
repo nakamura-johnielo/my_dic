@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/esp_jpn_word_status/components/status_button/word_status_command_event.dart';
@@ -12,7 +13,7 @@ class EspJpnWordStatusCommand extends StateNotifier<WordStatusCommandEvent?> {
   final IUpdateStatusUseCase _updateInteractor;
 
   Future<void> toggleBookmark(bool currentValue) async {
-    print("toggle bookmark");
+    AppLogger.print("toggle bookmark");
     await _setBookmark(!currentValue);
   }
 
@@ -28,9 +29,9 @@ class EspJpnWordStatusCommand extends StateNotifier<WordStatusCommandEvent?> {
     final res = await _updateInteractor.execute(
       UpdateStatusInputData(wordId: _wordId, isBookmarked: value),
     );
-    print("Complete toggle bookmark");
+    AppLogger.print("Complete toggle bookmark");
     if (!mounted) return;
-    print("mounted");
+    AppLogger.print("mounted");
 
     res.when(failure: (error) {
       state = ToggleBookmarkedFailed();

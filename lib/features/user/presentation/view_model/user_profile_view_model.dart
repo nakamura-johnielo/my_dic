@@ -1,4 +1,4 @@
-import 'dart:developer';
+import 'package:my_dic/core/shared/utils/logger.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/enums/ui/button_status.dart';
@@ -18,10 +18,10 @@ class UserProfileViewModel extends StateNotifier<UserProfileUIState> {
     final result = await _authCoordinator.signOut();
 
     result.when(success: (_) {
-      log("ログアウトしました");
+      AppLogger.print("ログアウトしました");
     }, failure: (error) {
       state = state.copyWith(errorMessage: "ログアウトに失敗しました: ${error.message}");
-      log("ログアウトに失敗しました: ${error.message}");
+      AppLogger.print("ログアウトに失敗しました: ${error.message}");
     });
   }
 
@@ -34,10 +34,10 @@ class UserProfileViewModel extends StateNotifier<UserProfileUIState> {
     );
 
     res.when(success: (_) {
-      log("ユーザー情報の更新に成功しました。");
+      AppLogger.print("ユーザー情報の更新に成功しました。");
       state = state.copyWith(savingButtonStatus: ButtonStatus.success);
     }, failure: (error) {
-      log("ユーザー情報の更新に失敗しました: ${error.message}");
+      AppLogger.print("ユーザー情報の更新に失敗しました: ${error.message}");
       state = state.copyWith(
           savingButtonStatus: ButtonStatus.error,
           errorMessage: "ユーザー情報の更新に失敗しました: ${error.message}");

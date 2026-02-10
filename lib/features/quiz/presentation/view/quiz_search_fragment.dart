@@ -6,6 +6,7 @@ import 'package:my_dic/features/quiz/domain/entity/quiz_searched_item.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 
 class QuizSearchFragment extends ConsumerStatefulWidget {
   const QuizSearchFragment({super.key});
@@ -32,7 +33,7 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
 
     _setCurrentItemLength();
 
-    print("nextpage: $nextPage");
+    AppLogger.print("nextpage: $nextPage");
     await viewModel.loadSearchResults(
       _size,
       nextPage - 1,

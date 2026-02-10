@@ -1,6 +1,7 @@
-import 'dart:developer';
+import 'package:my_dic/core/shared/utils/logger.dart';
 
 import 'package:flutter/material.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/components/auto_focus_text_field.dart';
 import 'package:my_dic/features/search/presentation/components/conjugacion_search_card.dart';
@@ -34,7 +35,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
   }
 
   Future<bool> _loadNextPage(int nextPage) async {
-    print("_loadNextPage: $nextPage");
+    AppLogger.print("_loadNextPage: $nextPage");
 
     final viewModel = ref.read(searchViewModelProvider.notifier);
 
@@ -44,7 +45,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
       nextPage - 1,
     );
     final canFetch = _canFetch();
-    print("canfetch:$canFetch");
+    AppLogger.print("canfetch:$canFetch");
     return canFetch;
   }
 
@@ -70,7 +71,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
     final currentEspJpnItemLength = viewModel.espJpnWords.length;
     final currentConjItemLength = viewModel.conjugacions.length;
     final currentJpnEspItemLength = viewModel.jpnEspWords.length;
-    print(
+    AppLogger.print(
         "EspJpn current:$currentEspJpnItemLength, pre:$_previousEspJpnItemLength");
     return currentEspJpnItemLength > _previousEspJpnItemLength ||
         currentConjItemLength > _previousConjItemLength ||
@@ -81,7 +82,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
   Widget build(BuildContext context) {
     final viewModel = ref.watch(searchViewModelProvider);
     final viewModelNotifier = ref.read(searchViewModelProvider.notifier);
-    log("0 Fragment in build");
+    AppLogger.print("0 Fragment in build");
 
     return Scaffold(
       appBar: AppBar(

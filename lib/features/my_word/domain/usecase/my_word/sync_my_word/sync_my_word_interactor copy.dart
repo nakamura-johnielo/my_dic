@@ -9,6 +9,7 @@ import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
 import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
 import 'package:my_dic/features/my_word/domain/i_repository/i_my_word_repository.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 
 class SyncMyWordInteractor implements ISyncUseCase {
   final ISyncStatusRepository _localSyncStatusRepository;
@@ -157,7 +158,7 @@ class SyncMyWordInteractor implements ISyncUseCase {
       ));
     }
 
-    print("remote:${remoteItem.word}");
+    AppLogger.print("remote:${remoteItem.word}");
     final syncResult = await _syncHandleOnRemoteChanged(accountId, remoteItem);
     if (syncResult.isFailure) {
       return Result.failure(syncResult.errorOrNull!);
@@ -237,7 +238,7 @@ class SyncMyWordInteractor implements ISyncUseCase {
 
   Future<Result<String?>> _syncHandleOnRemoteChanged(
       String userId, MyWord remoteItem) async {
-    print("MyWord remote changed handle");
+    AppLogger.print("MyWord remote changed handle");
     final localDataResult =
         await _myWordRepository.getLocalMyWordById(remoteItem.wordId);
 
@@ -249,7 +250,7 @@ class SyncMyWordInteractor implements ISyncUseCase {
     final localData = localDataResult.dataOrNull;
 
     if (localData == null || localDataResult.runtimeType == NotFoundError) {
-      print("local null");
+      AppLogger.print("local null");
       final createResult =
           await _myWordRepository.createLocalMyWord(remoteItem);
       if (createResult.isFailure) {
@@ -261,19 +262,19 @@ class SyncMyWordInteractor implements ISyncUseCase {
     final remoteUpdatedAt = remoteItem.editAt;
     final localUpdatedAt = localData.editAt;
 
-    print("local exist ${localUpdatedAt.toIso8601String()}");
+    AppLogger.print("local exist ${localUpdatedAt.toIso8601String()}");
     if (remoteUpdatedAt.isAfter(localUpdatedAt)) {
       final updateResult = await _myWordRepository.updateLocalMyWord(
           remoteItem, remoteItem.editAt);
       if (updateResult.isFailure) {
-        print("Fil!!!!!!");
+        AppLogger.print("Fil!!!!!!");
         return Result.failure(updateResult.errorOrNull!);
       }
-      print(
+      AppLogger.print(
           "MyWord remote changed sync local updated: ${remoteItem.wordId}, ${remoteItem.word}");
       return Result.success(remoteItem.wordId);
     }
-    print("paassse");
+    AppLogger.print("paassse");
 
     return const Result.success(null);
   }
@@ -293,7 +294,7 @@ class SyncMyWordInteractor implements ISyncUseCase {
 
     final localData = localDataResult.dataOrNull!;
 
-    print("local myword sync length: ${localData.length}");
+    AppLogger.print("local myword sync length: ${localData.length}");
 
     if (localData.isEmpty || localDataResult.runtimeType == NotFoundError) {
       return const Result.success(null);

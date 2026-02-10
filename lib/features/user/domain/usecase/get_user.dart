@@ -1,5 +1,6 @@
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
 import 'package:my_dic/features/user/domain/entity/user.dart';
 import 'package:my_dic/features/user/domain/i_repository/i_user_repository.dart';
@@ -29,14 +30,14 @@ class GetUserInteractor implements IGetUserUseCase {
           NotFoundError(message: "User is not authenticated"));
     }
 
-    print("GetUserInteractor execute==================$id");
+    AppLogger.print("GetUserInteractor execute==================$id");
     final result = await _userRepository.getUserByAccountId(id);
 
     // NotFoundErrorの場合はデフォルトユーザーを返す
     return result.when(
       success: (user) => Result.success(user),
       failure: (error) {
-        print("GetUserInteractor error========${error.message}");
+        AppLogger.print("GetUserInteractor error========${error.message}");
         return Result.failure(error);
       },
     );

@@ -1,4 +1,4 @@
-import 'dart:developer';
+import 'package:my_dic/core/shared/utils/logger.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
@@ -28,7 +28,7 @@ class MyWordCommand extends StateNotifier<MyWordCommandEvent?> {
         state = DeleteSucceeded();
       },
       failure: (error) {
-        log('Failed to delete word: ${error.message}');
+        AppLogger.print('Failed to delete word: ${error.message}');
         state = DeleteFailed();
         // エラーをUIに通知する必要がある場合はここで処理
       },
@@ -50,7 +50,7 @@ class MyWordCommand extends StateNotifier<MyWordCommandEvent?> {
         state = UpdateSucceeded();
       },
       failure: (error) {
-        log('Failed to update word: ${error.message}');
+        AppLogger.print('Failed to update word: ${error.message}');
         state = UpdateFailed();
         // エラーをUIに通知する必要がある場合はここで処理
       },

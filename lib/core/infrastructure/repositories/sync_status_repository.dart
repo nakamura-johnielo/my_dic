@@ -1,6 +1,7 @@
 import 'package:my_dic/core/domain/i_repository/i_sync_status_repository.dart';
 import 'package:my_dic/core/infrastructure/datasource/sync/i_sync_status_data_source.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 
 class SyncStatusRepository implements ISyncStatusRepository {
@@ -11,7 +12,7 @@ class SyncStatusRepository implements ISyncStatusRepository {
   Future<Result<DateTime?>> getLastSyncDate() async {
     try {
       final date = await _dataSource.getLastSyncDate();
-      //print("lastsync: $date");
+      //AppLogger.log("lastsync: $date");
       //return DateTime(1999,1,11);//TODO fix
       return Result.success(date);
     } catch (e, stackTrace) {
@@ -27,7 +28,7 @@ class SyncStatusRepository implements ISyncStatusRepository {
   Future<Result<void>> updateSyncDate(DateTime date) async {
     try {
       await _dataSource.updateSyncDate(date);
-      print("---lastsync updated: ${await _dataSource.getLastSyncDate()}");
+      AppLogger.print("---lastsync updated: ${await _dataSource.getLastSyncDate()}");
       return Result.success(null);
     } catch (e, stackTrace) {
       return Result.failure(CacheError(

@@ -6,6 +6,7 @@ import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/i_search_word_use_case.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/search_word_input_data.dart';
 import 'package:my_dic/router/navigator_service.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 
 /// 検索画面のViewModel
 class QuizSearchViewModel extends StateNotifier<QuizSearchState> {
@@ -71,19 +72,19 @@ class QuizSearchViewModel extends StateNotifier<QuizSearchState> {
   Future<void> _searchQuizEnableWord(String word,
       {required int size, required int page}) async {
     final input = SearchWordInputData(word, size, page, true);
-    print("_searchQuizEnableWord");
+    AppLogger.print("_searchQuizEnableWord");
     final result = await _searchWordUseCase.executeVerbs(input);
 
     result.when(
       success: (items) {
-        print("${items.length} in viewmodel");
+        AppLogger.print("${items.length} in viewmodel");
         state = state.copyWith(
           quizSearchedItems: [...state.quizSearchedItems, ...items],
           isLoading: false,
         );
       },
       failure: (error) {
-        print('クイズ用活用形の取得に失敗: ${error.message}');
+        AppLogger.print('クイズ用活用形の取得に失敗: ${error.message}');
         state = state.copyWith(
           isLoading: false,
           errorMessage: error.message,

@@ -1,4 +1,4 @@
-import 'dart:developer';
+import 'package:my_dic/core/shared/utils/logger.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,7 +17,7 @@ class ConjugacionFragment extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    log("conj key: $key");
+    AppLogger.print("conj key: $key");
 
     final viewModel = ref.watch(wordPageViewModelProvider(wordId));
 

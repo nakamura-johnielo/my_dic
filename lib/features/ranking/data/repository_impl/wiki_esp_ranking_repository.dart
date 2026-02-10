@@ -1,5 +1,6 @@
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/features/ranking/domain/usecase/load_rankings/filtered_ranking_list_input_data.dart';
 import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
 import 'package:my_dic/features/ranking/domain/i_repository/i_esp_ranking_repository.dart';
@@ -12,7 +13,6 @@ class RankingRepository implements IEspRankingRepository {
   @override
   Future<Result<List<Ranking>>> getRankingList(int page, int size) async {
     try {
-      //log("############################################ranking dao");
       final dataList = await _dataSource.getRankingListByPage(page, size);
       final entities = dataList
           .map((data) => Ranking(
@@ -37,7 +37,7 @@ class RankingRepository implements IEspRankingRepository {
       FilteredRankingListInputData input) async {
     try {
       // debug: removed direct DAO access
-      print(
+      AppLogger.print(
           " =====repo input requiredPage: ${input.requiredPage}, size: ${input.size}, posFilters: ${input.partOfSpeechFilters}, tagFilters: ${input.featureTagFilters}, posExclu: ${input.partOfSpeechExcludeFilters}, tagExclu: ${input.featureTagExcludeFilters}");
       final tupleList = await _dataSource.getFilteredRankingWithStatusByPage(
         input.requiredPage,

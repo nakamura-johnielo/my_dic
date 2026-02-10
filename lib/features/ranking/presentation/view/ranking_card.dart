@@ -8,6 +8,7 @@ import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
 import 'package:my_dic/router/navigator_service.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 
 //スマホ用
 class RankingCard extends ConsumerWidget {
@@ -45,7 +46,7 @@ class RankingCard extends ConsumerWidget {
     final wordStatus =
         ref.watch(espJpnWordStatusUiStateProvider(ranking.wordId));
 
-    print("rankingcard wordID: ${ranking.rankedWord}");
+    AppLogger.print("rankingcard wordID: ${ranking.rankedWord}");
     return GestureDetector(
       onTap: onTap,
       child: Card(

@@ -4870,7 +4870,7 @@ ms:function ms(a){this.a=a},
 mt:function mt(a){this.a=a},
 pz(a){if(typeof dartPrint=="function"){dartPrint(a)
 return}if(typeof console=="object"&&typeof console.log!="undefined"){console.log(a)
-return}if(typeof print=="function"){print(a)
+return}if(typeof print=="function"){AppLogger.log(a)
 return}throw"Unable to print message: "+String(a)},
 hq(a,b,c,d,e,f){var s
 if(c==null)return a[b]()

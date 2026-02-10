@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_dic/core/shared/consts/firebase.dart';
 import 'package:my_dic/features/esp_jpn_word_status/data/wordStatusEntity.dart';
 import 'package:my_dic/features/user/data/dto/user_dto.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 
 class FirebaseWordStatusDao {
   final FirebaseFirestore _db;
@@ -12,9 +13,9 @@ class FirebaseWordStatusDao {
       String userId, List<WordStatusDTO> wordStatusList) async {
     //batch sizeごとにまとめて実行
     final batchSize = FirebaseConsts.batchSize;
-    print("======================updateBatch=====================");
-    print("userID : $userId");
-    wordStatusList.map((e) => print("wordId: ${e.wordId}"));
+    AppLogger.print("======================updateBatch=====================");
+    AppLogger.print("userID : $userId");
+    wordStatusList.map((e) => AppLogger.print("wordId: ${e.wordId}"));
 
     for (int i = 0; i < wordStatusList.length; i += batchSize) {
       final batch = _db.batch();
@@ -24,7 +25,7 @@ class FirebaseWordStatusDao {
 
       for (int j = i; j < end; j++) {
         final wordStatus = wordStatusList[j];
-        print("$j Updating wordId: ${wordStatus.wordId}");
+        AppLogger.print("$j Updating wordId: ${wordStatus.wordId}");
         //final batch = _db.batch();
         final docRef = _db
             .collection(UserDTO.collectionName)

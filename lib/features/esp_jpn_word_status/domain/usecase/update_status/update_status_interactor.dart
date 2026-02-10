@@ -1,5 +1,5 @@
-import 'dart:developer';
 
+import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';
@@ -25,8 +25,8 @@ class UpdateStatusInteractor implements IUpdateStatusUseCase {
     final dateTime = DateTime.now().toUtc();
 
     // ローカルの更新を先に実行
-    print("status:isBookmarked ${converterIntFromBool(input.isBookmarked)}");
-    print("status:isLearned ${converterIntFromBool(input.isLearned)}");
+    AppLogger.print("status:isBookmarked ${converterIntFromBool(input.isBookmarked)}");
+    AppLogger.print("status:isLearned ${converterIntFromBool(input.isLearned)}");
 
     final localResult = await _wordStatusRepository.updateLocalWordStatus(
       input.wordId,
@@ -70,13 +70,13 @@ class UpdateStatusInteractor implements IUpdateStatusUseCase {
       final res = await _wordStatusRepository.getWordStatusById(input.wordId);
       res.when(
         success: (data) {
-          log('Fetched existing status for wordId ${input.wordId}: $data');
+          AppLogger.print('Fetched existing status for wordId ${input.wordId}: $data');
           if (data == null) return;
           repoInput = repoInput.copyWith(
               isBookmarked: data.isBookmarked, isLearned: data.isLearned);
         },
         failure: (error) {
-          log('Failed to fetch existing status for wordId ${input.wordId}: ${error.message}');
+          AppLogger.print('Failed to fetch existing status for wordId ${input.wordId}: ${error.message}');
         },
       );
 
@@ -86,7 +86,7 @@ class UpdateStatusInteractor implements IUpdateStatusUseCase {
 
       // リモート更新が失敗してもローカルは更新済みなのでログのみ
       if (remoteResult.isFailure) {
-        log('Remote status update failed: ${remoteResult.errorOrNull?.message}');
+        AppLogger.print('Remote status update failed: ${remoteResult.errorOrNull?.message}');
         // リモート失敗は警告として扱い、成功を返す（ローカルは更新済み）
         // 必要に応じて後で同期可能
       }

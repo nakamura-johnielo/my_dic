@@ -1,4 +1,4 @@
-import 'dart:developer';
+import 'package:my_dic/core/shared/utils/logger.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -111,7 +111,7 @@ class _WordRegistrationModalState extends ConsumerState<WordRegistrationModal> {
                                   },
                                   onError: () {},
                                   onInvalid: () {
-                                    log("invalid input");
+                                    AppLogger.print("invalid input");
                                   });
                             },
                             child: const Text('登録'),
@@ -206,7 +206,7 @@ class CreateWordModal2 extends StatelessWidget {
                                   const Color.fromARGB(255, 44, 110, 215),
                             ),
                             onPressed: () {
-                              log(textEditingController.text);
+                              AppLogger.print(textEditingController.text);
                             },
                             child: const Text('登録'),
                           ),
