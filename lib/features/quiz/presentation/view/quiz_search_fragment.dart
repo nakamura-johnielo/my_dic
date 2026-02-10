@@ -119,7 +119,7 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
                   goToQuiz: () => onTap(quizWord),
                   query: viewModel.query,
                   wordId: quizWord.wordId, //jpnEspWord.id,
-                  ranking: 4 * index + index, //TODO ranking
+                  ranking: viewModel.rankingNos[quizWord.wordId] , //TODO ranking
                   rankingON: true,
                   // conjugations: index % 3 == 0
                   //     ? "現在-yo: soy  現在-yo: soy  現在-yo: soy  現在-yo: soy  現在-yo: soy"

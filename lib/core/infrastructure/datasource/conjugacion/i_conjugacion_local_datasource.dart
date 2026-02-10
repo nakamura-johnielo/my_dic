@@ -6,4 +6,8 @@ abstract class IConjugacionLocalDataSource {
       String word, int size, int currentPage);
   Future<List<EspConjugationTableData>> getQuizConjugacionByWordWithPage(
       String word, int size, int currentPage);
+  Future<bool> existsConjByWordId(int wordId);
+  Future<String?> getSimpleMeaningById(int id);
+
+  Future<Map<int, String>> getMeaningsByWordIds(List<int> wordIds);
 }

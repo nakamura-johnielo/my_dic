@@ -11,6 +11,9 @@ class SearchState {
   final List<EspJpnWord> espJpnWords;
   final List<JpnEspWord> jpnEspWords;
   final List<SearchResultConjugacions> conjugacions;
+  final Map<int, int> rankingNos;
+  final Map<int, String> simpleMeanings;
+  final Map<int, int> starCounts;
   final bool isLoading;
   final String? errorMessage;
 
@@ -19,6 +22,9 @@ class SearchState {
     this.espJpnWords = const [],
     this.jpnEspWords = const [],
     this.conjugacions = const [],
+    this.rankingNos = const {},
+    this.simpleMeanings = const {},
+    this.starCounts = const {},
     this.isLoading = false,
     this.errorMessage,
   });
@@ -28,6 +34,9 @@ class SearchState {
     List<EspJpnWord>? espJpnWords,
     List<JpnEspWord>? jpnEspWords,
     List<SearchResultConjugacions>? conjugacions,
+    Map<int, int>? rankingNos,
+    Map<int, String>? simpleMeanings,
+    Map<int, int>? starCounts,
     bool? isLoading,
     String? errorMessage,
   }) {
@@ -36,6 +45,9 @@ class SearchState {
       espJpnWords: espJpnWords ?? this.espJpnWords,
       jpnEspWords: jpnEspWords ?? this.jpnEspWords,
       conjugacions: conjugacions ?? this.conjugacions,
+      rankingNos: rankingNos ?? this.rankingNos,
+      simpleMeanings: simpleMeanings ?? this.simpleMeanings,
+      starCounts: starCounts ?? this.starCounts,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage ?? this.errorMessage,
     );

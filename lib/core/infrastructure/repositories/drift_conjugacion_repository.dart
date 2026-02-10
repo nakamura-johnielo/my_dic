@@ -1,4 +1,3 @@
-
 import 'package:my_dic/core/domain/entity/verb/conjugacions.dart';
 import 'package:my_dic/features/quiz/domain/entity/quiz_searched_item.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/result_conjugacions.dart';
@@ -11,6 +10,19 @@ import 'package:my_dic/core/infrastructure/repositories/converters/conjugacion_c
 class ConjugacionRepository implements IConjugacionsRepository {
   final IConjugacionLocalDataSource _dataSource;
   ConjugacionRepository(this._dataSource);
+  @override
+  Future<Result<bool>> hasConjByWordId(int wordId) async {
+    try {
+      final hasConj = await _dataSource.existsConjByWordId(wordId);
+      return Result.success(hasConj);
+    } catch (e, stackTrace) {
+      return Result.failure(DatabaseError(
+        message: '活用形の有無の確認に失敗しました',
+        originalError: e,
+        stackTrace: stackTrace,
+      ));
+    }
+  }
 
   @override
   Future<Result<EspConjugacions?>> getConjugacionByWordId(int id) async {
@@ -33,8 +45,9 @@ class ConjugacionRepository implements IConjugacionsRepository {
     try {
       final tableDataList = await _dataSource.getConjugacionByWordWithPage(
           word, size, currentPage);
-      final entities = tableDataList.map((data) => 
-        ConjugacionConverter.toSearchResult(data)).toList();
+      final entities = tableDataList
+          .map((data) => ConjugacionConverter.toSearchResult(data))
+          .toList();
       return Result.success(entities);
     } catch (e, stackTrace) {
       return Result.failure(DatabaseError(
@@ -51,8 +64,9 @@ class ConjugacionRepository implements IConjugacionsRepository {
     try {
       final tableDataList = await _dataSource.getQuizConjugacionByWordWithPage(
           word, size, currentPage);
-      final entities = tableDataList.map((data) => 
-        ConjugacionConverter.toQuizItem(data)).toList();
+      final entities = tableDataList
+          .map((data) => ConjugacionConverter.toQuizItem(data))
+          .toList();
       return Result.success(entities);
     } catch (e, stackTrace) {
       return Result.failure(DatabaseError(

@@ -87,6 +87,9 @@ class SearchViewModel extends StateNotifier<SearchState> {
       espJpnWords: [],
       jpnEspWords: [],
       conjugacions: [],
+      rankingNos: {},
+      simpleMeanings: {},
+      starCounts: {},
       isLoading: false,
       errorMessage: null,
     );
@@ -117,17 +120,27 @@ class SearchViewModel extends StateNotifier<SearchState> {
       success: (data) {
         AppLogger.print("result length ${data.wordList.length}");
 
+        final newRankingNos = data.rankingNos;
+        final newSimpleMeanings = data.simpleMeanings;
+        final newStarCounts = data.starCounts;
+
         if (page == 0) {
           // 初回は置き換え
           state = state.copyWith(
             espJpnWords: data.wordList,
             jpnEspWords: [],
+            rankingNos: newRankingNos,
+            simpleMeanings: newSimpleMeanings,
+            starCounts: newStarCounts,
             isLoading: false,
           );
         } else {
           // 追加読み込みは追加
           state = state.copyWith(
             espJpnWords: [...state.espJpnWords, ...data.wordList],
+            rankingNos: {...state.rankingNos, ...newRankingNos},
+            simpleMeanings: {...state.simpleMeanings, ...newSimpleMeanings},
+            starCounts: {...state.starCounts, ...newStarCounts},
             isLoading: false,
           );
         }
@@ -185,6 +198,9 @@ class SearchViewModel extends StateNotifier<SearchState> {
         AppLogger.print("##############conjlength:${data.wordList.length}");
         state = state.copyWith(
           conjugacions: data.wordList,
+          rankingNos: {...state.rankingNos, ...data.rankingNos},
+          simpleMeanings: {...state.simpleMeanings, ...data.simpleMeanings},
+          starCounts: {...state.starCounts, ...data.starCounts},
         );
       },
       failure: (error) {

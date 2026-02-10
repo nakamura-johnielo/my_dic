@@ -283,7 +283,7 @@ class _CardViewState extends State<CardView> {
                     mainAxisSize: MainAxisSize.min, //
                     children: [
                       Row(
-                        spacing: 10,
+                        spacing: 20,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(

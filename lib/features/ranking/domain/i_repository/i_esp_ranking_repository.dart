@@ -6,4 +6,5 @@ abstract class IEspRankingRepository {
   Future<Result<List<Ranking>>> getRankingList(int page, int size);
   Future<Result<List<Ranking>>> getRankingListByFilters(
       FilteredRankingListInputData input);
+  Future<Result<Ranking>> getRankingById(int wordId);
 }

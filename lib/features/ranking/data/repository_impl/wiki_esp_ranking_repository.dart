@@ -9,6 +9,31 @@ import 'package:my_dic/features/ranking/data/data_source/local/i_ranking_local_d
 class RankingRepository implements IEspRankingRepository {
   final IRankingLocalDataSource _dataSource;
   RankingRepository(this._dataSource);
+  @override
+   Future<Result<Ranking>> getRankingById(int wordId) async {
+    try {
+      final data =await _dataSource.getRankingById(wordId);
+      if (data == null) {
+        return Result.failure(DatabaseError(
+          message: 'ランキングが見つかりませんでした',
+        ));
+      }
+      final entity = Ranking(
+        rank: data.rankingNo,
+        rankedWord: data.word ?? "",
+        lemma: data.wordOrigin ?? "",
+        wordId: data.wordId ?? -1,
+        hasConj: data.hasConj == 1,
+      );
+      return Result.success(entity);
+    } catch (e, stackTrace) {
+      return Result.failure(DatabaseError(
+        message: 'ランキングの取得に失敗しました',
+        originalError: e,
+        stackTrace: stackTrace,
+      ));
+    }
+   }
 
   @override
   Future<Result<List<Ranking>>> getRankingList(int page, int size) async {
