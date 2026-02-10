@@ -11,6 +11,7 @@ import 'package:my_dic/features/quiz/presentation/ui_model/quiz_game_model.dart'
 import 'package:logging/logging.dart';
 import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
 import 'package:my_dic/router/navigator_service.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 
 /// クイズのViewModel
 class QuizGameViewModel extends StateNotifier<QuizGameState> {
@@ -39,7 +40,7 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
   }
 
   void toggleQuizCardStatus() {
-    print(
+    AppLogger.print(
         "!!!!!!!!!!!!!!!!!!!!!!!!!toggleQuizCardStatus${state.quizCardState}");
     if (state.quizCardState == QuizCardState.question) {
       _updateQuizCardStatus(QuizCardState.answer);
@@ -50,11 +51,11 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
 
   Future<Map<String, String>> fetchEnglishConj(int wordId) async {
     final result = await _fetchEnglishConjInteractor.execute(wordId);
-    print("!!!!!!!!!!!!!!!!!!!!!!!!!englishConj in QuizController");
+    AppLogger.print("!!!!!!!!!!!!!!!!!!!!!!!!!englishConj in QuizController");
 
     return result.when(
       success: (englishConj) {
-        print(englishConj);
+        AppLogger.print(englishConj);
         return englishConj;
       },
       failure: (error) {
@@ -72,7 +73,7 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
     return res.when(
         success: (data) => data,
         failure: (failure) {
-          print("活用形の取得に失敗しました: $failure");
+          AppLogger.print("活用形の取得に失敗しました: $failure");
           return null;
         });
   }
@@ -85,18 +86,16 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
     final subject = state.currentSubject;
     String sub =
         englishSubMap[moodTense.toString()]!; //"It's important that @ #"
-    print("sub: $sub");
+    AppLogger.print("sub: $sub");
 
     EnglishSubject englishSubject = subject.equiEnglish;
     sub = sub.replaceAll("@", englishSubject.name);
-    print("sub: $sub");
+    AppLogger.print("sub: $sub");
 
     EnglishMoodTense englishMoodTense = moodTense.equiEnglish;
     //@が主語
     // #が動詞
 
-    //print("=================beConj");
-    //print(englishConj);
     // beがaru場合==============
     if (englishConj[EnglishMoodTense.indicativePresent.toString()] == "be") {
       //Map<String, Map<String, String>> beConj = json;

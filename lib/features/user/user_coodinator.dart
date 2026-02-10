@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/enums/auth/subscription_status.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/user/di/service.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/features/user/domain/usecase/i_create_new_user_use_case.dart';
 import 'package:my_dic/features/user/domain/usecase/i_get_user_use_case.dart';
 import 'package:my_dic/features/user/domain/entity/user.dart';
@@ -50,7 +51,7 @@ class AppUserCoordinator {
   Future<Result<void>> createUser(AppUser appUser) async {
     final res = await _createNewUserInteractor.execute(appUser);
     return res.map((user) {
-      print("AppUserCoordinator createUser user=${user.toString()}");
+      AppLogger.print("AppUserCoordinator createUser user=${user.toString()}");
       _storeNotifier.setUser(user);
     });
   }
@@ -64,11 +65,11 @@ class AppUserCoordinator {
     final res = await _getUserInteractor.execute();
 
     return res.when(success: (user) {
-      print("ユーザー情報をリフレッシュしました。${user.toString()}");
+      AppLogger.print("ユーザー情報をリフレッシュしました。${user.toString()}");
       _storeNotifier.setUser(user);
       return Result.success(null);
     }, failure: (error) async {
-      print("ユーザー情報の更新に失敗しました: ${error.message}");
+      AppLogger.print("ユーザー情報の更新に失敗しました: ${error.message}");
 
       return Result.failure(error);
     });

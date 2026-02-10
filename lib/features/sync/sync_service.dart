@@ -3,6 +3,7 @@ import 'package:async/async.dart';
 
 import 'package:my_dic/core/domain/usecase/i_sync_usecase.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 
 class SyncService {
   final List<ISyncUseCase> _syncUseCases;
@@ -36,9 +37,9 @@ class SyncService {
         final useCase = group[i];
         final result = results[i];
         result.when(
-          success: (_) => print(
+          success: (_) => AppLogger.print(
               '[SyncService] Sync completed successfully for use case with priority ${useCase.runtimeType}'),
-          failure: (error) => print(
+          failure: (error) => AppLogger.print(
               '[SyncService] Sync failed for use case with priority ${useCase.runtimeType}: ${error.message}'),
         );
       }
@@ -48,12 +49,12 @@ class SyncService {
   }
 
   StreamSubscription startSyncWithRemote() {
-    print("--------------------syncservice start sync withremote");
+    AppLogger.print("--------------------syncservice start sync withremote");
     final streams = _syncUseCases.map((usecase) =>
         usecase.watchRemoteChangedIds().map((ids) => (usecase, ids)));
 
     return StreamGroup.merge(streams).listen((pair) async {
-      print(
+      AppLogger.print(
           ">>>>>>>mergestream:${pair.$1.runtimeType} changed ids: ${pair.$2}");
       final (usecase, ids) = pair;
       for (final id in ids) {

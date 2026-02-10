@@ -1,5 +1,6 @@
 import 'package:my_dic/core/domain/usecase/i_sync_usecase.dart';
 import 'package:my_dic/core/shared/consts/dates.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/core/shared/consts/syncPriority.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';
@@ -42,7 +43,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
     if (accountId == null) {
       return const Result.success(null);
     }
-    print("syncOnce start");
+    AppLogger.print("syncOnce start");
     //最終同期時刻以降の差分を同期する
 
     // localの最終同期時刻取得
@@ -51,12 +52,11 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
     //remoteのその時刻以降の更新データを取得
     final remoteDataResult = await _wordStatusRepository
         .getRemoteWordStatusAfter(accountId, localLastSyncDate);
-    // print(">>>>>>unsync remoteData");
-
+    
     final remoteData = remoteDataResult.when(
       success: (data) => data,
       failure: (error) {
-        print('Failed to get remote word status after: ${error.message}');
+        AppLogger.print('Failed to get remote word status after: ${error.message}');
         return error;
       },
     );
@@ -65,8 +65,6 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
     if (remoteData is AppError) {
       return Result.failure(remoteData);
     }
-
-    // (remoteData as List<WordStatus> ).map((e) => print(">>>>>>unsync remote wordId: ${e.wordId}"));
 
     //remoteの値でlocalを更新した場合、そのwordIdを格納
     final List<int> wordIdsUpdatedByRemote = [];
@@ -77,7 +75,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
         final id = idResult.when(
           success: (data) => data,
           failure: (error) {
-            print('Failed to sync handle: ${error.message}');
+            AppLogger.print('Failed to sync handle: ${error.message}');
             return null;
           },
         );
@@ -108,14 +106,14 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
     if (accountId == null) {
       return const Result.success(null);
     }
-    print("syncOnUpdatedLocal called for wordId: $wordId");
+    AppLogger.print("syncOnUpdatedLocal called for wordId: $wordId");
     //remoteへの反映処理
     //remoteの時刻が古ければ更新
     final remoteItemResult = await _wordStatusRepository
         .getRemoteWordStatusById(accountId, int.parse(wordId));
 
     if (remoteItemResult.isFailure) {
-      print(
+      AppLogger.print(
           'Failed to get remote word status by id: ${remoteItemResult.errorOrNull?.message}');
       return Result.failure(remoteItemResult.errorOrNull!);
     }
@@ -129,7 +127,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
 
       if (localDataResult.runtimeType != NotFoundError &&
           localDataResult.runtimeType == AppError) {
-        print(
+        AppLogger.print(
             'Failed to get local word status by id: ${localDataResult.errorOrNull?.message}');
         return Result.failure(localDataResult.errorOrNull!);
       }
@@ -164,14 +162,14 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
     if (accountId == null) {
       return const Result.success(null);
     }
-    print("syncOnUpdatedRemote called for wordId: $wordId");
+    AppLogger.print("syncOnUpdatedRemote called for wordId: $wordId");
     //時刻判定
     //localの時刻が古ければ更新
     final remoteItemResult = await _wordStatusRepository
         .getRemoteWordStatusById(accountId, int.parse(wordId));
 
     if (remoteItemResult.isFailure) {
-      print(
+      AppLogger.print(
           'Failed to get remote word status by id: ${remoteItemResult.errorOrNull?.message}');
       return Result.failure(remoteItemResult.errorOrNull!);
     }
@@ -214,7 +212,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
     return result.when(
       success: (localLastSyncDate) => localLastSyncDate ?? MyDateTime.sentinel,
       failure: (error) {
-        print('Failed to get last sync date: $error');
+        AppLogger.print('Failed to get last sync date: $error');
         return MyDateTime.sentinel;
       },
     );
@@ -227,14 +225,14 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
 
     if (localDataResult.runtimeType != NotFoundError &&
         localDataResult.runtimeType == AppError) {
-      print(
+      AppLogger.print(
           'Failed to get local word status after: ${localDataResult.errorOrNull?.message}');
       return Result.failure(localDataResult.errorOrNull!);
     }
 
     final localData = localDataResult.dataOrNull!;
 
-    print("local espjpnstatus sync length: ${localData.length}");
+    AppLogger.print("local espjpnstatus sync length: ${localData.length}");
     if (localData.isEmpty || localDataResult.runtimeType == NotFoundError) {
       return const Result.success(null);
     }
@@ -243,8 +241,8 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
         localData, userId, null);
 
     result.when(
-      success: (_) => print('Batch update successful'),
-      failure: (error) => print('Batch update failed: ${error.message}'),
+      success: (_) => AppLogger.print('Batch update successful'),
+      failure: (error) => AppLogger.print('Batch update failed: ${error.message}'),
     );
 
     return result;
@@ -256,8 +254,8 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
     final result = await _localSyncStatusRepository.updateSyncDate(now);
 
     result.when(
-      success: (_) => print('Sync date updated successfully'),
-      failure: (error) => print('Failed to update sync date: $error'),
+      success: (_) => AppLogger.print('Sync date updated successfully'),
+      failure: (error) => AppLogger.print('Failed to update sync date: $error'),
     );
 
     return result;
@@ -273,7 +271,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
 
     if (localDataResult.runtimeType != NotFoundError &&
         localDataResult.runtimeType == AppError) {
-      print(
+      AppLogger.print(
           'Failed to get local word status by id: ${localDataResult.errorOrNull?.message}');
       return Result.failure(localDataResult.errorOrNull!);
     }
@@ -297,10 +295,10 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
     final remoteUpdatedAt = remoteItem.editAt;
     final localUpdatedAt = localData.editAt;
 
-    print("~~~~~~ Remote: $remoteUpdatedAt, Local: $localUpdatedAt");
+    AppLogger.print("~~~~~~ Remote: $remoteUpdatedAt, Local: $localUpdatedAt");
 
     if (remoteUpdatedAt.isAfter(localUpdatedAt)) {
-      print("Remote is newer for wordId: ${remoteItem.wordId}");
+      AppLogger.print("Remote is newer for wordId: ${remoteItem.wordId}");
       // リモートの方が新しい場合
       // local更新
       final updateResult = await _wordStatusRepository.updateLocalWordStatus(
@@ -315,7 +313,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
       }
       return Result.success(remoteItem.wordId);
     } else if (localUpdatedAt.isAfter(remoteUpdatedAt)) {
-      print("Local is newer for wordId: ${remoteItem.wordId}");
+      AppLogger.print("Local is newer for wordId: ${remoteItem.wordId}");
       // ローカルの方が新しい場合
       // remote更新
       final updateResult = await _wordStatusRepository.updateRemoteWordStatus(
@@ -346,7 +344,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
 
     if (localDataResult.runtimeType != NotFoundError &&
         localDataResult.runtimeType == AppError) {
-      print(
+      AppLogger.print(
           'Failed to get local word status by id: ${localDataResult.errorOrNull?.message}');
       return Result.failure(localDataResult.errorOrNull!);
     }
@@ -370,10 +368,10 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
     final remoteUpdatedAt = remoteItem.editAt;
     final localUpdatedAt = localData.editAt;
 
-    print("~~~~~~ Remote: $remoteUpdatedAt, Local: $localUpdatedAt");
+    AppLogger.print("~~~~~~ Remote: $remoteUpdatedAt, Local: $localUpdatedAt");
 
     if (remoteUpdatedAt.isAfter(localUpdatedAt)) {
-      print("Remote is newer for wordId: ${remoteItem.wordId}");
+      AppLogger.print("Remote is newer for wordId: ${remoteItem.wordId}");
       // リモートの方が新しい場合
       // local更新
       final updateResult = await _wordStatusRepository.updateLocalWordStatus(

@@ -1,4 +1,4 @@
-import 'dart:developer';
+import 'package:my_dic/core/shared/utils/logger.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -16,7 +16,7 @@ class EspJpnDictionaryFragment extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    log("dic key: $key");
+    AppLogger.print("dic key: $key");
 
     final viewModel = ref.watch(wordPageViewModelProvider(wordId));
 

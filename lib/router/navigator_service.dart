@@ -7,6 +7,7 @@ import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
 import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
 import 'package:my_dic/router/route_names.dart';
 import 'package:my_dic/router/router.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 
 final appNavigatorServiceProvider = Provider<AppNavigatorService>((ref) {
   return AppNavigatorService(ref);
@@ -103,12 +104,12 @@ class AppNavigatorService {
   }
 
   void pushToProfile() {
-    print('========-Go to profile========');
+    AppLogger.print('========-Go to profile========');
     _router.pushNamed(RouteNames.unauthorized);
   }
 
   void toProfile() {
-    print('========-Go to profile========');
+    AppLogger.print('========-Go to profile========');
     _router.replaceNamed(RouteNames.unauthorized);
   }
 }

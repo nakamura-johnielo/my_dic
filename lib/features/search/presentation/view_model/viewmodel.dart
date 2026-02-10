@@ -11,6 +11,7 @@ import 'package:my_dic/features/search/presentation/ui_model/search_ui_model.dar
 import 'package:logging/logging.dart';
 import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
 import 'package:my_dic/router/navigator_service.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 
 /// 検索画面のViewModel
 class SearchViewModel extends StateNotifier<SearchState> {
@@ -60,12 +61,12 @@ class SearchViewModel extends StateNotifier<SearchState> {
 
     try {
       final dictionaryType = _judgeDictionaryType(word);
-      print("#############Viewmodel nextpage:$nextPage");
+      AppLogger.print("#############Viewmodel nextpage:$nextPage");
 
       if (dictionaryType == DictionaryType.jpnEsp) {
         await _searchJpnEsp(word, size: size, page: nextPage);
       } else {
-        print("#############true");
+        AppLogger.print("#############true");
         await _searchEspJpn(word, size: size, page: nextPage);
         if (nextPage == 0) {
           // 初回のみ活用形も検索
@@ -114,7 +115,7 @@ class SearchViewModel extends StateNotifier<SearchState> {
 
     result.when(
       success: (data) {
-        print("result length ${data.wordList.length}");
+        AppLogger.print("result length ${data.wordList.length}");
 
         if (page == 0) {
           // 初回は置き換え
@@ -181,7 +182,7 @@ class SearchViewModel extends StateNotifier<SearchState> {
 
     result.when(
       success: (data) {
-        print("##############conjlength:${data.wordList.length}");
+        AppLogger.print("##############conjlength:${data.wordList.length}");
         state = state.copyWith(
           conjugacions: data.wordList,
         );

@@ -9,6 +9,8 @@ import 'package:my_dic/core/shared/enums/entry_point.dart';
 import 'package:my_dic/core/shared/consts/ui/tab.dart';
 import 'package:my_dic/router/navigator_service.dart';
 
+import 'package:my_dic/core/shared/utils/logger.dart';
+
 class MainActivity extends ConsumerWidget {
   const MainActivity({
     super.key,
@@ -26,7 +28,7 @@ class MainActivity extends ConsumerWidget {
     int getDestinationShellIndex(index, changeBranch) {
       final entryPoint = ref.read(entryPointProvider);
       if (changeBranch) {
-        print("move index: ${ref.read(lastStudyBranchTabIndexProvider)}");
+        AppLogger.print("move index: ${ref.read(lastStudyBranchTabIndexProvider)}");
         index = ref.read(lastStudyBranchTabIndexProvider);
       }
 
@@ -73,18 +75,18 @@ class MainActivity extends ConsumerWidget {
         },
         onDestinationSelected: (tabIndex) {
           if (tabIndex == navBarPhantomIndex(navigationShell.currentIndex)) {
-            print("00000000000000000000000000000");
+            AppLogger.print("00000000000000000000000000000");
             ref
                 .read(appNavigatorServiceProvider)
                 .clearCurrentBranchHistoryAndGoRoot();
             return;
           }
           final entryPoint = ref.read(entryPointProvider);
-          print("||||||||||||||||||||entrypoint current: $entryPoint");
+          AppLogger.print("||||||||||||||||||||entrypoint current: $entryPoint");
 
           if (entryPoint.category == EntryPointCategory.study) {
             // Study内のタブ切り替え
-            print(
+            AppLogger.print(
                 "study ||||||||||||||||||||entrypoint move: ${StudyScreenTab.values[tabIndex].entryPoint}");
             ref.read(entryPointProvider.notifier).state =
                 StudyScreenTab.values[tabIndex].entryPoint;
@@ -110,7 +112,7 @@ class MainActivity extends ConsumerWidget {
               ref.read(lastMainBranchIndexProvider.notifier).state = tabIndex;
             }
             ref.read(entryPointProvider.notifier).state = nextEntryPoint;
-            print(
+            AppLogger.print(
                 "main ||||||||||||||||||||entrypoint move: $nextEntryPoint");
 
             navigationShell.goBranch(
@@ -122,7 +124,7 @@ class MainActivity extends ConsumerWidget {
         },
    
         onActionButtonSelected: () {
-          print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CLOSE BUTTON TAPPED");
+          AppLogger.print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CLOSE BUTTON TAPPED");
           final lastIndex = ref.read(lastMainBranchIndexProvider);
           EntryPoint lastEntryPoint;
           if (lastIndex == 0) {

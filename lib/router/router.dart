@@ -7,6 +7,7 @@ import 'package:my_dic/main_activity.dart';
 import 'package:my_dic/features/my_word/presentation/view/my_word_fragment.dart';
 import 'package:my_dic/features/search/presentation/view/search_fragment.dart';
 import 'package:my_dic/features/user/presentation/view/profile.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 
 import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
 import 'package:my_dic/router/route_names.dart';
@@ -66,11 +67,11 @@ class AuthChangeNotifier extends ChangeNotifier {
         if (previous?.isAuthenticated == next?.isAuthenticated &&
             previous?.isLogined == next?.isLogined &&
             previous?.accountId == next?.accountId) {
-          print(
+          AppLogger.print(
               'redirect - [Auth Effect] No change in auth state detected===============================================');
           return;
         }
-        print(
+        AppLogger.print(
             "redirect -- authchangenotifier==============================================================");
         notifyListeners();
       },
@@ -93,7 +94,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   final studyDashboardKey = ref.watch(studyDashboardNavigatorKeyProvider);
   final studyRankingKey = ref.watch(studyRankingNavigatorKeyProvider);
   final studyQuizKey = ref.watch(studyQuizNavigatorKeyProvider);
-  print("===============routerProvider created======================");
+  AppLogger.print("===============routerProvider created======================");
 
   return GoRouter(
     navigatorKey: rootKey,
@@ -105,11 +106,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       final uri2 = state.uri.path.toString();
       final fullPath = state.fullPath;
 
-      print('========-GoRouter redirect========');
-      print('matchedLocation: $location');
-      print('uri: $uri');
-      print('uri: $uri2');
-      print('fullPath: $fullPath');
+      AppLogger.print('========-GoRouter redirect========');
+      AppLogger.print('matchedLocation: $location');
+      AppLogger.print('uri: $uri');
+      AppLogger.print('uri: $uri2');
+      AppLogger.print('fullPath: $fullPath');
 
       // login系のページじゃなければ強勢移動させない
       final inProfile = location.startsWith('/${RoutePaths.profile}');
@@ -120,20 +121,20 @@ final routerProvider = Provider<GoRouter>((ref) {
       final authorized = '/${RoutePaths.profile}/${RoutePaths.authorized}';
 
       if (auth == null) {
-        print('auth is null');
+        AppLogger.print('auth is null');
         return unauthorized;
       }
 
       final loggedIn = auth.isLogined;
       final verified = auth.isAuthenticated;
-      print('loggedIn: $loggedIn, verified: $verified');
+      AppLogger.print('loggedIn: $loggedIn, verified: $verified');
 
       if (!loggedIn || !verified) {
-        print(
+        AppLogger.print(
             "current location: ${location == unauthorized ? null : unauthorized} ");
         return location == unauthorized ? null : unauthorized;
       }
-      print("current location: ${location == authorized ? null : authorized} ");
+      AppLogger.print("current location: ${location == authorized ? null : authorized} ");
       return location == authorized ? null : authorized;
     },
     initialLocation: '/${RoutePaths.search}',

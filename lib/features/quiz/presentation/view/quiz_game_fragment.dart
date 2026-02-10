@@ -10,6 +10,7 @@ import 'package:my_dic/core/domain/entity/verb/conjugacion/tense_conjugacion.dar
 import 'package:my_dic/core/domain/entity/verb/conjugacions.dart';
 import 'package:my_dic/features/quiz/di/provider_di.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
 
 class QuizGameFragmentInput {
@@ -45,8 +46,8 @@ class QuizGameFragment extends ConsumerWidget {
       return const Center(child: Text('Load error'));
     }
 
-    print("conjEnglishAsync");
-    print("beConjAsync");
+    AppLogger.print("conjEnglishAsync");
+    AppLogger.print("beConjAsync");
     final Map<String, String> englishSubMap = conjEnglishAsync.value!;
     final Map<String, Map<String, String>> beConj = beConjAsync.value!;
     final englishConj = englishConjAsync.value!;

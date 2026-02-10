@@ -1,8 +1,7 @@
-import 'dart:developer';
-
 import 'package:drift/drift.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/word_status.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 
 part '../../../../../../__generated/core/infrastructure/database/drift/daos/esp_jpn/esp_jpn_word_status_dao.g.dart';
 
@@ -33,7 +32,7 @@ class EspJpnWordStatusDao extends DatabaseAccessor<DatabaseProvider>
     int? hasNote,
     String editAt,
   ) async {
-    log("update");
+    AppLogger.print("update");
     await (update(espJpnWordStatus)..where((t) => t.wordId.equals(wordId)))
         .write(
       EspJpnWordStatusCompanion(
@@ -61,7 +60,7 @@ class EspJpnWordStatusDao extends DatabaseAccessor<DatabaseProvider>
 
   Future<void> insertStatus(EspJpnWordStatusTableData data) async {
     await into(espJpnWordStatus).insert(data);
-    log("insert");
+    AppLogger.print("insert");
   }
 
   Future<bool> exist(int id) async {

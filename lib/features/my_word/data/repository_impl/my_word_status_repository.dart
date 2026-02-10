@@ -1,6 +1,7 @@
-import 'dart:developer';
+import 'package:my_dic/core/shared/utils/logger.dart';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/errors/unexpected_error.dart';
@@ -22,7 +23,7 @@ class MyWordStatusRepository implements IMyWordStatusRepository {
   Future<Result<void>> updateStatus(
       UpdateMyWordStatusRepositoryInputData input) async {
     try {
-      log("updatestatusrepo");
+      AppLogger.print("updatestatusrepo");
       MyWordStatusTableData data = MyWordStatusTableData(
         myWordId: input.wordId,
         isLearned: input.isLearned ?? 0,
@@ -67,16 +68,16 @@ class MyWordStatusRepository implements IMyWordStatusRepository {
   @override
   Stream<MyWordStatus> watchStatus(String wordId) {
     return _localDataSource.watchWordStatus(wordId).map((statusData) {
-      print("mywordstatus stream");
+      AppLogger.print("mywordstatus stream");
       if (statusData == null) {
-        print("null");
+        AppLogger.print("null");
         return MyWordStatus(
           wordId: wordId,
           isLearned: false,
           isBookmarked: false,
         );
       }
-      print(
+      AppLogger.print(
           "mystatus ${statusData.myWordId}, learned:${statusData.isLearned}, bookmarked:${statusData.isBookmarked}");
       return MyWordStatus(
         wordId: statusData.myWordId,

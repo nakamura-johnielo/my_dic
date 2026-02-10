@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/features/auth/di/view_model_di.dart';
 import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
 import 'package:my_dic/features/sync/di.dart';
@@ -10,9 +11,9 @@ final authStreamProvider = StreamProvider<AppAuth?>((ref) {
   final authCoordinator = ref.read(authCoordinatorProvider);
   return authCoordinator.observeAuthState().distinct((prev, next) {
     // accountId と isLogined が両方同じなら重複とみなす
-    print(
+    AppLogger.print(
         "*****distinct check prev: ${prev?.accountId}, isLogined: ${prev?.isLogined}, isAuthenticated: ${prev?.isAuthenticated} *****");
-    print(
+    AppLogger.print(
         "*****distinct check next: ${next?.accountId}, isLogined: ${next?.isLogined}, isAuthenticated: ${next?.isAuthenticated} *****");
     return prev?.accountId == next?.accountId &&
         prev?.isLogined == next?.isLogined &&
@@ -39,25 +40,25 @@ Future<void> _handleAuthStateChange(
   if (previousAuth?.accountId == currentAuth?.accountId &&
       previousAuth?.isLogined == currentAuth?.isLogined &&
       previousAuth?.isAuthenticated == currentAuth?.isAuthenticated) {
-    print('[Auth Effect] No change in auth state detected');
+    AppLogger.print('[Auth Effect] No change in auth state detected');
     return;
   }
 
   // ログアウト後の処理
   if (currentAuth == null) {
-    print("signout handle");
+    AppLogger.print("signout handle");
     await _handleSignOut(ref, previousAuth);
     return;
   }
 
   // ログイン後の処理
-  print("signin handle");
+  AppLogger.print("signin handle");
   await _handleSignIn(ref, currentAuth);
 }
 
 /// サインアウト時の処理
 Future<void> _handleSignOut(Ref ref, AppAuth? previousAuth) async {
-  print('[Auth Effect] User signed out');
+  AppLogger.print('[Auth Effect] User signed out');
 
   final authCoordinator = ref.read(authCoordinatorProvider);
   authCoordinator.setAuth(AppAuth(accountId: ""));
@@ -68,7 +69,7 @@ Future<void> _handleSignOut(Ref ref, AppAuth? previousAuth) async {
 
 /// サインイン時の処理
 Future<void> _handleSignIn(Ref ref, AppAuth currentAuth) async {
-  print('[Auth Effect] User signed in: ${currentAuth.accountId}');
+  AppLogger.print('[Auth Effect] User signed in: ${currentAuth.accountId}');
 
   try {
     final authCoordinator = ref.read(authCoordinatorProvider);
@@ -78,12 +79,12 @@ Future<void> _handleSignIn(Ref ref, AppAuth currentAuth) async {
     userCoordinator.refresh();
 
     if (!currentAuth.isLogined || !currentAuth.isAuthenticated) {
-      print('[Auth Effect] User not verified, skipping sync service start');
+      AppLogger.print('[Auth Effect] User not verified, skipping sync service start');
       return;
     }
     await ref.read(syncServiceProvider).syncOnceAll();
   } catch (e) {
-    print('[Auth Effect] Error during sign in: $e');
+    AppLogger.print('[Auth Effect] Error during sign in: $e');
     // エラーハンドリング（必要に応じてUIにエラーを通知）
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/auth/di/store.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
 import 'package:my_dic/features/auth/domain/usecase/i_observe_auth_state_use_case.dart';
 import 'package:my_dic/features/auth/domain/usecase/i_send_email_use_case.dart';
@@ -55,7 +56,7 @@ class AppAuthCoordinator {
 
     return result.when(
       success: (appAuth) async {
-        print("**********signin success**********");
+        AppLogger.print("**********signin success**********");
         _authStoreNotifier.setAuth(appAuth);
         return Result.success(appAuth);
       },

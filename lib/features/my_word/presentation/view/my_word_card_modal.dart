@@ -7,6 +7,7 @@ import 'package:my_dic/core/shared/enums/ui/word_card_view_click_listener.dart';
 import 'package:my_dic/features/my_word/di/view_model_di.dart';
 import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
 import 'package:my_dic/features/my_word/presentation/ui_model/my_word_ui_model.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 
 const Map<String, IconData> _bookmarkIcon = {
   "true": Icons.bookmark_rounded,
@@ -230,7 +231,7 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
                                   description:
                                       descriptionTextFieldController.text,
                                   onComplete: () {
-                                    print("~~~~~~~~update myword");
+                                    AppLogger.print("~~~~~~~~update myword");
                                     setState(() {
                                       _isOnEdit = !_isOnEdit;
                                       myDescription =

@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/quiz/di/usecase_di.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 
 final conjEnglishProvider = FutureProvider<Map<String, String>>((ref) async {
   final usecase = ref.read(fetchEnglishConjSubUsecaseProvider);
@@ -9,7 +10,7 @@ final conjEnglishProvider = FutureProvider<Map<String, String>>((ref) async {
   return res.when(
       success: (data) => data,
       failure: (failure) {
-        print("Error in conjEnglishProvider: ${failure.message}");
+        AppLogger.print("Error in conjEnglishProvider: ${failure.message}");
         throw Exception('Failed to load English conjugation guide');
       });
 });
@@ -21,7 +22,7 @@ final beConjProvider =
   return res.when(
       success: (data) => data,
       failure: (failure) {
-        print("Error in conjEnglishProvider: ${failure.message}");
+        AppLogger.print("Error in conjEnglishProvider: ${failure.message}");
         throw Exception('Failed to load Be verb conjugations');
       });
 });

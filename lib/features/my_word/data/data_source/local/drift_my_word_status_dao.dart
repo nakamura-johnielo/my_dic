@@ -1,6 +1,5 @@
-import 'dart:developer';
-
 import 'package:drift/drift.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/features/my_word/data/data_source/local/my_word_status.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 part '../../../../../__generated/features/my_word/data/data_source/local/drift_my_word_status_dao.g.dart';
@@ -17,7 +16,7 @@ class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
     final int? hasNote,
     final String editAt,
   ) async {
-    log("update");
+    AppLogger.print("update");
     await (update(myWordStatus)..where((t) => t.myWordId.equals(myWordId)))
         .write(
       MyWordStatusCompanion(
@@ -32,7 +31,7 @@ class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
 
   Future<void> insertStatus(MyWordStatusTableData data) async {
     into(myWordStatus).insert(data);
-    log("insert");
+    AppLogger.print("insert");
   }
 
   Future<bool> exist(String id) async {

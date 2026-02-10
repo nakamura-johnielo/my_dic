@@ -10,9 +10,11 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:path/path.dart' as path;
+import 'package:my_dic/core/shared/utils/logger.dart';
+
 
 void main() async {
-  print('=== Database to Compressed JSON Export Tool ===\n');
+  AppLogger.print('=== Database to Compressed JSON Export Tool ===\n');
   
   final scriptDir = path.dirname(Platform.script.toFilePath());
   final projectRoot = path.dirname(scriptDir);
@@ -35,18 +37,18 @@ void main() async {
     final dbFile = File(dbPath);
     
     if (!await dbFile.exists()) {
-      print('⚠️  Database not found: $dbPath');
+      AppLogger.print('⚠️  Database not found: $dbPath');
       continue;
     }
     
-    print('Processing: $dbName');
+    AppLogger.print('Processing: $dbName');
     await exportDatabaseToCompressedJson(dbPath, outputDir, dbName);
-    print('✅ Completed: $dbName\n');
+    AppLogger.print('✅ Completed: $dbName\n');
   }
   
-  print('=== Export Complete ===');
-  print('\n⚠️  Note: The generated .json.gz files need to be decompressed');
-  print('in the Flutter web app using GZipCodec before parsing.');
+  AppLogger.print('=== Export Complete ===');
+  AppLogger.print('\n⚠️  Note: The generated .json.gz files need to be decompressed');
+  AppLogger.print('in the Flutter web app using GZipCodec before parsing.');
 }
 
 Future<void> exportDatabaseToCompressedJson(
@@ -69,7 +71,7 @@ Future<void> exportDatabaseToCompressedJson(
     
     for (final table in tables) {
       final tableName = table['name'] as String;
-      print('  - Exporting table: $tableName');
+      AppLogger.print('  - Exporting table: $tableName');
       
       final schema = db.select("PRAGMA table_info($tableName)");
       final columns = schema.map((col) => {
@@ -88,7 +90,7 @@ Future<void> exportDatabaseToCompressedJson(
         'row_count': rowCount,
       };
       
-      print('    → $rowCount rows exported');
+      AppLogger.print('    → $rowCount rows exported');
     }
     
     // JSON文字列に変換（コンパクト版）
@@ -109,9 +111,9 @@ Future<void> exportDatabaseToCompressedJson(
     final compressedSizeMB = compressed.length / (1024 * 1024);
     final compressionRatio = ((1 - compressed.length / bytes.length) * 100);
     
-    print('  📁 Original: ${originalSizeMB.toStringAsFixed(2)} MB');
-    print('  📦 Compressed: ${compressedSizeMB.toStringAsFixed(2)} MB (${compressionRatio.toStringAsFixed(1)}% reduction)');
-    print('  💾 Saved to: $compressedPath');
+    AppLogger.print('  📁 Original: ${originalSizeMB.toStringAsFixed(2)} MB');
+    AppLogger.print('  📦 Compressed: ${compressedSizeMB.toStringAsFixed(2)} MB (${compressionRatio.toStringAsFixed(1)}% reduction)');
+    AppLogger.print('  💾 Saved to: $compressedPath');
     
   } finally {
     db.dispose();

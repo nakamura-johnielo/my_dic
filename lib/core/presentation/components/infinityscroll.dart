@@ -1,5 +1,6 @@
-import 'dart:developer' as dev;
+
 import 'dart:math';
+import 'package:my_dic/core/shared/utils/logger.dart';
 
 import 'package:flutter/material.dart';
 
@@ -70,7 +71,7 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
   @override
   void initState() {
     super.initState();
-    dev.log("InfinityScrollListView initState");
+    AppLogger.print("InfinityScrollListView initState");
 
     _nextPage = widget.initialPage;
 
@@ -123,7 +124,7 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
   }
 
   void _resetInternal() {
-    print("InfinityScrollListView reset");
+    AppLogger.print("InfinityScrollListView reset");
     _resetScrollPosition();
 
     setState(() {
@@ -166,7 +167,7 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
       final page = _nextPage;
       final hasMore = await widget.onLoadMore(page);
 
-      print("in infi _nextPage BEFORE : $_nextPage");
+      AppLogger.print("in infi _nextPage BEFORE : $_nextPage");
       if (!mounted) return;
 
       setState(() {
@@ -175,10 +176,10 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
         if (hasMore) {
           _nextPage = page + 1;
         }
-        print("in infi _nextPage: $_nextPage");
+        AppLogger.print("in infi _nextPage: $_nextPage");
       });
     } catch (e, st) {
-      dev.log("InfinityScrollListView loadMore error: $e", stackTrace: st);
+      AppLogger.print("InfinityScrollListView loadMore error: $e");
       if (!mounted) return;
       setState(() => _isLoading = false);
     }

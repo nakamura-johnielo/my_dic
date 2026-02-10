@@ -1,4 +1,4 @@
-import 'dart:developer';
+import 'package:my_dic/core/shared/utils/logger.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
@@ -27,7 +27,7 @@ class MyWordFragmentViewModel extends StateNotifier<MyWordFragmentState> {
   }
 
   Future<void> loadNext(int size, int currentPage) async {
-    log("lodNext");
+    AppLogger.print("lodNext");
     LoadMyWordInputData input = LoadMyWordInputData(size, currentPage + 1);
     final result = await _loadMyWordInteractor.executeIds(input);
     result.when(
@@ -37,7 +37,7 @@ class MyWordFragmentViewModel extends StateNotifier<MyWordFragmentState> {
       },
       failure: (error) {
         // エラーハンドリング - ログ出力やユーザーへの通知
-        log('Failed to load words: ${error.message}');
+        AppLogger.print('Failed to load words: ${error.message}');
       },
     );
   }
@@ -65,7 +65,7 @@ class MyWordFragmentViewModel extends StateNotifier<MyWordFragmentState> {
             HandleWordRegistrationInputData(true, onComplete, onError));
       },
       failure: (error) {
-        log('Failed to register word: ${error.message}');
+        AppLogger.print('Failed to register word: ${error.message}');
         _handleWordRegistrationInteractor.execute(
             HandleWordRegistrationInputData(false, onComplete, onError));
       },

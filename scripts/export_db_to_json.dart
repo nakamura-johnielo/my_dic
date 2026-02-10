@@ -11,9 +11,11 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:path/path.dart' as path;
+import 'package:my_dic/core/shared/utils/logger.dart';
+
 
 void main() async {
-  print('=== Database to JSON Export Tool ===\n');
+  AppLogger.print('=== Database to JSON Export Tool ===\n');
   
   final scriptDir = path.dirname(Platform.script.toFilePath());
   final projectRoot = path.dirname(scriptDir);
@@ -24,7 +26,7 @@ void main() async {
   final outputDirectory = Directory(outputDir);
   if (!await outputDirectory.exists()) {
     await outputDirectory.create(recursive: true);
-    print('Created output directory: $outputDir\n');
+    AppLogger.print('Created output directory: $outputDir\n');
   }
   
   // エクスポート対象のデータベース
@@ -38,16 +40,16 @@ void main() async {
     final dbFile = File(dbPath);
     
     if (!await dbFile.exists()) {
-      print('⚠️  Database not found: $dbPath');
+      AppLogger.print('⚠️  Database not found: $dbPath');
       continue;
     }
     
-    print('Processing: $dbName');
+    AppLogger.print('Processing: $dbName');
     await exportDatabaseToJson(dbPath, outputDir, dbName);
-    print('✅ Completed: $dbName\n');
+    AppLogger.print('✅ Completed: $dbName\n');
   }
   
-  print('=== Export Complete ===');
+  AppLogger.print('=== Export Complete ===');
 }
 
 Future<void> exportDatabaseToJson(String dbPath, String outputDir, String dbName) async {
@@ -67,7 +69,7 @@ Future<void> exportDatabaseToJson(String dbPath, String outputDir, String dbName
     
     for (final table in tables) {
       final tableName = table['name'] as String;
-      print('  - Exporting table: $tableName');
+      AppLogger.print('  - Exporting table: $tableName');
       
       // テーブルのスキーマ情報を取得
       final schema = db.select("PRAGMA table_info($tableName)");
@@ -88,7 +90,7 @@ Future<void> exportDatabaseToJson(String dbPath, String outputDir, String dbName
         'row_count': rowCount,
       };
       
-      print('    → $rowCount rows exported');
+      AppLogger.print('    → $rowCount rows exported');
     }
     
     // JSONファイルとして保存
@@ -103,7 +105,7 @@ Future<void> exportDatabaseToJson(String dbPath, String outputDir, String dbName
     await jsonFile.writeAsString(jsonString);
     
     final fileSizeMB = (await jsonFile.length()) / (1024 * 1024);
-    print('  📁 Saved to: $jsonPath (${fileSizeMB.toStringAsFixed(2)} MB)');
+    AppLogger.print('  📁 Saved to: $jsonPath (${fileSizeMB.toStringAsFixed(2)} MB)');
     
   } finally {
     db.dispose();

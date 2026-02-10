@@ -20,11 +20,11 @@
 //       {required this.auth, required this.user, required this.ref});
 //   // UI が呼ぶ高レベルAPIだけ置く
 //   Future<Result<AppAuth>> signIn(String email, String pw) async {
-//     print("sign in crd======================================");
+//     AppLogger.log("sign in crd======================================");
 //     final res = await auth.signIn(email, pw);
 //     return await res.when(
 //       success: (appAuth) async {
-//         print("auth.signIn success ======================================");
+//         AppLogger.log("auth.signIn success ======================================");
 //         final result = await refreshUser(appAuth.accountId);
 //         return await result.when(
 //           success: (_) => Result.success(appAuth),
@@ -44,9 +44,9 @@
 //         if (error is UnauthorizedError) {
 //           final userres = await auth.verifyEmail();
 //           userres.when(
-//               success: (_) => print(
+//               success: (_) => AppLogger.log(
 //                   "AuthUserCoordinator signIn verifyEmail success ===================="),
-//               failure: (error) => print(
+//               failure: (error) => AppLogger.log(
 //                   "AuthUserCoordinator signIn error ===================="));
 //         }
 //         if (error is NotFoundError ||
@@ -54,9 +54,9 @@
 //             error is DeviceNotFoundError) {
 //           final userres = await createUser();
 //           userres.when(
-//               success: (_) => print(
+//               success: (_) => AppLogger.log(
 //                   "AuthUserCoordinator signIn createUser success ===================="),
-//               failure: (error) => print(
+//               failure: (error) => AppLogger.log(
 //                   "AuthUserCoordinator signIn error ===================="));
 //         }
 //         return Result.failure(error);
@@ -79,7 +79,7 @@
 //     return await res.when(
 //       success: (appAuth) async {
 //         if (appAuth.isAuthenticated) {
-//           print("AuthUserCoordinator signUp: User is already authenticated.");
+//           AppLogger.log("AuthUserCoordinator signUp: User is already authenticated.");
 //           final result = await createUser();
 //           return await result.when(
 //             success: (_) => Result.success(appAuth),
@@ -108,9 +108,9 @@
 //   Future<Result<void>> refreshUser(String accountId) async {
 //     //getUserして、なければcreateUserする
 
-//     print("refreshUser=============");
+//     AppLogger.log("refreshUser=============");
 //     if (_authStore?.isAuthenticated ?? false) {
-//       print("ユーザー情報をリフレッシュします。");
+//       AppLogger.log("ユーザー情報をリフレッシュします。");
 //       final res = await user.refresh(accountId);
 //       return res.when(
 //           success: (_) => Result.success(null),
@@ -118,13 +118,13 @@
 //             if (failure is UserNotFoundError ||
 //                 failure is DeviceNotFoundError ||
 //                 failure is NotFoundError) {
-//               print("ユーザー新規制作: ${failure.message}");
+//               AppLogger.log("ユーザー新規制作: ${failure.message}");
 //               return await createUser();
 //             }
 //             return Result.failure(failure);
 //           });
 //     } else {}
-//     print("refreshUser ----FAIL=============");
+//     AppLogger.log("refreshUser ----FAIL=============");
 //     return Result.failure(UnauthorizedError(message: "ユーザーが認証されていません。"));
 //   }
 
