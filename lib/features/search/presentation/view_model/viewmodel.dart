@@ -114,7 +114,7 @@ class SearchViewModel extends StateNotifier<SearchState> {
 
     result.when(
       success: (data) {
-        print("result length " + data.wordList.length.toString());
+        print("result length ${data.wordList.length}");
 
         if (page == 0) {
           // 初回は置き換え

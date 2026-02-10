@@ -1,18 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_dic/core/application/effects/auth_effect_provider.dart';
 import 'package:my_dic/features/auth/di/store.dart';
 import 'package:my_dic/features/auth/presentation/view/sign_up.dart';
 import 'package:my_dic/main_activity.dart';
-import 'package:my_dic/core/shared/consts/ui/tab.dart';
 import 'package:my_dic/features/my_word/presentation/view/my_word_fragment.dart';
-import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
-import 'package:my_dic/features/ranking/presentation/view/ranking_fragment.dart';
-import 'package:my_dic/features/quiz/presentation/view/quiz_search_fragment.dart';
 import 'package:my_dic/features/search/presentation/view/search_fragment.dart';
 import 'package:my_dic/features/user/presentation/view/profile.dart';
-import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
 
 import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
 import 'package:my_dic/router/route_names.dart';
@@ -116,7 +110,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       print('uri: $uri');
       print('uri: $uri2');
       print('fullPath: $fullPath');
-      if (location == null) return null;
 
       // login系のページじゃなければ強勢移動させない
       final inProfile = location.startsWith('/${RoutePaths.profile}');

@@ -1,8 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/core/di/coordinator/corrdinator.dart';
-import 'package:my_dic/features/auth/di/store.dart';
 import 'package:my_dic/features/auth/di/view_model_di.dart';
-import 'package:my_dic/features/user/di/service.dart';
 import 'package:my_dic/features/user/presentation/view_model/user_profile_view_model.dart';
 import 'package:my_dic/features/user/presentation/model/user_profile_ui_model.dart';
 

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:my_dic/core/presentation/custom_floating_button_location.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/features/esp_jpn_word_status/components/status_button/status_buttons.dart';
 import 'package:my_dic/features/quiz/consts/card_state.dart';
-import 'package:my_dic/core/shared/consts/ui/tab.dart';
 import 'package:my_dic/core/shared/enums/word/word_type.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
@@ -105,7 +103,7 @@ class WordPageFragment extends ConsumerWidget {
 }
 
 class _WordPageFragmentBuilder extends StatelessWidget {
-  const _WordPageFragmentBuilder({super.key, required this.input});
+  const _WordPageFragmentBuilder({required this.input});
   final WordPageFragmentBuilderInput input;
 
   @override
@@ -128,7 +126,7 @@ class _WordPageFragmentBuilder extends StatelessWidget {
 }
 
 class _TabWordPage extends ConsumerStatefulWidget {
-  const _TabWordPage({super.key, required this.input});
+  const _TabWordPage({required this.input});
   final TabWordPageInput input;
   @override
   ConsumerState<_TabWordPage> createState() => _TabWordPageState();
@@ -194,7 +192,7 @@ class _TabWordPageState extends ConsumerState<_TabWordPage>
 }
 
 class _SingleWordPage extends StatelessWidget {
-  const _SingleWordPage({super.key, required this.input});
+  const _SingleWordPage({required this.input});
   final SingleWordPageInput input;
 
   @override
@@ -220,7 +218,7 @@ class _SingleWordPage extends StatelessWidget {
 //====================================================
 class _KeepAlivePage extends StatefulWidget {
   final Widget child;
-  const _KeepAlivePage({super.key, required this.child});
+  const _KeepAlivePage({required this.child});
 
   @override
   State<_KeepAlivePage> createState() => _KeepAlivePageState();

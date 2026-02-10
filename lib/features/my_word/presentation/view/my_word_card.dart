@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_dic/core/presentation/components/button/my_icon_button.dart';
 import 'package:my_dic/core/shared/enums/ui/word_card_view_click_listener.dart';
-import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
 import 'package:my_dic/features/my_word/presentation/ui_model/my_word_status_state.dart';
 import 'package:my_dic/features/my_word/presentation/ui_model/my_word_ui_model.dart';
 

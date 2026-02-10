@@ -45,7 +45,7 @@ class RankingState {
       hasNext: hasNext ?? this.hasNext,
       featureTagFilters: featureTagFilters ?? this.featureTagFilters,
       partOfSpeechFilters: partOfSpeechFilters ?? this.partOfSpeechFilters,
-      pagenationFilter: paginationFilter ?? this.pagenationFilter,
+      pagenationFilter: paginationFilter ?? pagenationFilter,
     );
   }
 }

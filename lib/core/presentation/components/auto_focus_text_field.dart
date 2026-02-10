@@ -76,7 +76,7 @@ class AutoFocusTextField extends StatefulWidget {
   final TextMagnifierConfiguration? magnifierConfiguration;
 
   const AutoFocusTextField({
-    Key? key,
+    super.key,
     this.groupId = EditableText,
     this.controller,
     this.focusNode,
@@ -141,7 +141,7 @@ class AutoFocusTextField extends StatefulWidget {
     this.canRequestFocus = true,
     this.spellCheckConfiguration,
     this.magnifierConfiguration,
-  }) : super(key: key);
+  });
 
   @override
   _AutoFocusTextFieldState createState() => _AutoFocusTextFieldState();

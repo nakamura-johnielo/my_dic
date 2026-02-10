@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/core/di/ui/ui_di.dart';
 import 'package:my_dic/core/presentation/components/nav_bar/item.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/core/shared/enums/entry_point.dart';

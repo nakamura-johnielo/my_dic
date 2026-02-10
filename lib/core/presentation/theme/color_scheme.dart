@@ -40,8 +40,6 @@ const lightColorScheme = ColorScheme(
   onSecondary: Colors.white,
   secondaryContainer: Color(0xFFE8DEF8),
   onSecondaryContainer: Color(0xFF1D192B),
-  background: Color(0xFFFFFBFE),
-  onBackground: Color(0xFF1C1B1F),
   surface: Colors.white,
   onSurface: Color(0xFF1C1B1F),
   error: Colors.red,

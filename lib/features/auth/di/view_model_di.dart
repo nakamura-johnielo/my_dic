@@ -1,10 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/core/di/coordinator/corrdinator.dart';
 import 'package:my_dic/features/auth/auth_coordinator.dart';
-import 'package:my_dic/features/auth/di/store.dart';
 import 'package:my_dic/features/auth/di/usecase_di.dart';
-import 'package:my_dic/features/auth/domain/usecase/send_email_interactor.dart';
 import 'package:my_dic/features/auth/presentation/ui_model/sign_in_model.dart';
 import 'package:my_dic/features/auth/presentation/view_model/sign_in_view_model.dart';
 

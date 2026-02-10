@@ -1,4 +1,3 @@
-import 'package:my_dic/core/infrastructure/database/shared_preferences/shared_preferences_syncstatus_dao.dart';
 import 'package:my_dic/features/user/data/data_source/local/i_user_local_data_source.dart';
 import 'package:my_dic/features/user/data/data_source/local/shared_preferenced_user_dao.dart';
 import 'package:my_dic/features/user/data/dto/local_user_dto.dart';

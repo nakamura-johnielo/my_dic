@@ -1,6 +1,5 @@
 import 'package:tuple/tuple.dart';
 import 'package:my_dic/features/ranking/data/data_source/local/ranking_dao.dart';
-import 'package:my_dic/features/ranking/data/data_source/local/rankings_entity.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/features/ranking/data/data_source/local/i_ranking_local_data_source.dart';
 import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';

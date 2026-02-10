@@ -1,17 +1,13 @@
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/core/di/router/router.dart';
-import 'package:my_dic/core/di/ui/ui_di.dart';
 import 'package:my_dic/core/presentation/components/nav_bar/item.dart';
 import 'package:my_dic/core/presentation/components/nav_bar/studay_bottom_bar.dart';
-import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/core/shared/enums/entry_point.dart';
 import 'package:my_dic/core/shared/consts/ui/tab.dart';
 import 'package:my_dic/router/navigator_service.dart';
-import 'package:my_dic/router/route_names.dart';
 
 class MainActivity extends ConsumerWidget {
   const MainActivity({
@@ -27,7 +23,7 @@ class MainActivity extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    int _getDestinationShellIndex(index, changeBranch) {
+    int getDestinationShellIndex(index, changeBranch) {
       final entryPoint = ref.read(entryPointProvider);
       if (changeBranch) {
         print("move index: ${ref.read(lastStudyBranchTabIndexProvider)}");
@@ -40,7 +36,7 @@ class MainActivity extends ConsumerWidget {
       return index == 2 ? ref.read(lastStudyBranchTabIndexProvider) : index;
     }
 
-    int _navBarPhantomIndex(shellIndex) {
+    int navBarPhantomIndex(shellIndex) {
       final entryPoint = ref.read(entryPointProvider);
       if (entryPoint.category == EntryPointCategory.study) {
         return shellIndex - 2;
@@ -68,7 +64,7 @@ class MainActivity extends ConsumerWidget {
 
       bottomNavigationBar: SwitchableFloatBottomBar(
         entryPoint: entryPoint,
-        selectedIndex: _navBarPhantomIndex(navigationShell.currentIndex),
+        selectedIndex: navBarPhantomIndex(navigationShell.currentIndex),
         destinationMap: {
           EntryPointCategory.main:
               MainScreenTab.values.map(_buildDestinatioinItem).toList(),
@@ -76,7 +72,7 @@ class MainActivity extends ConsumerWidget {
               StudyScreenTab.values.map(_buildDestinatioinItem).toList(),
         },
         onDestinationSelected: (tabIndex) {
-          if (tabIndex == _navBarPhantomIndex(navigationShell.currentIndex)) {
+          if (tabIndex == navBarPhantomIndex(navigationShell.currentIndex)) {
             print("00000000000000000000000000000");
             ref
                 .read(appNavigatorServiceProvider)
@@ -99,7 +95,7 @@ class MainActivity extends ConsumerWidget {
             // final nestedShell = navigationShell;
             // ネストしたShell内のタブを切り替え
             navigationShell.goBranch(
-              _getDestinationShellIndex(tabIndex, false),
+              getDestinationShellIndex(tabIndex, false),
               initialLocation:
                   false, //tabIndex == navigationShell.currentIndex,
             );
@@ -115,10 +111,10 @@ class MainActivity extends ConsumerWidget {
             }
             ref.read(entryPointProvider.notifier).state = nextEntryPoint;
             print(
-                "main ||||||||||||||||||||entrypoint move: ${nextEntryPoint}");
+                "main ||||||||||||||||||||entrypoint move: $nextEntryPoint");
 
             navigationShell.goBranch(
-              _getDestinationShellIndex(
+              getDestinationShellIndex(
                   tabIndex, nextEntryPoint.category != EntryPointCategory.main),
               initialLocation: tabIndex == navigationShell.currentIndex,
             );

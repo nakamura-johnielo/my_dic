@@ -1,24 +1,15 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:my_dic/core/di/ui/ui_di.dart';
 import 'package:my_dic/core/presentation/custom_floating_button_location.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
-import 'package:my_dic/features/esp_jpn_word_status/di/di.dart';
 import 'package:my_dic/features/ranking/presentation/view/ranking_filter_modal.dart';
 import 'package:my_dic/core/shared/enums/word/word_type.dart';
-import 'package:my_dic/core/di/view_model/view_model.dart';
 import 'package:my_dic/features/ranking/presentation/effect_provider.dart';
 import 'package:my_dic/features/ranking/presentation/view/ranking_card.dart';
-import 'package:my_dic/core/shared/enums/ui/word_card_view_click_listener.dart';
-import 'package:my_dic/core/shared/consts/ui/tab.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
 import 'package:my_dic/features/ranking/di/view_model_di.dart';
-import 'package:my_dic/features/user/di/service.dart';
-import 'package:my_dic/features/user/di/viewmodel.dart';
 import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
 
 class RankingFragment extends ConsumerStatefulWidget {

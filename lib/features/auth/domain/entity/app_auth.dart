@@ -27,7 +27,7 @@ class AppAuth {
     String? email,
   }) {
     return AppAuth(
-      accountId: id ?? this.accountId,
+      accountId: id ?? accountId,
       isLogined: isLogined ?? this.isLogined,
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
       provider: provider ?? this.provider,

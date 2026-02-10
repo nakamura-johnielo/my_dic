@@ -5,7 +5,6 @@ import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';
 import 'package:my_dic/core/domain/i_repository/i_sync_status_repository.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/i_word_status_repository.dart';
-import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/sync_esp_jpn_word_status/i_sync_esp_jpn_word_status_usecase.dart';
 import 'package:my_dic/core/shared/errors/app_error.dart';
 import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
@@ -236,8 +235,9 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
     final localData = localDataResult.dataOrNull!;
 
     print("local espjpnstatus sync length: ${localData.length}");
-    if (localData.isEmpty || localDataResult.runtimeType == NotFoundError)
+    if (localData.isEmpty || localDataResult.runtimeType == NotFoundError) {
       return const Result.success(null);
+    }
 
     final result = await _wordStatusRepository.updateBatchRemoteWordStatus(
         localData, userId, null);

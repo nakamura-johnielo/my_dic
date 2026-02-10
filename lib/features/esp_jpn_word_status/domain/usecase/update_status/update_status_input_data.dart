@@ -1,4 +1,3 @@
-import 'package:my_dic/core/shared/enums/feature_tag.dart';
 
 class UpdateStatusInputData {
   int wordId;

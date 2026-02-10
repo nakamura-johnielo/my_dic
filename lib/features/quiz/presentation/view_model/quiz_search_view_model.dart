@@ -76,7 +76,7 @@ class QuizSearchViewModel extends StateNotifier<QuizSearchState> {
 
     result.when(
       success: (items) {
-        print(items.length.toString() + " in viewmodel");
+        print("${items.length} in viewmodel");
         state = state.copyWith(
           quizSearchedItems: [...state.quizSearchedItems, ...items],
           isLoading: false,

@@ -3,6 +3,7 @@
 ///
 /// 注意: このファイルはWeb環境専用です
 /// データベーススキーマと完全に同期している必要があります
+library;
 
 import 'dart:convert';
 import 'package:archive/archive.dart';
@@ -251,7 +252,9 @@ class WebDatabaseSeeder {
         for (final row in batch) {
           if (row['dictionary_id'] == null ||
               row['word_id'] == null ||
-              row['word'] == null) continue;
+              row['word'] == null) {
+            continue;
+          }
           b.insert(
               db.espJpnDictionaries,
               EspJpnDictionariesCompanion.insert(
@@ -348,8 +351,9 @@ class WebDatabaseSeeder {
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
-          if (row['supplement_id'] == null || row['supplement_no'] == null)
+          if (row['supplement_id'] == null || row['supplement_no'] == null) {
             continue;
+          }
           b.insert(
               db.espJpnSupplements,
               EspJpnSupplementsCompanion.insert(
@@ -499,7 +503,9 @@ class WebDatabaseSeeder {
         for (final row in batch) {
           if (row['part_of_speech_id'] == null ||
               row['word_id'] == null ||
-              row['part_of_speech'] == null) continue;
+              row['part_of_speech'] == null) {
+            continue;
+          }
           b.insert(
               db.partOfSpeechLists,
               PartOfSpeechListsCompanion.insert(
@@ -782,8 +788,9 @@ class WebDatabaseSeeder {
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
-          if (row['jpn_esp_word_id'] == null || row['edit_at'] == null)
+          if (row['jpn_esp_word_id'] == null || row['edit_at'] == null) {
             continue;
+          }
           b.insert(
               db.jpnEspWordStatus,
               JpnEspWordStatusCompanion.insert(

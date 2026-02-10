@@ -118,12 +118,12 @@ class ConjugationDao extends DatabaseAccessor<DatabaseProvider>
 
     try {
       final resTest = await mainQuery.get();
-      print(resTest.length.toString() + " in dao test");
+      print("${resTest.length} in dao test");
     } catch (e) {
       print("Error in dao test: $e");
     }
     final res = await mainQuery.get();
-    print(res.length.toString() + " in dao");
+    print("${res.length} in dao");
 
     return res.map((row) {
       return EspConjugationTableData(

@@ -1,10 +1,8 @@
 // プロフィールページ（UID/Email/ユーザーネーム表示、ユーザーネーム編集可）
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:my_dic/core/presentation/components/icons/rotating_icon.dart';
 import 'package:my_dic/core/shared/enums/ui/button_status.dart';
-import 'package:my_dic/core/shared/consts/ui/tab.dart';
 import 'package:my_dic/features/auth/di/store.dart';
 import 'package:my_dic/features/user/di/service.dart';
 import 'package:my_dic/features/user/di/viewmodel.dart';
@@ -82,7 +80,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SelectableText('User ID: ${id}'),
+                    SelectableText('User ID: $id'),
                     const SizedBox(height: 8),
                     SelectableText('Email: ${user.email}'),
                     const SizedBox(height: 16),

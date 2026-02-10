@@ -1,13 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:my_dic/core/presentation/components/icons/rotating_icon.dart';
 import 'package:my_dic/core/shared/enums/ui/button_status.dart';
-import 'package:my_dic/core/shared/consts/ui/tab.dart';
 import 'package:my_dic/features/auth/di/view_model_di.dart';
 import 'package:my_dic/router/navigator_service.dart';
-import 'package:my_dic/router/route_names.dart';
 
 class EmailPasswordPage extends ConsumerStatefulWidget {
   const EmailPasswordPage({super.key});
@@ -94,7 +91,6 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
                         );
                         return '登録に成功しました。確認メールを送信しました。';
                       });
-                      ;
                     }
                   : null,
               icon:

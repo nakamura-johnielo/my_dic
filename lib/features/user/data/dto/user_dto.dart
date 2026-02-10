@@ -80,6 +80,7 @@ class UserDTO {
     );
   }
 
+  @override
   String toString() {
     return 'UserDTO{userId: $userId, email: $email, userName: $userName, createdAt: $createdAt, updatedAt: $updatedAt, subscriptionStatus: $subscriptionStatus}';
   }

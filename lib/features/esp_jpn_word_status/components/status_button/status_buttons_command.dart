@@ -2,10 +2,6 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/esp_jpn_word_status/components/status_button/word_status_command_event.dart';
-import 'package:my_dic/features/esp_jpn_word_status/components/status_button/word_status_state.dart';
-import 'package:my_dic/core/shared/enums/feature_tag.dart';
-import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';
-import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/fetch_esp_jpn_status/fetch_esp_jpn_status_usecase.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/i_update_status_use_case.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/update_status_input_data.dart';
 

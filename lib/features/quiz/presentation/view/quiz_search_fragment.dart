@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:my_dic/core/presentation/components/auto_focus_text_field.dart';
 import 'package:my_dic/features/quiz/presentation/components/quiz_search_card.dart';
 import 'package:my_dic/features/quiz/domain/entity/quiz_searched_item.dart';
-import 'package:my_dic/core/shared/consts/ui/tab.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
@@ -34,7 +32,7 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
 
     _setCurrentItemLength();
 
-    print("nextpage: " + nextPage.toString());
+    print("nextpage: $nextPage");
     await viewModel.loadSearchResults(
       _size,
       nextPage - 1,

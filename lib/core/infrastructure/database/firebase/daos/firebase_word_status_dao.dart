@@ -13,7 +13,7 @@ class FirebaseWordStatusDao {
     //batch sizeごとにまとめて実行
     final batchSize = FirebaseConsts.batchSize;
     print("======================updateBatch=====================");
-    print("userID : ${userId}");
+    print("userID : $userId");
     wordStatusList.map((e) => print("wordId: ${e.wordId}"));
 
     for (int i = 0; i < wordStatusList.length; i += batchSize) {
