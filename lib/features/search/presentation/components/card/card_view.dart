@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:my_dic/core/shared/enums/conjugacion/enum_mood_tense_subject.dart';
 import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
+import 'package:my_dic/core/shared/enums/ui/word_status_type.dart';
+import 'package:my_dic/features/esp_jpn_word_status/components/status_button/jpn_esp/jpn_esp_status_buttons.dart';
 import 'package:my_dic/features/esp_jpn_word_status/components/status_button/status_buttons.dart';
 import 'package:my_dic/features/search/presentation/components/card/reverse_curve.dart';
 
@@ -27,6 +29,8 @@ class CardView extends StatefulWidget {
   final String query;
   final Map<MoodTenseSubject, String>? conjugacions;
 
+  final WordStatusType wordStatusType;
+
   const CardView({
     super.key,
     required this.wordId,
@@ -46,6 +50,7 @@ class CardView extends StatefulWidget {
     required this.query,
     this.conjugacions,
     this.goToQuiz,
+    required this.wordStatusType,
   });
 
   @override
@@ -83,6 +88,19 @@ class _CardViewState extends State<CardView> {
     });
   }
 
+  Widget _buildStatusButtons() {
+    switch (widget.wordStatusType) {
+      case WordStatusType.myWord:
+        return StatusButtons(wordId: widget.wordId);
+      case WordStatusType.espJpnWord:
+        return StatusButtons(wordId: widget.wordId);
+      case WordStatusType.jpnEspWord:
+        return JpnEspStatusButtons(wordId: widget.wordId);
+      default:
+        return SizedBox.shrink();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final hasQuiz = widget.goToQuiz != null;
@@ -91,7 +109,7 @@ class _CardViewState extends State<CardView> {
     final Color hoverColor = Color.alphaBlend(
         Theme.of(context).colorScheme.primary.withOpacity(0.1),
         backgroundColor);
-        final Color hoverQuizColor=Color.alphaBlend(
+    final Color hoverQuizColor = Color.alphaBlend(
         Theme.of(context).colorScheme.primary.withOpacity(0.4),
         backgroundColor);
     final textColor = Theme.of(context).colorScheme.onSurfaceVariant;
@@ -155,7 +173,7 @@ class _CardViewState extends State<CardView> {
                                 alignment: Alignment.centerRight,
                                 maxWidth: double.infinity,
                                 maxHeight: double.infinity,
-                                child: StatusButtons(wordId: widget.wordId)),
+                                child: _buildStatusButtons()),
                           )
                         ],
                       ),
@@ -371,7 +389,7 @@ class ConjSections extends StatelessWidget {
     final conjMiniSections = conjugacions.entries
         .where((entry) => entry.value.isNotEmpty) // 空でないものだけをフィルタリング
         .map((entry) => ConjMiniSection(
-          queryNullable: query,
+            queryNullable: query,
             metaFontSize: metaFontSize,
             conjFontSize: conjFontSize,
             metaColor: metaColor,
@@ -403,7 +421,8 @@ class ConjMiniSection extends StatelessWidget {
       this.metaFontSize,
       this.conjFontSize,
       this.metaColor,
-      this.conjColor, this.queryNullable});
+      this.conjColor,
+      this.queryNullable});
   final MoodTenseSubject moodTenseSubject;
   final String conjugacion;
   final double? metaFontSize;
@@ -412,18 +431,16 @@ class ConjMiniSection extends StatelessWidget {
   final Color? conjColor;
   final String? queryNullable;
 
-
   Widget _highlightMatch(BuildContext context, String conj) {
-    
-    if (queryNullable?.isEmpty??true) {
+    if (queryNullable?.isEmpty ?? true) {
       return Text(conj,
           style: TextStyle(
-            fontSize: conjFontSize??12,//TODO fontsize 
-           // color: widget.conjColor
+            fontSize: conjFontSize ?? 12, //TODO fontsize
+            // color: widget.conjColor
           ),
           textAlign: TextAlign.left);
-
-    }final query=queryNullable!;
+    }
+    final query = queryNullable!;
 
     final lowerText = conj.toLowerCase();
     final lowerQuery = query.toLowerCase();
@@ -431,7 +448,7 @@ class ConjMiniSection extends StatelessWidget {
     if (start < 0) {
       return Text(conj,
           style: TextStyle(
-             fontSize: conjFontSize??12,//TODO fontsize 
+            fontSize: conjFontSize ?? 12, //TODO fontsize
           ),
           textAlign: TextAlign.left);
     }
@@ -453,8 +470,10 @@ class ConjMiniSection extends StatelessWidget {
           TextSpan(text: conj.substring(0, start)),
           TextSpan(
             text: conj.substring(start, end),
-            style: TextStyle(fontWeight: FontWeight.bold,
-                backgroundColor: highlightColor, color: highlightTextColor),
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                backgroundColor: highlightColor,
+                color: highlightTextColor),
           ),
           TextSpan(text: conj.substring(end)),
         ],
@@ -462,7 +481,6 @@ class ConjMiniSection extends StatelessWidget {
       textAlign: TextAlign.left,
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -483,8 +501,6 @@ class ConjMiniSection extends StatelessWidget {
         textAlign: TextAlign.left,
       ),
       _highlightMatch(context, conjugacion)
-      
     ]);
   }
 }
-

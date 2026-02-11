@@ -95,7 +95,25 @@ class SearchWordInteractor implements ISearchWordUseCase {
     final result = await _jpnEspWordRepository.getWordsByWord(
         input.word, input.size, input.page);
 
-    return result.map((data) => SearchJpnEspWordOutputData(data));
+    //return result.map((data) => SearchJpnEspWordOutputData(data));
+    
+    return await result.when(
+      success: (lists) async {
+        final wordIds = lists.map((w) => w.id).toList();
+        AppLogger.print("============serchUsecase============================");
+        AppLogger.print("wordIds: $wordIds");
+
+        final res = await _getJpnEspOutputRecords(wordIds);
+
+        return Result.success(SearchJpnEspWordOutputData(
+          lists,
+          rankingNos: res.rankingNos,
+          simpleMeanings: res.simpleMeanings,
+          starCounts: res.starCounts,
+        ));
+      },
+      failure: (err) async => Result.failure(err),
+    );
   }
 
   @override
@@ -136,6 +154,37 @@ class SearchWordInteractor implements ISearchWordUseCase {
     final rankingFuture = _wordRepository.getRankingNosByWordIds(wordIds);
     final meaningFuture = _wordRepository.getSimpleMeaningsByWordIds(wordIds);
     final starFuture = _wordRepository.getStarCountsByWordIds(wordIds);
+
+    final rankingRes = await rankingFuture;
+    final meaningRes = await meaningFuture;
+    final starRes = await starFuture;
+
+    final rankingNos = rankingRes.when(
+      success: (d) => d,
+      failure: (_) => <int, int>{},
+    );
+    final simpleMeanings = meaningRes.when(
+      success: (d) => d,
+      failure: (_) => <int, String>{},
+    );
+    final starCounts = starRes.when(
+      success: (d) => d,
+      failure: (_) => <int, int>{},
+    );
+
+    AppLogger.print("meaning: $simpleMeanings");
+
+    return _OutputRecords(
+      rankingNos: rankingNos,
+      simpleMeanings: simpleMeanings,
+      starCounts: starCounts,
+    );
+  }
+
+  Future<_OutputRecords> _getJpnEspOutputRecords(List<int> wordIds) async {
+    final rankingFuture = _jpnEspWordRepository.getRankingNosByWordIds(wordIds);
+    final meaningFuture = _jpnEspWordRepository.getSimpleMeaningsByWordIds(wordIds);
+    final starFuture = _jpnEspWordRepository.getStarCountsByWordIds(wordIds);
 
     final rankingRes = await rankingFuture;
     final meaningRes = await meaningFuture;

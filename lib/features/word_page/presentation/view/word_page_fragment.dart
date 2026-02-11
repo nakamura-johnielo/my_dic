@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/custom_floating_button_location.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
+import 'package:my_dic/features/esp_jpn_word_status/components/status_button/jpn_esp/jpn_esp_status_buttons.dart';
 import 'package:my_dic/features/esp_jpn_word_status/components/status_button/status_buttons.dart';
 import 'package:my_dic/features/quiz/consts/card_state.dart';
 import 'package:my_dic/core/shared/enums/word/word_type.dart';
@@ -29,24 +30,27 @@ class WordPageFragmentBuilderInput {
   final int wordId;
   final Map<String, Widget> tabs;
   final FloatingActionButton? floatingButton;
+  final Widget statusButton;
   WordPageFragmentBuilderInput(
-      {required this.wordId, required this.tabs, this.floatingButton});
+      {required this.wordId, required this.tabs, this.floatingButton, required this.statusButton});
 }
 
 class TabWordPageInput {
   final int wordId;
   final Map<String, Widget> tabs;
   final FloatingActionButton? floatingButton;
+  final Widget statusButton;
   TabWordPageInput(
-      {required this.wordId, required this.tabs, this.floatingButton});
+      {required this.wordId, required this.tabs, this.floatingButton, required this.statusButton});
 }
 
 class SingleWordPageInput {
   final int wordId;
   final Widget body;
   final FloatingActionButton? floatingButton;
+  final Widget statusButton;
   SingleWordPageInput(
-      {required this.wordId, required this.body, this.floatingButton});
+      {required this.wordId, required this.body, this.floatingButton, required this.statusButton});
 }
 
 //========input========================================================
@@ -62,6 +66,7 @@ class WordPageFragment extends ConsumerWidget {
     //TODO ここでデータ取得
     final Map<String, Widget> tabs = {};
     FloatingActionButton? floatingButton;
+    Widget? statusButton;
 
     final viewModel =
         ref.read(wordPageViewModelProvider(input.wordId).notifier);
@@ -69,7 +74,9 @@ class WordPageFragment extends ConsumerWidget {
     if (input.wordType == WordType.jpnEsp) {
       viewModel.fetchJpnEspDictionaryById(input.wordId);
       tabs["Dictionary"] = JpnEspDictionaryFragment(wordId: input.wordId);
+      statusButton = JpnEspStatusButtons(wordId: input.wordId);
     } else if (input.wordType == WordType.espJpn) {
+      statusButton = StatusButtons(wordId: input.wordId);
       viewModel.fetchEspJpnItemsById(input.wordId);
       tabs["Dictionary"] = EspJpnDictionaryFragment(wordId: input.wordId);
       if (input.hasConj) {
@@ -81,7 +88,7 @@ class WordPageFragment extends ConsumerWidget {
     //TODO 名前とページwidgetつける
 
     final builderInput = WordPageFragmentBuilderInput(
-        wordId: input.wordId, tabs: tabs, floatingButton: floatingButton);
+        wordId: input.wordId, tabs: tabs, floatingButton: floatingButton,statusButton:statusButton?? SizedBox.shrink());
 
     return _WordPageFragmentBuilder(input: builderInput);
   }
@@ -113,14 +120,16 @@ class _WordPageFragmentBuilder extends StatelessWidget {
       final tabInput = TabWordPageInput(
           wordId: input.wordId,
           tabs: input.tabs,
-          floatingButton: input.floatingButton);
+          floatingButton: input.floatingButton,
+          statusButton: input.statusButton);
       return _TabWordPage(input: tabInput);
     }
 
     final singleInput = SingleWordPageInput(
         wordId: input.wordId,
         body: input.tabs.values.first,
-        floatingButton: input.floatingButton);
+        floatingButton: input.floatingButton,
+        statusButton: input.statusButton);
     return _SingleWordPage(input: singleInput);
   }
 }
@@ -168,7 +177,7 @@ class _TabWordPageState extends ConsumerState<_TabWordPage>
       appBar: AppBar(
         title: Text('Word Page'),
         actions: [
-          StatusButtons(wordId: widget.input.wordId),
+          widget.input.statusButton,
           SizedBox(
             width: 14,
           )
@@ -201,7 +210,7 @@ class _SingleWordPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('Word Page'),
         actions: [
-          StatusButtons(wordId: input.wordId),
+          input.statusButton,
           SizedBox(
             width: 14,
           )

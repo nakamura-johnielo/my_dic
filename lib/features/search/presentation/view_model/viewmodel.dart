@@ -163,9 +163,11 @@ class SearchViewModel extends StateNotifier<SearchState> {
 
     result.when(
       success: (data) {
+        final newSimpleMeanings = data.simpleMeanings;
         if (page == 0) {
           state = state.copyWith(
             jpnEspWords: data.wordList,
+            simpleMeanings: newSimpleMeanings,
             espJpnWords: [],
             conjugacions: [],
             isLoading: false,
@@ -173,6 +175,7 @@ class SearchViewModel extends StateNotifier<SearchState> {
         } else {
           state = state.copyWith(
             jpnEspWords: [...state.jpnEspWords, ...data.wordList],
+            simpleMeanings: {...state.simpleMeanings, ...newSimpleMeanings},
             isLoading: false,
           );
         }

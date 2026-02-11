@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/components/auto_focus_text_field.dart';
+import 'package:my_dic/core/shared/enums/ui/word_status_type.dart';
 import 'package:my_dic/features/quiz/presentation/components/quiz_search_card.dart';
 import 'package:my_dic/features/quiz/domain/entity/quiz_searched_item.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
@@ -115,7 +116,7 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
               final quizWord = viewModel.quizSearchedItems[index];
               return Padding(
                 padding: const EdgeInsets.only(bottom: 11),
-                child: CardView(
+                child: CardView(wordStatusType: WordStatusType.espJpnWord,
                   goToQuiz: () => onTap(quizWord),
                   query: viewModel.query,
                   wordId: quizWord.wordId, //jpnEspWord.id,

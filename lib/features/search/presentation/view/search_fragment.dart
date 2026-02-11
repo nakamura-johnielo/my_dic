@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:my_dic/core/shared/enums/ui/word_status_type.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -120,11 +121,10 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                           padding: const EdgeInsets.only(bottom: 11),
                           child: CardView(
                             query: viewModel.query,
-                            wordId: 0, //jpnEspWord.id,
-                            ranking: 4 * index + index,
+                            wordId: jpnEspWord.id,
                             rankingON: false,
                             word: jpnEspWord.word,
-                            meaning: 'これは意味ですこれは意味ですこれは意味ですこれは意味ですこれは意味です',
+                            meaning: viewModel.simpleMeanings[jpnEspWord.id] ?? '----',
                             isBookmarked: false,
                             isLearned: false,
                             onTap: () {
@@ -133,7 +133,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                                   wordId: jpnEspWord.id,
                                   wordType: WordType.jpnEsp,
                                   hasConj: false));
-                            },
+                            }, wordStatusType: WordStatusType.jpnEspWord,
                           ),
                         );
                       },
@@ -162,7 +162,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                           final starCount = viewModel.starCounts[conjugacion.wordId];
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 11),
-                            child: CardView(
+                            child: CardView(wordStatusType: WordStatusType.espJpnWord,
                               goToQuiz: () => viewModelNotifier.goToQuiz(
                                   QuizGameFragmentInput(
                                       wordId: conjugacion.wordId,
@@ -196,7 +196,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
 
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 11),
-                          child: CardView(
+                          child: CardView(wordStatusType: WordStatusType.espJpnWord,
                             goToQuiz: () => viewModelNotifier.goToQuiz(
                                 QuizGameFragmentInput(
                                     wordId: espJpnWord.wordId,

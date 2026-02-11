@@ -28,4 +28,10 @@ class JpnEspDriftDictionaryDataSource
     }
     return res;
   }
+
+  @override
+  Future<Map<int, String>> getContentsByWordIds(List<int> wordIds) {
+    return _dictionaryDao.getFirstContentsByWordIds(wordIds);
+
+  }
 }

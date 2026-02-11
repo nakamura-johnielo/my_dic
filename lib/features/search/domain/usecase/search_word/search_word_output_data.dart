@@ -19,7 +19,15 @@ class SearchWordOutputData {
 
 class SearchJpnEspWordOutputData {
   List<JpnEspWord> wordList;
-  SearchJpnEspWordOutputData(this.wordList);
+  final Map<int, int> rankingNos;
+  final Map<int, String> simpleMeanings;
+  final Map<int, int> starCounts;
+  SearchJpnEspWordOutputData(
+    this.wordList, {
+    this.rankingNos = const {},
+    this.simpleMeanings = const {},
+    this.starCounts = const {},
+  });
 }
 
 class SearchConjugacionOutputData {
