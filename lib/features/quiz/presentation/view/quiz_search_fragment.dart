@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/components/auto_focus_text_field.dart';
+import 'package:my_dic/core/shared/enums/ui/word_status_type.dart';
 import 'package:my_dic/features/quiz/presentation/components/quiz_search_card.dart';
 import 'package:my_dic/features/quiz/domain/entity/quiz_searched_item.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
+import 'package:my_dic/features/search/presentation/components/card/card_view.dart';
 
 class QuizSearchFragment extends ConsumerStatefulWidget {
   const QuizSearchFragment({super.key});
@@ -106,16 +108,30 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
             ),
           ),
           Expanded(
-              child: InfinityScrollListView(
+              child: InfinityScrollListView(padding:  const EdgeInsets.symmetric(horizontal: 10),
             initialPage: _initialPage,
             controller: _infinityScrollController,
             itemCount: viewModel.quizSearchedItems.length,
             itemBuilder: (context, index) {
               final quizWord = viewModel.quizSearchedItems[index];
-              return QuizSearchCard(
-                word: quizWord.word,
-                meaning: quizWord.simpleMeaning,
-                onTap: () => onTap(quizWord),
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 11),
+                child: CardView(wordStatusType: WordStatusType.espJpnWord,
+                  goToQuiz: () => onTap(quizWord),
+                  query: viewModel.query,
+                  wordId: quizWord.wordId, //jpnEspWord.id,
+                  ranking: viewModel.rankingNos[quizWord.wordId] , //TODO ranking
+                  rankingON: true,
+                  // conjugations: index % 3 == 0
+                  //     ? "現在-yo: soy  現在-yo: soy  現在-yo: soy  現在-yo: soy  現在-yo: soy"
+                  //     : null,
+
+                  word: quizWord.word,
+                  meaning: quizWord.simpleMeaning,
+                  isBookmarked: false,
+                  isLearned: false,
+                  onTap: () => onTap(quizWord),
+                ),
               );
             },
             onLoadMore: loadNextPage,

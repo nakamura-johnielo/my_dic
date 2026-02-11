@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'dart:core' as core show print;
+import 'dart:core';
 import 'dart:convert';
 
 class AppLogger {
@@ -9,7 +11,7 @@ class AppLogger {
 
     final String output = _format(message);
     // ignore: avoid_print
-    print(output);
+    core.print(output);
   }
 
   static String _format(dynamic value) {

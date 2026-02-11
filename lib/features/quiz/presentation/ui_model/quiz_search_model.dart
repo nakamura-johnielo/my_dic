@@ -6,12 +6,17 @@ class QuizSearchState {
   final List<QuizSearchedItem> quizSearchedItems;
   final bool isLoading;
   final String? errorMessage;
+  
+  final Map<int, int> rankingNos;
+  final Map<int, String> simpleMeanings;
+  final Map<int, int> starCounts;
 
   QuizSearchState({
     this.query = '',
     this.quizSearchedItems = const [],
     this.isLoading = false,
     this.errorMessage,
+    this.rankingNos = const {}, this.simpleMeanings = const {}, this.starCounts = const {}, 
   });
 
   QuizSearchState copyWith({
@@ -19,12 +24,18 @@ class QuizSearchState {
     List<QuizSearchedItem>? quizSearchedItems,
     bool? isLoading,
     String? errorMessage,
+    Map<int, int>? rankingNos,
+    Map<int, String>? simpleMeanings,
+    Map<int, int>? starCounts,
   }) {
     return QuizSearchState(
       query: query ?? this.query,
       quizSearchedItems: quizSearchedItems ?? this.quizSearchedItems,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage ?? this.errorMessage,
+      rankingNos: rankingNos ?? this.rankingNos,
+      simpleMeanings: simpleMeanings ?? this.simpleMeanings,  
+      starCounts: starCounts ?? this.starCounts,
     );
   }
 

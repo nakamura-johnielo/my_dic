@@ -76,10 +76,23 @@ class QuizSearchViewModel extends StateNotifier<QuizSearchState> {
     final result = await _searchWordUseCase.executeVerbs(input);
 
     result.when(
-      success: (items) {
-        AppLogger.print("${items.length} in viewmodel");
+      success: (item) {
+        AppLogger.print("${item.quizList.length} in viewmodel");
+        if (page == 0) {
+          state = state.copyWith(
+            quizSearchedItems: item.quizList,
+            rankingNos: item.rankingNos,
+            simpleMeanings: item.simpleMeanings,
+            starCounts: item.starCounts,
+            isLoading: false,
+          );
+          return;
+        }
         state = state.copyWith(
-          quizSearchedItems: [...state.quizSearchedItems, ...items],
+          quizSearchedItems: [...state.quizSearchedItems, ...item.quizList],
+          rankingNos: {...state.rankingNos, ...item.rankingNos},
+          simpleMeanings: {...state.simpleMeanings, ...item.simpleMeanings},
+          starCounts: {...state.starCounts, ...item.starCounts},
           isLoading: false,
         );
       },

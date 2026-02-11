@@ -12,6 +12,7 @@ import 'package:my_dic/core/infrastructure/repositories/drift_esj_dictionary_rep
 import 'package:my_dic/core/infrastructure/repositories/drift_esj_word_repository.dart';
 import 'package:my_dic/core/infrastructure/repositories/drift_jpn_esp_dictionary_repository.dart';
 import 'package:my_dic/core/infrastructure/repositories/drift_jpn_esp_word_repository.dart';
+import 'package:my_dic/features/ranking/di/data_di.dart';
 
 final esjDictionaryRepositoryProvider =
     Provider<IEsjDictionaryRepository>((ref) {
@@ -21,7 +22,10 @@ final esjDictionaryRepositoryProvider =
 
 final esjWordRepositoryProvider = Provider<IEsjWordRepository>((ref) {
   final ds = ref.read(esjWordDataSourceProvider);
-  return EsjWordRepository(ds);
+  final dictDs = ref.read(esjDictionaryDataSourceProvider);
+  final conjDs = ref.read(conjugacionDataSourceProvider);
+  final rankingDs = ref.read(rankingLocalDataSourceProvider);
+  return EsjWordRepository(ds, dictDs, conjDs, rankingDs);
 });
 
 final conjugacionsRepositoryProvider = Provider<IConjugacionsRepository>((ref) {

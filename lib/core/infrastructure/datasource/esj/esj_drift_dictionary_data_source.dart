@@ -38,4 +38,36 @@ class EsjDriftDictionaryDataSource implements IEsjDictionaryLocalDataSource {
 
     return res;
   }
+
+  @override
+  Future<String?> getSimpleMeaningById(int id) async {
+    final meaning = await _dictionaryDao.getContentById(id);
+    return meaning;
+  }
+
+  @override
+  Future<String?> getHeadwordById(int id) async {
+    return await _dictionaryDao.getHeadwordById(id);
+    
+  }
+
+  @override
+  Future<String?> getFirstContentByWordId(int wordId) async {
+    return await _dictionaryDao.getFirstContentByWordId(wordId);
+  }
+
+  @override
+  Future<String?> getFirstHeadwordByWordId(int wordId) async {
+    return await _dictionaryDao.getFirstHeadwordByWordId(wordId);
+  }
+
+  @override
+  Future<Map<int, String>> getFirstContentsByWordIds(List<int> wordIds) async {
+    return await _dictionaryDao.getFirstContentsByWordIds(wordIds);
+  }
+
+  @override
+  Future<Map<int, String>> getFirstHeadwordsByWordIds(List<int> wordIds) async {
+    return await _dictionaryDao.getFirstHeadwordsByWordIds(wordIds);
+  }
 }

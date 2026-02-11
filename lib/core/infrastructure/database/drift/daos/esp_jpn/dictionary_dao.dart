@@ -11,6 +11,78 @@ class EspjpnDictionaryDao extends DatabaseAccessor<DatabaseProvider>
     with _$EspjpnDictionaryDaoMixin {
   EspjpnDictionaryDao(super.database);
 
+  Future<String?> getContentById(int id) async {
+    final res = await (select(espJpnDictionaries)
+          ..where((tbl) => tbl.dictionaryId.equals(id))
+          ..addColumns([espJpnDictionaries.content]))
+        .getSingleOrNull();
+    return res?.content;
+  }
+
+  Future<String?> getHeadwordById(int id)async {
+    final res = await (select(espJpnDictionaries)
+          ..where((tbl) => tbl.dictionaryId.equals(id))
+          ..addColumns([espJpnDictionaries.headword]))
+        .getSingleOrNull();
+    return res?.headword;
+  }
+
+  Future<String?> getFirstContentByWordId(int wordId) async {
+    final query = select(espJpnDictionaries)
+      ..where((tbl) => tbl.wordId.equals(wordId))
+      ..orderBy([(tbl) => OrderingTerm(expression: tbl.dictionaryId)])
+      ..limit(1)
+      ..addColumns([espJpnDictionaries.content]);
+    final res = await query.getSingleOrNull();
+    return res?.content;
+  }
+
+  Future<String?> getFirstHeadwordByWordId(int wordId) async {
+    final query = select(espJpnDictionaries)
+      ..where((tbl) => tbl.wordId.equals(wordId))
+      ..orderBy([(tbl) => OrderingTerm(expression: tbl.dictionaryId)])
+      ..limit(1)
+      ..addColumns([espJpnDictionaries.headword]);
+    final res = await query.getSingleOrNull();
+    return res?.headword;
+  }
+
+  Future<Map<int, String>> getFirstContentsByWordIds(List<int> wordIds) async {
+    if (wordIds.isEmpty) return {};
+
+    final query = select(espJpnDictionaries)
+      ..where((tbl) => tbl.wordId.isIn(wordIds))
+      ..orderBy([(tbl) => OrderingTerm(expression: tbl.dictionaryId)])
+      ..addColumns([espJpnDictionaries.wordId, espJpnDictionaries.content]);
+
+    final rows = await query.get();
+    final res = <int, String>{};
+    for (final row in rows) {
+      final content = row.content;
+      if (content == null || content.isEmpty) continue;
+      res.putIfAbsent(row.wordId, () => content);
+    }
+    return res;
+  }
+
+  Future<Map<int, String>> getFirstHeadwordsByWordIds(List<int> wordIds) async {
+    if (wordIds.isEmpty) return {};
+
+    final query = select(espJpnDictionaries)
+      ..where((tbl) => tbl.wordId.isIn(wordIds))
+      ..orderBy([(tbl) => OrderingTerm(expression: tbl.dictionaryId)])
+      ..addColumns([espJpnDictionaries.wordId, espJpnDictionaries.headword]);
+
+    final rows = await query.get();
+    final res = <int, String>{};
+    for (final row in rows) {
+      final headword = row.headword;
+      if (headword == null || headword.isEmpty) continue;
+      res.putIfAbsent(row.wordId, () => headword);
+    }
+    return res;
+  }
+
   // 特定のword_idに基づいてエントリを取得するメソッド
   Future<List<EspJpnDictionaryTableData>> getDictionaryByWordId(int wordId) {
     return (select(espJpnDictionaries)

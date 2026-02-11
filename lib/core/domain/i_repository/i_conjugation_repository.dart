@@ -9,4 +9,5 @@ abstract class IConjugacionsRepository {
       String word, int size, int currentPage);
   Future<Result<List<QuizSearchedItem>>> getQuizConjugacionByWordWithPage(
       String word, int size, int currentPage);
+  Future<Result<bool>> hasConjByWordId(int wordId);
 }

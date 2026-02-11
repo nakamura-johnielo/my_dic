@@ -7,4 +7,5 @@ abstract class IEsjWordLocalDataSource {
       String word, int size, int currentPage, bool forQuiz);
   Future<List<EspJpnWordTableData>> getQuizWordsByWordByPage(
       String word, int size, int currentPage);
+      
 }

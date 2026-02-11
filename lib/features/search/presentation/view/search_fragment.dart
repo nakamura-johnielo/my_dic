@@ -1,12 +1,12 @@
-import 'package:my_dic/core/shared/utils/logger.dart';
+import 'dart:math';
 
-import 'package:flutter/material.dart';
+import 'package:my_dic/core/shared/enums/ui/word_status_type.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/components/auto_focus_text_field.dart';
-import 'package:my_dic/features/search/presentation/components/conjugacion_search_card.dart';
-import 'package:my_dic/features/search/presentation/components/jpn_esp_searh_card.dart';
-import 'package:my_dic/features/search/presentation/components/search_card.dart';
+import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
+import 'package:my_dic/features/search/presentation/components/card/card_view.dart';
 import 'package:my_dic/core/shared/enums/word/word_type.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
 import 'package:my_dic/features/search/di/view_model_di.dart';
@@ -27,6 +27,8 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
   int _previousJpnEspItemLength = 0;
   late final InfinityScrollController _infinityScrollController;
   final int initialPage = 0;
+
+  final int conjDisplayCount = 2;
 
   @override
   void initState() {
@@ -106,64 +108,119 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
           ),
           Expanded(
               child: viewModel.jpnEspWords.isNotEmpty
+                  //========JPN ESP====================================
                   ? InfinityScrollListView(
+                      padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
                       autoLoadFirstPage: true,
                       initialPage: initialPage,
                       controller: _infinityScrollController,
                       itemCount: viewModel.jpnEspWords.length,
                       itemBuilder: (context, index) {
                         final jpnEspWord = viewModel.jpnEspWords[index];
-                        return JpnEspSearchCard(
-                          word: jpnEspWord.word,
-                          onTap: () {
-                            //TODO gorouter check
-                            viewModelNotifier.goToWordDetail(WordPageInput(
-                                wordId: jpnEspWord.id,
-                                wordType: WordType.jpnEsp,
-                                hasConj: false));
-                          },
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 11),
+                          child: CardView(
+                            query: viewModel.query,
+                            wordId: jpnEspWord.id,
+                            rankingON: false,
+                            word: jpnEspWord.word,
+                            meaning: viewModel.simpleMeanings[jpnEspWord.id] ?? '----',
+                            isBookmarked: false,
+                            isLearned: false,
+                            onTap: () {
+                              //TODO gorouter check
+                              viewModelNotifier.goToWordDetail(WordPageInput(
+                                  wordId: jpnEspWord.id,
+                                  wordType: WordType.jpnEsp,
+                                  hasConj: false));
+                            }, wordStatusType: WordStatusType.jpnEspWord,
+                          ),
                         );
                       },
                       onLoadMore: _loadNextPage,
                     )
+                  //===========ESP JPN================================
                   : InfinityScrollListView(
+                      padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
                       autoLoadFirstPage: true,
                       initialPage: initialPage,
                       controller: _infinityScrollController,
-                      itemCount: (viewModel.conjugacions.length +
-                          viewModel.espJpnWords.length),
+                      itemCount: ( //viewModel.conjugacions.length +
+                          min(conjDisplayCount, viewModel.conjugacions.length) +
+                              viewModel.espJpnWords.length),
                       itemBuilder: (context, index) {
-                        final conjLength = viewModel.conjugacions.length;
                         final query = viewModel.query;
-                        //先にconj
-                        if (index < conjLength) {
-                          final conjugacion = viewModel.conjugacions[index];
-                          return ConjugacionSearchCard(
-                            word: conjugacion.word,
-                            conjugacions: conjugacion.matches,
-                            query: query,
-                            onTap: () {
-                              //TODO gorouter check
+                        //表示個数と実際に持っいる個数を比較
+                        final conjLength = min(
+                            conjDisplayCount, viewModel.conjugacions.length);
 
-                              viewModelNotifier.goToWordDetail(WordPageInput(
-                                  wordId: conjugacion.wordId,
-                                  wordType: WordType.espJpn,
-                                  hasConj: true));
-                            },
+                        //先にconj
+                        if (index < conjLength ) {
+                          final conjugacion = viewModel.conjugacions[index];
+                          final meaning = viewModel.simpleMeanings[conjugacion.wordId] ?? '';
+                          final ranking = viewModel.rankingNos[conjugacion.wordId];
+                          final starCount = viewModel.starCounts[conjugacion.wordId];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 11),
+                            child: CardView(wordStatusType: WordStatusType.espJpnWord,
+                              goToQuiz: () => viewModelNotifier.goToQuiz(
+                                  QuizGameFragmentInput(
+                                      wordId: conjugacion.wordId,
+                                      word: conjugacion.word)),
+                              wordId: conjugacion.wordId,
+                              word: conjugacion.word,
+                              query: query,
+                              conjugacions: conjugacion.matches,
+                              rankingON: true,
+                              ranking: ranking,
+                              starCount: starCount,
+                              meaning: meaning,
+                              isBookmarked: false,
+                              isLearned: false,
+                              onTap: () {
+                                //TODO gorouter check
+
+                                viewModelNotifier.goToWordDetail(WordPageInput(
+                                    wordId: conjugacion.wordId,
+                                    wordType: WordType.espJpn,
+                                    hasConj: true));
+                              },
+                            ),
                           );
                         }
-                        index = index - conjLength;
+                        index = index - conjLength; //conjLength;
                         final espJpnWord = viewModel.espJpnWords[index];
-                        return SearchCard(
-                          word: espJpnWord.word,
-                          partOfSpeech: espJpnWord.partOfSpeech,
-                          onTap: () {
-                            //TODO gorouter check
-                            viewModelNotifier.goToWordDetail(WordPageInput(
-                                wordId: espJpnWord.wordId,
-                                wordType: WordType.espJpn,
-                                hasConj: espJpnWord.hasVerb()));
-                          },
+                        final meaning = viewModel.simpleMeanings[espJpnWord.wordId] ?? '';
+                        final ranking = viewModel.rankingNos[espJpnWord.wordId];
+                        final starCount = viewModel.starCounts[espJpnWord.wordId];
+
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 11),
+                          child: CardView(wordStatusType: WordStatusType.espJpnWord,
+                            goToQuiz: () => viewModelNotifier.goToQuiz(
+                                QuizGameFragmentInput(
+                                    wordId: espJpnWord.wordId,
+                                    word: espJpnWord.word)),
+                            query: query,
+                            wordId: espJpnWord.wordId, //jpnEspWord.id,
+                            ranking: ranking,
+                            rankingON: true,
+                            // conjugations: index % 3 == 0
+                            //     ? "現在-yo: soy  現在-yo: soy  現在-yo: soy  現在-yo: soy  現在-yo: soy"
+                            //     : null,
+                            word: espJpnWord.word,
+                            starCount: starCount,
+                            meaning: meaning,
+                            isBookmarked: false,
+                            isLearned: false,
+                            onTap: () {
+                              //TODO gorouter check
+                              viewModelNotifier.goToWordDetail(WordPageInput(
+                                  wordId: espJpnWord.wordId,
+                                  wordType: WordType.espJpn,
+                                  hasConj: espJpnWord.hasVerb()));
+                            },
+                          ),
                         );
                       },
                       onLoadMore: _loadNextPage,

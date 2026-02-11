@@ -13,6 +13,20 @@ class RankingDriftDataSource implements IRankingLocalDataSource {
   Future<RankingTableData?> getRankingById(int id) async {
     return await _dao.getRankingById(id);
   }
+  @override
+  Future<int?> getRankingNoById(int id) async {
+    return await _dao.getRankingNoById(id);
+  }
+
+  @override
+  Future<int?> getRankingNoByWordId(int wordId) async {
+    return await _dao.getRankingNoByWordId(wordId);
+  }
+
+  @override
+  Future<Map<int, int>> getRankingNosByWordIds(List<int> wordIds) async {
+    return await _dao.getRankingNosByWordIds(wordIds);
+  }
 
   @override
   Future<List<RankingTableData>> getRankingListByPage(int page, int size) async {

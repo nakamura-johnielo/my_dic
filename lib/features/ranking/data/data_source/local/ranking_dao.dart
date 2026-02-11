@@ -15,6 +15,58 @@ part '../../../../../__generated/features/ranking/data/data_source/local/ranking
 class RankingDao extends DatabaseAccessor<DatabaseProvider>
     with _$RankingDaoMixin {
   RankingDao(super.database);
+  Future<int?> getRankingNoById(int id) async {
+    final res = await (select(rankings)
+          ..where((tbl) => tbl.rankingId.equals(id))
+          ..addColumns([rankings.rankingNo]))
+        .getSingleOrNull();
+    return res?.rankingNo;
+  }
+
+  Future<int?> getRankingNoByWordId(int wordId) async {
+    final res = await (select(rankings)
+          ..where((tbl) => tbl.wordId.equals(wordId))
+          ..addColumns([rankings.rankingNo]))
+        .getSingleOrNull();
+    return res?.rankingNo;
+  }
+
+  Future<Map<int, int>> getRankingNosByWordIds(List<int> wordIds) async {
+    if (wordIds.isEmpty) return {};
+
+//TODO 最適化！query
+    // final query = select(rankings)
+    //   ..where((tbl) => tbl.wordId.isIn(wordIds))
+    //   ..addColumns([rankings.wordId, rankings.rankingNo])
+    //   ..orderBy([(tbl) => OrderingTerm(expression: tbl.rankingId)]); // rankingId順
+    final ids = wordIds.join(',');
+    final query = customSelect(
+      '''
+      SELECT r.word_id, r.ranking_no
+      FROM rankings r
+      WHERE r.word_id IN ($ids)
+        AND r.ranking_id = (
+          SELECT MIN(r2.ranking_id) FROM rankings r2 WHERE r2.word_id = r.word_id
+        )
+      ''',
+      readsFrom: {rankings},
+    );
+
+    final rows = await query.get();
+    final res = <int, int>{};
+    for (final row in rows) {
+      // final wid = row.wordId;
+      final wid = row.read<int?>('word_id');
+
+      if (wid == null) continue;
+      if (!res.containsKey(wid)) {
+        // 最初に見つかった（最小の rankingId）のものだけを採用
+        // res[wid] = row.rankingNo;
+        res[wid] = row.read<int>('ranking_no');
+      }
+    }
+    return res;
+  }
 
   Future<RankingTableData?> getRankingById(int id) {
     return (select(rankings)..where((tbl) => tbl.rankingId.equals(id)))

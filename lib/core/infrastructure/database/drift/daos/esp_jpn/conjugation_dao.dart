@@ -10,6 +10,41 @@ class ConjugationDao extends DatabaseAccessor<DatabaseProvider>
     with _$ConjugationDaoMixin {
   ConjugationDao(super.database);
 
+  Future<String?> getMeaningById(int id) async {
+    final query = select(espConjugations)
+      ..where((tbl) => tbl.wordId.equals(id))
+      ..addColumns([espConjugations.meaning]);
+    final result = await query.getSingleOrNull();
+    return result?.meaning;
+  }
+
+  Future<Map<int, String>> getMeaningsByWordIds(List<int> wordIds) async {
+    if (wordIds.isEmpty) return {};
+
+    final query = select(espConjugations)
+      ..where((tbl) => tbl.wordId.isIn(wordIds))
+      ..addColumns([espConjugations.wordId, espConjugations.meaning]);
+
+    final rows = await query.get();
+    final res = <int, String>{};
+    for (final row in rows) {
+      final meaning = row.meaning;
+      if (meaning == null || meaning.isEmpty) continue;
+      res[row.wordId] = meaning;
+    }
+    return res;
+  }
+
+  Future<bool> exists(int wordId) async {
+    final query = select(espConjugations)
+      ..where((tbl) => tbl.wordId.equals(wordId))
+      ..addColumns([espConjugations.wordId]);
+    final result = await query.getSingleOrNull();
+
+    final res = result?.wordId != null ? true : false;
+    return res;
+  }
+
   Future<EspConjugationTableData?> getConjugationById(int id) {
     return (select(espConjugations)..where((tbl) => tbl.wordId.equals(id)))
         .getSingleOrNull();
