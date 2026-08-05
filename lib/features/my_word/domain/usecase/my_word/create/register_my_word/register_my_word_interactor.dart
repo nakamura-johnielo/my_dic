@@ -1,4 +1,5 @@
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word/create/register_my_word/register_my_word_input_data.dart';
@@ -32,10 +33,14 @@ class RegisterMyWordInteractor implements IRegisterMyWordUseCase {
             accountId = auth.accountId;
           }
         },
-        failure: (_) {},
+        failure: (error) => AppLogger.print(
+          'Auth lookup failed during MyWord registration: ${error.message}',
+        ),
       );
-    } catch (_) {
-      // ignore and treat as unauthenticated
+    } catch (error) {
+      AppLogger.print(
+        'Unexpected auth lookup failure during MyWord registration: $error',
+      );
     }
     RegisterMyWordRepositoryInputData repositoryInput =
         RegisterMyWordRepositoryInputData(input.headword.trim(),

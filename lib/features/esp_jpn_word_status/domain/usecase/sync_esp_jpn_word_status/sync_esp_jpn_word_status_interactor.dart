@@ -3,7 +3,6 @@ import 'package:my_dic/core/domain/usecase/i_sync_usecase.dart';
 import 'package:my_dic/core/shared/consts/dates.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/core/shared/consts/syncPriority.dart';
-import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';
 import 'package:my_dic/core/domain/i_repository/i_sync_status_repository.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/i_word_status_repository.dart';
@@ -21,17 +20,20 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
   SyncEspJpnWordStatusInteractor(this._localSyncStatusRepository,
       this._wordStatusRepository, this._authRepository);
 
-  Future<String?> _getCurrentAccountId() async {
+  Future<Result<String?>> _getCurrentAccountId() async {
     try {
       final authResult = await _authRepository.getCurrentAuth();
-      return authResult.when(
-        success: (auth) => auth.isAuthenticated && auth.accountId.isNotEmpty
+      return authResult.map(
+        (auth) => auth.isAuthenticated && auth.accountId.isNotEmpty
             ? auth.accountId
             : null,
-        failure: (_) => null,
       );
-    } catch (_) {
-      return null;
+    } catch (error, stackTrace) {
+      return Result.failure(UnexpectedError(
+        message: '認証状態の取得に失敗しました',
+        originalError: error,
+        stackTrace: stackTrace,
+      ));
     }
   }
 
@@ -40,7 +42,11 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
 
   @override
   Future<Result<void>> syncOnce() async {
-    final accountId = await _getCurrentAccountId();
+    final accountIdResult = await _getCurrentAccountId();
+    if (accountIdResult.isFailure) {
+      return Result.failure(accountIdResult.errorOrNull!);
+    }
+    final accountId = accountIdResult.dataOrNull;
     if (accountId == null) {
       return const Result.success(null);
     }
@@ -49,7 +55,11 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
 
     // localの最終同期時刻取得
     final checkpointCandidate = DateTime.now().toUtc();
-    final localLastSyncDate = await _getLastSyncDate(accountId);
+    final lastSyncDateResult = await _getLastSyncDate(accountId);
+    if (lastSyncDateResult.isFailure) {
+      return Result.failure(lastSyncDateResult.errorOrNull!);
+    }
+    final localLastSyncDate = lastSyncDateResult.dataOrNull!;
 
     //remoteのその時刻以降の更新データを取得
     final remoteDataResult = await _wordStatusRepository
@@ -103,7 +113,11 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
 
   @override //未使用
   Future<Result<void>> syncOnUpdatedLocal(String wordId) async {
-    final accountId = await _getCurrentAccountId();
+    final accountIdResult = await _getCurrentAccountId();
+    if (accountIdResult.isFailure) {
+      return Result.failure(accountIdResult.errorOrNull!);
+    }
+    final accountId = accountIdResult.dataOrNull;
     if (accountId == null) {
       return const Result.success(null);
     }
@@ -126,15 +140,14 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
       final localDataResult =
           await _wordStatusRepository.getLocalWordStatusById(int.parse(wordId));
 
-      if (localDataResult.runtimeType != NotFoundError &&
-          localDataResult.runtimeType == AppError) {
+      if (localDataResult.isFailure) {
         AppLogger.print(
             'Failed to get local word status by id: ${localDataResult.errorOrNull?.message}');
         return Result.failure(localDataResult.errorOrNull!);
       }
 
       final localData = localDataResult.dataOrNull;
-      if (localData == null || localDataResult.runtimeType == NotFoundError) {
+      if (localData == null) {
         return Result.failure(UnexpectedError(
           message: 'ローカルの単語ステータスが見つかりません',
         ));
@@ -159,7 +172,11 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
 
   @override
   Future<Result<void>> syncOnUpdatedRemote(String wordId) async {
-    final accountId = await _getCurrentAccountId();
+    final accountIdResult = await _getCurrentAccountId();
+    if (accountIdResult.isFailure) {
+      return Result.failure(accountIdResult.errorOrNull!);
+    }
+    final accountId = accountIdResult.dataOrNull;
     if (accountId == null) {
       return const Result.success(null);
     }
@@ -194,20 +211,22 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
 
   @override
   Stream<List<String>> watchRemoteChangedIds() {
-    return Stream.fromFuture(_getCurrentAccountId()).asyncExpand((accountId) {
-      if (accountId == null) {
-        return Stream.value(const <String>[]);
-      }
-
-      return _wordStatusRepository
-          .watchRemoteChangedIds(accountId)
-          .map((ids) => ids.map((id) => id.toString()).toList(growable: false));
-    });
+    return Stream.fromFuture(_getCurrentAccountId()).asyncExpand(
+      (accountIdResult) => accountIdResult.when(
+        success: (accountId) => accountId == null
+            ? Stream.value(const <String>[])
+            : _wordStatusRepository.watchRemoteChangedIds(accountId).map(
+                  (ids) =>
+                      ids.map((id) => id.toString()).toList(growable: false),
+                ),
+        failure: Stream.error,
+      ),
+    );
   }
 
 //=========Local method========================================================================
 
-  Future<DateTime> _getLastSyncDate(String accountId) async {
+  Future<Result<DateTime>> _getLastSyncDate(String accountId) async {
     final result = await _localSyncStatusRepository.getCheckpoint(
       SyncCheckpointKey(
         accountId: accountId,
@@ -215,13 +234,8 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
       ),
     );
 
-    return result.when(
-      success: (checkpoint) =>
-          checkpoint?.lastSuccessfulAt ?? MyDateTime.sentinel,
-      failure: (error) {
-        AppLogger.print('Failed to get last sync date: $error');
-        return MyDateTime.sentinel;
-      },
+    return result.map(
+      (checkpoint) => checkpoint?.lastSuccessfulAt ?? MyDateTime.sentinel,
     );
   }
 
@@ -230,8 +244,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
     final localDataResult =
         await _wordStatusRepository.getLocalWordStatusAfter(datetime);
 
-    if (localDataResult.runtimeType != NotFoundError &&
-        localDataResult.runtimeType == AppError) {
+    if (localDataResult.isFailure) {
       AppLogger.print(
           'Failed to get local word status after: ${localDataResult.errorOrNull?.message}');
       return Result.failure(localDataResult.errorOrNull!);
@@ -240,7 +253,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
     final localData = localDataResult.dataOrNull!;
 
     AppLogger.print("local espjpnstatus sync length: ${localData.length}");
-    if (localData.isEmpty || localDataResult.runtimeType == NotFoundError) {
+    if (localData.isEmpty) {
       return const Result.success(null);
     }
 
@@ -286,8 +299,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
     final localDataResult =
         await _wordStatusRepository.getLocalWordStatusById(remoteItem.wordId);
 
-    if (localDataResult.runtimeType != NotFoundError &&
-        localDataResult.runtimeType == AppError) {
+    if (localDataResult.isFailure) {
       AppLogger.print(
           'Failed to get local word status by id: ${localDataResult.errorOrNull?.message}');
       return Result.failure(localDataResult.errorOrNull!);
@@ -295,7 +307,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
 
     final localData = localDataResult.dataOrNull;
 
-    if (localData == null || localDataResult.runtimeType == NotFoundError) {
+    if (localData == null) {
       // ローカルに存在しない場合は、リモートのデータでローカルを作成
       final updateResult = await _wordStatusRepository.updateLocalWordStatus(
           remoteItem.wordId,
@@ -359,8 +371,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
     final localDataResult =
         await _wordStatusRepository.getLocalWordStatusById(remoteItem.wordId);
 
-    if (localDataResult.runtimeType != NotFoundError &&
-        localDataResult.runtimeType == AppError) {
+    if (localDataResult.isFailure) {
       AppLogger.print(
           'Failed to get local word status by id: ${localDataResult.errorOrNull?.message}');
       return Result.failure(localDataResult.errorOrNull!);
@@ -368,7 +379,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
 
     final localData = localDataResult.dataOrNull;
 
-    if (localData == null || localDataResult.runtimeType == NotFoundError) {
+    if (localData == null) {
       // ローカルに存在しない場合は、リモートのデータでローカルを作成
       final updateResult = await _wordStatusRepository.updateLocalWordStatus(
           remoteItem.wordId,

@@ -1,10 +1,11 @@
 # Phase 0-4: Resultの誤判定と握りつぶしを修正する
 
-- 状態: 未着手
+- 状態: 完了
 - 優先度: P1 / 信頼性
 - 依存タスク: なし
 - 関連タスク: [`5-fix-status-update-contract.md`](5-fix-status-update-contract.md)、[`../local_first/3-build-sync-queue.md`](../local_first/3-build-sync-queue.md)、[`../local_first/4-build-sync-engine.md`](../local_first/4-build-sync-engine.md)
 - 元調査: [`FLUTTER_ARCHITECTURE_REVIEW.md`](../../FLUTTER_ARCHITECTURE_REVIEW.md) P1-2、P1-4
+- 作業報告: [`4.report.md`](4.report.md)
 
 ## 目的
 
@@ -90,12 +91,12 @@ return result.when(
 
 ## 完了条件
 
-- [ ] error handlingに`runtimeType == AppError/NotFoundError`が残っていない
-- [ ] Repository APIごとに不存在の表現が一意で、名前と戻り値のnullabilityが契約に一致している
-- [ ] Repositoryの戻り値を意図せず捨てる箇所がない
-- [ ] `dataOrNull!`の前提がtestまたは型分岐で保証される
-- [ ] 主要failureがUIまたは同期結果まで伝播する
-- [ ] failure系testが追加されている
+- [x] error handlingに`runtimeType == AppError/NotFoundError`が残っていない
+- [x] Repository APIごとに不存在の表現が一意で、名前と戻り値のnullabilityが契約に一致している
+- [x] Repositoryの戻り値を意図せず捨てる箇所がない
+- [x] `dataOrNull!`の前提がtestまたは型分岐で保証される
+- [x] 主要failureがUIまたは同期結果まで伝播する
+- [x] failure系testが追加されている
 
 ## LLMへの引き継ぎ事項
 

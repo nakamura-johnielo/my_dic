@@ -1,4 +1,5 @@
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word_status/update_my_word_status/update_my_word_status_input_data.dart';
@@ -28,19 +29,21 @@ class UpdateMyWordStatusInteractor implements IUpdateMyWordStatusUseCase {
               accountId = auth.accountId;
             }
           },
-          failure: (_) {},
+          failure: (error) => AppLogger.print(
+            'Auth lookup failed during MyWord status update: ${error.message}',
+          ),
         );
-      } catch (_) {
-        // ignore and treat as unauthenticated
+      } catch (error) {
+        AppLogger.print(
+          'Unexpected auth lookup failure during MyWord status update: $error',
+        );
       }
 
       UpdateMyWordStatusRepositoryInputData repositoryInput =
           UpdateMyWordStatusRepositoryInputData(input.wordId, input.isLearned,
               input.isBookmarked, input.hasNote, dateTime, accountId);
 
-      await _myWordStatusRepository.updateStatus(repositoryInput);
-
-      return const Result.success(null);
+      return await _myWordStatusRepository.updateStatus(repositoryInput);
     } catch (e, stackTrace) {
       return Result.failure(DatabaseError(
         message: 'ステータス更新に失敗しました',

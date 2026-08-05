@@ -1,4 +1,3 @@
-
 import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
@@ -11,7 +10,8 @@ class UpdateJpnEspStatusInteractor implements IUpdateJpnEspStatusUseCase {
   final IJpnEspWordStatusRepository _wordStatusRepository;
   final IAuthRepository _authRepository;
 
-  UpdateJpnEspStatusInteractor(this._wordStatusRepository, this._authRepository);
+  UpdateJpnEspStatusInteractor(
+      this._wordStatusRepository, this._authRepository);
 
   int? converterIntFromBool(bool? value) {
     if (value == null) {
@@ -25,8 +25,10 @@ class UpdateJpnEspStatusInteractor implements IUpdateJpnEspStatusUseCase {
     final dateTime = DateTime.now().toUtc();
 
     // Update local first
-    AppLogger.print("jpn_esp status:isBookmarked ${converterIntFromBool(input.isBookmarked)}");
-    AppLogger.print("jpn_esp status:isLearned ${converterIntFromBool(input.isLearned)}");
+    AppLogger.print(
+        "jpn_esp status:isBookmarked ${converterIntFromBool(input.isBookmarked)}");
+    AppLogger.print(
+        "jpn_esp status:isLearned ${converterIntFromBool(input.isLearned)}");
 
     final localResult = await _wordStatusRepository.updateLocalWordStatus(
       input.wordId,
@@ -51,10 +53,14 @@ class UpdateJpnEspStatusInteractor implements IUpdateJpnEspStatusUseCase {
             accountId = auth.accountId;
           }
         },
-        failure: (_) {},
+        failure: (error) => AppLogger.print(
+          'Auth lookup failed during JpnEsp status update: ${error.message}',
+        ),
       );
-    } catch (_) {
-      // ignore and treat as unauthenticated
+    } catch (error) {
+      AppLogger.print(
+        'Unexpected auth lookup failure during JpnEsp status update: $error',
+      );
     }
 
     if (accountId != null) {
@@ -66,24 +72,24 @@ class UpdateJpnEspStatusInteractor implements IUpdateJpnEspStatusUseCase {
         editAt: dateTime,
       );
       final res = await _wordStatusRepository.getWordStatusById(input.wordId);
-      res.when(
-        success: (data) {
-          AppLogger.print('Fetched existing jpn_esp status for wordId ${input.wordId}: $data');
-          if (data == null) return;
-          repoInput = repoInput.copyWith(
-              isBookmarked: data.isBookmarked, isLearned: data.isLearned);
-        },
-        failure: (error) {
-          AppLogger.print('Failed to fetch existing jpn_esp status for wordId ${input.wordId}: ${error.message}');
-        },
-      );
+      if (res.isFailure) {
+        return Result.failure(res.errorOrNull!);
+      }
+      final existing = res.dataOrNull;
+      if (existing != null) {
+        repoInput = repoInput.copyWith(
+          isBookmarked: existing.isBookmarked,
+          isLearned: existing.isLearned,
+        );
+      }
 
       final remoteResult = await _wordStatusRepository.updateRemoteWordStatus(
           repoInput, accountId!, dateTime);
 
       // Remote failure is logged but local is already updated
       if (remoteResult.isFailure) {
-        AppLogger.print('Remote jpn_esp status update failed: ${remoteResult.errorOrNull?.message}');
+        AppLogger.print(
+            'Remote jpn_esp status update failed: ${remoteResult.errorOrNull?.message}');
         // Treat remote failure as warning, return success (local is updated)
         // Can sync later if needed
       }
