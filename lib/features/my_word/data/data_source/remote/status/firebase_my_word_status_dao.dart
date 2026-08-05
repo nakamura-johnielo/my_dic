@@ -100,7 +100,7 @@ class FirebaseMyWordStatusDao {
         .collection(UserDTO.collectionName)
         .doc(userId)
         .collection(MyWordStatusDTO.collectionName)
-        .where(MyWordStatusDTO.fieldUpdatedAt, isGreaterThan: lastSync)
+        .where(MyWordStatusDTO.fieldUpdatedAt, isGreaterThanOrEqualTo: lastSync)
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => MyWordStatusDTO.fromFirebase(doc))
@@ -116,7 +116,7 @@ class FirebaseMyWordStatusDao {
         .doc(userId)
         .collection(MyWordStatusDTO.collectionName)
         .where(MyWordStatusDTO.fieldUpdatedAt,
-            isGreaterThan: Timestamp.fromDate(lastSync))
+            isGreaterThanOrEqualTo: Timestamp.fromDate(lastSync))
         .get();
 
     if (querySnapshot.docs.isEmpty) return [];

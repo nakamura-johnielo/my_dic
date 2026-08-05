@@ -1,6 +1,6 @@
 # Phase 0-3: 同期checkpointをaccount・dataset単位に分離する
 
-- 状態: 未着手
+- 状態: 完了
 - 優先度: P0 / データ整合性
 - 依存タスク: Phase 0-2と独立して実施可能
 - 関連タスク: [`5-rebuild-status-sync.md`](5-rebuild-status-sync.md)、[`../phase2/6-return-sync-report.md`](../phase2/6-return-sync-report.md)
@@ -56,11 +56,19 @@ SyncCheckpoint(lastSuccessfulAt, optionalRemoteCursor)
 
 ## 完了条件
 
-- [ ] checkpoint keyにaccountIdとdatasetが含まれる
-- [ ] dataset完全成功前にcheckpointを進めない
-- [ ] 部分失敗とaccount切替のtestが通る
-- [ ] 旧keyの安全な移行方針が実装・記録されている
-- [ ] 同期処理に単一global cursorへの参照が残っていない
+- [x] checkpoint keyにaccountIdとdatasetが含まれる
+- [x] dataset完全成功前にcheckpointを進めない
+- [x] 部分失敗とaccount切替のtestが通る
+- [x] 旧keyの安全な移行方針が実装・記録されている
+- [x] 同期処理に単一global cursorへの参照が残っていない
+
+## 実装済みの運用方針
+
+- 旧単一keyは新しいdatasetへ複製せず、初回のscoped checkpointアクセス時に削除する。各datasetはcheckpointなしとしてsentinelからfull syncする。
+- checkpointはaccount別に保持し、sign-outでは削除しない。別accountは異なるkeyを使用するため流用されない。
+- 全件同期開始時刻をcommit候補にし、dataset内のremote取得、各項目反映、local uploadがすべて成功した後だけ保存する。
+- 単件のlocal/remote更新イベントは全件pull checkpointを進めない。
+- checkpointと同時刻の更新を再取得するため、差分境界は`>=`とする。重複処理より取りこぼし防止を優先する。
 
 ## LLMへの引き継ぎ事項
 

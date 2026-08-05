@@ -1,3 +1,4 @@
+import 'package:my_dic/core/domain/entity/sync_checkpoint.dart';
 import 'package:my_dic/core/domain/i_repository/i_sync_status_repository.dart';
 import 'package:my_dic/core/domain/usecase/i_sync_usecase.dart';
 import 'package:my_dic/core/shared/consts/dates.dart';
@@ -45,7 +46,8 @@ class SyncMyWordInteractor implements ISyncUseCase {
     if (accountId == null) {
       return const Result.success(null);
     }
-    final localLastSyncDate = await _getLastSyncDate();
+    final checkpointCandidate = DateTime.now().toUtc();
+    final localLastSyncDate = await _getLastSyncDate(accountId);
 
     final remoteDataResult = await _myWordRepository.getRemoteMyWordsAfter(
         accountId, localLastSyncDate);
@@ -64,10 +66,10 @@ class SyncMyWordInteractor implements ISyncUseCase {
     if ((remoteData as List<MyWord>).isNotEmpty) {
       for (final remoteItem in remoteData) {
         final idResult = await _syncHandle(accountId, remoteItem);
-        final updatedId = idResult.when(
-          success: (data) => data,
-          failure: (_) => null,
-        );
+        if (idResult.isFailure) {
+          return Result.failure(idResult.errorOrNull!);
+        }
+        final updatedId = idResult.dataOrNull;
         if (updatedId != null) {
           wordIdsUpdatedByRemote.add(updatedId);
         }
@@ -80,7 +82,8 @@ class SyncMyWordInteractor implements ISyncUseCase {
       return uploadResult;
     }
 
-    final updateDateResult = await _updateLocalLastSyncDate();
+    final updateDateResult =
+        await _commitCheckpoint(accountId, checkpointCandidate);
     if (updateDateResult.isFailure) {
       return updateDateResult;
     }
@@ -126,7 +129,7 @@ class SyncMyWordInteractor implements ISyncUseCase {
         return updateResult;
       }
 
-      return _updateLocalLastSyncDate();
+      return const Result.success(null);
     }
 
     final syncResult = await _syncHandle(accountId, remoteItem);
@@ -134,7 +137,7 @@ class SyncMyWordInteractor implements ISyncUseCase {
       return Result.failure(syncResult.errorOrNull!);
     }
 
-    return _updateLocalLastSyncDate();
+    return const Result.success(null);
   }
 
   @override
@@ -164,7 +167,7 @@ class SyncMyWordInteractor implements ISyncUseCase {
       return Result.failure(syncResult.errorOrNull!);
     }
 
-    return _updateLocalLastSyncDate();
+    return const Result.success(null);
   }
 
   @override
@@ -179,16 +182,32 @@ class SyncMyWordInteractor implements ISyncUseCase {
 
 //========local method================================================
 
-  Future<Result<void>> _updateLocalLastSyncDate() async {
-    final now = DateTime.now().toUtc();
-    return _localSyncStatusRepository.updateSyncDate(now);
+  Future<Result<void>> _commitCheckpoint(
+    String accountId,
+    DateTime lastSuccessfulAt,
+  ) {
+    return _localSyncStatusRepository.saveCheckpoint(
+      SyncCheckpoint(
+        key: SyncCheckpointKey(
+          accountId: accountId,
+          dataset: SyncDataset.myWords,
+        ),
+        lastSuccessfulAt: lastSuccessfulAt,
+      ),
+    );
   }
 
-  Future<DateTime> _getLastSyncDate() async {
-    final result = await _localSyncStatusRepository.getLastSyncDate();
+  Future<DateTime> _getLastSyncDate(String accountId) async {
+    final result = await _localSyncStatusRepository.getCheckpoint(
+      SyncCheckpointKey(
+        accountId: accountId,
+        dataset: SyncDataset.myWords,
+      ),
+    );
 
     return result.when(
-      success: (localLastSyncDate) => localLastSyncDate ?? MyDateTime.sentinel,
+      success: (checkpoint) =>
+          checkpoint?.lastSuccessfulAt ?? MyDateTime.sentinel,
       failure: (_) => MyDateTime.sentinel,
     );
   }

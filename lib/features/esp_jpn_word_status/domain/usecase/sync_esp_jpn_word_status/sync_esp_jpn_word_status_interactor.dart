@@ -1,3 +1,4 @@
+import 'package:my_dic/core/domain/entity/sync_checkpoint.dart';
 import 'package:my_dic/core/domain/usecase/i_sync_usecase.dart';
 import 'package:my_dic/core/shared/consts/dates.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
@@ -47,16 +48,18 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
     //最終同期時刻以降の差分を同期する
 
     // localの最終同期時刻取得
-    final localLastSyncDate = await _getLastSyncDate();
+    final checkpointCandidate = DateTime.now().toUtc();
+    final localLastSyncDate = await _getLastSyncDate(accountId);
 
     //remoteのその時刻以降の更新データを取得
     final remoteDataResult = await _wordStatusRepository
         .getRemoteWordStatusAfter(accountId, localLastSyncDate);
-    
+
     final remoteData = remoteDataResult.when(
       success: (data) => data,
       failure: (error) {
-        AppLogger.print('Failed to get remote word status after: ${error.message}');
+        AppLogger.print(
+            'Failed to get remote word status after: ${error.message}');
         return error;
       },
     );
@@ -72,13 +75,10 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
     if ((remoteData as List<WordStatus>).isNotEmpty) {
       for (var remoteItem in remoteData) {
         final idResult = await _syncHandle(accountId, remoteItem);
-        final id = idResult.when(
-          success: (data) => data,
-          failure: (error) {
-            AppLogger.print('Failed to sync handle: ${error.message}');
-            return null;
-          },
-        );
+        if (idResult.isFailure) {
+          return Result.failure(idResult.errorOrNull!);
+        }
+        final id = idResult.dataOrNull;
         if (id != null) {
           wordIdsUpdatedByRemote.add(id);
         }
@@ -92,7 +92,8 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
       return uploadResult;
     }
 
-    final updateDateResult = await _updateLocalLastSyncDate();
+    final updateDateResult =
+        await _commitCheckpoint(accountId, checkpointCandidate);
     if (updateDateResult.isFailure) {
       return updateDateResult;
     }
@@ -100,7 +101,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
     return const Result.success(null);
   }
 
-  @override
+  @override //未使用
   Future<Result<void>> syncOnUpdatedLocal(String wordId) async {
     final accountId = await _getCurrentAccountId();
     if (accountId == null) {
@@ -145,7 +146,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
         return updateResult;
       }
 
-      return await _updateLocalLastSyncDate();
+      return const Result.success(null);
     }
 
     final syncResult = await _syncHandle(accountId, remoteItem);
@@ -153,7 +154,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
       return Result.failure(syncResult.errorOrNull!);
     }
 
-    return await _updateLocalLastSyncDate();
+    return const Result.success(null);
   }
 
   @override
@@ -188,7 +189,7 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
       return Result.failure(syncResult.errorOrNull!);
     }
 
-    return await _updateLocalLastSyncDate();
+    return const Result.success(null);
   }
 
   @override
@@ -206,11 +207,17 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
 
 //=========Local method========================================================================
 
-  Future<DateTime> _getLastSyncDate() async {
-    final result = await _localSyncStatusRepository.getLastSyncDate();
+  Future<DateTime> _getLastSyncDate(String accountId) async {
+    final result = await _localSyncStatusRepository.getCheckpoint(
+      SyncCheckpointKey(
+        accountId: accountId,
+        dataset: SyncDataset.espJpnWordStatus,
+      ),
+    );
 
     return result.when(
-      success: (localLastSyncDate) => localLastSyncDate ?? MyDateTime.sentinel,
+      success: (checkpoint) =>
+          checkpoint?.lastSuccessfulAt ?? MyDateTime.sentinel,
       failure: (error) {
         AppLogger.print('Failed to get last sync date: $error');
         return MyDateTime.sentinel;
@@ -242,16 +249,26 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
 
     result.when(
       success: (_) => AppLogger.print('Batch update successful'),
-      failure: (error) => AppLogger.print('Batch update failed: ${error.message}'),
+      failure: (error) =>
+          AppLogger.print('Batch update failed: ${error.message}'),
     );
 
     return result;
   }
 
-  Future<Result<void>> _updateLocalLastSyncDate() async {
-    //TODO servertimestapで同期時刻取得sる用変更
-    final now = DateTime.now().toUtc();
-    final result = await _localSyncStatusRepository.updateSyncDate(now);
+  Future<Result<void>> _commitCheckpoint(
+    String accountId,
+    DateTime lastSuccessfulAt,
+  ) async {
+    final result = await _localSyncStatusRepository.saveCheckpoint(
+      SyncCheckpoint(
+        key: SyncCheckpointKey(
+          accountId: accountId,
+          dataset: SyncDataset.espJpnWordStatus,
+        ),
+        lastSuccessfulAt: lastSuccessfulAt,
+      ),
+    );
 
     result.when(
       success: (_) => AppLogger.print('Sync date updated successfully'),

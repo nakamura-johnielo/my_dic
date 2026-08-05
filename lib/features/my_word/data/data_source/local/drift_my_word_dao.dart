@@ -72,13 +72,13 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
 
   Future<List<MyWordTableData>> getMyWordsAfter(String dateTime) {
     return (select(myWords)
-          ..where((tbl) => tbl.editAt.isBiggerThanValue(dateTime)))
+          ..where((tbl) => tbl.editAt.isBiggerOrEqualValue(dateTime)))
         .get();
   }
 
   Stream<List<String>> watchMyWordIdsAfter(String dateTime) {
     return (select(myWords)
-          ..where((tbl) => tbl.editAt.isBiggerThanValue(dateTime)))
+          ..where((tbl) => tbl.editAt.isBiggerOrEqualValue(dateTime)))
         .watch()
         .map((rows) => rows.map((r) => r.myWordId).toList())
         .distinct();

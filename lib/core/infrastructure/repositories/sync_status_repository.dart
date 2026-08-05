@@ -1,7 +1,7 @@
+import 'package:my_dic/core/domain/entity/sync_checkpoint.dart';
 import 'package:my_dic/core/domain/i_repository/i_sync_status_repository.dart';
 import 'package:my_dic/core/infrastructure/datasource/sync/i_sync_status_data_source.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 
 class SyncStatusRepository implements ISyncStatusRepository {
@@ -9,12 +9,9 @@ class SyncStatusRepository implements ISyncStatusRepository {
   SyncStatusRepository(this._dataSource);
 
   @override
-  Future<Result<DateTime?>> getLastSyncDate() async {
+  Future<Result<SyncCheckpoint?>> getCheckpoint(SyncCheckpointKey key) async {
     try {
-      final date = await _dataSource.getLastSyncDate();
-      //AppLogger.log("lastsync: $date");
-      //return DateTime(1999,1,11);//TODO fix
-      return Result.success(date);
+      return Result.success(await _dataSource.getCheckpoint(key));
     } catch (e, stackTrace) {
       return Result.failure(CacheError(
         message: '最終同期日時の取得に失敗しました',
@@ -25,10 +22,9 @@ class SyncStatusRepository implements ISyncStatusRepository {
   }
 
   @override
-  Future<Result<void>> updateSyncDate(DateTime date) async {
+  Future<Result<void>> saveCheckpoint(SyncCheckpoint checkpoint) async {
     try {
-      await _dataSource.updateSyncDate(date);
-      AppLogger.print("---lastsync updated: ${await _dataSource.getLastSyncDate()}");
+      await _dataSource.saveCheckpoint(checkpoint);
       return Result.success(null);
     } catch (e, stackTrace) {
       return Result.failure(CacheError(

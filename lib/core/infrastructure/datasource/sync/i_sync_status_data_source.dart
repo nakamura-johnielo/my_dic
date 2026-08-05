@@ -1,4 +1,6 @@
+import 'package:my_dic/core/domain/entity/sync_checkpoint.dart';
+
 abstract class ISyncStatusDataSource {
-  Future<DateTime?> getLastSyncDate();
-  Future<void> updateSyncDate(DateTime date);
+  Future<SyncCheckpoint?> getCheckpoint(SyncCheckpointKey key);
+  Future<void> saveCheckpoint(SyncCheckpoint checkpoint);
 }

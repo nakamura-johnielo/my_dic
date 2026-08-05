@@ -18,8 +18,8 @@ class EspJpnWordStatusDao extends DatabaseAccessor<DatabaseProvider>
 
   Stream<List<int>> watchChangedWordIdsWithFilter(DateTime since) {
     return (select(espJpnWordStatus)
-          ..where(
-              (tbl) => tbl.editAt.isBiggerThanValue(since.toIso8601String())))
+          ..where((tbl) =>
+              tbl.editAt.isBiggerOrEqualValue(since.toIso8601String())))
         .watch()
         .map((rows) => rows.map((row) => row.wordId).toList())
         .distinct();
@@ -54,7 +54,7 @@ class EspJpnWordStatusDao extends DatabaseAccessor<DatabaseProvider>
       DateTime datetime) {
     return (select(espJpnWordStatus)
           ..where((tbl) =>
-              tbl.editAt.isBiggerThanValue(datetime.toIso8601String())))
+              tbl.editAt.isBiggerOrEqualValue(datetime.toIso8601String())))
         .get();
   }
 

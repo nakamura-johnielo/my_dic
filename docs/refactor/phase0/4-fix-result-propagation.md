@@ -38,13 +38,35 @@ RepositoryやDataSourceが返した`Failure`を成功、NotFound、空データ�
 ## 実装方針
 
 1. `Result`分岐を`when`またはpattern matchingに統一する。
-2. `NotFoundError`は`Failure`内部のerrorに対して判定する。
+2. データ不存在の表現はAPIの意味で使い分け、同一API内では統一する。
 3. failure経路で`dataOrNull!`へ到達しない構造にする。
 4. Repository結果を呼出している箇所で、戻り値が未使用になっていないか確認する。
 5. best-effortで無視するfailureは、コメントだけでなく専用戻り値やwarningとして明示する。
 6. catchする場合は、値として返った`Failure`とthrowされた予期しない例外を分ける。
 
-推奨形:
+### NotFoundのAPI契約
+
+NotFoundは一律にerrorまたは`null`へ寄せず、Repository APIが表す操作の意味に合わせて次の2方式を使い分ける。
+
+- 検索系の`find...`では、不存在を正常な検索結果として`Result.success(null)`で返す。戻り値は`Result<T?>`とする。
+- 存在必須の`get...`または`require...`では、不存在を`Result.failure(NotFoundError(...))`で返す。戻り値は`Result<T>`とし、成功値をnullableにしない。
+- 同一APIで`success(null)`と`NotFoundError`の両方を返してはならない。
+- 呼出し側が不存在時にcreateする同期処理は、通常は`find...`を使用する。不在自体がユースケース上の失敗になる場合だけ`get...`または`require...`を使用する。
+- 既存APIを修正する際は、名前、戻り値のnullability、Repository実装、Interactorの分岐、testを同じ契約に揃える。
+
+検索系の推奨形:
+
+```dart
+return result.when(
+  success: (value) {
+    if (value == null) return handleNotFound();
+    return handleSuccess(value);
+  },
+  failure: Result.failure,
+);
+```
+
+存在必須APIの推奨形:
 
 ```dart
 return result.when(
@@ -59,7 +81,9 @@ return result.when(
 ## 必須テスト
 
 - Repositoryが`Result.failure`を返すとInteractorもfailureになる
-- NotFoundだけが意図したcreate経路へ進む
+- `find...`が`success(null)`を返した場合だけ、意図したcreate経路へ進む
+- `get...`または`require...`の`NotFoundError`が、API契約に応じた不存在経路へ進む
+- 同一Repository APIが不存在を`success(null)`と`NotFoundError`の両方で返さない
 - DatabaseErrorやNetworkErrorをNotFoundとして扱わない
 - failure後に`dataOrNull!`でクラッシュしない
 - status保存失敗をViewModelが成功表示しない
@@ -67,6 +91,7 @@ return result.when(
 ## 完了条件
 
 - [ ] error handlingに`runtimeType == AppError/NotFoundError`が残っていない
+- [ ] Repository APIごとに不存在の表現が一意で、名前と戻り値のnullabilityが契約に一致している
 - [ ] Repositoryの戻り値を意図せず捨てる箇所がない
 - [ ] `dataOrNull!`の前提がtestまたは型分岐で保証される
 - [ ] 主要failureがUIまたは同期結果まで伝播する
