@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_dic/features/auth/di/store.dart';
+import 'package:my_dic/core/application/auth_lifecycle/auth_lifecycle_provider.dart';
+import 'package:my_dic/core/application/auth_lifecycle/auth_lifecycle_state.dart';
 import 'package:my_dic/features/auth/presentation/view/sign_up.dart';
 import 'package:my_dic/main_activity.dart';
 import 'package:my_dic/features/my_word/presentation/view/my_word_fragment.dart';
@@ -9,7 +10,6 @@ import 'package:my_dic/features/search/presentation/view/search_fragment.dart';
 import 'package:my_dic/features/user/presentation/view/profile.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 
-import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
 import 'package:my_dic/router/route_names.dart';
 import 'package:my_dic/router/study.dart';
 import 'package:my_dic/router/word_detail.dart';
@@ -61,12 +61,11 @@ final studyQuizNavigatorKeyProvider =
 
 class AuthChangeNotifier extends ChangeNotifier {
   AuthChangeNotifier(Ref ref) {
-    ref.listen<AppAuth?>(
-      authStoreNotifierProvider,
+    ref.listen<AuthLifecycleState>(
+      authLifecycleProvider,
       (previous, next) {
-        if (previous?.isAuthenticated == next?.isAuthenticated &&
-            previous?.isLogined == next?.isLogined &&
-            previous?.accountId == next?.accountId) {
+        if (previous?.phase == next.phase &&
+            previous?.auth?.accountId == next.auth?.accountId) {
           AppLogger.print(
               'redirect - [Auth Effect] No change in auth state detected===============================================');
           return;
@@ -85,16 +84,14 @@ final routerProvider = Provider<GoRouter>((ref) {
   // Providerからキーを取得（常に同じインスタンスが返される）
   final rootKey = ref.watch(rootNavigatorKeyProvider);
   final searchKey = ref.watch(searchNavigatorKeyProvider);
-  final quizKey = ref.watch(quizNavigatorKeyProvider);
   final myWordKey = ref.watch(myWordNavigatorKeyProvider);
-  final rankingKey = ref.watch(rankingNavigatorKeyProvider);
-  final studyKey = ref.watch(studyNavigatorKeyProvider);
-  
+
   // Study内部用のキーを取得
   final studyDashboardKey = ref.watch(studyDashboardNavigatorKeyProvider);
   final studyRankingKey = ref.watch(studyRankingNavigatorKeyProvider);
   final studyQuizKey = ref.watch(studyQuizNavigatorKeyProvider);
-  AppLogger.print("===============routerProvider created======================");
+  AppLogger.print(
+      "===============routerProvider created======================");
 
   return GoRouter(
     navigatorKey: rootKey,
@@ -116,25 +113,17 @@ final routerProvider = Provider<GoRouter>((ref) {
       final inProfile = location.startsWith('/${RoutePaths.profile}');
       if (!inProfile) return null;
 
-      final auth = ref.read(authStoreNotifierProvider);
+      final lifecycle = ref.read(authLifecycleProvider);
       final unauthorized = '/${RoutePaths.profile}/${RoutePaths.unauthorized}';
       final authorized = '/${RoutePaths.profile}/${RoutePaths.authorized}';
 
-      if (auth == null) {
-        AppLogger.print('auth is null');
-        return unauthorized;
-      }
-
-      final loggedIn = auth.isLogined;
-      final verified = auth.isAuthenticated;
-      AppLogger.print('loggedIn: $loggedIn, verified: $verified');
-
-      if (!loggedIn || !verified) {
+      if (!lifecycle.isReady) {
         AppLogger.print(
             "current location: ${location == unauthorized ? null : unauthorized} ");
         return location == unauthorized ? null : unauthorized;
       }
-      AppLogger.print("current location: ${location == authorized ? null : authorized} ");
+      AppLogger.print(
+          "current location: ${location == authorized ? null : authorized} ");
       return location == authorized ? null : authorized;
     },
     initialLocation: '/${RoutePaths.search}',
@@ -161,8 +150,6 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
-
-         
 
           // Search
           //1
@@ -215,7 +202,6 @@ final routerProvider = Provider<GoRouter>((ref) {
                   "${RouteNames.quiz}-${RouteNames.wordDetail}", studyQuizKey),
               flashCardRoute(RoutePaths.quiz,
                   "${RouteNames.quiz}-${RouteNames.flashCard}", studyQuizKey),
-            
             ],
           ),
 
@@ -225,7 +211,6 @@ final routerProvider = Provider<GoRouter>((ref) {
             navigatorKey: studyRankingKey,
             routes: [
               rankingRoute,
-
               wordDetailRoute(
                   RoutePaths.ranking,
                   "${RouteNames.ranking}-${RouteNames.wordDetail}",
@@ -234,11 +219,8 @@ final routerProvider = Provider<GoRouter>((ref) {
                   RoutePaths.ranking,
                   "${RouteNames.ranking}-${RouteNames.flashCard}",
                   studyRankingKey),
-              
             ],
           ),
-
-         
         ],
       ),
 
@@ -273,9 +255,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
-
-     
     ],
   );
 });
-

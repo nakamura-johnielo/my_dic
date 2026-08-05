@@ -1,10 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/core/presentation/components/icons/rotating_icon.dart';
-import 'package:my_dic/core/shared/enums/ui/button_status.dart';
+import 'package:my_dic/core/application/auth_lifecycle/auth_lifecycle_controller.dart';
+import 'package:my_dic/core/application/auth_lifecycle/auth_lifecycle_provider.dart';
+import 'package:my_dic/core/application/auth_lifecycle/auth_lifecycle_state.dart';
 import 'package:my_dic/features/auth/di/view_model_di.dart';
-import 'package:my_dic/router/navigator_service.dart';
 
 class EmailPasswordPage extends ConsumerStatefulWidget {
   const EmailPasswordPage({super.key});
@@ -16,36 +15,7 @@ class EmailPasswordPage extends ConsumerStatefulWidget {
 class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
   final emailCtrl = TextEditingController();
   final passCtrl = TextEditingController();
-  final IconData waitingIcon = Icons.refresh;
-  String? message;
-
-  bool _isActive(ButtonStatus status) {
-    return status == ButtonStatus.normal || status == ButtonStatus.error;
-  }
-
-  Widget _iconBuilder(ButtonStatus status, IconData defaultIcon) {
-    if (status == ButtonStatus.waiting) {
-      return RotatingIcon(icon: waitingIcon);
-    } else {
-      return Icon(defaultIcon);
-    }
-  }
-
-  Future<void> _handleAuth(
-    Future<String> Function() action,
-  ) async {
-    setState(() {
-      message = null;
-    });
-    try {
-      message = await action();
-      if (!mounted) return;
-      ref.read(appNavigatorServiceProvider).toProfile();
-      return; // 以降のsetStateを避ける
-    } on FirebaseAuthException catch (e) {
-      message = e.message;
-    } finally {}
-  }
+  String? _localMessage;
 
   @override
   void dispose() {
@@ -56,98 +26,195 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    final authNotifier = ref.read(signInViewModelProvider.notifier);
-    final authViewModel = ref.watch(signInViewModelProvider);
+    final lifecycle = ref.watch(authLifecycleProvider);
+    final controller = ref.read(authLifecycleProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Email / Password Auth')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(
-              controller: emailCtrl,
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(labelText: 'Email'),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: passCtrl,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: 'Password (6文字以上)'),
-            ),
-            const SizedBox(height: 24),
-            if (message != null)
-              Text(message!, style: const TextStyle(color: Colors.red)),
-            const Spacer(),
-            ElevatedButton.icon(
-              onPressed: _isActive(authViewModel.isWaitingSignUp)
-                  ? () {
-                      if (!_validInputs()) return;
-                      _handleAuth(() async {
-                        await authNotifier.signUp(
-                          emailCtrl.text.trim(),
-                          passCtrl.text.trim(),
-                        );
-                        return '登録に成功しました。確認メールを送信しました。';
-                      });
-                    }
-                  : null,
-              icon:
-                  _iconBuilder(authViewModel.isWaitingSignUp, Icons.person_add),
-              label: const Text('Sign Up'),
-            ),
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
-              onPressed: _isActive(authViewModel.isWaitingSignIn)
-                  ? () {
-                      if (!_validInputs()) return;
-                      _handleAuth(() => authNotifier.signIn(
-                            emailCtrl.text.trim(),
-                            passCtrl.text.trim(),
-                          ));
-                    }
-                  : null,
-              icon: _iconBuilder(authViewModel.isWaitingSignIn, Icons.login),
-              label: const Text('Sign In'),
-            ),
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: _isActive(authViewModel.isWaitingResetPassword)
-                  ? () async {
-                      final email = emailCtrl.text.trim();
-                      if (email.isEmpty) {
-                        setState(() => message = 'メールを入力してください');
-                        return;
-                      }
-                      try {
-                        await authNotifier.resetEmailPassword(email);
-                        setState(() => message = 'リセットメールを送信しました');
-                      } on FirebaseAuthException catch (e) {
-                        setState(() => message = e.message);
-                      }
-                    }
-                  : null,
-              child: const Text('Forgot password?'),
-            ),
-            const SizedBox(height: 12),
-            TextButton.icon(
-              onPressed: _isActive(authViewModel.isWaitingSignOut)
-                  ? () async {
-                      try {
-                        await _handleAuth(() => authNotifier.signOut());
-                        setState(() => message = 'ログアウトしました');
-                      } on FirebaseAuthException catch (e) {
-                        setState(() => message = e.message);
-                      }
-                    }
-                  : null,
-              icon: _iconBuilder(authViewModel.isWaitingSignOut, Icons.logout),
-              label: const Text('Sign Out'),
-            ),
-          ],
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: switch (lifecycle.phase) {
+            AuthLifecyclePhase.initializing => const _CenteredProgress(
+                label: '認証状態を確認しています…',
+              ),
+            AuthLifecyclePhase.creatingAccount => const _CenteredProgress(
+                label: 'アカウントを作成しています…',
+              ),
+            AuthLifecyclePhase.signingIn => const _CenteredProgress(
+                label: 'ログインしています…',
+              ),
+            AuthLifecyclePhase.provisioningProfile => const _CenteredProgress(
+                label: 'プロフィールを準備しています…',
+              ),
+            AuthLifecyclePhase.signingOut => const _CenteredProgress(
+                label: 'ログアウトしています…',
+              ),
+            AuthLifecyclePhase.emailUnverified ||
+            AuthLifecyclePhase.verificationEmailFailed ||
+            AuthLifecyclePhase.sendingVerificationEmail ||
+            AuthLifecyclePhase.reloadingIdentity =>
+              _buildVerificationPanel(lifecycle, controller),
+            AuthLifecyclePhase.profileProvisioningFailed =>
+              _buildProfileFailurePanel(lifecycle, controller),
+            AuthLifecyclePhase.ready => const _CenteredProgress(
+                label: 'プロフィールを表示します…',
+              ),
+            AuthLifecyclePhase.signedOut =>
+              _buildAuthenticationForm(lifecycle, controller),
+          },
         ),
       ),
+    );
+  }
+
+  Widget _buildAuthenticationForm(
+    AuthLifecycleState lifecycle,
+    AuthLifecycleController controller,
+  ) {
+    final message = _localMessage ?? lifecycle.error?.message;
+    return Column(
+      children: [
+        TextField(
+          controller: emailCtrl,
+          keyboardType: TextInputType.emailAddress,
+          decoration: const InputDecoration(labelText: 'Email'),
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: passCtrl,
+          obscureText: true,
+          decoration: const InputDecoration(labelText: 'Password (6文字以上)'),
+        ),
+        if (message != null) ...[
+          const SizedBox(height: 16),
+          Text(message,
+              style: TextStyle(color: Theme.of(context).colorScheme.error)),
+        ],
+        const Spacer(),
+        FilledButton.icon(
+          onPressed: () {
+            if (!_validInputs()) return;
+            setState(() => _localMessage = null);
+            controller.signUp(emailCtrl.text.trim(), passCtrl.text.trim());
+          },
+          icon: const Icon(Icons.person_add),
+          label: const Text('Sign Up'),
+        ),
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          onPressed: () {
+            if (!_validInputs()) return;
+            setState(() => _localMessage = null);
+            controller.signIn(emailCtrl.text.trim(), passCtrl.text.trim());
+          },
+          icon: const Icon(Icons.login),
+          label: const Text('Sign In'),
+        ),
+        const SizedBox(height: 16),
+        TextButton(
+          onPressed: () async {
+            final email = emailCtrl.text.trim();
+            if (email.isEmpty) {
+              setState(() => _localMessage = 'メールを入力してください');
+              return;
+            }
+            final message = await ref
+                .read(signInViewModelProvider.notifier)
+                .resetEmailPassword(email);
+            if (mounted) setState(() => _localMessage = message);
+          },
+          child: const Text('Forgot password?'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildVerificationPanel(
+    AuthLifecycleState lifecycle,
+    AuthLifecycleController controller,
+  ) {
+    final waiting =
+        lifecycle.phase == AuthLifecyclePhase.sendingVerificationEmail ||
+            lifecycle.phase == AuthLifecyclePhase.reloadingIdentity;
+    final deliveryFailed =
+        lifecycle.phase == AuthLifecyclePhase.verificationEmailFailed;
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Icon(Icons.mark_email_unread_outlined, size: 64),
+        const SizedBox(height: 16),
+        Text(
+          deliveryFailed
+              ? 'アカウントは作成されましたが、確認メールを送信できませんでした。'
+              : '${lifecycle.auth?.email ?? '登録したメールアドレス'}へ確認メールを送信しました。',
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          'メール内のリンクを開いた後、「確認済み」を押してください。',
+          textAlign: TextAlign.center,
+        ),
+        if (lifecycle.notice != null) ...[
+          const SizedBox(height: 16),
+          Text(lifecycle.notice!, textAlign: TextAlign.center),
+        ],
+        if (lifecycle.error != null) ...[
+          const SizedBox(height: 16),
+          Text(
+            lifecycle.error!.message,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
+          ),
+        ],
+        const SizedBox(height: 24),
+        if (waiting) const CircularProgressIndicator(),
+        if (!waiting) ...[
+          FilledButton(
+            onPressed: controller.checkEmailVerification,
+            child: const Text('確認済み'),
+          ),
+          TextButton(
+            onPressed: controller.resendVerificationEmail,
+            child: const Text('確認メールを再送'),
+          ),
+          TextButton(
+            onPressed: controller.signOut,
+            child: const Text('ログアウト'),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildProfileFailurePanel(
+    AuthLifecycleState lifecycle,
+    AuthLifecycleController controller,
+  ) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Icon(Icons.cloud_off_outlined, size: 64),
+        const SizedBox(height: 16),
+        const Text('プロフィールの準備を完了できませんでした。'),
+        if (lifecycle.error != null) ...[
+          const SizedBox(height: 8),
+          Text(
+            lifecycle.error!.message,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
+          ),
+        ],
+        const SizedBox(height: 24),
+        FilledButton(
+          onPressed: controller.retryProfileProvisioning,
+          child: const Text('再試行'),
+        ),
+        TextButton(
+          onPressed: controller.signOut,
+          child: const Text('ログアウト'),
+        ),
+      ],
     );
   }
 
@@ -155,13 +222,33 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
     final email = emailCtrl.text.trim();
     final pass = passCtrl.text.trim();
     if (!email.contains('@')) {
-      setState(() => message = 'メールアドレスを確認してください');
+      setState(() => _localMessage = 'メールアドレスを確認してください');
       return false;
     }
     if (pass.length < 6) {
-      setState(() => message = 'パスワードは6文字以上で入力');
+      setState(() => _localMessage = 'パスワードは6文字以上で入力してください');
       return false;
     }
     return true;
+  }
+}
+
+class _CenteredProgress extends StatelessWidget {
+  final String label;
+
+  const _CenteredProgress({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const CircularProgressIndicator(),
+          const SizedBox(height: 16),
+          Text(label),
+        ],
+      ),
+    );
   }
 }

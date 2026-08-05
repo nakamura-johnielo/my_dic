@@ -167,4 +167,49 @@ class UserRepository implements IUserRepository {
     }
     return Result.success(localUser!.deviceId);
   }
+
+  @override
+  Future<Result<AppUser>> ensureUserProfile({
+    required String accountId,
+    String? email,
+  }) async {
+    if (accountId.isEmpty) {
+      return Result.failure(UnauthorizedError(
+        message: 'Account ID cannot be empty. Must Login',
+      ));
+    }
+
+    try {
+      final deviceId = await _getDeviceId();
+      if (deviceId.isEmpty) {
+        return Result.failure(DeviceNotFoundError(
+          message: 'device ID が生成されていません',
+        ));
+      }
+
+      final dto = await _remote.ensureUser(UserDTO(
+        userId: accountId,
+        email: email,
+      ));
+      return Result.success(AppUser(
+        deviceId: deviceId,
+        email: dto.email ?? email,
+        username: dto.userName,
+        subscriptionStatus: dto.subscriptionStatus,
+      ));
+    } on FirebaseException catch (e, s) {
+      return Result.failure(FirebaseError(
+        message: 'ユーザープロフィールの準備に失敗しました: ${e.message}',
+        code: e.code,
+        originalError: e,
+        stackTrace: s,
+      ));
+    } catch (e, s) {
+      return Result.failure(UnexpectedError(
+        message: 'ユーザープロフィールの準備中に予期しないエラーが発生しました',
+        originalError: e,
+        stackTrace: s,
+      ));
+    }
+  }
 }

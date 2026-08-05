@@ -1,12 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/features/auth/di/data_di.dart';
 import 'package:my_dic/features/auth/domain/usecase/i_observe_auth_state_use_case.dart';
+import 'package:my_dic/features/auth/domain/usecase/i_reload_current_auth_use_case.dart';
 import 'package:my_dic/features/auth/domain/usecase/i_send_email_use_case.dart';
 import 'package:my_dic/features/auth/domain/usecase/i_sign_in_use_case.dart';
 import 'package:my_dic/features/auth/domain/usecase/i_sign_out_use_case.dart';
 import 'package:my_dic/features/auth/domain/usecase/i_sign_up_use_case.dart';
 import 'package:my_dic/features/auth/domain/usecase/i_verify_email_use_case.dart';
 import 'package:my_dic/features/auth/domain/usecase/observe_auth_state_interactor.dart';
+import 'package:my_dic/features/auth/domain/usecase/reload_current_auth.dart';
 import 'package:my_dic/features/auth/domain/usecase/send_email_interactor.dart';
 import 'package:my_dic/features/auth/domain/usecase/signin.dart';
 import 'package:my_dic/features/auth/domain/usecase/signout.dart';
@@ -19,6 +21,12 @@ import 'package:my_dic/features/auth/domain/usecase/verify_email.dart';
 final observeAuthStateUseCaseProvider = Provider<IObserveAuthStateUseCase>(
   (ref) =>
       ObserveAuthStateInteractor(ref.watch(firebaseAuthRepositoryProvider)),
+);
+
+final reloadCurrentAuthUseCaseProvider = Provider<IReloadCurrentAuthUseCase>(
+  (ref) => ReloadCurrentAuthInteractor(
+    ref.watch(firebaseAuthRepositoryProvider),
+  ),
 );
 
 final signInInteractorProvider = Provider<ISignInUseCase>(

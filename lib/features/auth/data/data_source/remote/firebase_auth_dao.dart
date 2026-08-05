@@ -51,4 +51,15 @@ class FirebaseAuthDao {
     if (_auth.currentUser == null) return null;
     return AuthDTO.fromFirebaseUser(_auth.currentUser!);
   }
+
+  Future<AuthDTO?> reloadCurrentAuth() async {
+    final user = _auth.currentUser;
+    if (user == null) return null;
+
+    await user.reload();
+    final refreshedUser = _auth.currentUser;
+    return refreshedUser == null
+        ? null
+        : AuthDTO.fromFirebaseUser(refreshedUser);
+  }
 }

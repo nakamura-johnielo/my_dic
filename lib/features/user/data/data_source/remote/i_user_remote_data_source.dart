@@ -6,4 +6,6 @@ abstract class IUserRemoteDataSource {
   Future<void> updateUser(UserDTO user);
 
   Future<void> createUser(UserDTO user);
+
+  Future<UserDTO> ensureUser(UserDTO user);
 }

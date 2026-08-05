@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/features/auth/di/store.dart';
+import 'package:my_dic/core/application/auth_lifecycle/auth_lifecycle_provider.dart';
 import 'package:my_dic/features/esp_jpn_word_status/di/di.dart';
 import 'package:my_dic/features/my_word/di/usecase_di.dart';
 import 'package:my_dic/features/sync/sync_service.dart';
@@ -24,10 +24,8 @@ final _syncWithRemoteProvider = Provider.autoDispose<void>((ref) {
 
 // ラッパープロバイダーで自動化
 final autoSyncProvider = Provider.autoDispose<void>((ref) {
-  // isAuthenticated を監視（false → プロバイダーは早期 return して停止）
-  final isAuth = ref.watch(
-      authStoreNotifierProvider.select((a) => a?.isAuthenticated ?? false));
-  if (!isAuth) return;
+  final isReady = ref.watch(authLifecycleProvider.select((s) => s.isReady));
+  if (!isReady) return;
 
   // userId は usecase 内で解決する
   ref.watch(_syncWithRemoteProvider);

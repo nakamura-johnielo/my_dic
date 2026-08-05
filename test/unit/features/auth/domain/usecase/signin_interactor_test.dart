@@ -1,12 +1,12 @@
-/// Test for SignInInteractor UseCase
-/// Priority: ★★★★★ (Critical business logic)
-/// 
-/// Tests demonstrate:
-/// - Clean Architecture UseCase testing pattern
-/// - Fake repository usage (no mockito/mocktail)
-/// - Input validation logic
-/// - Result type handling
-/// - Error scenario coverage
+// Test for SignInInteractor UseCase
+// Priority: ★★★★★ (Critical business logic)
+//
+// Tests demonstrate:
+// - Clean Architecture UseCase testing pattern
+// - Fake repository usage (no mockito/mocktail)
+// - Input validation logic
+// - Result type handling
+// - Error scenario coverage
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
@@ -15,7 +15,6 @@ import 'package:my_dic/features/auth/domain/usecase/signin.dart';
 
 import '../../../../../helpers/fake_auth_repository.dart';
 import '../../../../../helpers/test_helpers.dart';
-
 
 void main() {
   group('SignInInteractor', () {
@@ -31,7 +30,7 @@ void main() {
         // Assert
         expect(result.isFailure, true);
         expect(result.errorOrNull, isA<ValidationError>());
-        
+
         final error = result.errorOrNull as ValidationError;
         expect(error.fieldErrors, isNotNull);
         expect(error.fieldErrors!['email'], isNotNull);
@@ -39,7 +38,7 @@ void main() {
           error.fieldErrors!['email']!.first,
           'メールアドレスを入力してください',
         );
-        
+
         // Verify repository was not called
         expect(repository.signInCallCount, 0);
       });
@@ -55,7 +54,7 @@ void main() {
         // Assert
         expect(result.isFailure, true);
         expect(result.errorOrNull, isA<ValidationError>());
-        
+
         final error = result.errorOrNull as ValidationError;
         expect(error.fieldErrors!['email'], isNotNull);
       });
@@ -71,7 +70,7 @@ void main() {
         // Assert
         expect(result.isFailure, true);
         expect(result.errorOrNull, isA<ValidationError>());
-        
+
         final error = result.errorOrNull as ValidationError;
         expect(error.fieldErrors, isNotNull);
         expect(error.fieldErrors!['password'], isNotNull);
@@ -81,7 +80,8 @@ void main() {
         );
       });
 
-      test('execute_returnsValidationError_whenBothEmailAndPasswordEmpty', () async {
+      test('execute_returnsValidationError_whenBothEmailAndPasswordEmpty',
+          () async {
         // Arrange
         final repository = FakeAuthRepository.success();
         final useCase = SignInInteractor(repository);
@@ -92,7 +92,7 @@ void main() {
         // Assert
         expect(result.isFailure, true);
         expect(result.errorOrNull, isA<ValidationError>());
-        
+
         final error = result.errorOrNull as ValidationError;
         expect(error.fieldErrors, isNotNull);
         expect(error.fieldErrors!['email'], isNotNull);
@@ -117,10 +117,10 @@ void main() {
         // Assert
         expect(result.isSuccess, true);
         expect(result.dataOrNull, isNotNull);
-        expect(result.dataOrNull?.userId, 'user-123');
+        expect(result.dataOrNull?.accountId, 'user-123');
         expect(result.dataOrNull?.email, 'test@example.com');
         expect(result.dataOrNull?.isLogined, true);
-        
+
         // Verify repository was called with trimmed email
         expect(repository.signInCallCount, 1);
         expect(repository.lastSignInEmail, 'test@example.com');
@@ -141,13 +141,15 @@ void main() {
     });
 
     group('Failure Scenarios', () {
-      test('execute_returnsUnauthorizedError_whenCredentialsAreInvalid', () async {
+      test('execute_returnsUnauthorizedError_whenCredentialsAreInvalid',
+          () async {
         // Arrange
         final repository = FakeAuthRepository.invalidCredentials();
         final useCase = SignInInteractor(repository);
 
         // Act
-        final result = await useCase.execute('test@example.com', 'wrongpassword');
+        final result =
+            await useCase.execute('test@example.com', 'wrongpassword');
 
         // Assert
         expect(result.isFailure, true);
@@ -164,7 +166,8 @@ void main() {
         final useCase = SignInInteractor(repository);
 
         // Act
-        final result = await useCase.execute('unknown@example.com', 'password123');
+        final result =
+            await useCase.execute('unknown@example.com', 'password123');
 
         // Assert
         expect(result.isFailure, true);

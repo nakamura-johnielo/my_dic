@@ -35,4 +35,9 @@ class FirebaseAuthRemoteDataSource implements IAuthRemoteDataSource {
   Future<AuthDTO?> getCurrentAuth() {
     return _dao.getCurrentAuth();
   }
+
+  @override
+  Future<AuthDTO?> reloadCurrentAuth() {
+    return _dao.reloadCurrentAuth();
+  }
 }

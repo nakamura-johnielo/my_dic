@@ -30,4 +30,28 @@ class UserDao {
     final docRef = _db.collection(collectionName).doc(userEntity.userId);
     await docRef.set(userEntity.toFirebase());
   }
+
+  /// UID 固定のdocumentを冪等にprovisioningする。
+  ///
+  /// 既存documentの編集可能fieldや認可fieldを上書きしない。
+  Future<UserDTO> ensure(UserDTO defaults) async {
+    final docRef = _db.collection(collectionName).doc(defaults.userId);
+
+    return _db.runTransaction((transaction) async {
+      final snapshot = await transaction.get(docRef);
+      if (snapshot.exists && snapshot.data() != null) {
+        return UserDTO.fromFirebase(snapshot);
+      }
+
+      final data = <String, dynamic>{
+        fieldUserId: defaults.userId,
+        fieldCreatedAt: FieldValue.serverTimestamp(),
+      };
+      if (defaults.email != null && defaults.email!.isNotEmpty) {
+        data[fieldEmail] = defaults.email;
+      }
+      transaction.set(docRef, data);
+      return defaults;
+    });
+  }
 }

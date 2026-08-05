@@ -9,6 +9,12 @@ class AppAuth {
   final ProviderType provider;
   final String? email;
 
+  /// Firebase が保持するメール確認済みフラグ。
+  ///
+  /// `isAuthenticated` は既存呼び出しとの互換性のため残すが、新規コードでは
+  /// 事実を表すこの名前を使用する。
+  bool get emailVerified => isAuthenticated;
+
   AppAuth({
     required this.accountId,
     bool? isLogined,

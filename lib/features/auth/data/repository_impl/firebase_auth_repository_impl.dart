@@ -245,10 +245,8 @@ class AuthRepositoryImpl implements IAuthRepository {
     try {
       final auth = await _authDataSource.getCurrentAuth();
       if (auth == null) {
-        return Result.success(AppAuth(
-          isAuthenticated: false,
-          isLogined: false,
-          accountId: "",
+        return Result.failure(UnauthorizedError(
+          message: 'ログインしていません',
         ));
       }
       final appAuth = AppAuth(
@@ -262,6 +260,38 @@ class AuthRepositoryImpl implements IAuthRepository {
     } catch (e) {
       return Result.failure(UnexpectedError(
         message: 'アカウントを取得できませんでした',
+      ));
+    }
+  }
+
+  @override
+  Future<Result<AppAuth>> reloadCurrentAuth() async {
+    try {
+      final auth = await _authDataSource.reloadCurrentAuth();
+      if (auth == null) {
+        return Result.failure(UnauthorizedError(
+          message: 'ログインしていません',
+        ));
+      }
+      return Result.success(AppAuth(
+        isAuthenticated: auth.isVerified,
+        isLogined: true,
+        accountId: auth.accountId,
+        provider: auth.provider,
+        email: auth.email,
+      ));
+    } on firebase_auth.FirebaseAuthException catch (e, s) {
+      return Result.failure(FirebaseError(
+        message: '認証状態の再読み込みに失敗しました: ${e.message}',
+        code: e.code,
+        originalError: e,
+        stackTrace: s,
+      ));
+    } catch (e, s) {
+      return Result.failure(UnexpectedError(
+        message: '認証状態の再読み込み中に予期しないエラーが発生しました',
+        originalError: e,
+        stackTrace: s,
       ));
     }
   }

@@ -1,4 +1,4 @@
-/// Fake implementations of user use cases for testing
+// Fake implementations of user use cases for testing.
 
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/user/domain/entity/user.dart';
@@ -11,18 +11,16 @@ class FakeGetUserInteractor implements IGetUserUseCase {
   final Result<AppUser>? _executeResult;
 
   int callCount = 0;
-  String? lastId;
-
   FakeGetUserInteractor({Result<AppUser>? executeResult})
       : _executeResult = executeResult;
 
   @override
-  Future<Result<AppUser>> execute(String id) async {
+  Future<Result<AppUser>> execute() async {
     callCount++;
-    lastId = id;
 
     return _executeResult ??
-        Result.success(AppUser(accountId: id, email: 'test@example.com'));
+        Result.success(
+            AppUser(deviceId: 'device-1', email: 'test@example.com'));
   }
 }
 
@@ -51,16 +49,18 @@ class FakeEnsureUserExistsInteractor implements IEnsureUserExistsUseCase {
 
   int callCount = 0;
   String? lastId;
+  String? lastEmail;
 
   FakeEnsureUserExistsInteractor({Result<AppUser>? executeResult})
       : _executeResult = executeResult;
 
   @override
-  Future<Result<AppUser>> execute(String id) async {
+  Future<Result<AppUser>> execute(String id, {String? email}) async {
     callCount++;
     lastId = id;
+    lastEmail = email;
 
     return _executeResult ??
-        Result.success(AppUser(accountId: id, email: 'test@example.com'));
+        Result.success(AppUser(deviceId: 'device-1', email: email));
   }
 }

@@ -1,322 +1,202 @@
-/// Test for AuthViewModel
-/// Priority: ★★★★☆ (Critical state management demonstration)
-/// 
-/// Tests demonstrate:
-/// - ProviderContainer usage for Riverpod testing
-/// - Provider overriding with Fake UseCases
-/// - State transition verification
-/// - Error message handling
-/// - Complex business logic (email verification flow)
-/// 
-/// This is the MOST IMPORTANT test for technical recruiters
-/// showing proper Riverpod testing patterns
+import 'dart:async';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/core/shared/enums/auth/subscription_status.dart';
+import 'package:my_dic/core/application/auth_lifecycle/auth_lifecycle_controller.dart';
+import 'package:my_dic/core/application/auth_lifecycle/auth_lifecycle_state.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/auth/di/usecase_di.dart';
-import 'package:my_dic/features/auth/di/view_model_di.dart';
-import 'package:my_dic/features/auth/di/data_di.dart';
-import 'package:my_dic/features/user/presentation/model/user_profile_ui_model.dart';
+import 'package:my_dic/features/auth/presentation/view_model/auth_store.dart';
+import 'package:my_dic/features/user/domain/entity/user.dart';
+import 'package:my_dic/features/user/domain/usecase/i_ensure_user_exists_use_case.dart';
+import 'package:my_dic/features/user/presentation/view_model/app_user_store.dart';
 
 import '../../../../../helpers/fake_auth_usecases.dart';
+import '../../../../../helpers/fake_user_usecases.dart';
 import '../../../../../helpers/test_helpers.dart';
 
-
 void main() {
-  group('AuthViewModel', () {
-    late ProviderContainer container;
+  group('AuthLifecycleController', () {
+    test('signUp sends verification email and remains unverified', () async {
+      final signUp = FakeSignUpInteractor(
+        executeResult: Result.success(createTestAuth(isVerified: false)),
+      );
+      final verify = FakeVerifyEmailInteractor();
+      final ensure = FakeEnsureUserExistsInteractor();
+      final fixture = _Fixture(signUp: signUp, verify: verify, ensure: ensure);
 
-    tearDown(() {
-      container.dispose();
+      await fixture.controller.signUp('new@example.com', 'password123');
+
+      expect(signUp.callCount, 1);
+      expect(verify.callCount, 1);
+      expect(ensure.callCount, 0);
+      expect(
+          fixture.controller.state.phase, AuthLifecyclePhase.emailUnverified);
+      expect(fixture.controller.state.notice, contains('確認メールを送信しました'));
     });
 
-    group('SignIn - Success with Verified User', () {
-      test('signIn_updatesState_whenUserIsVerified', () async {
-        // Arrange
-        final fakeSignIn = FakeSignInInteractor(
-          executeResult: Result.success(
-            createTestAuth(
-              userId: 'user-123',
-              email: 'test@example.com',
-              isVerified: true,
-            ),
-          ),
-        );
-        final fakeVerifyEmail = FakeVerifyEmailInteractor();
-        final fakeSignUp = FakeSignUpInteractor();
-        final fakeSignOut = FakeSignOutInteractor();
+    test(
+        'verification delivery failure is retryable and is not reported as sent',
+        () async {
+      final verify = FakeVerifyEmailInteractor(
+        executeResult: Result.failure(
+          BusinessRuleError(message: '送信制限中です'),
+        ),
+      );
+      final fixture = _Fixture(verify: verify);
 
-        container = ProviderContainer(
-          overrides: [
-            signInInteractorProvider.overrideWithValue(fakeSignIn),
-            verificateInteractorProvider.overrideWithValue(fakeVerifyEmail),
-            signUpInteractorProvider.overrideWithValue(fakeSignUp),
-            signOutInteractorProvider.overrideWithValue(fakeSignOut),
-          ],
-        );
+      await fixture.controller.signUp('new@example.com', 'password123');
 
-        // Set initial state
-        final viewModel = container.read(authViewModelProvider.notifier);
-        viewModel.state = UserState(
-          id: '',
-          email: '',
-          username: '',
-          subscriptionStatus: SubscriptionStatus.free,
-        );
-
-        // Act
-        final message = await viewModel.signIn('test@example.com', 'password123');
-
-        // Assert
-        expect(message, 'ログインに成功しました');
-
-        final state = container.read(authViewModelProvider);
-        expect(state, isNotNull);
-        expect(state!.id, 'user-123');
-        expect(state.email, 'test@example.com');
-        expect(state.isAuthorized, true);
-
-        // Verify UseCase was called
-        expect(fakeSignIn.callCount, 1);
-        expect(fakeSignIn.lastEmail, 'test@example.com');
-        expect(fakeSignIn.lastPassword, 'password123');
-
-        // Verify email verification was NOT called (user already verified)
-        expect(fakeVerifyEmail.callCount, 0);
-      });
+      expect(
+        fixture.controller.state.phase,
+        AuthLifecyclePhase.verificationEmailFailed,
+      );
+      expect(fixture.controller.state.notice, isNull);
+      expect(fixture.controller.state.error?.message, '送信制限中です');
+      expect(fixture.authStore.state?.accountId, isNotEmpty);
     });
 
-    group('SignIn - Unverified User Flow', () {
-      test('signIn_sendsVerificationEmail_whenUserIsNotVerified', () async {
-        // Arrange
-        final fakeSignIn = FakeSignInInteractor(
-          executeResult: Result.success(
-            createTestAuth(
-              isVerified: false, // Unverified user
-            ),
-          ),
-        );
-        final fakeVerifyEmail = FakeVerifyEmailInteractor(
-          executeResult: const Result.success(null),
-        );
-        final fakeSignUp = FakeSignUpInteractor();
-        final fakeSignOut = FakeSignOutInteractor();
+    test('unverified identity does not provision a profile', () async {
+      final ensure = FakeEnsureUserExistsInteractor();
+      final fixture = _Fixture(ensure: ensure);
 
-        container = ProviderContainer(
-          overrides: [
-            signInInteractorProvider.overrideWithValue(fakeSignIn),
-            verificateInteractorProvider.overrideWithValue(fakeVerifyEmail),
-            signUpInteractorProvider.overrideWithValue(fakeSignUp),
-            signOutInteractorProvider.overrideWithValue(fakeSignOut),
-          ],
-        );
+      await fixture.controller.handleAuthStateChange(
+        createTestAuth(isVerified: false),
+      );
 
-        final viewModel = container.read(authViewModelProvider.notifier);
-
-        // Act
-        final message = await viewModel.signIn('test@example.com', 'password123');
-
-        // Assert
-        expect(message, '確認メールを送信しました');
-
-        // Verify email verification WAS called
-        expect(fakeVerifyEmail.callCount, 1);
-
-        // State should NOT be updated (user not verified)
-        final state = container.read(authViewModelProvider);
-        expect(state, isNull);
-      });
-
-      test('signIn_returnsErrorMessage_whenVerificationEmailFails', () async {
-        // Arrange
-        final fakeSignIn = FakeSignInInteractor(
-          executeResult: Result.success(
-            createTestAuth(isVerified: false),
-          ),
-        );
-        final fakeVerifyEmail = FakeVerifyEmailInteractor(
-          executeResult: Result.failure(
-            BusinessRuleError(message: 'メール送信に失敗'),
-          ),
-        );
-        final fakeSignUp = FakeSignUpInteractor();
-        final fakeSignOut = FakeSignOutInteractor();
-
-        container = ProviderContainer(
-          overrides: [
-            signInInteractorProvider.overrideWithValue(fakeSignIn),
-            verificateInteractorProvider.overrideWithValue(fakeVerifyEmail),
-            signUpInteractorProvider.overrideWithValue(fakeSignUp),
-            signOutInteractorProvider.overrideWithValue(fakeSignOut),
-          ],
-        );
-
-        final viewModel = container.read(authViewModelProvider.notifier);
-
-        // Act
-        final message = await viewModel.signIn('test@example.com', 'password123');
-
-        // Assert
-        expect(message, 'ログイン成功しましたが、確認メールの送信に失敗しました');
-      });
+      expect(ensure.callCount, 0);
+      expect(
+          fixture.controller.state.phase, AuthLifecyclePhase.emailUnverified);
+      expect(fixture.userStore.state, isNull);
     });
 
-    group('SignIn - Failure Scenarios', () {
-      test('signIn_returnsErrorMessage_whenCredentialsAreInvalid', () async {
-        // Arrange
-        final fakeSignIn = FakeSignInInteractor(
-          executeResult: Result.failure(
-            UnauthorizedError(
-              message: 'メールアドレスまたはパスワードが正しくありません',
-            ),
-          ),
-        );
-        final fakeVerifyEmail = FakeVerifyEmailInteractor();
-        final fakeSignUp = FakeSignUpInteractor();
-        final fakeSignOut = FakeSignOutInteractor();
+    test(
+        'reload of a verified identity provisions the profile and becomes ready',
+        () async {
+      final reload = FakeReloadCurrentAuthInteractor(
+        executeResult: Result.success(createTestAuth(isVerified: true)),
+      );
+      final ensure = FakeEnsureUserExistsInteractor(
+        executeResult: Result.success(
+          AppUser(deviceId: 'device-1', email: 'test@example.com'),
+        ),
+      );
+      final fixture = _Fixture(reload: reload, ensure: ensure);
+      await fixture.controller.handleAuthStateChange(
+        createTestAuth(isVerified: false),
+      );
 
-        container = ProviderContainer(
-          overrides: [
-            signInInteractorProvider.overrideWithValue(fakeSignIn),
-            verificateInteractorProvider.overrideWithValue(fakeVerifyEmail),
-            signUpInteractorProvider.overrideWithValue(fakeSignUp),
-            signOutInteractorProvider.overrideWithValue(fakeSignOut),
-          ],
-        );
+      await fixture.controller.checkEmailVerification();
 
-        final viewModel = container.read(authViewModelProvider.notifier);
-
-        // Act
-        final message = await viewModel.signIn('wrong@example.com', 'wrongpass');
-
-        // Assert
-        expect(message, 'メールアドレスまたはパスワードが正しくありません');
-
-        // State should not be updated
-        final state = container.read(authViewModelProvider);
-        expect(state, isNull);
-      });
+      expect(reload.callCount, 1);
+      expect(ensure.callCount, 1);
+      expect(ensure.lastId, 'test-user-123');
+      expect(ensure.lastEmail, 'test@example.com');
+      expect(fixture.controller.state.phase, AuthLifecyclePhase.ready);
+      expect(fixture.userStore.state?.deviceId, 'device-1');
     });
 
-    group('SignUp', () {
-      test('signUp_sendsVerificationEmail_whenUserIsNotVerified', () async {
-        // Arrange
-        final fakeSignIn = FakeSignInInteractor();
-        final fakeSignUp = FakeSignUpInteractor(
-          executeResult: Result.success(
-            createTestAuth(isVerified: false),
-          ),
-        );
-        final fakeVerifyEmail = FakeVerifyEmailInteractor();
-        final fakeSignOut = FakeSignOutInteractor();
+    test('profile provisioning failure keeps auth and can be retried',
+        () async {
+      final ensure = _RetryableEnsureUser();
+      final fixture = _Fixture(ensure: ensure);
+      final auth = createTestAuth(isVerified: true);
 
-        container = ProviderContainer(
-          overrides: [
-            signInInteractorProvider.overrideWithValue(fakeSignIn),
-            signUpInteractorProvider.overrideWithValue(fakeSignUp),
-            verificateInteractorProvider.overrideWithValue(fakeVerifyEmail),
-            signOutInteractorProvider.overrideWithValue(fakeSignOut),
-          ],
-        );
+      await fixture.controller.handleAuthStateChange(auth);
+      expect(
+        fixture.controller.state.phase,
+        AuthLifecyclePhase.profileProvisioningFailed,
+      );
+      expect(fixture.authStore.state?.accountId, auth.accountId);
 
-        final viewModel = container.read(authViewModelProvider.notifier);
+      ensure.shouldFail = false;
+      await fixture.controller.retryProfileProvisioning();
 
-        // Act
-        final message = await viewModel.signUp('new@example.com', 'password123');
-
-        // Assert
-        expect(message, '確認メールを送信しました');
-        expect(fakeSignUp.callCount, 1);
-        expect(fakeVerifyEmail.callCount, 1);
-      });
+      expect(ensure.callCount, 2);
+      expect(fixture.controller.state.phase, AuthLifecyclePhase.ready);
     });
 
-    group('SignOut', () {
-      test('signOut_returnsSuccessMessage_whenSignOutSucceeds', () async {
-        // Arrange
-        final fakeSignIn = FakeSignInInteractor();
-        final fakeSignUp = FakeSignUpInteractor();
-        final fakeVerifyEmail = FakeVerifyEmailInteractor();
-        final fakeSignOut = FakeSignOutInteractor();
+    test('signOut clears auth and user consistently', () async {
+      final fixture = _Fixture();
+      await fixture.controller.handleAuthStateChange(
+        createTestAuth(isVerified: true),
+      );
+      expect(fixture.controller.state.phase, AuthLifecyclePhase.ready);
 
-        container = ProviderContainer(
-          overrides: [
-            signInInteractorProvider.overrideWithValue(fakeSignIn),
-            signUpInteractorProvider.overrideWithValue(fakeSignUp),
-            verificateInteractorProvider.overrideWithValue(fakeVerifyEmail),
-            signOutInteractorProvider.overrideWithValue(fakeSignOut),
-          ],
-        );
+      await fixture.controller.signOut();
 
-        final viewModel = container.read(authViewModelProvider.notifier);
-
-        // Act
-        final message = await viewModel.signOut();
-
-        // Assert
-        expect(message, 'ログアウトしました');
-        expect(fakeSignOut.callCount, 1);
-      });
-
-      test('signOut_returnsErrorMessage_whenSignOutFails', () async {
-        // Arrange
-        final fakeSignIn = FakeSignInInteractor();
-        final fakeSignUp = FakeSignUpInteractor();
-        final fakeVerifyEmail = FakeVerifyEmailInteractor();
-        final fakeSignOut = FakeSignOutInteractor(
-          executeResult: Result.failure(
-            BusinessRuleError(message: 'ログアウトエラー'),
-          ),
-        );
-
-        container = ProviderContainer(
-          overrides: [
-            signInInteractorProvider.overrideWithValue(fakeSignIn),
-            signUpInteractorProvider.overrideWithValue(fakeSignUp),
-            verificateInteractorProvider.overrideWithValue(fakeVerifyEmail),
-            signOutInteractorProvider.overrideWithValue(fakeSignOut),
-          ],
-        );
-
-        final viewModel = container.read(authViewModelProvider.notifier);
-
-        // Act
-        final message = await viewModel.signOut();
-
-        // Assert
-        expect(message, contains('ログアウトに失敗しました'));
-      });
+      expect(fixture.controller.state.phase, AuthLifecyclePhase.signedOut);
+      expect(fixture.authStore.state, isNull);
+      expect(fixture.userStore.state, isNull);
     });
 
-    group('VerifyEmail', () {
-      test('verifyEmail_returnsSuccessMessage_whenEmailSent', () async {
-        // Arrange
-        final fakeSignIn = FakeSignInInteractor();
-        final fakeSignUp = FakeSignUpInteractor();
-        final fakeVerifyEmail = FakeVerifyEmailInteractor();
-        final fakeSignOut = FakeSignOutInteractor();
+    test(
+        'a stale profile result cannot restore the previous user after sign-out',
+        () async {
+      final ensure = _DeferredEnsureUser();
+      final fixture = _Fixture(ensure: ensure);
 
-        container = ProviderContainer(
-          overrides: [
-            signInInteractorProvider.overrideWithValue(fakeSignIn),
-            signUpInteractorProvider.overrideWithValue(fakeSignUp),
-            verificateInteractorProvider.overrideWithValue(fakeVerifyEmail),
-            signOutInteractorProvider.overrideWithValue(fakeSignOut),
-          ],
-        );
+      final provisioning = fixture.controller.handleAuthStateChange(
+        createTestAuth(isVerified: true),
+      );
+      await fixture.controller.handleAuthStateChange(null);
+      ensure.complete(
+        AppUser(deviceId: 'old-device', email: 'old@example.com'),
+      );
+      await provisioning;
 
-        final viewModel = container.read(authViewModelProvider.notifier);
-
-        // Act
-        final message = await viewModel.verifyEmail();
-
-        // Assert
-        expect(message, '確認メールを送信しました');
-        expect(fakeVerifyEmail.callCount, 1);
-      });
+      expect(fixture.controller.state.phase, AuthLifecyclePhase.signedOut);
+      expect(fixture.authStore.state, isNull);
+      expect(fixture.userStore.state, isNull);
     });
   });
+}
+
+class _Fixture {
+  late final AuthStoreNotifier authStore;
+  late final AppUserStoreNotifier userStore;
+  late final AuthLifecycleController controller;
+
+  _Fixture({
+    FakeSignUpInteractor? signUp,
+    FakeVerifyEmailInteractor? verify,
+    FakeReloadCurrentAuthInteractor? reload,
+    IEnsureUserExistsUseCase? ensure,
+  }) {
+    authStore = AuthStoreNotifier();
+    userStore = AppUserStoreNotifier();
+    controller = AuthLifecycleController(
+      signIn: FakeSignInInteractor(),
+      signUp: signUp ?? FakeSignUpInteractor(),
+      signOut: FakeSignOutInteractor(),
+      sendVerificationEmail: verify ?? FakeVerifyEmailInteractor(),
+      reloadCurrentAuth: reload ?? FakeReloadCurrentAuthInteractor(),
+      ensureUserExists: ensure ?? FakeEnsureUserExistsInteractor(),
+      authStore: authStore,
+      userStore: userStore,
+    );
+  }
+}
+
+class _RetryableEnsureUser implements IEnsureUserExistsUseCase {
+  bool shouldFail = true;
+  int callCount = 0;
+
+  @override
+  Future<Result<AppUser>> execute(String id, {String? email}) async {
+    callCount++;
+    if (shouldFail) {
+      return Result.failure(NotFoundError(message: '一時的に準備できません'));
+    }
+    return Result.success(AppUser(deviceId: 'device-1', email: email));
+  }
+}
+
+class _DeferredEnsureUser implements IEnsureUserExistsUseCase {
+  final _completer = Completer<Result<AppUser>>();
+
+  void complete(AppUser user) => _completer.complete(Result.success(user));
+
+  @override
+  Future<Result<AppUser>> execute(String id, {String? email}) =>
+      _completer.future;
 }

@@ -50,4 +50,19 @@ void main() {
 
     verify(() => dao.signOut()).called(1);
   });
+
+  test('reload delegates to the DAO and returns the refreshed identity',
+      () async {
+    final expected = AuthDTO(
+      accountId: 'account-1',
+      email: 'person@example.com',
+      isVerified: true,
+    );
+    when(() => dao.reloadCurrentAuth()).thenAnswer((_) async => expected);
+
+    final actual = await dataSource.reloadCurrentAuth();
+
+    expect(actual, same(expected));
+    verify(() => dao.reloadCurrentAuth()).called(1);
+  });
 }

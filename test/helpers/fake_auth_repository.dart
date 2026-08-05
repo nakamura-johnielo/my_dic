@@ -1,11 +1,11 @@
-/// Fake implementation of IAuthRepository for testing
-/// This replaces mockito/mocktail per test_query.md requirements
+// Fake implementation of IAuthRepository for testing.
+// This replaces mockito/mocktail per test_query.md requirements.
 
-import 'package:my_dic/core/domain/entity/auth.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
+import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
 
 import 'test_helpers.dart';
 
@@ -129,4 +129,15 @@ class FakeAuthRepository implements IAuthRepository {
   Stream<AppAuth?> observeAuthState() {
     return Stream.value(_currentAuth);
   }
+
+  @override
+  Future<Result<AppAuth>> getCurrentAuth() async {
+    final auth = _currentAuth;
+    return auth == null
+        ? Result.failure(UnauthorizedError(message: 'ログインしていません'))
+        : Result.success(auth);
+  }
+
+  @override
+  Future<Result<AppAuth>> reloadCurrentAuth() => getCurrentAuth();
 }

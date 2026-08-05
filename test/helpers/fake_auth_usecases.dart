@@ -1,7 +1,8 @@
-/// Helper extensions for creating fake UseCases for testing
+// Helper extensions for creating fake UseCases for testing.
 
-import 'package:my_dic/core/domain/entity/auth.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
+import 'package:my_dic/features/auth/domain/usecase/i_reload_current_auth_use_case.dart';
 import 'package:my_dic/features/auth/domain/usecase/i_sign_in_use_case.dart';
 import 'package:my_dic/features/auth/domain/usecase/i_sign_out_use_case.dart';
 import 'package:my_dic/features/auth/domain/usecase/i_sign_up_use_case.dart';
@@ -75,5 +76,19 @@ class FakeSignOutInteractor implements ISignOutUseCase {
   Future<Result<void>> execute() async {
     callCount++;
     return _executeResult ?? const Result.success(null);
+  }
+}
+
+class FakeReloadCurrentAuthInteractor implements IReloadCurrentAuthUseCase {
+  Result<AppAuth> executeResult;
+  int callCount = 0;
+
+  FakeReloadCurrentAuthInteractor({Result<AppAuth>? executeResult})
+      : executeResult = executeResult ?? Result.success(createTestAuth());
+
+  @override
+  Future<Result<AppAuth>> execute() async {
+    callCount++;
+    return executeResult;
   }
 }

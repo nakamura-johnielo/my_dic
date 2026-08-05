@@ -1,6 +1,6 @@
 # Phase 0-6: Sign Up・メール確認・User作成フローを成立させる
 
-- 状態: 未着手
+- 状態: 完了
 - 優先度: P1 / 認証フロー
 - 依存タスク: [`4-fix-result-propagation.md`](4-fix-result-propagation.md)
 - 関連タスク: [`../phase1/4-introduce-current-session.md`](../phase1/4-introduce-current-session.md)、[`../local_first/7-migrate-user-profile.md`](../local_first/7-migrate-user-profile.md)、[`../phase2/4-remove-ref-from-coordinators.md`](../phase2/4-remove-ref-from-coordinators.md)
@@ -75,12 +75,12 @@ SignedOut
 
 ## 完了条件
 
-- [ ] UI文言が実際のメール送信Resultに基づく
-- [ ] 未確認と確認済みの状態が明確に分かれる
-- [ ] profile ensureがidempotentで再試行可能
-- [ ] 未確認userで同期を開始しない
-- [ ] sign-out表現が一種類である
-- [ ] 結合テストが主要状態遷移を覆う
+- [x] UI文言が実際のメール送信Resultに基づく
+- [x] 未確認と確認済みの状態が明確に分かれる
+- [x] profile ensureがidempotentで再試行可能
+- [x] 未確認userで同期を開始しない
+- [x] sign-out表現が一種類である
+- [x] 結合テストが主要状態遷移を覆う
 
 ## LLMへの引き継ぎ事項
 

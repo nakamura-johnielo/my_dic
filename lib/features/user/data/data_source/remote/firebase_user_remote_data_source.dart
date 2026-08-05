@@ -20,4 +20,7 @@ class FirebaseUserRemoteDataSource implements IUserRemoteDataSource {
   Future<void> createUser(UserDTO user) async {
     await _dao.create(user);
   }
+
+  @override
+  Future<UserDTO> ensureUser(UserDTO user) => _dao.ensure(user);
 }

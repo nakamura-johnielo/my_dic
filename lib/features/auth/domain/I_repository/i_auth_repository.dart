@@ -11,4 +11,5 @@ abstract interface class IAuthRepository {
   Future<Result<void>> sendEmailVerification();
   Future<Result<void>> sendPasswordResetEmail({required String email});
   Future<Result<AppAuth>> getCurrentAuth();
+  Future<Result<AppAuth>> reloadCurrentAuth();
 }

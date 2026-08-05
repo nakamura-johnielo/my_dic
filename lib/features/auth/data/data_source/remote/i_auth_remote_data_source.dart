@@ -15,4 +15,6 @@ abstract class IAuthRemoteDataSource {
   Future<void> sendPasswordResetEmail({required String email});
 
   Future<AuthDTO?> getCurrentAuth();
+
+  Future<AuthDTO?> reloadCurrentAuth();
 }
