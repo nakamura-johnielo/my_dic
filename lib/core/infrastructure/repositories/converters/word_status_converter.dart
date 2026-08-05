@@ -28,6 +28,8 @@ class WordStatusConverter {
       isBookmarked: entity.isBookmarked ? 1 : 0,
       hasNote: entity.hasNote ? 1 : 0,
       editAt: entity.editAt.toIso8601String(),
+      accountId: 'legacy_unowned',
+      localRevision: 0,
     );
   }
 }

@@ -720,7 +720,7 @@ class WebDatabaseSeeder {
           b.insert(
               db.espJpnWordStatus,
               EspJpnWordStatusCompanion.insert(
-                wordId: Value(_toIntRequired(row['word_id'])),
+                wordId: _toIntRequired(row['word_id']),
                 isLearned: Value(_toIntRequired(row['is_learned'])),
                 isBookmarked: Value(_toIntRequired(row['is_bookmarked'])),
                 hasNote: Value(_toIntRequired(row['has_note'])),
@@ -814,7 +814,7 @@ class WebDatabaseSeeder {
           b.insert(
               db.jpnEspWordStatus,
               JpnEspWordStatusCompanion.insert(
-                wordId: Value(_toIntRequired(row['jpn_esp_word_id'])),
+                wordId: _toIntRequired(row['jpn_esp_word_id']),
                 isLearned: Value(_toIntRequired(row['is_learned'])),
                 isBookmarked: Value(_toIntRequired(row['is_bookmarked'])),
                 hasNote: Value(_toIntRequired(row['has_note'])),

@@ -8,6 +8,7 @@ part '../../../../../__generated/features/my_word/data/data_source/local/drift_m
 class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
     with _$MyWordStatusDaoMixin {
   MyWordStatusDao(super.database);
+  static const legacyOwner = 'legacy_unowned';
 
   Future<void> updateStatus(
     final String myWordId,
@@ -17,7 +18,9 @@ class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
     final String editAt,
   ) async {
     AppLogger.print("update");
-    await (update(myWordStatus)..where((t) => t.myWordId.equals(myWordId)))
+    await (update(myWordStatus)
+          ..where((t) =>
+              t.myWordId.equals(myWordId) & t.accountId.equals(legacyOwner)))
         .write(
       MyWordStatusCompanion(
         isLearned: isLearned != null ? Value(isLearned) : Value.absent(),
@@ -30,26 +33,30 @@ class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
   }
 
   Future<void> insertStatus(MyWordStatusTableData data) async {
-    into(myWordStatus).insert(data);
+    await into(myWordStatus).insert(data);
     AppLogger.print("insert");
   }
 
   Future<bool> exist(String id) async {
     final existingColum = await (select(myWordStatus)
-          ..where((t) => t.myWordId.equals(id)))
+          ..where(
+              (t) => t.myWordId.equals(id) & t.accountId.equals(legacyOwner)))
         .getSingleOrNull();
     return existingColum != null ? true : false;
   }
 
   Stream<MyWordStatusTableData?> watchWordStatus(String wordId) {
-    return (select(myWordStatus)..where((tbl) => tbl.myWordId.equals(wordId)))
+    return (select(myWordStatus)
+          ..where((tbl) =>
+              tbl.myWordId.equals(wordId) & tbl.accountId.equals(legacyOwner)))
         .watchSingleOrNull()
         .distinct();
   }
 
   Future<MyWordStatusTableData?> getWordStatus(String wordId) async {
     final data = await (select(myWordStatus)
-          ..where((tbl) => tbl.myWordId.equals(wordId)))
+          ..where((tbl) =>
+              tbl.myWordId.equals(wordId) & tbl.accountId.equals(legacyOwner)))
         .getSingleOrNull();
     return data;
   }

@@ -282,6 +282,14 @@ class $EspConjugationsTable extends EspConjugations
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $EspConjugationsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _wordIdMeta = const VerificationMeta('wordId');
+  @override
+  late final GeneratedColumn<int> wordId = GeneratedColumn<int>(
+      'word_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES words (word_id) ON DELETE CASCADE'));
   static const VerificationMeta _wordMeta = const VerificationMeta('word');
   @override
   late final GeneratedColumn<String> word = GeneratedColumn<String>(
@@ -593,16 +601,9 @@ class $EspConjugationsTable extends EspConjugations
   late final GeneratedColumn<String> subjunctivePastEllos =
       GeneratedColumn<String>('subjunctive_past_ellos', aliasedName, true,
           type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _wordIdMeta = const VerificationMeta('wordId');
-  @override
-  late final GeneratedColumn<int> wordId = GeneratedColumn<int>(
-      'word_id', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'REFERENCES words (word_id) ON DELETE CASCADE'));
   @override
   List<GeneratedColumn> get $columns => [
+        wordId,
         word,
         meaning,
         presentParticiple,
@@ -653,8 +654,7 @@ class $EspConjugationsTable extends EspConjugations
         subjunctivePastEl,
         subjunctivePastNosotros,
         subjunctivePastVosotros,
-        subjunctivePastEllos,
-        wordId
+        subjunctivePastEllos
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -667,6 +667,10 @@ class $EspConjugationsTable extends EspConjugations
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('word_id')) {
+      context.handle(_wordIdMeta,
+          wordId.isAcceptableOrUnknown(data['word_id']!, _wordIdMeta));
+    }
     if (data.containsKey('word')) {
       context.handle(
           _wordMeta, word.isAcceptableOrUnknown(data['word']!, _wordMeta));
@@ -992,10 +996,6 @@ class $EspConjugationsTable extends EspConjugations
           subjunctivePastEllos.isAcceptableOrUnknown(
               data['subjunctive_past_ellos']!, _subjunctivePastEllosMeta));
     }
-    if (data.containsKey('word_id')) {
-      context.handle(_wordIdMeta,
-          wordId.isAcceptableOrUnknown(data['word_id']!, _wordIdMeta));
-    }
     return context;
   }
 
@@ -1006,6 +1006,8 @@ class $EspConjugationsTable extends EspConjugations
       {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return EspConjugationTableData(
+      wordId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}word_id'])!,
       word: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}word'])!,
       meaning: attachedDatabase.typeMapping
@@ -1141,8 +1143,6 @@ class $EspConjugationsTable extends EspConjugations
       subjunctivePastEllos: attachedDatabase.typeMapping.read(
           DriftSqlType.string,
           data['${effectivePrefix}subjunctive_past_ellos']),
-      wordId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}word_id'])!,
     );
   }
 
@@ -1154,6 +1154,7 @@ class $EspConjugationsTable extends EspConjugations
 
 class EspConjugationTableData extends DataClass
     implements Insertable<EspConjugationTableData> {
+  final int wordId;
   final String word;
   final String? meaning;
   final String? presentParticiple;
@@ -1205,9 +1206,9 @@ class EspConjugationTableData extends DataClass
   final String? subjunctivePastNosotros;
   final String? subjunctivePastVosotros;
   final String? subjunctivePastEllos;
-  final int wordId;
   const EspConjugationTableData(
-      {required this.word,
+      {required this.wordId,
+      required this.word,
       this.meaning,
       this.presentParticiple,
       this.pastParticiple,
@@ -1257,11 +1258,11 @@ class EspConjugationTableData extends DataClass
       this.subjunctivePastEl,
       this.subjunctivePastNosotros,
       this.subjunctivePastVosotros,
-      this.subjunctivePastEllos,
-      required this.wordId});
+      this.subjunctivePastEllos});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    map['word_id'] = Variable<int>(wordId);
     map['word'] = Variable<String>(word);
     if (!nullToAbsent || meaning != null) {
       map['meaning'] = Variable<String>(meaning);
@@ -1435,12 +1436,12 @@ class EspConjugationTableData extends DataClass
     if (!nullToAbsent || subjunctivePastEllos != null) {
       map['subjunctive_past_ellos'] = Variable<String>(subjunctivePastEllos);
     }
-    map['word_id'] = Variable<int>(wordId);
     return map;
   }
 
   EspConjugationsCompanion toCompanion(bool nullToAbsent) {
     return EspConjugationsCompanion(
+      wordId: Value(wordId),
       word: Value(word),
       meaning: meaning == null && nullToAbsent
           ? const Value.absent()
@@ -1603,7 +1604,6 @@ class EspConjugationTableData extends DataClass
       subjunctivePastEllos: subjunctivePastEllos == null && nullToAbsent
           ? const Value.absent()
           : Value(subjunctivePastEllos),
-      wordId: Value(wordId),
     );
   }
 
@@ -1611,6 +1611,7 @@ class EspConjugationTableData extends DataClass
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return EspConjugationTableData(
+      wordId: serializer.fromJson<int>(json['wordId']),
       word: serializer.fromJson<String>(json['word']),
       meaning: serializer.fromJson<String?>(json['meaning']),
       presentParticiple:
@@ -1707,13 +1708,13 @@ class EspConjugationTableData extends DataClass
           serializer.fromJson<String?>(json['subjunctivePastVosotros']),
       subjunctivePastEllos:
           serializer.fromJson<String?>(json['subjunctivePastEllos']),
-      wordId: serializer.fromJson<int>(json['wordId']),
     );
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'wordId': serializer.toJson<int>(wordId),
       'word': serializer.toJson<String>(word),
       'meaning': serializer.toJson<String?>(meaning),
       'presentParticiple': serializer.toJson<String?>(presentParticiple),
@@ -1794,12 +1795,12 @@ class EspConjugationTableData extends DataClass
       'subjunctivePastVosotros':
           serializer.toJson<String?>(subjunctivePastVosotros),
       'subjunctivePastEllos': serializer.toJson<String?>(subjunctivePastEllos),
-      'wordId': serializer.toJson<int>(wordId),
     };
   }
 
   EspConjugationTableData copyWith(
-          {String? word,
+          {int? wordId,
+          String? word,
           Value<String?> meaning = const Value.absent(),
           Value<String?> presentParticiple = const Value.absent(),
           Value<String?> pastParticiple = const Value.absent(),
@@ -1849,9 +1850,9 @@ class EspConjugationTableData extends DataClass
           Value<String?> subjunctivePastEl = const Value.absent(),
           Value<String?> subjunctivePastNosotros = const Value.absent(),
           Value<String?> subjunctivePastVosotros = const Value.absent(),
-          Value<String?> subjunctivePastEllos = const Value.absent(),
-          int? wordId}) =>
+          Value<String?> subjunctivePastEllos = const Value.absent()}) =>
       EspConjugationTableData(
+        wordId: wordId ?? this.wordId,
         word: word ?? this.word,
         meaning: meaning.present ? meaning.value : this.meaning,
         presentParticiple: presentParticiple.present
@@ -1998,10 +1999,10 @@ class EspConjugationTableData extends DataClass
         subjunctivePastEllos: subjunctivePastEllos.present
             ? subjunctivePastEllos.value
             : this.subjunctivePastEllos,
-        wordId: wordId ?? this.wordId,
       );
   EspConjugationTableData copyWithCompanion(EspConjugationsCompanion data) {
     return EspConjugationTableData(
+      wordId: data.wordId.present ? data.wordId.value : this.wordId,
       word: data.word.present ? data.word.value : this.word,
       meaning: data.meaning.present ? data.meaning.value : this.meaning,
       presentParticiple: data.presentParticiple.present
@@ -2151,13 +2152,13 @@ class EspConjugationTableData extends DataClass
       subjunctivePastEllos: data.subjunctivePastEllos.present
           ? data.subjunctivePastEllos.value
           : this.subjunctivePastEllos,
-      wordId: data.wordId.present ? data.wordId.value : this.wordId,
     );
   }
 
   @override
   String toString() {
     return (StringBuffer('EspConjugationTableData(')
+          ..write('wordId: $wordId, ')
           ..write('word: $word, ')
           ..write('meaning: $meaning, ')
           ..write('presentParticiple: $presentParticiple, ')
@@ -2210,14 +2211,14 @@ class EspConjugationTableData extends DataClass
           ..write('subjunctivePastEl: $subjunctivePastEl, ')
           ..write('subjunctivePastNosotros: $subjunctivePastNosotros, ')
           ..write('subjunctivePastVosotros: $subjunctivePastVosotros, ')
-          ..write('subjunctivePastEllos: $subjunctivePastEllos, ')
-          ..write('wordId: $wordId')
+          ..write('subjunctivePastEllos: $subjunctivePastEllos')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => Object.hashAll([
+        wordId,
         word,
         meaning,
         presentParticiple,
@@ -2268,13 +2269,13 @@ class EspConjugationTableData extends DataClass
         subjunctivePastEl,
         subjunctivePastNosotros,
         subjunctivePastVosotros,
-        subjunctivePastEllos,
-        wordId
+        subjunctivePastEllos
       ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is EspConjugationTableData &&
+          other.wordId == this.wordId &&
           other.word == this.word &&
           other.meaning == this.meaning &&
           other.presentParticiple == this.presentParticiple &&
@@ -2331,12 +2332,12 @@ class EspConjugationTableData extends DataClass
           other.subjunctivePastEl == this.subjunctivePastEl &&
           other.subjunctivePastNosotros == this.subjunctivePastNosotros &&
           other.subjunctivePastVosotros == this.subjunctivePastVosotros &&
-          other.subjunctivePastEllos == this.subjunctivePastEllos &&
-          other.wordId == this.wordId);
+          other.subjunctivePastEllos == this.subjunctivePastEllos);
 }
 
 class EspConjugationsCompanion
     extends UpdateCompanion<EspConjugationTableData> {
+  final Value<int> wordId;
   final Value<String> word;
   final Value<String?> meaning;
   final Value<String?> presentParticiple;
@@ -2388,8 +2389,8 @@ class EspConjugationsCompanion
   final Value<String?> subjunctivePastNosotros;
   final Value<String?> subjunctivePastVosotros;
   final Value<String?> subjunctivePastEllos;
-  final Value<int> wordId;
   const EspConjugationsCompanion({
+    this.wordId = const Value.absent(),
     this.word = const Value.absent(),
     this.meaning = const Value.absent(),
     this.presentParticiple = const Value.absent(),
@@ -2441,9 +2442,9 @@ class EspConjugationsCompanion
     this.subjunctivePastNosotros = const Value.absent(),
     this.subjunctivePastVosotros = const Value.absent(),
     this.subjunctivePastEllos = const Value.absent(),
-    this.wordId = const Value.absent(),
   });
   EspConjugationsCompanion.insert({
+    this.wordId = const Value.absent(),
     required String word,
     this.meaning = const Value.absent(),
     this.presentParticiple = const Value.absent(),
@@ -2495,9 +2496,9 @@ class EspConjugationsCompanion
     this.subjunctivePastNosotros = const Value.absent(),
     this.subjunctivePastVosotros = const Value.absent(),
     this.subjunctivePastEllos = const Value.absent(),
-    this.wordId = const Value.absent(),
   }) : word = Value(word);
   static Insertable<EspConjugationTableData> custom({
+    Expression<int>? wordId,
     Expression<String>? word,
     Expression<String>? meaning,
     Expression<String>? presentParticiple,
@@ -2549,9 +2550,9 @@ class EspConjugationsCompanion
     Expression<String>? subjunctivePastNosotros,
     Expression<String>? subjunctivePastVosotros,
     Expression<String>? subjunctivePastEllos,
-    Expression<int>? wordId,
   }) {
     return RawValuesInsertable({
+      if (wordId != null) 'word_id': wordId,
       if (word != null) 'word': word,
       if (meaning != null) 'meaning': meaning,
       if (presentParticiple != null) 'present_participle': presentParticiple,
@@ -2642,12 +2643,12 @@ class EspConjugationsCompanion
         'subjunctive_past_vosotros': subjunctivePastVosotros,
       if (subjunctivePastEllos != null)
         'subjunctive_past_ellos': subjunctivePastEllos,
-      if (wordId != null) 'word_id': wordId,
     });
   }
 
   EspConjugationsCompanion copyWith(
-      {Value<String>? word,
+      {Value<int>? wordId,
+      Value<String>? word,
       Value<String?>? meaning,
       Value<String?>? presentParticiple,
       Value<String?>? pastParticiple,
@@ -2697,9 +2698,9 @@ class EspConjugationsCompanion
       Value<String?>? subjunctivePastEl,
       Value<String?>? subjunctivePastNosotros,
       Value<String?>? subjunctivePastVosotros,
-      Value<String?>? subjunctivePastEllos,
-      Value<int>? wordId}) {
+      Value<String?>? subjunctivePastEllos}) {
     return EspConjugationsCompanion(
+      wordId: wordId ?? this.wordId,
       word: word ?? this.word,
       meaning: meaning ?? this.meaning,
       presentParticiple: presentParticiple ?? this.presentParticiple,
@@ -2780,13 +2781,15 @@ class EspConjugationsCompanion
       subjunctivePastVosotros:
           subjunctivePastVosotros ?? this.subjunctivePastVosotros,
       subjunctivePastEllos: subjunctivePastEllos ?? this.subjunctivePastEllos,
-      wordId: wordId ?? this.wordId,
     );
   }
 
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (wordId.present) {
+      map['word_id'] = Variable<int>(wordId.value);
+    }
     if (word.present) {
       map['word'] = Variable<String>(word.value);
     }
@@ -2976,15 +2979,13 @@ class EspConjugationsCompanion
       map['subjunctive_past_ellos'] =
           Variable<String>(subjunctivePastEllos.value);
     }
-    if (wordId.present) {
-      map['word_id'] = Variable<int>(wordId.value);
-    }
     return map;
   }
 
   @override
   String toString() {
     return (StringBuffer('EspConjugationsCompanion(')
+          ..write('wordId: $wordId, ')
           ..write('word: $word, ')
           ..write('meaning: $meaning, ')
           ..write('presentParticiple: $presentParticiple, ')
@@ -3037,8 +3038,7 @@ class EspConjugationsCompanion
           ..write('subjunctivePastEl: $subjunctivePastEl, ')
           ..write('subjunctivePastNosotros: $subjunctivePastNosotros, ')
           ..write('subjunctivePastVosotros: $subjunctivePastVosotros, ')
-          ..write('subjunctivePastEllos: $subjunctivePastEllos, ')
-          ..write('wordId: $wordId')
+          ..write('subjunctivePastEllos: $subjunctivePastEllos')
           ..write(')'))
         .toString();
   }
@@ -4470,6 +4470,14 @@ class $RankingsTable extends Rankings
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $RankingsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _wordIdMeta = const VerificationMeta('wordId');
+  @override
+  late final GeneratedColumn<int> wordId = GeneratedColumn<int>(
+      'word_id', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES words (word_id) ON DELETE CASCADE'));
   static const VerificationMeta _rankingIdMeta =
       const VerificationMeta('rankingId');
   @override
@@ -4499,17 +4507,9 @@ class $RankingsTable extends Rankings
   late final GeneratedColumn<int> hasConj = GeneratedColumn<int>(
       'has_conj', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _wordIdMeta = const VerificationMeta('wordId');
-  @override
-  late final GeneratedColumn<int> wordId = GeneratedColumn<int>(
-      'word_id', aliasedName, true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'REFERENCES words (word_id) ON DELETE CASCADE'));
   @override
   List<GeneratedColumn> get $columns =>
-      [rankingId, rankingNo, word, wordOrigin, hasConj, wordId];
+      [wordId, rankingId, rankingNo, word, wordOrigin, hasConj];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -4520,6 +4520,10 @@ class $RankingsTable extends Rankings
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('word_id')) {
+      context.handle(_wordIdMeta,
+          wordId.isAcceptableOrUnknown(data['word_id']!, _wordIdMeta));
+    }
     if (data.containsKey('ranking_id')) {
       context.handle(_rankingIdMeta,
           rankingId.isAcceptableOrUnknown(data['ranking_id']!, _rankingIdMeta));
@@ -4544,10 +4548,6 @@ class $RankingsTable extends Rankings
       context.handle(_hasConjMeta,
           hasConj.isAcceptableOrUnknown(data['has_conj']!, _hasConjMeta));
     }
-    if (data.containsKey('word_id')) {
-      context.handle(_wordIdMeta,
-          wordId.isAcceptableOrUnknown(data['word_id']!, _wordIdMeta));
-    }
     return context;
   }
 
@@ -4557,6 +4557,8 @@ class $RankingsTable extends Rankings
   RankingTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return RankingTableData(
+      wordId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}word_id']),
       rankingId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}ranking_id'])!,
       rankingNo: attachedDatabase.typeMapping
@@ -4567,8 +4569,6 @@ class $RankingsTable extends Rankings
           .read(DriftSqlType.string, data['${effectivePrefix}word_origin']),
       hasConj: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}has_conj']),
-      wordId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}word_id']),
     );
   }
 
@@ -4580,22 +4580,25 @@ class $RankingsTable extends Rankings
 
 class RankingTableData extends DataClass
     implements Insertable<RankingTableData> {
+  final int? wordId;
   final int rankingId;
   final int rankingNo;
   final String? word;
   final String? wordOrigin;
   final int? hasConj;
-  final int? wordId;
   const RankingTableData(
-      {required this.rankingId,
+      {this.wordId,
+      required this.rankingId,
       required this.rankingNo,
       this.word,
       this.wordOrigin,
-      this.hasConj,
-      this.wordId});
+      this.hasConj});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (!nullToAbsent || wordId != null) {
+      map['word_id'] = Variable<int>(wordId);
+    }
     map['ranking_id'] = Variable<int>(rankingId);
     map['ranking_no'] = Variable<int>(rankingNo);
     if (!nullToAbsent || word != null) {
@@ -4607,14 +4610,13 @@ class RankingTableData extends DataClass
     if (!nullToAbsent || hasConj != null) {
       map['has_conj'] = Variable<int>(hasConj);
     }
-    if (!nullToAbsent || wordId != null) {
-      map['word_id'] = Variable<int>(wordId);
-    }
     return map;
   }
 
   RankingsCompanion toCompanion(bool nullToAbsent) {
     return RankingsCompanion(
+      wordId:
+          wordId == null && nullToAbsent ? const Value.absent() : Value(wordId),
       rankingId: Value(rankingId),
       rankingNo: Value(rankingNo),
       word: word == null && nullToAbsent ? const Value.absent() : Value(word),
@@ -4624,8 +4626,6 @@ class RankingTableData extends DataClass
       hasConj: hasConj == null && nullToAbsent
           ? const Value.absent()
           : Value(hasConj),
-      wordId:
-          wordId == null && nullToAbsent ? const Value.absent() : Value(wordId),
     );
   }
 
@@ -4633,143 +4633,146 @@ class RankingTableData extends DataClass
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return RankingTableData(
+      wordId: serializer.fromJson<int?>(json['wordId']),
       rankingId: serializer.fromJson<int>(json['rankingId']),
       rankingNo: serializer.fromJson<int>(json['rankingNo']),
       word: serializer.fromJson<String?>(json['word']),
       wordOrigin: serializer.fromJson<String?>(json['wordOrigin']),
       hasConj: serializer.fromJson<int?>(json['hasConj']),
-      wordId: serializer.fromJson<int?>(json['wordId']),
     );
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'wordId': serializer.toJson<int?>(wordId),
       'rankingId': serializer.toJson<int>(rankingId),
       'rankingNo': serializer.toJson<int>(rankingNo),
       'word': serializer.toJson<String?>(word),
       'wordOrigin': serializer.toJson<String?>(wordOrigin),
       'hasConj': serializer.toJson<int?>(hasConj),
-      'wordId': serializer.toJson<int?>(wordId),
     };
   }
 
   RankingTableData copyWith(
-          {int? rankingId,
+          {Value<int?> wordId = const Value.absent(),
+          int? rankingId,
           int? rankingNo,
           Value<String?> word = const Value.absent(),
           Value<String?> wordOrigin = const Value.absent(),
-          Value<int?> hasConj = const Value.absent(),
-          Value<int?> wordId = const Value.absent()}) =>
+          Value<int?> hasConj = const Value.absent()}) =>
       RankingTableData(
+        wordId: wordId.present ? wordId.value : this.wordId,
         rankingId: rankingId ?? this.rankingId,
         rankingNo: rankingNo ?? this.rankingNo,
         word: word.present ? word.value : this.word,
         wordOrigin: wordOrigin.present ? wordOrigin.value : this.wordOrigin,
         hasConj: hasConj.present ? hasConj.value : this.hasConj,
-        wordId: wordId.present ? wordId.value : this.wordId,
       );
   RankingTableData copyWithCompanion(RankingsCompanion data) {
     return RankingTableData(
+      wordId: data.wordId.present ? data.wordId.value : this.wordId,
       rankingId: data.rankingId.present ? data.rankingId.value : this.rankingId,
       rankingNo: data.rankingNo.present ? data.rankingNo.value : this.rankingNo,
       word: data.word.present ? data.word.value : this.word,
       wordOrigin:
           data.wordOrigin.present ? data.wordOrigin.value : this.wordOrigin,
       hasConj: data.hasConj.present ? data.hasConj.value : this.hasConj,
-      wordId: data.wordId.present ? data.wordId.value : this.wordId,
     );
   }
 
   @override
   String toString() {
     return (StringBuffer('RankingTableData(')
+          ..write('wordId: $wordId, ')
           ..write('rankingId: $rankingId, ')
           ..write('rankingNo: $rankingNo, ')
           ..write('word: $word, ')
           ..write('wordOrigin: $wordOrigin, ')
-          ..write('hasConj: $hasConj, ')
-          ..write('wordId: $wordId')
+          ..write('hasConj: $hasConj')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode =>
-      Object.hash(rankingId, rankingNo, word, wordOrigin, hasConj, wordId);
+      Object.hash(wordId, rankingId, rankingNo, word, wordOrigin, hasConj);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is RankingTableData &&
+          other.wordId == this.wordId &&
           other.rankingId == this.rankingId &&
           other.rankingNo == this.rankingNo &&
           other.word == this.word &&
           other.wordOrigin == this.wordOrigin &&
-          other.hasConj == this.hasConj &&
-          other.wordId == this.wordId);
+          other.hasConj == this.hasConj);
 }
 
 class RankingsCompanion extends UpdateCompanion<RankingTableData> {
+  final Value<int?> wordId;
   final Value<int> rankingId;
   final Value<int> rankingNo;
   final Value<String?> word;
   final Value<String?> wordOrigin;
   final Value<int?> hasConj;
-  final Value<int?> wordId;
   const RankingsCompanion({
+    this.wordId = const Value.absent(),
     this.rankingId = const Value.absent(),
     this.rankingNo = const Value.absent(),
     this.word = const Value.absent(),
     this.wordOrigin = const Value.absent(),
     this.hasConj = const Value.absent(),
-    this.wordId = const Value.absent(),
   });
   RankingsCompanion.insert({
+    this.wordId = const Value.absent(),
     this.rankingId = const Value.absent(),
     required int rankingNo,
     this.word = const Value.absent(),
     this.wordOrigin = const Value.absent(),
     this.hasConj = const Value.absent(),
-    this.wordId = const Value.absent(),
   }) : rankingNo = Value(rankingNo);
   static Insertable<RankingTableData> custom({
+    Expression<int>? wordId,
     Expression<int>? rankingId,
     Expression<int>? rankingNo,
     Expression<String>? word,
     Expression<String>? wordOrigin,
     Expression<int>? hasConj,
-    Expression<int>? wordId,
   }) {
     return RawValuesInsertable({
+      if (wordId != null) 'word_id': wordId,
       if (rankingId != null) 'ranking_id': rankingId,
       if (rankingNo != null) 'ranking_no': rankingNo,
       if (word != null) 'word': word,
       if (wordOrigin != null) 'word_origin': wordOrigin,
       if (hasConj != null) 'has_conj': hasConj,
-      if (wordId != null) 'word_id': wordId,
     });
   }
 
   RankingsCompanion copyWith(
-      {Value<int>? rankingId,
+      {Value<int?>? wordId,
+      Value<int>? rankingId,
       Value<int>? rankingNo,
       Value<String?>? word,
       Value<String?>? wordOrigin,
-      Value<int?>? hasConj,
-      Value<int?>? wordId}) {
+      Value<int?>? hasConj}) {
     return RankingsCompanion(
+      wordId: wordId ?? this.wordId,
       rankingId: rankingId ?? this.rankingId,
       rankingNo: rankingNo ?? this.rankingNo,
       word: word ?? this.word,
       wordOrigin: wordOrigin ?? this.wordOrigin,
       hasConj: hasConj ?? this.hasConj,
-      wordId: wordId ?? this.wordId,
     );
   }
 
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (wordId.present) {
+      map['word_id'] = Variable<int>(wordId.value);
+    }
     if (rankingId.present) {
       map['ranking_id'] = Variable<int>(rankingId.value);
     }
@@ -4785,21 +4788,18 @@ class RankingsCompanion extends UpdateCompanion<RankingTableData> {
     if (hasConj.present) {
       map['has_conj'] = Variable<int>(hasConj.value);
     }
-    if (wordId.present) {
-      map['word_id'] = Variable<int>(wordId.value);
-    }
     return map;
   }
 
   @override
   String toString() {
     return (StringBuffer('RankingsCompanion(')
+          ..write('wordId: $wordId, ')
           ..write('rankingId: $rankingId, ')
           ..write('rankingNo: $rankingNo, ')
           ..write('word: $word, ')
           ..write('wordOrigin: $wordOrigin, ')
-          ..write('hasConj: $hasConj, ')
-          ..write('wordId: $wordId')
+          ..write('hasConj: $hasConj')
           ..write(')'))
         .toString();
   }
@@ -5139,7 +5139,7 @@ class $EspJpnWordStatusTable extends EspJpnWordStatus
   late final GeneratedColumn<int> wordId = GeneratedColumn<int>(
       'word_id', aliasedName, false,
       type: DriftSqlType.int,
-      requiredDuringInsert: false,
+      requiredDuringInsert: true,
       defaultConstraints: GeneratedColumn.constraintIsAlways(
           'REFERENCES words (word_id) ON DELETE CASCADE'));
   static const VerificationMeta _isLearnedMeta =
@@ -5165,9 +5165,53 @@ class $EspJpnWordStatusTable extends EspJpnWordStatus
   late final GeneratedColumn<String> editAt = GeneratedColumn<String>(
       'edit_at', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _accountIdMeta =
+      const VerificationMeta('accountId');
   @override
-  List<GeneratedColumn> get $columns =>
-      [wordId, isLearned, isBookmarked, hasNote, editAt];
+  late final GeneratedColumn<String> accountId = GeneratedColumn<String>(
+      'account_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('legacy_unowned'));
+  static const VerificationMeta _localRevisionMeta =
+      const VerificationMeta('localRevision');
+  @override
+  late final GeneratedColumn<int> localRevision = GeneratedColumn<int>(
+      'local_revision', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _remoteRevisionMeta =
+      const VerificationMeta('remoteRevision');
+  @override
+  late final GeneratedColumn<String> remoteRevision = GeneratedColumn<String>(
+      'remote_revision', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _lastMutationIdMeta =
+      const VerificationMeta('lastMutationId');
+  @override
+  late final GeneratedColumn<String> lastMutationId = GeneratedColumn<String>(
+      'last_mutation_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        wordId,
+        isLearned,
+        isBookmarked,
+        hasNote,
+        editAt,
+        accountId,
+        localRevision,
+        remoteRevision,
+        deletedAt,
+        lastMutationId
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -5182,6 +5226,8 @@ class $EspJpnWordStatusTable extends EspJpnWordStatus
     if (data.containsKey('word_id')) {
       context.handle(_wordIdMeta,
           wordId.isAcceptableOrUnknown(data['word_id']!, _wordIdMeta));
+    } else if (isInserting) {
+      context.missing(_wordIdMeta);
     }
     if (data.containsKey('is_learned')) {
       context.handle(_isLearnedMeta,
@@ -5203,11 +5249,37 @@ class $EspJpnWordStatusTable extends EspJpnWordStatus
     } else if (isInserting) {
       context.missing(_editAtMeta);
     }
+    if (data.containsKey('account_id')) {
+      context.handle(_accountIdMeta,
+          accountId.isAcceptableOrUnknown(data['account_id']!, _accountIdMeta));
+    }
+    if (data.containsKey('local_revision')) {
+      context.handle(
+          _localRevisionMeta,
+          localRevision.isAcceptableOrUnknown(
+              data['local_revision']!, _localRevisionMeta));
+    }
+    if (data.containsKey('remote_revision')) {
+      context.handle(
+          _remoteRevisionMeta,
+          remoteRevision.isAcceptableOrUnknown(
+              data['remote_revision']!, _remoteRevisionMeta));
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    if (data.containsKey('last_mutation_id')) {
+      context.handle(
+          _lastMutationIdMeta,
+          lastMutationId.isAcceptableOrUnknown(
+              data['last_mutation_id']!, _lastMutationIdMeta));
+    }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {wordId};
+  Set<GeneratedColumn> get $primaryKey => {accountId, wordId};
   @override
   EspJpnWordStatusTableData map(Map<String, dynamic> data,
       {String? tablePrefix}) {
@@ -5223,6 +5295,16 @@ class $EspJpnWordStatusTable extends EspJpnWordStatus
           .read(DriftSqlType.int, data['${effectivePrefix}has_note']),
       editAt: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}edit_at'])!,
+      accountId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}account_id'])!,
+      localRevision: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}local_revision'])!,
+      remoteRevision: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}remote_revision']),
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+      lastMutationId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}last_mutation_id']),
     );
   }
 
@@ -5239,12 +5321,22 @@ class EspJpnWordStatusTableData extends DataClass
   final int? isBookmarked;
   final int? hasNote;
   final String editAt;
+  final String accountId;
+  final int localRevision;
+  final String? remoteRevision;
+  final DateTime? deletedAt;
+  final String? lastMutationId;
   const EspJpnWordStatusTableData(
       {required this.wordId,
       this.isLearned,
       this.isBookmarked,
       this.hasNote,
-      required this.editAt});
+      required this.editAt,
+      required this.accountId,
+      required this.localRevision,
+      this.remoteRevision,
+      this.deletedAt,
+      this.lastMutationId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -5259,6 +5351,17 @@ class EspJpnWordStatusTableData extends DataClass
       map['has_note'] = Variable<int>(hasNote);
     }
     map['edit_at'] = Variable<String>(editAt);
+    map['account_id'] = Variable<String>(accountId);
+    map['local_revision'] = Variable<int>(localRevision);
+    if (!nullToAbsent || remoteRevision != null) {
+      map['remote_revision'] = Variable<String>(remoteRevision);
+    }
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    if (!nullToAbsent || lastMutationId != null) {
+      map['last_mutation_id'] = Variable<String>(lastMutationId);
+    }
     return map;
   }
 
@@ -5275,6 +5378,17 @@ class EspJpnWordStatusTableData extends DataClass
           ? const Value.absent()
           : Value(hasNote),
       editAt: Value(editAt),
+      accountId: Value(accountId),
+      localRevision: Value(localRevision),
+      remoteRevision: remoteRevision == null && nullToAbsent
+          ? const Value.absent()
+          : Value(remoteRevision),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      lastMutationId: lastMutationId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastMutationId),
     );
   }
 
@@ -5287,6 +5401,11 @@ class EspJpnWordStatusTableData extends DataClass
       isBookmarked: serializer.fromJson<int?>(json['isBookmarked']),
       hasNote: serializer.fromJson<int?>(json['hasNote']),
       editAt: serializer.fromJson<String>(json['editAt']),
+      accountId: serializer.fromJson<String>(json['accountId']),
+      localRevision: serializer.fromJson<int>(json['localRevision']),
+      remoteRevision: serializer.fromJson<String?>(json['remoteRevision']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      lastMutationId: serializer.fromJson<String?>(json['lastMutationId']),
     );
   }
   @override
@@ -5298,6 +5417,11 @@ class EspJpnWordStatusTableData extends DataClass
       'isBookmarked': serializer.toJson<int?>(isBookmarked),
       'hasNote': serializer.toJson<int?>(hasNote),
       'editAt': serializer.toJson<String>(editAt),
+      'accountId': serializer.toJson<String>(accountId),
+      'localRevision': serializer.toJson<int>(localRevision),
+      'remoteRevision': serializer.toJson<String?>(remoteRevision),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'lastMutationId': serializer.toJson<String?>(lastMutationId),
     };
   }
 
@@ -5306,7 +5430,12 @@ class EspJpnWordStatusTableData extends DataClass
           Value<int?> isLearned = const Value.absent(),
           Value<int?> isBookmarked = const Value.absent(),
           Value<int?> hasNote = const Value.absent(),
-          String? editAt}) =>
+          String? editAt,
+          String? accountId,
+          int? localRevision,
+          Value<String?> remoteRevision = const Value.absent(),
+          Value<DateTime?> deletedAt = const Value.absent(),
+          Value<String?> lastMutationId = const Value.absent()}) =>
       EspJpnWordStatusTableData(
         wordId: wordId ?? this.wordId,
         isLearned: isLearned.present ? isLearned.value : this.isLearned,
@@ -5314,6 +5443,13 @@ class EspJpnWordStatusTableData extends DataClass
             isBookmarked.present ? isBookmarked.value : this.isBookmarked,
         hasNote: hasNote.present ? hasNote.value : this.hasNote,
         editAt: editAt ?? this.editAt,
+        accountId: accountId ?? this.accountId,
+        localRevision: localRevision ?? this.localRevision,
+        remoteRevision:
+            remoteRevision.present ? remoteRevision.value : this.remoteRevision,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+        lastMutationId:
+            lastMutationId.present ? lastMutationId.value : this.lastMutationId,
       );
   EspJpnWordStatusTableData copyWithCompanion(EspJpnWordStatusCompanion data) {
     return EspJpnWordStatusTableData(
@@ -5324,6 +5460,17 @@ class EspJpnWordStatusTableData extends DataClass
           : this.isBookmarked,
       hasNote: data.hasNote.present ? data.hasNote.value : this.hasNote,
       editAt: data.editAt.present ? data.editAt.value : this.editAt,
+      accountId: data.accountId.present ? data.accountId.value : this.accountId,
+      localRevision: data.localRevision.present
+          ? data.localRevision.value
+          : this.localRevision,
+      remoteRevision: data.remoteRevision.present
+          ? data.remoteRevision.value
+          : this.remoteRevision,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      lastMutationId: data.lastMutationId.present
+          ? data.lastMutationId.value
+          : this.lastMutationId,
     );
   }
 
@@ -5334,14 +5481,28 @@ class EspJpnWordStatusTableData extends DataClass
           ..write('isLearned: $isLearned, ')
           ..write('isBookmarked: $isBookmarked, ')
           ..write('hasNote: $hasNote, ')
-          ..write('editAt: $editAt')
+          ..write('editAt: $editAt, ')
+          ..write('accountId: $accountId, ')
+          ..write('localRevision: $localRevision, ')
+          ..write('remoteRevision: $remoteRevision, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('lastMutationId: $lastMutationId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(wordId, isLearned, isBookmarked, hasNote, editAt);
+  int get hashCode => Object.hash(
+      wordId,
+      isLearned,
+      isBookmarked,
+      hasNote,
+      editAt,
+      accountId,
+      localRevision,
+      remoteRevision,
+      deletedAt,
+      lastMutationId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -5350,7 +5511,12 @@ class EspJpnWordStatusTableData extends DataClass
           other.isLearned == this.isLearned &&
           other.isBookmarked == this.isBookmarked &&
           other.hasNote == this.hasNote &&
-          other.editAt == this.editAt);
+          other.editAt == this.editAt &&
+          other.accountId == this.accountId &&
+          other.localRevision == this.localRevision &&
+          other.remoteRevision == this.remoteRevision &&
+          other.deletedAt == this.deletedAt &&
+          other.lastMutationId == this.lastMutationId);
 }
 
 class EspJpnWordStatusCompanion
@@ -5360,26 +5526,51 @@ class EspJpnWordStatusCompanion
   final Value<int?> isBookmarked;
   final Value<int?> hasNote;
   final Value<String> editAt;
+  final Value<String> accountId;
+  final Value<int> localRevision;
+  final Value<String?> remoteRevision;
+  final Value<DateTime?> deletedAt;
+  final Value<String?> lastMutationId;
+  final Value<int> rowid;
   const EspJpnWordStatusCompanion({
     this.wordId = const Value.absent(),
     this.isLearned = const Value.absent(),
     this.isBookmarked = const Value.absent(),
     this.hasNote = const Value.absent(),
     this.editAt = const Value.absent(),
+    this.accountId = const Value.absent(),
+    this.localRevision = const Value.absent(),
+    this.remoteRevision = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.lastMutationId = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
   EspJpnWordStatusCompanion.insert({
-    this.wordId = const Value.absent(),
+    required int wordId,
     this.isLearned = const Value.absent(),
     this.isBookmarked = const Value.absent(),
     this.hasNote = const Value.absent(),
     required String editAt,
-  }) : editAt = Value(editAt);
+    this.accountId = const Value.absent(),
+    this.localRevision = const Value.absent(),
+    this.remoteRevision = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.lastMutationId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : wordId = Value(wordId),
+        editAt = Value(editAt);
   static Insertable<EspJpnWordStatusTableData> custom({
     Expression<int>? wordId,
     Expression<int>? isLearned,
     Expression<int>? isBookmarked,
     Expression<int>? hasNote,
     Expression<String>? editAt,
+    Expression<String>? accountId,
+    Expression<int>? localRevision,
+    Expression<String>? remoteRevision,
+    Expression<DateTime>? deletedAt,
+    Expression<String>? lastMutationId,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (wordId != null) 'word_id': wordId,
@@ -5387,6 +5578,12 @@ class EspJpnWordStatusCompanion
       if (isBookmarked != null) 'is_bookmarked': isBookmarked,
       if (hasNote != null) 'has_note': hasNote,
       if (editAt != null) 'edit_at': editAt,
+      if (accountId != null) 'account_id': accountId,
+      if (localRevision != null) 'local_revision': localRevision,
+      if (remoteRevision != null) 'remote_revision': remoteRevision,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (lastMutationId != null) 'last_mutation_id': lastMutationId,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
@@ -5395,13 +5592,25 @@ class EspJpnWordStatusCompanion
       Value<int?>? isLearned,
       Value<int?>? isBookmarked,
       Value<int?>? hasNote,
-      Value<String>? editAt}) {
+      Value<String>? editAt,
+      Value<String>? accountId,
+      Value<int>? localRevision,
+      Value<String?>? remoteRevision,
+      Value<DateTime?>? deletedAt,
+      Value<String?>? lastMutationId,
+      Value<int>? rowid}) {
     return EspJpnWordStatusCompanion(
       wordId: wordId ?? this.wordId,
       isLearned: isLearned ?? this.isLearned,
       isBookmarked: isBookmarked ?? this.isBookmarked,
       hasNote: hasNote ?? this.hasNote,
       editAt: editAt ?? this.editAt,
+      accountId: accountId ?? this.accountId,
+      localRevision: localRevision ?? this.localRevision,
+      remoteRevision: remoteRevision ?? this.remoteRevision,
+      deletedAt: deletedAt ?? this.deletedAt,
+      lastMutationId: lastMutationId ?? this.lastMutationId,
+      rowid: rowid ?? this.rowid,
     );
   }
 
@@ -5423,6 +5632,24 @@ class EspJpnWordStatusCompanion
     if (editAt.present) {
       map['edit_at'] = Variable<String>(editAt.value);
     }
+    if (accountId.present) {
+      map['account_id'] = Variable<String>(accountId.value);
+    }
+    if (localRevision.present) {
+      map['local_revision'] = Variable<int>(localRevision.value);
+    }
+    if (remoteRevision.present) {
+      map['remote_revision'] = Variable<String>(remoteRevision.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (lastMutationId.present) {
+      map['last_mutation_id'] = Variable<String>(lastMutationId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
     return map;
   }
 
@@ -5433,7 +5660,13 @@ class EspJpnWordStatusCompanion
           ..write('isLearned: $isLearned, ')
           ..write('isBookmarked: $isBookmarked, ')
           ..write('hasNote: $hasNote, ')
-          ..write('editAt: $editAt')
+          ..write('editAt: $editAt, ')
+          ..write('accountId: $accountId, ')
+          ..write('localRevision: $localRevision, ')
+          ..write('remoteRevision: $remoteRevision, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('lastMutationId: $lastMutationId, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -5467,8 +5700,52 @@ class $MyWordsTable extends MyWords
   late final GeneratedColumn<String> editAt = GeneratedColumn<String>(
       'edit_at', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _accountIdMeta =
+      const VerificationMeta('accountId');
   @override
-  List<GeneratedColumn> get $columns => [myWordId, word, contents, editAt];
+  late final GeneratedColumn<String> accountId = GeneratedColumn<String>(
+      'account_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('legacy_unowned'));
+  static const VerificationMeta _localRevisionMeta =
+      const VerificationMeta('localRevision');
+  @override
+  late final GeneratedColumn<int> localRevision = GeneratedColumn<int>(
+      'local_revision', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _remoteRevisionMeta =
+      const VerificationMeta('remoteRevision');
+  @override
+  late final GeneratedColumn<String> remoteRevision = GeneratedColumn<String>(
+      'remote_revision', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _lastMutationIdMeta =
+      const VerificationMeta('lastMutationId');
+  @override
+  late final GeneratedColumn<String> lastMutationId = GeneratedColumn<String>(
+      'last_mutation_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        myWordId,
+        word,
+        contents,
+        editAt,
+        accountId,
+        localRevision,
+        remoteRevision,
+        deletedAt,
+        lastMutationId
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -5501,11 +5778,37 @@ class $MyWordsTable extends MyWords
     } else if (isInserting) {
       context.missing(_editAtMeta);
     }
+    if (data.containsKey('account_id')) {
+      context.handle(_accountIdMeta,
+          accountId.isAcceptableOrUnknown(data['account_id']!, _accountIdMeta));
+    }
+    if (data.containsKey('local_revision')) {
+      context.handle(
+          _localRevisionMeta,
+          localRevision.isAcceptableOrUnknown(
+              data['local_revision']!, _localRevisionMeta));
+    }
+    if (data.containsKey('remote_revision')) {
+      context.handle(
+          _remoteRevisionMeta,
+          remoteRevision.isAcceptableOrUnknown(
+              data['remote_revision']!, _remoteRevisionMeta));
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    if (data.containsKey('last_mutation_id')) {
+      context.handle(
+          _lastMutationIdMeta,
+          lastMutationId.isAcceptableOrUnknown(
+              data['last_mutation_id']!, _lastMutationIdMeta));
+    }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {myWordId};
+  Set<GeneratedColumn> get $primaryKey => {accountId, myWordId};
   @override
   MyWordTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -5518,6 +5821,16 @@ class $MyWordsTable extends MyWords
           .read(DriftSqlType.string, data['${effectivePrefix}contents']),
       editAt: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}edit_at'])!,
+      accountId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}account_id'])!,
+      localRevision: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}local_revision'])!,
+      remoteRevision: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}remote_revision']),
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+      lastMutationId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}last_mutation_id']),
     );
   }
 
@@ -5532,11 +5845,21 @@ class MyWordTableData extends DataClass implements Insertable<MyWordTableData> {
   final String word;
   final String? contents;
   final String editAt;
+  final String accountId;
+  final int localRevision;
+  final String? remoteRevision;
+  final DateTime? deletedAt;
+  final String? lastMutationId;
   const MyWordTableData(
       {required this.myWordId,
       required this.word,
       this.contents,
-      required this.editAt});
+      required this.editAt,
+      required this.accountId,
+      required this.localRevision,
+      this.remoteRevision,
+      this.deletedAt,
+      this.lastMutationId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -5546,6 +5869,17 @@ class MyWordTableData extends DataClass implements Insertable<MyWordTableData> {
       map['contents'] = Variable<String>(contents);
     }
     map['edit_at'] = Variable<String>(editAt);
+    map['account_id'] = Variable<String>(accountId);
+    map['local_revision'] = Variable<int>(localRevision);
+    if (!nullToAbsent || remoteRevision != null) {
+      map['remote_revision'] = Variable<String>(remoteRevision);
+    }
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    if (!nullToAbsent || lastMutationId != null) {
+      map['last_mutation_id'] = Variable<String>(lastMutationId);
+    }
     return map;
   }
 
@@ -5557,6 +5891,17 @@ class MyWordTableData extends DataClass implements Insertable<MyWordTableData> {
           ? const Value.absent()
           : Value(contents),
       editAt: Value(editAt),
+      accountId: Value(accountId),
+      localRevision: Value(localRevision),
+      remoteRevision: remoteRevision == null && nullToAbsent
+          ? const Value.absent()
+          : Value(remoteRevision),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      lastMutationId: lastMutationId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastMutationId),
     );
   }
 
@@ -5568,6 +5913,11 @@ class MyWordTableData extends DataClass implements Insertable<MyWordTableData> {
       word: serializer.fromJson<String>(json['word']),
       contents: serializer.fromJson<String?>(json['contents']),
       editAt: serializer.fromJson<String>(json['editAt']),
+      accountId: serializer.fromJson<String>(json['accountId']),
+      localRevision: serializer.fromJson<int>(json['localRevision']),
+      remoteRevision: serializer.fromJson<String?>(json['remoteRevision']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      lastMutationId: serializer.fromJson<String?>(json['lastMutationId']),
     );
   }
   @override
@@ -5578,6 +5928,11 @@ class MyWordTableData extends DataClass implements Insertable<MyWordTableData> {
       'word': serializer.toJson<String>(word),
       'contents': serializer.toJson<String?>(contents),
       'editAt': serializer.toJson<String>(editAt),
+      'accountId': serializer.toJson<String>(accountId),
+      'localRevision': serializer.toJson<int>(localRevision),
+      'remoteRevision': serializer.toJson<String?>(remoteRevision),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'lastMutationId': serializer.toJson<String?>(lastMutationId),
     };
   }
 
@@ -5585,12 +5940,24 @@ class MyWordTableData extends DataClass implements Insertable<MyWordTableData> {
           {String? myWordId,
           String? word,
           Value<String?> contents = const Value.absent(),
-          String? editAt}) =>
+          String? editAt,
+          String? accountId,
+          int? localRevision,
+          Value<String?> remoteRevision = const Value.absent(),
+          Value<DateTime?> deletedAt = const Value.absent(),
+          Value<String?> lastMutationId = const Value.absent()}) =>
       MyWordTableData(
         myWordId: myWordId ?? this.myWordId,
         word: word ?? this.word,
         contents: contents.present ? contents.value : this.contents,
         editAt: editAt ?? this.editAt,
+        accountId: accountId ?? this.accountId,
+        localRevision: localRevision ?? this.localRevision,
+        remoteRevision:
+            remoteRevision.present ? remoteRevision.value : this.remoteRevision,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+        lastMutationId:
+            lastMutationId.present ? lastMutationId.value : this.lastMutationId,
       );
   MyWordTableData copyWithCompanion(MyWordsCompanion data) {
     return MyWordTableData(
@@ -5598,6 +5965,17 @@ class MyWordTableData extends DataClass implements Insertable<MyWordTableData> {
       word: data.word.present ? data.word.value : this.word,
       contents: data.contents.present ? data.contents.value : this.contents,
       editAt: data.editAt.present ? data.editAt.value : this.editAt,
+      accountId: data.accountId.present ? data.accountId.value : this.accountId,
+      localRevision: data.localRevision.present
+          ? data.localRevision.value
+          : this.localRevision,
+      remoteRevision: data.remoteRevision.present
+          ? data.remoteRevision.value
+          : this.remoteRevision,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      lastMutationId: data.lastMutationId.present
+          ? data.lastMutationId.value
+          : this.lastMutationId,
     );
   }
 
@@ -5607,13 +5985,19 @@ class MyWordTableData extends DataClass implements Insertable<MyWordTableData> {
           ..write('myWordId: $myWordId, ')
           ..write('word: $word, ')
           ..write('contents: $contents, ')
-          ..write('editAt: $editAt')
+          ..write('editAt: $editAt, ')
+          ..write('accountId: $accountId, ')
+          ..write('localRevision: $localRevision, ')
+          ..write('remoteRevision: $remoteRevision, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('lastMutationId: $lastMutationId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(myWordId, word, contents, editAt);
+  int get hashCode => Object.hash(myWordId, word, contents, editAt, accountId,
+      localRevision, remoteRevision, deletedAt, lastMutationId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -5621,7 +6005,12 @@ class MyWordTableData extends DataClass implements Insertable<MyWordTableData> {
           other.myWordId == this.myWordId &&
           other.word == this.word &&
           other.contents == this.contents &&
-          other.editAt == this.editAt);
+          other.editAt == this.editAt &&
+          other.accountId == this.accountId &&
+          other.localRevision == this.localRevision &&
+          other.remoteRevision == this.remoteRevision &&
+          other.deletedAt == this.deletedAt &&
+          other.lastMutationId == this.lastMutationId);
 }
 
 class MyWordsCompanion extends UpdateCompanion<MyWordTableData> {
@@ -5629,12 +6018,22 @@ class MyWordsCompanion extends UpdateCompanion<MyWordTableData> {
   final Value<String> word;
   final Value<String?> contents;
   final Value<String> editAt;
+  final Value<String> accountId;
+  final Value<int> localRevision;
+  final Value<String?> remoteRevision;
+  final Value<DateTime?> deletedAt;
+  final Value<String?> lastMutationId;
   final Value<int> rowid;
   const MyWordsCompanion({
     this.myWordId = const Value.absent(),
     this.word = const Value.absent(),
     this.contents = const Value.absent(),
     this.editAt = const Value.absent(),
+    this.accountId = const Value.absent(),
+    this.localRevision = const Value.absent(),
+    this.remoteRevision = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.lastMutationId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   MyWordsCompanion.insert({
@@ -5642,6 +6041,11 @@ class MyWordsCompanion extends UpdateCompanion<MyWordTableData> {
     required String word,
     this.contents = const Value.absent(),
     required String editAt,
+    this.accountId = const Value.absent(),
+    this.localRevision = const Value.absent(),
+    this.remoteRevision = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.lastMutationId = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : myWordId = Value(myWordId),
         word = Value(word),
@@ -5651,6 +6055,11 @@ class MyWordsCompanion extends UpdateCompanion<MyWordTableData> {
     Expression<String>? word,
     Expression<String>? contents,
     Expression<String>? editAt,
+    Expression<String>? accountId,
+    Expression<int>? localRevision,
+    Expression<String>? remoteRevision,
+    Expression<DateTime>? deletedAt,
+    Expression<String>? lastMutationId,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -5658,6 +6067,11 @@ class MyWordsCompanion extends UpdateCompanion<MyWordTableData> {
       if (word != null) 'word': word,
       if (contents != null) 'contents': contents,
       if (editAt != null) 'edit_at': editAt,
+      if (accountId != null) 'account_id': accountId,
+      if (localRevision != null) 'local_revision': localRevision,
+      if (remoteRevision != null) 'remote_revision': remoteRevision,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (lastMutationId != null) 'last_mutation_id': lastMutationId,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -5667,12 +6081,22 @@ class MyWordsCompanion extends UpdateCompanion<MyWordTableData> {
       Value<String>? word,
       Value<String?>? contents,
       Value<String>? editAt,
+      Value<String>? accountId,
+      Value<int>? localRevision,
+      Value<String?>? remoteRevision,
+      Value<DateTime?>? deletedAt,
+      Value<String?>? lastMutationId,
       Value<int>? rowid}) {
     return MyWordsCompanion(
       myWordId: myWordId ?? this.myWordId,
       word: word ?? this.word,
       contents: contents ?? this.contents,
       editAt: editAt ?? this.editAt,
+      accountId: accountId ?? this.accountId,
+      localRevision: localRevision ?? this.localRevision,
+      remoteRevision: remoteRevision ?? this.remoteRevision,
+      deletedAt: deletedAt ?? this.deletedAt,
+      lastMutationId: lastMutationId ?? this.lastMutationId,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -5692,6 +6116,21 @@ class MyWordsCompanion extends UpdateCompanion<MyWordTableData> {
     if (editAt.present) {
       map['edit_at'] = Variable<String>(editAt.value);
     }
+    if (accountId.present) {
+      map['account_id'] = Variable<String>(accountId.value);
+    }
+    if (localRevision.present) {
+      map['local_revision'] = Variable<int>(localRevision.value);
+    }
+    if (remoteRevision.present) {
+      map['remote_revision'] = Variable<String>(remoteRevision.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (lastMutationId.present) {
+      map['last_mutation_id'] = Variable<String>(lastMutationId.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -5705,6 +6144,11 @@ class MyWordsCompanion extends UpdateCompanion<MyWordTableData> {
           ..write('word: $word, ')
           ..write('contents: $contents, ')
           ..write('editAt: $editAt, ')
+          ..write('accountId: $accountId, ')
+          ..write('localRevision: $localRevision, ')
+          ..write('remoteRevision: $remoteRevision, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('lastMutationId: $lastMutationId, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -5746,9 +6190,53 @@ class $MyWordStatusTable extends MyWordStatus
   late final GeneratedColumn<String> editAt = GeneratedColumn<String>(
       'edit_at', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _accountIdMeta =
+      const VerificationMeta('accountId');
   @override
-  List<GeneratedColumn> get $columns =>
-      [myWordId, isLearned, isBookmarked, hasNote, editAt];
+  late final GeneratedColumn<String> accountId = GeneratedColumn<String>(
+      'account_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('legacy_unowned'));
+  static const VerificationMeta _localRevisionMeta =
+      const VerificationMeta('localRevision');
+  @override
+  late final GeneratedColumn<int> localRevision = GeneratedColumn<int>(
+      'local_revision', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _remoteRevisionMeta =
+      const VerificationMeta('remoteRevision');
+  @override
+  late final GeneratedColumn<String> remoteRevision = GeneratedColumn<String>(
+      'remote_revision', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _lastMutationIdMeta =
+      const VerificationMeta('lastMutationId');
+  @override
+  late final GeneratedColumn<String> lastMutationId = GeneratedColumn<String>(
+      'last_mutation_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        myWordId,
+        isLearned,
+        isBookmarked,
+        hasNote,
+        editAt,
+        accountId,
+        localRevision,
+        remoteRevision,
+        deletedAt,
+        lastMutationId
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -5786,11 +6274,37 @@ class $MyWordStatusTable extends MyWordStatus
     } else if (isInserting) {
       context.missing(_editAtMeta);
     }
+    if (data.containsKey('account_id')) {
+      context.handle(_accountIdMeta,
+          accountId.isAcceptableOrUnknown(data['account_id']!, _accountIdMeta));
+    }
+    if (data.containsKey('local_revision')) {
+      context.handle(
+          _localRevisionMeta,
+          localRevision.isAcceptableOrUnknown(
+              data['local_revision']!, _localRevisionMeta));
+    }
+    if (data.containsKey('remote_revision')) {
+      context.handle(
+          _remoteRevisionMeta,
+          remoteRevision.isAcceptableOrUnknown(
+              data['remote_revision']!, _remoteRevisionMeta));
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    if (data.containsKey('last_mutation_id')) {
+      context.handle(
+          _lastMutationIdMeta,
+          lastMutationId.isAcceptableOrUnknown(
+              data['last_mutation_id']!, _lastMutationIdMeta));
+    }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {myWordId};
+  Set<GeneratedColumn> get $primaryKey => {accountId, myWordId};
   @override
   MyWordStatusTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -5805,6 +6319,16 @@ class $MyWordStatusTable extends MyWordStatus
           .read(DriftSqlType.int, data['${effectivePrefix}has_note']),
       editAt: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}edit_at'])!,
+      accountId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}account_id'])!,
+      localRevision: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}local_revision'])!,
+      remoteRevision: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}remote_revision']),
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+      lastMutationId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}last_mutation_id']),
     );
   }
 
@@ -5821,12 +6345,22 @@ class MyWordStatusTableData extends DataClass
   final int? isBookmarked;
   final int? hasNote;
   final String editAt;
+  final String accountId;
+  final int localRevision;
+  final String? remoteRevision;
+  final DateTime? deletedAt;
+  final String? lastMutationId;
   const MyWordStatusTableData(
       {required this.myWordId,
       this.isLearned,
       this.isBookmarked,
       this.hasNote,
-      required this.editAt});
+      required this.editAt,
+      required this.accountId,
+      required this.localRevision,
+      this.remoteRevision,
+      this.deletedAt,
+      this.lastMutationId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -5841,6 +6375,17 @@ class MyWordStatusTableData extends DataClass
       map['has_note'] = Variable<int>(hasNote);
     }
     map['edit_at'] = Variable<String>(editAt);
+    map['account_id'] = Variable<String>(accountId);
+    map['local_revision'] = Variable<int>(localRevision);
+    if (!nullToAbsent || remoteRevision != null) {
+      map['remote_revision'] = Variable<String>(remoteRevision);
+    }
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    if (!nullToAbsent || lastMutationId != null) {
+      map['last_mutation_id'] = Variable<String>(lastMutationId);
+    }
     return map;
   }
 
@@ -5857,6 +6402,17 @@ class MyWordStatusTableData extends DataClass
           ? const Value.absent()
           : Value(hasNote),
       editAt: Value(editAt),
+      accountId: Value(accountId),
+      localRevision: Value(localRevision),
+      remoteRevision: remoteRevision == null && nullToAbsent
+          ? const Value.absent()
+          : Value(remoteRevision),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      lastMutationId: lastMutationId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastMutationId),
     );
   }
 
@@ -5869,6 +6425,11 @@ class MyWordStatusTableData extends DataClass
       isBookmarked: serializer.fromJson<int?>(json['isBookmarked']),
       hasNote: serializer.fromJson<int?>(json['hasNote']),
       editAt: serializer.fromJson<String>(json['editAt']),
+      accountId: serializer.fromJson<String>(json['accountId']),
+      localRevision: serializer.fromJson<int>(json['localRevision']),
+      remoteRevision: serializer.fromJson<String?>(json['remoteRevision']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      lastMutationId: serializer.fromJson<String?>(json['lastMutationId']),
     );
   }
   @override
@@ -5880,6 +6441,11 @@ class MyWordStatusTableData extends DataClass
       'isBookmarked': serializer.toJson<int?>(isBookmarked),
       'hasNote': serializer.toJson<int?>(hasNote),
       'editAt': serializer.toJson<String>(editAt),
+      'accountId': serializer.toJson<String>(accountId),
+      'localRevision': serializer.toJson<int>(localRevision),
+      'remoteRevision': serializer.toJson<String?>(remoteRevision),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'lastMutationId': serializer.toJson<String?>(lastMutationId),
     };
   }
 
@@ -5888,7 +6454,12 @@ class MyWordStatusTableData extends DataClass
           Value<int?> isLearned = const Value.absent(),
           Value<int?> isBookmarked = const Value.absent(),
           Value<int?> hasNote = const Value.absent(),
-          String? editAt}) =>
+          String? editAt,
+          String? accountId,
+          int? localRevision,
+          Value<String?> remoteRevision = const Value.absent(),
+          Value<DateTime?> deletedAt = const Value.absent(),
+          Value<String?> lastMutationId = const Value.absent()}) =>
       MyWordStatusTableData(
         myWordId: myWordId ?? this.myWordId,
         isLearned: isLearned.present ? isLearned.value : this.isLearned,
@@ -5896,6 +6467,13 @@ class MyWordStatusTableData extends DataClass
             isBookmarked.present ? isBookmarked.value : this.isBookmarked,
         hasNote: hasNote.present ? hasNote.value : this.hasNote,
         editAt: editAt ?? this.editAt,
+        accountId: accountId ?? this.accountId,
+        localRevision: localRevision ?? this.localRevision,
+        remoteRevision:
+            remoteRevision.present ? remoteRevision.value : this.remoteRevision,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+        lastMutationId:
+            lastMutationId.present ? lastMutationId.value : this.lastMutationId,
       );
   MyWordStatusTableData copyWithCompanion(MyWordStatusCompanion data) {
     return MyWordStatusTableData(
@@ -5906,6 +6484,17 @@ class MyWordStatusTableData extends DataClass
           : this.isBookmarked,
       hasNote: data.hasNote.present ? data.hasNote.value : this.hasNote,
       editAt: data.editAt.present ? data.editAt.value : this.editAt,
+      accountId: data.accountId.present ? data.accountId.value : this.accountId,
+      localRevision: data.localRevision.present
+          ? data.localRevision.value
+          : this.localRevision,
+      remoteRevision: data.remoteRevision.present
+          ? data.remoteRevision.value
+          : this.remoteRevision,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      lastMutationId: data.lastMutationId.present
+          ? data.lastMutationId.value
+          : this.lastMutationId,
     );
   }
 
@@ -5916,14 +6505,28 @@ class MyWordStatusTableData extends DataClass
           ..write('isLearned: $isLearned, ')
           ..write('isBookmarked: $isBookmarked, ')
           ..write('hasNote: $hasNote, ')
-          ..write('editAt: $editAt')
+          ..write('editAt: $editAt, ')
+          ..write('accountId: $accountId, ')
+          ..write('localRevision: $localRevision, ')
+          ..write('remoteRevision: $remoteRevision, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('lastMutationId: $lastMutationId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(myWordId, isLearned, isBookmarked, hasNote, editAt);
+  int get hashCode => Object.hash(
+      myWordId,
+      isLearned,
+      isBookmarked,
+      hasNote,
+      editAt,
+      accountId,
+      localRevision,
+      remoteRevision,
+      deletedAt,
+      lastMutationId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -5932,7 +6535,12 @@ class MyWordStatusTableData extends DataClass
           other.isLearned == this.isLearned &&
           other.isBookmarked == this.isBookmarked &&
           other.hasNote == this.hasNote &&
-          other.editAt == this.editAt);
+          other.editAt == this.editAt &&
+          other.accountId == this.accountId &&
+          other.localRevision == this.localRevision &&
+          other.remoteRevision == this.remoteRevision &&
+          other.deletedAt == this.deletedAt &&
+          other.lastMutationId == this.lastMutationId);
 }
 
 class MyWordStatusCompanion extends UpdateCompanion<MyWordStatusTableData> {
@@ -5941,6 +6549,11 @@ class MyWordStatusCompanion extends UpdateCompanion<MyWordStatusTableData> {
   final Value<int?> isBookmarked;
   final Value<int?> hasNote;
   final Value<String> editAt;
+  final Value<String> accountId;
+  final Value<int> localRevision;
+  final Value<String?> remoteRevision;
+  final Value<DateTime?> deletedAt;
+  final Value<String?> lastMutationId;
   final Value<int> rowid;
   const MyWordStatusCompanion({
     this.myWordId = const Value.absent(),
@@ -5948,6 +6561,11 @@ class MyWordStatusCompanion extends UpdateCompanion<MyWordStatusTableData> {
     this.isBookmarked = const Value.absent(),
     this.hasNote = const Value.absent(),
     this.editAt = const Value.absent(),
+    this.accountId = const Value.absent(),
+    this.localRevision = const Value.absent(),
+    this.remoteRevision = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.lastMutationId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   MyWordStatusCompanion.insert({
@@ -5956,6 +6574,11 @@ class MyWordStatusCompanion extends UpdateCompanion<MyWordStatusTableData> {
     this.isBookmarked = const Value.absent(),
     this.hasNote = const Value.absent(),
     required String editAt,
+    this.accountId = const Value.absent(),
+    this.localRevision = const Value.absent(),
+    this.remoteRevision = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.lastMutationId = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : myWordId = Value(myWordId),
         editAt = Value(editAt);
@@ -5965,6 +6588,11 @@ class MyWordStatusCompanion extends UpdateCompanion<MyWordStatusTableData> {
     Expression<int>? isBookmarked,
     Expression<int>? hasNote,
     Expression<String>? editAt,
+    Expression<String>? accountId,
+    Expression<int>? localRevision,
+    Expression<String>? remoteRevision,
+    Expression<DateTime>? deletedAt,
+    Expression<String>? lastMutationId,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -5973,6 +6601,11 @@ class MyWordStatusCompanion extends UpdateCompanion<MyWordStatusTableData> {
       if (isBookmarked != null) 'is_bookmarked': isBookmarked,
       if (hasNote != null) 'has_note': hasNote,
       if (editAt != null) 'edit_at': editAt,
+      if (accountId != null) 'account_id': accountId,
+      if (localRevision != null) 'local_revision': localRevision,
+      if (remoteRevision != null) 'remote_revision': remoteRevision,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (lastMutationId != null) 'last_mutation_id': lastMutationId,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -5983,6 +6616,11 @@ class MyWordStatusCompanion extends UpdateCompanion<MyWordStatusTableData> {
       Value<int?>? isBookmarked,
       Value<int?>? hasNote,
       Value<String>? editAt,
+      Value<String>? accountId,
+      Value<int>? localRevision,
+      Value<String?>? remoteRevision,
+      Value<DateTime?>? deletedAt,
+      Value<String?>? lastMutationId,
       Value<int>? rowid}) {
     return MyWordStatusCompanion(
       myWordId: myWordId ?? this.myWordId,
@@ -5990,6 +6628,11 @@ class MyWordStatusCompanion extends UpdateCompanion<MyWordStatusTableData> {
       isBookmarked: isBookmarked ?? this.isBookmarked,
       hasNote: hasNote ?? this.hasNote,
       editAt: editAt ?? this.editAt,
+      accountId: accountId ?? this.accountId,
+      localRevision: localRevision ?? this.localRevision,
+      remoteRevision: remoteRevision ?? this.remoteRevision,
+      deletedAt: deletedAt ?? this.deletedAt,
+      lastMutationId: lastMutationId ?? this.lastMutationId,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -6012,6 +6655,21 @@ class MyWordStatusCompanion extends UpdateCompanion<MyWordStatusTableData> {
     if (editAt.present) {
       map['edit_at'] = Variable<String>(editAt.value);
     }
+    if (accountId.present) {
+      map['account_id'] = Variable<String>(accountId.value);
+    }
+    if (localRevision.present) {
+      map['local_revision'] = Variable<int>(localRevision.value);
+    }
+    if (remoteRevision.present) {
+      map['remote_revision'] = Variable<String>(remoteRevision.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (lastMutationId.present) {
+      map['last_mutation_id'] = Variable<String>(lastMutationId.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -6026,6 +6684,11 @@ class MyWordStatusCompanion extends UpdateCompanion<MyWordStatusTableData> {
           ..write('isBookmarked: $isBookmarked, ')
           ..write('hasNote: $hasNote, ')
           ..write('editAt: $editAt, ')
+          ..write('accountId: $accountId, ')
+          ..write('localRevision: $localRevision, ')
+          ..write('remoteRevision: $remoteRevision, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('lastMutationId: $lastMutationId, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -6222,7 +6885,7 @@ class $JpnEspWordStatusTable extends JpnEspWordStatus
   late final GeneratedColumn<int> wordId = GeneratedColumn<int>(
       'jpn_esp_word_id', aliasedName, false,
       type: DriftSqlType.int,
-      requiredDuringInsert: false,
+      requiredDuringInsert: true,
       defaultConstraints: GeneratedColumn.constraintIsAlways(
           'REFERENCES jpn_esp_words (jpn_esp_word_id) ON DELETE CASCADE'));
   static const VerificationMeta _isLearnedMeta =
@@ -6248,9 +6911,53 @@ class $JpnEspWordStatusTable extends JpnEspWordStatus
   late final GeneratedColumn<String> editAt = GeneratedColumn<String>(
       'edit_at', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _accountIdMeta =
+      const VerificationMeta('accountId');
   @override
-  List<GeneratedColumn> get $columns =>
-      [wordId, isLearned, isBookmarked, hasNote, editAt];
+  late final GeneratedColumn<String> accountId = GeneratedColumn<String>(
+      'account_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('legacy_unowned'));
+  static const VerificationMeta _localRevisionMeta =
+      const VerificationMeta('localRevision');
+  @override
+  late final GeneratedColumn<int> localRevision = GeneratedColumn<int>(
+      'local_revision', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _remoteRevisionMeta =
+      const VerificationMeta('remoteRevision');
+  @override
+  late final GeneratedColumn<String> remoteRevision = GeneratedColumn<String>(
+      'remote_revision', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _lastMutationIdMeta =
+      const VerificationMeta('lastMutationId');
+  @override
+  late final GeneratedColumn<String> lastMutationId = GeneratedColumn<String>(
+      'last_mutation_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        wordId,
+        isLearned,
+        isBookmarked,
+        hasNote,
+        editAt,
+        accountId,
+        localRevision,
+        remoteRevision,
+        deletedAt,
+        lastMutationId
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -6265,6 +6972,8 @@ class $JpnEspWordStatusTable extends JpnEspWordStatus
     if (data.containsKey('jpn_esp_word_id')) {
       context.handle(_wordIdMeta,
           wordId.isAcceptableOrUnknown(data['jpn_esp_word_id']!, _wordIdMeta));
+    } else if (isInserting) {
+      context.missing(_wordIdMeta);
     }
     if (data.containsKey('is_learned')) {
       context.handle(_isLearnedMeta,
@@ -6286,11 +6995,37 @@ class $JpnEspWordStatusTable extends JpnEspWordStatus
     } else if (isInserting) {
       context.missing(_editAtMeta);
     }
+    if (data.containsKey('account_id')) {
+      context.handle(_accountIdMeta,
+          accountId.isAcceptableOrUnknown(data['account_id']!, _accountIdMeta));
+    }
+    if (data.containsKey('local_revision')) {
+      context.handle(
+          _localRevisionMeta,
+          localRevision.isAcceptableOrUnknown(
+              data['local_revision']!, _localRevisionMeta));
+    }
+    if (data.containsKey('remote_revision')) {
+      context.handle(
+          _remoteRevisionMeta,
+          remoteRevision.isAcceptableOrUnknown(
+              data['remote_revision']!, _remoteRevisionMeta));
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    if (data.containsKey('last_mutation_id')) {
+      context.handle(
+          _lastMutationIdMeta,
+          lastMutationId.isAcceptableOrUnknown(
+              data['last_mutation_id']!, _lastMutationIdMeta));
+    }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {wordId};
+  Set<GeneratedColumn> get $primaryKey => {accountId, wordId};
   @override
   JpnEspWordStatusTableData map(Map<String, dynamic> data,
       {String? tablePrefix}) {
@@ -6306,6 +7041,16 @@ class $JpnEspWordStatusTable extends JpnEspWordStatus
           .read(DriftSqlType.int, data['${effectivePrefix}has_note']),
       editAt: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}edit_at'])!,
+      accountId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}account_id'])!,
+      localRevision: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}local_revision'])!,
+      remoteRevision: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}remote_revision']),
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+      lastMutationId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}last_mutation_id']),
     );
   }
 
@@ -6322,12 +7067,22 @@ class JpnEspWordStatusTableData extends DataClass
   final int? isBookmarked;
   final int? hasNote;
   final String editAt;
+  final String accountId;
+  final int localRevision;
+  final String? remoteRevision;
+  final DateTime? deletedAt;
+  final String? lastMutationId;
   const JpnEspWordStatusTableData(
       {required this.wordId,
       this.isLearned,
       this.isBookmarked,
       this.hasNote,
-      required this.editAt});
+      required this.editAt,
+      required this.accountId,
+      required this.localRevision,
+      this.remoteRevision,
+      this.deletedAt,
+      this.lastMutationId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -6342,6 +7097,17 @@ class JpnEspWordStatusTableData extends DataClass
       map['has_note'] = Variable<int>(hasNote);
     }
     map['edit_at'] = Variable<String>(editAt);
+    map['account_id'] = Variable<String>(accountId);
+    map['local_revision'] = Variable<int>(localRevision);
+    if (!nullToAbsent || remoteRevision != null) {
+      map['remote_revision'] = Variable<String>(remoteRevision);
+    }
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    if (!nullToAbsent || lastMutationId != null) {
+      map['last_mutation_id'] = Variable<String>(lastMutationId);
+    }
     return map;
   }
 
@@ -6358,6 +7124,17 @@ class JpnEspWordStatusTableData extends DataClass
           ? const Value.absent()
           : Value(hasNote),
       editAt: Value(editAt),
+      accountId: Value(accountId),
+      localRevision: Value(localRevision),
+      remoteRevision: remoteRevision == null && nullToAbsent
+          ? const Value.absent()
+          : Value(remoteRevision),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      lastMutationId: lastMutationId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastMutationId),
     );
   }
 
@@ -6370,6 +7147,11 @@ class JpnEspWordStatusTableData extends DataClass
       isBookmarked: serializer.fromJson<int?>(json['isBookmarked']),
       hasNote: serializer.fromJson<int?>(json['hasNote']),
       editAt: serializer.fromJson<String>(json['editAt']),
+      accountId: serializer.fromJson<String>(json['accountId']),
+      localRevision: serializer.fromJson<int>(json['localRevision']),
+      remoteRevision: serializer.fromJson<String?>(json['remoteRevision']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      lastMutationId: serializer.fromJson<String?>(json['lastMutationId']),
     );
   }
   @override
@@ -6381,6 +7163,11 @@ class JpnEspWordStatusTableData extends DataClass
       'isBookmarked': serializer.toJson<int?>(isBookmarked),
       'hasNote': serializer.toJson<int?>(hasNote),
       'editAt': serializer.toJson<String>(editAt),
+      'accountId': serializer.toJson<String>(accountId),
+      'localRevision': serializer.toJson<int>(localRevision),
+      'remoteRevision': serializer.toJson<String?>(remoteRevision),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'lastMutationId': serializer.toJson<String?>(lastMutationId),
     };
   }
 
@@ -6389,7 +7176,12 @@ class JpnEspWordStatusTableData extends DataClass
           Value<int?> isLearned = const Value.absent(),
           Value<int?> isBookmarked = const Value.absent(),
           Value<int?> hasNote = const Value.absent(),
-          String? editAt}) =>
+          String? editAt,
+          String? accountId,
+          int? localRevision,
+          Value<String?> remoteRevision = const Value.absent(),
+          Value<DateTime?> deletedAt = const Value.absent(),
+          Value<String?> lastMutationId = const Value.absent()}) =>
       JpnEspWordStatusTableData(
         wordId: wordId ?? this.wordId,
         isLearned: isLearned.present ? isLearned.value : this.isLearned,
@@ -6397,6 +7189,13 @@ class JpnEspWordStatusTableData extends DataClass
             isBookmarked.present ? isBookmarked.value : this.isBookmarked,
         hasNote: hasNote.present ? hasNote.value : this.hasNote,
         editAt: editAt ?? this.editAt,
+        accountId: accountId ?? this.accountId,
+        localRevision: localRevision ?? this.localRevision,
+        remoteRevision:
+            remoteRevision.present ? remoteRevision.value : this.remoteRevision,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+        lastMutationId:
+            lastMutationId.present ? lastMutationId.value : this.lastMutationId,
       );
   JpnEspWordStatusTableData copyWithCompanion(JpnEspWordStatusCompanion data) {
     return JpnEspWordStatusTableData(
@@ -6407,6 +7206,17 @@ class JpnEspWordStatusTableData extends DataClass
           : this.isBookmarked,
       hasNote: data.hasNote.present ? data.hasNote.value : this.hasNote,
       editAt: data.editAt.present ? data.editAt.value : this.editAt,
+      accountId: data.accountId.present ? data.accountId.value : this.accountId,
+      localRevision: data.localRevision.present
+          ? data.localRevision.value
+          : this.localRevision,
+      remoteRevision: data.remoteRevision.present
+          ? data.remoteRevision.value
+          : this.remoteRevision,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      lastMutationId: data.lastMutationId.present
+          ? data.lastMutationId.value
+          : this.lastMutationId,
     );
   }
 
@@ -6417,14 +7227,28 @@ class JpnEspWordStatusTableData extends DataClass
           ..write('isLearned: $isLearned, ')
           ..write('isBookmarked: $isBookmarked, ')
           ..write('hasNote: $hasNote, ')
-          ..write('editAt: $editAt')
+          ..write('editAt: $editAt, ')
+          ..write('accountId: $accountId, ')
+          ..write('localRevision: $localRevision, ')
+          ..write('remoteRevision: $remoteRevision, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('lastMutationId: $lastMutationId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(wordId, isLearned, isBookmarked, hasNote, editAt);
+  int get hashCode => Object.hash(
+      wordId,
+      isLearned,
+      isBookmarked,
+      hasNote,
+      editAt,
+      accountId,
+      localRevision,
+      remoteRevision,
+      deletedAt,
+      lastMutationId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -6433,7 +7257,12 @@ class JpnEspWordStatusTableData extends DataClass
           other.isLearned == this.isLearned &&
           other.isBookmarked == this.isBookmarked &&
           other.hasNote == this.hasNote &&
-          other.editAt == this.editAt);
+          other.editAt == this.editAt &&
+          other.accountId == this.accountId &&
+          other.localRevision == this.localRevision &&
+          other.remoteRevision == this.remoteRevision &&
+          other.deletedAt == this.deletedAt &&
+          other.lastMutationId == this.lastMutationId);
 }
 
 class JpnEspWordStatusCompanion
@@ -6443,26 +7272,51 @@ class JpnEspWordStatusCompanion
   final Value<int?> isBookmarked;
   final Value<int?> hasNote;
   final Value<String> editAt;
+  final Value<String> accountId;
+  final Value<int> localRevision;
+  final Value<String?> remoteRevision;
+  final Value<DateTime?> deletedAt;
+  final Value<String?> lastMutationId;
+  final Value<int> rowid;
   const JpnEspWordStatusCompanion({
     this.wordId = const Value.absent(),
     this.isLearned = const Value.absent(),
     this.isBookmarked = const Value.absent(),
     this.hasNote = const Value.absent(),
     this.editAt = const Value.absent(),
+    this.accountId = const Value.absent(),
+    this.localRevision = const Value.absent(),
+    this.remoteRevision = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.lastMutationId = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
   JpnEspWordStatusCompanion.insert({
-    this.wordId = const Value.absent(),
+    required int wordId,
     this.isLearned = const Value.absent(),
     this.isBookmarked = const Value.absent(),
     this.hasNote = const Value.absent(),
     required String editAt,
-  }) : editAt = Value(editAt);
+    this.accountId = const Value.absent(),
+    this.localRevision = const Value.absent(),
+    this.remoteRevision = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.lastMutationId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : wordId = Value(wordId),
+        editAt = Value(editAt);
   static Insertable<JpnEspWordStatusTableData> custom({
     Expression<int>? wordId,
     Expression<int>? isLearned,
     Expression<int>? isBookmarked,
     Expression<int>? hasNote,
     Expression<String>? editAt,
+    Expression<String>? accountId,
+    Expression<int>? localRevision,
+    Expression<String>? remoteRevision,
+    Expression<DateTime>? deletedAt,
+    Expression<String>? lastMutationId,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (wordId != null) 'jpn_esp_word_id': wordId,
@@ -6470,6 +7324,12 @@ class JpnEspWordStatusCompanion
       if (isBookmarked != null) 'is_bookmarked': isBookmarked,
       if (hasNote != null) 'has_note': hasNote,
       if (editAt != null) 'edit_at': editAt,
+      if (accountId != null) 'account_id': accountId,
+      if (localRevision != null) 'local_revision': localRevision,
+      if (remoteRevision != null) 'remote_revision': remoteRevision,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (lastMutationId != null) 'last_mutation_id': lastMutationId,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
@@ -6478,13 +7338,25 @@ class JpnEspWordStatusCompanion
       Value<int?>? isLearned,
       Value<int?>? isBookmarked,
       Value<int?>? hasNote,
-      Value<String>? editAt}) {
+      Value<String>? editAt,
+      Value<String>? accountId,
+      Value<int>? localRevision,
+      Value<String?>? remoteRevision,
+      Value<DateTime?>? deletedAt,
+      Value<String?>? lastMutationId,
+      Value<int>? rowid}) {
     return JpnEspWordStatusCompanion(
       wordId: wordId ?? this.wordId,
       isLearned: isLearned ?? this.isLearned,
       isBookmarked: isBookmarked ?? this.isBookmarked,
       hasNote: hasNote ?? this.hasNote,
       editAt: editAt ?? this.editAt,
+      accountId: accountId ?? this.accountId,
+      localRevision: localRevision ?? this.localRevision,
+      remoteRevision: remoteRevision ?? this.remoteRevision,
+      deletedAt: deletedAt ?? this.deletedAt,
+      lastMutationId: lastMutationId ?? this.lastMutationId,
+      rowid: rowid ?? this.rowid,
     );
   }
 
@@ -6506,6 +7378,24 @@ class JpnEspWordStatusCompanion
     if (editAt.present) {
       map['edit_at'] = Variable<String>(editAt.value);
     }
+    if (accountId.present) {
+      map['account_id'] = Variable<String>(accountId.value);
+    }
+    if (localRevision.present) {
+      map['local_revision'] = Variable<int>(localRevision.value);
+    }
+    if (remoteRevision.present) {
+      map['remote_revision'] = Variable<String>(remoteRevision.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (lastMutationId.present) {
+      map['last_mutation_id'] = Variable<String>(lastMutationId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
     return map;
   }
 
@@ -6516,7 +7406,13 @@ class JpnEspWordStatusCompanion
           ..write('isLearned: $isLearned, ')
           ..write('isBookmarked: $isBookmarked, ')
           ..write('hasNote: $hasNote, ')
-          ..write('editAt: $editAt')
+          ..write('editAt: $editAt, ')
+          ..write('accountId: $accountId, ')
+          ..write('localRevision: $localRevision, ')
+          ..write('remoteRevision: $remoteRevision, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('lastMutationId: $lastMutationId, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -7271,6 +8167,14 @@ class $EsEnConjugacionsTable extends EsEnConjugacions
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $EsEnConjugacionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _wordIdMeta = const VerificationMeta('wordId');
+  @override
+  late final GeneratedColumn<int> wordId = GeneratedColumn<int>(
+      'word_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES words (word_id) ON DELETE CASCADE'));
   static const VerificationMeta _wordMeta = const VerificationMeta('word');
   @override
   late final GeneratedColumn<String> word = GeneratedColumn<String>(
@@ -7304,17 +8208,9 @@ class $EsEnConjugacionsTable extends EsEnConjugacions
   late final GeneratedColumn<String> pastP = GeneratedColumn<String>(
       'past_p', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _wordIdMeta = const VerificationMeta('wordId');
-  @override
-  late final GeneratedColumn<int> wordId = GeneratedColumn<int>(
-      'word_id', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'REFERENCES words (word_id) ON DELETE CASCADE'));
   @override
   List<GeneratedColumn> get $columns =>
-      [word, english, present3rd, presentP, past, pastP, wordId];
+      [wordId, word, english, present3rd, presentP, past, pastP];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -7326,6 +8222,10 @@ class $EsEnConjugacionsTable extends EsEnConjugacions
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('word_id')) {
+      context.handle(_wordIdMeta,
+          wordId.isAcceptableOrUnknown(data['word_id']!, _wordIdMeta));
+    }
     if (data.containsKey('word')) {
       context.handle(
           _wordMeta, word.isAcceptableOrUnknown(data['word']!, _wordMeta));
@@ -7352,10 +8252,6 @@ class $EsEnConjugacionsTable extends EsEnConjugacions
       context.handle(
           _pastPMeta, pastP.isAcceptableOrUnknown(data['past_p']!, _pastPMeta));
     }
-    if (data.containsKey('word_id')) {
-      context.handle(_wordIdMeta,
-          wordId.isAcceptableOrUnknown(data['word_id']!, _wordIdMeta));
-    }
     return context;
   }
 
@@ -7366,6 +8262,8 @@ class $EsEnConjugacionsTable extends EsEnConjugacions
       {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return EsEnConjugacionTableData(
+      wordId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}word_id'])!,
       word: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}word']),
       english: attachedDatabase.typeMapping
@@ -7378,8 +8276,6 @@ class $EsEnConjugacionsTable extends EsEnConjugacions
           .read(DriftSqlType.string, data['${effectivePrefix}past']),
       pastP: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}past_p']),
-      wordId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}word_id'])!,
     );
   }
 
@@ -7391,24 +8287,25 @@ class $EsEnConjugacionsTable extends EsEnConjugacions
 
 class EsEnConjugacionTableData extends DataClass
     implements Insertable<EsEnConjugacionTableData> {
+  final int wordId;
   final String? word;
   final String? english;
   final String? present3rd;
   final String? presentP;
   final String? past;
   final String? pastP;
-  final int wordId;
   const EsEnConjugacionTableData(
-      {this.word,
+      {required this.wordId,
+      this.word,
       this.english,
       this.present3rd,
       this.presentP,
       this.past,
-      this.pastP,
-      required this.wordId});
+      this.pastP});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    map['word_id'] = Variable<int>(wordId);
     if (!nullToAbsent || word != null) {
       map['word'] = Variable<String>(word);
     }
@@ -7427,12 +8324,12 @@ class EsEnConjugacionTableData extends DataClass
     if (!nullToAbsent || pastP != null) {
       map['past_p'] = Variable<String>(pastP);
     }
-    map['word_id'] = Variable<int>(wordId);
     return map;
   }
 
   EsEnConjugacionsCompanion toCompanion(bool nullToAbsent) {
     return EsEnConjugacionsCompanion(
+      wordId: Value(wordId),
       word: word == null && nullToAbsent ? const Value.absent() : Value(word),
       english: english == null && nullToAbsent
           ? const Value.absent()
@@ -7446,7 +8343,6 @@ class EsEnConjugacionTableData extends DataClass
       past: past == null && nullToAbsent ? const Value.absent() : Value(past),
       pastP:
           pastP == null && nullToAbsent ? const Value.absent() : Value(pastP),
-      wordId: Value(wordId),
     );
   }
 
@@ -7454,48 +8350,49 @@ class EsEnConjugacionTableData extends DataClass
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return EsEnConjugacionTableData(
+      wordId: serializer.fromJson<int>(json['wordId']),
       word: serializer.fromJson<String?>(json['word']),
       english: serializer.fromJson<String?>(json['english']),
       present3rd: serializer.fromJson<String?>(json['present3rd']),
       presentP: serializer.fromJson<String?>(json['presentP']),
       past: serializer.fromJson<String?>(json['past']),
       pastP: serializer.fromJson<String?>(json['pastP']),
-      wordId: serializer.fromJson<int>(json['wordId']),
     );
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'wordId': serializer.toJson<int>(wordId),
       'word': serializer.toJson<String?>(word),
       'english': serializer.toJson<String?>(english),
       'present3rd': serializer.toJson<String?>(present3rd),
       'presentP': serializer.toJson<String?>(presentP),
       'past': serializer.toJson<String?>(past),
       'pastP': serializer.toJson<String?>(pastP),
-      'wordId': serializer.toJson<int>(wordId),
     };
   }
 
   EsEnConjugacionTableData copyWith(
-          {Value<String?> word = const Value.absent(),
+          {int? wordId,
+          Value<String?> word = const Value.absent(),
           Value<String?> english = const Value.absent(),
           Value<String?> present3rd = const Value.absent(),
           Value<String?> presentP = const Value.absent(),
           Value<String?> past = const Value.absent(),
-          Value<String?> pastP = const Value.absent(),
-          int? wordId}) =>
+          Value<String?> pastP = const Value.absent()}) =>
       EsEnConjugacionTableData(
+        wordId: wordId ?? this.wordId,
         word: word.present ? word.value : this.word,
         english: english.present ? english.value : this.english,
         present3rd: present3rd.present ? present3rd.value : this.present3rd,
         presentP: presentP.present ? presentP.value : this.presentP,
         past: past.present ? past.value : this.past,
         pastP: pastP.present ? pastP.value : this.pastP,
-        wordId: wordId ?? this.wordId,
       );
   EsEnConjugacionTableData copyWithCompanion(EsEnConjugacionsCompanion data) {
     return EsEnConjugacionTableData(
+      wordId: data.wordId.present ? data.wordId.value : this.wordId,
       word: data.word.present ? data.word.value : this.word,
       english: data.english.present ? data.english.value : this.english,
       present3rd:
@@ -7503,109 +8400,111 @@ class EsEnConjugacionTableData extends DataClass
       presentP: data.presentP.present ? data.presentP.value : this.presentP,
       past: data.past.present ? data.past.value : this.past,
       pastP: data.pastP.present ? data.pastP.value : this.pastP,
-      wordId: data.wordId.present ? data.wordId.value : this.wordId,
     );
   }
 
   @override
   String toString() {
     return (StringBuffer('EsEnConjugacionTableData(')
+          ..write('wordId: $wordId, ')
           ..write('word: $word, ')
           ..write('english: $english, ')
           ..write('present3rd: $present3rd, ')
           ..write('presentP: $presentP, ')
           ..write('past: $past, ')
-          ..write('pastP: $pastP, ')
-          ..write('wordId: $wordId')
+          ..write('pastP: $pastP')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode =>
-      Object.hash(word, english, present3rd, presentP, past, pastP, wordId);
+      Object.hash(wordId, word, english, present3rd, presentP, past, pastP);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is EsEnConjugacionTableData &&
+          other.wordId == this.wordId &&
           other.word == this.word &&
           other.english == this.english &&
           other.present3rd == this.present3rd &&
           other.presentP == this.presentP &&
           other.past == this.past &&
-          other.pastP == this.pastP &&
-          other.wordId == this.wordId);
+          other.pastP == this.pastP);
 }
 
 class EsEnConjugacionsCompanion
     extends UpdateCompanion<EsEnConjugacionTableData> {
+  final Value<int> wordId;
   final Value<String?> word;
   final Value<String?> english;
   final Value<String?> present3rd;
   final Value<String?> presentP;
   final Value<String?> past;
   final Value<String?> pastP;
-  final Value<int> wordId;
   const EsEnConjugacionsCompanion({
+    this.wordId = const Value.absent(),
     this.word = const Value.absent(),
     this.english = const Value.absent(),
     this.present3rd = const Value.absent(),
     this.presentP = const Value.absent(),
     this.past = const Value.absent(),
     this.pastP = const Value.absent(),
-    this.wordId = const Value.absent(),
   });
   EsEnConjugacionsCompanion.insert({
+    this.wordId = const Value.absent(),
     this.word = const Value.absent(),
     this.english = const Value.absent(),
     this.present3rd = const Value.absent(),
     this.presentP = const Value.absent(),
     this.past = const Value.absent(),
     this.pastP = const Value.absent(),
-    this.wordId = const Value.absent(),
   });
   static Insertable<EsEnConjugacionTableData> custom({
+    Expression<int>? wordId,
     Expression<String>? word,
     Expression<String>? english,
     Expression<String>? present3rd,
     Expression<String>? presentP,
     Expression<String>? past,
     Expression<String>? pastP,
-    Expression<int>? wordId,
   }) {
     return RawValuesInsertable({
+      if (wordId != null) 'word_id': wordId,
       if (word != null) 'word': word,
       if (english != null) 'english': english,
       if (present3rd != null) 'present_3rd': present3rd,
       if (presentP != null) 'present_p': presentP,
       if (past != null) 'past': past,
       if (pastP != null) 'past_p': pastP,
-      if (wordId != null) 'word_id': wordId,
     });
   }
 
   EsEnConjugacionsCompanion copyWith(
-      {Value<String?>? word,
+      {Value<int>? wordId,
+      Value<String?>? word,
       Value<String?>? english,
       Value<String?>? present3rd,
       Value<String?>? presentP,
       Value<String?>? past,
-      Value<String?>? pastP,
-      Value<int>? wordId}) {
+      Value<String?>? pastP}) {
     return EsEnConjugacionsCompanion(
+      wordId: wordId ?? this.wordId,
       word: word ?? this.word,
       english: english ?? this.english,
       present3rd: present3rd ?? this.present3rd,
       presentP: presentP ?? this.presentP,
       past: past ?? this.past,
       pastP: pastP ?? this.pastP,
-      wordId: wordId ?? this.wordId,
     );
   }
 
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (wordId.present) {
+      map['word_id'] = Variable<int>(wordId.value);
+    }
     if (word.present) {
       map['word'] = Variable<String>(word.value);
     }
@@ -7624,22 +8523,1589 @@ class EsEnConjugacionsCompanion
     if (pastP.present) {
       map['past_p'] = Variable<String>(pastP.value);
     }
-    if (wordId.present) {
-      map['word_id'] = Variable<int>(wordId.value);
-    }
     return map;
   }
 
   @override
   String toString() {
     return (StringBuffer('EsEnConjugacionsCompanion(')
+          ..write('wordId: $wordId, ')
           ..write('word: $word, ')
           ..write('english: $english, ')
           ..write('present3rd: $present3rd, ')
           ..write('presentP: $presentP, ')
           ..write('past: $past, ')
-          ..write('pastP: $pastP, ')
-          ..write('wordId: $wordId')
+          ..write('pastP: $pastP')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SyncOutboxTable extends SyncOutbox
+    with TableInfo<$SyncOutboxTable, SyncOutboxData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SyncOutboxTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _mutationIdMeta =
+      const VerificationMeta('mutationId');
+  @override
+  late final GeneratedColumn<String> mutationId = GeneratedColumn<String>(
+      'mutation_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _accountIdMeta =
+      const VerificationMeta('accountId');
+  @override
+  late final GeneratedColumn<String> accountId = GeneratedColumn<String>(
+      'account_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _datasetMeta =
+      const VerificationMeta('dataset');
+  @override
+  late final GeneratedColumn<String> dataset = GeneratedColumn<String>(
+      'dataset', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _entityIdMeta =
+      const VerificationMeta('entityId');
+  @override
+  late final GeneratedColumn<String> entityId = GeneratedColumn<String>(
+      'entity_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _operationMeta =
+      const VerificationMeta('operation');
+  @override
+  late final GeneratedColumn<String> operation = GeneratedColumn<String>(
+      'operation', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _payloadMeta =
+      const VerificationMeta('payload');
+  @override
+  late final GeneratedColumn<String> payload = GeneratedColumn<String>(
+      'payload', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _fieldMaskMeta =
+      const VerificationMeta('fieldMask');
+  @override
+  late final GeneratedColumn<String> fieldMask = GeneratedColumn<String>(
+      'field_mask', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _payloadVersionMeta =
+      const VerificationMeta('payloadVersion');
+  @override
+  late final GeneratedColumn<int> payloadVersion = GeneratedColumn<int>(
+      'payload_version', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _localRevisionMeta =
+      const VerificationMeta('localRevision');
+  @override
+  late final GeneratedColumn<int> localRevision = GeneratedColumn<int>(
+      'local_revision', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _baseRemoteRevisionMeta =
+      const VerificationMeta('baseRemoteRevision');
+  @override
+  late final GeneratedColumn<String> baseRemoteRevision =
+      GeneratedColumn<String>('base_remote_revision', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _stateMeta = const VerificationMeta('state');
+  @override
+  late final GeneratedColumn<String> state = GeneratedColumn<String>(
+      'state', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _attemptCountMeta =
+      const VerificationMeta('attemptCount');
+  @override
+  late final GeneratedColumn<int> attemptCount = GeneratedColumn<int>(
+      'attempt_count', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _nextAttemptAtMeta =
+      const VerificationMeta('nextAttemptAt');
+  @override
+  late final GeneratedColumn<DateTime> nextAttemptAt =
+      GeneratedColumn<DateTime>('next_attempt_at', aliasedName, false,
+          type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _leaseTokenMeta =
+      const VerificationMeta('leaseToken');
+  @override
+  late final GeneratedColumn<String> leaseToken = GeneratedColumn<String>(
+      'lease_token', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _leaseUntilMeta =
+      const VerificationMeta('leaseUntil');
+  @override
+  late final GeneratedColumn<DateTime> leaseUntil = GeneratedColumn<DateTime>(
+      'lease_until', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _lastErrorCodeMeta =
+      const VerificationMeta('lastErrorCode');
+  @override
+  late final GeneratedColumn<String> lastErrorCode = GeneratedColumn<String>(
+      'last_error_code', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        mutationId,
+        accountId,
+        dataset,
+        entityId,
+        operation,
+        payload,
+        fieldMask,
+        payloadVersion,
+        localRevision,
+        baseRemoteRevision,
+        state,
+        attemptCount,
+        nextAttemptAt,
+        leaseToken,
+        leaseUntil,
+        createdAt,
+        lastErrorCode
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sync_outbox';
+  @override
+  VerificationContext validateIntegrity(Insertable<SyncOutboxData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('mutation_id')) {
+      context.handle(
+          _mutationIdMeta,
+          mutationId.isAcceptableOrUnknown(
+              data['mutation_id']!, _mutationIdMeta));
+    } else if (isInserting) {
+      context.missing(_mutationIdMeta);
+    }
+    if (data.containsKey('account_id')) {
+      context.handle(_accountIdMeta,
+          accountId.isAcceptableOrUnknown(data['account_id']!, _accountIdMeta));
+    } else if (isInserting) {
+      context.missing(_accountIdMeta);
+    }
+    if (data.containsKey('dataset')) {
+      context.handle(_datasetMeta,
+          dataset.isAcceptableOrUnknown(data['dataset']!, _datasetMeta));
+    } else if (isInserting) {
+      context.missing(_datasetMeta);
+    }
+    if (data.containsKey('entity_id')) {
+      context.handle(_entityIdMeta,
+          entityId.isAcceptableOrUnknown(data['entity_id']!, _entityIdMeta));
+    } else if (isInserting) {
+      context.missing(_entityIdMeta);
+    }
+    if (data.containsKey('operation')) {
+      context.handle(_operationMeta,
+          operation.isAcceptableOrUnknown(data['operation']!, _operationMeta));
+    } else if (isInserting) {
+      context.missing(_operationMeta);
+    }
+    if (data.containsKey('payload')) {
+      context.handle(_payloadMeta,
+          payload.isAcceptableOrUnknown(data['payload']!, _payloadMeta));
+    } else if (isInserting) {
+      context.missing(_payloadMeta);
+    }
+    if (data.containsKey('field_mask')) {
+      context.handle(_fieldMaskMeta,
+          fieldMask.isAcceptableOrUnknown(data['field_mask']!, _fieldMaskMeta));
+    } else if (isInserting) {
+      context.missing(_fieldMaskMeta);
+    }
+    if (data.containsKey('payload_version')) {
+      context.handle(
+          _payloadVersionMeta,
+          payloadVersion.isAcceptableOrUnknown(
+              data['payload_version']!, _payloadVersionMeta));
+    } else if (isInserting) {
+      context.missing(_payloadVersionMeta);
+    }
+    if (data.containsKey('local_revision')) {
+      context.handle(
+          _localRevisionMeta,
+          localRevision.isAcceptableOrUnknown(
+              data['local_revision']!, _localRevisionMeta));
+    } else if (isInserting) {
+      context.missing(_localRevisionMeta);
+    }
+    if (data.containsKey('base_remote_revision')) {
+      context.handle(
+          _baseRemoteRevisionMeta,
+          baseRemoteRevision.isAcceptableOrUnknown(
+              data['base_remote_revision']!, _baseRemoteRevisionMeta));
+    }
+    if (data.containsKey('state')) {
+      context.handle(
+          _stateMeta, state.isAcceptableOrUnknown(data['state']!, _stateMeta));
+    } else if (isInserting) {
+      context.missing(_stateMeta);
+    }
+    if (data.containsKey('attempt_count')) {
+      context.handle(
+          _attemptCountMeta,
+          attemptCount.isAcceptableOrUnknown(
+              data['attempt_count']!, _attemptCountMeta));
+    }
+    if (data.containsKey('next_attempt_at')) {
+      context.handle(
+          _nextAttemptAtMeta,
+          nextAttemptAt.isAcceptableOrUnknown(
+              data['next_attempt_at']!, _nextAttemptAtMeta));
+    } else if (isInserting) {
+      context.missing(_nextAttemptAtMeta);
+    }
+    if (data.containsKey('lease_token')) {
+      context.handle(
+          _leaseTokenMeta,
+          leaseToken.isAcceptableOrUnknown(
+              data['lease_token']!, _leaseTokenMeta));
+    }
+    if (data.containsKey('lease_until')) {
+      context.handle(
+          _leaseUntilMeta,
+          leaseUntil.isAcceptableOrUnknown(
+              data['lease_until']!, _leaseUntilMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('last_error_code')) {
+      context.handle(
+          _lastErrorCodeMeta,
+          lastErrorCode.isAcceptableOrUnknown(
+              data['last_error_code']!, _lastErrorCodeMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {mutationId};
+  @override
+  SyncOutboxData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SyncOutboxData(
+      mutationId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}mutation_id'])!,
+      accountId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}account_id'])!,
+      dataset: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}dataset'])!,
+      entityId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}entity_id'])!,
+      operation: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}operation'])!,
+      payload: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}payload'])!,
+      fieldMask: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}field_mask'])!,
+      payloadVersion: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}payload_version'])!,
+      localRevision: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}local_revision'])!,
+      baseRemoteRevision: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}base_remote_revision']),
+      state: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}state'])!,
+      attemptCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}attempt_count'])!,
+      nextAttemptAt: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}next_attempt_at'])!,
+      leaseToken: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}lease_token']),
+      leaseUntil: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}lease_until']),
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      lastErrorCode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}last_error_code']),
+    );
+  }
+
+  @override
+  $SyncOutboxTable createAlias(String alias) {
+    return $SyncOutboxTable(attachedDatabase, alias);
+  }
+}
+
+class SyncOutboxData extends DataClass implements Insertable<SyncOutboxData> {
+  final String mutationId;
+  final String accountId;
+  final String dataset;
+  final String entityId;
+  final String operation;
+  final String payload;
+  final String fieldMask;
+  final int payloadVersion;
+  final int localRevision;
+  final String? baseRemoteRevision;
+  final String state;
+  final int attemptCount;
+  final DateTime nextAttemptAt;
+  final String? leaseToken;
+  final DateTime? leaseUntil;
+  final DateTime createdAt;
+  final String? lastErrorCode;
+  const SyncOutboxData(
+      {required this.mutationId,
+      required this.accountId,
+      required this.dataset,
+      required this.entityId,
+      required this.operation,
+      required this.payload,
+      required this.fieldMask,
+      required this.payloadVersion,
+      required this.localRevision,
+      this.baseRemoteRevision,
+      required this.state,
+      required this.attemptCount,
+      required this.nextAttemptAt,
+      this.leaseToken,
+      this.leaseUntil,
+      required this.createdAt,
+      this.lastErrorCode});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['mutation_id'] = Variable<String>(mutationId);
+    map['account_id'] = Variable<String>(accountId);
+    map['dataset'] = Variable<String>(dataset);
+    map['entity_id'] = Variable<String>(entityId);
+    map['operation'] = Variable<String>(operation);
+    map['payload'] = Variable<String>(payload);
+    map['field_mask'] = Variable<String>(fieldMask);
+    map['payload_version'] = Variable<int>(payloadVersion);
+    map['local_revision'] = Variable<int>(localRevision);
+    if (!nullToAbsent || baseRemoteRevision != null) {
+      map['base_remote_revision'] = Variable<String>(baseRemoteRevision);
+    }
+    map['state'] = Variable<String>(state);
+    map['attempt_count'] = Variable<int>(attemptCount);
+    map['next_attempt_at'] = Variable<DateTime>(nextAttemptAt);
+    if (!nullToAbsent || leaseToken != null) {
+      map['lease_token'] = Variable<String>(leaseToken);
+    }
+    if (!nullToAbsent || leaseUntil != null) {
+      map['lease_until'] = Variable<DateTime>(leaseUntil);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || lastErrorCode != null) {
+      map['last_error_code'] = Variable<String>(lastErrorCode);
+    }
+    return map;
+  }
+
+  SyncOutboxCompanion toCompanion(bool nullToAbsent) {
+    return SyncOutboxCompanion(
+      mutationId: Value(mutationId),
+      accountId: Value(accountId),
+      dataset: Value(dataset),
+      entityId: Value(entityId),
+      operation: Value(operation),
+      payload: Value(payload),
+      fieldMask: Value(fieldMask),
+      payloadVersion: Value(payloadVersion),
+      localRevision: Value(localRevision),
+      baseRemoteRevision: baseRemoteRevision == null && nullToAbsent
+          ? const Value.absent()
+          : Value(baseRemoteRevision),
+      state: Value(state),
+      attemptCount: Value(attemptCount),
+      nextAttemptAt: Value(nextAttemptAt),
+      leaseToken: leaseToken == null && nullToAbsent
+          ? const Value.absent()
+          : Value(leaseToken),
+      leaseUntil: leaseUntil == null && nullToAbsent
+          ? const Value.absent()
+          : Value(leaseUntil),
+      createdAt: Value(createdAt),
+      lastErrorCode: lastErrorCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastErrorCode),
+    );
+  }
+
+  factory SyncOutboxData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SyncOutboxData(
+      mutationId: serializer.fromJson<String>(json['mutationId']),
+      accountId: serializer.fromJson<String>(json['accountId']),
+      dataset: serializer.fromJson<String>(json['dataset']),
+      entityId: serializer.fromJson<String>(json['entityId']),
+      operation: serializer.fromJson<String>(json['operation']),
+      payload: serializer.fromJson<String>(json['payload']),
+      fieldMask: serializer.fromJson<String>(json['fieldMask']),
+      payloadVersion: serializer.fromJson<int>(json['payloadVersion']),
+      localRevision: serializer.fromJson<int>(json['localRevision']),
+      baseRemoteRevision:
+          serializer.fromJson<String?>(json['baseRemoteRevision']),
+      state: serializer.fromJson<String>(json['state']),
+      attemptCount: serializer.fromJson<int>(json['attemptCount']),
+      nextAttemptAt: serializer.fromJson<DateTime>(json['nextAttemptAt']),
+      leaseToken: serializer.fromJson<String?>(json['leaseToken']),
+      leaseUntil: serializer.fromJson<DateTime?>(json['leaseUntil']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      lastErrorCode: serializer.fromJson<String?>(json['lastErrorCode']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'mutationId': serializer.toJson<String>(mutationId),
+      'accountId': serializer.toJson<String>(accountId),
+      'dataset': serializer.toJson<String>(dataset),
+      'entityId': serializer.toJson<String>(entityId),
+      'operation': serializer.toJson<String>(operation),
+      'payload': serializer.toJson<String>(payload),
+      'fieldMask': serializer.toJson<String>(fieldMask),
+      'payloadVersion': serializer.toJson<int>(payloadVersion),
+      'localRevision': serializer.toJson<int>(localRevision),
+      'baseRemoteRevision': serializer.toJson<String?>(baseRemoteRevision),
+      'state': serializer.toJson<String>(state),
+      'attemptCount': serializer.toJson<int>(attemptCount),
+      'nextAttemptAt': serializer.toJson<DateTime>(nextAttemptAt),
+      'leaseToken': serializer.toJson<String?>(leaseToken),
+      'leaseUntil': serializer.toJson<DateTime?>(leaseUntil),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'lastErrorCode': serializer.toJson<String?>(lastErrorCode),
+    };
+  }
+
+  SyncOutboxData copyWith(
+          {String? mutationId,
+          String? accountId,
+          String? dataset,
+          String? entityId,
+          String? operation,
+          String? payload,
+          String? fieldMask,
+          int? payloadVersion,
+          int? localRevision,
+          Value<String?> baseRemoteRevision = const Value.absent(),
+          String? state,
+          int? attemptCount,
+          DateTime? nextAttemptAt,
+          Value<String?> leaseToken = const Value.absent(),
+          Value<DateTime?> leaseUntil = const Value.absent(),
+          DateTime? createdAt,
+          Value<String?> lastErrorCode = const Value.absent()}) =>
+      SyncOutboxData(
+        mutationId: mutationId ?? this.mutationId,
+        accountId: accountId ?? this.accountId,
+        dataset: dataset ?? this.dataset,
+        entityId: entityId ?? this.entityId,
+        operation: operation ?? this.operation,
+        payload: payload ?? this.payload,
+        fieldMask: fieldMask ?? this.fieldMask,
+        payloadVersion: payloadVersion ?? this.payloadVersion,
+        localRevision: localRevision ?? this.localRevision,
+        baseRemoteRevision: baseRemoteRevision.present
+            ? baseRemoteRevision.value
+            : this.baseRemoteRevision,
+        state: state ?? this.state,
+        attemptCount: attemptCount ?? this.attemptCount,
+        nextAttemptAt: nextAttemptAt ?? this.nextAttemptAt,
+        leaseToken: leaseToken.present ? leaseToken.value : this.leaseToken,
+        leaseUntil: leaseUntil.present ? leaseUntil.value : this.leaseUntil,
+        createdAt: createdAt ?? this.createdAt,
+        lastErrorCode:
+            lastErrorCode.present ? lastErrorCode.value : this.lastErrorCode,
+      );
+  SyncOutboxData copyWithCompanion(SyncOutboxCompanion data) {
+    return SyncOutboxData(
+      mutationId:
+          data.mutationId.present ? data.mutationId.value : this.mutationId,
+      accountId: data.accountId.present ? data.accountId.value : this.accountId,
+      dataset: data.dataset.present ? data.dataset.value : this.dataset,
+      entityId: data.entityId.present ? data.entityId.value : this.entityId,
+      operation: data.operation.present ? data.operation.value : this.operation,
+      payload: data.payload.present ? data.payload.value : this.payload,
+      fieldMask: data.fieldMask.present ? data.fieldMask.value : this.fieldMask,
+      payloadVersion: data.payloadVersion.present
+          ? data.payloadVersion.value
+          : this.payloadVersion,
+      localRevision: data.localRevision.present
+          ? data.localRevision.value
+          : this.localRevision,
+      baseRemoteRevision: data.baseRemoteRevision.present
+          ? data.baseRemoteRevision.value
+          : this.baseRemoteRevision,
+      state: data.state.present ? data.state.value : this.state,
+      attemptCount: data.attemptCount.present
+          ? data.attemptCount.value
+          : this.attemptCount,
+      nextAttemptAt: data.nextAttemptAt.present
+          ? data.nextAttemptAt.value
+          : this.nextAttemptAt,
+      leaseToken:
+          data.leaseToken.present ? data.leaseToken.value : this.leaseToken,
+      leaseUntil:
+          data.leaseUntil.present ? data.leaseUntil.value : this.leaseUntil,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      lastErrorCode: data.lastErrorCode.present
+          ? data.lastErrorCode.value
+          : this.lastErrorCode,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncOutboxData(')
+          ..write('mutationId: $mutationId, ')
+          ..write('accountId: $accountId, ')
+          ..write('dataset: $dataset, ')
+          ..write('entityId: $entityId, ')
+          ..write('operation: $operation, ')
+          ..write('payload: $payload, ')
+          ..write('fieldMask: $fieldMask, ')
+          ..write('payloadVersion: $payloadVersion, ')
+          ..write('localRevision: $localRevision, ')
+          ..write('baseRemoteRevision: $baseRemoteRevision, ')
+          ..write('state: $state, ')
+          ..write('attemptCount: $attemptCount, ')
+          ..write('nextAttemptAt: $nextAttemptAt, ')
+          ..write('leaseToken: $leaseToken, ')
+          ..write('leaseUntil: $leaseUntil, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('lastErrorCode: $lastErrorCode')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      mutationId,
+      accountId,
+      dataset,
+      entityId,
+      operation,
+      payload,
+      fieldMask,
+      payloadVersion,
+      localRevision,
+      baseRemoteRevision,
+      state,
+      attemptCount,
+      nextAttemptAt,
+      leaseToken,
+      leaseUntil,
+      createdAt,
+      lastErrorCode);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SyncOutboxData &&
+          other.mutationId == this.mutationId &&
+          other.accountId == this.accountId &&
+          other.dataset == this.dataset &&
+          other.entityId == this.entityId &&
+          other.operation == this.operation &&
+          other.payload == this.payload &&
+          other.fieldMask == this.fieldMask &&
+          other.payloadVersion == this.payloadVersion &&
+          other.localRevision == this.localRevision &&
+          other.baseRemoteRevision == this.baseRemoteRevision &&
+          other.state == this.state &&
+          other.attemptCount == this.attemptCount &&
+          other.nextAttemptAt == this.nextAttemptAt &&
+          other.leaseToken == this.leaseToken &&
+          other.leaseUntil == this.leaseUntil &&
+          other.createdAt == this.createdAt &&
+          other.lastErrorCode == this.lastErrorCode);
+}
+
+class SyncOutboxCompanion extends UpdateCompanion<SyncOutboxData> {
+  final Value<String> mutationId;
+  final Value<String> accountId;
+  final Value<String> dataset;
+  final Value<String> entityId;
+  final Value<String> operation;
+  final Value<String> payload;
+  final Value<String> fieldMask;
+  final Value<int> payloadVersion;
+  final Value<int> localRevision;
+  final Value<String?> baseRemoteRevision;
+  final Value<String> state;
+  final Value<int> attemptCount;
+  final Value<DateTime> nextAttemptAt;
+  final Value<String?> leaseToken;
+  final Value<DateTime?> leaseUntil;
+  final Value<DateTime> createdAt;
+  final Value<String?> lastErrorCode;
+  final Value<int> rowid;
+  const SyncOutboxCompanion({
+    this.mutationId = const Value.absent(),
+    this.accountId = const Value.absent(),
+    this.dataset = const Value.absent(),
+    this.entityId = const Value.absent(),
+    this.operation = const Value.absent(),
+    this.payload = const Value.absent(),
+    this.fieldMask = const Value.absent(),
+    this.payloadVersion = const Value.absent(),
+    this.localRevision = const Value.absent(),
+    this.baseRemoteRevision = const Value.absent(),
+    this.state = const Value.absent(),
+    this.attemptCount = const Value.absent(),
+    this.nextAttemptAt = const Value.absent(),
+    this.leaseToken = const Value.absent(),
+    this.leaseUntil = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.lastErrorCode = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SyncOutboxCompanion.insert({
+    required String mutationId,
+    required String accountId,
+    required String dataset,
+    required String entityId,
+    required String operation,
+    required String payload,
+    required String fieldMask,
+    required int payloadVersion,
+    required int localRevision,
+    this.baseRemoteRevision = const Value.absent(),
+    required String state,
+    this.attemptCount = const Value.absent(),
+    required DateTime nextAttemptAt,
+    this.leaseToken = const Value.absent(),
+    this.leaseUntil = const Value.absent(),
+    required DateTime createdAt,
+    this.lastErrorCode = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : mutationId = Value(mutationId),
+        accountId = Value(accountId),
+        dataset = Value(dataset),
+        entityId = Value(entityId),
+        operation = Value(operation),
+        payload = Value(payload),
+        fieldMask = Value(fieldMask),
+        payloadVersion = Value(payloadVersion),
+        localRevision = Value(localRevision),
+        state = Value(state),
+        nextAttemptAt = Value(nextAttemptAt),
+        createdAt = Value(createdAt);
+  static Insertable<SyncOutboxData> custom({
+    Expression<String>? mutationId,
+    Expression<String>? accountId,
+    Expression<String>? dataset,
+    Expression<String>? entityId,
+    Expression<String>? operation,
+    Expression<String>? payload,
+    Expression<String>? fieldMask,
+    Expression<int>? payloadVersion,
+    Expression<int>? localRevision,
+    Expression<String>? baseRemoteRevision,
+    Expression<String>? state,
+    Expression<int>? attemptCount,
+    Expression<DateTime>? nextAttemptAt,
+    Expression<String>? leaseToken,
+    Expression<DateTime>? leaseUntil,
+    Expression<DateTime>? createdAt,
+    Expression<String>? lastErrorCode,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (mutationId != null) 'mutation_id': mutationId,
+      if (accountId != null) 'account_id': accountId,
+      if (dataset != null) 'dataset': dataset,
+      if (entityId != null) 'entity_id': entityId,
+      if (operation != null) 'operation': operation,
+      if (payload != null) 'payload': payload,
+      if (fieldMask != null) 'field_mask': fieldMask,
+      if (payloadVersion != null) 'payload_version': payloadVersion,
+      if (localRevision != null) 'local_revision': localRevision,
+      if (baseRemoteRevision != null)
+        'base_remote_revision': baseRemoteRevision,
+      if (state != null) 'state': state,
+      if (attemptCount != null) 'attempt_count': attemptCount,
+      if (nextAttemptAt != null) 'next_attempt_at': nextAttemptAt,
+      if (leaseToken != null) 'lease_token': leaseToken,
+      if (leaseUntil != null) 'lease_until': leaseUntil,
+      if (createdAt != null) 'created_at': createdAt,
+      if (lastErrorCode != null) 'last_error_code': lastErrorCode,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SyncOutboxCompanion copyWith(
+      {Value<String>? mutationId,
+      Value<String>? accountId,
+      Value<String>? dataset,
+      Value<String>? entityId,
+      Value<String>? operation,
+      Value<String>? payload,
+      Value<String>? fieldMask,
+      Value<int>? payloadVersion,
+      Value<int>? localRevision,
+      Value<String?>? baseRemoteRevision,
+      Value<String>? state,
+      Value<int>? attemptCount,
+      Value<DateTime>? nextAttemptAt,
+      Value<String?>? leaseToken,
+      Value<DateTime?>? leaseUntil,
+      Value<DateTime>? createdAt,
+      Value<String?>? lastErrorCode,
+      Value<int>? rowid}) {
+    return SyncOutboxCompanion(
+      mutationId: mutationId ?? this.mutationId,
+      accountId: accountId ?? this.accountId,
+      dataset: dataset ?? this.dataset,
+      entityId: entityId ?? this.entityId,
+      operation: operation ?? this.operation,
+      payload: payload ?? this.payload,
+      fieldMask: fieldMask ?? this.fieldMask,
+      payloadVersion: payloadVersion ?? this.payloadVersion,
+      localRevision: localRevision ?? this.localRevision,
+      baseRemoteRevision: baseRemoteRevision ?? this.baseRemoteRevision,
+      state: state ?? this.state,
+      attemptCount: attemptCount ?? this.attemptCount,
+      nextAttemptAt: nextAttemptAt ?? this.nextAttemptAt,
+      leaseToken: leaseToken ?? this.leaseToken,
+      leaseUntil: leaseUntil ?? this.leaseUntil,
+      createdAt: createdAt ?? this.createdAt,
+      lastErrorCode: lastErrorCode ?? this.lastErrorCode,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (mutationId.present) {
+      map['mutation_id'] = Variable<String>(mutationId.value);
+    }
+    if (accountId.present) {
+      map['account_id'] = Variable<String>(accountId.value);
+    }
+    if (dataset.present) {
+      map['dataset'] = Variable<String>(dataset.value);
+    }
+    if (entityId.present) {
+      map['entity_id'] = Variable<String>(entityId.value);
+    }
+    if (operation.present) {
+      map['operation'] = Variable<String>(operation.value);
+    }
+    if (payload.present) {
+      map['payload'] = Variable<String>(payload.value);
+    }
+    if (fieldMask.present) {
+      map['field_mask'] = Variable<String>(fieldMask.value);
+    }
+    if (payloadVersion.present) {
+      map['payload_version'] = Variable<int>(payloadVersion.value);
+    }
+    if (localRevision.present) {
+      map['local_revision'] = Variable<int>(localRevision.value);
+    }
+    if (baseRemoteRevision.present) {
+      map['base_remote_revision'] = Variable<String>(baseRemoteRevision.value);
+    }
+    if (state.present) {
+      map['state'] = Variable<String>(state.value);
+    }
+    if (attemptCount.present) {
+      map['attempt_count'] = Variable<int>(attemptCount.value);
+    }
+    if (nextAttemptAt.present) {
+      map['next_attempt_at'] = Variable<DateTime>(nextAttemptAt.value);
+    }
+    if (leaseToken.present) {
+      map['lease_token'] = Variable<String>(leaseToken.value);
+    }
+    if (leaseUntil.present) {
+      map['lease_until'] = Variable<DateTime>(leaseUntil.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (lastErrorCode.present) {
+      map['last_error_code'] = Variable<String>(lastErrorCode.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncOutboxCompanion(')
+          ..write('mutationId: $mutationId, ')
+          ..write('accountId: $accountId, ')
+          ..write('dataset: $dataset, ')
+          ..write('entityId: $entityId, ')
+          ..write('operation: $operation, ')
+          ..write('payload: $payload, ')
+          ..write('fieldMask: $fieldMask, ')
+          ..write('payloadVersion: $payloadVersion, ')
+          ..write('localRevision: $localRevision, ')
+          ..write('baseRemoteRevision: $baseRemoteRevision, ')
+          ..write('state: $state, ')
+          ..write('attemptCount: $attemptCount, ')
+          ..write('nextAttemptAt: $nextAttemptAt, ')
+          ..write('leaseToken: $leaseToken, ')
+          ..write('leaseUntil: $leaseUntil, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('lastErrorCode: $lastErrorCode, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SyncCheckpointsTable extends SyncCheckpoints
+    with TableInfo<$SyncCheckpointsTable, SyncCheckpoint> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SyncCheckpointsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _accountIdMeta =
+      const VerificationMeta('accountId');
+  @override
+  late final GeneratedColumn<String> accountId = GeneratedColumn<String>(
+      'account_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _datasetMeta =
+      const VerificationMeta('dataset');
+  @override
+  late final GeneratedColumn<String> dataset = GeneratedColumn<String>(
+      'dataset', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _cursorSecondsMeta =
+      const VerificationMeta('cursorSeconds');
+  @override
+  late final GeneratedColumn<int> cursorSeconds = GeneratedColumn<int>(
+      'cursor_seconds', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _cursorNanosecondsMeta =
+      const VerificationMeta('cursorNanoseconds');
+  @override
+  late final GeneratedColumn<int> cursorNanoseconds = GeneratedColumn<int>(
+      'cursor_nanoseconds', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _cursorDocumentIdMeta =
+      const VerificationMeta('cursorDocumentId');
+  @override
+  late final GeneratedColumn<String> cursorDocumentId = GeneratedColumn<String>(
+      'cursor_document_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _lastSuccessfulAtMeta =
+      const VerificationMeta('lastSuccessfulAt');
+  @override
+  late final GeneratedColumn<DateTime> lastSuccessfulAt =
+      GeneratedColumn<DateTime>('last_successful_at', aliasedName, false,
+          type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        accountId,
+        dataset,
+        cursorSeconds,
+        cursorNanoseconds,
+        cursorDocumentId,
+        lastSuccessfulAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sync_checkpoints';
+  @override
+  VerificationContext validateIntegrity(Insertable<SyncCheckpoint> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('account_id')) {
+      context.handle(_accountIdMeta,
+          accountId.isAcceptableOrUnknown(data['account_id']!, _accountIdMeta));
+    } else if (isInserting) {
+      context.missing(_accountIdMeta);
+    }
+    if (data.containsKey('dataset')) {
+      context.handle(_datasetMeta,
+          dataset.isAcceptableOrUnknown(data['dataset']!, _datasetMeta));
+    } else if (isInserting) {
+      context.missing(_datasetMeta);
+    }
+    if (data.containsKey('cursor_seconds')) {
+      context.handle(
+          _cursorSecondsMeta,
+          cursorSeconds.isAcceptableOrUnknown(
+              data['cursor_seconds']!, _cursorSecondsMeta));
+    } else if (isInserting) {
+      context.missing(_cursorSecondsMeta);
+    }
+    if (data.containsKey('cursor_nanoseconds')) {
+      context.handle(
+          _cursorNanosecondsMeta,
+          cursorNanoseconds.isAcceptableOrUnknown(
+              data['cursor_nanoseconds']!, _cursorNanosecondsMeta));
+    } else if (isInserting) {
+      context.missing(_cursorNanosecondsMeta);
+    }
+    if (data.containsKey('cursor_document_id')) {
+      context.handle(
+          _cursorDocumentIdMeta,
+          cursorDocumentId.isAcceptableOrUnknown(
+              data['cursor_document_id']!, _cursorDocumentIdMeta));
+    } else if (isInserting) {
+      context.missing(_cursorDocumentIdMeta);
+    }
+    if (data.containsKey('last_successful_at')) {
+      context.handle(
+          _lastSuccessfulAtMeta,
+          lastSuccessfulAt.isAcceptableOrUnknown(
+              data['last_successful_at']!, _lastSuccessfulAtMeta));
+    } else if (isInserting) {
+      context.missing(_lastSuccessfulAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {accountId, dataset};
+  @override
+  SyncCheckpoint map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SyncCheckpoint(
+      accountId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}account_id'])!,
+      dataset: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}dataset'])!,
+      cursorSeconds: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}cursor_seconds'])!,
+      cursorNanoseconds: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}cursor_nanoseconds'])!,
+      cursorDocumentId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}cursor_document_id'])!,
+      lastSuccessfulAt: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}last_successful_at'])!,
+    );
+  }
+
+  @override
+  $SyncCheckpointsTable createAlias(String alias) {
+    return $SyncCheckpointsTable(attachedDatabase, alias);
+  }
+}
+
+class SyncCheckpoint extends DataClass implements Insertable<SyncCheckpoint> {
+  final String accountId;
+  final String dataset;
+  final int cursorSeconds;
+  final int cursorNanoseconds;
+  final String cursorDocumentId;
+  final DateTime lastSuccessfulAt;
+  const SyncCheckpoint(
+      {required this.accountId,
+      required this.dataset,
+      required this.cursorSeconds,
+      required this.cursorNanoseconds,
+      required this.cursorDocumentId,
+      required this.lastSuccessfulAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['account_id'] = Variable<String>(accountId);
+    map['dataset'] = Variable<String>(dataset);
+    map['cursor_seconds'] = Variable<int>(cursorSeconds);
+    map['cursor_nanoseconds'] = Variable<int>(cursorNanoseconds);
+    map['cursor_document_id'] = Variable<String>(cursorDocumentId);
+    map['last_successful_at'] = Variable<DateTime>(lastSuccessfulAt);
+    return map;
+  }
+
+  SyncCheckpointsCompanion toCompanion(bool nullToAbsent) {
+    return SyncCheckpointsCompanion(
+      accountId: Value(accountId),
+      dataset: Value(dataset),
+      cursorSeconds: Value(cursorSeconds),
+      cursorNanoseconds: Value(cursorNanoseconds),
+      cursorDocumentId: Value(cursorDocumentId),
+      lastSuccessfulAt: Value(lastSuccessfulAt),
+    );
+  }
+
+  factory SyncCheckpoint.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SyncCheckpoint(
+      accountId: serializer.fromJson<String>(json['accountId']),
+      dataset: serializer.fromJson<String>(json['dataset']),
+      cursorSeconds: serializer.fromJson<int>(json['cursorSeconds']),
+      cursorNanoseconds: serializer.fromJson<int>(json['cursorNanoseconds']),
+      cursorDocumentId: serializer.fromJson<String>(json['cursorDocumentId']),
+      lastSuccessfulAt: serializer.fromJson<DateTime>(json['lastSuccessfulAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'accountId': serializer.toJson<String>(accountId),
+      'dataset': serializer.toJson<String>(dataset),
+      'cursorSeconds': serializer.toJson<int>(cursorSeconds),
+      'cursorNanoseconds': serializer.toJson<int>(cursorNanoseconds),
+      'cursorDocumentId': serializer.toJson<String>(cursorDocumentId),
+      'lastSuccessfulAt': serializer.toJson<DateTime>(lastSuccessfulAt),
+    };
+  }
+
+  SyncCheckpoint copyWith(
+          {String? accountId,
+          String? dataset,
+          int? cursorSeconds,
+          int? cursorNanoseconds,
+          String? cursorDocumentId,
+          DateTime? lastSuccessfulAt}) =>
+      SyncCheckpoint(
+        accountId: accountId ?? this.accountId,
+        dataset: dataset ?? this.dataset,
+        cursorSeconds: cursorSeconds ?? this.cursorSeconds,
+        cursorNanoseconds: cursorNanoseconds ?? this.cursorNanoseconds,
+        cursorDocumentId: cursorDocumentId ?? this.cursorDocumentId,
+        lastSuccessfulAt: lastSuccessfulAt ?? this.lastSuccessfulAt,
+      );
+  SyncCheckpoint copyWithCompanion(SyncCheckpointsCompanion data) {
+    return SyncCheckpoint(
+      accountId: data.accountId.present ? data.accountId.value : this.accountId,
+      dataset: data.dataset.present ? data.dataset.value : this.dataset,
+      cursorSeconds: data.cursorSeconds.present
+          ? data.cursorSeconds.value
+          : this.cursorSeconds,
+      cursorNanoseconds: data.cursorNanoseconds.present
+          ? data.cursorNanoseconds.value
+          : this.cursorNanoseconds,
+      cursorDocumentId: data.cursorDocumentId.present
+          ? data.cursorDocumentId.value
+          : this.cursorDocumentId,
+      lastSuccessfulAt: data.lastSuccessfulAt.present
+          ? data.lastSuccessfulAt.value
+          : this.lastSuccessfulAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncCheckpoint(')
+          ..write('accountId: $accountId, ')
+          ..write('dataset: $dataset, ')
+          ..write('cursorSeconds: $cursorSeconds, ')
+          ..write('cursorNanoseconds: $cursorNanoseconds, ')
+          ..write('cursorDocumentId: $cursorDocumentId, ')
+          ..write('lastSuccessfulAt: $lastSuccessfulAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(accountId, dataset, cursorSeconds,
+      cursorNanoseconds, cursorDocumentId, lastSuccessfulAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SyncCheckpoint &&
+          other.accountId == this.accountId &&
+          other.dataset == this.dataset &&
+          other.cursorSeconds == this.cursorSeconds &&
+          other.cursorNanoseconds == this.cursorNanoseconds &&
+          other.cursorDocumentId == this.cursorDocumentId &&
+          other.lastSuccessfulAt == this.lastSuccessfulAt);
+}
+
+class SyncCheckpointsCompanion extends UpdateCompanion<SyncCheckpoint> {
+  final Value<String> accountId;
+  final Value<String> dataset;
+  final Value<int> cursorSeconds;
+  final Value<int> cursorNanoseconds;
+  final Value<String> cursorDocumentId;
+  final Value<DateTime> lastSuccessfulAt;
+  final Value<int> rowid;
+  const SyncCheckpointsCompanion({
+    this.accountId = const Value.absent(),
+    this.dataset = const Value.absent(),
+    this.cursorSeconds = const Value.absent(),
+    this.cursorNanoseconds = const Value.absent(),
+    this.cursorDocumentId = const Value.absent(),
+    this.lastSuccessfulAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SyncCheckpointsCompanion.insert({
+    required String accountId,
+    required String dataset,
+    required int cursorSeconds,
+    required int cursorNanoseconds,
+    required String cursorDocumentId,
+    required DateTime lastSuccessfulAt,
+    this.rowid = const Value.absent(),
+  })  : accountId = Value(accountId),
+        dataset = Value(dataset),
+        cursorSeconds = Value(cursorSeconds),
+        cursorNanoseconds = Value(cursorNanoseconds),
+        cursorDocumentId = Value(cursorDocumentId),
+        lastSuccessfulAt = Value(lastSuccessfulAt);
+  static Insertable<SyncCheckpoint> custom({
+    Expression<String>? accountId,
+    Expression<String>? dataset,
+    Expression<int>? cursorSeconds,
+    Expression<int>? cursorNanoseconds,
+    Expression<String>? cursorDocumentId,
+    Expression<DateTime>? lastSuccessfulAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (accountId != null) 'account_id': accountId,
+      if (dataset != null) 'dataset': dataset,
+      if (cursorSeconds != null) 'cursor_seconds': cursorSeconds,
+      if (cursorNanoseconds != null) 'cursor_nanoseconds': cursorNanoseconds,
+      if (cursorDocumentId != null) 'cursor_document_id': cursorDocumentId,
+      if (lastSuccessfulAt != null) 'last_successful_at': lastSuccessfulAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SyncCheckpointsCompanion copyWith(
+      {Value<String>? accountId,
+      Value<String>? dataset,
+      Value<int>? cursorSeconds,
+      Value<int>? cursorNanoseconds,
+      Value<String>? cursorDocumentId,
+      Value<DateTime>? lastSuccessfulAt,
+      Value<int>? rowid}) {
+    return SyncCheckpointsCompanion(
+      accountId: accountId ?? this.accountId,
+      dataset: dataset ?? this.dataset,
+      cursorSeconds: cursorSeconds ?? this.cursorSeconds,
+      cursorNanoseconds: cursorNanoseconds ?? this.cursorNanoseconds,
+      cursorDocumentId: cursorDocumentId ?? this.cursorDocumentId,
+      lastSuccessfulAt: lastSuccessfulAt ?? this.lastSuccessfulAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (accountId.present) {
+      map['account_id'] = Variable<String>(accountId.value);
+    }
+    if (dataset.present) {
+      map['dataset'] = Variable<String>(dataset.value);
+    }
+    if (cursorSeconds.present) {
+      map['cursor_seconds'] = Variable<int>(cursorSeconds.value);
+    }
+    if (cursorNanoseconds.present) {
+      map['cursor_nanoseconds'] = Variable<int>(cursorNanoseconds.value);
+    }
+    if (cursorDocumentId.present) {
+      map['cursor_document_id'] = Variable<String>(cursorDocumentId.value);
+    }
+    if (lastSuccessfulAt.present) {
+      map['last_successful_at'] = Variable<DateTime>(lastSuccessfulAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncCheckpointsCompanion(')
+          ..write('accountId: $accountId, ')
+          ..write('dataset: $dataset, ')
+          ..write('cursorSeconds: $cursorSeconds, ')
+          ..write('cursorNanoseconds: $cursorNanoseconds, ')
+          ..write('cursorDocumentId: $cursorDocumentId, ')
+          ..write('lastSuccessfulAt: $lastSuccessfulAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $UserProfilesTable extends UserProfiles
+    with TableInfo<$UserProfilesTable, UserProfile> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $UserProfilesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _accountIdMeta =
+      const VerificationMeta('accountId');
+  @override
+  late final GeneratedColumn<String> accountId = GeneratedColumn<String>(
+      'account_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _payloadMeta =
+      const VerificationMeta('payload');
+  @override
+  late final GeneratedColumn<String> payload = GeneratedColumn<String>(
+      'payload', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('{}'));
+  static const VerificationMeta _localRevisionMeta =
+      const VerificationMeta('localRevision');
+  @override
+  late final GeneratedColumn<int> localRevision = GeneratedColumn<int>(
+      'local_revision', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _remoteRevisionMeta =
+      const VerificationMeta('remoteRevision');
+  @override
+  late final GeneratedColumn<String> remoteRevision = GeneratedColumn<String>(
+      'remote_revision', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _lastMutationIdMeta =
+      const VerificationMeta('lastMutationId');
+  @override
+  late final GeneratedColumn<String> lastMutationId = GeneratedColumn<String>(
+      'last_mutation_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        accountId,
+        payload,
+        localRevision,
+        remoteRevision,
+        deletedAt,
+        lastMutationId
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'user_profiles';
+  @override
+  VerificationContext validateIntegrity(Insertable<UserProfile> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('account_id')) {
+      context.handle(_accountIdMeta,
+          accountId.isAcceptableOrUnknown(data['account_id']!, _accountIdMeta));
+    } else if (isInserting) {
+      context.missing(_accountIdMeta);
+    }
+    if (data.containsKey('payload')) {
+      context.handle(_payloadMeta,
+          payload.isAcceptableOrUnknown(data['payload']!, _payloadMeta));
+    }
+    if (data.containsKey('local_revision')) {
+      context.handle(
+          _localRevisionMeta,
+          localRevision.isAcceptableOrUnknown(
+              data['local_revision']!, _localRevisionMeta));
+    }
+    if (data.containsKey('remote_revision')) {
+      context.handle(
+          _remoteRevisionMeta,
+          remoteRevision.isAcceptableOrUnknown(
+              data['remote_revision']!, _remoteRevisionMeta));
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    if (data.containsKey('last_mutation_id')) {
+      context.handle(
+          _lastMutationIdMeta,
+          lastMutationId.isAcceptableOrUnknown(
+              data['last_mutation_id']!, _lastMutationIdMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {accountId};
+  @override
+  UserProfile map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UserProfile(
+      accountId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}account_id'])!,
+      payload: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}payload'])!,
+      localRevision: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}local_revision'])!,
+      remoteRevision: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}remote_revision']),
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+      lastMutationId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}last_mutation_id']),
+    );
+  }
+
+  @override
+  $UserProfilesTable createAlias(String alias) {
+    return $UserProfilesTable(attachedDatabase, alias);
+  }
+}
+
+class UserProfile extends DataClass implements Insertable<UserProfile> {
+  final String accountId;
+  final String payload;
+  final int localRevision;
+  final String? remoteRevision;
+  final DateTime? deletedAt;
+  final String? lastMutationId;
+  const UserProfile(
+      {required this.accountId,
+      required this.payload,
+      required this.localRevision,
+      this.remoteRevision,
+      this.deletedAt,
+      this.lastMutationId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['account_id'] = Variable<String>(accountId);
+    map['payload'] = Variable<String>(payload);
+    map['local_revision'] = Variable<int>(localRevision);
+    if (!nullToAbsent || remoteRevision != null) {
+      map['remote_revision'] = Variable<String>(remoteRevision);
+    }
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    if (!nullToAbsent || lastMutationId != null) {
+      map['last_mutation_id'] = Variable<String>(lastMutationId);
+    }
+    return map;
+  }
+
+  UserProfilesCompanion toCompanion(bool nullToAbsent) {
+    return UserProfilesCompanion(
+      accountId: Value(accountId),
+      payload: Value(payload),
+      localRevision: Value(localRevision),
+      remoteRevision: remoteRevision == null && nullToAbsent
+          ? const Value.absent()
+          : Value(remoteRevision),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      lastMutationId: lastMutationId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastMutationId),
+    );
+  }
+
+  factory UserProfile.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UserProfile(
+      accountId: serializer.fromJson<String>(json['accountId']),
+      payload: serializer.fromJson<String>(json['payload']),
+      localRevision: serializer.fromJson<int>(json['localRevision']),
+      remoteRevision: serializer.fromJson<String?>(json['remoteRevision']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      lastMutationId: serializer.fromJson<String?>(json['lastMutationId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'accountId': serializer.toJson<String>(accountId),
+      'payload': serializer.toJson<String>(payload),
+      'localRevision': serializer.toJson<int>(localRevision),
+      'remoteRevision': serializer.toJson<String?>(remoteRevision),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'lastMutationId': serializer.toJson<String?>(lastMutationId),
+    };
+  }
+
+  UserProfile copyWith(
+          {String? accountId,
+          String? payload,
+          int? localRevision,
+          Value<String?> remoteRevision = const Value.absent(),
+          Value<DateTime?> deletedAt = const Value.absent(),
+          Value<String?> lastMutationId = const Value.absent()}) =>
+      UserProfile(
+        accountId: accountId ?? this.accountId,
+        payload: payload ?? this.payload,
+        localRevision: localRevision ?? this.localRevision,
+        remoteRevision:
+            remoteRevision.present ? remoteRevision.value : this.remoteRevision,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+        lastMutationId:
+            lastMutationId.present ? lastMutationId.value : this.lastMutationId,
+      );
+  UserProfile copyWithCompanion(UserProfilesCompanion data) {
+    return UserProfile(
+      accountId: data.accountId.present ? data.accountId.value : this.accountId,
+      payload: data.payload.present ? data.payload.value : this.payload,
+      localRevision: data.localRevision.present
+          ? data.localRevision.value
+          : this.localRevision,
+      remoteRevision: data.remoteRevision.present
+          ? data.remoteRevision.value
+          : this.remoteRevision,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      lastMutationId: data.lastMutationId.present
+          ? data.lastMutationId.value
+          : this.lastMutationId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserProfile(')
+          ..write('accountId: $accountId, ')
+          ..write('payload: $payload, ')
+          ..write('localRevision: $localRevision, ')
+          ..write('remoteRevision: $remoteRevision, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('lastMutationId: $lastMutationId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(accountId, payload, localRevision,
+      remoteRevision, deletedAt, lastMutationId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UserProfile &&
+          other.accountId == this.accountId &&
+          other.payload == this.payload &&
+          other.localRevision == this.localRevision &&
+          other.remoteRevision == this.remoteRevision &&
+          other.deletedAt == this.deletedAt &&
+          other.lastMutationId == this.lastMutationId);
+}
+
+class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
+  final Value<String> accountId;
+  final Value<String> payload;
+  final Value<int> localRevision;
+  final Value<String?> remoteRevision;
+  final Value<DateTime?> deletedAt;
+  final Value<String?> lastMutationId;
+  final Value<int> rowid;
+  const UserProfilesCompanion({
+    this.accountId = const Value.absent(),
+    this.payload = const Value.absent(),
+    this.localRevision = const Value.absent(),
+    this.remoteRevision = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.lastMutationId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  UserProfilesCompanion.insert({
+    required String accountId,
+    this.payload = const Value.absent(),
+    this.localRevision = const Value.absent(),
+    this.remoteRevision = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.lastMutationId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : accountId = Value(accountId);
+  static Insertable<UserProfile> custom({
+    Expression<String>? accountId,
+    Expression<String>? payload,
+    Expression<int>? localRevision,
+    Expression<String>? remoteRevision,
+    Expression<DateTime>? deletedAt,
+    Expression<String>? lastMutationId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (accountId != null) 'account_id': accountId,
+      if (payload != null) 'payload': payload,
+      if (localRevision != null) 'local_revision': localRevision,
+      if (remoteRevision != null) 'remote_revision': remoteRevision,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (lastMutationId != null) 'last_mutation_id': lastMutationId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  UserProfilesCompanion copyWith(
+      {Value<String>? accountId,
+      Value<String>? payload,
+      Value<int>? localRevision,
+      Value<String?>? remoteRevision,
+      Value<DateTime?>? deletedAt,
+      Value<String?>? lastMutationId,
+      Value<int>? rowid}) {
+    return UserProfilesCompanion(
+      accountId: accountId ?? this.accountId,
+      payload: payload ?? this.payload,
+      localRevision: localRevision ?? this.localRevision,
+      remoteRevision: remoteRevision ?? this.remoteRevision,
+      deletedAt: deletedAt ?? this.deletedAt,
+      lastMutationId: lastMutationId ?? this.lastMutationId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (accountId.present) {
+      map['account_id'] = Variable<String>(accountId.value);
+    }
+    if (payload.present) {
+      map['payload'] = Variable<String>(payload.value);
+    }
+    if (localRevision.present) {
+      map['local_revision'] = Variable<int>(localRevision.value);
+    }
+    if (remoteRevision.present) {
+      map['remote_revision'] = Variable<String>(remoteRevision.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (lastMutationId.present) {
+      map['last_mutation_id'] = Variable<String>(lastMutationId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserProfilesCompanion(')
+          ..write('accountId: $accountId, ')
+          ..write('payload: $payload, ')
+          ..write('localRevision: $localRevision, ')
+          ..write('remoteRevision: $remoteRevision, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('lastMutationId: $lastMutationId, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -7672,6 +10138,10 @@ abstract class _$DatabaseProvider extends GeneratedDatabase {
   late final $JpnEspExamplesTable jpnEspExamples = $JpnEspExamplesTable(this);
   late final $EsEnConjugacionsTable esEnConjugacions =
       $EsEnConjugacionsTable(this);
+  late final $SyncOutboxTable syncOutbox = $SyncOutboxTable(this);
+  late final $SyncCheckpointsTable syncCheckpoints =
+      $SyncCheckpointsTable(this);
+  late final $UserProfilesTable userProfiles = $UserProfilesTable(this);
   late final EspJpnWordDao espJpnWordDao =
       EspJpnWordDao(this as DatabaseProvider);
   late final RankingDao rankingDao = RankingDao(this as DatabaseProvider);
@@ -7702,7 +10172,10 @@ abstract class _$DatabaseProvider extends GeneratedDatabase {
         jpnEspWordStatus,
         jpnEspDictionaries,
         jpnEspExamples,
-        esEnConjugacions
+        esEnConjugacions,
+        syncOutbox,
+        syncCheckpoints,
+        userProfiles
       ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules(
@@ -8434,6 +10907,7 @@ typedef $$EspJpnWordsTableProcessedTableManager = ProcessedTableManager<
         bool esEnConjugacionsRefs})>;
 typedef $$EspConjugationsTableCreateCompanionBuilder = EspConjugationsCompanion
     Function({
+  Value<int> wordId,
   required String word,
   Value<String?> meaning,
   Value<String?> presentParticiple,
@@ -8485,10 +10959,10 @@ typedef $$EspConjugationsTableCreateCompanionBuilder = EspConjugationsCompanion
   Value<String?> subjunctivePastNosotros,
   Value<String?> subjunctivePastVosotros,
   Value<String?> subjunctivePastEllos,
-  Value<int> wordId,
 });
 typedef $$EspConjugationsTableUpdateCompanionBuilder = EspConjugationsCompanion
     Function({
+  Value<int> wordId,
   Value<String> word,
   Value<String?> meaning,
   Value<String?> presentParticiple,
@@ -8540,7 +11014,6 @@ typedef $$EspConjugationsTableUpdateCompanionBuilder = EspConjugationsCompanion
   Value<String?> subjunctivePastNosotros,
   Value<String?> subjunctivePastVosotros,
   Value<String?> subjunctivePastEllos,
-  Value<int> wordId,
 });
 
 final class $$EspConjugationsTableReferences extends BaseReferences<
@@ -9239,6 +11712,7 @@ class $$EspConjugationsTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$EspConjugationsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
+            Value<int> wordId = const Value.absent(),
             Value<String> word = const Value.absent(),
             Value<String?> meaning = const Value.absent(),
             Value<String?> presentParticiple = const Value.absent(),
@@ -9290,9 +11764,9 @@ class $$EspConjugationsTableTableManager extends RootTableManager<
             Value<String?> subjunctivePastNosotros = const Value.absent(),
             Value<String?> subjunctivePastVosotros = const Value.absent(),
             Value<String?> subjunctivePastEllos = const Value.absent(),
-            Value<int> wordId = const Value.absent(),
           }) =>
               EspConjugationsCompanion(
+            wordId: wordId,
             word: word,
             meaning: meaning,
             presentParticiple: presentParticiple,
@@ -9344,9 +11818,9 @@ class $$EspConjugationsTableTableManager extends RootTableManager<
             subjunctivePastNosotros: subjunctivePastNosotros,
             subjunctivePastVosotros: subjunctivePastVosotros,
             subjunctivePastEllos: subjunctivePastEllos,
-            wordId: wordId,
           ),
           createCompanionCallback: ({
+            Value<int> wordId = const Value.absent(),
             required String word,
             Value<String?> meaning = const Value.absent(),
             Value<String?> presentParticiple = const Value.absent(),
@@ -9398,9 +11872,9 @@ class $$EspConjugationsTableTableManager extends RootTableManager<
             Value<String?> subjunctivePastNosotros = const Value.absent(),
             Value<String?> subjunctivePastVosotros = const Value.absent(),
             Value<String?> subjunctivePastEllos = const Value.absent(),
-            Value<int> wordId = const Value.absent(),
           }) =>
               EspConjugationsCompanion.insert(
+            wordId: wordId,
             word: word,
             meaning: meaning,
             presentParticiple: presentParticiple,
@@ -9452,7 +11926,6 @@ class $$EspConjugationsTableTableManager extends RootTableManager<
             subjunctivePastNosotros: subjunctivePastNosotros,
             subjunctivePastVosotros: subjunctivePastVosotros,
             subjunctivePastEllos: subjunctivePastEllos,
-            wordId: wordId,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (
@@ -10990,20 +13463,20 @@ typedef $$PartOfSpeechListsTableProcessedTableManager = ProcessedTableManager<
     PartOfSpeechList,
     PrefetchHooks Function({bool wordId})>;
 typedef $$RankingsTableCreateCompanionBuilder = RankingsCompanion Function({
+  Value<int?> wordId,
   Value<int> rankingId,
   required int rankingNo,
   Value<String?> word,
   Value<String?> wordOrigin,
   Value<int?> hasConj,
-  Value<int?> wordId,
 });
 typedef $$RankingsTableUpdateCompanionBuilder = RankingsCompanion Function({
+  Value<int?> wordId,
   Value<int> rankingId,
   Value<int> rankingNo,
   Value<String?> word,
   Value<String?> wordOrigin,
   Value<int?> hasConj,
-  Value<int?> wordId,
 });
 
 final class $$RankingsTableReferences extends BaseReferences<_$DatabaseProvider,
@@ -11184,36 +13657,36 @@ class $$RankingsTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$RankingsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
+            Value<int?> wordId = const Value.absent(),
             Value<int> rankingId = const Value.absent(),
             Value<int> rankingNo = const Value.absent(),
             Value<String?> word = const Value.absent(),
             Value<String?> wordOrigin = const Value.absent(),
             Value<int?> hasConj = const Value.absent(),
-            Value<int?> wordId = const Value.absent(),
           }) =>
               RankingsCompanion(
+            wordId: wordId,
             rankingId: rankingId,
             rankingNo: rankingNo,
             word: word,
             wordOrigin: wordOrigin,
             hasConj: hasConj,
-            wordId: wordId,
           ),
           createCompanionCallback: ({
+            Value<int?> wordId = const Value.absent(),
             Value<int> rankingId = const Value.absent(),
             required int rankingNo,
             Value<String?> word = const Value.absent(),
             Value<String?> wordOrigin = const Value.absent(),
             Value<int?> hasConj = const Value.absent(),
-            Value<int?> wordId = const Value.absent(),
           }) =>
               RankingsCompanion.insert(
+            wordId: wordId,
             rankingId: rankingId,
             rankingNo: rankingNo,
             word: word,
             wordOrigin: wordOrigin,
             hasConj: hasConj,
-            wordId: wordId,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) =>
@@ -11625,11 +14098,17 @@ typedef $$EspJpnSupplementsTableProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function({bool dictionaryId, bool exampleId})>;
 typedef $$EspJpnWordStatusTableCreateCompanionBuilder
     = EspJpnWordStatusCompanion Function({
-  Value<int> wordId,
+  required int wordId,
   Value<int?> isLearned,
   Value<int?> isBookmarked,
   Value<int?> hasNote,
   required String editAt,
+  Value<String> accountId,
+  Value<int> localRevision,
+  Value<String?> remoteRevision,
+  Value<DateTime?> deletedAt,
+  Value<String?> lastMutationId,
+  Value<int> rowid,
 });
 typedef $$EspJpnWordStatusTableUpdateCompanionBuilder
     = EspJpnWordStatusCompanion Function({
@@ -11638,6 +14117,12 @@ typedef $$EspJpnWordStatusTableUpdateCompanionBuilder
   Value<int?> isBookmarked,
   Value<int?> hasNote,
   Value<String> editAt,
+  Value<String> accountId,
+  Value<int> localRevision,
+  Value<String?> remoteRevision,
+  Value<DateTime?> deletedAt,
+  Value<String?> lastMutationId,
+  Value<int> rowid,
 });
 
 final class $$EspJpnWordStatusTableReferences extends BaseReferences<
@@ -11682,6 +14167,23 @@ class $$EspJpnWordStatusTableFilterComposer
   ColumnFilters<String> get editAt => $composableBuilder(
       column: $table.editAt, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get localRevision => $composableBuilder(
+      column: $table.localRevision, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get remoteRevision => $composableBuilder(
+      column: $table.remoteRevision,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get lastMutationId => $composableBuilder(
+      column: $table.lastMutationId,
+      builder: (column) => ColumnFilters(column));
+
   $$EspJpnWordsTableFilterComposer get wordId {
     final $$EspJpnWordsTableFilterComposer composer = $composerBuilder(
         composer: this,
@@ -11725,6 +14227,24 @@ class $$EspJpnWordStatusTableOrderingComposer
   ColumnOrderings<String> get editAt => $composableBuilder(
       column: $table.editAt, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get localRevision => $composableBuilder(
+      column: $table.localRevision,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get remoteRevision => $composableBuilder(
+      column: $table.remoteRevision,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get lastMutationId => $composableBuilder(
+      column: $table.lastMutationId,
+      builder: (column) => ColumnOrderings(column));
+
   $$EspJpnWordsTableOrderingComposer get wordId {
     final $$EspJpnWordsTableOrderingComposer composer = $composerBuilder(
         composer: this,
@@ -11766,6 +14286,21 @@ class $$EspJpnWordStatusTableAnnotationComposer
 
   GeneratedColumn<String> get editAt =>
       $composableBuilder(column: $table.editAt, builder: (column) => column);
+
+  GeneratedColumn<String> get accountId =>
+      $composableBuilder(column: $table.accountId, builder: (column) => column);
+
+  GeneratedColumn<int> get localRevision => $composableBuilder(
+      column: $table.localRevision, builder: (column) => column);
+
+  GeneratedColumn<String> get remoteRevision => $composableBuilder(
+      column: $table.remoteRevision, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get lastMutationId => $composableBuilder(
+      column: $table.lastMutationId, builder: (column) => column);
 
   $$EspJpnWordsTableAnnotationComposer get wordId {
     final $$EspJpnWordsTableAnnotationComposer composer = $composerBuilder(
@@ -11817,6 +14352,12 @@ class $$EspJpnWordStatusTableTableManager extends RootTableManager<
             Value<int?> isBookmarked = const Value.absent(),
             Value<int?> hasNote = const Value.absent(),
             Value<String> editAt = const Value.absent(),
+            Value<String> accountId = const Value.absent(),
+            Value<int> localRevision = const Value.absent(),
+            Value<String?> remoteRevision = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<String?> lastMutationId = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
           }) =>
               EspJpnWordStatusCompanion(
             wordId: wordId,
@@ -11824,13 +14365,25 @@ class $$EspJpnWordStatusTableTableManager extends RootTableManager<
             isBookmarked: isBookmarked,
             hasNote: hasNote,
             editAt: editAt,
+            accountId: accountId,
+            localRevision: localRevision,
+            remoteRevision: remoteRevision,
+            deletedAt: deletedAt,
+            lastMutationId: lastMutationId,
+            rowid: rowid,
           ),
           createCompanionCallback: ({
-            Value<int> wordId = const Value.absent(),
+            required int wordId,
             Value<int?> isLearned = const Value.absent(),
             Value<int?> isBookmarked = const Value.absent(),
             Value<int?> hasNote = const Value.absent(),
             required String editAt,
+            Value<String> accountId = const Value.absent(),
+            Value<int> localRevision = const Value.absent(),
+            Value<String?> remoteRevision = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<String?> lastMutationId = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
           }) =>
               EspJpnWordStatusCompanion.insert(
             wordId: wordId,
@@ -11838,6 +14391,12 @@ class $$EspJpnWordStatusTableTableManager extends RootTableManager<
             isBookmarked: isBookmarked,
             hasNote: hasNote,
             editAt: editAt,
+            accountId: accountId,
+            localRevision: localRevision,
+            remoteRevision: remoteRevision,
+            deletedAt: deletedAt,
+            lastMutationId: lastMutationId,
+            rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (
@@ -11901,6 +14460,11 @@ typedef $$MyWordsTableCreateCompanionBuilder = MyWordsCompanion Function({
   required String word,
   Value<String?> contents,
   required String editAt,
+  Value<String> accountId,
+  Value<int> localRevision,
+  Value<String?> remoteRevision,
+  Value<DateTime?> deletedAt,
+  Value<String?> lastMutationId,
   Value<int> rowid,
 });
 typedef $$MyWordsTableUpdateCompanionBuilder = MyWordsCompanion Function({
@@ -11908,6 +14472,11 @@ typedef $$MyWordsTableUpdateCompanionBuilder = MyWordsCompanion Function({
   Value<String> word,
   Value<String?> contents,
   Value<String> editAt,
+  Value<String> accountId,
+  Value<int> localRevision,
+  Value<String?> remoteRevision,
+  Value<DateTime?> deletedAt,
+  Value<String?> lastMutationId,
   Value<int> rowid,
 });
 
@@ -11931,6 +14500,23 @@ class $$MyWordsTableFilterComposer
 
   ColumnFilters<String> get editAt => $composableBuilder(
       column: $table.editAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get localRevision => $composableBuilder(
+      column: $table.localRevision, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get remoteRevision => $composableBuilder(
+      column: $table.remoteRevision,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get lastMutationId => $composableBuilder(
+      column: $table.lastMutationId,
+      builder: (column) => ColumnFilters(column));
 }
 
 class $$MyWordsTableOrderingComposer
@@ -11953,6 +14539,24 @@ class $$MyWordsTableOrderingComposer
 
   ColumnOrderings<String> get editAt => $composableBuilder(
       column: $table.editAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get localRevision => $composableBuilder(
+      column: $table.localRevision,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get remoteRevision => $composableBuilder(
+      column: $table.remoteRevision,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get lastMutationId => $composableBuilder(
+      column: $table.lastMutationId,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$MyWordsTableAnnotationComposer
@@ -11975,6 +14579,21 @@ class $$MyWordsTableAnnotationComposer
 
   GeneratedColumn<String> get editAt =>
       $composableBuilder(column: $table.editAt, builder: (column) => column);
+
+  GeneratedColumn<String> get accountId =>
+      $composableBuilder(column: $table.accountId, builder: (column) => column);
+
+  GeneratedColumn<int> get localRevision => $composableBuilder(
+      column: $table.localRevision, builder: (column) => column);
+
+  GeneratedColumn<String> get remoteRevision => $composableBuilder(
+      column: $table.remoteRevision, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get lastMutationId => $composableBuilder(
+      column: $table.lastMutationId, builder: (column) => column);
 }
 
 class $$MyWordsTableTableManager extends RootTableManager<
@@ -12007,6 +14626,11 @@ class $$MyWordsTableTableManager extends RootTableManager<
             Value<String> word = const Value.absent(),
             Value<String?> contents = const Value.absent(),
             Value<String> editAt = const Value.absent(),
+            Value<String> accountId = const Value.absent(),
+            Value<int> localRevision = const Value.absent(),
+            Value<String?> remoteRevision = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<String?> lastMutationId = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               MyWordsCompanion(
@@ -12014,6 +14638,11 @@ class $$MyWordsTableTableManager extends RootTableManager<
             word: word,
             contents: contents,
             editAt: editAt,
+            accountId: accountId,
+            localRevision: localRevision,
+            remoteRevision: remoteRevision,
+            deletedAt: deletedAt,
+            lastMutationId: lastMutationId,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -12021,6 +14650,11 @@ class $$MyWordsTableTableManager extends RootTableManager<
             required String word,
             Value<String?> contents = const Value.absent(),
             required String editAt,
+            Value<String> accountId = const Value.absent(),
+            Value<int> localRevision = const Value.absent(),
+            Value<String?> remoteRevision = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<String?> lastMutationId = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               MyWordsCompanion.insert(
@@ -12028,6 +14662,11 @@ class $$MyWordsTableTableManager extends RootTableManager<
             word: word,
             contents: contents,
             editAt: editAt,
+            accountId: accountId,
+            localRevision: localRevision,
+            remoteRevision: remoteRevision,
+            deletedAt: deletedAt,
+            lastMutationId: lastMutationId,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -12059,6 +14698,11 @@ typedef $$MyWordStatusTableCreateCompanionBuilder = MyWordStatusCompanion
   Value<int?> isBookmarked,
   Value<int?> hasNote,
   required String editAt,
+  Value<String> accountId,
+  Value<int> localRevision,
+  Value<String?> remoteRevision,
+  Value<DateTime?> deletedAt,
+  Value<String?> lastMutationId,
   Value<int> rowid,
 });
 typedef $$MyWordStatusTableUpdateCompanionBuilder = MyWordStatusCompanion
@@ -12068,6 +14712,11 @@ typedef $$MyWordStatusTableUpdateCompanionBuilder = MyWordStatusCompanion
   Value<int?> isBookmarked,
   Value<int?> hasNote,
   Value<String> editAt,
+  Value<String> accountId,
+  Value<int> localRevision,
+  Value<String?> remoteRevision,
+  Value<DateTime?> deletedAt,
+  Value<String?> lastMutationId,
   Value<int> rowid,
 });
 
@@ -12094,6 +14743,23 @@ class $$MyWordStatusTableFilterComposer
 
   ColumnFilters<String> get editAt => $composableBuilder(
       column: $table.editAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get localRevision => $composableBuilder(
+      column: $table.localRevision, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get remoteRevision => $composableBuilder(
+      column: $table.remoteRevision,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get lastMutationId => $composableBuilder(
+      column: $table.lastMutationId,
+      builder: (column) => ColumnFilters(column));
 }
 
 class $$MyWordStatusTableOrderingComposer
@@ -12120,6 +14786,24 @@ class $$MyWordStatusTableOrderingComposer
 
   ColumnOrderings<String> get editAt => $composableBuilder(
       column: $table.editAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get localRevision => $composableBuilder(
+      column: $table.localRevision,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get remoteRevision => $composableBuilder(
+      column: $table.remoteRevision,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get lastMutationId => $composableBuilder(
+      column: $table.lastMutationId,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$MyWordStatusTableAnnotationComposer
@@ -12145,6 +14829,21 @@ class $$MyWordStatusTableAnnotationComposer
 
   GeneratedColumn<String> get editAt =>
       $composableBuilder(column: $table.editAt, builder: (column) => column);
+
+  GeneratedColumn<String> get accountId =>
+      $composableBuilder(column: $table.accountId, builder: (column) => column);
+
+  GeneratedColumn<int> get localRevision => $composableBuilder(
+      column: $table.localRevision, builder: (column) => column);
+
+  GeneratedColumn<String> get remoteRevision => $composableBuilder(
+      column: $table.remoteRevision, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get lastMutationId => $composableBuilder(
+      column: $table.lastMutationId, builder: (column) => column);
 }
 
 class $$MyWordStatusTableTableManager extends RootTableManager<
@@ -12180,6 +14879,11 @@ class $$MyWordStatusTableTableManager extends RootTableManager<
             Value<int?> isBookmarked = const Value.absent(),
             Value<int?> hasNote = const Value.absent(),
             Value<String> editAt = const Value.absent(),
+            Value<String> accountId = const Value.absent(),
+            Value<int> localRevision = const Value.absent(),
+            Value<String?> remoteRevision = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<String?> lastMutationId = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               MyWordStatusCompanion(
@@ -12188,6 +14892,11 @@ class $$MyWordStatusTableTableManager extends RootTableManager<
             isBookmarked: isBookmarked,
             hasNote: hasNote,
             editAt: editAt,
+            accountId: accountId,
+            localRevision: localRevision,
+            remoteRevision: remoteRevision,
+            deletedAt: deletedAt,
+            lastMutationId: lastMutationId,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -12196,6 +14905,11 @@ class $$MyWordStatusTableTableManager extends RootTableManager<
             Value<int?> isBookmarked = const Value.absent(),
             Value<int?> hasNote = const Value.absent(),
             required String editAt,
+            Value<String> accountId = const Value.absent(),
+            Value<int> localRevision = const Value.absent(),
+            Value<String?> remoteRevision = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<String?> lastMutationId = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               MyWordStatusCompanion.insert(
@@ -12204,6 +14918,11 @@ class $$MyWordStatusTableTableManager extends RootTableManager<
             isBookmarked: isBookmarked,
             hasNote: hasNote,
             editAt: editAt,
+            accountId: accountId,
+            localRevision: localRevision,
+            remoteRevision: remoteRevision,
+            deletedAt: deletedAt,
+            lastMutationId: lastMutationId,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -12520,11 +15239,17 @@ typedef $$JpnEspWordsTableProcessedTableManager = ProcessedTableManager<
         {bool jpnEspWordStatusRefs, bool jpnEspDictionariesRefs})>;
 typedef $$JpnEspWordStatusTableCreateCompanionBuilder
     = JpnEspWordStatusCompanion Function({
-  Value<int> wordId,
+  required int wordId,
   Value<int?> isLearned,
   Value<int?> isBookmarked,
   Value<int?> hasNote,
   required String editAt,
+  Value<String> accountId,
+  Value<int> localRevision,
+  Value<String?> remoteRevision,
+  Value<DateTime?> deletedAt,
+  Value<String?> lastMutationId,
+  Value<int> rowid,
 });
 typedef $$JpnEspWordStatusTableUpdateCompanionBuilder
     = JpnEspWordStatusCompanion Function({
@@ -12533,6 +15258,12 @@ typedef $$JpnEspWordStatusTableUpdateCompanionBuilder
   Value<int?> isBookmarked,
   Value<int?> hasNote,
   Value<String> editAt,
+  Value<String> accountId,
+  Value<int> localRevision,
+  Value<String?> remoteRevision,
+  Value<DateTime?> deletedAt,
+  Value<String?> lastMutationId,
+  Value<int> rowid,
 });
 
 final class $$JpnEspWordStatusTableReferences extends BaseReferences<
@@ -12577,6 +15308,23 @@ class $$JpnEspWordStatusTableFilterComposer
   ColumnFilters<String> get editAt => $composableBuilder(
       column: $table.editAt, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get localRevision => $composableBuilder(
+      column: $table.localRevision, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get remoteRevision => $composableBuilder(
+      column: $table.remoteRevision,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get lastMutationId => $composableBuilder(
+      column: $table.lastMutationId,
+      builder: (column) => ColumnFilters(column));
+
   $$JpnEspWordsTableFilterComposer get wordId {
     final $$JpnEspWordsTableFilterComposer composer = $composerBuilder(
         composer: this,
@@ -12620,6 +15368,24 @@ class $$JpnEspWordStatusTableOrderingComposer
   ColumnOrderings<String> get editAt => $composableBuilder(
       column: $table.editAt, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get localRevision => $composableBuilder(
+      column: $table.localRevision,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get remoteRevision => $composableBuilder(
+      column: $table.remoteRevision,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get lastMutationId => $composableBuilder(
+      column: $table.lastMutationId,
+      builder: (column) => ColumnOrderings(column));
+
   $$JpnEspWordsTableOrderingComposer get wordId {
     final $$JpnEspWordsTableOrderingComposer composer = $composerBuilder(
         composer: this,
@@ -12661,6 +15427,21 @@ class $$JpnEspWordStatusTableAnnotationComposer
 
   GeneratedColumn<String> get editAt =>
       $composableBuilder(column: $table.editAt, builder: (column) => column);
+
+  GeneratedColumn<String> get accountId =>
+      $composableBuilder(column: $table.accountId, builder: (column) => column);
+
+  GeneratedColumn<int> get localRevision => $composableBuilder(
+      column: $table.localRevision, builder: (column) => column);
+
+  GeneratedColumn<String> get remoteRevision => $composableBuilder(
+      column: $table.remoteRevision, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get lastMutationId => $composableBuilder(
+      column: $table.lastMutationId, builder: (column) => column);
 
   $$JpnEspWordsTableAnnotationComposer get wordId {
     final $$JpnEspWordsTableAnnotationComposer composer = $composerBuilder(
@@ -12712,6 +15493,12 @@ class $$JpnEspWordStatusTableTableManager extends RootTableManager<
             Value<int?> isBookmarked = const Value.absent(),
             Value<int?> hasNote = const Value.absent(),
             Value<String> editAt = const Value.absent(),
+            Value<String> accountId = const Value.absent(),
+            Value<int> localRevision = const Value.absent(),
+            Value<String?> remoteRevision = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<String?> lastMutationId = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
           }) =>
               JpnEspWordStatusCompanion(
             wordId: wordId,
@@ -12719,13 +15506,25 @@ class $$JpnEspWordStatusTableTableManager extends RootTableManager<
             isBookmarked: isBookmarked,
             hasNote: hasNote,
             editAt: editAt,
+            accountId: accountId,
+            localRevision: localRevision,
+            remoteRevision: remoteRevision,
+            deletedAt: deletedAt,
+            lastMutationId: lastMutationId,
+            rowid: rowid,
           ),
           createCompanionCallback: ({
-            Value<int> wordId = const Value.absent(),
+            required int wordId,
             Value<int?> isLearned = const Value.absent(),
             Value<int?> isBookmarked = const Value.absent(),
             Value<int?> hasNote = const Value.absent(),
             required String editAt,
+            Value<String> accountId = const Value.absent(),
+            Value<int> localRevision = const Value.absent(),
+            Value<String?> remoteRevision = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<String?> lastMutationId = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
           }) =>
               JpnEspWordStatusCompanion.insert(
             wordId: wordId,
@@ -12733,6 +15532,12 @@ class $$JpnEspWordStatusTableTableManager extends RootTableManager<
             isBookmarked: isBookmarked,
             hasNote: hasNote,
             editAt: editAt,
+            accountId: accountId,
+            localRevision: localRevision,
+            remoteRevision: remoteRevision,
+            deletedAt: deletedAt,
+            lastMutationId: lastMutationId,
+            rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (
@@ -13463,23 +16268,23 @@ typedef $$JpnEspExamplesTableProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function({bool dictionaryId})>;
 typedef $$EsEnConjugacionsTableCreateCompanionBuilder
     = EsEnConjugacionsCompanion Function({
+  Value<int> wordId,
   Value<String?> word,
   Value<String?> english,
   Value<String?> present3rd,
   Value<String?> presentP,
   Value<String?> past,
   Value<String?> pastP,
-  Value<int> wordId,
 });
 typedef $$EsEnConjugacionsTableUpdateCompanionBuilder
     = EsEnConjugacionsCompanion Function({
+  Value<int> wordId,
   Value<String?> word,
   Value<String?> english,
   Value<String?> present3rd,
   Value<String?> presentP,
   Value<String?> past,
   Value<String?> pastP,
-  Value<int> wordId,
 });
 
 final class $$EsEnConjugacionsTableReferences extends BaseReferences<
@@ -13671,40 +16476,40 @@ class $$EsEnConjugacionsTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$EsEnConjugacionsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
+            Value<int> wordId = const Value.absent(),
             Value<String?> word = const Value.absent(),
             Value<String?> english = const Value.absent(),
             Value<String?> present3rd = const Value.absent(),
             Value<String?> presentP = const Value.absent(),
             Value<String?> past = const Value.absent(),
             Value<String?> pastP = const Value.absent(),
-            Value<int> wordId = const Value.absent(),
           }) =>
               EsEnConjugacionsCompanion(
+            wordId: wordId,
             word: word,
             english: english,
             present3rd: present3rd,
             presentP: presentP,
             past: past,
             pastP: pastP,
-            wordId: wordId,
           ),
           createCompanionCallback: ({
+            Value<int> wordId = const Value.absent(),
             Value<String?> word = const Value.absent(),
             Value<String?> english = const Value.absent(),
             Value<String?> present3rd = const Value.absent(),
             Value<String?> presentP = const Value.absent(),
             Value<String?> past = const Value.absent(),
             Value<String?> pastP = const Value.absent(),
-            Value<int> wordId = const Value.absent(),
           }) =>
               EsEnConjugacionsCompanion.insert(
+            wordId: wordId,
             word: word,
             english: english,
             present3rd: present3rd,
             presentP: presentP,
             past: past,
             pastP: pastP,
-            wordId: wordId,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (
@@ -13763,6 +16568,755 @@ typedef $$EsEnConjugacionsTableProcessedTableManager = ProcessedTableManager<
     (EsEnConjugacionTableData, $$EsEnConjugacionsTableReferences),
     EsEnConjugacionTableData,
     PrefetchHooks Function({bool wordId})>;
+typedef $$SyncOutboxTableCreateCompanionBuilder = SyncOutboxCompanion Function({
+  required String mutationId,
+  required String accountId,
+  required String dataset,
+  required String entityId,
+  required String operation,
+  required String payload,
+  required String fieldMask,
+  required int payloadVersion,
+  required int localRevision,
+  Value<String?> baseRemoteRevision,
+  required String state,
+  Value<int> attemptCount,
+  required DateTime nextAttemptAt,
+  Value<String?> leaseToken,
+  Value<DateTime?> leaseUntil,
+  required DateTime createdAt,
+  Value<String?> lastErrorCode,
+  Value<int> rowid,
+});
+typedef $$SyncOutboxTableUpdateCompanionBuilder = SyncOutboxCompanion Function({
+  Value<String> mutationId,
+  Value<String> accountId,
+  Value<String> dataset,
+  Value<String> entityId,
+  Value<String> operation,
+  Value<String> payload,
+  Value<String> fieldMask,
+  Value<int> payloadVersion,
+  Value<int> localRevision,
+  Value<String?> baseRemoteRevision,
+  Value<String> state,
+  Value<int> attemptCount,
+  Value<DateTime> nextAttemptAt,
+  Value<String?> leaseToken,
+  Value<DateTime?> leaseUntil,
+  Value<DateTime> createdAt,
+  Value<String?> lastErrorCode,
+  Value<int> rowid,
+});
+
+class $$SyncOutboxTableFilterComposer
+    extends Composer<_$DatabaseProvider, $SyncOutboxTable> {
+  $$SyncOutboxTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get mutationId => $composableBuilder(
+      column: $table.mutationId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get dataset => $composableBuilder(
+      column: $table.dataset, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get entityId => $composableBuilder(
+      column: $table.entityId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get operation => $composableBuilder(
+      column: $table.operation, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get payload => $composableBuilder(
+      column: $table.payload, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get fieldMask => $composableBuilder(
+      column: $table.fieldMask, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get payloadVersion => $composableBuilder(
+      column: $table.payloadVersion,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get localRevision => $composableBuilder(
+      column: $table.localRevision, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get baseRemoteRevision => $composableBuilder(
+      column: $table.baseRemoteRevision,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get state => $composableBuilder(
+      column: $table.state, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get attemptCount => $composableBuilder(
+      column: $table.attemptCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get nextAttemptAt => $composableBuilder(
+      column: $table.nextAttemptAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get leaseToken => $composableBuilder(
+      column: $table.leaseToken, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get leaseUntil => $composableBuilder(
+      column: $table.leaseUntil, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get lastErrorCode => $composableBuilder(
+      column: $table.lastErrorCode, builder: (column) => ColumnFilters(column));
+}
+
+class $$SyncOutboxTableOrderingComposer
+    extends Composer<_$DatabaseProvider, $SyncOutboxTable> {
+  $$SyncOutboxTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get mutationId => $composableBuilder(
+      column: $table.mutationId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get dataset => $composableBuilder(
+      column: $table.dataset, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get entityId => $composableBuilder(
+      column: $table.entityId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get operation => $composableBuilder(
+      column: $table.operation, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get payload => $composableBuilder(
+      column: $table.payload, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get fieldMask => $composableBuilder(
+      column: $table.fieldMask, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get payloadVersion => $composableBuilder(
+      column: $table.payloadVersion,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get localRevision => $composableBuilder(
+      column: $table.localRevision,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get baseRemoteRevision => $composableBuilder(
+      column: $table.baseRemoteRevision,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get state => $composableBuilder(
+      column: $table.state, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get attemptCount => $composableBuilder(
+      column: $table.attemptCount,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get nextAttemptAt => $composableBuilder(
+      column: $table.nextAttemptAt,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get leaseToken => $composableBuilder(
+      column: $table.leaseToken, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get leaseUntil => $composableBuilder(
+      column: $table.leaseUntil, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get lastErrorCode => $composableBuilder(
+      column: $table.lastErrorCode,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$SyncOutboxTableAnnotationComposer
+    extends Composer<_$DatabaseProvider, $SyncOutboxTable> {
+  $$SyncOutboxTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get mutationId => $composableBuilder(
+      column: $table.mutationId, builder: (column) => column);
+
+  GeneratedColumn<String> get accountId =>
+      $composableBuilder(column: $table.accountId, builder: (column) => column);
+
+  GeneratedColumn<String> get dataset =>
+      $composableBuilder(column: $table.dataset, builder: (column) => column);
+
+  GeneratedColumn<String> get entityId =>
+      $composableBuilder(column: $table.entityId, builder: (column) => column);
+
+  GeneratedColumn<String> get operation =>
+      $composableBuilder(column: $table.operation, builder: (column) => column);
+
+  GeneratedColumn<String> get payload =>
+      $composableBuilder(column: $table.payload, builder: (column) => column);
+
+  GeneratedColumn<String> get fieldMask =>
+      $composableBuilder(column: $table.fieldMask, builder: (column) => column);
+
+  GeneratedColumn<int> get payloadVersion => $composableBuilder(
+      column: $table.payloadVersion, builder: (column) => column);
+
+  GeneratedColumn<int> get localRevision => $composableBuilder(
+      column: $table.localRevision, builder: (column) => column);
+
+  GeneratedColumn<String> get baseRemoteRevision => $composableBuilder(
+      column: $table.baseRemoteRevision, builder: (column) => column);
+
+  GeneratedColumn<String> get state =>
+      $composableBuilder(column: $table.state, builder: (column) => column);
+
+  GeneratedColumn<int> get attemptCount => $composableBuilder(
+      column: $table.attemptCount, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get nextAttemptAt => $composableBuilder(
+      column: $table.nextAttemptAt, builder: (column) => column);
+
+  GeneratedColumn<String> get leaseToken => $composableBuilder(
+      column: $table.leaseToken, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get leaseUntil => $composableBuilder(
+      column: $table.leaseUntil, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get lastErrorCode => $composableBuilder(
+      column: $table.lastErrorCode, builder: (column) => column);
+}
+
+class $$SyncOutboxTableTableManager extends RootTableManager<
+    _$DatabaseProvider,
+    $SyncOutboxTable,
+    SyncOutboxData,
+    $$SyncOutboxTableFilterComposer,
+    $$SyncOutboxTableOrderingComposer,
+    $$SyncOutboxTableAnnotationComposer,
+    $$SyncOutboxTableCreateCompanionBuilder,
+    $$SyncOutboxTableUpdateCompanionBuilder,
+    (
+      SyncOutboxData,
+      BaseReferences<_$DatabaseProvider, $SyncOutboxTable, SyncOutboxData>
+    ),
+    SyncOutboxData,
+    PrefetchHooks Function()> {
+  $$SyncOutboxTableTableManager(_$DatabaseProvider db, $SyncOutboxTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SyncOutboxTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SyncOutboxTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SyncOutboxTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> mutationId = const Value.absent(),
+            Value<String> accountId = const Value.absent(),
+            Value<String> dataset = const Value.absent(),
+            Value<String> entityId = const Value.absent(),
+            Value<String> operation = const Value.absent(),
+            Value<String> payload = const Value.absent(),
+            Value<String> fieldMask = const Value.absent(),
+            Value<int> payloadVersion = const Value.absent(),
+            Value<int> localRevision = const Value.absent(),
+            Value<String?> baseRemoteRevision = const Value.absent(),
+            Value<String> state = const Value.absent(),
+            Value<int> attemptCount = const Value.absent(),
+            Value<DateTime> nextAttemptAt = const Value.absent(),
+            Value<String?> leaseToken = const Value.absent(),
+            Value<DateTime?> leaseUntil = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<String?> lastErrorCode = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SyncOutboxCompanion(
+            mutationId: mutationId,
+            accountId: accountId,
+            dataset: dataset,
+            entityId: entityId,
+            operation: operation,
+            payload: payload,
+            fieldMask: fieldMask,
+            payloadVersion: payloadVersion,
+            localRevision: localRevision,
+            baseRemoteRevision: baseRemoteRevision,
+            state: state,
+            attemptCount: attemptCount,
+            nextAttemptAt: nextAttemptAt,
+            leaseToken: leaseToken,
+            leaseUntil: leaseUntil,
+            createdAt: createdAt,
+            lastErrorCode: lastErrorCode,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String mutationId,
+            required String accountId,
+            required String dataset,
+            required String entityId,
+            required String operation,
+            required String payload,
+            required String fieldMask,
+            required int payloadVersion,
+            required int localRevision,
+            Value<String?> baseRemoteRevision = const Value.absent(),
+            required String state,
+            Value<int> attemptCount = const Value.absent(),
+            required DateTime nextAttemptAt,
+            Value<String?> leaseToken = const Value.absent(),
+            Value<DateTime?> leaseUntil = const Value.absent(),
+            required DateTime createdAt,
+            Value<String?> lastErrorCode = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SyncOutboxCompanion.insert(
+            mutationId: mutationId,
+            accountId: accountId,
+            dataset: dataset,
+            entityId: entityId,
+            operation: operation,
+            payload: payload,
+            fieldMask: fieldMask,
+            payloadVersion: payloadVersion,
+            localRevision: localRevision,
+            baseRemoteRevision: baseRemoteRevision,
+            state: state,
+            attemptCount: attemptCount,
+            nextAttemptAt: nextAttemptAt,
+            leaseToken: leaseToken,
+            leaseUntil: leaseUntil,
+            createdAt: createdAt,
+            lastErrorCode: lastErrorCode,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$SyncOutboxTableProcessedTableManager = ProcessedTableManager<
+    _$DatabaseProvider,
+    $SyncOutboxTable,
+    SyncOutboxData,
+    $$SyncOutboxTableFilterComposer,
+    $$SyncOutboxTableOrderingComposer,
+    $$SyncOutboxTableAnnotationComposer,
+    $$SyncOutboxTableCreateCompanionBuilder,
+    $$SyncOutboxTableUpdateCompanionBuilder,
+    (
+      SyncOutboxData,
+      BaseReferences<_$DatabaseProvider, $SyncOutboxTable, SyncOutboxData>
+    ),
+    SyncOutboxData,
+    PrefetchHooks Function()>;
+typedef $$SyncCheckpointsTableCreateCompanionBuilder = SyncCheckpointsCompanion
+    Function({
+  required String accountId,
+  required String dataset,
+  required int cursorSeconds,
+  required int cursorNanoseconds,
+  required String cursorDocumentId,
+  required DateTime lastSuccessfulAt,
+  Value<int> rowid,
+});
+typedef $$SyncCheckpointsTableUpdateCompanionBuilder = SyncCheckpointsCompanion
+    Function({
+  Value<String> accountId,
+  Value<String> dataset,
+  Value<int> cursorSeconds,
+  Value<int> cursorNanoseconds,
+  Value<String> cursorDocumentId,
+  Value<DateTime> lastSuccessfulAt,
+  Value<int> rowid,
+});
+
+class $$SyncCheckpointsTableFilterComposer
+    extends Composer<_$DatabaseProvider, $SyncCheckpointsTable> {
+  $$SyncCheckpointsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get dataset => $composableBuilder(
+      column: $table.dataset, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get cursorSeconds => $composableBuilder(
+      column: $table.cursorSeconds, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get cursorNanoseconds => $composableBuilder(
+      column: $table.cursorNanoseconds,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get cursorDocumentId => $composableBuilder(
+      column: $table.cursorDocumentId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lastSuccessfulAt => $composableBuilder(
+      column: $table.lastSuccessfulAt,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$SyncCheckpointsTableOrderingComposer
+    extends Composer<_$DatabaseProvider, $SyncCheckpointsTable> {
+  $$SyncCheckpointsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get dataset => $composableBuilder(
+      column: $table.dataset, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get cursorSeconds => $composableBuilder(
+      column: $table.cursorSeconds,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get cursorNanoseconds => $composableBuilder(
+      column: $table.cursorNanoseconds,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get cursorDocumentId => $composableBuilder(
+      column: $table.cursorDocumentId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lastSuccessfulAt => $composableBuilder(
+      column: $table.lastSuccessfulAt,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$SyncCheckpointsTableAnnotationComposer
+    extends Composer<_$DatabaseProvider, $SyncCheckpointsTable> {
+  $$SyncCheckpointsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get accountId =>
+      $composableBuilder(column: $table.accountId, builder: (column) => column);
+
+  GeneratedColumn<String> get dataset =>
+      $composableBuilder(column: $table.dataset, builder: (column) => column);
+
+  GeneratedColumn<int> get cursorSeconds => $composableBuilder(
+      column: $table.cursorSeconds, builder: (column) => column);
+
+  GeneratedColumn<int> get cursorNanoseconds => $composableBuilder(
+      column: $table.cursorNanoseconds, builder: (column) => column);
+
+  GeneratedColumn<String> get cursorDocumentId => $composableBuilder(
+      column: $table.cursorDocumentId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastSuccessfulAt => $composableBuilder(
+      column: $table.lastSuccessfulAt, builder: (column) => column);
+}
+
+class $$SyncCheckpointsTableTableManager extends RootTableManager<
+    _$DatabaseProvider,
+    $SyncCheckpointsTable,
+    SyncCheckpoint,
+    $$SyncCheckpointsTableFilterComposer,
+    $$SyncCheckpointsTableOrderingComposer,
+    $$SyncCheckpointsTableAnnotationComposer,
+    $$SyncCheckpointsTableCreateCompanionBuilder,
+    $$SyncCheckpointsTableUpdateCompanionBuilder,
+    (
+      SyncCheckpoint,
+      BaseReferences<_$DatabaseProvider, $SyncCheckpointsTable, SyncCheckpoint>
+    ),
+    SyncCheckpoint,
+    PrefetchHooks Function()> {
+  $$SyncCheckpointsTableTableManager(
+      _$DatabaseProvider db, $SyncCheckpointsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SyncCheckpointsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SyncCheckpointsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SyncCheckpointsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> accountId = const Value.absent(),
+            Value<String> dataset = const Value.absent(),
+            Value<int> cursorSeconds = const Value.absent(),
+            Value<int> cursorNanoseconds = const Value.absent(),
+            Value<String> cursorDocumentId = const Value.absent(),
+            Value<DateTime> lastSuccessfulAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SyncCheckpointsCompanion(
+            accountId: accountId,
+            dataset: dataset,
+            cursorSeconds: cursorSeconds,
+            cursorNanoseconds: cursorNanoseconds,
+            cursorDocumentId: cursorDocumentId,
+            lastSuccessfulAt: lastSuccessfulAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String accountId,
+            required String dataset,
+            required int cursorSeconds,
+            required int cursorNanoseconds,
+            required String cursorDocumentId,
+            required DateTime lastSuccessfulAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SyncCheckpointsCompanion.insert(
+            accountId: accountId,
+            dataset: dataset,
+            cursorSeconds: cursorSeconds,
+            cursorNanoseconds: cursorNanoseconds,
+            cursorDocumentId: cursorDocumentId,
+            lastSuccessfulAt: lastSuccessfulAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$SyncCheckpointsTableProcessedTableManager = ProcessedTableManager<
+    _$DatabaseProvider,
+    $SyncCheckpointsTable,
+    SyncCheckpoint,
+    $$SyncCheckpointsTableFilterComposer,
+    $$SyncCheckpointsTableOrderingComposer,
+    $$SyncCheckpointsTableAnnotationComposer,
+    $$SyncCheckpointsTableCreateCompanionBuilder,
+    $$SyncCheckpointsTableUpdateCompanionBuilder,
+    (
+      SyncCheckpoint,
+      BaseReferences<_$DatabaseProvider, $SyncCheckpointsTable, SyncCheckpoint>
+    ),
+    SyncCheckpoint,
+    PrefetchHooks Function()>;
+typedef $$UserProfilesTableCreateCompanionBuilder = UserProfilesCompanion
+    Function({
+  required String accountId,
+  Value<String> payload,
+  Value<int> localRevision,
+  Value<String?> remoteRevision,
+  Value<DateTime?> deletedAt,
+  Value<String?> lastMutationId,
+  Value<int> rowid,
+});
+typedef $$UserProfilesTableUpdateCompanionBuilder = UserProfilesCompanion
+    Function({
+  Value<String> accountId,
+  Value<String> payload,
+  Value<int> localRevision,
+  Value<String?> remoteRevision,
+  Value<DateTime?> deletedAt,
+  Value<String?> lastMutationId,
+  Value<int> rowid,
+});
+
+class $$UserProfilesTableFilterComposer
+    extends Composer<_$DatabaseProvider, $UserProfilesTable> {
+  $$UserProfilesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get payload => $composableBuilder(
+      column: $table.payload, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get localRevision => $composableBuilder(
+      column: $table.localRevision, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get remoteRevision => $composableBuilder(
+      column: $table.remoteRevision,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get lastMutationId => $composableBuilder(
+      column: $table.lastMutationId,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$UserProfilesTableOrderingComposer
+    extends Composer<_$DatabaseProvider, $UserProfilesTable> {
+  $$UserProfilesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get payload => $composableBuilder(
+      column: $table.payload, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get localRevision => $composableBuilder(
+      column: $table.localRevision,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get remoteRevision => $composableBuilder(
+      column: $table.remoteRevision,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get lastMutationId => $composableBuilder(
+      column: $table.lastMutationId,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$UserProfilesTableAnnotationComposer
+    extends Composer<_$DatabaseProvider, $UserProfilesTable> {
+  $$UserProfilesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get accountId =>
+      $composableBuilder(column: $table.accountId, builder: (column) => column);
+
+  GeneratedColumn<String> get payload =>
+      $composableBuilder(column: $table.payload, builder: (column) => column);
+
+  GeneratedColumn<int> get localRevision => $composableBuilder(
+      column: $table.localRevision, builder: (column) => column);
+
+  GeneratedColumn<String> get remoteRevision => $composableBuilder(
+      column: $table.remoteRevision, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get lastMutationId => $composableBuilder(
+      column: $table.lastMutationId, builder: (column) => column);
+}
+
+class $$UserProfilesTableTableManager extends RootTableManager<
+    _$DatabaseProvider,
+    $UserProfilesTable,
+    UserProfile,
+    $$UserProfilesTableFilterComposer,
+    $$UserProfilesTableOrderingComposer,
+    $$UserProfilesTableAnnotationComposer,
+    $$UserProfilesTableCreateCompanionBuilder,
+    $$UserProfilesTableUpdateCompanionBuilder,
+    (
+      UserProfile,
+      BaseReferences<_$DatabaseProvider, $UserProfilesTable, UserProfile>
+    ),
+    UserProfile,
+    PrefetchHooks Function()> {
+  $$UserProfilesTableTableManager(
+      _$DatabaseProvider db, $UserProfilesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$UserProfilesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$UserProfilesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$UserProfilesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> accountId = const Value.absent(),
+            Value<String> payload = const Value.absent(),
+            Value<int> localRevision = const Value.absent(),
+            Value<String?> remoteRevision = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<String?> lastMutationId = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              UserProfilesCompanion(
+            accountId: accountId,
+            payload: payload,
+            localRevision: localRevision,
+            remoteRevision: remoteRevision,
+            deletedAt: deletedAt,
+            lastMutationId: lastMutationId,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String accountId,
+            Value<String> payload = const Value.absent(),
+            Value<int> localRevision = const Value.absent(),
+            Value<String?> remoteRevision = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<String?> lastMutationId = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              UserProfilesCompanion.insert(
+            accountId: accountId,
+            payload: payload,
+            localRevision: localRevision,
+            remoteRevision: remoteRevision,
+            deletedAt: deletedAt,
+            lastMutationId: lastMutationId,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$UserProfilesTableProcessedTableManager = ProcessedTableManager<
+    _$DatabaseProvider,
+    $UserProfilesTable,
+    UserProfile,
+    $$UserProfilesTableFilterComposer,
+    $$UserProfilesTableOrderingComposer,
+    $$UserProfilesTableAnnotationComposer,
+    $$UserProfilesTableCreateCompanionBuilder,
+    $$UserProfilesTableUpdateCompanionBuilder,
+    (
+      UserProfile,
+      BaseReferences<_$DatabaseProvider, $UserProfilesTable, UserProfile>
+    ),
+    UserProfile,
+    PrefetchHooks Function()>;
 
 class $DatabaseProviderManager {
   final _$DatabaseProvider _db;
@@ -13799,4 +17353,10 @@ class $DatabaseProviderManager {
       $$JpnEspExamplesTableTableManager(_db, _db.jpnEspExamples);
   $$EsEnConjugacionsTableTableManager get esEnConjugacions =>
       $$EsEnConjugacionsTableTableManager(_db, _db.esEnConjugacions);
+  $$SyncOutboxTableTableManager get syncOutbox =>
+      $$SyncOutboxTableTableManager(_db, _db.syncOutbox);
+  $$SyncCheckpointsTableTableManager get syncCheckpoints =>
+      $$SyncCheckpointsTableTableManager(_db, _db.syncCheckpoints);
+  $$UserProfilesTableTableManager get userProfiles =>
+      $$UserProfilesTableTableManager(_db, _db.userProfiles);
 }

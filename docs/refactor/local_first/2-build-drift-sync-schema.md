@@ -1,6 +1,6 @@
 # Local-first 2: Driftへ同期schemaとaccount scopeを追加する
 
-- 状態: 未着手
+- 状態: 完了
 - 優先度: P0 / データ整合性
 - 依存タスク: [`1-define-local-first-contract.md`](1-define-local-first-contract.md)、[`../phase0/2-repair-v5-migration.md`](../phase0/2-repair-v5-migration.md)
 - 関連タスク: [`3-build-sync-queue.md`](3-build-sync-queue.md)、[`../phase0/3-scope-sync-checkpoints.md`](../phase0/3-scope-sync-checkpoints.md)
@@ -70,13 +70,12 @@ primary keyは`(accountId, dataset)`とする。
 
 ## 完了条件
 
-- [ ] 全user-owned tableがaccount scopeを持つ
-- [ ] `sync_outbox`と`sync_checkpoints`がDrift管理である
-- [ ] deleteがtombstoneとして保持できる
-- [ ] 全旧schemaからデータを失わずupgradeできる
-- [ ] guest・legacy・signed-in accountが混在しない
+- [x] 全user-owned tableがaccount scopeを持つ
+- [x] `sync_outbox`と`sync_checkpoints`がDrift管理である
+- [x] deleteがtombstoneとして保持できる
+- [x] 全旧schemaからデータを失わずupgradeできる
+- [x] guest・legacy・signed-in accountが混在しない
 
 ## LLMへの引き継ぎ事項
 
 checkpoint adapterの置換はPhase 0-3の契約を否定するものではない。account/dataset分離と完全成功時のみ進める保証を維持し、保存先とcursor表現を強化する。
-

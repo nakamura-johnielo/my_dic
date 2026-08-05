@@ -1,6 +1,6 @@
 # Local-first 4: SyncEngineとSyncReportを実装する
 
-- 状態: 未着手
+- 状態: 完了
 - 優先度: P0 / 同期orchestration
 - 依存タスク: [`3-build-sync-queue.md`](3-build-sync-queue.md)
 - 関連タスク: [`../phase1/1-create-composition-root.md`](../phase1/1-create-composition-root.md)、[`../phase1/4-introduce-current-session.md`](../phase1/4-introduce-current-session.md)、[`../phase2/6-consume-sync-report.md`](../phase2/6-consume-sync-report.md)
@@ -66,13 +66,12 @@ SyncEngineはcollection名やfeature固有DTOをswitch文で扱わない。
 
 ## 完了条件
 
-- [ ] `runOnce`がdataset別の型付き結果を返す
-- [ ] Queue、handler、session、clockをfakeで差し替えられる
-- [ ] EngineからFirebase/Drift具体型への直接依存がない
-- [ ] account切替で旧accountの反映・ackが停止する
-- [ ] schedulerがEngineを起動するだけの責務になっている
+- [x] `runOnce`がdataset別の型付き結果を返す
+- [x] Queue、handler、session、clockをfakeで差し替えられる
+- [x] EngineからFirebase/Drift具体型への直接依存がない
+- [x] account切替で旧accountの反映・ackが停止する
+- [x] schedulerがEngineを起動するだけの責務になっている
 
 ## LLMへの引き継ぎ事項
 
 旧`SyncService`へ新規責務を積み増さない。新Engineを並行構築し、dataset単位の切替が完了した後に旧実装を削除する。
-

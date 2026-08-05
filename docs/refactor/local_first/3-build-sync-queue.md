@@ -1,6 +1,6 @@
 # Local-first 3: Drift永続SyncQueueを実装する
 
-- 状態: 未着手
+- 状態: 完了
 - 優先度: P0 / 再送保証
 - 依存タスク: [`2-build-drift-sync-schema.md`](2-build-drift-sync-schema.md)、[`../phase0/4-fix-result-propagation.md`](../phase0/4-fix-result-propagation.md)
 - 関連タスク: [`4-build-sync-engine.md`](4-build-sync-engine.md)
@@ -49,13 +49,12 @@ releaseExpiredLeases(now)
 
 ## 完了条件
 
-- [ ] Engine停止後も未送信mutationが失われない
-- [ ] ack条件がrevisionで保護されている
-- [ ] retryable/non-retryableが型またはerror codeで区別される
-- [ ] Queue以外のdirty flagが未送信状態のwriterになっていない
-- [ ] Queue contract testがDrift実装とfake実装の両方に適用される
+- [x] Engine停止後も未送信mutationが失われない
+- [x] ack条件がrevisionで保護されている
+- [x] retryable/non-retryableが型またはerror codeで区別される
+- [x] Queue以外のdirty flagが未送信状態のwriterになっていない
+- [x] Queue contract testがDrift実装とfake実装の両方に適用される
 
 ## LLMへの引き継ぎ事項
 
 application層から「Repository更新後にQueueへ追加」という二段階呼出しをしない。atomicityは同じDrift databaseを所有するinfrastructure transactionで保証する。
-

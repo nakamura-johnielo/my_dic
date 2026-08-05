@@ -8,15 +8,19 @@ part '../../../../../__generated/features/my_word/data/data_source/local/drift_m
 class MyWordDao extends DatabaseAccessor<DatabaseProvider>
     with _$MyWordDaoMixin {
   MyWordDao(super.database);
+  static const legacyOwner = 'legacy_unowned';
 
   Future<MyWordTableData?> getMyWordById(String id) {
-    return (select(myWords)..where((tbl) => tbl.myWordId.equals(id)))
+    return (select(myWords)
+          ..where((tbl) =>
+              tbl.myWordId.equals(id) & tbl.accountId.equals(legacyOwner)))
         .getSingleOrNull();
   }
 
   Future<List<MyWordTableData>?> getFilteredMyWordByPage(
       int size, int offset) async {
     return (select(myWords)
+          ..where((t) => t.accountId.equals(legacyOwner))
           ..orderBy([
             (t) => OrderingTerm.desc(t.editAt),
           ])
@@ -27,6 +31,7 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
   Future<List<String>?> getIdsFilteredMyWordByPage(int size, int offset) async {
     final query = selectOnly(myWords)
       ..addColumns([myWords.myWordId])
+      ..where(myWords.accountId.equals(legacyOwner))
       ..orderBy([
         OrderingTerm.desc(myWords.editAt),
       ])
@@ -43,16 +48,22 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
       word: Value(headword),
       contents: Value(description),
       editAt: Value(dateTime),
+      accountId: const Value(legacyOwner),
     ));
   }
 
   Future<int> deleteMyword(String wordId, String editAt) async {
     return await transaction(() async {
       // 子テーブルのデータを削除
-      await (delete(myWordStatus)..where((tbl) => tbl.myWordId.equals(wordId)))
+      await (delete(myWordStatus)
+            ..where((tbl) =>
+                tbl.myWordId.equals(wordId) &
+                tbl.accountId.equals(legacyOwner)))
           .go();
       final rows = await (delete(myWords)
-            ..where((tbl) => tbl.myWordId.equals(wordId)))
+            ..where((tbl) =>
+                tbl.myWordId.equals(wordId) &
+                tbl.accountId.equals(legacyOwner)))
           .go();
       return rows;
     });
@@ -60,7 +71,9 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
 
   Future<int> updateMyWord(
       String id, String word, String contents, String dateTime) async {
-    return await (update(myWords)..where((tbl) => tbl.myWordId.equals(id)))
+    return await (update(myWords)
+          ..where((tbl) =>
+              tbl.myWordId.equals(id) & tbl.accountId.equals(legacyOwner)))
         .write(
       MyWordsCompanion(
           myWordId: Value(id),
@@ -72,20 +85,26 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
 
   Future<List<MyWordTableData>> getMyWordsAfter(String dateTime) {
     return (select(myWords)
-          ..where((tbl) => tbl.editAt.isBiggerOrEqualValue(dateTime)))
+          ..where((tbl) =>
+              tbl.accountId.equals(legacyOwner) &
+              tbl.editAt.isBiggerOrEqualValue(dateTime)))
         .get();
   }
 
   Stream<List<String>> watchMyWordIdsAfter(String dateTime) {
     return (select(myWords)
-          ..where((tbl) => tbl.editAt.isBiggerOrEqualValue(dateTime)))
+          ..where((tbl) =>
+              tbl.accountId.equals(legacyOwner) &
+              tbl.editAt.isBiggerOrEqualValue(dateTime)))
         .watch()
         .map((rows) => rows.map((r) => r.myWordId).toList())
         .distinct();
   }
 
   Stream<MyWordTableData?> streamMyWordById(String id) {
-    return (select(myWords)..where((tbl) => tbl.myWordId.equals(id)))
+    return (select(myWords)
+          ..where((tbl) =>
+              tbl.myWordId.equals(id) & tbl.accountId.equals(legacyOwner)))
         .watchSingleOrNull()
         .distinct();
   }

@@ -9,17 +9,21 @@ part '../../../../../../__generated/core/infrastructure/database/drift/daos/jpn_
 class JpnEspWordStatusDao extends DatabaseAccessor<DatabaseProvider>
     with _$JpnEspWordStatusDaoMixin {
   JpnEspWordStatusDao(super.database);
+  static const legacyOwner = 'legacy_unowned';
 
   Stream<JpnEspWordStatusTableData?> watchWordStatus(int wordId) {
-    return (select(jpnEspWordStatus)..where((tbl) => tbl.wordId.equals(wordId)))
+    return (select(jpnEspWordStatus)
+          ..where((tbl) =>
+              tbl.wordId.equals(wordId) & tbl.accountId.equals(legacyOwner)))
         .watchSingleOrNull()
         .distinct();
   }
 
   Stream<List<int>> watchChangedWordIdsWithFilter(DateTime since) {
     return (select(jpnEspWordStatus)
-          ..where(
-              (tbl) => tbl.editAt.isBiggerThanValue(since.toIso8601String())))
+          ..where((tbl) =>
+              tbl.accountId.equals(legacyOwner) &
+              tbl.editAt.isBiggerThanValue(since.toIso8601String())))
         .watch()
         .map((rows) => rows.map((row) => row.wordId).toList())
         .distinct();
@@ -37,15 +41,18 @@ class JpnEspWordStatusDao extends DatabaseAccessor<DatabaseProvider>
       if (existing == null) {
         await into(jpnEspWordStatus).insert(
           JpnEspWordStatusCompanion.insert(
-            wordId: Value(wordId),
+            wordId: wordId,
             isLearned: Value(isLearned == true ? 1 : 0),
             isBookmarked: Value(isBookmarked == true ? 1 : 0),
             hasNote: Value(hasNote == true ? 1 : 0),
             editAt: editAt,
+            accountId: const Value(legacyOwner),
           ),
         );
       } else {
-        await (update(jpnEspWordStatus)..where((t) => t.wordId.equals(wordId)))
+        await (update(jpnEspWordStatus)
+              ..where((t) =>
+                  t.wordId.equals(wordId) & t.accountId.equals(legacyOwner)))
             .write(
           JpnEspWordStatusCompanion(
             isLearned: isLearned != null
@@ -71,7 +78,9 @@ class JpnEspWordStatusDao extends DatabaseAccessor<DatabaseProvider>
   }
 
   Future<JpnEspWordStatusTableData?> getStatusById(int wordId) {
-    return (select(jpnEspWordStatus)..where((tbl) => tbl.wordId.equals(wordId)))
+    return (select(jpnEspWordStatus)
+          ..where((tbl) =>
+              tbl.wordId.equals(wordId) & tbl.accountId.equals(legacyOwner)))
         .getSingleOrNull();
   }
 
@@ -79,6 +88,7 @@ class JpnEspWordStatusDao extends DatabaseAccessor<DatabaseProvider>
       DateTime datetime) {
     return (select(jpnEspWordStatus)
           ..where((tbl) =>
+              tbl.accountId.equals(legacyOwner) &
               tbl.editAt.isBiggerThanValue(datetime.toIso8601String())))
         .get();
   }
@@ -90,7 +100,7 @@ class JpnEspWordStatusDao extends DatabaseAccessor<DatabaseProvider>
 
   Future<bool> exist(int id) async {
     final existingColum = await (select(jpnEspWordStatus)
-          ..where((t) => t.wordId.equals(id)))
+          ..where((t) => t.wordId.equals(id) & t.accountId.equals(legacyOwner)))
         .getSingleOrNull();
     return existingColum != null;
   }

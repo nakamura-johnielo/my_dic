@@ -1,12 +1,5 @@
-enum SyncDataset {
-  myWords('my_words'),
-  myWordStatus('my_word_status'),
-  espJpnWordStatus('esp_jpn_word_status');
-
-  const SyncDataset(this.stableId);
-
-  final String stableId;
-}
+import 'package:my_dic/core/shared/enums/sync_dataset.dart';
+export 'package:my_dic/core/shared/enums/sync_dataset.dart';
 
 class SyncCheckpointKey {
   SyncCheckpointKey({
@@ -44,5 +37,5 @@ class SyncCheckpoint {
 
   final SyncCheckpointKey key;
   final DateTime lastSuccessfulAt;
-  final String? remoteCursor;
+  final String? remoteCursor;//TODO:Q? remote cursor??
 }

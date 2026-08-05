@@ -30,6 +30,8 @@ class MyWordStatusRepository implements IMyWordStatusRepository {
         isBookmarked: input.isBookmarked ?? 0,
         hasNote: input.hasNote ?? 0,
         editAt: input.editAt.toIso8601String(),
+        accountId: 'legacy_unowned',
+        localRevision: 0,
       );
 
       if (await _localDataSource.existStatus(input.wordId)) {
@@ -237,6 +239,8 @@ class MyWordStatusRepository implements IMyWordStatusRepository {
         isBookmarked: input.isBookmarked ?? 0,
         hasNote: input.hasNote ?? 0,
         editAt: input.editAt.toIso8601String(),
+        accountId: 'legacy_unowned',
+        localRevision: 0,
       );
 
       if (await _localDataSource.existStatus(input.wordId)) {

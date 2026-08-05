@@ -1,6 +1,6 @@
 # Local-first 1: 同期contractとSource of Truthを固定する
 
-- 状態: 未着手
+- 状態: 完了
 - 優先度: P0 / 設計基盤
 - 依存タスク: Phase 0完了
 - 関連タスク: [`2-build-drift-sync-schema.md`](2-build-drift-sync-schema.md)、[`../phase1/2-enforce-import-boundaries.md`](../phase1/2-enforce-import-boundaries.md)
@@ -44,6 +44,12 @@ Drift、Firebase、SyncEngine、feature Repositoryの責務を一意にし、dat
 - pull cursorはserver `updatedAt`とdocument IDの複合値とし、clientの`DateTime.now()`を進捗根拠にしない。
 - 同一timestamp、再取得、順不同を許容し、Drift反映を冪等にする。
 
+## server acknowledgment
+
+- Firebaseのlocal cache反映やpending-write付きsnapshotはackではない。
+- remote write Futureがbackend commitを確認し、かつsession epochとlease tokenが現在も一致する場合だけserver-confirmedとする。
+- Queue rowの削除はserver-confirmed後に`mutationId + leaseToken + leasedLocalRevision`が一致した場合だけ行う。
+
 ## 必須テスト設計
 
 - 同じmutationの複数回配送で最終状態が変わらない
@@ -54,13 +60,12 @@ Drift、Firebase、SyncEngine、feature Repositoryの責務を一意にし、dat
 
 ## 完了条件
 
-- [ ] SoTと例外が文書・型・import規則で一意である
-- [ ] dataset ID、依存順、競合、削除、cursor方針が決定済みである
-- [ ] 通常Repositoryとremote replicaの境界が決定済みである
-- [ ] server acknowledgmentの定義がFirebase local cache受付と区別されている
-- [ ] 後続タスクが追加判断なしで実装できる
+- [x] SoTと例外が文書・型・import規則で一意である
+- [x] dataset ID、依存順、競合、削除、cursor方針が決定済みである
+- [x] 通常Repositoryとremote replicaの境界が決定済みである
+- [x] server acknowledgmentの定義がFirebase local cache受付と区別されている
+- [x] 後続タスクが追加判断なしで実装できる
 
 ## LLMへの引き継ぎ事項
 
 同期共通型をfeature循環回避のため無条件に`core`へ置かない。SyncEngineが所有する契約は`features/sync`へ置き、feature固有DTOとmerge規則は所有featureへ残す。
-

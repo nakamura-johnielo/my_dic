@@ -9,8 +9,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('DatabaseProvider legacy migrations', () {
-    for (final version in [1, 2, 3, 4]) {
-      test('migrates v$version MyWord relations and values to v5', () async {
+    for (final version in [1, 2, 3, 4, 5]) {
+      test('migrates v$version MyWord relations and values to v6', () async {
         final fixture = await _LegacyFixture.create(version: version);
         final database = DatabaseProvider.forTesting(
           NativeDatabase(fixture.file),
@@ -35,7 +35,15 @@ void main() {
               await database.customSelect('PRAGMA user_version;').getSingle();
 
           expect(idColumn.data['type'], 'TEXT');
-          expect(userVersion.data['user_version'], 5);
+          expect(userVersion.data['user_version'], 6);
+          final ownership = await database.customSelect('''
+            SELECT account_id, local_revision, deleted_at
+            FROM my_words ORDER BY CAST(my_word_id AS INTEGER)
+          ''').get();
+          expect(ownership.map((row) => row.data['account_id']),
+              everyElement('legacy_unowned'));
+          expect(ownership.map((row) => row.data['local_revision']),
+              everyElement(0));
           expect(
             words.map((row) => row.data).toList(),
             [
@@ -155,13 +163,13 @@ class _LegacyFixture {
     try {
       legacy.execute('''
         CREATE TABLE my_words (
-          my_word_id INTEGER PRIMARY KEY,
+          my_word_id ${version >= 5 ? 'TEXT' : 'INTEGER'} PRIMARY KEY,
           word TEXT NOT NULL,
           contents TEXT,
           edit_at TEXT NOT NULL
         );
         CREATE TABLE my_word_status (
-          my_word_id INTEGER PRIMARY KEY,
+          my_word_id ${version >= 5 ? 'TEXT' : 'INTEGER'} PRIMARY KEY,
           is_learned INTEGER,
           is_bookmarked INTEGER,
           has_note INTEGER,

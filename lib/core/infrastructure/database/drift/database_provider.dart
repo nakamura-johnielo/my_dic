@@ -29,6 +29,9 @@ import 'package:my_dic/features/ranking/data/data_source/local/rankings_entity.d
 import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/supplements.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/word_status.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/words.dart';
+import 'package:my_dic/core/infrastructure/database/drift/tables/sync/sync_outbox.dart';
+import 'package:my_dic/core/infrastructure/database/drift/tables/sync/sync_checkpoints.dart';
+import 'package:my_dic/core/infrastructure/database/drift/tables/sync/user_profiles.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 
@@ -67,6 +70,9 @@ part '../../../../__generated/core/infrastructure/database/drift/database_provid
   JpnEspDictionaries,
   JpnEspExamples,
   EsEnConjugacions,
+  SyncOutbox,
+  SyncCheckpoints,
+  UserProfiles,
 ], daos: [
   EspJpnWordDao,
   RankingDao,
@@ -98,7 +104,7 @@ class DatabaseProvider extends _$DatabaseProvider {
   }
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
   //==============================================================
   //2025/11/12
   // EsEnConjugacionsテーブル追加
@@ -114,6 +120,7 @@ class DatabaseProvider extends _$DatabaseProvider {
         AppLogger.print("Platform: ${kIsWeb ? 'WEB' : 'NATIVE'}");
         AppLogger.print("🔍 DEBUG: kIsWeb = $kIsWeb");
         await m.createAll();
+        await _createSyncOutboxIndexes();
         AppLogger.print("Tables created successfully");
 
         // Web環境の場合、JSONからデータをシード
@@ -320,6 +327,14 @@ class DatabaseProvider extends _$DatabaseProvider {
             });
           }
         }
+
+        if (from < 6) {
+          await _migrateUserOwnedTablesToV6();
+          await m.createTable(syncOutbox);
+          await m.createTable(syncCheckpoints);
+          await m.createTable(userProfiles);
+          await _createSyncOutboxIndexes();
+        }
       },
       beforeOpen: (details) async {
         AppLogger.print("==== DB Migration beforeOpen ===");
@@ -342,6 +357,113 @@ class DatabaseProvider extends _$DatabaseProvider {
         }
       },
     );
+  }
+}
+
+extension on DatabaseProvider {
+  Future<void> _createSyncOutboxIndexes() async {
+    await customStatement(
+        'CREATE INDEX IF NOT EXISTS sync_outbox_pending_idx ON sync_outbox (account_id, dataset, state, next_attempt_at, created_at)');
+    await customStatement(
+        'CREATE INDEX IF NOT EXISTS sync_outbox_entity_idx ON sync_outbox (account_id, dataset, entity_id, state)');
+    await customStatement(
+        'CREATE INDEX IF NOT EXISTS sync_outbox_lease_idx ON sync_outbox (lease_until, state)');
+  }
+
+  Future<void> _migrateUserOwnedTablesToV6() async {
+    await _rebuildOwnedTable(
+      table: 'my_words',
+      createSql: '''CREATE TABLE my_words_v6 (
+        my_word_id TEXT NOT NULL, word TEXT NOT NULL, contents TEXT,
+        edit_at TEXT NOT NULL, account_id TEXT NOT NULL,
+        local_revision INTEGER NOT NULL DEFAULT 0, remote_revision TEXT,
+        deleted_at INTEGER, last_mutation_id TEXT,
+        PRIMARY KEY (account_id, my_word_id), CHECK (account_id <> ''))''',
+      columns: const ['my_word_id', 'word', 'contents', 'edit_at'],
+    );
+    await _rebuildOwnedTable(
+      table: 'my_word_status',
+      createSql: '''CREATE TABLE my_word_status_v6 (
+        my_word_id TEXT NOT NULL, is_learned INTEGER, is_bookmarked INTEGER,
+        has_note INTEGER, edit_at TEXT NOT NULL, account_id TEXT NOT NULL,
+        local_revision INTEGER NOT NULL DEFAULT 0, remote_revision TEXT,
+        deleted_at INTEGER, last_mutation_id TEXT,
+        PRIMARY KEY (account_id, my_word_id), CHECK (account_id <> ''))''',
+      columns: const [
+        'my_word_id',
+        'is_learned',
+        'is_bookmarked',
+        'has_note',
+        'edit_at'
+      ],
+    );
+    await _rebuildOwnedTable(
+      table: 'word_status',
+      createSql: '''CREATE TABLE word_status_v6 (
+        word_id INTEGER NOT NULL, is_learned INTEGER, is_bookmarked INTEGER,
+        has_note INTEGER, edit_at TEXT NOT NULL, account_id TEXT NOT NULL,
+        local_revision INTEGER NOT NULL DEFAULT 0, remote_revision TEXT,
+        deleted_at INTEGER, last_mutation_id TEXT,
+        PRIMARY KEY (account_id, word_id),
+        FOREIGN KEY (word_id) REFERENCES words (word_id) ON DELETE CASCADE,
+        CHECK (account_id <> ''))''',
+      columns: const [
+        'word_id',
+        'is_learned',
+        'is_bookmarked',
+        'has_note',
+        'edit_at'
+      ],
+    );
+    await _rebuildOwnedTable(
+      table: 'jpn_esp_word_status',
+      createSql: '''CREATE TABLE jpn_esp_word_status_v6 (
+        jpn_esp_word_id INTEGER NOT NULL, is_learned INTEGER,
+        is_bookmarked INTEGER, has_note INTEGER, edit_at TEXT NOT NULL,
+        account_id TEXT NOT NULL, local_revision INTEGER NOT NULL DEFAULT 0,
+        remote_revision TEXT, deleted_at INTEGER, last_mutation_id TEXT,
+        PRIMARY KEY (account_id, jpn_esp_word_id),
+        FOREIGN KEY (jpn_esp_word_id) REFERENCES jpn_esp_words (jpn_esp_word_id) ON DELETE CASCADE,
+        CHECK (account_id <> ''))''',
+      columns: const [
+        'jpn_esp_word_id',
+        'is_learned',
+        'is_bookmarked',
+        'has_note',
+        'edit_at'
+      ],
+    );
+  }
+
+  Future<void> _rebuildOwnedTable({
+    required String table,
+    required String createSql,
+    required List<String> columns,
+  }) async {
+    final exists = await customSelect(
+      "SELECT 1 FROM sqlite_master WHERE type='table' AND name='$table'",
+    ).getSingleOrNull();
+    if (exists == null) return;
+    final info = await customSelect("PRAGMA table_info('$table')").get();
+    final accountPk = info.any((row) =>
+        row.data['name'] == 'account_id' && (row.data['pk'] as int? ?? 0) > 0);
+    if (accountPk) return;
+    final shadow = '${table}_v6';
+    await customStatement('DROP TABLE IF EXISTS $shadow');
+    await customStatement(createSql);
+    final columnList = columns.join(', ');
+    await customStatement('''INSERT INTO $shadow
+      ($columnList, account_id, local_revision)
+      SELECT $columnList, 'legacy_unowned', 0 FROM $table''');
+    final before =
+        await customSelect('SELECT COUNT(*) AS c FROM $table').getSingle();
+    final after =
+        await customSelect('SELECT COUNT(*) AS c FROM $shadow').getSingle();
+    if (before.data['c'] != after.data['c']) {
+      throw StateError('Row count mismatch while migrating $table');
+    }
+    await customStatement('DROP TABLE $table');
+    await customStatement('ALTER TABLE $shadow RENAME TO $table');
   }
 }
 

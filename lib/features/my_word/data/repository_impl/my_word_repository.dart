@@ -352,6 +352,8 @@ class MyWordRepository implements IMyWordRepository {
         word: myWord.word,
         contents: myWord.contents,
         editAt: now.toIso8601String(),
+        accountId: 'legacy_unowned',
+        localRevision: 0,
       );
       // Need to add updateMyWordFromData method to data source
       // For now, use existing updateMyWord
