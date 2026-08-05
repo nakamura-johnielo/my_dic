@@ -56,7 +56,7 @@ class AppAuthCoordinator {
 
     return result.when(
       success: (appAuth) async {
-        AppLogger.print("**********signin success**********");
+        AppLogger.event('auth.sign_in.succeeded');
         _authStoreNotifier.setAuth(appAuth);
         return Result.success(appAuth);
       },

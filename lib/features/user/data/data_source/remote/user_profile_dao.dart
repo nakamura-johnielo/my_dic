@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/features/user/data/dto/user_dto.dart';
 
 class UserDao {
@@ -17,12 +16,8 @@ class UserDao {
 
   // Assume this class has a method to get user profile data from Firestore
   Future<UserDTO?> getUser(String uid) async {
-    AppLogger.print("~~~~~~~~~~~~~~~~~~~~DAO getUser: $uid");
     final doc = await _db.collection(collectionName).doc(uid).get();
-    AppLogger.print("~~~~~~~~~~~~~~~~~~~~DAO getUser doc: ${doc.data()}");
     if (!doc.exists || doc.data() == null) return null;
-    AppLogger.print("~~~~~~~~~~~~~~~~~~~~DAO getUser doc:EXISTs");
-    AppLogger.print("~~~~~~~~~~~~~~~~~~~~DTO: ${ UserDTO.fromFirebase(doc).toString()}");
     return UserDTO.fromFirebase(doc);
   }
 

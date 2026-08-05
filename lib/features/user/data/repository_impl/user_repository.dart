@@ -5,7 +5,6 @@ import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/shared/utils/uuid.dart';
-import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/features/user/data/data_source/local/i_user_local_data_source.dart';
 import 'package:my_dic/features/user/data/dto/local_user_dto.dart';
 import 'package:my_dic/features/user/domain/entity/user.dart';
@@ -49,7 +48,6 @@ class UserRepository implements IUserRepository {
   @override
   Future<Result<AppUser>> getUserByAccountId(String id) async {
     try {
-      AppLogger.print("reposiotry.getbyid");
       final deviceId = await _getDeviceId();
 
       if (deviceId.isEmpty) {
@@ -57,16 +55,12 @@ class UserRepository implements IUserRepository {
           message: 'device ID が生成されていません',
         ));
       }
-      AppLogger.print("deviceId=$deviceId");
       final dto = await _remote.getUserById(id);
-      AppLogger.print("pass dto found==${dto?.userId}");
       if (dto == null) {
-        AppLogger.print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!dto null");
         return Result.failure(UserNotFoundError(
           message: 'ユーザーが見つかりません',
         ));
       }
-      AppLogger.print("dto found==${dto.userId}");
       final user = AppUser(
         username: dto.userName,
         email: dto.email,

@@ -12,8 +12,8 @@ class FirebaseJpnEspWordStatusDao {
   Future<void> updateBatch(
       String userId, List<JpnEspWordStatusDTO> wordStatusList) async {
     final batchSize = FirebaseConsts.batchSize;
-    AppLogger.print("======================updateBatch JpnEsp=====================");
-    AppLogger.print("userID : $userId");
+    AppLogger.print(
+        "======================updateBatch JpnEsp=====================");
     wordStatusList.map((e) => AppLogger.print("wordId: ${e.wordId}"));
 
     for (int i = 0; i < wordStatusList.length; i += batchSize) {
@@ -47,7 +47,8 @@ class FirebaseJpnEspWordStatusDao {
     return JpnEspWordStatusDTO.fromFirebase(doc);
   }
 
-  Future<void> update(JpnEspWordStatusDTO wordStatusEntity, String userId) async {
+  Future<void> update(
+      JpnEspWordStatusDTO wordStatusEntity, String userId) async {
     final docRef = _db
         .collection(UserDTO.collectionName)
         .doc(userId)

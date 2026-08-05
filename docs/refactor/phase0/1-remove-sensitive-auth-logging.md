@@ -1,6 +1,6 @@
 # Phase 0-1: 認証機密情報のログ出力を除去する
 
-- 状態: 未着手
+- 状態: 完了
 - 優先度: P0 / セキュリティ
 - 依存タスク: なし
 - 次の推奨タスク: [`2-repair-v5-migration.md`](2-repair-v5-migration.md)
@@ -46,11 +46,11 @@ debug限定ログであっても、開発端末、CI、クラッシュ収集、�
 
 ## 完了条件
 
-- [ ] refresh tokenを取得するコードがアプリから削除されている
-- [ ] token、password、Authorization headerを出力する経路がない
-- [ ] 認証成功・失敗ログに秘密値が含まれない
-- [ ] 再混入を検出するtestまたはCI checkがある
-- [ ] sign-in、sign-outの挙動が変わっていない
+- [x] refresh tokenを取得するコードがアプリから削除されている
+- [x] token、password、Authorization headerを出力する経路がない
+- [x] 認証成功・失敗ログに秘密値が含まれない
+- [x] 再混入を検出するtestまたはCI checkがある
+- [x] sign-in、sign-outの挙動が変わっていない
 
 ## LLMへの引き継ぎ事項
 

@@ -14,7 +14,6 @@ class FirebaseWordStatusDao {
     //batch sizeごとにまとめて実行
     final batchSize = FirebaseConsts.batchSize;
     AppLogger.print("======================updateBatch=====================");
-    AppLogger.print("userID : $userId");
     wordStatusList.map((e) => AppLogger.print("wordId: ${e.wordId}"));
 
     for (int i = 0; i < wordStatusList.length; i += batchSize) {

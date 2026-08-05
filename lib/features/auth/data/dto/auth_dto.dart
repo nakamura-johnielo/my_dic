@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/core/shared/enums/auth/provider_type.dart';
 
 /// Firebase Authentication の生データを表すDTO
@@ -30,7 +29,6 @@ class AuthDTO {
     }
 
     final provider = userCredential.credential?.providerId;
-    AppLogger.print("auth Email: ${user.email}");
 
     return AuthDTO(
         accountId: user.uid,

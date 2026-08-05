@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/features/auth/data/dto/auth_dto.dart';
 
 class FirebaseAuthDao {
@@ -11,19 +10,9 @@ class FirebaseAuthDao {
     // authStateChangesにするかuserChangesにするかは要検討
     return _auth.userChanges().map(
       (user) {
-        AppLogger.print("!!!!!!auth state changed!!!!");
-
-        final res = user != null ? AuthDTO.fromFirebaseUser(user) : null;
-        user != null ? _printBatch(user) : AppLogger.print("user null");
-        return res;
+        return user != null ? AuthDTO.fromFirebaseUser(user) : null;
       },
     );
-  }
-
-  void _printBatch(User user) {
-    AppLogger.print("  emailVerified: ${user.emailVerified}");
-    AppLogger.print("  provider: ${user.providerData}");
-    AppLogger.print("  refreshtoken: ${user.refreshToken}");
   }
 
   Future<AuthDTO?> createUserWithEmailAndPassword(
@@ -39,10 +28,6 @@ class FirebaseAuthDao {
       String email, String password) async {
     final userCredential = await _auth.signInWithEmailAndPassword(
         email: email, password: password);
-    AppLogger.print("+++++++++++++++++++siginin 1");
-    if (userCredential.user != null) {
-      _printBatch(userCredential.user!);
-    }
     if (userCredential.user == null) return null;
     return AuthDTO.fromFirebaseUserCredential(userCredential);
   }
