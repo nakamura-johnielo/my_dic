@@ -3,12 +3,12 @@
 - 状態: 未着手
 - 優先度: 高 / 境界固定
 - 依存タスク: Phase 0完了を推奨
-- 関連タスク: [`../phase2/3-remove-build-time-io.md`](../phase2/3-remove-build-time-io.md)、[`../phase2/4-remove-ref-from-coordinators.md`](../phase2/4-remove-ref-from-coordinators.md)
+- 関連タスク: [`../local_first/4-build-sync-engine.md`](../local_first/4-build-sync-engine.md)、[`../phase2/3-remove-build-time-io.md`](../phase2/3-remove-build-time-io.md)、[`../phase2/4-remove-ref-from-coordinators.md`](../phase2/4-remove-ref-from-coordinators.md)
 - 元調査: [`FLUTTER_ARCHITECTURE_REVIEW.md`](../../FLUTTER_ARCHITECTURE_REVIEW.md) 4.3、8.1、8.2
 
 ## 目的
 
-DB、Router、SharedPreferences、認証監視、同期開始など、アプリ全体の構築とlifecycleを`app/bootstrap`へ集約し、Widgetやfeatureからcomposition責務を除く。
+DB、Router、SharedPreferences、認証監視、SyncEngine、dataset handler、同期schedulerなど、アプリ全体の構築とlifecycleを`app/bootstrap`へ集約し、Widgetやfeatureからcomposition責務を除く。
 
 ## 現在の問題
 
@@ -38,6 +38,7 @@ lib/app/
 - `lib/router/**`
 - `lib/core/infrastructure/database/drift/database_provider.dart`
 - `authEffectProvider`、`autoSyncProvider`など横断effect
+- SyncEngine、SyncQueue、dataset handler registry、foreground scheduler
 - DB closeとProviderContainer dispose
 
 ## 実装方針
@@ -46,9 +47,11 @@ lib/app/
 2. Firebase、SharedPreferences、DB、Routerの生成責務を`app/bootstrap`へ移す。
 3. DBはproviderで所有し、provider dispose時にcloseする。
 4. 横断effectは一度だけ有効化されるapplication lifecycle providerへ集約する。
-5. `build()`内のDB probeを削除し、明示的なbootstrap Future/AsyncValueでloading/errorを表す。
-6. global instanceを新設せず、既存globalを段階的にprovider overrideへ移す。
-7. testでfake DB、fake auth、fake routerをoverride可能にする。
+5. SyncEngine、Drift SyncQueue、dataset handlerをcomposition rootで登録し、feature/UIからremote adapterをresolveできないようにする。
+6. startup、resume、network復帰、local mutationのschedulerを一度だけ登録する。
+7. `build()`内のDB probeと同期watchを削除し、明示的なbootstrap Future/AsyncValueでloading/errorを表す。
+8. global instanceを新設せず、既存globalを段階的にprovider overrideへ移す。
+9. testでfake DB、fake auth、fake router、fake SyncEngineをoverride可能にする。
 
 ## 推奨テスト
 
@@ -56,6 +59,8 @@ lib/app/
 - bootstrap失敗時にerror UIへ遷移する
 - Widget rebuildでDB openやeffect登録が増えない
 - ProviderContainer disposeでDBがcloseされる
+- Widget rebuildでSyncEngine triggerやremote listener登録が増えない
+- dispose時にschedulerと進行中syncがcancelされる
 - test用overrideでFirebaseや実DBへ接続しない
 
 ## 完了条件
@@ -64,8 +69,10 @@ lib/app/
 - [ ] compositionの入口が`app/bootstrap`から辿れる
 - [ ] DB lifecycleがproviderに所有される
 - [ ] 横断effectが一度だけ登録される
+- [ ] SyncEngine、Queue、handler、schedulerの所有者が`app/bootstrap`である
+- [ ] presentationからremote adapterをresolveできない
 - [ ] bootstrapの成功・失敗・dispose testがある
 
 ## LLMへの引き継ぎ事項
 
-単なるファイル移動ではなく、生成・所有・破棄の責務を一箇所へ集める。Phase 0の認証・同期挙動を変えないよう、移動前後のcharacterization testを利用する。
+単なるファイル移動ではなく、生成・所有・破棄の責務を一箇所へ集める。Local-first 4のEngine contractを変更せずcompositionし、dataset production切替前にschedulerの単一起動とdisposeをtestで固定する。

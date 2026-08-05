@@ -3,7 +3,7 @@
 - 状態: 完了
 - 優先度: P0 / データ整合性
 - 依存タスク: Phase 0-2と独立して実施可能
-- 関連タスク: [`5-rebuild-status-sync.md`](5-rebuild-status-sync.md)、[`../phase2/6-return-sync-report.md`](../phase2/6-return-sync-report.md)
+- 関連タスク: [`5-fix-status-update-contract.md`](5-fix-status-update-contract.md)、[`../local_first/2-build-drift-sync-schema.md`](../local_first/2-build-drift-sync-schema.md)、[`../local_first/4-build-sync-engine.md`](../local_first/4-build-sync-engine.md)
 - 元調査: [`FLUTTER_ARCHITECTURE_REVIEW.md`](../../FLUTTER_ARCHITECTURE_REVIEW.md) P0-3
 
 ## 目的
@@ -72,4 +72,11 @@ SyncCheckpoint(lastSuccessfulAt, optionalRemoteCursor)
 
 ## LLMへの引き継ぎ事項
 
-日時精度やclock skewも確認する。cursor比較が`>`か`>=`か、同時刻更新をどう扱うかをtestで固定する。Phase 2-6までは戻り値の全面再設計を避けてもよいが、checkpoint更新判断はdataset結果に基づかせる。
+このタスクで完了したaccount/dataset分離と「完全成功時だけ進める」契約は維持する。Local-first 2・4では保存先をSharedPreferencesからDriftへ移し、client時刻ではなくserver timestampとdocument IDの複合cursorへ置換する。remote反映とcursor更新を同一transactionにし、同一timestamp、重複取得、clock skewを新contract testで固定する。
+
+## 後続Local-first方針
+
+- このタスクと完了レポートは実施時点の履歴として完了のまま維持する。
+- SharedPreferences checkpointを新Drift cursorへ安全性なしにコピーしない。
+- 新schema初回はdataset別full syncを行い、成功後だけ旧scoped keyを削除する。
+- `SyncCheckpointKey(accountId, dataset)`のscopeは`sync_checkpoints`のprimary keyとして継承する。

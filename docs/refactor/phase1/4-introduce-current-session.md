@@ -3,7 +3,7 @@
 - 状態: 未着手
 - 優先度: 高 / 認証境界
 - 依存タスク: [`../phase0/6-complete-auth-user-lifecycle.md`](../phase0/6-complete-auth-user-lifecycle.md)
-- 関連タスク: [`../phase2/4-remove-ref-from-coordinators.md`](../phase2/4-remove-ref-from-coordinators.md)
+- 関連タスク: [`../local_first/4-build-sync-engine.md`](../local_first/4-build-sync-engine.md)、[`../local_first/7-migrate-user-profile.md`](../local_first/7-migrate-user-profile.md)、[`../phase2/4-remove-ref-from-coordinators.md`](../phase2/4-remove-ref-from-coordinators.md)
 - 元調査: [`FLUTTER_ARCHITECTURE_REVIEW.md`](../../FLUTTER_ARCHITECTURE_REVIEW.md) 8.3
 
 ## 目的
@@ -55,11 +55,13 @@ SessionFailure(error)
 1. `AuthIdentity`をUID、provider、email、emailVerifiedなど事実を表す値へ整理する。
 2. Firebase streamから`AuthIdentity?`を公開し、手動`setAuth`を廃止する。
 3. 未認証は`null`または`SignedOut`の一種類にする。
-4. User Profile providerは認証済みUIDに依存してwatch/loadし、sign-outで自動的に破棄・切替されるようにする。
+4. User Profile providerは認証済みUIDと`UserProfileSource` portに依存し、sign-outで自動的に破棄・切替されるようにする。UIからremoteへ直接fetchせず、Local-first 7でsource adapterをDriftへ置換できる境界にする。
 5. Router向けにAuthとProfileから派生する`AppSession`を公開する。新しい可変Storeにはしない。
 6. application層へ`CurrentSession` portを定義し、`requireAccountId`またはnullable session取得を用途別に提供する。
 7. 各featureのAuth Repository直接依存を`CurrentSession`へ置き換える。
-8. 同期、cache、checkpointはUID変更を明示的なsession transitionとして扱う。
+8. 同期、cache、outbox、server cursorはUID変更を明示的なsession transitionとして扱う。
+9. `SyncContext`へaccountIdとsession epochを渡し、UID変更時は旧epochのSyncEngine cycleをcancelする。
+10. guest dataはsign-inだけで自動移管せず、Ready後の明示的統合フローへ渡す。
 
 ## 必須テスト
 
@@ -69,6 +71,8 @@ SessionFailure(error)
 - profile load失敗がSignedOutへ化けない
 - sign-out後に前accountのprofileを表示しない
 - feature UseCaseがFirebase/Auth Repositoryなしでfake sessionを使える
+- account切替中の旧SyncEngine cycleが新accountのDriftへ反映しない
+- sign-inだけではguest dataがaccountへ自動帰属しない
 
 ## 完了条件
 
@@ -77,6 +81,8 @@ SessionFailure(error)
 - [ ] AuthとUser Profileが別Repositoryとして保たれる
 - [ ] `AppSession`が派生状態であり、Router/UIの入口になる
 - [ ] featureがaccountId取得のためAuth Repositoryへ直接依存しない
+- [ ] SyncEngineがaccountIdとsession epochを明示的に受け取る
+- [ ] account切替で旧accountのQueue、cursor、cycleが停止する
 - [ ] account切替を含むsession testが通る
 
 ## LLMへの引き継ぎ事項

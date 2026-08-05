@@ -2,8 +2,8 @@
 
 - 状態: 未着手
 - 優先度: 中〜高 / 重複・循環
-- 依存タスク: [`../phase0/5-rebuild-status-sync.md`](../phase0/5-rebuild-status-sync.md)、[`2-enforce-import-boundaries.md`](2-enforce-import-boundaries.md)
-- 関連タスク: [`../phase2/1-move-usecases-to-application.md`](../phase2/1-move-usecases-to-application.md)
+- 依存タスク: [`../local_first/5-migrate-word-status.md`](../local_first/5-migrate-word-status.md)、[`2-enforce-import-boundaries.md`](2-enforce-import-boundaries.md)
+- 関連タスク: [`../phase0/5-fix-status-update-contract.md`](../phase0/5-fix-status-update-contract.md)、[`../phase2/1-move-usecases-to-application.md`](../phase2/1-move-usecases-to-application.md)
 - 元調査: [`FLUTTER_ARCHITECTURE_REVIEW.md`](../../FLUTTER_ARCHITECTURE_REVIEW.md) 7.2、10.3
 
 ## 目的
@@ -30,10 +30,13 @@ features/word_status/
 │   └── dictionary_direction.dart
 ├── application/
 │   ├── update_word_status.dart
-│   └── sync_word_status.dart
+│   └── word_status_repository.dart
 ├── infrastructure/
 │   ├── esp_jpn_status_adapter.dart
-│   └── jpn_esp_status_adapter.dart
+│   ├── jpn_esp_status_adapter.dart
+│   └── sync/
+│       ├── esp_jpn_status_sync_handler.dart
+│       └── jpn_esp_status_sync_handler.dart
 └── presentation/
 ```
 
@@ -44,7 +47,7 @@ features/word_status/
 1. 両featureの型、field、Repository操作、同期ルール、UI差分を比較表にする。
 2. 共通domain entityとcommandを定義する。
 3. DB/Firebase table差異はinfrastructure adapterへ閉じ込める。
-4. 共通application UseCaseへcontract testを適用する。
+4. 共通application command/queryへcontract testを適用する。SyncEngine orchestrationは`features/sync`に維持する。
 5. UIはdirectionを入力として受け、DI providerを相互importしない。
 6. 移行期間は旧providerを新providerへ委譲し、呼出し側を段階的に更新する。
 7. 参照が0になった旧featureを削除する。
@@ -56,6 +59,7 @@ features/word_status/
 - hasNote、bookmark、learnedの部分更新が保持される
 - remote failureとretryが両directionで同じ結果になる
 - UI componentが相手方向のDIをimportしない
+- feature統合後も2つのdataset ID、remote collection、cursorが混在しない
 
 ## 完了条件
 
@@ -64,6 +68,7 @@ features/word_status/
 - [ ] 2 feature間の循環importが0
 - [ ] 両方向が同じcontract testを通る
 - [ ] 旧provider・旧featureへの参照が0
+- [ ] SyncEngine共通責務がword status featureへ重複実装されていない
 
 ## LLMへの引き継ぎ事項
 

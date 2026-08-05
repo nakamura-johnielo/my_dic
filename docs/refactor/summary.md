@@ -6,7 +6,7 @@
 
 ## 現状の評価
 
-プロジェクトは、Feature Module、Clean Architecture、MVVM、CQRSを意図している。Repository port、Interactor、Riverpod DI、DTO分離、`Result<T>`、local-first同期など、維持すべき設計要素も存在する。
+プロジェクトは、Feature Module、Clean Architecture、MVVM、CQRSを意図している。Repository port、Interactor、Riverpod DI、DTO分離、`Result<T>`など、維持すべき設計要素も存在する。同期はlocal-firstを意図しているが、現状はlocal/remoteを同じRepositoryやUseCaseから直接更新する経路が残り、Driftが唯一の読み書き先にはなっていない。
 
 実態は、feature-firstの縦割りと`core`の横断レイヤが混在した、移行途中のレイヤード・モジュラーモノリスである。主な問題は次のとおり。
 
@@ -20,7 +20,7 @@
 ## 最優先原則
 
 1. **データを守ってから構造を動かす。** Phase 0完了前に大規模な移動やrenameを始めない。
-2. **単一のsource of truthを決める。** 認証、Router、同期checkpoint、UI stateに複数writerを作らない。
+2. **単一のsource of truthを決める。** 同期対象の業務データと同期metadataはDriftだけをアプリ内の読み書き先とする。認証identityはFirebase Auth、認可はSecurity Rules/backendをauthorityとする。
 3. **失敗を値として最後まで伝える。** `Result.failure`を例外と誤認せず、UIまたは呼出し元まで保持する。
 4. **依存は内向きかつ一方向にする。** domainはFlutter、Riverpod、Firebase、Drift、GoRouterを知らない。
 5. **featureの所有権を明示する。** 別featureの`presentation`型を共有契約として利用しない。
@@ -39,10 +39,13 @@ lib/
 │   ├── result/              # 技術非依存Result / Failure
 │   ├── logging/             # redactionを含む安全なログ境界
 │   └── shared/              # 本当にfeature非依存な値だけ
+├── features/sync/
+│   ├── application/         # SyncEngine、Queue port、SyncReport、dataset contract
+│   └── infrastructure/      # Drift outbox/checkpoint実装
 └── features/<feature>/
     ├── domain/              # entity、value object、業務規則、port
     ├── application/         # UseCase、command、query、orchestration
-    ├── infrastructure/      # Drift、Firebase、SharedPreferences adapter
+    ├── infrastructure/      # Drift adapter、feature固有sync remote adapter
     └── presentation/        # View、ViewModel、UI state
 ```
 
@@ -63,18 +66,25 @@ app/bootstrap --------------> 全実装を組み立てる
 - Authorizationはrole、subscription、操作権限を扱い、最終的にはSecurity Rulesまたはbackendで強制する。
 - AuthとUser Profileは別Repositoryのまま維持する。
 - Firebase認証streamを認証状態の唯一のsource of truthにする。
-- User Profileは認証済みUIDから派生して読み込む。
+- 編集可能User Profileは認証済みUIDでscopeしたDrift rowをsource of truthとし、FirebaseとはSyncEngine経由で同期する。
+- role、subscription、entitlement、account provisioningはremote authorityのまま維持し、editable Profileのoutboxへ含めない。
 - Routerや同期が必要とする統合状態は、可変Storeではなく`AppSession`として派生させる。
 - 未認証表現を`null`または`SignedOut`の一種類に統一し、空IDの`AppAuth`を作らない。
 
 ## 同期設計の共通規則
 
-- checkpointのキーは最低でも`(accountId, dataset)`とする。
-- dataset処理が完全成功した時だけ、そのdatasetのcheckpointを進める。
-- remote更新失敗時はdirtyまたはoutboxを永続化し、次回再送できるようにする。
-- conflict resolutionは各同期UseCaseへコピーせず、方針とテストを共有する。
-- `SyncService`は`Future<void>`ではなくdataset別成功・失敗を含む`SyncReport`を返す。
-- account切替時に別ユーザーのcheckpoint、cache、未送信更新を混在させない。
+- UI、ViewModel、通常UseCase、通常RepositoryはDriftだけを読み書きする。
+- Firebase data accessはSyncEngine配下のfeature固有remote adapterだけに許可する。
+- 業務row更新と`sync_outbox`追加を同一Drift transactionで行う。
+- SyncQueueはDrift永続outboxとし、未送信状態を別のdirty flagと二重管理しない。
+- 配送保証はat-least-onceとし、mutation IDとrevisionで冪等にする。
+- Firebaseのserver-confirmed acknowledgment後だけoutboxをackする。
+- pull checkpointは`(accountId, dataset)`で分離したserver cursorとし、remote反映と同一Drift transactionで進める。
+- deleteは差分同期可能なtombstoneとして扱う。
+- conflict resolutionはdatasetの性質に合わせ、共通contractとtestで固定する。
+- `SyncEngine.runOnce()`はdataset別成功・失敗・skip・cancelを含む`SyncReport`を返す。
+- account切替時に旧accountのcycleをcancelし、row、cursor、未送信mutationを混在させない。
+- Firestore listenerはwake signalだけを発行し、直接Driftを更新しない。
 
 ## UI・状態管理の共通規則
 
@@ -98,23 +108,28 @@ app/bootstrap --------------> 全実装を組み立てる
 優先順位は次のとおり。
 
 1. DB schema v1〜現行へのmigration fixture test
-2. dataset・account別sync checkpoint test
-3. remote failure、retry、conflict resolution test
-4. Sign Up、email verification、profile ensureの結合テスト
-5. `Result.failure`伝播のUseCase・ViewModel test
-6. Router、deep link、browser refresh test
-7. bootstrapとprovider lifecycle test
+2. 業務row更新とoutbox enqueueのatomicity test
+3. dataset・account別server cursorとremote反映のatomicity test
+4. process kill、remote failure、retry、lease、ackのtest
+5. conflict resolution、tombstone、重複deliveryの収束test
+6. Sign Up、email verification、profile ensure、guest統合の結合テスト
+7. `Result.failure`伝播のUseCase・ViewModel test
+8. Router、deep link、browser refresh test
+9. bootstrap、SyncEngine、provider lifecycle test
 
 `test/**`をanalyzer除外から戻し、最終的にはclean checkoutのCIで`flutter analyze`と`flutter test`を完走させる。
 
 ## フェーズの進め方
 
 - Phase 0: データ消失・機密情報・不成立フローを止血する。
+- Local-first 1〜4: Phase 0完了後、同期contract、Drift schema、SyncQueue、SyncEngineを構築する。
 - Phase 1: compositionと依存規則を固定し、今後の変更方向を限定する。
+- Local-first 5〜7: Local-first基盤とPhase 1-1・1-2・1-4の完了後、status、MyWord、User Profileをdataset単位で切り替える。
+- Local-first 8: 全dataset移行後に旧同期経路を削除する。
 - Phase 2: applicationとpresentationを新しい境界へ合わせる。
 - Phase 3: テストで挙動が固定された後に、残骸・重複・命名を整理する。
 
-フェーズ内の番号は推奨順序である。ただし、独立して安全に実施できるタスクは並行可能である。各タスクの依存関係を優先する。
+Local-firstトラックの詳細は[`local_first/index.md`](local_first/index.md)を参照する。Local-first 1〜4とPhase 1-1・1-2・1-4は並行可能だが、production dataset切替は両方の完了後に行う。その他のフェーズ内番号は推奨順序であり、各タスクの依存関係を優先する。
 
 ## 全体完了条件
 
@@ -123,9 +138,16 @@ app/bootstrap --------------> 全実装を組み立てる
 - feature間の双方向依存が0
 - 別featureの`presentation/**` importが0
 - 認証状態とRouter/tab stateのsource of truthがそれぞれ1つ
+- 同期対象データのUI/Application read/writeがDriftだけを通る
+- Firebase data accessがAuth、bootstrap、sync remote adapter境界だけに存在する
 - 全schema versionから現行versionへのmigration testが通る
-- sync checkpointがaccount・dataset別で、部分失敗時に進まない
+- user-owned row、outbox、server cursorがaccount別である
+- 業務rowとoutbox、remote反映とserver cursorがそれぞれatomicである
+- sync cursorがaccount・dataset別で、部分失敗時に進まない
 - remote failure後の再送testが通る
+- process kill後にQueueを復旧できる
+- tombstone、重複delivery、二端末競合が規定状態へ収束する
+- 旧`SyncService`、旧sync UseCase、直接remote writerへの参照が0
 - Repositoryの`Failure`が呼出し元まで失われず伝播する
 - Sign Upの実処理とUI表示が一致する
 - token、password、refresh tokenをログへ出す経路がない
@@ -137,5 +159,10 @@ app/bootstrap --------------> 全実装を組み立てる
 - テストなしでmigrationやconflict resolutionを共通化しない
 - directory移動だけで依存方向が直ったと判断しない
 - 新しいglobal singletonや可変Storeで既存状態を同期しない
+- application層でlocal更新後に別呼出しでoutboxへenqueueしない
+- Firebase SDKのlocal cache受付をserver acknowledgmentとしてoutboxをackしない
+- 同じdatasetを旧同期と新SyncEngineで同時に処理しない
+- clientの現在時刻だけをremote差分cursorにしない
+- 同期対象のdeleteをtombstoneなしのhard deleteだけで表現しない
 - `core`へ移すことをfeature循環の標準解決策にしない
 - 失敗を空配列、`null`、ログだけへ変換して成功扱いしない

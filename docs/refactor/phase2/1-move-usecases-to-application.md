@@ -3,7 +3,7 @@
 - 状態: 未着手
 - 優先度: 中 / layer責務
 - 依存タスク: Phase 1のownershipとimport規則
-- 関連タスク: [`4-remove-ref-from-coordinators.md`](4-remove-ref-from-coordinators.md)、[`5-separate-query-projections.md`](5-separate-query-projections.md)
+- 関連タスク: [`../local_first/8-cut-over-and-remove-legacy-sync.md`](../local_first/8-cut-over-and-remove-legacy-sync.md)、[`4-remove-ref-from-coordinators.md`](4-remove-ref-from-coordinators.md)、[`5-separate-query-projections.md`](5-separate-query-projections.md)
 - 元調査: [`FLUTTER_ARCHITECTURE_REVIEW.md`](../../FLUTTER_ARCHITECTURE_REVIEW.md) 7.3、7.4、12
 
 ## 目的
@@ -38,7 +38,9 @@ Repository、session、同期、UI要求を調停するUseCaseを`application`�
 4. UI callbackをinputから除き、`Result`または明示的outputを返す。
 5. `DatabaseError`など技術failureの生成をadapterへ移す。
 6. 同期用Replica portはapplication側へ配置する。
-7. import移動はfeature単位で行い、各単位でanalyze/testを通す。
+7. Local-firstトラックで作成済みのSyncEngine、SyncQueue contract、dataset handlerを再移動・再設計しない。
+8. production registryから外れた旧sync UseCaseはapplicationへ移さず、Local-first 8で削除する。
+9. import移動はfeature単位で行い、各単位でanalyze/testを通す。
 
 ## 推奨テスト
 
@@ -46,6 +48,7 @@ Repository、session、同期、UI要求を調停するUseCaseを`application`�
 - domain packageのtestにFlutter bindingが不要
 - UI callbackなしで成功・失敗が戻り値から判定できる
 - architecture checkでdomainからFlutter/Firebase/Drift/Riverpod importが0
+- 旧sync UseCaseを移動して延命せず、新SyncEngineだけがorchestrationを所有する
 
 ## 完了条件
 
@@ -54,6 +57,7 @@ Repository、session、同期、UI要求を調停するUseCaseを`application`�
 - [ ] domainがinfrastructure errorを生成しない
 - [ ] pure domain testがFlutterなしで動く
 - [ ] 不要な一対一UseCaseを増やさない方針が明文化されている
+- [ ] 旧同期orchestrationがapplication層へ再導入されていない
 
 ## LLMへの引き継ぎ事項
 

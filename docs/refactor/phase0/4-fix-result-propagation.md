@@ -3,7 +3,7 @@
 - 状態: 未着手
 - 優先度: P1 / 信頼性
 - 依存タスク: なし
-- 関連タスク: [`5-rebuild-status-sync.md`](5-rebuild-status-sync.md)、[`../phase2/6-return-sync-report.md`](../phase2/6-return-sync-report.md)
+- 関連タスク: [`5-fix-status-update-contract.md`](5-fix-status-update-contract.md)、[`../local_first/3-build-sync-queue.md`](../local_first/3-build-sync-queue.md)、[`../local_first/4-build-sync-engine.md`](../local_first/4-build-sync-engine.md)
 - 元調査: [`FLUTTER_ARCHITECTURE_REVIEW.md`](../../FLUTTER_ARCHITECTURE_REVIEW.md) P1-2、P1-4
 
 ## 目的
@@ -99,4 +99,4 @@ return result.when(
 
 ## LLMへの引き継ぎ事項
 
-一括置換だけで終えない。各分岐が「NotFoundならcreate」「通信失敗ならretry」「DB失敗なら停止」など異なる意味を持つため、呼出し文脈ごとに期待動作を確認する。
+一括置換だけで終えない。各分岐が「NotFoundならcreate」「通信失敗ならretry」「DB失敗なら停止」など異なる意味を持つため、呼出し文脈ごとに期待動作を確認する。このタスクはSyncQueueのack/retry分類とSyncEngineのdataset結果を正しく扱う前提であり、未完了のままLocal-first 3・4へ進まない。

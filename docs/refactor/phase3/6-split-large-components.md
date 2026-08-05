@@ -2,7 +2,7 @@
 
 - 状態: 未着手
 - 優先度: 中 / 長期保守性
-- 依存タスク: Phase 0のcharacterization test、Phase 1〜2の境界整理、Phase 3-1〜3-5を推奨
+- 依存タスク: [`../local_first/8-cut-over-and-remove-legacy-sync.md`](../local_first/8-cut-over-and-remove-legacy-sync.md)、Phase 1〜2の境界整理、Phase 3-1〜3-5を推奨
 - 元調査: [`FLUTTER_ARCHITECTURE_REVIEW.md`](../../FLUTTER_ARCHITECTURE_REVIEW.md) 10.3、10.4
 
 ## 目的
@@ -16,7 +16,7 @@
 - Search card View: 約469行
 - MyWord Repository: 約398行
 - DatabaseProvider: 約371行
-- 250〜330行級の同期UseCaseが複数
+- Local-first移行後に残る大型local DAO・remote adapter
 - Ranking DAOの動的SQL文字列連結
 
 行数だけで分割せず、変更理由が複数ある箇所を優先する。
@@ -28,8 +28,8 @@
 | DatabaseProvider | connection factory、schema、migration、lifecycle |
 | Web Seeder | asset reader、parser、batch writer、progress reporter |
 | Conjugation DAO | lookup query、mapping、pattern別query |
-| MyWord Repository | command repository、query repository、sync replica adapter |
-| Sync UseCase | change reader、conflict resolver、writer、checkpoint coordinator |
+| MyWord local infrastructure | command DAO、query DAO、transaction boundary |
+| Sync remote adapter | DTO mapping、page query、Firebase batch/transaction |
 | Search card | layout、status actions、meaning view、navigation adapter |
 
 ## 実装方針
@@ -47,8 +47,8 @@
 - Seederの件数、順序、rollback、progress
 - migrationを含むDatabase lifecycle
 - DAO queryの境界値、filter、pagination、SQL injection耐性
-- MyWord command/query/sync contract
-- conflict resolutionとcheckpoint
+- MyWord command/query contract
+- Local-first handlerとserver cursor contract
 - Search cardの主要interaction
 
 ## 完了条件
@@ -62,4 +62,4 @@
 
 ## LLMへの引き継ぎ事項
 
-目標行数を設定して機械的にclassを割らない。高凝集な長いparserは一つでもよい。複数の変更理由、外部依存、transaction、failure policyが混在する境界から分割する。
+目標行数を設定して機械的にclassを割らない。高凝集な長いparserは一つでもよい。SyncEngine基盤の責務分割はLocal-firstトラックで完了済みとし、このPhaseでは残ったDAO、adapter、parserの複数変更理由から分割する。

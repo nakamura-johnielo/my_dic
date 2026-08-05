@@ -3,7 +3,7 @@
 - 状態: 未着手
 - 優先度: 高 / 再発防止
 - 依存タスク: [`1-create-composition-root.md`](1-create-composition-root.md)と並行可能
-- 関連タスク: Phase 1-3〜1-6
+- 関連タスク: Phase 1-3〜1-6、[`../local_first/1-define-local-first-contract.md`](../local_first/1-define-local-first-contract.md)、[`../local_first/8-cut-over-and-remove-legacy-sync.md`](../local_first/8-cut-over-and-remove-legacy-sync.md)
 - 元調査: [`FLUTTER_ARCHITECTURE_REVIEW.md`](../../FLUTTER_ARCHITECTURE_REVIEW.md) 7.1〜7.4
 
 ## 目的
@@ -27,6 +27,7 @@ Clean Architectureとfeature ownershipを人の注意だけに依存させず、
 ```text
 feature/presentation -> feature/application -> feature/domain
 feature/infrastructure ---------------------> feature/domain/application port
+feature/infrastructure/sync ----------------> sync/feature application port
 app/bootstrap ------------------------------> feature実装
 app/routing --------------------------------> pure route contract
 core ---------------------------------------> featureへ依存しない
@@ -51,6 +52,8 @@ feature間連携は、所有featureのapplication/domain port、または明示�
    - `core/**`から`features/**`
    - feature Aの`presentation/**`からfeature B内部
    - feature間の双方向依存
+   - presentation、domain、通常application UseCase、通常RepositoryからFirebase/Firestore
+   - SyncEngine以外からfeatureのsync remote adapterをresolveするDI
 4. 既存違反はbaseline化してもよいが、新規違反を増やせない状態から開始する。
 5. Phase 1完了時にbaselineを0へする。
 6. testをanalyzer対象へ戻し、CIでanalyzeとtestを実行する。
@@ -61,6 +64,7 @@ feature間連携は、所有featureのapplication/domain port、または明示�
 - relative import、package import、Windows separatorのすべてを検出する
 - generated codeを必要に応じて除外する
 - architecture check自体のtestを用意する
+- Firebase import fixtureがauth infrastructure、bootstrap、sync remote adapter以外で失敗する
 
 ## 完了条件
 
@@ -68,6 +72,7 @@ feature間連携は、所有featureのapplication/domain port、または明示�
 - [ ] CIが新規禁止importを検出する
 - [ ] `test/**`がanalyzer対象である
 - [ ] Phase 1終了時に対象違反baselineが0
+- [ ] Firebase data accessがAuth、bootstrap、sync remote adapter境界だけに限定されている
 - [ ] generated codeなどの除外理由が明記されている
 
 ## LLMへの引き継ぎ事項

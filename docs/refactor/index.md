@@ -7,6 +7,7 @@
 | 文書 | 内容 | 読むタイミング |
 | --- | --- | --- |
 | [`summary.md`](summary.md) | 現状、目標アーキテクチャ、全フェーズ共通の設計原則、進め方 | 新しい作業セッションの開始時 |
+| [`local_first/index.md`](local_first/index.md) | DriftをSoTとするSyncQueue・SyncEngine・dataset移行の横断計画 | 同期、Repository、DB schema、account scopeを変更する時 |
 | [`FLUTTER_ARCHITECTURE_REVIEW.md`](../FLUTTER_ARCHITECTURE_REVIEW.md) | 調査根拠、依存関係、問題箇所の詳細を含む原本 | 判断根拠や追加調査が必要な時、量が膨大なため必須ではない。phaseごとのmdの方が詳細に書かれている。 |
 
 ## Phase 0: データと認証情報を守る
@@ -19,8 +20,35 @@ Phase 0は機能追加や大規模移動より先に実施する。データ消�
 | 2 | [`phase0/2-repair-v5-migration.md`](phase0/2-repair-v5-migration.md) | DB v5 migrationのMyWord status消失を修正し、fixture testを作る |
 | 3 | [`phase0/3-scope-sync-checkpoints.md`](phase0/3-scope-sync-checkpoints.md) | 同期checkpointをaccount・dataset単位に分離する |
 | 4 | [`phase0/4-fix-result-propagation.md`](phase0/4-fix-result-propagation.md) | `Result`の誤判定と握りつぶしを修正する |
-| 5 | [`phase0/5-rebuild-status-sync.md`](phase0/5-rebuild-status-sync.md) | statusの部分更新、dirty/outbox、両辞書方向の同期を修正する |
+| 5 | [`phase0/5-fix-status-update-contract.md`](phase0/5-fix-status-update-contract.md) | statusの部分更新契約と両辞書方向のcharacterization testを固定する |
 | 6 | [`phase0/6-complete-auth-user-lifecycle.md`](phase0/6-complete-auth-user-lifecycle.md) | Sign Up、メール確認、User profile作成のライフサイクルを成立させる |
+
+## Local-first同期トラック
+
+Phase 0完了後、次の2系統を並行して進める。
+
+```text
+Local-first 1〜4                 Phase 1-1・1-2・1-4
+契約・schema・Queue・Engine      composition・import・session
+               \                 /
+                Local-first 5〜7
+          status → MyWord → User Profile
+                       |
+                Local-first 8
+```
+
+production dataset切替はLocal-first 1〜4とPhase 1-1・1-2・1-4の双方が完了してから行う。
+
+| 順序 | 文書 | 内容 |
+| --- | --- | --- |
+| 1 | [`local_first/1-define-local-first-contract.md`](local_first/1-define-local-first-contract.md) | SoT、dataset、競合、削除、ackの契約を固定する |
+| 2 | [`local_first/2-build-drift-sync-schema.md`](local_first/2-build-drift-sync-schema.md) | account scope、outbox、server cursor、tombstoneをDriftへ追加する |
+| 3 | [`local_first/3-build-sync-queue.md`](local_first/3-build-sync-queue.md) | Drift永続Queueとretry・ack・leaseを実装する |
+| 4 | [`local_first/4-build-sync-engine.md`](local_first/4-build-sync-engine.md) | SyncEngine、dataset handler、SyncReportを実装する |
+| 5 | [`local_first/5-migrate-word-status.md`](local_first/5-migrate-word-status.md) | Esp-Jpn/Jpn-Esp statusを最初のdatasetとして移行する |
+| 6 | [`local_first/6-migrate-my-word.md`](local_first/6-migrate-my-word.md) | MyWordとMyWordStatusを親子順に移行する |
+| 7 | [`local_first/7-migrate-user-profile.md`](local_first/7-migrate-user-profile.md) | 編集可能Profileと明示的guest統合を移行する |
+| 8 | [`local_first/8-cut-over-and-remove-legacy-sync.md`](local_first/8-cut-over-and-remove-legacy-sync.md) | 全面切替し旧同期経路を削除する |
 
 ## Phase 1: 境界を固定する
 
@@ -46,7 +74,7 @@ Phase 2では、Phase 1で決めた境界に沿ってUseCase、UI state、副作
 | 3 | [`phase2/3-remove-build-time-io.md`](phase2/3-remove-build-time-io.md) | Widgetの`build()`からDB・fetch副作用を除去する |
 | 4 | [`phase2/4-remove-ref-from-coordinators.md`](phase2/4-remove-ref-from-coordinators.md) | Coordinatorから`Ref`を除き、依存を明示する |
 | 5 | [`phase2/5-separate-query-projections.md`](phase2/5-separate-query-projections.md) | 画面用read modelとwrite domain entityを分離する |
-| 6 | [`phase2/6-return-sync-report.md`](phase2/6-return-sync-report.md) | `SyncService`からdataset別の`SyncReport`を返す |
+| 6 | [`phase2/6-consume-sync-report.md`](phase2/6-consume-sync-report.md) | `SyncReport`をUI、retry scheduling、telemetryへ接続する |
 
 ## Phase 3: 残骸と重複を削除する
 
@@ -65,9 +93,10 @@ Phase 3は挙動と境界がテストで固定された後に行う。削除・r
 
 1. 新しいセッションでは`summary.md`を読み、全体原則を確認する。
 2. 実行対象フェーズのタスク文書だけを追加で読み込む。
-3. タスク文書の「依存タスク」が未完了なら、先にその文書を確認する。
-4. 実装前に対象パスが現状と一致するか再検索する。行番号は調査時点の参考値である。
-5. 完了時はタスク文書のチェックリストとテストを満たし、必要なら文書の状態を更新する。
+3. 同期、DB schema、Repositoryを変更する場合は`local_first/index.md`も読む。
+4. タスク文書の「依存タスク」が未完了なら、先にその文書を確認する。
+5. 実装前に対象パスが現状と一致するか再検索する。行番号は調査時点の参考値である。
+6. 完了時はタスク文書のチェックリストとテストを満たし、必要なら文書の状態を更新する。
 
 ## 状態表記
 
