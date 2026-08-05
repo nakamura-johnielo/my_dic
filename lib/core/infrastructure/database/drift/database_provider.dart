@@ -9,7 +9,6 @@ import 'package:my_dic/core/infrastructure/database/drift/_WEB/web_executor.dart
     if (dart.library.io) 'package:my_dic/core/infrastructure/database/drift/_WEB/web_executor_stub.dart';
 import 'package:my_dic/core/infrastructure/database/drift/daos/es_en_conjugacion_dao.dart';
 import 'package:my_dic/core/infrastructure/database/drift/daos/jpn_esp/jpn_esp_word_dao.dart';
-import 'package:my_dic/core/shared/utils/logger.dart' ;
 import 'package:my_dic/features/my_word/data/data_source/local/drift_my_word_dao.dart';
 import 'package:my_dic/core/infrastructure/database/drift/daos/esp_jpn/part_of_speech_list_dao.dart';
 import 'package:my_dic/features/ranking/data/data_source/local/ranking_dao.dart';
@@ -81,7 +80,17 @@ class DatabaseProvider extends _$DatabaseProvider {
   static DatabaseProvider? _instance;
 
   // プライベートコンストラクタ
-  DatabaseProvider._internal() : super(_openConnection());
+  DatabaseProvider._internal()
+      : _seedEsEnConjugacionsOnUpgrade = true,
+        super(_openConnection());
+
+  /// Opens a caller-provided database for migration tests.
+  DatabaseProvider.forTesting(
+    super.executor, {
+    bool seedEsEnConjugacionsOnUpgrade = false,
+  }) : _seedEsEnConjugacionsOnUpgrade = seedEsEnConjugacionsOnUpgrade;
+
+  final bool _seedEsEnConjugacionsOnUpgrade;
 
   // シングルトンインスタンスを取得するためのファクトリコンストラクタ
   factory DatabaseProvider() {
@@ -111,14 +120,16 @@ class DatabaseProvider extends _$DatabaseProvider {
         AppLogger.print("🔍 DEBUG: About to check kIsWeb for seeding...");
         if (kIsWeb) {
           AppLogger.print("🔍 DEBUG: INSIDE kIsWeb block - starting seeding");
-          AppLogger.print("🌐 Web platform detected - starting JSON seeding...");
+          AppLogger.print(
+              "🌐 Web platform detected - starting JSON seeding...");
           final startTime = DateTime.now();
           try {
             final seeder = WebDatabaseSeeder(this);
             AppLogger.print("🔍 DEBUG: WebDatabaseSeeder created");
             await seeder.seedFromJson();
             final duration = DateTime.now().difference(startTime);
-            AppLogger.print("✅ Web seeding completed in ${duration.inSeconds}s");
+            AppLogger.print(
+                "✅ Web seeding completed in ${duration.inSeconds}s");
 
             // データが正常にインポートされたか確認
             try {
@@ -133,9 +144,12 @@ class DatabaseProvider extends _$DatabaseProvider {
                       .getSingle();
 
               AppLogger.print('✅ Database seeding verification:');
-              AppLogger.print('   - Words imported: ${wordCount.data['count']}');
-              AppLogger.print('   - Dictionaries imported: ${dictCount.data['count']}');
-              AppLogger.print('   - Rankings imported: ${rankingCount.data['count']}');
+              AppLogger.print(
+                  '   - Words imported: ${wordCount.data['count']}');
+              AppLogger.print(
+                  '   - Dictionaries imported: ${dictCount.data['count']}');
+              AppLogger.print(
+                  '   - Rankings imported: ${rankingCount.data['count']}');
             } catch (e) {
               AppLogger.print('⚠️ Could not verify data import: $e');
             }
@@ -158,7 +172,7 @@ class DatabaseProvider extends _$DatabaseProvider {
         if (from < 4) {
           await m.createTable(esEnConjugacions);
 
-          if (!kIsWeb) {
+          if (!kIsWeb && _seedEsEnConjugacionsOnUpgrade) {
             // ATTACH 用の軽量サブDB (assets/es_en_conjugacions.db) をコピーしてパス取得
             final attachDbPath = await copyAssetDbOnce('es_en_conjugacions.db');
             await customStatement(
@@ -172,23 +186,24 @@ class DatabaseProvider extends _$DatabaseProvider {
                   .getSingle();
               final hasData = (cnt.data['c'] as int) > 0;
               if (hasData) {
-                AppLogger.print("Skip seeding es_en_conjugacions (already populated).");
-                return;
+                AppLogger.print(
+                    "Skip seeding es_en_conjugacions (already populated).");
+              } else {
+                await transaction(() async {
+                  AppLogger.print("start transaction");
+                  await customStatement("""
+                  INSERT INTO es_en_conjugacions (word_id, word, english, present_3rd, present_p, past, past_p)
+                  SELECT word_id, word, english, present_3rd, present_p, past, past_p FROM seeddb.es_en_conjugacions;
+                """);
+                });
               }
-
-              await transaction(() async {
-                AppLogger.print("start transaction");
-                await customStatement("""
-                INSERT INTO es_en_conjugacions (word_id, word, english, present_3rd, present_p, past, past_p)
-                SELECT word_id, word, english, present_3rd, present_p, past, past_p FROM seeddb.es_en_conjugacions;
-              """);
-              });
             } finally {
               await customStatement("DETACH DATABASE seeddb;");
               await deleteDatabaseFile(attachDbPath);
             }
-          } else {
-            AppLogger.print("Web platform: es_en_conjugacions seeding skipped - needs web implementation");
+          } else if (kIsWeb) {
+            AppLogger.print(
+                "Web platform: es_en_conjugacions seeding skipped - needs web implementation");
           }
         }
 
@@ -208,19 +223,24 @@ class DatabaseProvider extends _$DatabaseProvider {
           final normalizedType = (myWordIdType ?? '').toUpperCase();
           final needsIdMigration = normalizedType.contains('INT');
           if (!needsIdMigration) {
-            AppLogger.print("MyWords.my_word_id is already TEXT; skipping UUID migration.");
+            AppLogger.print(
+                "MyWords.my_word_id is already TEXT; skipping UUID migration.");
           } else {
             await transaction(() async {
-              AppLogger.print('Migrating MyWord IDs from INTEGER to UUID(TEXT)...');
+              AppLogger.print(
+                  'Migrating MyWord IDs from INTEGER to UUID(TEXT)...');
+
+              final legacyStatusExists = (await customSelect(
+                "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'my_word_status';",
+              ).get())
+                  .isNotEmpty;
 
               // Rename legacy tables
               await customStatement(
                   'ALTER TABLE my_words RENAME TO my_words_old;');
-              try {
+              if (legacyStatusExists) {
                 await customStatement(
                     'ALTER TABLE my_word_status RENAME TO my_word_status_old;');
-              } catch (_) {
-                // Status table may not exist in some environments.
               }
 
               // Create new tables using current schema
@@ -234,9 +254,12 @@ class DatabaseProvider extends _$DatabaseProvider {
               ).get();
 
               for (final row in oldWords) {
+                final oldId = row.data['my_word_id'].toString();
+                final newId = oldId;
+                idMap[oldId] = newId;
                 await into(myWords).insert(
                   MyWordsCompanion.insert(
-                    myWordId: row.data['my_word_id'].toString(),
+                    myWordId: newId,
                     word: row.data['word']?.toString() ?? '',
                     contents: Value(row.data['contents']?.toString()),
                     editAt: row.data['edit_at']?.toString() ?? '',
@@ -244,8 +267,17 @@ class DatabaseProvider extends _$DatabaseProvider {
                 );
               }
 
-              // Migrate statuses using the same mapping
-              try {
+              final migratedWordCount = await customSelect(
+                'SELECT COUNT(*) AS count FROM my_words;',
+              ).getSingle();
+              if (migratedWordCount.data['count'] != oldWords.length ||
+                  idMap.length != oldWords.length) {
+                throw StateError('Not all MyWords were migrated.');
+              }
+
+              // An unmapped status is a corrupt legacy relation. Failing the
+              // transaction keeps both legacy tables intact for recovery.
+              if (legacyStatusExists) {
                 final oldStatuses = await customSelect(
                   'SELECT my_word_id, is_learned, is_bookmarked, has_note, edit_at FROM my_word_status_old;',
                 ).get();
@@ -254,7 +286,9 @@ class DatabaseProvider extends _$DatabaseProvider {
                   final oldId = row.data['my_word_id'].toString();
                   final newId = idMap[oldId];
                   if (newId == null) {
-                    continue;
+                    throw StateError(
+                      'Cannot migrate MyWord status with missing MyWord ID.',
+                    );
                   }
 
                   await into(myWordStatus).insert(
@@ -267,16 +301,19 @@ class DatabaseProvider extends _$DatabaseProvider {
                     ),
                   );
                 }
-              } catch (_) {
-                // If there was no old status table, nothing to migrate.
+
+                final migratedStatusCount = await customSelect(
+                  'SELECT COUNT(*) AS count FROM my_word_status;',
+                ).getSingle();
+                if (migratedStatusCount.data['count'] != oldStatuses.length) {
+                  throw StateError('Not all MyWord statuses were migrated.');
+                }
               }
 
               // Drop old tables
               await customStatement('DROP TABLE my_words_old;');
-              try {
+              if (legacyStatusExists) {
                 await customStatement('DROP TABLE my_word_status_old;');
-              } catch (_) {
-                // ignore
               }
 
               AppLogger.print('MyWord UUID migration completed.');
@@ -286,10 +323,12 @@ class DatabaseProvider extends _$DatabaseProvider {
       },
       beforeOpen: (details) async {
         AppLogger.print("==== DB Migration beforeOpen ===");
-        AppLogger.print("Platform: ${kIsWeb ? 'WEB (IndexedDB)' : 'NATIVE (SQLite)'}");
+        AppLogger.print(
+            "Platform: ${kIsWeb ? 'WEB (IndexedDB)' : 'NATIVE (SQLite)'}");
         AppLogger.print("==== DB version is ${details.versionNow} ===");
         if (details.wasCreated) {
-          AppLogger.print("🆕 DatabaseProvider - Database was created (first time)");
+          AppLogger.print(
+              "🆕 DatabaseProvider - Database was created (first time)");
         } else {
           AppLogger.print("📂 DatabaseProvider - Opening existing database");
         }
@@ -383,7 +422,8 @@ LazyDatabase _openConnection() {
 Future<String> getDatabasePath(String dbName) async {
   if (kIsWeb) {
     // Web doesn't need file paths - IndexedDB is used instead
-    AppLogger.print("getDatabasePath called on web platform - returning placeholder");
+    AppLogger.print(
+        "getDatabasePath called on web platform - returning placeholder");
     return 'web_indexeddb';
   }
 

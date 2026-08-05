@@ -1,6 +1,6 @@
 # Phase 0-2: DB v5 migrationのデータ消失を修正する
 
-- 状態: 未着手
+- 状態: 完了
 - 優先度: P0 / データ保全
 - 依存タスク: なし
 - 次の推奨タスク: [`3-scope-sync-checkpoints.md`](3-scope-sync-checkpoints.md)
@@ -52,11 +52,11 @@
 
 ## 完了条件
 
-- [ ] v5 migrationで旧IDと新IDの対応が保持される
-- [ ] statusがskipされたまま旧tableをdropする経路がない
-- [ ] すべての旧schema versionから現行versionへのtestが通る
-- [ ] 件数だけでなく関連と値もtestで比較している
-- [ ] migration失敗時に破損した中間状態をcommitしない
+- [x] v5 migrationで旧IDと新IDの対応が保持される
+- [x] statusがskipされたまま旧tableをdropする経路がない
+- [x] すべての旧schema versionから現行versionへのtestが通る
+- [x] 件数だけでなく関連と値もtestで比較している
+- [x] migration失敗時に破損した中間状態をcommitしない
 
 ## LLMへの引き継ぎ事項
 
