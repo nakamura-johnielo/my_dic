@@ -10,6 +10,8 @@ import 'package:my_dic/core/shared/errors/app_error.dart';
 import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
+import 'package:my_dic/core/shared/value_objects/field_update.dart';
+import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/update_status_repository_input_data.dart';
 
 //TODO Repository化
 class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
@@ -310,10 +312,18 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
     if (localData == null) {
       // ローカルに存在しない場合は、リモートのデータでローカルを作成
       final updateResult = await _wordStatusRepository.updateLocalWordStatus(
-          remoteItem.wordId,
-          remoteItem.isLearned ? 1 : null,
-          remoteItem.isBookmarked ? 1 : null,
-          remoteItem.hasNote ? 1 : null,
+          UpdateStatusRepositoryInputData(
+            wordId: remoteItem.wordId,
+            isLearned: remoteItem.isLearned
+                ? const FieldUpdate.set(true)
+                : const FieldUpdate.unchanged(),
+            isBookmarked: remoteItem.isBookmarked
+                ? const FieldUpdate.set(true)
+                : const FieldUpdate.unchanged(),
+            hasNote: remoteItem.hasNote
+                ? const FieldUpdate.set(true)
+                : const FieldUpdate.unchanged(),
+          ),
           remoteItem.editAt);
       if (updateResult.isFailure) {
         return Result.failure(updateResult.errorOrNull!);
@@ -331,10 +341,18 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
       // リモートの方が新しい場合
       // local更新
       final updateResult = await _wordStatusRepository.updateLocalWordStatus(
-          remoteItem.wordId,
-          remoteItem.isLearned ? 1 : null,
-          remoteItem.isBookmarked ? 1 : null,
-          remoteItem.hasNote ? 1 : null,
+          UpdateStatusRepositoryInputData(
+            wordId: remoteItem.wordId,
+            isLearned: remoteItem.isLearned
+                ? const FieldUpdate.set(true)
+                : const FieldUpdate.unchanged(),
+            isBookmarked: remoteItem.isBookmarked
+                ? const FieldUpdate.set(true)
+                : const FieldUpdate.unchanged(),
+            hasNote: remoteItem.hasNote
+                ? const FieldUpdate.set(true)
+                : const FieldUpdate.unchanged(),
+          ),
           remoteItem.editAt);
 
       if (updateResult.isFailure) {
@@ -382,10 +400,12 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
     if (localData == null) {
       // ローカルに存在しない場合は、リモートのデータでローカルを作成
       final updateResult = await _wordStatusRepository.updateLocalWordStatus(
-          remoteItem.wordId,
-          remoteItem.isLearned ? 1 : 0,
-          remoteItem.isBookmarked ? 1 : 0,
-          remoteItem.hasNote ? 1 : 0,
+          UpdateStatusRepositoryInputData(
+            wordId: remoteItem.wordId,
+            isLearned: FieldUpdate.set(remoteItem.isLearned),
+            isBookmarked: FieldUpdate.set(remoteItem.isBookmarked),
+            hasNote: FieldUpdate.set(remoteItem.hasNote),
+          ),
           remoteItem.editAt);
       if (updateResult.isFailure) {
         return Result.failure(updateResult.errorOrNull!);
@@ -403,10 +423,12 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
       // リモートの方が新しい場合
       // local更新
       final updateResult = await _wordStatusRepository.updateLocalWordStatus(
-          remoteItem.wordId,
-          remoteItem.isLearned ? 1 : 0,
-          remoteItem.isBookmarked ? 1 : 0,
-          remoteItem.hasNote ? 1 : 0,
+          UpdateStatusRepositoryInputData(
+            wordId: remoteItem.wordId,
+            isLearned: FieldUpdate.set(remoteItem.isLearned),
+            isBookmarked: FieldUpdate.set(remoteItem.isBookmarked),
+            hasNote: FieldUpdate.set(remoteItem.hasNote),
+          ),
           remoteItem.editAt);
 
       if (updateResult.isFailure) {

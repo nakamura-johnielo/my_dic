@@ -1,6 +1,6 @@
 # Phase 0-5: Word statusの部分更新契約を固定する
 
-- 状態: 未着手
+- 状態: 完了
 - 優先度: P1 / データ整合性
 - 依存タスク: [`3-scope-sync-checkpoints.md`](3-scope-sync-checkpoints.md)、[`4-fix-result-propagation.md`](4-fix-result-propagation.md)
 - 関連タスク: [`../local_first/5-migrate-word-status.md`](../local_first/5-migrate-word-status.md)、[`../phase1/6-unify-word-status.md`](../phase1/6-unify-word-status.md)
@@ -59,13 +59,12 @@ remote失敗をsuccessとして隠す経路とJpn-Esp同期未登録も存在す
 
 ## 完了条件
 
-- [ ] 未指定fieldをfalseまたはnullへ上書きしない
-- [ ] domain/application契約にDBの0/1表現がない
-- [ ] local failureが呼出し元まで伝播する
-- [ ] 両辞書方向が同じlocal contract testを通る
-- [ ] remote retryとoutboxがLocal-first 5へ明示的に移管されている
+- [x] 未指定fieldをfalseまたはnullへ上書きしない
+- [x] domain/application契約にDBの0/1表現がない
+- [x] local failureが呼出し元まで伝播する
+- [x] 両辞書方向が同じlocal contract testを通る
+- [x] remote retryとoutboxがLocal-first 5へ明示的に移管されている
 
 ## LLMへの引き継ぎ事項
 
 このタスクでは旧remote同期を拡張しない。statusの値保持とfailure契約だけを固定し、productionの非同期配送はLocal-first 5でDrift outboxへ切り替える。
-

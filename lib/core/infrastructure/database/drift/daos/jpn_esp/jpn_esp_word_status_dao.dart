@@ -25,24 +25,49 @@ class JpnEspWordStatusDao extends DatabaseAccessor<DatabaseProvider>
         .distinct();
   }
 
-  Future<void> updateStatus(
+  Future<JpnEspWordStatusTableData> applyStatusPatch(
     int wordId,
-    int? isLearned,
-    int? isBookmarked,
-    int? hasNote,
+    bool? isLearned,
+    bool? isBookmarked,
+    bool? hasNote,
     String editAt,
   ) async {
-    AppLogger.print("update jpn_esp word status");
-    await (update(jpnEspWordStatus)..where((t) => t.wordId.equals(wordId)))
-        .write(
-      JpnEspWordStatusCompanion(
-        isLearned: isLearned != null ? Value(isLearned) : Value.absent(),
-        isBookmarked:
-            isBookmarked != null ? Value(isBookmarked) : Value.absent(),
-        hasNote: hasNote != null ? Value(hasNote) : Value.absent(),
-        editAt: Value(editAt),
-      ),
-    );
+    return transaction(() async {
+      final existing = await getStatusById(wordId);
+      if (existing == null) {
+        await into(jpnEspWordStatus).insert(
+          JpnEspWordStatusCompanion.insert(
+            wordId: Value(wordId),
+            isLearned: Value(isLearned == true ? 1 : 0),
+            isBookmarked: Value(isBookmarked == true ? 1 : 0),
+            hasNote: Value(hasNote == true ? 1 : 0),
+            editAt: editAt,
+          ),
+        );
+      } else {
+        await (update(jpnEspWordStatus)..where((t) => t.wordId.equals(wordId)))
+            .write(
+          JpnEspWordStatusCompanion(
+            isLearned: isLearned != null
+                ? Value(isLearned ? 1 : 0)
+                : const Value.absent(),
+            isBookmarked: isBookmarked != null
+                ? Value(isBookmarked ? 1 : 0)
+                : const Value.absent(),
+            hasNote:
+                hasNote != null ? Value(hasNote ? 1 : 0) : const Value.absent(),
+            editAt: Value(editAt),
+          ),
+        );
+      }
+
+      final updated = await getStatusById(wordId);
+      if (updated == null) {
+        throw StateError('Jpn-Esp word status was not persisted: $wordId');
+      }
+      AppLogger.print("update jpn_esp word status");
+      return updated;
+    });
   }
 
   Future<JpnEspWordStatusTableData?> getStatusById(int wordId) {

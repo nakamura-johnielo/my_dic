@@ -21,29 +21,20 @@ class DriftWordStatusDataSource implements ILocalWordStatusDataSource {
   }
 
   @override
-  Future<void> updateWordStatus(
+  Future<EspJpnWordStatusTableData> updateWordStatus(
     int wordId,
-    int? isLearned,
-    int? isBookmarked,
-    int? hasNote,
+    bool? isLearned,
+    bool? isBookmarked,
+    bool? hasNote,
     String editAt,
   ) async {
-    if (await _dao.exist(wordId)) {
-      await _dao.updateStatus(
-        wordId,
-        isLearned,
-        isBookmarked,
-        hasNote,
-        editAt,
-      );
-    } else {
-      await _dao.insertStatus(EspJpnWordStatusTableData(
-          wordId: wordId,
-          isLearned: isLearned ?? 0,
-          isBookmarked: isBookmarked ?? 0,
-          hasNote: hasNote ?? 0,
-          editAt: editAt));
-    }
+    return _dao.applyStatusPatch(
+      wordId,
+      isLearned,
+      isBookmarked,
+      hasNote,
+      editAt,
+    );
   }
 
   @override

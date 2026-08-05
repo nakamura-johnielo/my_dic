@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/core/shared/value_objects/field_update.dart';
 import 'package:my_dic/features/esp_jpn_word_status/components/status_button/word_status_command_event.dart';
 import 'package:my_dic/features/jpn_esp_word_status/domain/usecase/update_jpn_esp_status/i_update_jpn_esp_status_use_case.dart';
 import 'package:my_dic/features/jpn_esp_word_status/domain/usecase/update_jpn_esp_status/update_jpn_esp_status_input_data.dart';
@@ -27,7 +28,10 @@ class JpnEspWordStatusCommand extends StateNotifier<WordStatusCommandEvent?> {
 
   Future<void> _setBookmark(bool value) async {
     final res = await _updateInteractor.execute(
-      UpdateJpnEspStatusInputData(wordId: _wordId, isBookmarked: value),
+      UpdateJpnEspStatusInputData(
+        wordId: _wordId,
+        isBookmarked: FieldUpdate.set(value),
+      ),
     );
     AppLogger.print("Complete toggle jpn_esp bookmark");
     if (!mounted) return;
@@ -44,7 +48,7 @@ class JpnEspWordStatusCommand extends StateNotifier<WordStatusCommandEvent?> {
     final res = await _updateInteractor.execute(
       UpdateJpnEspStatusInputData(
         wordId: _wordId,
-        isLearned: value,
+        isLearned: FieldUpdate.set(value),
       ),
     );
 
@@ -60,7 +64,7 @@ class JpnEspWordStatusCommand extends StateNotifier<WordStatusCommandEvent?> {
     final res = await _updateInteractor.execute(
       UpdateJpnEspStatusInputData(
         wordId: _wordId,
-        hasNote: value,
+        hasNote: FieldUpdate.set(value),
       ),
     );
     if (!mounted) return;

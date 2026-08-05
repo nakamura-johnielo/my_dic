@@ -1,5 +1,6 @@
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';
+import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/update_status_repository_input_data.dart';
 
 abstract class IWordStatusRepository {
   Stream<WordStatus> watchWordStatusById(int id);
@@ -24,14 +25,10 @@ abstract class IWordStatusRepository {
 
   //local
   Stream<List<int>> watchLocalChangedIds(DateTime datetime); //TODO 未使用
-  Future<Result<void>> updateLocalWordStatus(
-    int wordId,
-    int? isLearned,
-    int? isBookmarked,
-    int? hasNote,
+  Future<Result<WordStatus>> updateLocalWordStatus(
+    UpdateStatusRepositoryInputData input,
     DateTime editAt,
   );
   Future<Result<List<WordStatus>>> getLocalWordStatusAfter(DateTime datetime);
   Future<Result<WordStatus?>> getLocalWordStatusById(int id);
 }
-

@@ -7,8 +7,10 @@ import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/i_word_status_repository.dart';
+import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/update_status_repository_input_data.dart';
 import 'package:my_dic/core/infrastructure/repositories/converters/word_status_converter.dart';
 import 'package:my_dic/features/esp_jpn_word_status/data/wordStatusEntity.dart';
+import 'package:my_dic/core/shared/value_objects/field_update.dart';
 
 class WordStatusRepository implements IWordStatusRepository {
   final IRemoteWordStatusDataSource _remote;
@@ -16,24 +18,21 @@ class WordStatusRepository implements IWordStatusRepository {
   WordStatusRepository(this._remote, this._local);
 
   @override
-  Future<Result<void>> updateLocalWordStatus(
-    int wordId,
-    int? isLearned,
-    int? isBookmarked,
-    int? hasNote,
+  Future<Result<WordStatus>> updateLocalWordStatus(
+    UpdateStatusRepositoryInputData input,
     DateTime editAt,
   ) async {
     try {
-      await _local.updateWordStatus(
-        wordId,
-        isLearned,
-        isBookmarked,
-        hasNote,
+      final updated = await _local.updateWordStatus(
+        input.wordId,
+        _changedValue(input.isLearned),
+        _changedValue(input.isBookmarked),
+        _changedValue(input.hasNote),
         editAt.toIso8601String(),
       );
 
       AppLogger.print("Local update success");
-      return const Result.success(null);
+      return Result.success(WordStatusConverter.toEntity(updated));
     } catch (e, s) {
       AppLogger.print("Local update failed: $e");
       return Result.failure(DatabaseError(
@@ -43,6 +42,11 @@ class WordStatusRepository implements IWordStatusRepository {
       ));
     }
   }
+
+  bool? _changedValue(FieldUpdate<bool> update) => switch (update) {
+        Unchanged<bool>() => null,
+        SetValue<bool>(:final value) => value,
+      };
 
   @override
   Future<Result<void>> updateRemoteWordStatus(

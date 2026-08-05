@@ -1,10 +1,10 @@
 import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
-import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/i_word_status_repository.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/update_status_input_data.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/i_update_status_use_case.dart';
+import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/update_status_repository_input_data.dart';
 
 class UpdateStatusInteractor implements IUpdateStatusUseCase {
   final IWordStatusRepository _wordStatusRepository;
@@ -12,35 +12,30 @@ class UpdateStatusInteractor implements IUpdateStatusUseCase {
 
   UpdateStatusInteractor(this._wordStatusRepository, this._authRepository);
 
-  int? converterIntFromBool(bool? value) {
-    if (value == null) {
-      return null;
-    }
-    return value ? 1 : 0;
-  }
-
   @override
   Future<Result<void>> execute(UpdateStatusInputData input) async {
+    if (!input.hasChanges) {
+      return const Result.success(null);
+    }
+
     final dateTime = DateTime.now().toUtc();
 
     // ローカルの更新を先に実行
-    AppLogger.print(
-        "status:isBookmarked ${converterIntFromBool(input.isBookmarked)}");
-    AppLogger.print(
-        "status:isLearned ${converterIntFromBool(input.isLearned)}");
-
     final localResult = await _wordStatusRepository.updateLocalWordStatus(
-      input.wordId,
-      converterIntFromBool(input.isLearned),
-      converterIntFromBool(input.isBookmarked),
-      converterIntFromBool(input.hasNote),
+      UpdateStatusRepositoryInputData(
+        wordId: input.wordId,
+        isLearned: input.isLearned,
+        isBookmarked: input.isBookmarked,
+        hasNote: input.hasNote,
+      ),
       dateTime,
     );
 
     // ローカル更新が失敗した場合は即座にエラーを返す
     if (localResult.isFailure) {
-      return localResult;
+      return Result.failure(localResult.errorOrNull!);
     }
+    final updatedStatus = localResult.dataOrNull!;
 
     // ログインユーザーの場合のみリモート更新を実行
 
@@ -65,28 +60,9 @@ class UpdateStatusInteractor implements IUpdateStatusUseCase {
     }
 
     if (accountId != null) {
-      WordStatus repoInput = WordStatus(
-        wordId: input.wordId,
-        isBookmarked: input.isBookmarked ?? false,
-        isLearned: input.isLearned ?? false,
-        hasNote: input.hasNote ?? false,
-        editAt: dateTime,
-      );
-      final res = await _wordStatusRepository.getWordStatusById(input.wordId);
-      if (res.isFailure) {
-        return Result.failure(res.errorOrNull!);
-      }
-      final existing = res.dataOrNull;
-      if (existing != null) {
-        repoInput = repoInput.copyWith(
-          isBookmarked: existing.isBookmarked,
-          isLearned: existing.isLearned,
-        );
-      }
-
       //TODO authenticated追加
       final remoteResult = await _wordStatusRepository.updateRemoteWordStatus(
-          repoInput, accountId!, dateTime);
+          updatedStatus, accountId!, dateTime);
 
       // リモート更新が失敗してもローカルは更新済みなのでログのみ
       if (remoteResult.isFailure) {

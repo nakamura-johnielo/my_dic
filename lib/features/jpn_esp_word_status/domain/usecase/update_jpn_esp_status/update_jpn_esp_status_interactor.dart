@@ -1,10 +1,10 @@
 import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
-import 'package:my_dic/features/jpn_esp_word_status/domain/jpn_esp_word_status.dart';
 import 'package:my_dic/features/jpn_esp_word_status/domain/i_jpn_esp_word_status_repository.dart';
 import 'package:my_dic/features/jpn_esp_word_status/domain/usecase/update_jpn_esp_status/update_jpn_esp_status_input_data.dart';
 import 'package:my_dic/features/jpn_esp_word_status/domain/usecase/update_jpn_esp_status/i_update_jpn_esp_status_use_case.dart';
+import 'package:my_dic/features/jpn_esp_word_status/domain/usecase/update_jpn_esp_status/update_jpn_esp_status_repository_input_data.dart';
 
 class UpdateJpnEspStatusInteractor implements IUpdateJpnEspStatusUseCase {
   final IJpnEspWordStatusRepository _wordStatusRepository;
@@ -13,35 +13,30 @@ class UpdateJpnEspStatusInteractor implements IUpdateJpnEspStatusUseCase {
   UpdateJpnEspStatusInteractor(
       this._wordStatusRepository, this._authRepository);
 
-  int? converterIntFromBool(bool? value) {
-    if (value == null) {
-      return null;
-    }
-    return value ? 1 : 0;
-  }
-
   @override
   Future<Result<void>> execute(UpdateJpnEspStatusInputData input) async {
+    if (!input.hasChanges) {
+      return const Result.success(null);
+    }
+
     final dateTime = DateTime.now().toUtc();
 
     // Update local first
-    AppLogger.print(
-        "jpn_esp status:isBookmarked ${converterIntFromBool(input.isBookmarked)}");
-    AppLogger.print(
-        "jpn_esp status:isLearned ${converterIntFromBool(input.isLearned)}");
-
     final localResult = await _wordStatusRepository.updateLocalWordStatus(
-      input.wordId,
-      converterIntFromBool(input.isLearned),
-      converterIntFromBool(input.isBookmarked),
-      converterIntFromBool(input.hasNote),
+      UpdateJpnEspStatusRepositoryInputData(
+        wordId: input.wordId,
+        isLearned: input.isLearned,
+        isBookmarked: input.isBookmarked,
+        hasNote: input.hasNote,
+      ),
       dateTime,
     );
 
     // Return error immediately if local update failed
     if (localResult.isFailure) {
-      return localResult;
+      return Result.failure(localResult.errorOrNull!);
     }
+    final updatedStatus = localResult.dataOrNull!;
 
     // Update remote only for logged-in users
     String? accountId;
@@ -64,27 +59,8 @@ class UpdateJpnEspStatusInteractor implements IUpdateJpnEspStatusUseCase {
     }
 
     if (accountId != null) {
-      JpnEspWordStatus repoInput = JpnEspWordStatus(
-        wordId: input.wordId,
-        isBookmarked: input.isBookmarked ?? false,
-        isLearned: input.isLearned ?? false,
-        hasNote: input.hasNote ?? false,
-        editAt: dateTime,
-      );
-      final res = await _wordStatusRepository.getWordStatusById(input.wordId);
-      if (res.isFailure) {
-        return Result.failure(res.errorOrNull!);
-      }
-      final existing = res.dataOrNull;
-      if (existing != null) {
-        repoInput = repoInput.copyWith(
-          isBookmarked: existing.isBookmarked,
-          isLearned: existing.isLearned,
-        );
-      }
-
       final remoteResult = await _wordStatusRepository.updateRemoteWordStatus(
-          repoInput, accountId!, dateTime);
+          updatedStatus, accountId!, dateTime);
 
       // Remote failure is logged but local is already updated
       if (remoteResult.isFailure) {

@@ -3,7 +3,8 @@ import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart
 
 import 'i_local_jpn_esp_word_status_data_source.dart';
 
-class JpnEspDriftWordStatusDataSource implements ILocalJpnEspWordStatusDataSource {
+class JpnEspDriftWordStatusDataSource
+    implements ILocalJpnEspWordStatusDataSource {
   final JpnEspWordStatusDao _dao;
   JpnEspDriftWordStatusDataSource(this._dao);
 
@@ -21,29 +22,20 @@ class JpnEspDriftWordStatusDataSource implements ILocalJpnEspWordStatusDataSourc
   }
 
   @override
-  Future<void> updateWordStatus(
+  Future<JpnEspWordStatusTableData> updateWordStatus(
     int wordId,
-    int? isLearned,
-    int? isBookmarked,
-    int? hasNote,
+    bool? isLearned,
+    bool? isBookmarked,
+    bool? hasNote,
     String editAt,
   ) async {
-    if (await _dao.exist(wordId)) {
-      await _dao.updateStatus(
-        wordId,
-        isLearned,
-        isBookmarked,
-        hasNote,
-        editAt,
-      );
-    } else {
-      await _dao.insertStatus(JpnEspWordStatusTableData(
-          wordId: wordId,
-          isLearned: isLearned ?? 0,
-          isBookmarked: isBookmarked ?? 0,
-          hasNote: hasNote ?? 0,
-          editAt: editAt));
-    }
+    return _dao.applyStatusPatch(
+      wordId,
+      isLearned,
+      isBookmarked,
+      hasNote,
+      editAt,
+    );
   }
 
   @override
