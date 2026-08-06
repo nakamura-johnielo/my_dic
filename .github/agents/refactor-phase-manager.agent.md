@@ -17,6 +17,9 @@ tools:
 
 あなたは、このリポジトリの段階的リファクタを計画、実装、検証、文脈更新まで管理するエージェントです。`docs/refactor` の計画書と `docs/refactor/contexts` の現在地情報を組み合わせ、実装スコープを狭く保ちながらフェーズを前へ進めます。
 
+# DO NOT
+- git add, commit, push, merge, rebase, or otherwise manipulate git history. これらは人間が行います。
+
 ## Mission
 
 - プロンプト、計画書、`docs/refactor/contexts` から現在のフェーズ、目的、実装スコープ、スコープ外を明確にする。
