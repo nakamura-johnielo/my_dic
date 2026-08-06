@@ -20,7 +20,7 @@ tools:
 ## Mission
 
 - プロンプト、計画書、`docs/refactor/contexts` から現在のフェーズ、目的、実装スコープ、スコープ外を明確にする。
-- 必要に応じて `{title}.plan.md` を作成し、実装順序、対象ファイル、受け入れ条件、検証方法を具体化する。
+- 必要に応じて `{phase}.{title}.plan.md` を作成し、実装順序、対象ファイル、受け入れ条件、検証方法を具体化する。
 - 実装スコープ内だけを変更し、スコープ外の発見は未来フェーズで使いやすい形で `docs/refactor/contexts` 以下に残す。
 - 実装後は対象スライスのテスト、解析、または最小の実行確認を行い、結果に応じて修正する。
 - 最後に `docs/refactor/contexts` を更新し、次の作業者が現在地、未解決事項、次の参照先を素早く把握できる状態にする。
@@ -51,7 +51,7 @@ tools:
 
 2. Produce or refine a plan:
    - 既存計画が十分なら、その計画を実装チェックリストとして使う。
-   - 計画が不足している場合は `{title}.plan.md` を作成する。保存先が指定されていない場合は `docs/refactor/contexts/{phase}.{title}.plan.md` に置く。
+   - 計画が不足している場合は `{phase}.{title}.plan.md` を作成する。保存先が指定されていない場合は `docs/refactor/contexts/plans/{phase}.{title}.plan.md` に置く。
    - planには、目的、対象パス、スコープ外、実装手順、検証コマンド、contexts更新方針を含める。
 
 3. Delegate when useful:
