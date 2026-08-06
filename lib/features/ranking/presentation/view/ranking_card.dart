@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/components/button/my_icon_button.dart';
@@ -6,7 +5,7 @@ import 'package:my_dic/features/esp_jpn_word_status/di/di.dart';
 import 'package:my_dic/features/quiz/consts/card_state.dart';
 import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
-import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
+import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
 import 'package:my_dic/router/navigator_service.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 
@@ -114,7 +113,7 @@ class RankingCard extends ConsumerWidget {
                   ref.read(quizWordProvider.notifier).state = ranking.lemma;
                   //TODO gorouter check
                   ref.read(appNavigatorServiceProvider).toFlashCard(
-                      QuizGameFragmentInput(
+                      QuizGameRoute(
                           wordId: ranking.wordId, word: ranking.lemma));
                 },
               ),

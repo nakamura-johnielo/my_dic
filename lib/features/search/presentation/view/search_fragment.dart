@@ -5,12 +5,12 @@ import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/components/auto_focus_text_field.dart';
-import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
+import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
 import 'package:my_dic/features/search/presentation/components/card/card_view.dart';
 import 'package:my_dic/core/shared/enums/word/word_type.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
 import 'package:my_dic/features/search/di/view_model_di.dart';
-import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
+import 'package:my_dic/app/routing/contracts/word_detail_route.dart';
 
 class SearchFragment extends ConsumerStatefulWidget {
   const SearchFragment({super.key});
@@ -124,16 +124,18 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                             wordId: jpnEspWord.id,
                             rankingON: false,
                             word: jpnEspWord.word,
-                            meaning: viewModel.simpleMeanings[jpnEspWord.id] ?? '----',
+                            meaning: viewModel.simpleMeanings[jpnEspWord.id] ??
+                                '----',
                             isBookmarked: false,
                             isLearned: false,
                             onTap: () {
                               //TODO gorouter check
-                              viewModelNotifier.goToWordDetail(WordPageInput(
+                              viewModelNotifier.goToWordDetail(WordDetailRoute(
                                   wordId: jpnEspWord.id,
                                   wordType: WordType.jpnEsp,
                                   hasConj: false));
-                            }, wordStatusType: WordStatusType.jpnEspWord,
+                            },
+                            wordStatusType: WordStatusType.jpnEspWord,
                           ),
                         );
                       },
@@ -155,16 +157,21 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                             conjDisplayCount, viewModel.conjugacions.length);
 
                         //先にconj
-                        if (index < conjLength ) {
+                        if (index < conjLength) {
                           final conjugacion = viewModel.conjugacions[index];
-                          final meaning = viewModel.simpleMeanings[conjugacion.wordId] ?? '';
-                          final ranking = viewModel.rankingNos[conjugacion.wordId];
-                          final starCount = viewModel.starCounts[conjugacion.wordId];
+                          final meaning =
+                              viewModel.simpleMeanings[conjugacion.wordId] ??
+                                  '';
+                          final ranking =
+                              viewModel.rankingNos[conjugacion.wordId];
+                          final starCount =
+                              viewModel.starCounts[conjugacion.wordId];
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 11),
-                            child: CardView(wordStatusType: WordStatusType.espJpnWord,
+                            child: CardView(
+                              wordStatusType: WordStatusType.espJpnWord,
                               goToQuiz: () => viewModelNotifier.goToQuiz(
-                                  QuizGameFragmentInput(
+                                  QuizGameRoute(
                                       wordId: conjugacion.wordId,
                                       word: conjugacion.word)),
                               wordId: conjugacion.wordId,
@@ -180,25 +187,29 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                               onTap: () {
                                 //TODO gorouter check
 
-                                viewModelNotifier.goToWordDetail(WordPageInput(
-                                    wordId: conjugacion.wordId,
-                                    wordType: WordType.espJpn,
-                                    hasConj: true));
+                                viewModelNotifier.goToWordDetail(
+                                    WordDetailRoute(
+                                        wordId: conjugacion.wordId,
+                                        wordType: WordType.espJpn,
+                                        hasConj: true));
                               },
                             ),
                           );
                         }
                         index = index - conjLength; //conjLength;
                         final espJpnWord = viewModel.espJpnWords[index];
-                        final meaning = viewModel.simpleMeanings[espJpnWord.wordId] ?? '';
+                        final meaning =
+                            viewModel.simpleMeanings[espJpnWord.wordId] ?? '';
                         final ranking = viewModel.rankingNos[espJpnWord.wordId];
-                        final starCount = viewModel.starCounts[espJpnWord.wordId];
+                        final starCount =
+                            viewModel.starCounts[espJpnWord.wordId];
 
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 11),
-                          child: CardView(wordStatusType: WordStatusType.espJpnWord,
+                          child: CardView(
+                            wordStatusType: WordStatusType.espJpnWord,
                             goToQuiz: () => viewModelNotifier.goToQuiz(
-                                QuizGameFragmentInput(
+                                QuizGameRoute(
                                     wordId: espJpnWord.wordId,
                                     word: espJpnWord.word)),
                             query: query,
@@ -215,7 +226,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                             isLearned: false,
                             onTap: () {
                               //TODO gorouter check
-                              viewModelNotifier.goToWordDetail(WordPageInput(
+                              viewModelNotifier.goToWordDetail(WordDetailRoute(
                                   wordId: espJpnWord.wordId,
                                   wordType: WordType.espJpn,
                                   hasConj: espJpnWord.hasVerb()));

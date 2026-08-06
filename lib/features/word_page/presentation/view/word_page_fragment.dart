@@ -7,7 +7,8 @@ import 'package:my_dic/features/esp_jpn_word_status/components/status_button/sta
 import 'package:my_dic/features/quiz/consts/card_state.dart';
 import 'package:my_dic/core/shared/enums/word/word_type.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
-import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
+import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
+import 'package:my_dic/app/routing/contracts/word_detail_route.dart';
 import 'package:my_dic/features/word_page/di/view_model_di.dart';
 import 'package:my_dic/features/word_page/presentation/view/esp_jpn/conjugacion_fragment.dart';
 import 'package:my_dic/features/word_page/presentation/view/esp_jpn/dictionary_fragment.dart';
@@ -15,24 +16,16 @@ import 'package:my_dic/features/word_page/presentation/view/jpn_esp/jpn_esp_dict
 
 //input data DS
 //TODO QuizCardState enumを使用してしまってる
-class WordPageInput {
-  final int wordId;
-  final WordType wordType;
-  final bool hasConj;
-  WordPageInput({
-    required this.wordId,
-    required this.wordType,
-    required this.hasConj,
-  });
-}
-
 class WordPageFragmentBuilderInput {
   final int wordId;
   final Map<String, Widget> tabs;
   final FloatingActionButton? floatingButton;
   final Widget statusButton;
   WordPageFragmentBuilderInput(
-      {required this.wordId, required this.tabs, this.floatingButton, required this.statusButton});
+      {required this.wordId,
+      required this.tabs,
+      this.floatingButton,
+      required this.statusButton});
 }
 
 class TabWordPageInput {
@@ -41,7 +34,10 @@ class TabWordPageInput {
   final FloatingActionButton? floatingButton;
   final Widget statusButton;
   TabWordPageInput(
-      {required this.wordId, required this.tabs, this.floatingButton, required this.statusButton});
+      {required this.wordId,
+      required this.tabs,
+      this.floatingButton,
+      required this.statusButton});
 }
 
 class SingleWordPageInput {
@@ -50,7 +46,10 @@ class SingleWordPageInput {
   final FloatingActionButton? floatingButton;
   final Widget statusButton;
   SingleWordPageInput(
-      {required this.wordId, required this.body, this.floatingButton, required this.statusButton});
+      {required this.wordId,
+      required this.body,
+      this.floatingButton,
+      required this.statusButton});
 }
 
 //========input========================================================
@@ -58,8 +57,10 @@ class SingleWordPageInput {
 //main fragment
 //wordId,dictionarytype
 class WordPageFragment extends ConsumerWidget {
-  const WordPageFragment({super.key, required this.input});
-  final WordPageInput input;
+  const WordPageFragment({super.key, required this.route});
+  final WordDetailRoute route;
+
+  WordDetailRoute get input => route;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -88,7 +89,10 @@ class WordPageFragment extends ConsumerWidget {
     //TODO 名前とページwidgetつける
 
     final builderInput = WordPageFragmentBuilderInput(
-        wordId: input.wordId, tabs: tabs, floatingButton: floatingButton,statusButton:statusButton?? SizedBox.shrink());
+        wordId: input.wordId,
+        tabs: tabs,
+        floatingButton: floatingButton,
+        statusButton: statusButton ?? SizedBox.shrink());
 
     return _WordPageFragmentBuilder(input: builderInput);
   }
@@ -101,8 +105,8 @@ class WordPageFragment extends ConsumerWidget {
         //TODO gorouter check
         final viewModel =
             ref.read(wordPageViewModelProvider(input.wordId).notifier);
-        viewModel.goToQuiz(QuizGameFragmentInput(
-            wordId: input.wordId, word: input.wordId.toString()));
+        viewModel.goToQuiz(
+            QuizGameRoute(wordId: input.wordId, word: input.wordId.toString()));
       },
       child: const Icon(Icons.handshake_rounded),
     );

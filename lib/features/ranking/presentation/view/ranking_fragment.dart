@@ -10,7 +10,7 @@ import 'package:my_dic/features/ranking/presentation/effect_provider.dart';
 import 'package:my_dic/features/ranking/presentation/view/ranking_card.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
 import 'package:my_dic/features/ranking/di/view_model_di.dart';
-import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
+import 'package:my_dic/app/routing/contracts/word_detail_route.dart';
 
 class RankingFragment extends ConsumerStatefulWidget {
   const RankingFragment({super.key});
@@ -100,7 +100,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
                 margin: margin,
                 onTap: () {
                   ref.read(rankingViewModelProvider.notifier).goToDetail(
-                      WordPageInput(
+                      WordDetailRoute(
                           wordId: ranking.wordId,
                           wordType: WordType.espJpn,
                           hasConj: ranking.hasConj));

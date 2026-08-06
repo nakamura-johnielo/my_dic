@@ -11,18 +11,15 @@ import 'package:my_dic/core/domain/entity/verb/conjugacions.dart';
 import 'package:my_dic/features/quiz/di/provider_di.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
-import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
-
-class QuizGameFragmentInput {
-  final int wordId;
-  final String word;
-  QuizGameFragmentInput({required this.wordId, required this.word});
-}
+import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
+import 'package:my_dic/app/routing/contracts/word_detail_route.dart';
 
 // ConsumerStatefulWidgetに変更
 class QuizGameFragment extends ConsumerWidget {
-  const QuizGameFragment({super.key, required this.input});
-  final QuizGameFragmentInput input;
+  const QuizGameFragment({super.key, required this.route});
+  final QuizGameRoute route;
+
+  QuizGameRoute get input => route;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -109,7 +106,7 @@ class QuizGameFragment extends ConsumerWidget {
                             onPressed: () =>
 
                                 //TODO gorouter check
-                                quizGameNotifier.goToWordDetail(WordPageInput(
+                                quizGameNotifier.goToWordDetail(WordDetailRoute(
                                     wordId: input.wordId,
                                     wordType: WordType.espJpn,
                                     hasConj: true)),

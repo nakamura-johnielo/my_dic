@@ -2,14 +2,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/enums/dictionary/dictionary_type.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
+import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
 import 'package:my_dic/features/search/domain/usecase/judge_search_word/i_judge_search_word_use_case.dart';
 import 'package:my_dic/features/search/domain/usecase/judge_search_word/judge_search_word_input_data.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/i_search_word_use_case.dart';
 import 'package:my_dic/features/search/domain/usecase/search_word/search_word_input_data.dart';
 import 'package:my_dic/features/search/presentation/ui_model/search_ui_model.dart';
 import 'package:logging/logging.dart';
-import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
+import 'package:my_dic/app/routing/contracts/word_detail_route.dart';
 import 'package:my_dic/router/navigator_service.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 
@@ -28,12 +28,12 @@ class SearchViewModel extends StateNotifier<SearchState> {
 
   // ==================== Public Methods ====================
 
-  void goToQuiz(QuizGameFragmentInput input) {
-    _naviService.toFlashCard(input);
+  void goToQuiz(QuizGameRoute route) {
+    _naviService.toFlashCard(route);
   }
 
-  void goToWordDetail(WordPageInput input) {
-    _naviService.toWordDetail(input);
+  void goToWordDetail(WordDetailRoute route) {
+    _naviService.toWordDetail(route);
   }
 
   /// 検索クエリを更新

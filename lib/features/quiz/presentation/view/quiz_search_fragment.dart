@@ -6,7 +6,7 @@ import 'package:my_dic/features/quiz/presentation/components/quiz_search_card.da
 import 'package:my_dic/features/quiz/domain/entity/quiz_searched_item.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
-import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
+import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/features/search/presentation/components/card/card_view.dart';
 
@@ -78,7 +78,7 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
 
     ref
         .read(quizSearchViewModelProvider.notifier)
-        .goToQuiz(QuizGameFragmentInput(wordId: id, word: quizWord.word));
+        .goToQuiz(QuizGameRoute(wordId: id, word: quizWord.word));
   }
 
   @override
@@ -108,7 +108,8 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
             ),
           ),
           Expanded(
-              child: InfinityScrollListView(padding:  const EdgeInsets.symmetric(horizontal: 10),
+              child: InfinityScrollListView(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             initialPage: _initialPage,
             controller: _infinityScrollController,
             itemCount: viewModel.quizSearchedItems.length,
@@ -116,11 +117,12 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
               final quizWord = viewModel.quizSearchedItems[index];
               return Padding(
                 padding: const EdgeInsets.only(bottom: 11),
-                child: CardView(wordStatusType: WordStatusType.espJpnWord,
+                child: CardView(
+                  wordStatusType: WordStatusType.espJpnWord,
                   goToQuiz: () => onTap(quizWord),
                   query: viewModel.query,
                   wordId: quizWord.wordId, //jpnEspWord.id,
-                  ranking: viewModel.rankingNos[quizWord.wordId] , //TODO ranking
+                  ranking: viewModel.rankingNos[quizWord.wordId], //TODO ranking
                   rankingON: true,
                   // conjugations: index % 3 == 0
                   //     ? "現在-yo: soy  現在-yo: soy  現在-yo: soy  現在-yo: soy  現在-yo: soy"

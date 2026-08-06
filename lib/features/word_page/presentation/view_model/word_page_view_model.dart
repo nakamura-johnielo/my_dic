@@ -7,7 +7,7 @@ import 'package:my_dic/core/domain/usecase/fetch_jpn_esp_dictionary/i_fetch_jpn_
 import 'package:my_dic/core/domain/usecase/fetch_conjugation/fetch_conjugation_input_data.dart';
 import 'package:my_dic/core/domain/usecase/fetch_conjugation/i_fetch_conjugation_use_case.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
+import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
 import 'package:my_dic/features/word_page/presentation/ui_model/jpn_esp_state.dart';
 import 'package:logging/logging.dart';
 import 'package:my_dic/router/navigator_service.dart';
@@ -42,8 +42,8 @@ class WordPageViewModel extends StateNotifier<WordPageState> {
     );
   }
 
-  void goToQuiz(QuizGameFragmentInput input) {
-    _naviService.toFlashCard(input);
+  void goToQuiz(QuizGameRoute route) {
+    _naviService.toFlashCard(route);
   }
 
   Future<void> fetchEspJpnItemsById(int wordId) async {

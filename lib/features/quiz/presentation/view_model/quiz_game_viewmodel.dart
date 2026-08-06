@@ -9,7 +9,7 @@ import 'package:my_dic/core/domain/usecase/fetch_conjugation/i_fetch_conjugation
 import 'package:my_dic/features/quiz/domain/usecase/fetch_english_conj.dart/i_fetch_english_conj_usecase.dart';
 import 'package:my_dic/features/quiz/presentation/ui_model/quiz_game_model.dart';
 import 'package:logging/logging.dart';
-import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
+import 'package:my_dic/app/routing/contracts/word_detail_route.dart';
 import 'package:my_dic/router/navigator_service.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 
@@ -31,8 +31,8 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
 
   // ==================== Public Methods ====================
 
-  void goToWordDetail(WordPageInput input) {
-    _naviService.toWordDetail(input);
+  void goToWordDetail(WordDetailRoute route) {
+    _naviService.toWordDetail(route);
   }
 
   void inicializeQuizCardStatus() {

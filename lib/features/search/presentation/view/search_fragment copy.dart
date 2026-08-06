@@ -9,7 +9,7 @@ import 'package:my_dic/features/search/presentation/components/search_card.dart'
 import 'package:my_dic/core/shared/enums/word/word_type.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
 import 'package:my_dic/features/search/di/view_model_di.dart';
-import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
+import 'package:my_dic/app/routing/contracts/word_detail_route.dart';
 
 class SearchFragment extends ConsumerStatefulWidget {
   const SearchFragment({super.key});
@@ -116,7 +116,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                           word: jpnEspWord.word,
                           onTap: () {
                             //TODO gorouter check
-                            viewModelNotifier.goToWordDetail(WordPageInput(
+                            viewModelNotifier.goToWordDetail(WordDetailRoute(
                                 wordId: jpnEspWord.id,
                                 wordType: WordType.jpnEsp,
                                 hasConj: false));
@@ -144,7 +144,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                             onTap: () {
                               //TODO gorouter check
 
-                              viewModelNotifier.goToWordDetail(WordPageInput(
+                              viewModelNotifier.goToWordDetail(WordDetailRoute(
                                   wordId: conjugacion.wordId,
                                   wordType: WordType.espJpn,
                                   hasConj: true));
@@ -158,7 +158,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                           partOfSpeech: espJpnWord.partOfSpeech,
                           onTap: () {
                             //TODO gorouter check
-                            viewModelNotifier.goToWordDetail(WordPageInput(
+                            viewModelNotifier.goToWordDetail(WordDetailRoute(
                                 wordId: espJpnWord.wordId,
                                 wordType: WordType.espJpn,
                                 hasConj: espJpnWord.hasVerb()));

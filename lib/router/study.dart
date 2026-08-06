@@ -5,6 +5,9 @@ import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
 import 'package:my_dic/features/quiz/presentation/view/quiz_search_fragment.dart';
 import 'package:my_dic/features/ranking/presentation/view/ranking_fragment.dart';
 import 'package:my_dic/router/route_names.dart';
+import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
+import 'package:my_dic/app/routing/contracts/route_parse_result.dart';
+import 'package:my_dic/app/routing/invalid_route_page.dart';
 
 //=========dashboard=========================
 final dashboardRoute = GoRoute(
@@ -72,13 +75,21 @@ final quizRoute = GoRoute(
       ),
     ]);
 
-GoRoute flashCardRoute(
-        String parentPath, String name, GlobalKey<NavigatorState>? key) =>
-    GoRoute(
-      path: "$parentPath/${RoutePaths.flashCard}",
+GoRoute flashCardRoute(String name, {String? parentPath}) => GoRoute(
+      path: parentPath == null
+          ? QuizGameRoute.path
+          : '$parentPath/${QuizGameRoute.path}',
       name: name,
       pageBuilder: (context, state) {
-        final input = state.extra as QuizGameFragmentInput;
-        return MaterialPage(child: QuizGameFragment(input: input));
+        final result = QuizGameRoute.parse(
+          pathParameters: state.pathParameters,
+          queryParameters: state.uri.queryParameters,
+        );
+        return switch (result) {
+          RouteParseSuccess(value: final route) =>
+            MaterialPage(child: QuizGameFragment(route: route)),
+          RouteParseFailure(message: final message) =>
+            MaterialPage(child: InvalidRoutePage(message: message)),
+        };
       },
     );

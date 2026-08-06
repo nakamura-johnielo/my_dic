@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/core/di/router/router.dart';
 import 'package:my_dic/core/shared/enums/entry_point.dart';
-import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
-import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
+import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
+import 'package:my_dic/app/routing/contracts/word_detail_route.dart';
 import 'package:my_dic/router/route_names.dart';
 import 'package:my_dic/router/router.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
@@ -38,14 +38,16 @@ class AppNavigatorService {
     }
   }
 
-  void toWordDetail(WordPageInput input) {
+  void toWordDetail(WordDetailRoute route) {
     _router.pushNamed('${_getFormerName()}-${RouteNames.wordDetail}',
-        extra: input);
+        pathParameters: route.pathParameters,
+        queryParameters: route.queryParameters);
   }
 
-  void toFlashCard(QuizGameFragmentInput input) {
+  void toFlashCard(QuizGameRoute route) {
     _router.pushNamed('${_getFormerName()}-${RouteNames.flashCard}',
-        extra: input);
+        pathParameters: route.pathParameters,
+        queryParameters: route.queryParameters);
   }
 
   // 戻る

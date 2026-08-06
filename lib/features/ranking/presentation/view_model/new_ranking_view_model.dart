@@ -3,7 +3,7 @@ import 'package:my_dic/core/shared/enums/feature_tag.dart';
 import 'package:my_dic/core/shared/enums/i_enum.dart';
 import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart';
+import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
 import 'package:my_dic/features/ranking/domain/usecase/load_rankings/i_load_rankings_use_case.dart';
 import 'package:my_dic/features/ranking/domain/usecase/load_rankings/load_rankings_input_data.dart';
 import 'package:my_dic/features/ranking/domain/usecase/locate_ranking_pagenation/i_locate_ranking_pagenation_use_case.dart';
@@ -11,7 +11,7 @@ import 'package:my_dic/features/ranking/domain/usecase/update_ranking_filter/i_u
 import 'package:my_dic/features/ranking/domain/usecase/update_ranking_filter/update_ranking_filter_input_data.dart';
 import 'package:my_dic/features/ranking/presentation/ui_model/ranking_ui_model.dart';
 import 'package:logging/logging.dart';
-import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
+import 'package:my_dic/app/routing/contracts/word_detail_route.dart';
 import 'package:my_dic/router/navigator_service.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 
@@ -31,12 +31,12 @@ class RankingViewModel extends StateNotifier<RankingState> {
 
   static const int _pageSize = 100;
 
-  void goToQuiz(QuizGameFragmentInput input) {
-    _naviService.toFlashCard(input);
+  void goToQuiz(QuizGameRoute route) {
+    _naviService.toFlashCard(route);
   }
 
-  void goToDetail(WordPageInput input) {
-    _naviService.toWordDetail(input);
+  void goToDetail(WordDetailRoute route) {
+    _naviService.toWordDetail(route);
   }
 
   //TODO currentPage List<int> -> int
@@ -58,7 +58,8 @@ class RankingViewModel extends StateNotifier<RankingState> {
 
       return result.when(
         success: (output) {
-          AppLogger.print("==================- ranking items: ${output.length}");
+          AppLogger.print(
+              "==================- ranking items: ${output.length}");
           final appended = [...state.items, ...output];
           final hasNext = output.length > _pageSize;
 

@@ -166,15 +166,11 @@ final routerProvider = Provider<GoRouter>((ref) {
                 routes: [
                   //Study
                   flashCardRoute(
-                      RoutePaths.search,
-                      "${RouteNames.search}-${RouteNames.flashCard}",
-                      searchKey),
+                      "${RouteNames.search}-${RouteNames.flashCard}"),
 
                   //word詳細画面
                   wordDetailRoute(
-                      RoutePaths.search,
-                      "${RouteNames.search}-${RouteNames.wordDetail}",
-                      searchKey),
+                      "${RouteNames.search}-${RouteNames.wordDetail}"),
                 ],
               ),
             ],
@@ -198,10 +194,10 @@ final routerProvider = Provider<GoRouter>((ref) {
               // quiz
               quizRoute,
 
-              wordDetailRoute(RoutePaths.quiz,
-                  "${RouteNames.quiz}-${RouteNames.wordDetail}", studyQuizKey),
-              flashCardRoute(RoutePaths.quiz,
-                  "${RouteNames.quiz}-${RouteNames.flashCard}", studyQuizKey),
+              wordDetailRoute("${RouteNames.quiz}-${RouteNames.wordDetail}",
+                  parentPath: RoutePaths.quiz),
+              flashCardRoute("${RouteNames.quiz}-${RouteNames.flashCard}",
+                  parentPath: RoutePaths.quiz),
             ],
           ),
 
@@ -211,14 +207,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             navigatorKey: studyRankingKey,
             routes: [
               rankingRoute,
-              wordDetailRoute(
-                  RoutePaths.ranking,
-                  "${RouteNames.ranking}-${RouteNames.wordDetail}",
-                  studyRankingKey),
-              flashCardRoute(
-                  RoutePaths.ranking,
-                  "${RouteNames.ranking}-${RouteNames.flashCard}",
-                  studyRankingKey),
+              wordDetailRoute("${RouteNames.ranking}-${RouteNames.wordDetail}",
+                  parentPath: RoutePaths.ranking),
+              flashCardRoute("${RouteNames.ranking}-${RouteNames.flashCard}",
+                  parentPath: RoutePaths.ranking),
             ],
           ),
         ],
