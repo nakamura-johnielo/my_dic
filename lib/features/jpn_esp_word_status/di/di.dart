@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
 import 'package:my_dic/core/infrastructure/database/firebase/daos/jpn_esp/firebase_jpn_esp_word_status_dao.dart';
 import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/i_local_jpn_esp_word_status_data_source.dart';
 import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/i_remote_jpn_esp_word_status_data_source.dart';
 import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/jpn_esp_drift_word_status_data_source.dart';
 import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/jpn_esp_firebase_word_status_data_source.dart';
-import 'package:my_dic/features/auth/di/data_di.dart';
 import 'package:my_dic/features/esp_jpn_word_status/components/status_button/jpn_esp/jpn_esp_status_buttons_command.dart';
 import 'package:my_dic/features/esp_jpn_word_status/components/status_button/jpn_esp/jpn_esp_viewmodel.dart';
 import 'package:my_dic/features/esp_jpn_word_status/components/status_button/jpn_esp/jpn_esp_word_status_state.dart';
@@ -31,7 +31,7 @@ final updateJpnEspStatusUseCaseProvider =
     Provider<IUpdateJpnEspStatusUseCase>((ref) {
   return UpdateJpnEspStatusInteractor(
     ref.read(jpnEspWordStatusRepositoryProvider),
-    ref.read(firebaseAuthRepositoryProvider),
+    ref.watch(currentSessionProvider),
   );
 });
 

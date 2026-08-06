@@ -27,7 +27,7 @@
 3. 実際の自動同期はまだ`features/sync/sync_service.dart`と旧`ISyncUseCase`群が担当している。
 4. Drift schema v6で`account_id`、`local_revision`、`remote_revision`、tombstone、`sync_outbox`、`sync_checkpoints`、`user_profiles`は入っている。ただしRepositoryの多くはlocal更新とFirebase更新を同じRepositoryから直接呼んでいる。
 5. route contractは`app/routing/contracts`へ抽出済み。GoRouter定義はまだ`lib/router/**`が主で、`app/routing/router.dart`は旧router exportのbridge。
-6. Auth lifecycleは`core/application/auth_lifecycle`が現在の中心。だが`AuthStoreNotifier`、`AppUserStoreNotifier`、旧Coordinatorも残っており、Phase 1-4でCurrentSessionへ整理する余地がある。
+6. Auth lifecycleは`core/application/auth_lifecycle`が現在の中心。Phase 1-4で`app/session`（`appSessionProvider`/`currentSessionProvider`）を導入し、Router/autoSync/profile UI/user向けmutation usecase 9件はそこから派生する。legacy同期usecaseとguest統合は未対応（[`phase1.4-introduce-current-session.plan.md`](plans/phase1.4-introduce-current-session.plan.md)参照）。
 7. `tool/import_boundaries`は導入済み。baselineは既存違反を固定する台帳であり、違反があること自体は現状を表す。
 
 ## 現在の実行経路

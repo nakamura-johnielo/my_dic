@@ -1,16 +1,16 @@
+import 'package:my_dic/app/session/current_session.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/shared/utils/uuid.dart';
-import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
 import 'package:my_dic/features/user/domain/entity/user.dart';
 import 'package:my_dic/features/user/domain/i_repository/i_user_repository.dart';
 import 'package:my_dic/features/user/domain/usecase/i_create_new_user_use_case.dart';
 
 class CreateNewUserInteractor implements ICreateNewUserUseCase {
   final IUserRepository _userRepository;
-  final IAuthRepository _authRepository;
+  final CurrentSession _currentSession;
 
-  CreateNewUserInteractor(this._userRepository, this._authRepository);
+  CreateNewUserInteractor(this._userRepository, this._currentSession);
 
   @override
   Future<Result<AppUser>> execute(AppUser appUser) async {
@@ -23,17 +23,7 @@ class CreateNewUserInteractor implements ICreateNewUserUseCase {
         },
         failure: (failure) {});
 
-    final authResult = await _authRepository.getCurrentAuth();
-    String? accountId;
-
-    authResult.when(
-      success: (auth) {
-        if (auth.isAuthenticated && auth.accountId.isNotEmpty) {
-          accountId = auth.accountId;
-        }
-      },
-      failure: (_) {},
-    );
+    final accountId = _currentSession.accountIdOrNull;
 
     if (accountId == null) {
       return Result.failure(
@@ -41,7 +31,7 @@ class CreateNewUserInteractor implements ICreateNewUserUseCase {
     }
 
     final existingUserRes =
-        await _userRepository.getUserByAccountId(accountId!);
+        await _userRepository.getUserByAccountId(accountId);
 
     return existingUserRes.when(success: (user) {
       // すでに存在する場合はそれを返す
@@ -52,18 +42,6 @@ class CreateNewUserInteractor implements ICreateNewUserUseCase {
         final name =
             appUser.email == null ? null : _convertUserName(appUser.email!);
         final newUser = appUser.copyWith(deviceId: deviceId, username: name);
-
-        final authResult = await _authRepository.getCurrentAuth();
-        String? accountId;
-
-        authResult.when(
-          success: (auth) {
-            if (auth.isAuthenticated && auth.accountId.isNotEmpty) {
-              accountId = auth.accountId;
-            }
-          },
-          failure: (_) {},
-        );
 
         final resUser = await _userRepository.createNewUser(newUser, accountId);
 

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_dic/core/application/auth_lifecycle/auth_lifecycle_provider.dart';
-import 'package:my_dic/core/application/auth_lifecycle/auth_lifecycle_state.dart';
+import 'package:my_dic/app/session/app_session.dart';
+import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/features/auth/presentation/view/sign_up.dart';
 import 'package:my_dic/main_activity.dart';
 import 'package:my_dic/features/my_word/presentation/view/my_word_fragment.dart';
@@ -61,11 +61,11 @@ final studyQuizNavigatorKeyProvider =
 
 class AuthChangeNotifier extends ChangeNotifier {
   AuthChangeNotifier(Ref ref) {
-    ref.listen<AuthLifecycleState>(
-      authLifecycleProvider,
+    ref.listen<AppSession>(
+      appSessionProvider,
       (previous, next) {
-        if (previous?.phase == next.phase &&
-            previous?.auth?.accountId == next.auth?.accountId) {
+        if (previous?.runtimeType == next.runtimeType &&
+            previous?.accountIdOrNull == next.accountIdOrNull) {
           AppLogger.print(
               'redirect - [Auth Effect] No change in auth state detected===============================================');
           return;
@@ -113,11 +113,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       final inProfile = location.startsWith('/${RoutePaths.profile}');
       if (!inProfile) return null;
 
-      final lifecycle = ref.read(authLifecycleProvider);
+      final session = ref.read(appSessionProvider);
       final unauthorized = '/${RoutePaths.profile}/${RoutePaths.unauthorized}';
       final authorized = '/${RoutePaths.profile}/${RoutePaths.authorized}';
 
-      if (!lifecycle.isReady) {
+      if (session is! AppSessionReady) {
         AppLogger.print(
             "current location: ${location == unauthorized ? null : unauthorized} ");
         return location == unauthorized ? null : unauthorized;

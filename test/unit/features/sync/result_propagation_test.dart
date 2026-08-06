@@ -20,6 +20,8 @@ import 'package:my_dic/features/my_word/domain/usecase/my_word_status/update_my_
 import 'package:my_dic/features/my_word/presentation/ui_model/my_word_status_command_event.dart';
 import 'package:my_dic/features/my_word/presentation/view_model/my_word_status_command.dart';
 
+import '../../../helpers/fake_current_session.dart';
+
 class _MockAuthRepository extends Mock implements IAuthRepository {}
 
 class _MockMyWordRepository extends Mock implements IMyWordRepository {}
@@ -68,15 +70,13 @@ void main() {
 
   test('status repository failure reaches the command as a failed event',
       () async {
-    final authRepository = _MockAuthRepository();
+    final currentSession = FakeCurrentSession(accountIdOrNull: accountId);
     final statusRepository = _MockMyWordStatusRepository();
     final error = DatabaseError(message: 'status write failed');
-    when(() => authRepository.getCurrentAuth())
-        .thenAnswer((_) async => Result.success(authenticated));
     when(() => statusRepository.updateStatus(any()))
         .thenAnswer((_) async => Result.failure(error));
     final interactor =
-        UpdateMyWordStatusInteractor(statusRepository, authRepository);
+        UpdateMyWordStatusInteractor(statusRepository, currentSession);
     final command = MyWordStatusCommand('word-1', interactor);
 
     command.toggleBookmark(false);

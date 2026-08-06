@@ -1,6 +1,6 @@
+import 'package:my_dic/app/session/current_session.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/i_word_status_repository.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/update_status_input_data.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/i_update_status_use_case.dart';
@@ -8,9 +8,9 @@ import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status
 
 class UpdateStatusInteractor implements IUpdateStatusUseCase {
   final IWordStatusRepository _wordStatusRepository;
-  final IAuthRepository _authRepository;
+  final CurrentSession _currentSession;
 
-  UpdateStatusInteractor(this._wordStatusRepository, this._authRepository);
+  UpdateStatusInteractor(this._wordStatusRepository, this._currentSession);
 
   @override
   Future<Result<void>> execute(UpdateStatusInputData input) async {
@@ -38,31 +38,11 @@ class UpdateStatusInteractor implements IUpdateStatusUseCase {
     final updatedStatus = localResult.dataOrNull!;
 
     // ログインユーザーの場合のみリモート更新を実行
-
-    //TODO authjudge
-    String? accountId;
-    try {
-      final authResult = await _authRepository.getCurrentAuth();
-      authResult.when(
-        success: (auth) {
-          if (auth.isAuthenticated && auth.accountId.isNotEmpty) {
-            accountId = auth.accountId;
-          }
-        },
-        failure: (error) => AppLogger.print(
-          'Auth lookup failed during EspJpn status update: ${error.message}',
-        ),
-      );
-    } catch (error) {
-      AppLogger.print(
-        'Unexpected auth lookup failure during EspJpn status update: $error',
-      );
-    }
+    final accountId = _currentSession.accountIdOrNull;
 
     if (accountId != null) {
-      //TODO authenticated追加
       final remoteResult = await _wordStatusRepository.updateRemoteWordStatus(
-          updatedStatus, accountId!, dateTime);
+          updatedStatus, accountId, dateTime);
 
       // リモート更新が失敗してもローカルは更新済みなのでログのみ
       if (remoteResult.isFailure) {

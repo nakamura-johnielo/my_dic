@@ -15,7 +15,7 @@
 | `data/dto/auth_dto.dart` | Firebase UserからAppAuthへの変換 | Firebase importあり |
 | `data/repository_impl/firebase_auth_repository_impl.dart` | Firebase Auth repository実装 | 機密ログ削除済み。Auth failure変換境界 |
 | `di/**` | auth data/usecase/store/viewmodel/coordinator provider | Riverpod composition |
-| `presentation/view_model/auth_store.dart` | AppAuthの可変store | AuthLifecycleがwriter。CurrentSession導入時に整理 |
+| `presentation/view_model/auth_store.dart` | AppAuthの可変store | AuthLifecycleがwriter。identityの外部参照は`currentSessionProvider`へ移行済み（`profile.dart`など） |
 | `presentation/view_model/sign_in_view_model.dart` | sign-in/up画面操作のVM | AuthLifecycleへ寄せる対象 |
 | `presentation/ui_model/sign_in_model.dart` | sign-in UI state | presentation model |
 | `presentation/view/sign_up.dart` | email/password login/signup UI | lifecycle状態表示の主UI |
@@ -32,7 +32,7 @@
 | `data/data_source/remote/**` | Firestore user profile DAO/data source | Local-first 7でremote adapter化対象 |
 | `data/dto/**` | local/remote user DTO | Firestore timestamp/subscription変換 |
 | `data/repository_impl/user_repository.dart` | local device ID + remote user profile操作 | まだremote直書き。Local-first 7移行対象 |
-| `presentation/view_model/app_user_store.dart` | AppUser可変store | AuthLifecycleがwriter。CurrentSession導入時に整理 |
+| `presentation/view_model/app_user_store.dart` | AppUser可変store | AuthLifecycleがwriter。profile表示用途のみ継続利用（identity解決には使わない） |
 | `presentation/view_model/user_profile_view_model.dart` | profile UI VM | User usecaseへ接続 |
 | `presentation/view/profile.dart` | profile画面 | Router redirect先 |
 | `user_coodinator.dart` | 旧User coordinator | typo含む。Phase 2-4/3で整理対象 |

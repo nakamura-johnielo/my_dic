@@ -76,19 +76,18 @@
 - device IDのSharedPreferences local stateと、editable profileのDrift SoTを分けて扱う。
 - role/subscription/entitlementのremote authorityはoutboxに入れない。
 
-## Phase 1-4: CurrentSession
+## Phase 1-4: CurrentSession（コア実装済み）
 
 先に読む文書:
 
-- [runtime-and-status.md](runtime-and-status.md)
-- [core-map.md](core-map.md)
-- [feature-map.md](feature-map.md)
+- [`phase1.4-introduce-current-session.plan.md`](plans/phase1.4-introduce-current-session.plan.md)
 
-注意:
+状態:
 
-- 入力源は`authLifecycleProvider`。
-- `AuthStoreNotifier`、`AppUserStoreNotifier`、Router redirect、auto sync start conditionをCurrentSessionから派生させる。
-- 未認証を空IDの`AppAuth`で表さない。
+- `lib/app/session/`に`AppSession`（Router/UI向け派生状態）と`CurrentSession` port（accountId解決）を導入済み。
+- Router redirect、`autoSyncProvider`、`profile.dart`、user向けmutation usecase 9件（esp_jpn/jpn_esp status update、my_word register/update/delete/status update、user get/create/update）は`CurrentSession`/`appSessionProvider`経由に切り替え済み。
+- `InMemorySessionFence`へのepoch配線（account切替のたびにepochを進める）を`lib/app/bootstrap/session_composition.dart`に追加済み。production `SyncEngine` triggerは未接続のまま（Local-first 5-7待ち）。
+- 未対応: legacy同期usecase（`sync_esp_jpn_word_status_interactor.dart`、`sync_myword_status_usecase.dart`、`sync_my_word_interactor copy.dart`）は`IAuthRepository`依存のまま。`AppAuth`の命名整理、guest data統合も未対応。
 
 ## Phase 1-5/1-6: ownership整理
 

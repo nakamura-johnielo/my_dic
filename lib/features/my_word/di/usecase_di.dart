@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/core/di/data/repository_di.dart';
 import 'package:my_dic/core/domain/usecase/i_sync_usecase.dart';
 import 'package:my_dic/features/auth/di/data_di.dart';
@@ -36,14 +37,14 @@ final updateMyWordStatusUseCaseProvider =
     Provider<IUpdateMyWordStatusUseCase>((ref) {
   return UpdateMyWordStatusInteractor(
     ref.read(myWordStatusRepositoryProvider),
-    ref.read(firebaseAuthRepositoryProvider),
+    ref.watch(currentSessionProvider),
   );
 });
 
 final registerMyWordUseCaseProvider = Provider<IRegisterMyWordUseCase>((ref) {
   return RegisterMyWordInteractor(
     ref.read(myWordRepositoryProvider),
-    ref.read(firebaseAuthRepositoryProvider),
+    ref.watch(currentSessionProvider),
   );
 });
 
@@ -55,14 +56,14 @@ final handleWordRegistrationUseCaseProvider =
 final updateMyWordUseCaseProvider = Provider<IUpdateMyWordUseCase>((ref) {
   return UpdateMyWordInteractor(
     ref.read(myWordRepositoryProvider),
-    ref.read(firebaseAuthRepositoryProvider),
+    ref.watch(currentSessionProvider),
   );
 });
 
 final deleteMyWordUseCaseProvider = Provider<IDeleteMyWordUseCase>((ref) {
   return DeleteMyWordInteractor(
     ref.read(myWordRepositoryProvider),
-    ref.read(firebaseAuthRepositoryProvider),
+    ref.watch(currentSessionProvider),
   );
 });
 

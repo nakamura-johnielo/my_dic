@@ -1,9 +1,9 @@
 // プロフィールページ（UID/Email/ユーザーネーム表示、ユーザーネーム編集可）
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/core/presentation/components/icons/rotating_icon.dart';
 import 'package:my_dic/core/shared/enums/ui/button_status.dart';
-import 'package:my_dic/features/auth/di/store.dart';
 import 'package:my_dic/features/user/di/service.dart';
 import 'package:my_dic/features/user/di/viewmodel.dart';
 import 'package:my_dic/router/navigator_service.dart';
@@ -50,7 +50,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   Widget build(BuildContext context) {
     final user = ref.watch(appUserStoreNotifierProvider);
     final id = ref.watch(
-            authStoreNotifierProvider.select((user) => user?.accountId)) ??
+            currentSessionProvider.select((s) => s.accountIdOrNull)) ??
         "null";
     final vmNotifier = ref.read(userProfileViewModelProvider.notifier);
     final viewModel = ref.watch(userProfileViewModelProvider);

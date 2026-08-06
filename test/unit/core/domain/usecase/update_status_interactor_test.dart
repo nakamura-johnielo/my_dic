@@ -3,8 +3,6 @@ import 'package:mocktail/mocktail.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/shared/value_objects/field_update.dart';
-import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
-import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/i_word_status_repository.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/update_status_input_data.dart';
@@ -16,7 +14,7 @@ import 'package:my_dic/features/jpn_esp_word_status/domain/usecase/update_jpn_es
 import 'package:my_dic/features/jpn_esp_word_status/domain/usecase/update_jpn_esp_status/update_jpn_esp_status_interactor.dart';
 import 'package:my_dic/features/jpn_esp_word_status/domain/usecase/update_jpn_esp_status/update_jpn_esp_status_repository_input_data.dart';
 
-class _MockAuthRepository extends Mock implements IAuthRepository {}
+import '../../../../helpers/fake_current_session.dart';
 
 class _MockEspJpnRepository extends Mock implements IWordStatusRepository {}
 
@@ -25,11 +23,8 @@ class _MockJpnEspRepository extends Mock
 
 void main() {
   const accountId = 'account-a';
-  final authenticated = AppAuth(
-    accountId: accountId,
-    isLogined: true,
-    isAuthenticated: true,
-  );
+  final currentSession = FakeCurrentSession(accountIdOrNull: accountId);
+  final noSession = FakeCurrentSession();
 
   setUpAll(() {
     registerFallbackValue(const UpdateStatusRepositoryInputData(
@@ -51,11 +46,10 @@ void main() {
   test('Esp-Jpn local DatabaseError is propagated and remote is skipped',
       () async {
     final repository = _MockEspJpnRepository();
-    final authRepository = _MockAuthRepository();
     final error = DatabaseError(message: 'local update failed');
     when(() => repository.updateLocalWordStatus(any(), any()))
         .thenAnswer((_) async => Result.failure(error));
-    final interactor = UpdateStatusInteractor(repository, authRepository);
+    final interactor = UpdateStatusInteractor(repository, noSession);
 
     final result = await interactor.execute(const UpdateStatusInputData(
       wordId: 1,
@@ -69,11 +63,10 @@ void main() {
   test('Jpn-Esp local DatabaseError is propagated and remote is skipped',
       () async {
     final repository = _MockJpnEspRepository();
-    final authRepository = _MockAuthRepository();
     final error = DatabaseError(message: 'local update failed');
     when(() => repository.updateLocalWordStatus(any(), any()))
         .thenAnswer((_) async => Result.failure(error));
-    final interactor = UpdateJpnEspStatusInteractor(repository, authRepository);
+    final interactor = UpdateJpnEspStatusInteractor(repository, noSession);
 
     final result = await interactor.execute(const UpdateJpnEspStatusInputData(
       wordId: 1,
@@ -87,7 +80,6 @@ void main() {
   test('Esp-Jpn sends the complete updated local status to legacy remote',
       () async {
     final repository = _MockEspJpnRepository();
-    final authRepository = _MockAuthRepository();
     final updated = WordStatus(
       wordId: 1,
       isLearned: true,
@@ -97,13 +89,11 @@ void main() {
     );
     when(() => repository.updateLocalWordStatus(any(), any()))
         .thenAnswer((_) async => Result.success(updated));
-    when(authRepository.getCurrentAuth)
-        .thenAnswer((_) async => Result.success(authenticated));
     when(() => repository.updateRemoteWordStatus(any(), accountId, any()))
         .thenAnswer((_) async => Result.failure(
               NetworkError(message: 'remote unavailable'),
             ));
-    final interactor = UpdateStatusInteractor(repository, authRepository);
+    final interactor = UpdateStatusInteractor(repository, currentSession);
 
     final result = await interactor.execute(const UpdateStatusInputData(
       wordId: 1,
@@ -126,7 +116,6 @@ void main() {
   test('Jpn-Esp sends the complete updated local status to legacy remote',
       () async {
     final repository = _MockJpnEspRepository();
-    final authRepository = _MockAuthRepository();
     final updated = JpnEspWordStatus(
       wordId: 1,
       isLearned: true,
@@ -136,15 +125,13 @@ void main() {
     );
     when(() => repository.updateLocalWordStatus(any(), any()))
         .thenAnswer((_) async => Result.success(updated));
-    when(authRepository.getCurrentAuth)
-        .thenAnswer((_) async => Result.success(authenticated));
     when(() => repository.updateRemoteWordStatus(any(), accountId, any()))
         .thenAnswer((_) async => Result.failure(
               NetworkError(message: 'remote unavailable'),
             ));
     final interactor = UpdateJpnEspStatusInteractor(
       repository,
-      authRepository,
+      currentSession,
     );
 
     final result = await interactor.execute(const UpdateJpnEspStatusInputData(
@@ -168,8 +155,7 @@ void main() {
   test('an unchanged command is a no-op and does not advance persistence',
       () async {
     final repository = _MockEspJpnRepository();
-    final authRepository = _MockAuthRepository();
-    final interactor = UpdateStatusInteractor(repository, authRepository);
+    final interactor = UpdateStatusInteractor(repository, noSession);
 
     final result = await interactor.execute(
       const UpdateStatusInputData(wordId: 1),
@@ -178,4 +164,21 @@ void main() {
     expect(result.isSuccess, isTrue);
     verifyNever(() => repository.updateLocalWordStatus(any(), any()));
   });
+
+  test('an unauthenticated session skips remote updates', () async {
+    final repository = _MockEspJpnRepository();
+    final updated = WordStatus(wordId: 1, isBookmarked: false);
+    when(() => repository.updateLocalWordStatus(any(), any()))
+        .thenAnswer((_) async => Result.success(updated));
+    final interactor = UpdateStatusInteractor(repository, noSession);
+
+    final result = await interactor.execute(const UpdateStatusInputData(
+      wordId: 1,
+      isBookmarked: FieldUpdate.set(false),
+    ));
+
+    expect(result.isSuccess, isTrue);
+    verifyNever(() => repository.updateRemoteWordStatus(any(), any(), any()));
+  });
 }
+

@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
 import 'package:my_dic/core/di/data/repository_di.dart';
 import 'package:my_dic/core/domain/usecase/i_sync_usecase.dart';
@@ -46,7 +47,7 @@ final watchEspJpnWordStatusUsecaseProvider =
 final updateStatusUseCaseProvider = Provider<IUpdateStatusUseCase>((ref) {
   return UpdateStatusInteractor(
     ref.read(wordStatusRepositoryProvider),
-    ref.read(firebaseAuthRepositoryProvider),
+    ref.watch(currentSessionProvider),
   );
 });
 

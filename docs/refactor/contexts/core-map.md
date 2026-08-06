@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | `auth_lifecycle/auth_lifecycle_state.dart` | auth lifecycle phaseとderived flags | `ready`がsync開始条件になる |
 | `auth_lifecycle/auth_lifecycle_controller.dart` | sign-in/up/out、email verification、profile provisioning、store更新 | 現在のAuth/User調停の中心。ただしfeature storeへ依存している |
-| `auth_lifecycle/auth_lifecycle_provider.dart` | controller provider組み立て | Phase 1-4でCurrentSessionへつなぐ入口 |
+| `auth_lifecycle/auth_lifecycle_provider.dart` | controller provider組み立て | `lib/app/session/session_providers.dart`の`appSessionProvider`/`currentSessionProvider`から参照される入力源になった |
 | `effects/auth_effect_provider.dart` | Firebase Auth streamを監視しAuthLifecycleへ渡す | 横断effectとして`lifecycle_effects`から起動 |
 | `coordinator/auth_user_coordinator.dart` | 旧Auth/User統合Coordinatorのコメントアウト実装 | 実質残骸。Phase 3で削除/ADR化候補 |
 

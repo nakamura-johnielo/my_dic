@@ -3,8 +3,8 @@ import 'package:my_dic/core/application/auth_lifecycle/auth_lifecycle_controller
 import 'package:my_dic/core/application/auth_lifecycle/auth_lifecycle_state.dart';
 import 'package:my_dic/features/auth/di/store.dart';
 import 'package:my_dic/features/auth/di/usecase_di.dart';
+import 'package:my_dic/features/user/di/ensure_user_exists_di.dart';
 import 'package:my_dic/features/user/di/service.dart';
-import 'package:my_dic/features/user/di/usecase_di.dart';
 
 final authLifecycleProvider =
     StateNotifierProvider<AuthLifecycleController, AuthLifecycleState>((ref) {

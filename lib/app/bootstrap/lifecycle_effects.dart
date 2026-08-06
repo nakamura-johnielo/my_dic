@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/application/effects/auth_effect_provider.dart';
+import 'package:my_dic/app/bootstrap/session_composition.dart';
 import 'package:my_dic/app/bootstrap/sync_composition.dart';
 import 'package:my_dic/features/sync/di.dart';
 
@@ -16,6 +17,7 @@ final applicationLifecycleEffectsProvider = Provider<void>((ref) {
   });
 
   ref.watch(authEffectProvider);
+  ref.watch(sessionFenceEffectProvider);
   ref.watch(autoSyncProvider);
   ref.read(syncSchedulerProvider);
 });

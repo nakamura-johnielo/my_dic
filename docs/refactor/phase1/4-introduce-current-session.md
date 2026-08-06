@@ -1,6 +1,6 @@
 # Phase 1-4: CurrentSessionと認証状態の単一source of truthを導入する
 
-- 状態: 未着手
+- 状態: 進行中（コア実装完了。詳細は[`../contexts/plans/phase1.4-introduce-current-session.plan.md`](../contexts/plans/phase1.4-introduce-current-session.plan.md)を参照）
 - 優先度: 高 / 認証境界
 - 依存タスク: [`../phase0/6-complete-auth-user-lifecycle.md`](../phase0/6-complete-auth-user-lifecycle.md)
 - 関連タスク: [`../local_first/4-build-sync-engine.md`](../local_first/4-build-sync-engine.md)、[`../local_first/7-migrate-user-profile.md`](../local_first/7-migrate-user-profile.md)、[`../phase2/4-remove-ref-from-coordinators.md`](../phase2/4-remove-ref-from-coordinators.md)
@@ -76,14 +76,16 @@ SessionFailure(error)
 
 ## 完了条件
 
-- [ ] 認証状態のwriterがFirebase stream由来の1つだけ
-- [ ] 空accountIdの未認証objectを作らない
-- [ ] AuthとUser Profileが別Repositoryとして保たれる
-- [ ] `AppSession`が派生状態であり、Router/UIの入口になる
-- [ ] featureがaccountId取得のためAuth Repositoryへ直接依存しない
-- [ ] SyncEngineがaccountIdとsession epochを明示的に受け取る
-- [ ] account切替で旧accountのQueue、cursor、cycleが停止する
-- [ ] account切替を含むsession testが通る
+- [x] 認証状態のwriterがFirebase stream由来の1つだけ（`AuthLifecycleController`のみ）
+- [x] 空accountIdの未認証objectを作らない（既存のまま維持）
+- [x] AuthとUser Profileが別Repositoryとして保たれる
+- [x] `AppSession`が派生状態であり、Router/UIの入口になる（`appSessionProvider`をRouter/autoSync/profile UIへ接続済み）
+- [ ] featureがaccountId取得のためAuth Repositoryへ直接依存しない（現行mutation usecase 9件は`CurrentSession`化済み。legacy同期usecase 3件は意図的に未対応、Local-first 5/6へ）
+- [x] SyncEngineがaccountIdとsession epochを明示的に受け取る（`InMemorySessionFence`へのepoch配線を追加。production trigger未接続はLocal-first 5-7のまま）
+- [ ] account切替で旧accountのQueue、cursor、cycleが停止する（production dataset handler未接続のため実データでの検証は未実施。fence配線のみ完了）
+- [x] account切替を含むsession testが通る（`test/unit/app/session/app_session_test.dart`、既存`sync_engine_test.dart`のfenceケース）
+
+実装詳細とスコープ外事項は[`../contexts/phase1.4-introduce-current-session.plan.md`](../contexts/plans/phase1.4-introduce-current-session.plan.md)を参照。
 
 ## LLMへの引き継ぎ事項
 
