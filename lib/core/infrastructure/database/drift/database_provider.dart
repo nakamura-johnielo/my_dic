@@ -82,11 +82,11 @@ part '../../../../__generated/core/infrastructure/database/drift/database_provid
   EsEnConjugacionDao,
 ])
 class DatabaseProvider extends _$DatabaseProvider {
-  // シングルトンインスタンスを保持するフィールド
-  static DatabaseProvider? _instance;
-
-  // プライベートコンストラクタ
-  DatabaseProvider._internal()
+  /// A database instance is owned by the Riverpod provider that creates it.
+  ///
+  /// Keeping this constructor non-singleton lets each ProviderContainer (and
+  /// each test) manage its own connection and disposal lifecycle.
+  DatabaseProvider()
       : _seedEsEnConjugacionsOnUpgrade = true,
         super(_openConnection());
 
@@ -97,11 +97,6 @@ class DatabaseProvider extends _$DatabaseProvider {
   }) : _seedEsEnConjugacionsOnUpgrade = seedEsEnConjugacionsOnUpgrade;
 
   final bool _seedEsEnConjugacionsOnUpgrade;
-
-  // シングルトンインスタンスを取得するためのファクトリコンストラクタ
-  factory DatabaseProvider() {
-    return _instance ??= DatabaseProvider._internal();
-  }
 
   @override
   int get schemaVersion => 6;

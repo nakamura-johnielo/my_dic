@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/infrastructure/database/drift/daos/esp_jpn/conjugation_dao.dart';
 import 'package:my_dic/core/infrastructure/database/drift/daos/esp_jpn/dictionary_dao.dart';
@@ -20,7 +22,11 @@ import 'package:my_dic/core/infrastructure/database/drift/daos/esp_jpn/part_of_s
 import 'package:my_dic/core/infrastructure/database/firebase/firebase_provider.dart';
 
 final databaseProvider = Provider<DatabaseProvider>((ref) {
-  return DatabaseProvider();
+  final database = DatabaseProvider();
+  ref.onDispose(() {
+    unawaited(database.close());
+  });
+  return database;
 });
 
 // --dictionary

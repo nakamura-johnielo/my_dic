@@ -121,8 +121,8 @@ app/bootstrap --------------> 全実装を組み立てる
 
 ## フェーズの進め方
 
-- Phase 0: データ消失・機密情報・不成立フローを止血する。
-- Local-first 1〜4: Phase 0完了後、同期contract、Drift schema、SyncQueue、SyncEngineを構築する。
+- Phase 0: データ消失・機密情報・不成立フローを止血する。X
+- Local-first 1〜4: Phase 0完了後、同期contract、Drift schema、SyncQueue、SyncEngineを構築する。X
 - Phase 1: compositionと依存規則を固定し、今後の変更方向を限定する。
 - Local-first 5〜7: Local-first基盤とPhase 1-1・1-2・1-4の完了後、status、MyWord、User Profileをdataset単位で切り替える。
 - Local-first 8: 全dataset移行後に旧同期経路を削除する。

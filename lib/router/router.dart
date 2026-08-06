@@ -93,7 +93,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   AppLogger.print(
       "===============routerProvider created======================");
 
-  return GoRouter(
+  final router = GoRouter(
     navigatorKey: rootKey,
     refreshListenable: authNotifier,
     redirect: (context, state) {
@@ -257,4 +257,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ],
   );
+
+  ref.onDispose(() {
+    authNotifier.dispose();
+    router.dispose();
+  });
+
+  return router;
 });
