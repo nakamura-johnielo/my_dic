@@ -1,0 +1,11 @@
+{
+  "packageName": "my_dic",
+  "generatedPathPatterns": ["**/*.g.dart", "**/*.freezed.dart", "lib/__generated/**"],
+  "rules": [
+    {"id": "domain_no_framework", "sourcePath": "lib/**/domain/**", "forbiddenPackages": ["flutter", "flutter_riverpod", "firebase_core", "firebase_auth", "cloud_firestore", "drift", "go_router"]},
+    {"id": "core_no_feature", "sourcePath": "lib/core/**", "forbiddenTargetPath": "lib/features/**", "allowedSourcePaths": ["lib/core/application/auth_lifecycle/**", "lib/core/application/effects/**"]},
+    {"id": "no_cross_feature_presentation", "sourcePath": "lib/features/*/presentation/**", "forbiddenTargetPath": "lib/features/*/{presentation,di}/**"},
+    {"id": "firebase_at_boundaries", "sourcePath": "lib/**", "forbiddenPackages": ["firebase_core", "firebase_auth", "cloud_firestore"], "forbiddenSourcePath": "lib/**/{presentation,domain,application,repository}/**"},
+    {"id": "sync_adapter_composition_only", "sourcePath": "lib/**", "forbiddenTargetPath": "lib/features/sync/**/{remote,di}/**", "allowedSourcePaths": ["lib/app/bootstrap/**", "test/**"]}
+  ]
+}

@@ -1,0 +1,580 @@
+{
+  "violations": [
+    {
+      "ruleId": "core_no_feature",
+      "source": "lib/core/application/coordinator/auth_user_coordinator.dart",
+      "target": "package:my_dic/features/auth/auth_coordinator.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "core_no_feature",
+      "source": "lib/core/application/coordinator/auth_user_coordinator.dart",
+      "target": "package:my_dic/features/auth/di/service.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "core_no_feature",
+      "source": "lib/core/application/coordinator/auth_user_coordinator.dart",
+      "target": "package:my_dic/features/auth/domain/entity/app_auth.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "core_no_feature",
+      "source": "lib/core/application/coordinator/auth_user_coordinator.dart",
+      "target": "package:my_dic/features/user/di/service.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "core_no_feature",
+      "source": "lib/core/application/coordinator/auth_user_coordinator.dart",
+      "target": "package:my_dic/features/user/domain/entity/user.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "core_no_feature",
+      "source": "lib/core/application/coordinator/auth_user_coordinator.dart",
+      "target": "package:my_dic/features/user/user_coodinator.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "core_no_feature",
+      "source": "lib/core/di/data/repository_di.dart",
+      "target": "package:my_dic/features/ranking/di/data_di.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "core_no_feature",
+      "source": "lib/core/domain/i_repository/i_conjugation_repository.dart",
+      "target": "package:my_dic/features/quiz/domain/entity/quiz_searched_item.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "core_no_feature",
+      "source": "lib/core/infrastructure/database/drift/database_provider.dart",
+      "target": "package:my_dic/features/my_word/data/data_source/local/drift_my_word_dao.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "core_no_feature",
+      "source": "lib/core/infrastructure/database/drift/database_provider.dart",
+      "target": "package:my_dic/features/my_word/data/data_source/local/my_word_status.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "core_no_feature",
+      "source": "lib/core/infrastructure/database/drift/database_provider.dart",
+      "target": "package:my_dic/features/my_word/data/data_source/local/my_words.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "core_no_feature",
+      "source": "lib/core/infrastructure/database/drift/database_provider.dart",
+      "target": "package:my_dic/features/ranking/data/data_source/local/ranking_dao.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "core_no_feature",
+      "source": "lib/core/infrastructure/database/drift/database_provider.dart",
+      "target": "package:my_dic/features/ranking/data/data_source/local/rankings_entity.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "core_no_feature",
+      "source": "lib/core/infrastructure/database/firebase/daos/firebase_word_status_dao.dart",
+      "target": "package:my_dic/features/esp_jpn_word_status/data/wordStatusEntity.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "core_no_feature",
+      "source": "lib/core/infrastructure/database/firebase/daos/firebase_word_status_dao.dart",
+      "target": "package:my_dic/features/user/data/dto/user_dto.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "core_no_feature",
+      "source": "lib/core/infrastructure/database/firebase/daos/jpn_esp/firebase_jpn_esp_word_status_dao.dart",
+      "target": "package:my_dic/features/jpn_esp_word_status/data/jpn_esp_word_status_entity.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "core_no_feature",
+      "source": "lib/core/infrastructure/database/firebase/daos/jpn_esp/firebase_jpn_esp_word_status_dao.dart",
+      "target": "package:my_dic/features/user/data/dto/user_dto.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "core_no_feature",
+      "source": "lib/core/infrastructure/datasource/jpn_esp_word_status/i_remote_jpn_esp_word_status_data_source.dart",
+      "target": "package:my_dic/features/jpn_esp_word_status/data/jpn_esp_word_status_entity.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "core_no_feature",
+      "source": "lib/core/infrastructure/datasource/jpn_esp_word_status/jpn_esp_firebase_word_status_data_source.dart",
+      "target": "package:my_dic/features/jpn_esp_word_status/data/jpn_esp_word_status_entity.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "core_no_feature",
+      "source": "lib/core/infrastructure/datasource/word_status/firebase_word_status_data_source.dart",
+      "target": "package:my_dic/features/esp_jpn_word_status/data/wordStatusEntity.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "core_no_feature",
+      "source": "lib/core/infrastructure/datasource/word_status/i_remote_word_status_data_source.dart",
+      "target": "package:my_dic/features/esp_jpn_word_status/data/wordStatusEntity.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "core_no_feature",
+      "source": "lib/core/infrastructure/repositories/converters/conjugacion_converter.dart",
+      "target": "package:my_dic/features/quiz/domain/entity/quiz_searched_item.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "core_no_feature",
+      "source": "lib/core/infrastructure/repositories/converters/word_status_converter.dart",
+      "target": "package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "core_no_feature",
+      "source": "lib/core/infrastructure/repositories/drift_conjugacion_repository.dart",
+      "target": "package:my_dic/features/quiz/domain/entity/quiz_searched_item.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "core_no_feature",
+      "source": "lib/core/infrastructure/repositories/drift_esj_word_repository.dart",
+      "target": "package:my_dic/features/ranking/data/data_source/local/i_ranking_local_data_source.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "domain_no_framework",
+      "source": "lib/core/domain/entity/dictionary/esj_dictionary.dart",
+      "target": "package:flutter/foundation.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "domain_no_framework",
+      "source": "lib/core/domain/entity/dictionary/sub/example/impl/esp_jpn_example.dart",
+      "target": "package:flutter/foundation.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "domain_no_framework",
+      "source": "lib/core/domain/entity/dictionary/sub/example/impl/esp_jpn_solo_example.dart",
+      "target": "package:flutter/foundation.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "domain_no_framework",
+      "source": "lib/core/domain/entity/dictionary/sub/idiom/impl/idiom.dart",
+      "target": "package:flutter/foundation.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "domain_no_framework",
+      "source": "lib/core/domain/entity/dictionary/sub/idiom/impl/solo_idiom.dart",
+      "target": "package:flutter/foundation.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "domain_no_framework",
+      "source": "lib/core/domain/entity/dictionary/sub/supplement.dart",
+      "target": "package:flutter/foundation.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "domain_no_framework",
+      "source": "lib/core/domain/entity/jpn_esp/example/jpn_esp_example.dart",
+      "target": "package:flutter/foundation.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "domain_no_framework",
+      "source": "lib/core/domain/entity/jpn_esp/example/jpn_esp_solo_example.dart",
+      "target": "package:flutter/foundation.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "domain_no_framework",
+      "source": "lib/core/domain/entity/jpn_esp/jpn_esp_dictionary.dart",
+      "target": "package:flutter/foundation.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "domain_no_framework",
+      "source": "lib/core/domain/entity/jpn_esp/jpn_esp_word.dart",
+      "target": "package:flutter/foundation.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "domain_no_framework",
+      "source": "lib/core/domain/entity/verb/conjugacion/tense_conjugacion.dart",
+      "target": "package:flutter/foundation.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "domain_no_framework",
+      "source": "lib/core/domain/entity/verb/conjugacions.dart",
+      "target": "package:flutter/foundation.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "domain_no_framework",
+      "source": "lib/core/domain/entity/verb/participles.dart",
+      "target": "package:flutter/foundation.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "domain_no_framework",
+      "source": "lib/core/domain/entity/word/word.dart",
+      "target": "package:flutter/foundation.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "domain_no_framework",
+      "source": "lib/features/esp_jpn_word_status/domain/esp_word_status.dart",
+      "target": "package:flutter/material.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "domain_no_framework",
+      "source": "lib/features/jpn_esp_word_status/domain/jpn_esp_word_status.dart",
+      "target": "package:flutter/material.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "domain_no_framework",
+      "source": "lib/features/my_word/domain/entity/my_word.dart",
+      "target": "package:flutter/foundation.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "domain_no_framework",
+      "source": "lib/features/my_word/domain/entity/my_word_status.dart",
+      "target": "package:flutter/foundation.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "domain_no_framework",
+      "source": "lib/features/ranking/domain/entity/ranking.dart",
+      "target": "package:flutter/foundation.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_cross_feature_presentation",
+      "source": "lib/features/quiz/presentation/view/quiz_game_fragment.dart",
+      "target": "package:my_dic/features/word_page/presentation/view/word_page_fragment.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_cross_feature_presentation",
+      "source": "lib/features/quiz/presentation/view/quiz_search_fragment.dart",
+      "target": "package:my_dic/features/search/presentation/components/card/card_view.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_cross_feature_presentation",
+      "source": "lib/features/quiz/presentation/view_model/quiz_game_viewmodel.dart",
+      "target": "package:my_dic/features/word_page/presentation/view/word_page_fragment.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_cross_feature_presentation",
+      "source": "lib/features/ranking/presentation/view/ranking_card.dart",
+      "target": "package:my_dic/features/esp_jpn_word_status/di/di.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_cross_feature_presentation",
+      "source": "lib/features/ranking/presentation/view/ranking_card.dart",
+      "target": "package:my_dic/features/quiz/di/view_model_di.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_cross_feature_presentation",
+      "source": "lib/features/ranking/presentation/view/ranking_card.dart",
+      "target": "package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_cross_feature_presentation",
+      "source": "lib/features/ranking/presentation/view/ranking_fragment.dart",
+      "target": "package:my_dic/features/word_page/presentation/view/word_page_fragment.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_cross_feature_presentation",
+      "source": "lib/features/ranking/presentation/view_model/new_ranking_view_model.dart",
+      "target": "package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_cross_feature_presentation",
+      "source": "lib/features/ranking/presentation/view_model/new_ranking_view_model.dart",
+      "target": "package:my_dic/features/word_page/presentation/view/word_page_fragment.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_cross_feature_presentation",
+      "source": "lib/features/search/presentation/view/search_fragment copy.dart",
+      "target": "package:my_dic/features/word_page/presentation/view/word_page_fragment.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_cross_feature_presentation",
+      "source": "lib/features/search/presentation/view/search_fragment.dart",
+      "target": "package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_cross_feature_presentation",
+      "source": "lib/features/search/presentation/view/search_fragment.dart",
+      "target": "package:my_dic/features/word_page/presentation/view/word_page_fragment.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_cross_feature_presentation",
+      "source": "lib/features/search/presentation/view_model/viewmodel.dart",
+      "target": "package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_cross_feature_presentation",
+      "source": "lib/features/search/presentation/view_model/viewmodel.dart",
+      "target": "package:my_dic/features/word_page/presentation/view/word_page_fragment.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_cross_feature_presentation",
+      "source": "lib/features/user/presentation/view/profile.dart",
+      "target": "package:my_dic/features/auth/di/store.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_cross_feature_presentation",
+      "source": "lib/features/word_page/presentation/view/esp_jpn/conjugacion_fragment.dart",
+      "target": "package:my_dic/features/search/di/view_model_di.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_cross_feature_presentation",
+      "source": "lib/features/word_page/presentation/view/esp_jpn/dictionary_fragment.dart",
+      "target": "package:my_dic/features/quiz/di/view_model_di.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_cross_feature_presentation",
+      "source": "lib/features/word_page/presentation/view/word_page_fragment.dart",
+      "target": "package:my_dic/features/quiz/di/view_model_di.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_cross_feature_presentation",
+      "source": "lib/features/word_page/presentation/view/word_page_fragment.dart",
+      "target": "package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_cross_feature_presentation",
+      "source": "lib/features/word_page/presentation/view_model/word_page_view_model.dart",
+      "target": "package:my_dic/features/quiz/presentation/view/quiz_game_fragment.dart",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_feature_cycle",
+      "source": "feature:esp_jpn_word_status",
+      "target": "feature:jpn_esp_word_status",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_feature_cycle",
+      "source": "feature:jpn_esp_word_status",
+      "target": "feature:esp_jpn_word_status",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_feature_cycle",
+      "source": "feature:quiz",
+      "target": "feature:search",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_feature_cycle",
+      "source": "feature:quiz",
+      "target": "feature:word_page",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_feature_cycle",
+      "source": "feature:search",
+      "target": "feature:quiz",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_feature_cycle",
+      "source": "feature:search",
+      "target": "feature:word_page",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_feature_cycle",
+      "source": "feature:word_page",
+      "target": "feature:quiz",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    },
+    {
+      "ruleId": "no_feature_cycle",
+      "source": "feature:word_page",
+      "target": "feature:search",
+      "introducedAt": "2026-08-06",
+      "owner": "architecture",
+      "trackingIssue": "docs/refactor/phase1"
+    }
+  ]
+}

@@ -9,6 +9,7 @@
 # packages, and plugins designed to encourage good coding practices.
 include: package:flutter_lints/flutter.yaml
 
+# TODO いずれ消す。testもarchに従う
 analyzer:
   exclude:
     - test/**

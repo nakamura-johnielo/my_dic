@@ -32,6 +32,17 @@
 
 </details>
 
+## Import-boundary check
+TODO: コマンドライン省略化
+Architecture import rules are checked locally and in CI:
+
+```powershell
+dart run tool/check_import_boundaries.dart --baseline tool/import_boundaries/baseline.json --check
+```
+
+See [the import-boundary guide](docs/architecture/import-boundaries.md) for
+rules and baseline updates.
+
 
 ---
 
