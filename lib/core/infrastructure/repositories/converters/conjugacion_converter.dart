@@ -5,7 +5,7 @@ import 'package:my_dic/core/domain/entity/verb/conjugacions.dart';
 import 'package:my_dic/core/domain/entity/verb/participles.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/result_conjugacions.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/tense_conjugacion.dart';
-import 'package:my_dic/features/quiz/domain/entity/quiz_searched_item.dart';
+import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacion_search_result_item.dart';
 
 const nonText = "--";
 
@@ -32,9 +32,9 @@ class ConjugacionConverter {
     );
   }
 
-  /// Convert EspConjugationTableData to QuizSearchedItem for quiz
-  static QuizSearchedItem toQuizItem(EspConjugationTableData data) {
-    return QuizSearchedItem(
+  /// Convert EspConjugationTableData to ConjugacionSearchResultItem for quiz
+  static ConjugacionSearchResultItem toQuizItem(EspConjugationTableData data) {
+    return ConjugacionSearchResultItem(
       wordId: data.wordId,
       word: data.word,
       simpleMeaning: data.meaning ?? "",

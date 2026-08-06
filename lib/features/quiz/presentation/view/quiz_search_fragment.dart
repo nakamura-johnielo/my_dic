@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/components/auto_focus_text_field.dart';
 import 'package:my_dic/core/shared/enums/ui/word_status_type.dart';
 import 'package:my_dic/features/quiz/presentation/components/quiz_search_card.dart';
-import 'package:my_dic/features/quiz/domain/entity/quiz_searched_item.dart';
+import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacion_search_result_item.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
 import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
@@ -66,7 +66,7 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
     return currentItemLength > _previousItemLength;
   }
 
-  void onTap(QuizSearchedItem quizWord) {
+  void onTap(ConjugacionSearchResultItem quizWord) {
     final int id = quizWord.wordId;
 
     //Quiz game の初期化

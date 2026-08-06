@@ -23,6 +23,7 @@
 5. route contractは`app/routing/contracts`へ抽出済み。GoRouter定義はまだ`lib/router/**`が主で、`app/routing/router.dart`は旧router exportのbridge。
 6. Auth lifecycleは`core/application/auth_lifecycle`が現在の中心。Phase 1-4で`app/session`（`appSessionProvider`/`currentSessionProvider`）を導入し、Router、autoSync、profile UI、user向けmutation usecase 9件はそこから派生するようになった。`AuthStoreNotifier`、`AppUserStoreNotifier`は単一writerのまま残る。legacy同期usecase（esp_jpn/jpn_esp/my_wordのsync系）とuser向けprofile表示は意図的に未変更。詳細は[`phase1.4-introduce-current-session.plan.md`](plans/phase1.4-introduce-current-session.plan.md)。
 7. `tool/import_boundaries`は導入済み。baselineは既存違反を固定する台帳であり、違反があること自体は現状を表す。
+8. Phase 1-5 slice 1（活用検索結果itemのcatalog化）が完了し、`feature:quiz`<->`feature:search`の双方向importと関連する`core_no_feature`違反3件を解消した。WordPageがQuiz/Searchの`di`層へ直接依存する3箇所と、`CardView`のsearch/quiz間再利用は未対応のまま残る。詳細は[`plans/phase1.5-define-catalog-ownership.plan.md`](plans/phase1.5-define-catalog-ownership.plan.md)と[`next-phase-guide.md`](next-phase-guide.md)。
 
 ## 触る領域別の最短参照
 

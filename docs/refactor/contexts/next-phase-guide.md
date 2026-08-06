@@ -96,12 +96,16 @@
 - [feature-map.md](feature-map.md)
 - [core-map.md](core-map.md)
 - [app-routing.md](app-routing.md)
+- [`plans/phase1.5-define-catalog-ownership.plan.md`](plans/phase1.5-define-catalog-ownership.plan.md)
 
-注意:
+状態:
 
-- Search/Quiz/Ranking/WordPageのcatalog read model所有者を決める。
-- `esp_jpn_word_status/components/status_button`に和西/MyWord adapterがある状態を整理する。
+- Phase 1-5 slice 1（完了）: 活用検索結果item（旧`features/quiz/domain/entity/quiz_searched_item.dart`）をcatalog概念として`core/domain/entity/verb/conjugacion/conjugacion_search_result_item.dart`へ移設。Search domainがQuiz entityを返す問題と、core repository/converterがQuiz entityへ依存する`core_no_feature`違反3件、`feature:quiz`<->`feature:search`の双方向importを解消済み。`tool/import_boundaries/baseline.json`も実態に合わせて更新済み。
+- 未対応（次スライス）: WordPageがQuiz/Searchの`di`層へ直接依存している3箇所（`conjugacion_fragment.dart`→search query参照、`dictionary_fragment.dart`→`quizWordProvider`書き込み、`word_page_fragment.dart`→`quizGameViewModelProvider`初期化）。いずれもUIの実際の埋め込み・状態共有であり、route contractまたはapp-level portの新規設計判断が必要。
+- 未対応: `quiz_search_fragment.dart`が`search`の`CardView`を再利用している。`CardView`自体が`esp_jpn_word_status`のstatus button widgetへ依存しているため、design systemへ移す前にPhase 1-6のstatus button ownership整理が先に必要（試行して`core_no_feature`違反が新たに発生することを確認済み。移動は見送った）。
+- `esp_jpn_word_status/components/status_button`に和西/MyWord adapterがある状態を整理する（Phase 1-6）。
 - coreへ型を逃がす前に、所有featureまたはapp-level contractを決める。
+
 
 ## Phase 2/3
 

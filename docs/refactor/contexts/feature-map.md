@@ -93,7 +93,7 @@
 | area / file | 責務 | 状態 |
 | --- | --- | --- |
 | `domain/usecase/judge_search_word/**` | 入力語が西和/和西か判定 | Search VMで使用 |
-| `domain/usecase/search_word/**` | 西和/和西/活用検索とranking/meaning/star付加 | Quiz entityをimportしておりownership整理対象 |
+| `domain/usecase/search_word/**` | 西和/和西/活用検索とranking/meaning/star付加 | Phase 1-5 slice 1でQuiz entity依存を解消し、`core/domain/entity/verb/conjugacion/conjugacion_search_result_item.dart`（catalog型）を利用するよう変更済み |
 | `di/**` | Search usecase/viewmodel provider | Router/NavigatorServiceへ接続 |
 | `presentation/ui_model/search_ui_model.dart` | SearchState | loading/data/errorは独自形 |
 | `presentation/view_model/viewmodel.dart` | query更新、paging、検索、detail/quiz遷移 | AppNavigatorServiceに依存 |
@@ -119,7 +119,7 @@
 | area / file | 責務 | 状態 |
 | --- | --- | --- |
 | `consts/card_state.dart` | quiz card question/answer state | presentation寄りenum |
-| `domain/entity/quiz_searched_item.dart` | quiz検索結果item | core repositoryが依存しておりownership整理対象 |
+| （削除済み: `domain/entity/quiz_searched_item.dart`） | quiz検索結果item | Phase 1-5 slice 1で`core/domain/entity/verb/conjugacion/conjugacion_search_result_item.dart`へ統合。Quiz presentation層はcore catalog型を利用する側に整理済み |
 | `domain/usecase/fetch_english_conj.dart/**` | 英語活用取得 | directory名に`.dart`が含まれる。Phase 3 rename候補 |
 | `domain/usecase/english_conj_sub/**` | 英語例文template取得 | JSON asset datasourceから取得 |
 | `data/data_source/local/**` | quiz JSON DAO、英語活用Drift datasource | Quiz data read |
@@ -168,7 +168,18 @@
 
 ## Catalog ownership note
 
-Search、Ranking、Quiz、WordPageは、辞書catalog、活用、ranking metadata、word detail routeを横断的に共有している。現状は`core/domain`と各featureの型が相互に入り込んでいるため、Phase 1-5で「catalog/read modelの所有者」を決める必要がある。
+Search、Ranking、Quiz、WordPageは、辞書catalog、活用、ranking metadata、word detail routeを横断的に共有している。
+
+Phase 1-5 slice 1（完了）: 活用検索結果item（旧`features/quiz/domain/entity/quiz_searched_item.dart`）をcatalog概念として`core/domain/entity/verb/conjugacion/conjugacion_search_result_item.dart`（`ConjugacionSearchResultItem`）へ移設した。これによりSearch domainがQuiz entityをimportする問題と、core repository/converterがQuiz entityへ依存する`core_no_feature`違反3件、および`feature:quiz` <-> `feature:search`の双方向importが解消済み（`tool/import_boundaries/baseline.json`更新済み）。詳細は[`plans/phase1.5-define-catalog-ownership.plan.md`](plans/phase1.5-define-catalog-ownership.plan.md)。
+
+未対応（次スライス向け、`no_cross_feature_presentation`として現存）:
+
+- `word_page/presentation/view/esp_jpn/conjugacion_fragment.dart`が`features/search/di/view_model_di.dart`の`searchViewModelProvider`から検索queryを直接参照している（活用表示のハイライト用）。
+- `word_page/presentation/view/esp_jpn/dictionary_fragment.dart`が`features/quiz/di/view_model_di.dart`の`quizWordProvider`へ現在表示中の単語を書き込んでいる。
+- `word_page_fragment.dart`が`features/quiz/di/view_model_di.dart`の`quizGameViewModelProvider`をWordPage内Quizタブ表示のため直接初期化している。
+- `features/quiz/presentation/view/quiz_search_fragment.dart`が`features/search/presentation/components/card/card_view.dart`（`CardView`）を再利用している。`CardView`自体は`features/esp_jpn_word_status/components/status_button`のstatus button widgetへ依存しており、Phase 1-6のstatus button ownership整理が先に必要なため、design systemへの移設は見送った。
+
+これらはWordPage/Quiz/Searchの実際のUI埋め込み・状態共有であり、route contractまたはapp-level portの新規設計判断が必要。次に着手する場合は`next-phase-guide.md`の該当節を参照する。
 
 ## Status button ownership note
 

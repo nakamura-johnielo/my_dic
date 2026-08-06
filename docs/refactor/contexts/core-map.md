@@ -36,7 +36,7 @@
 | `entity/sync_checkpoint.dart` | legacy sync checkpoint key/value | Phase 0の安全契約 |
 | `entity/dictionary/**` | 西和辞書aggregate、example/idiom/supplement | domainだがFlutter importあり。境界整理対象 |
 | `entity/jpn_esp/**` | 和西辞書/word/example entity | domainだがFlutter importあり。境界整理対象 |
-| `entity/verb/**` | スペイン語活用、時制、分詞、検索一致箇所 | Search/Quiz/WordPageで共有されるcatalog model |
+| `entity/verb/**` | スペイン語活用、時制、分詞、検索一致箇所、活用検索結果catalog item（`ConjugacionSearchResultItem`） | Search/Quiz/WordPageで共有されるcatalog model。Phase 1-5 slice 1で`features/quiz`から移設済み |
 | `entity/word/word.dart` | 西和word entity | Search/Ranking/WordPageで共有されるcatalog model |
 | `i_repository/**` | catalog/conjugation/sync repository port | 一部feature型へ依存しbaseline違反あり |
 | `usecase/fetch_dictionary/**` | 西和辞書詳細取得 | WordPage用catalog query |

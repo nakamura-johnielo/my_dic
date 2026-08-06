@@ -1,8 +1,8 @@
 # Phase 1-5: Search・Quiz・WordPageの共有概念の所有者を決める
 
-- 状態: 未着手
+- 状態: 進行中（slice 1完了、詳細は[`../contexts/plans/phase1.5-define-catalog-ownership.plan.md`](../contexts/plans/phase1.5-define-catalog-ownership.plan.md)）
 - 優先度: 高 / feature循環
-- 依存タスク: [`2-enforce-import-boundaries.md`](2-enforce-import-boundaries.md)
+- 依存タスク: [`2-enforce-import-boundaries.md`](2-enforce-import-boundaries.md)（`tool/import_boundaries`としてCI強制の基盤は導入済み。baseline運用中）
 - 関連タスク: [`3-extract-route-contracts.md`](3-extract-route-contracts.md)、[`../phase2/5-separate-query-projections.md`](../phase2/5-separate-query-projections.md)
 - 元調査: [`FLUTTER_ARCHITECTURE_REVIEW.md`](../../FLUTTER_ARCHITECTURE_REVIEW.md) 7.1、7.2、7.8
 
@@ -53,11 +53,11 @@ Quizが検索能力を必要とする場合、Search featureのViewModelを使�
 
 ## 完了条件
 
-- [ ] 共有概念ごとのownerが文書化されている
-- [ ] Search、Quiz、WordPageの循環importが0
-- [ ] 別featureのpresentation型をimportしない
-- [ ] Quizが必要な辞書能力をapplication/domain portで受ける
-- [ ] route引数がapp-level contractになっている
+- [x] 共有概念ごとのownerが文書化されている（活用検索結果item→core catalog、詳細は[feature-map.md](../contexts/feature-map.md)のCatalog ownership note）
+- [x] Search、Quiz、WordPageの循環importが0（`feature:quiz`<->`feature:search`、`feature:*`<->`feature:word_page`のいずれも解消済み。実測は`dart run tool/check_import_boundaries.dart --check`で確認）
+- [ ] 別featureのpresentation型をimportしない（WordPage→Quiz/Searchの`di`層直接依存3件、Quiz→Searchの`CardView`再利用1件が未解消。詳細はplan文書とnext-phase-guide.mdを参照）
+- [x] Quizが必要な辞書能力をapplication/domain portで受ける（`ConjugacionSearchResultItem`をcore catalog domainのportとして利用する形に整理済み）
+- [x] route引数がapp-level contractになっている（`app/routing/contracts/quiz_game_route.dart`、`word_detail_route.dart`を既存経路で利用済み）
 
 ## LLMへの引き継ぎ事項
 

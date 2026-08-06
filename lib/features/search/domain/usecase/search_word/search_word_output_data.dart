@@ -1,7 +1,7 @@
 import 'package:my_dic/core/domain/entity/jpn_esp/jpn_esp_word.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/result_conjugacions.dart';
 import 'package:my_dic/core/domain/entity/word/word.dart';
-import 'package:my_dic/features/quiz/domain/entity/quiz_searched_item.dart';
+import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacion_search_result_item.dart';
 
 class SearchWordOutputData {
   List<EspJpnWord> wordList;
@@ -44,7 +44,7 @@ class SearchConjugacionOutputData {
 }
 
 class SearchQuizOutputData {
-  List<QuizSearchedItem> quizList;
+  List<ConjugacionSearchResultItem> quizList;
   final Map<int, int> rankingNos;
   final Map<int, String> simpleMeanings;
   final Map<int, int> starCounts;

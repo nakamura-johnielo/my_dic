@@ -1,5 +1,5 @@
 import 'package:my_dic/core/domain/entity/verb/conjugacions.dart';
-import 'package:my_dic/features/quiz/domain/entity/quiz_searched_item.dart';
+import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacion_search_result_item.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/result_conjugacions.dart';
 import 'package:my_dic/core/domain/i_repository/i_conjugation_repository.dart';
 import 'package:my_dic/core/infrastructure/datasource/conjugacion/i_conjugacion_local_datasource.dart';
@@ -59,7 +59,7 @@ class ConjugacionRepository implements IConjugacionsRepository {
   }
 
   @override
-  Future<Result<List<QuizSearchedItem>>> getQuizConjugacionByWordWithPage(
+  Future<Result<List<ConjugacionSearchResultItem>>> getQuizConjugacionByWordWithPage(
       String word, int size, int currentPage) async {
     try {
       final tableDataList = await _dataSource.getQuizConjugacionByWordWithPage(

@@ -1,9 +1,9 @@
-import 'package:my_dic/features/quiz/domain/entity/quiz_searched_item.dart';
+import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacion_search_result_item.dart';
 
 /// 検索画面の状態を表すクラス
 class QuizSearchState {
   final String query;
-  final List<QuizSearchedItem> quizSearchedItems;
+  final List<ConjugacionSearchResultItem> quizSearchedItems;
   final bool isLoading;
   final String? errorMessage;
   
@@ -21,7 +21,7 @@ class QuizSearchState {
 
   QuizSearchState copyWith({
     String? query,
-    List<QuizSearchedItem>? quizSearchedItems,
+    List<ConjugacionSearchResultItem>? quizSearchedItems,
     bool? isLoading,
     String? errorMessage,
     Map<int, int>? rankingNos,
