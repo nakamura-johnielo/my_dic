@@ -64,6 +64,32 @@ class FirebaseWordStatusDao {
     await docRef.set(wordStatusEntity.toFirebase());
   }
 
+  /// Merge-writes only [fieldMask] keys plus bookkeeping timestamps, so that
+  /// fields not covered by the sync outbox mutation are left untouched.
+  Future<void> patch(
+    String userId,
+    int wordId,
+    List<String> fieldMask,
+    Map<String, Object?> fields, {
+    required bool isNew,
+  }) async {
+    final docRef = _db
+        .collection(UserDTO.collectionName)
+        .doc(userId)
+        .collection(WordStatusDTO.collectionName)
+        .doc(wordId.toString());
+    final data = <String, dynamic>{WordStatusDTO.fieldwordId: wordId};
+    for (final field in fieldMask) {
+      final value = fields[field];
+      data[field] = value is bool ? (value ? 1 : 0) : value;
+    }
+    data[WordStatusDTO.fieldUpdatedAt] = FieldValue.serverTimestamp();
+    if (isNew) {
+      data[WordStatusDTO.fieldCreatedAt] = FieldValue.serverTimestamp();
+    }
+    await docRef.set(data, SetOptions(merge: true));
+  }
+
   /// FirestoreのWordStatusコレクションを監視
   Stream<List<WordStatusDTO>> watchAll(String userId) {
     return _db

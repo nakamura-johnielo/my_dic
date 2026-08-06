@@ -386,31 +386,7 @@
     },
     {
       "ruleId": "no_feature_cycle",
-      "source": "feature:esp_jpn_word_status",
-      "target": "feature:sync",
-      "introducedAt": "2026-08-06",
-      "owner": "architecture",
-      "trackingIssue": "docs/refactor/phase1"
-    },
-    {
-      "ruleId": "no_feature_cycle",
       "source": "feature:jpn_esp_word_status",
-      "target": "feature:esp_jpn_word_status",
-      "introducedAt": "2026-08-06",
-      "owner": "architecture",
-      "trackingIssue": "docs/refactor/phase1"
-    },
-    {
-      "ruleId": "no_feature_cycle",
-      "source": "feature:jpn_esp_word_status",
-      "target": "feature:sync",
-      "introducedAt": "2026-08-06",
-      "owner": "architecture",
-      "trackingIssue": "docs/refactor/phase1"
-    },
-    {
-      "ruleId": "no_feature_cycle",
-      "source": "feature:sync",
       "target": "feature:esp_jpn_word_status",
       "introducedAt": "2026-08-06",
       "owner": "architecture",

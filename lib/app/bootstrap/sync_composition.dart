@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
+import 'package:my_dic/features/esp_jpn_word_status/di/di.dart';
+import 'package:my_dic/features/jpn_esp_word_status/di/di.dart';
 import 'package:my_dic/features/sync/application/dataset_handler_registry.dart';
 import 'package:my_dic/features/sync/application/in_memory_session_fence.dart';
 import 'package:my_dic/features/sync/application/policy/dataset_plan.dart';
@@ -11,8 +13,7 @@ import 'package:my_dic/features/sync/infrastructure/persistence/drift/drift_sync
 import 'package:my_dic/features/sync/infrastructure/persistence/drift/drift_sync_queue.dart';
 
 /// New local-first infrastructure is composed here, rather than inside a
-/// feature or widget. It remains inactive until Local-first 5 introduces the
-/// first production DatasetSyncHandler.
+/// feature or widget.
 final driftSyncQueueProvider = Provider<DriftSyncQueue>((ref) {
   return DriftSyncQueue(ref.watch(databaseProvider));
 });
@@ -34,7 +35,10 @@ final syncSingleFlightCoordinatorProvider = Provider<SingleFlightCoordinator>(
 );
 
 final syncDatasetHandlerRegistryProvider = Provider<DatasetHandlerRegistry>(
-  (ref) => DatasetHandlerRegistry(const []),
+  (ref) => DatasetHandlerRegistry([
+    ref.watch(espJpnWordStatusSyncHandlerProvider),
+    ref.watch(jpnEspWordStatusSyncHandlerProvider),
+  ]),
 );
 
 final syncEngineProvider = Provider<SyncEngine>((ref) {

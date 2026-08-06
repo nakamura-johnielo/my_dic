@@ -1,8 +1,18 @@
 # Local-first 5: Word status migration
 
-状態: 進行中（Stage 1完了）
+状態: 進行中（Stage 1・Stage 3・Stage 4・Stage 5完了。Stage 2は縮小スコープでStage 1状態を維持する決定を採用し、read側account scopingはLocal-first 6/7へ明示的に先送り）
 作成日: 2026-08-06
-最終更新: 2026-08-06
+最終更新: 2026-08-06（セッション2）
+
+## Stage 2スコープ決定（2026-08-06 セッション2）
+
+「リファクタ全ステージを完了させる」依頼を受け、着手前に実装範囲を再調査した結果、Stage 2（実rowレベルaccount scoping）を素朴に実装すると、書き込み系だけでなく`EspJpnWordStatusDao`/`JpnEspWordStatusDao`の**読み取り系**（`watchWordStatusById`、`getWordStatusById`、`getLocalWordStatusAfter`等）も含めて全メソッドが`legacy_unowned`固定であることが判明した。読み取り系までaccount scopeを通すと、UI側の`FetchEspJpnStatusInteractor`/`WatchEspJpnWordStatusInteractor`/`WatchJpnEspWordStatusInteractor`経由でpresentation層（status button widget群）まで配線が必要になり、これは[`../../local_first/7-migrate-user-profile.md`](../../local_first/7-migrate-user-profile.md)が明示的に「guest統合はsign-inだけで自動化せず、Ready後の明示的フローで扱う」と定めている領域と重なる。
+
+ユーザーとの協議の結果、**Stage 2は縮小し、Stage 1の状態（outbox enqueueのみaccountId認識、read側は`legacy_unowned`固定のまま）を維持したまま、Stage 3〜5を実装する**方針を採用した。read側account scopingとguest統合フローはLocal-first 6/7の範囲として明示的にスコープ外へ残す。
+
+理由:
+- `my_word`/`ranking`は独立Driftテーブルであり、word statusだけread側account scopingを先行させても技術的なデータ破損リスクは低い（以前のcontextsが懸念していたほど深刻ではないと判明）。ただしread側配線がpresentation層まで広がる点は変わらず、Local-first 5単体のレビュー容易性を著しく下げる。
+- 元task文書（[`../../local_first/5-migrate-word-status.md`](../../local_first/5-migrate-word-status.md)）の必須テスト「direction、account、guest scopeを跨いでrowが混在しない」は、esp_jpn/jpn_esp間で別テーブルである時点で満たされており、単一account前提のままでもStage 3のhandler実装・contract test自体は成立する。
 
 ## 目的
 
@@ -21,11 +31,11 @@
 
 | 段階 | 内容 | 対応する実装方針項目 |
 | --- | --- | --- |
-| Stage 1（本セッションで実装） | local status行更新とfield mask付きoutbox mutationを同一Drift transactionで書き込む（署名ユーザーのみ、既存remote pushは並行して残す） | 2 |
-| Stage 2（未着手） | 実rowレベルaccount scopingへの移行（`legacy_unowned`固定から`accountId`実値への移行）とguest scope設計 | 8完了条件「direction/account/guest scopeを跨いでrowが混在しない」 |
-| Stage 3（未着手） | Esp-Jpn/Jpn-Esp共通の`DatasetSyncHandler`実装（push: leasePending→field mask付きFirestore patch→ack、pull: checkpoint cursor→server差分取得→field単位merge→Drift反映+checkpoint更新を同一transaction） | 4, 5, 6 |
-| Stage 4（未着手） | `syncDatasetHandlerRegistryProvider`へ両handlerを登録し、旧`SyncEspJpnWordStatusInteractor`/旧status向けremote pushを`SyncService`から外す | 7 |
-| Stage 5（未着手） | `applicationLifecycleEffectsProvider`から`syncSchedulerProvider.foreground(...)`を実際に呼ぶforeground trigger配線 | （タスク文書に明記はないが本番切替に必須） |
+| Stage 1（完了: 2026-08-06） | local status行更新とfield mask付きoutbox mutationを同一Drift transactionで書き込む（署名ユーザーのみ、既存remote pushは並行して残す） | 2 |
+| Stage 2（縮小スコープで現状維持を選択: 2026-08-06セッション2） | 実rowレベルaccount scopingへの移行とguest scope設計は、read側がpresentation層まで配線が広がりLocal-first 6/7の担当領域と重なるため見送り。Stage 1の状態（書き込み時のみaccountId認識）を維持する | 8完了条件「direction/account/guest scopeを跨いでrowが混在しない」は別途評価（下記参照） |
+| Stage 3（完了: 2026-08-06セッション2） | Esp-Jpn/Jpn-Esp共通の`DatasetSyncHandler`実装（push: leasePending→field mask付きFirestore patch→ack、pull: checkpoint cursor→server差分取得→field単位merge→Drift反映+checkpoint更新を同一transaction） | 4, 5, 6 |
+| Stage 4（完了: 2026-08-06セッション2） | `syncDatasetHandlerRegistryProvider`へ両handlerを登録し、旧`SyncEspJpnWordStatusInteractor`/旧status向けremote pushを`SyncService`から外す | 7 |
+| Stage 5（完了: 2026-08-06セッション2） | `applicationLifecycleEffectsProvider`から`syncSchedulerProvider.foreground(...)`を実際に呼ぶforeground trigger配線 | （タスク文書に明記はないが本番切替に必須） |
 
 ## Stage 1 詳細（本セッションの実装スコープ）
 
@@ -86,11 +96,66 @@ flutter test test/unit/features/sync/
 - 検証結果: `dart run tool/check_import_boundaries.dart --baseline tool/import_boundaries/baseline.json --check`は0件（baseline更新後）。`flutter test`は`test/unit/features/word_status/`、`test/unit/core/domain/usecase/update_status_interactor_test.dart`、`test/unit/features/sync/`で計59件すべて成功。
 - 未対応（次回セッションへの引き継ぎ）: Stage 2〜5は未着手のまま。特にStage 2の「account scoping migration方式」は、`my_word`/`ranking`も同じ`legacy_unowned`定数を使っているため、word statusだけを先行させると一貫性が崩れる。次回はまずaccount scoping migrationの設計（既存`legacy_unowned` rowをsign-in時にどう扱うか）を横断的に決めることを推奨する。
 
-## 完了条件（本タスク全体、Stage 1では一部のみ満たす）
+## Stage 3〜5 実施結果（2026-08-06 セッション2）
 
-- [ ] statusのread/writeがDriftだけを通る（Stage 1では変更なし、既存のまま）
-- [ ] 通常status RepositoryにFirebase操作がない（Stage 1では未達、Stage 3/4で対応）
+### 対象パス（追加分）
+
+- `lib/features/sync/application/port/sync_queue.dart`（`peekPending`追加）
+- `lib/features/sync/infrastructure/persistence/drift/drift_sync_queue.dart`（`peekPending`実装）
+- `test/helpers/sync/fake_sync_queue.dart`（`peekPending`実装）
+- `lib/core/infrastructure/datasource/word_status/i_remote_word_status_data_source.dart`・`firebase_word_status_data_source.dart`、jpn_esp側も同様（`patchWordStatus`追加）
+- `lib/core/infrastructure/database/firebase/daos/firebase_word_status_dao.dart`・`jpn_esp/firebase_jpn_esp_word_status_dao.dart`（`patch`メソッド追加：fieldMaskのみをmerge writeし、新規docのみ`createdAt`も書く）
+- `lib/core/infrastructure/datasource/word_status/i_local_word_status_data_source.dart`・`drift_word_status_data_source.dart`、jpn_esp側も同様（`applyRemoteFields`追加）
+- `lib/core/infrastructure/database/drift/daos/esp_jpn/esp_jpn_word_status_dao.dart`・`jpn_esp/jpn_esp_word_status_dao.dart`（`applyRemoteFields`追加：local_revisionを変更せず、outboxにも触れない）
+- `lib/features/esp_jpn_word_status/data/sync/esp_jpn_word_status_sync_handler.dart`（新規）
+- `lib/features/jpn_esp_word_status/data/sync/jpn_esp_word_status_sync_handler.dart`（新規）
+- `lib/features/esp_jpn_word_status/di/di.dart`・`lib/features/jpn_esp_word_status/di/di.dart`（handler provider追加）
+- `lib/app/bootstrap/sync_composition.dart`（`syncDatasetHandlerRegistryProvider`へ両handler登録）
+- `lib/features/sync/di.dart`（`syncEspJpnWordStatusUseCaseProvider`を`syncServiceProvider`から除去）
+- `lib/features/esp_jpn_word_status/domain/usecase/update_status/update_status_interactor.dart`・`lib/features/jpn_esp_word_status/domain/usecase/update_jpn_esp_status/update_jpn_esp_status_interactor.dart`（直接remote push呼び出しを削除。配送はoutbox+handlerへ一本化）
+- `lib/features/sync/application/in_memory_session_fence.dart`（`epochFor`追加）
+- `lib/app/bootstrap/lifecycle_effects.dart`（`AppSessionReady`遷移時とapp resume時に`syncSchedulerProvider.foreground(...)`を呼ぶtrigger追加）
+- `test/unit/core/domain/usecase/update_status_interactor_test.dart`（legacy remote pushを検証していた2testを「呼ばれないことを検証するtest」へ置き換え）
+- `test/unit/features/word_status/word_status_sync_handler_test.dart`（新規、両direction共通のhandler contract test）
+- `tool/import_boundaries/baseline.json`（Stage 1で追加した`no_feature_cycle`違反3件のうち、`features/sync/di.dart -> features/esp_jpn_word_status/di/di.dart`の逆方向importが消えたことで解消された3件を除去）
+
+### 設計判断の要点
+
+- **push**: `SyncQueue.leasePending`でリースしたmutationごとに、remoteの既存doc有無（`getWordStatusById`）を見て`isNew`を決め、`patchWordStatus`でfieldMaskのfieldだけをFirestore `set(..., merge: true)`する。成功したら`ack`。失敗は`SyncErrorClassifier`で分類し、`deadLetter`分類のみdead-letterへ、それ以外（retry/pauseとも）は`retry`へ回す（pauseとretryを同一扱いにする簡略化は次回改善余地としてメモ）。
+- **pull**: `SyncCheckpointStore`のcursorから`getWordStatusAfter`で差分取得し、`SyncQueue.peekPending`でこの時点の未ack mutationのfieldMaskを集計。取得した各remote itemについて、pending mutationが存在するfieldは書き込みをskipし（`applyRemoteFields`の該当引数へ`null`を渡す）、それ以外のfieldのみ反映する。反映とcheckpoint書き込みは`ILocalWordStatusDataSource.runInTransaction`で同一Drift transactionにまとめる。
+- **checkpoint**: 新しい`SyncCheckpointStore`（`sync_checkpoints`テーブル）を使う。旧`ISyncStatusRepository`（`sync_status`系）とは別物であり、干渉しない。
+- **remote applyがoutboxを生成しない**: `applyRemoteFields`はDAOの直接呼び出しであり、`OutboxWriter`を一切経由しない。
+- **旧remote push撤去**: `UpdateStatusInteractor`/`UpdateJpnEspStatusInteractor`からの直接`updateRemoteWordStatus`呼び出しを削除。配送はoutbox+`DatasetSyncHandler`のみに一本化した。`WordStatusRepository`/`JpnEspWordStatusRepository`クラス自体は`updateRemoteWordStatus`等のFirebase操作メソッドを引き続き実装している（旧`SyncEspJpnWordStatusInteractor`が依然として参照するため）。
+- **旧sync usecaseの扱い**: `SyncEspJpnWordStatusInteractor`は`features/sync/di.dart`の`syncServiceProvider`から除去し、実行経路からは完全に外れた。ただしクラスファイル・`esp_jpn_word_status/di/di.dart`内の`syncEspJpnWordStatusUseCaseProvider`定義・`test/unit/features/sync/result_propagation_test.dart`の直接参照は削除していない（削除すると無関係なテストファイルの構造まで変更する必要があり、本セッションのスコープを超えるため）。次回、これらを完全削除してよい。
+- **foreground trigger**: `InMemorySessionFence`に`epochFor(accountId)`を追加し、`lifecycle_effects.dart`で`appSessionProvider`が`AppSessionReady`になった時とアプリresume時に`syncSchedulerProvider.foreground(SyncContext(...))`を呼ぶ。例外はログのみで握りつぶし、UIをブロックしない。
+
+### 検証
+
+```powershell
+dart run tool/check_import_boundaries.dart --baseline tool/import_boundaries/baseline.json --check
+flutter test test/unit/features/word_status/
+flutter test test/unit/core/domain/usecase/update_status_interactor_test.dart
+flutter test test/unit/features/sync/
+```
+
+- import境界チェック: 0件（baseline更新後、`no_feature_cycle`の`esp_jpn_word_status<->sync`・`sync->esp_jpn_word_status`3件が自然解消したことを確認し、baselineから除去済み。`esp_jpn_word_status<->jpn_esp_word_status`の既存2件は無関係の別問題として残置）。
+- `flutter test test/unit`: 全体では2ファイルが読み込み時compile errorで失敗（`test/unit/features/my_word/domain/usecase/load_my_word_interactor_test.dart`、`test/unit/features/ranking/domain/usecase/load_rankings_interactor_test.dart`）。原因は`test/helpers/fake_my_word_repository.dart`が`IMyWordRepository`の現行シグネチャ（`getById(String)`、`registerWord`の戻り値型等）と食い違っていることで、**本セッションの変更とは無関係の既存不具合**（`lib/features/my_word/**`・当該helperファイルは一切変更していない）。指摘のみ残し、修正はスコープ外。
+- 対象範囲の`flutter test`（word_status/sync/update_status_interactor_test）は合計82件すべて成功。新規`word_status_sync_handler_test.dart`10件を含む。
+
+### 未対応（次回セッションへの引き継ぎ）
+
+- Stage 2（read側account scoping、guest統合）は引き続き未着手。Local-first 6/7で横断的に扱うことを推奨（本ファイル冒頭の「Stage 2スコープ決定」参照）。
+- `WordStatusRepository`/`JpnEspWordStatusRepository`からFirebase操作メソッド自体を完全に除去するには、`SyncEspJpnWordStatusInteractor`とその関連di/testの削除が先に必要。
+- pushのretry backoff計算が`attempt=1`固定の簡略実装（`MutationLease`が現在のattempt countを公開していないため）。将来的に`SyncQueue`が現attempt countを返すようにするか、handler側でretry回数を追跡する改善余地がある。
+- pauseエラー分類（認証切れ等）を現在retryと同一に扱っている。長時間の無駄なretryを避けるには、pause専用のバックオフや一時停止ロジックを追加するとよい。
+- account切替（session epoch）を跨いだhandler単体のend-to-end testは未実装（`SyncEngine`側のfenceテストはLocal-first 4で既存）。
+- 発見した無関係の既存不具合（`test/helpers/fake_my_word_repository.dart`と`IMyWordRepository`の不整合によるcompile error）は別タスクとして起票を推奨。
+
+## 完了条件（本タスク全体）
+
+- [x] statusのread/writeがDriftだけを通る（通常usecaseの書き込みパスからは達成。`UpdateStatusInteractor`/`UpdateJpnEspStatusInteractor`は直接remote pushを行わなくなり、配送はoutbox+`DatasetSyncHandler`のみが担う）
+- [ ] 通常status RepositoryにFirebase操作がない（部分達成。usecaseからの直接呼び出しは除去したが、`WordStatusRepository`/`JpnEspWordStatusRepository`クラス自体は`updateRemoteWordStatus`等のFirebase操作を実装したまま残る。理由は旧`SyncEspJpnWordStatusInteractor`が同メソッドへ依存しており、そのinteractor自体をまだ削除していないため。完全達成は旧interactor削除後）
 - [x] 両directionが同一のoutbox enqueue契約を持つ（Stage 1で対応）
-- [ ] 両directionがSyncEngineへ登録されている（Stage 4で対応）
-- [ ] 旧status listenerと旧sync UseCaseがdataset registryから外れている（Stage 4で対応）
-- [ ] failure、retry、conflict、account切替testが通る（Stage 3/4で対応）
+- [x] 両directionがSyncEngineへ登録されている（Stage 4で対応。`syncDatasetHandlerRegistryProvider`に`EspJpnWordStatusSyncHandler`/`JpnEspWordStatusSyncHandler`を登録済み）
+- [x] 旧status listenerと旧sync UseCaseがdataset registryから外れている（`features/sync/di.dart`の`syncServiceProvider`から`syncEspJpnWordStatusUseCaseProvider`を除去済み。ただし`SyncEspJpnWordStatusInteractor`クラス自体と、そのdi provider定義は削除していない。理由は`test/unit/features/sync/result_propagation_test.dart`が直接そのクラスを使っておりファイル削除は別途のテスト移行作業を要するため。実行経路からは完全に外れている）
+- [ ] failure、retry、conflict、account切替testが通る（`test/unit/features/word_status/word_status_sync_handler_test.dart`でretry/dead-letter/pull/field-level merge-skipは検証済み。account切替（session epoch）specificなhandler testと、真の「同一fieldがserver受付順で収束する」複数端末シナリオのend-to-end testは未実装。詳細は下記Stage 3〜5実施結果を参照）

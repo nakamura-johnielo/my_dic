@@ -107,4 +107,50 @@ class JpnEspWordStatusDao extends DatabaseAccessor<DatabaseProvider>
         .getSingleOrNull();
     return existingColum != null;
   }
+
+  /// Applies a pulled remote snapshot to the local row without bumping
+  /// `local_revision` or touching the outbox, so remote apply never looks
+  /// like a fresh local edit. `null` per field means "leave untouched"
+  /// (used by the sync handler to skip fields with an in-flight local push).
+  Future<void> applyRemoteFields(
+    int wordId, {
+    bool? isLearned,
+    bool? isBookmarked,
+    bool? hasNote,
+    required String editAt,
+  }) {
+    return transaction(() async {
+      final existing = await getStatusById(wordId);
+      if (existing == null) {
+        await into(jpnEspWordStatus).insert(
+          JpnEspWordStatusCompanion.insert(
+            wordId: wordId,
+            isLearned: Value(isLearned == true ? 1 : 0),
+            isBookmarked: Value(isBookmarked == true ? 1 : 0),
+            hasNote: Value(hasNote == true ? 1 : 0),
+            editAt: editAt,
+            accountId: const Value(legacyOwner),
+            localRevision: const Value(0),
+          ),
+        );
+        return;
+      }
+      await (update(jpnEspWordStatus)
+            ..where((t) =>
+                t.wordId.equals(wordId) & t.accountId.equals(legacyOwner)))
+          .write(
+        JpnEspWordStatusCompanion(
+          isLearned: isLearned != null
+              ? Value(isLearned ? 1 : 0)
+              : const Value.absent(),
+          isBookmarked: isBookmarked != null
+              ? Value(isBookmarked ? 1 : 0)
+              : const Value.absent(),
+          hasNote:
+              hasNote != null ? Value(hasNote ? 1 : 0) : const Value.absent(),
+          editAt: Value(editAt),
+        ),
+      );
+    });
+  }
 }

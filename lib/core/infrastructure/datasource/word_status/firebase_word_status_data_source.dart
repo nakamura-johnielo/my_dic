@@ -49,4 +49,15 @@ class FirebaseWordStatusDataSource implements IRemoteWordStatusDataSource {
       String userId, List<WordStatusDTO> wordStatusList) async {
     await _dao.updateBatch(userId, wordStatusList);
   }
+
+  @override
+  Future<void> patchWordStatus(
+    String userId,
+    int wordId,
+    Map<String, Object?> fields,
+    List<String> fieldMask, {
+    required bool isNew,
+  }) {
+    return _dao.patch(userId, wordId, fieldMask, fields, isNew: isNew);
+  }
 }

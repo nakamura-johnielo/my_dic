@@ -19,6 +19,7 @@ import 'package:my_dic/features/jpn_esp_word_status/domain/usecase/update_jpn_es
 import 'package:my_dic/features/jpn_esp_word_status/domain/usecase/update_jpn_esp_status/update_jpn_esp_status_interactor.dart';
 import 'package:my_dic/features/jpn_esp_word_status/domain/usecase/watch/i_watch_jpn_esp_word_status_usecase.dart';
 import 'package:my_dic/features/jpn_esp_word_status/domain/usecase/watch/watch_jpn_esp_word_status_interactor.dart';
+import 'package:my_dic/features/jpn_esp_word_status/data/sync/jpn_esp_word_status_sync_handler.dart';
 
 //==========Usecase=====================
 
@@ -62,6 +63,17 @@ final jpnEspWordStatusRepositoryProvider =
   final remote = ref.read(jpnEspRemoteWordStatusDataSourceProvider);
   return JpnEspWordStatusRepository(
       remote, local, ref.read(driftOutboxWriterProvider));
+});
+
+// ===============sync handler====================
+final jpnEspWordStatusSyncHandlerProvider =
+    Provider<JpnEspWordStatusSyncHandler>((ref) {
+  return JpnEspWordStatusSyncHandler(
+    queue: ref.watch(driftSyncQueueProvider),
+    checkpointStore: ref.watch(driftSyncCheckpointStoreProvider),
+    local: ref.read(jpnEspLocalWordStatusDataSourceProvider),
+    remote: ref.read(jpnEspRemoteWordStatusDataSourceProvider),
+  );
 });
 
 //=====viewmodel=============

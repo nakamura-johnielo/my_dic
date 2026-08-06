@@ -72,4 +72,16 @@ class FakeSyncQueue implements SyncQueue {
     }
     return expired.length;
   }
+
+  @override
+  Future<List<SyncMutation>> peekPending(
+      {required String accountId, required SyncDataset dataset}) async {
+    return [
+      ...pending,
+      ...leased.values.map((lease) => lease.mutation),
+    ]
+        .where((mutation) =>
+            mutation.accountId == accountId && mutation.dataset == dataset)
+        .toList();
+  }
 }

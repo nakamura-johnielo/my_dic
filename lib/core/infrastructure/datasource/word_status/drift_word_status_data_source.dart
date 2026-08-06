@@ -48,6 +48,23 @@ class DriftWordStatusDataSource implements ILocalWordStatusDataSource {
   }
 
   @override
+  Future<void> applyRemoteFields(
+    int wordId, {
+    bool? isLearned,
+    bool? isBookmarked,
+    bool? hasNote,
+    required String editAt,
+  }) {
+    return _dao.applyRemoteFields(
+      wordId,
+      isLearned: isLearned,
+      isBookmarked: isBookmarked,
+      hasNote: hasNote,
+      editAt: editAt,
+    );
+  }
+
+  @override
   Future<T> runInTransaction<T>(Future<T> Function() action) =>
       _dao.transaction(action);
 }

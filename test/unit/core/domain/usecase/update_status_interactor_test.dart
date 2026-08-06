@@ -79,7 +79,7 @@ void main() {
     verifyNever(() => repository.updateRemoteWordStatus(any(), any(), any()));
   });
 
-  test('Esp-Jpn sends the complete updated local status to legacy remote',
+  test('Esp-Jpn signed-in update no longer pushes to legacy remote directly',
       () async {
     final repository = _MockEspJpnRepository();
     final updated = WordStatus(
@@ -92,10 +92,6 @@ void main() {
     when(() => repository.updateLocalWordStatus(any(), any(),
             accountId: any(named: 'accountId')))
         .thenAnswer((_) async => Result.success(updated));
-    when(() => repository.updateRemoteWordStatus(any(), accountId, any()))
-        .thenAnswer((_) async => Result.failure(
-              NetworkError(message: 'remote unavailable'),
-            ));
     final interactor = UpdateStatusInteractor(repository, currentSession);
 
     final result = await interactor.execute(const UpdateStatusInputData(
@@ -104,19 +100,12 @@ void main() {
     ));
 
     expect(result.isSuccess, isTrue);
-    final sent = verify(
-      () => repository.updateRemoteWordStatus(
-        captureAny(),
-        accountId,
-        any(),
-      ),
-    ).captured.single as WordStatus;
-    expect(sent.isLearned, isTrue);
-    expect(sent.isBookmarked, isFalse);
-    expect(sent.hasNote, isTrue);
+    verify(() => repository.updateLocalWordStatus(any(), any(),
+        accountId: accountId)).called(1);
+    verifyNever(() => repository.updateRemoteWordStatus(any(), any(), any()));
   });
 
-  test('Jpn-Esp sends the complete updated local status to legacy remote',
+  test('Jpn-Esp signed-in update no longer pushes to legacy remote directly',
       () async {
     final repository = _MockJpnEspRepository();
     final updated = JpnEspWordStatus(
@@ -129,10 +118,6 @@ void main() {
     when(() => repository.updateLocalWordStatus(any(), any(),
             accountId: any(named: 'accountId')))
         .thenAnswer((_) async => Result.success(updated));
-    when(() => repository.updateRemoteWordStatus(any(), accountId, any()))
-        .thenAnswer((_) async => Result.failure(
-              NetworkError(message: 'remote unavailable'),
-            ));
     final interactor = UpdateJpnEspStatusInteractor(
       repository,
       currentSession,
@@ -144,16 +129,9 @@ void main() {
     ));
 
     expect(result.isSuccess, isTrue);
-    final sent = verify(
-      () => repository.updateRemoteWordStatus(
-        captureAny(),
-        accountId,
-        any(),
-      ),
-    ).captured.single as JpnEspWordStatus;
-    expect(sent.isLearned, isTrue);
-    expect(sent.isBookmarked, isTrue);
-    expect(sent.hasNote, isFalse);
+    verify(() => repository.updateLocalWordStatus(any(), any(),
+        accountId: accountId)).called(1);
+    verifyNever(() => repository.updateRemoteWordStatus(any(), any(), any()));
   });
 
   test('an unchanged command is a no-op and does not advance persistence',

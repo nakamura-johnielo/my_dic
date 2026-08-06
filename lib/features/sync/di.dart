@@ -1,14 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/app/session/app_session.dart';
 import 'package:my_dic/app/session/session_providers.dart';
-import 'package:my_dic/features/esp_jpn_word_status/di/di.dart';
 import 'package:my_dic/features/my_word/di/usecase_di.dart';
 import 'package:my_dic/features/sync/sync_service.dart';
 
 //TODO userid aync 調整
+// Esp-Jpn word status no longer runs through the legacy SyncService: it is
+// pushed/pulled by `EspJpnWordStatusSyncHandler` via the new SyncEngine
+// (see app/bootstrap/sync_composition.dart and lifecycle_effects.dart).
 final syncServiceProvider = Provider<SyncService>((ref) {
   return SyncService([
-    ref.read(syncEspJpnWordStatusUseCaseProvider),
     ref.read(syncMyWordUseCaseProvider),
     ref.read(syncMyWordStatusUseCaseProvider),
   ]);

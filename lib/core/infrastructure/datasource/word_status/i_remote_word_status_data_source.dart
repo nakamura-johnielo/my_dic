@@ -8,4 +8,14 @@ abstract class IRemoteWordStatusDataSource {
   Stream<WordStatusDTO> watchWordStatusById(String userId, int id);
   Stream<List<int>> watchChangedIds(String userId);
   Future<void> updateWordStatusBatch(String userId, List<WordStatusDTO> list);
+
+  /// Writes only the fields named in [fieldMask], leaving every other remote
+  /// field untouched. [isNew] controls whether `createdAt` is also stamped.
+  Future<void> patchWordStatus(
+    String userId,
+    int wordId,
+    Map<String, Object?> fields,
+    List<String> fieldMask, {
+    required bool isNew,
+  });
 }

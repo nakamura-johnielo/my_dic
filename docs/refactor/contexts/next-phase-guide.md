@@ -33,19 +33,21 @@
 - `core/infrastructure/datasource/*word_status*`
 - `core/infrastructure/database/firebase/daos/*word_status*`
 
-状態（Stage 1完了: 2026-08-06）:
+状態（Stage 1・3・4・5完了、Stage 2は縮小スコープで見送り: 2026-08-06）:
 
 - `WordStatusRepository`/`JpnEspWordStatusRepository`の`updateLocalWordStatus`が、業務row更新とfield mask付きoutbox mutation enqueueを同一Drift transactionで実行するようになった（署名ユーザーのみ、`accountId`が`null`のguestとremote-origin適用ではenqueueしない）。
-- 両DAOの`local_revision`列を書き込み時に+1するようにした。outboxはまだ`DatasetSyncHandler`未実装のため蓄積されるだけで消費されない（`syncDatasetHandlerRegistryProvider`は引き続き空）。
-- 既存の旧remote push（`updateRemoteWordStatus`呼び出し、`SyncEspJpnWordStatusInteractor`、`SyncService`登録）はそのまま並行して稼働しており、退行はない。
-- `features/esp_jpn_word_status`・`features/jpn_esp_word_status`が`features/sync/application/**`へ依存するようになったため、`tool/import_boundaries/baseline.json`へ`no_feature_cycle`違反3件（esp_jpn_word_status<->sync、jpn_esp_word_status<->sync系統）を追加済み。旧`features/sync/di.dart`が`features/esp_jpn_word_status/di/di.dart`を参照する逆方向importが残っている限り解消しない。Stage 4で旧sync usecase登録を外せばこのcycleは自然に消える。
+- 両DAOの`local_revision`列を書き込み時に+1するようにした。
+- `EspJpnWordStatusSyncHandler`/`JpnEspWordStatusSyncHandler`を実装し、`syncDatasetHandlerRegistryProvider`へ登録済み。push（field mask付きFirestore patch）とpull（checkpoint差分取得→pending mutationとのfield単位merge→Drift反映+checkpoint更新を同一transaction）の両方が動く。`applicationLifecycleEffectsProvider`から`AppSessionReady`遷移時とapp resume時に`syncSchedulerProvider.foreground(...)`を呼ぶforeground triggerも配線済み。
+- 旧`SyncEspJpnWordStatusInteractor`は`features/sync/di.dart`の`syncServiceProvider`から除去し、実行経路から外れた（クラスファイル自体と関連di provider定義、`result_propagation_test.dart`の直接参照は削除していない。次回完全削除してよい）。`UpdateStatusInteractor`/`UpdateJpnEspStatusInteractor`も直接remote pushを行わなくなり、配送はoutbox+handlerへ一本化した。
+- `features/esp_jpn_word_status`・`features/jpn_esp_word_status`が`features/sync/application/**`へ依存する一方、旧`features/sync/di.dart -> features/esp_jpn_word_status/di/di.dart`の逆方向importが消えたため、Stage 1で追加した`no_feature_cycle`違反3件は解消し`baseline.json`から除去済み。
+- 未着手: Stage 2（read側account scoping、guest統合）。理由と評価は[`plans/local_first.5-migrate-word-status.plan.md`](plans/local_first.5-migrate-word-status.plan.md)の「Stage 2スコープ決定」節を参照。Local-first 6/7で横断的に扱うことを推奨。
+- 発見した無関係の既存不具合: `test/helpers/fake_my_word_repository.dart`が現行`IMyWordRepository`と食い違っており、`test/unit/features/my_word/domain/usecase/load_my_word_interactor_test.dart`と`test/unit/features/ranking/domain/usecase/load_rankings_interactor_test.dart`がcompile errorで読み込み失敗する。Local-first 5とは無関係で未修正のまま。
 
 注意:
 
-- 現Repositoryはlocalとremoteを直接持つため、業務row更新 + outbox enqueueを同一Drift transactionに移す。（Stage 1で対応済み）
 - `FieldUpdate`契約は維持する。
-- 旧`sync_esp_jpn_word_status_interactor.dart`と旧`SyncService`は、新handlerへ移植してから削除する。
-- 未対応（次スライス、詳細は[`plans/local_first.5-migrate-word-status.plan.md`](plans/local_first.5-migrate-word-status.plan.md)参照）: account scoping（`legacy_unowned`固定からの移行）とguest scope設計、Esp-Jpn/Jpn-Esp共通`DatasetSyncHandler`実装、registry登録と旧sync無効化、foreground trigger配線。
+- pushのretry backoffが`attempt=1`固定の簡略実装、pauseエラーをretryと同一扱いにしている点は既知の簡略化（詳細はplanファイル参照）。
+- 未対応（次スライス、詳細は[`plans/local_first.5-migrate-word-status.plan.md`](plans/local_first.5-migrate-word-status.plan.md)参照）: Stage 2のread側account scoping・guest scope設計、`SyncEspJpnWordStatusInteractor`とその関連の完全削除。
 
 ## Local-first 6: MyWord / MyWordStatus
 
@@ -143,7 +145,7 @@ flutter test
 
 ## 削除してよいか迷った時の基準
 
-- `app/bootstrap/sync_composition.dart`、`features/sync/application/**`、`features/sync/infrastructure/**`、`core/infrastructure/database/drift/tables/sync/**`は未接続でもLocal-first 5〜7用の足場。削除しない。
+- `app/bootstrap/sync_composition.dart`、`features/sync/application/**`、`features/sync/infrastructure/**`、`core/infrastructure/database/drift/tables/sync/**`は、word status（Local-first 5）向けには本番接続済み。MyWord/User Profile（Local-first 6〜7）向けにはまだ未接続の足場。削除しない。
 - `core/application/auth_lifecycle/**`はCurrentSession導入前の正本。削除しない。
 - `router/**`は旧だが現役。`app/routing/**`へ移し切るまでは削除しない。
 - `sync_service.dart`と旧sync usecaseは現役。新SyncEngineへdatasetを切り替えるまでは削除しない。
