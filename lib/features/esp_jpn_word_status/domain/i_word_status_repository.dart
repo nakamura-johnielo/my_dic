@@ -27,8 +27,9 @@ abstract class IWordStatusRepository {
   Stream<List<int>> watchLocalChangedIds(DateTime datetime); //TODO 未使用
   Future<Result<WordStatus>> updateLocalWordStatus(
     UpdateStatusRepositoryInputData input,
-    DateTime editAt,
-  );
+    DateTime editAt, {
+    required String? accountId,
+  });
   Future<Result<List<WordStatus>>> getLocalWordStatusAfter(DateTime datetime);
   Future<Result<WordStatus?>> getLocalWordStatusById(int id);
 }

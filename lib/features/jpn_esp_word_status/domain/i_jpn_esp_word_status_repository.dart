@@ -28,8 +28,9 @@ abstract class IJpnEspWordStatusRepository {
   Stream<List<int>> watchLocalChangedIds(DateTime datetime);
   Future<Result<JpnEspWordStatus>> updateLocalWordStatus(
     UpdateJpnEspStatusRepositoryInputData input,
-    DateTime editAt,
-  );
+    DateTime editAt, {
+    required String? accountId,
+  });
   Future<Result<List<JpnEspWordStatus>>> getLocalWordStatusAfter(
       DateTime datetime);
   Future<Result<JpnEspWordStatus?>> getLocalWordStatusById(int id);

@@ -24,6 +24,7 @@
 - [phase-scaffolding.md](phase-scaffolding.md)
 - [feature-map.md](feature-map.md)
 - [core-map.md](core-map.md)
+- [`plans/local_first.5-migrate-word-status.plan.md`](plans/local_first.5-migrate-word-status.plan.md)
 
 作業対象の中心:
 
@@ -32,11 +33,19 @@
 - `core/infrastructure/datasource/*word_status*`
 - `core/infrastructure/database/firebase/daos/*word_status*`
 
+状態（Stage 1完了: 2026-08-06）:
+
+- `WordStatusRepository`/`JpnEspWordStatusRepository`の`updateLocalWordStatus`が、業務row更新とfield mask付きoutbox mutation enqueueを同一Drift transactionで実行するようになった（署名ユーザーのみ、`accountId`が`null`のguestとremote-origin適用ではenqueueしない）。
+- 両DAOの`local_revision`列を書き込み時に+1するようにした。outboxはまだ`DatasetSyncHandler`未実装のため蓄積されるだけで消費されない（`syncDatasetHandlerRegistryProvider`は引き続き空）。
+- 既存の旧remote push（`updateRemoteWordStatus`呼び出し、`SyncEspJpnWordStatusInteractor`、`SyncService`登録）はそのまま並行して稼働しており、退行はない。
+- `features/esp_jpn_word_status`・`features/jpn_esp_word_status`が`features/sync/application/**`へ依存するようになったため、`tool/import_boundaries/baseline.json`へ`no_feature_cycle`違反3件（esp_jpn_word_status<->sync、jpn_esp_word_status<->sync系統）を追加済み。旧`features/sync/di.dart`が`features/esp_jpn_word_status/di/di.dart`を参照する逆方向importが残っている限り解消しない。Stage 4で旧sync usecase登録を外せばこのcycleは自然に消える。
+
 注意:
 
-- 現Repositoryはlocalとremoteを直接持つため、業務row更新 + outbox enqueueを同一Drift transactionに移す。
+- 現Repositoryはlocalとremoteを直接持つため、業務row更新 + outbox enqueueを同一Drift transactionに移す。（Stage 1で対応済み）
 - `FieldUpdate`契約は維持する。
 - 旧`sync_esp_jpn_word_status_interactor.dart`と旧`SyncService`は、新handlerへ移植してから削除する。
+- 未対応（次スライス、詳細は[`plans/local_first.5-migrate-word-status.plan.md`](plans/local_first.5-migrate-word-status.plan.md)参照）: account scoping（`legacy_unowned`固定からの移行）とguest scope設計、Esp-Jpn/Jpn-Esp共通`DatasetSyncHandler`実装、registry登録と旧sync無効化、foreground trigger配線。
 
 ## Local-first 6: MyWord / MyWordStatus
 

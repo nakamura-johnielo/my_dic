@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/app/bootstrap/sync_composition.dart';
 import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
 import 'package:my_dic/core/infrastructure/database/firebase/daos/jpn_esp/firebase_jpn_esp_word_status_dao.dart';
@@ -59,7 +60,8 @@ final jpnEspWordStatusRepositoryProvider =
     Provider<IJpnEspWordStatusRepository>((ref) {
   final local = ref.read(jpnEspLocalWordStatusDataSourceProvider);
   final remote = ref.read(jpnEspRemoteWordStatusDataSourceProvider);
-  return JpnEspWordStatusRepository(remote, local);
+  return JpnEspWordStatusRepository(
+      remote, local, ref.read(driftOutboxWriterProvider));
 });
 
 //=====viewmodel=============

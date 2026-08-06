@@ -20,6 +20,7 @@ class UpdateJpnEspStatusInteractor implements IUpdateJpnEspStatusUseCase {
     }
 
     final dateTime = DateTime.now().toUtc();
+    final accountId = _currentSession.accountIdOrNull;
 
     // Update local first
     final localResult = await _wordStatusRepository.updateLocalWordStatus(
@@ -30,6 +31,7 @@ class UpdateJpnEspStatusInteractor implements IUpdateJpnEspStatusUseCase {
         hasNote: input.hasNote,
       ),
       dateTime,
+      accountId: accountId,
     );
 
     // Return error immediately if local update failed
@@ -39,8 +41,6 @@ class UpdateJpnEspStatusInteractor implements IUpdateJpnEspStatusUseCase {
     final updatedStatus = localResult.dataOrNull!;
 
     // Update remote only for logged-in users
-    final accountId = _currentSession.accountIdOrNull;
-
     if (accountId != null) {
       final remoteResult = await _wordStatusRepository.updateRemoteWordStatus(
           updatedStatus, accountId, dateTime);

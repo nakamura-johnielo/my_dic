@@ -47,7 +47,8 @@ void main() {
       () async {
     final repository = _MockEspJpnRepository();
     final error = DatabaseError(message: 'local update failed');
-    when(() => repository.updateLocalWordStatus(any(), any()))
+    when(() => repository.updateLocalWordStatus(any(), any(),
+            accountId: any(named: 'accountId')))
         .thenAnswer((_) async => Result.failure(error));
     final interactor = UpdateStatusInteractor(repository, noSession);
 
@@ -64,7 +65,8 @@ void main() {
       () async {
     final repository = _MockJpnEspRepository();
     final error = DatabaseError(message: 'local update failed');
-    when(() => repository.updateLocalWordStatus(any(), any()))
+    when(() => repository.updateLocalWordStatus(any(), any(),
+            accountId: any(named: 'accountId')))
         .thenAnswer((_) async => Result.failure(error));
     final interactor = UpdateJpnEspStatusInteractor(repository, noSession);
 
@@ -87,7 +89,8 @@ void main() {
       hasNote: true,
       editAt: DateTime.utc(2026, 8, 5),
     );
-    when(() => repository.updateLocalWordStatus(any(), any()))
+    when(() => repository.updateLocalWordStatus(any(), any(),
+            accountId: any(named: 'accountId')))
         .thenAnswer((_) async => Result.success(updated));
     when(() => repository.updateRemoteWordStatus(any(), accountId, any()))
         .thenAnswer((_) async => Result.failure(
@@ -123,7 +126,8 @@ void main() {
       hasNote: false,
       editAt: DateTime.utc(2026, 8, 5),
     );
-    when(() => repository.updateLocalWordStatus(any(), any()))
+    when(() => repository.updateLocalWordStatus(any(), any(),
+            accountId: any(named: 'accountId')))
         .thenAnswer((_) async => Result.success(updated));
     when(() => repository.updateRemoteWordStatus(any(), accountId, any()))
         .thenAnswer((_) async => Result.failure(
@@ -162,13 +166,15 @@ void main() {
     );
 
     expect(result.isSuccess, isTrue);
-    verifyNever(() => repository.updateLocalWordStatus(any(), any()));
+    verifyNever(() => repository.updateLocalWordStatus(any(), any(),
+        accountId: any(named: 'accountId')));
   });
 
   test('an unauthenticated session skips remote updates', () async {
     final repository = _MockEspJpnRepository();
     final updated = WordStatus(wordId: 1, isBookmarked: false);
-    when(() => repository.updateLocalWordStatus(any(), any()))
+    when(() => repository.updateLocalWordStatus(any(), any(),
+            accountId: any(named: 'accountId')))
         .thenAnswer((_) async => Result.success(updated));
     final interactor = UpdateStatusInteractor(repository, noSession);
 

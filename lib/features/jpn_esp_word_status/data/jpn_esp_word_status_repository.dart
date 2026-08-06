@@ -1,4 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:uuid/uuid.dart';
+import 'package:my_dic/core/shared/enums/sync_dataset.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/i_local_jpn_esp_word_status_data_source.dart';
 import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/i_remote_jpn_esp_word_status_data_source.dart';
@@ -11,25 +13,55 @@ import 'package:my_dic/features/jpn_esp_word_status/domain/usecase/update_jpn_es
 import 'package:my_dic/features/jpn_esp_word_status/data/converter/jpn_esp_word_status_converter.dart';
 import 'package:my_dic/features/jpn_esp_word_status/data/jpn_esp_word_status_entity.dart';
 import 'package:my_dic/core/shared/value_objects/field_update.dart';
+import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
+import 'package:my_dic/features/sync/application/port/outbox_writer.dart';
 
 class JpnEspWordStatusRepository implements IJpnEspWordStatusRepository {
   final IRemoteJpnEspWordStatusDataSource _remote;
   final ILocalJpnEspWordStatusDataSource _local;
-  JpnEspWordStatusRepository(this._remote, this._local);
+  final OutboxWriter _outboxWriter;
+  final Uuid _uuid;
+  JpnEspWordStatusRepository(this._remote, this._local, this._outboxWriter,
+      {Uuid? uuid})
+      : _uuid = uuid ?? const Uuid();
 
   @override
   Future<Result<JpnEspWordStatus>> updateLocalWordStatus(
     UpdateJpnEspStatusRepositoryInputData input,
-    DateTime editAt,
-  ) async {
+    DateTime editAt, {
+    required String? accountId,
+  }) async {
     try {
-      final updated = await _local.updateWordStatus(
-        input.wordId,
-        _changedValue(input.isLearned),
-        _changedValue(input.isBookmarked),
-        _changedValue(input.hasNote),
-        editAt.toIso8601String(),
-      );
+      final updated = await _local.runInTransaction(() async {
+        final row = await _local.updateWordStatus(
+          input.wordId,
+          _changedValue(input.isLearned),
+          _changedValue(input.isBookmarked),
+          _changedValue(input.hasNote),
+          editAt.toIso8601String(),
+        );
+        if (accountId != null) {
+          final fieldMask = <String>[];
+          final payload = <String, Object?>{};
+          _collectChange(fieldMask, payload, 'isLearned', input.isLearned);
+          _collectChange(
+              fieldMask, payload, 'isBookmarked', input.isBookmarked);
+          _collectChange(fieldMask, payload, 'hasNote', input.hasNote);
+          if (fieldMask.isNotEmpty) {
+            await _outboxWriter.enqueue(SyncMutation(
+              mutationId: _uuid.v4(),
+              accountId: accountId,
+              dataset: SyncDataset.jpnEspWordStatus,
+              entityId: input.wordId.toString(),
+              operation: SyncMutationOperation.patch,
+              payload: payload,
+              fieldMask: fieldMask,
+              localRevision: row.localRevision,
+            ));
+          }
+        }
+        return row;
+      });
 
       AppLogger.print("JpnEsp local update success");
       return Result.success(JpnEspWordStatusConverter.toEntity(updated));
@@ -40,6 +72,14 @@ class JpnEspWordStatusRepository implements IJpnEspWordStatusRepository {
         originalError: e,
         stackTrace: s,
       ));
+    }
+  }
+
+  void _collectChange(List<String> fieldMask, Map<String, Object?> payload,
+      String field, FieldUpdate<bool> update) {
+    if (update is SetValue<bool>) {
+      fieldMask.add(field);
+      payload[field] = update.value;
     }
   }
 

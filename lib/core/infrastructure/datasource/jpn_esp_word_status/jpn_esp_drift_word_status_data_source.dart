@@ -47,4 +47,8 @@ class JpnEspDriftWordStatusDataSource
   Stream<List<int>> watchChangedIds(DateTime datetime) {
     return _dao.watchChangedWordIdsWithFilter(datetime);
   }
+
+  @override
+  Future<T> runInTransaction<T>(Future<T> Function() action) =>
+      _dao.transaction(action);
 }

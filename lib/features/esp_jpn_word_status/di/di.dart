@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/app/bootstrap/sync_composition.dart';
 import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
 import 'package:my_dic/core/di/data/repository_di.dart';
@@ -67,7 +68,7 @@ final remoteWordStatusDataSourceProvider =
 final wordStatusRepositoryProvider = Provider<IWordStatusRepository>((ref) {
   final local = ref.read(localWordStatusDataSourceProvider);
   final remote = ref.read(remoteWordStatusDataSourceProvider);
-  return WordStatusRepository(remote, local);
+  return WordStatusRepository(remote, local, ref.read(driftOutboxWriterProvider));
 });
 
 //=====viewmodel=============

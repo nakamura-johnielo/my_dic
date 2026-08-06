@@ -324,7 +324,9 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
                 ? const FieldUpdate.set(true)
                 : const FieldUpdate.unchanged(),
           ),
-          remoteItem.editAt);
+          remoteItem.editAt,
+          // remote-origin apply must not re-enqueue an outbox mutation
+          accountId: null);
       if (updateResult.isFailure) {
         return Result.failure(updateResult.errorOrNull!);
       }
@@ -353,7 +355,9 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
                 ? const FieldUpdate.set(true)
                 : const FieldUpdate.unchanged(),
           ),
-          remoteItem.editAt);
+          remoteItem.editAt,
+          // remote-origin apply must not re-enqueue an outbox mutation
+          accountId: null);
 
       if (updateResult.isFailure) {
         return Result.failure(updateResult.errorOrNull!);
@@ -406,7 +410,9 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
             isBookmarked: FieldUpdate.set(remoteItem.isBookmarked),
             hasNote: FieldUpdate.set(remoteItem.hasNote),
           ),
-          remoteItem.editAt);
+          remoteItem.editAt,
+          // remote-origin apply must not re-enqueue an outbox mutation
+          accountId: null);
       if (updateResult.isFailure) {
         return Result.failure(updateResult.errorOrNull!);
       }
@@ -429,7 +435,9 @@ class SyncEspJpnWordStatusInteractor implements ISyncUseCase {
             isBookmarked: FieldUpdate.set(remoteItem.isBookmarked),
             hasNote: FieldUpdate.set(remoteItem.hasNote),
           ),
-          remoteItem.editAt);
+          remoteItem.editAt,
+          // remote-origin apply must not re-enqueue an outbox mutation
+          accountId: null);
 
       if (updateResult.isFailure) {
         return Result.failure(updateResult.errorOrNull!);

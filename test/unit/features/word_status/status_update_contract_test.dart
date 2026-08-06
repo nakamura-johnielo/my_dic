@@ -13,12 +13,15 @@ import 'package:my_dic/features/esp_jpn_word_status/data/wordstatus_repository.d
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/update_status_repository_input_data.dart';
 import 'package:my_dic/features/jpn_esp_word_status/data/jpn_esp_word_status_repository.dart';
 import 'package:my_dic/features/jpn_esp_word_status/domain/usecase/update_jpn_esp_status/update_jpn_esp_status_repository_input_data.dart';
+import 'package:my_dic/features/sync/application/port/outbox_writer.dart';
 
 class _MockEspRemoteDataSource extends Mock
     implements IRemoteWordStatusDataSource {}
 
 class _MockJpnEspRemoteDataSource extends Mock
     implements IRemoteJpnEspWordStatusDataSource {}
+
+class _MockOutboxWriter extends Mock implements OutboxWriter {}
 
 typedef _StatusValues = ({bool learned, bool bookmarked, bool hasNote});
 
@@ -43,7 +46,8 @@ class _EspJpnFixture implements _StatusContractFixture {
     final local = DriftWordStatusDataSource(EspJpnWordStatusDao(database));
     return _EspJpnFixture._(
       database,
-      WordStatusRepository(_MockEspRemoteDataSource(), local),
+      WordStatusRepository(
+          _MockEspRemoteDataSource(), local, _MockOutboxWriter()),
     );
   }
 
@@ -61,6 +65,7 @@ class _EspJpnFixture implements _StatusContractFixture {
         hasNote: hasNote,
       ),
       DateTime.utc(2026, 8, 5),
+      accountId: null,
     );
     expect(result.isSuccess, isTrue);
     final status = result.dataOrNull!;
@@ -88,7 +93,8 @@ class _JpnEspFixture implements _StatusContractFixture {
     );
     return _JpnEspFixture._(
       database,
-      JpnEspWordStatusRepository(_MockJpnEspRemoteDataSource(), local),
+      JpnEspWordStatusRepository(
+          _MockJpnEspRemoteDataSource(), local, _MockOutboxWriter()),
     );
   }
 
@@ -106,6 +112,7 @@ class _JpnEspFixture implements _StatusContractFixture {
         hasNote: hasNote,
       ),
       DateTime.utc(2026, 8, 5),
+      accountId: null,
     );
     expect(result.isSuccess, isTrue);
     final status = result.dataOrNull!;

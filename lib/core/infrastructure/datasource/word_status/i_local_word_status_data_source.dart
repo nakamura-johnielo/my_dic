@@ -12,4 +12,8 @@ abstract class ILocalWordStatusDataSource {
   );
   Stream<EspJpnWordStatusTableData?> watchWordStatusById(int id);
   Stream<List<int>> watchChangedIds(DateTime datetime);
+
+  /// Runs [action] within a single Drift transaction so that callers can
+  /// combine a status row write with an outbox mutation atomically.
+  Future<T> runInTransaction<T>(Future<T> Function() action);
 }

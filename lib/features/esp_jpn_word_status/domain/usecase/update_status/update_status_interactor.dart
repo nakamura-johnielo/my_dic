@@ -19,6 +19,7 @@ class UpdateStatusInteractor implements IUpdateStatusUseCase {
     }
 
     final dateTime = DateTime.now().toUtc();
+    final accountId = _currentSession.accountIdOrNull;
 
     // ローカルの更新を先に実行
     final localResult = await _wordStatusRepository.updateLocalWordStatus(
@@ -29,6 +30,7 @@ class UpdateStatusInteractor implements IUpdateStatusUseCase {
         hasNote: input.hasNote,
       ),
       dateTime,
+      accountId: accountId,
     );
 
     // ローカル更新が失敗した場合は即座にエラーを返す
@@ -38,8 +40,6 @@ class UpdateStatusInteractor implements IUpdateStatusUseCase {
     final updatedStatus = localResult.dataOrNull!;
 
     // ログインユーザーの場合のみリモート更新を実行
-    final accountId = _currentSession.accountIdOrNull;
-
     if (accountId != null) {
       final remoteResult = await _wordStatusRepository.updateRemoteWordStatus(
           updatedStatus, accountId, dateTime);

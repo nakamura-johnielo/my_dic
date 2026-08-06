@@ -38,6 +38,7 @@ class JpnEspWordStatusDao extends DatabaseAccessor<DatabaseProvider>
   ) async {
     return transaction(() async {
       final existing = await getStatusById(wordId);
+      final nextRevision = (existing?.localRevision ?? 0) + 1;
       if (existing == null) {
         await into(jpnEspWordStatus).insert(
           JpnEspWordStatusCompanion.insert(
@@ -47,6 +48,7 @@ class JpnEspWordStatusDao extends DatabaseAccessor<DatabaseProvider>
             hasNote: Value(hasNote == true ? 1 : 0),
             editAt: editAt,
             accountId: const Value(legacyOwner),
+            localRevision: Value(nextRevision),
           ),
         );
       } else {
@@ -64,6 +66,7 @@ class JpnEspWordStatusDao extends DatabaseAccessor<DatabaseProvider>
             hasNote:
                 hasNote != null ? Value(hasNote ? 1 : 0) : const Value.absent(),
             editAt: Value(editAt),
+            localRevision: Value(nextRevision),
           ),
         );
       }

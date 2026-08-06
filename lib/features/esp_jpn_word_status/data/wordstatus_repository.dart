@@ -1,4 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:uuid/uuid.dart';
+import 'package:my_dic/core/shared/enums/sync_dataset.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/core/infrastructure/datasource/word_status/i_local_word_status_data_source.dart';
 import 'package:my_dic/core/infrastructure/datasource/word_status/i_remote_word_status_data_source.dart';
@@ -11,25 +13,55 @@ import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status
 import 'package:my_dic/core/infrastructure/repositories/converters/word_status_converter.dart';
 import 'package:my_dic/features/esp_jpn_word_status/data/wordStatusEntity.dart';
 import 'package:my_dic/core/shared/value_objects/field_update.dart';
+import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
+import 'package:my_dic/features/sync/application/port/outbox_writer.dart';
 
 class WordStatusRepository implements IWordStatusRepository {
   final IRemoteWordStatusDataSource _remote;
   final ILocalWordStatusDataSource _local;
-  WordStatusRepository(this._remote, this._local);
+  final OutboxWriter _outboxWriter;
+  final Uuid _uuid;
+  WordStatusRepository(this._remote, this._local, this._outboxWriter,
+      {Uuid? uuid})
+      : _uuid = uuid ?? const Uuid();
 
   @override
   Future<Result<WordStatus>> updateLocalWordStatus(
     UpdateStatusRepositoryInputData input,
-    DateTime editAt,
-  ) async {
+    DateTime editAt, {
+    required String? accountId,
+  }) async {
     try {
-      final updated = await _local.updateWordStatus(
-        input.wordId,
-        _changedValue(input.isLearned),
-        _changedValue(input.isBookmarked),
-        _changedValue(input.hasNote),
-        editAt.toIso8601String(),
-      );
+      final updated = await _local.runInTransaction(() async {
+        final row = await _local.updateWordStatus(
+          input.wordId,
+          _changedValue(input.isLearned),
+          _changedValue(input.isBookmarked),
+          _changedValue(input.hasNote),
+          editAt.toIso8601String(),
+        );
+        if (accountId != null) {
+          final fieldMask = <String>[];
+          final payload = <String, Object?>{};
+          _collectChange(fieldMask, payload, 'isLearned', input.isLearned);
+          _collectChange(
+              fieldMask, payload, 'isBookmarked', input.isBookmarked);
+          _collectChange(fieldMask, payload, 'hasNote', input.hasNote);
+          if (fieldMask.isNotEmpty) {
+            await _outboxWriter.enqueue(SyncMutation(
+              mutationId: _uuid.v4(),
+              accountId: accountId,
+              dataset: SyncDataset.espJpnWordStatus,
+              entityId: input.wordId.toString(),
+              operation: SyncMutationOperation.patch,
+              payload: payload,
+              fieldMask: fieldMask,
+              localRevision: row.localRevision,
+            ));
+          }
+        }
+        return row;
+      });
 
       AppLogger.print("Local update success");
       return Result.success(WordStatusConverter.toEntity(updated));
@@ -40,6 +72,15 @@ class WordStatusRepository implements IWordStatusRepository {
         originalError: e,
         stackTrace: s,
       ));
+    }
+  }
+
+//TODO mutable changeにする
+  void _collectChange(List<String> fieldMask, Map<String, Object?> payload,
+      String field, FieldUpdate<bool> update) {
+    if (update is SetValue<bool>) {
+      fieldMask.add(field);
+      payload[field] = update.value;
     }
   }
 
