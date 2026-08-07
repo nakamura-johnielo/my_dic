@@ -31,4 +31,8 @@ abstract class ILocalWordStatusDataSource {
   /// Runs [action] within a single Drift transaction so that callers can
   /// combine a status row write with an outbox mutation atomically.
   Future<T> runInTransaction<T>(Future<T> Function() action);
+
+  /// Deletes a single row for [id] scoped to [accountId]. Used by the
+  /// guest-to-account migration to remove a guest row once merged.
+  Future<void> deleteRow(int id, String accountId);
 }

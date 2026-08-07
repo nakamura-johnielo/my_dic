@@ -9,19 +9,20 @@ class MyWordDriftDataSource implements IMyWordLocalDataSource {
   MyWordDriftDataSource(this._myWordDao);
 
   @override
-  Future<db.MyWordTableData?> getMyWordById(String id) async {
-    return await _myWordDao.getMyWordById(id);
+  Future<db.MyWordTableData?> getMyWordById(String id, String accountId) async {
+    return await _myWordDao.getMyWordById(id, accountId);
   }
 
   @override
   Future<List<db.MyWordTableData>?> getFilteredMyWordByPage(
-      int size, int offset) async {
-    return await _myWordDao.getFilteredMyWordByPage(size, offset);
+      int size, int offset, String accountId) async {
+    return await _myWordDao.getFilteredMyWordByPage(size, offset, accountId);
   }
 
   @override
-  Future<List<String>?> getIdsFilteredMyWordByPage(int size, int offset) async {
-    return await _myWordDao.getIdsFilteredMyWordByPage(size, offset);
+  Future<List<String>?> getIdsFilteredMyWordByPage(
+      int size, int offset, String accountId) async {
+    return await _myWordDao.getIdsFilteredMyWordByPage(size, offset, accountId);
   }
 
   @override
@@ -49,8 +50,8 @@ class MyWordDriftDataSource implements IMyWordLocalDataSource {
   }
 
   @override
-  Stream<db.MyWordTableData?> streamMyWordById(String id) {
-    return _myWordDao.streamMyWordById(id);
+  Stream<db.MyWordTableData?> streamMyWordById(String id, String accountId) {
+    return _myWordDao.streamMyWordById(id, accountId);
   }
 
   @override
@@ -59,12 +60,14 @@ class MyWordDriftDataSource implements IMyWordLocalDataSource {
     required String word,
     required String contents,
     required String editAt,
+    required String accountId,
   }) {
     return _myWordDao.insertMyWordWithRevision(
       id: id,
       word: word,
       contents: contents,
       editAt: editAt,
+      accountId: accountId,
     );
   }
 
@@ -74,18 +77,21 @@ class MyWordDriftDataSource implements IMyWordLocalDataSource {
     required String word,
     required String contents,
     required String editAt,
+    required String accountId,
   }) {
     return _myWordDao.updateMyWordWithRevision(
       id: id,
       word: word,
       contents: contents,
       editAt: editAt,
+      accountId: accountId,
     );
   }
 
   @override
-  Future<db.MyWordTableData?> tombstoneMyWord(String wordId, String deletedAt) {
-    return _myWordDao.tombstoneMyWord(wordId, deletedAt);
+  Future<db.MyWordTableData?> tombstoneMyWord(
+      String wordId, String deletedAt, String accountId) {
+    return _myWordDao.tombstoneMyWord(wordId, deletedAt, accountId);
   }
 
   @override
@@ -95,6 +101,7 @@ class MyWordDriftDataSource implements IMyWordLocalDataSource {
     String? contents,
     String? deletedAt,
     required String editAt,
+    required String accountId,
   }) {
     return _myWordDao.applyRemoteFields(
       wordId,
@@ -102,10 +109,20 @@ class MyWordDriftDataSource implements IMyWordLocalDataSource {
       contents: contents,
       deletedAt: deletedAt,
       editAt: editAt,
+      accountId: accountId,
     );
   }
 
   @override
   Future<T> runInTransaction<T>(Future<T> Function() action) =>
       _myWordDao.transaction(action);
+
+  @override
+  Future<List<db.MyWordTableData>> getAllByAccountId(String accountId) =>
+      _myWordDao.getAllByAccountId(accountId);
+
+  @override
+  Future<db.MyWordTableData?> reassignAccountId(
+          String wordId, String fromAccountId, String toAccountId) =>
+      _myWordDao.reassignAccountId(wordId, fromAccountId, toAccountId);
 }

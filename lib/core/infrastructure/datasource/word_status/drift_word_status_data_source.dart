@@ -73,4 +73,8 @@ class DriftWordStatusDataSource implements ILocalWordStatusDataSource {
   @override
   Future<T> runInTransaction<T>(Future<T> Function() action) =>
       _dao.transaction(action);
+
+  @override
+  Future<void> deleteRow(int id, String accountId) =>
+      _dao.deleteRow(id, accountId);
 }

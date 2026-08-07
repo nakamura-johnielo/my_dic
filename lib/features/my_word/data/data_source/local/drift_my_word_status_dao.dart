@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:my_dic/core/shared/consts/account_scope.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/features/my_word/data/data_source/local/my_word_status.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
@@ -8,7 +9,7 @@ part '../../../../../__generated/features/my_word/data/data_source/local/drift_m
 class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
     with _$MyWordStatusDaoMixin {
   MyWordStatusDao(super.database);
-  static const legacyOwner = 'legacy_unowned';
+  static const legacyOwner = guestAccountScope;
 
   Future<void> updateStatus(
     final String myWordId,
@@ -45,20 +46,60 @@ class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
     return existingColum != null ? true : false;
   }
 
-  Stream<MyWordStatusTableData?> watchWordStatus(String wordId) {
+  Stream<MyWordStatusTableData?> watchWordStatus(
+      String wordId, String accountId) {
     return (select(myWordStatus)
           ..where((tbl) =>
-              tbl.myWordId.equals(wordId) & tbl.accountId.equals(legacyOwner)))
+              tbl.myWordId.equals(wordId) & tbl.accountId.equals(accountId)))
         .watchSingleOrNull()
         .distinct();
   }
 
-  Future<MyWordStatusTableData?> getWordStatus(String wordId) async {
+  Future<MyWordStatusTableData?> getWordStatus(
+      String wordId, String accountId) async {
     final data = await (select(myWordStatus)
           ..where((tbl) =>
-              tbl.myWordId.equals(wordId) & tbl.accountId.equals(legacyOwner)))
+              tbl.myWordId.equals(wordId) & tbl.accountId.equals(accountId)))
         .getSingleOrNull();
     return data;
+  }
+
+  /// Returns every row for [accountId]. Used by the guest-data
+  /// detector/migration, which needs the full set rather than a single row.
+  Future<List<MyWordStatusTableData>> getAllByAccountId(String accountId) {
+    return (select(myWordStatus)..where((t) => t.accountId.equals(accountId)))
+        .get();
+  }
+
+  /// Reassigns a status row's account scope in place (e.g. guest -> a
+  /// signed-in account), bumping `local_revision` so a matching outbox
+  /// mutation can be enqueued. Returns `null` if no row matched at
+  /// [fromAccountId] or a row already exists at [toAccountId] (the caller
+  /// should merge/skip instead).
+  Future<MyWordStatusTableData?> reassignAccountId(
+      String myWordId, String fromAccountId, String toAccountId) {
+    return transaction(() async {
+      final existing = await getWordStatus(myWordId, fromAccountId);
+      if (existing == null) return null;
+      final conflict = await getWordStatus(myWordId, toAccountId);
+      if (conflict != null) return null;
+      await (update(myWordStatus)
+            ..where((t) =>
+                t.myWordId.equals(myWordId) &
+                t.accountId.equals(fromAccountId)))
+          .write(MyWordStatusCompanion(
+        accountId: Value(toAccountId),
+        localRevision: Value(existing.localRevision + 1),
+      ));
+      return getWordStatus(myWordId, toAccountId);
+    });
+  }
+
+  Future<void> deleteRow(String myWordId, String accountId) async {
+    await (delete(myWordStatus)
+          ..where((t) =>
+              t.myWordId.equals(myWordId) & t.accountId.equals(accountId)))
+        .go();
   }
 
   /// Upserts the status row and bumps `local_revision` by 1 (new rows start
@@ -70,9 +111,10 @@ class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
     int? isBookmarked,
     int? hasNote,
     String editAt,
+    String accountId,
   ) {
     return transaction(() async {
-      final existing = await getWordStatus(myWordId);
+      final existing = await getWordStatus(myWordId, accountId);
       final nextRevision = (existing?.localRevision ?? 0) + 1;
       if (existing == null) {
         await into(myWordStatus).insert(
@@ -82,26 +124,28 @@ class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
             isBookmarked: Value(isBookmarked ?? 0),
             hasNote: Value(hasNote ?? 0),
             editAt: editAt,
-            accountId: const Value(legacyOwner),
+            accountId: Value(accountId),
             localRevision: Value(nextRevision),
           ),
         );
       } else {
         await (update(myWordStatus)
               ..where((t) =>
-                  t.myWordId.equals(myWordId) & t.accountId.equals(legacyOwner)))
+                  t.myWordId.equals(myWordId) & t.accountId.equals(accountId)))
             .write(
           MyWordStatusCompanion(
-            isLearned: isLearned != null ? Value(isLearned) : const Value.absent(),
-            isBookmarked:
-                isBookmarked != null ? Value(isBookmarked) : const Value.absent(),
+            isLearned:
+                isLearned != null ? Value(isLearned) : const Value.absent(),
+            isBookmarked: isBookmarked != null
+                ? Value(isBookmarked)
+                : const Value.absent(),
             hasNote: hasNote != null ? Value(hasNote) : const Value.absent(),
             editAt: Value(editAt),
             localRevision: Value(nextRevision),
           ),
         );
       }
-      final updated = await getWordStatus(myWordId);
+      final updated = await getWordStatus(myWordId, accountId);
       if (updated == null) {
         throw StateError('MyWordStatus was not persisted: $myWordId');
       }
@@ -118,9 +162,10 @@ class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
     int? isBookmarked,
     int? hasNote,
     required String editAt,
+    required String accountId,
   }) {
     return transaction(() async {
-      final existing = await getWordStatus(myWordId);
+      final existing = await getWordStatus(myWordId, accountId);
       if (existing == null) {
         await into(myWordStatus).insert(
           MyWordStatusCompanion.insert(
@@ -129,7 +174,7 @@ class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
             isBookmarked: Value(isBookmarked ?? 0),
             hasNote: Value(hasNote ?? 0),
             editAt: editAt,
-            accountId: const Value(legacyOwner),
+            accountId: Value(accountId),
             localRevision: const Value(0),
           ),
         );
@@ -137,10 +182,11 @@ class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
       }
       await (update(myWordStatus)
             ..where((t) =>
-                t.myWordId.equals(myWordId) & t.accountId.equals(legacyOwner)))
+                t.myWordId.equals(myWordId) & t.accountId.equals(accountId)))
           .write(
         MyWordStatusCompanion(
-          isLearned: isLearned != null ? Value(isLearned) : const Value.absent(),
+          isLearned:
+              isLearned != null ? Value(isLearned) : const Value.absent(),
           isBookmarked:
               isBookmarked != null ? Value(isBookmarked) : const Value.absent(),
           hasNote: hasNote != null ? Value(hasNote) : const Value.absent(),

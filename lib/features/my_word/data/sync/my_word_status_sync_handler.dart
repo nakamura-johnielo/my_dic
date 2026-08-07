@@ -131,6 +131,7 @@ class MyWordStatusSyncHandler implements DatasetSyncHandler {
             isBookmarked:
                 skip.contains('isBookmarked') ? null : dto.isBookmarked,
             editAt: dto.updatedAt.toIso8601String(),
+            accountId: context.accountId,
           );
           pulledCount++;
           final candidate = SyncCursor(

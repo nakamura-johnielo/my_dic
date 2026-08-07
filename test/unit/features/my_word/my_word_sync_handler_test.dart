@@ -210,7 +210,7 @@ void main() {
 
       expect(result, isA<DatasetSyncSuccess>());
       expect((result as DatasetSyncSuccess).pulledCount, 1);
-      final row = await dao.getMyWordById('word-2');
+      final row = await dao.getMyWordById('word-2', _accountId);
       expect(row, isNotNull);
       expect(row!.word, 'libro');
       expect(row.contents, 'book');
@@ -229,6 +229,7 @@ void main() {
         word: 'casa',
         contents: 'house',
         editAt: DateTime.utc(2026, 8, 1).toIso8601String(),
+        accountId: _accountId,
       );
       // The pending local edit has already been applied to the row itself
       // (mirroring registerWord/updateWord writing row + outbox together);
@@ -238,6 +239,7 @@ void main() {
         word: 'casa',
         contents: 'house (pending)',
         editAt: DateTime.utc(2026, 8, 2).toIso8601String(),
+        accountId: _accountId,
       );
       queue.enqueue(_mutation(
         operation: SyncMutationOperation.patch,
@@ -270,7 +272,7 @@ void main() {
 
       await handler.run(context());
 
-      final row = await dao.getMyWordById('word-3');
+      final row = await dao.getMyWordById('word-3', _accountId);
       expect(row, isNotNull);
       // word comes from the remote snapshot; contents keeps the not-yet-
       // pushed local pending value instead of the remote's stale value.
@@ -285,6 +287,7 @@ void main() {
         word: 'perro',
         contents: 'dog',
         editAt: DateTime.utc(2026, 8, 1).toIso8601String(),
+        accountId: _accountId,
       );
       final updatedAt = DateTime.utc(2026, 8, 5, 12);
       when(() => remote.getMyWordsAfter(_accountId, any())).thenAnswer(
@@ -302,7 +305,7 @@ void main() {
 
       await handler.run(context());
 
-      final row = await dao.getMyWordById('word-4');
+      final row = await dao.getMyWordById('word-4', _accountId);
       expect(row, isNull);
       expect(queue.pending, isEmpty);
     });

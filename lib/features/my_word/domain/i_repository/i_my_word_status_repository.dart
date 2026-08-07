@@ -6,7 +6,7 @@ abstract class IMyWordStatusRepository {
   // Local methods
   Future<Result<void>> updateStatus(
       UpdateMyWordStatusRepositoryInputData input);
-  Stream<MyWordStatus> watchStatus(String wordId);
+  Stream<MyWordStatus> watchStatus(String wordId, {required String accountId});
 
   // Remote sync methods
   Future<Result<List<MyWordStatus>>> getRemoteStatusAfter(

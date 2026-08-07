@@ -30,6 +30,7 @@ import 'package:my_dic/features/my_word/domain/usecase/my_word_status/watch_my_w
 final loadMyWordUseCaseProvider = Provider<ILoadMyWordUseCase>((ref) {
   return LoadMyWordInteractor(
     ref.read(myWordRepositoryProvider),
+    ref.watch(currentSessionProvider),
   );
 });
 
@@ -71,12 +72,14 @@ final watchMyWordStatusUseCaseProvider =
     Provider<WatchMyWordStatusUsecase>((ref) {
   return WatchMyWordStatusInteractor(
     ref.read(myWordStatusRepositoryProvider),
+    ref.watch(currentSessionProvider),
   );
 });
 
 final watchMyWordUseCaseProvider = Provider<WatchMyWordUsecase>((ref) {
   return WatchMyWordInteractor(
     ref.read(myWordRepositoryProvider),
+    ref.watch(currentSessionProvider),
   );
 });
 

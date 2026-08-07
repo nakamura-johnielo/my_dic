@@ -2,27 +2,28 @@ import 'package:drift/drift.dart';
 import 'package:my_dic/features/my_word/data/data_source/local/my_word_status.dart';
 import 'package:my_dic/features/my_word/data/data_source/local/my_words.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
+import 'package:my_dic/core/shared/consts/account_scope.dart';
 part '../../../../../__generated/features/my_word/data/data_source/local/drift_my_word_dao.g.dart';
 
 @DriftAccessor(tables: [MyWords, MyWordStatus])
 class MyWordDao extends DatabaseAccessor<DatabaseProvider>
     with _$MyWordDaoMixin {
   MyWordDao(super.database);
-  static const legacyOwner = 'legacy_unowned';
+  static const legacyOwner = guestAccountScope;
 
-  Future<MyWordTableData?> getMyWordById(String id) {
+  Future<MyWordTableData?> getMyWordById(String id, String accountId) {
     return (select(myWords)
           ..where((tbl) =>
               tbl.myWordId.equals(id) &
-              tbl.accountId.equals(legacyOwner) &
+              tbl.accountId.equals(accountId) &
               tbl.deletedAt.isNull()))
         .getSingleOrNull();
   }
 
   Future<List<MyWordTableData>?> getFilteredMyWordByPage(
-      int size, int offset) async {
+      int size, int offset, String accountId) async {
     return (select(myWords)
-          ..where((t) => t.accountId.equals(legacyOwner) & t.deletedAt.isNull())
+          ..where((t) => t.accountId.equals(accountId) & t.deletedAt.isNull())
           ..orderBy([
             (t) => OrderingTerm.desc(t.editAt),
           ])
@@ -30,10 +31,11 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
         .get();
   }
 
-  Future<List<String>?> getIdsFilteredMyWordByPage(int size, int offset) async {
+  Future<List<String>?> getIdsFilteredMyWordByPage(
+      int size, int offset, String accountId) async {
     final query = selectOnly(myWords)
       ..addColumns([myWords.myWordId])
-      ..where(myWords.accountId.equals(legacyOwner) & myWords.deletedAt.isNull())
+      ..where(myWords.accountId.equals(accountId) & myWords.deletedAt.isNull())
       ..orderBy([
         OrderingTerm.desc(myWords.editAt),
       ])
@@ -41,6 +43,36 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
 
     final rows = await query.get();
     return rows.map((row) => row.read(myWords.myWordId)!).toList();
+  }
+
+  /// Returns every non-deleted row for [accountId]. Used by the guest-data
+  /// detector/migration, which needs the full set rather than a page.
+  Future<List<MyWordTableData>> getAllByAccountId(String accountId) {
+    return (select(myWords)
+          ..where((t) => t.accountId.equals(accountId) & t.deletedAt.isNull()))
+        .get();
+  }
+
+  /// Reassigns a row's account scope in place (e.g. guest -> a signed-in
+  /// account), bumping `local_revision` so a matching outbox mutation can be
+  /// enqueued. Returns `null` if no row matched at [fromAccountId] or a row
+  /// already exists at [toAccountId] (the caller should merge/skip instead).
+  Future<MyWordTableData?> reassignAccountId(
+      String wordId, String fromAccountId, String toAccountId) {
+    return transaction(() async {
+      final existing = await getMyWordById(wordId, fromAccountId);
+      if (existing == null) return null;
+      final conflict = await getMyWordById(wordId, toAccountId);
+      if (conflict != null) return null;
+      await (update(myWords)
+            ..where((t) =>
+                t.myWordId.equals(wordId) & t.accountId.equals(fromAccountId)))
+          .write(MyWordsCompanion(
+        accountId: Value(toAccountId),
+        localRevision: Value(existing.localRevision + 1),
+      ));
+      return getMyWordById(wordId, toAccountId);
+    });
   }
 
   Future<void> insertMyWord(
@@ -61,13 +93,14 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
     required String word,
     required String contents,
     required String editAt,
+    required String accountId,
   }) async {
     final data = MyWordTableData(
       myWordId: id,
       word: word,
       contents: contents,
       editAt: editAt,
-      accountId: legacyOwner,
+      accountId: accountId,
       localRevision: 1,
     );
     await into(myWords).insert(data);
@@ -82,14 +115,15 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
     required String word,
     required String contents,
     required String editAt,
+    required String accountId,
   }) {
     return transaction(() async {
-      final existing = await getMyWordById(id);
+      final existing = await getMyWordById(id, accountId);
       if (existing == null) return null;
       final nextRevision = existing.localRevision + 1;
       await (update(myWords)
             ..where((tbl) =>
-                tbl.myWordId.equals(id) & tbl.accountId.equals(legacyOwner)))
+                tbl.myWordId.equals(id) & tbl.accountId.equals(accountId)))
           .write(
         MyWordsCompanion(
           word: Value(word),
@@ -134,20 +168,21 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
   /// remote update can never resurrect it. The child status row is still
   /// hard-deleted since MyWordStatus is not yet part of the outbox contract.
   /// Returns `null` if no non-deleted row matched.
-  Future<MyWordTableData?> tombstoneMyWord(String wordId, String deletedAt) {
+  Future<MyWordTableData?> tombstoneMyWord(
+      String wordId, String deletedAt, String accountId) {
     return transaction(() async {
-      final existing = await getMyWordById(wordId);
+      final existing = await getMyWordById(wordId, accountId);
       if (existing == null) return null;
       final nextRevision = existing.localRevision + 1;
       await (delete(myWordStatus)
             ..where((tbl) =>
                 tbl.myWordId.equals(wordId) &
-                tbl.accountId.equals(legacyOwner)))
+                tbl.accountId.equals(accountId)))
           .go();
       await (update(myWords)
             ..where((tbl) =>
                 tbl.myWordId.equals(wordId) &
-                tbl.accountId.equals(legacyOwner)))
+                tbl.accountId.equals(accountId)))
           .write(
         MyWordsCompanion(
           deletedAt: Value(DateTime.parse(deletedAt)),
@@ -202,11 +237,11 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
         .distinct();
   }
 
-  Stream<MyWordTableData?> streamMyWordById(String id) {
+  Stream<MyWordTableData?> streamMyWordById(String id, String accountId) {
     return (select(myWords)
           ..where((tbl) =>
               tbl.myWordId.equals(id) &
-              tbl.accountId.equals(legacyOwner) &
+              tbl.accountId.equals(accountId) &
               tbl.deletedAt.isNull()))
         .watchSingleOrNull()
         .distinct();
@@ -225,11 +260,12 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
     String? contents,
     String? deletedAt,
     required String editAt,
+    required String accountId,
   }) {
     return transaction(() async {
       final existing = await (select(myWords)
             ..where((tbl) =>
-                tbl.myWordId.equals(wordId) & tbl.accountId.equals(legacyOwner)))
+                tbl.myWordId.equals(wordId) & tbl.accountId.equals(accountId)))
           .getSingleOrNull();
 
       if (existing != null && existing.deletedAt != null && deletedAt == null) {
@@ -243,7 +279,7 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
             word: word ?? '',
             contents: Value(contents),
             editAt: editAt,
-            accountId: const Value(legacyOwner),
+            accountId: Value(accountId),
             localRevision: const Value(0),
             deletedAt: Value(
                 deletedAt != null ? DateTime.parse(deletedAt) : null),
@@ -254,7 +290,7 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
 
       await (update(myWords)
             ..where((tbl) =>
-                tbl.myWordId.equals(wordId) & tbl.accountId.equals(legacyOwner)))
+                tbl.myWordId.equals(wordId) & tbl.accountId.equals(accountId)))
           .write(
         MyWordsCompanion(
           word: word != null ? Value(word) : const Value.absent(),
@@ -270,7 +306,7 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
         await (delete(myWordStatus)
               ..where((tbl) =>
                   tbl.myWordId.equals(wordId) &
-                  tbl.accountId.equals(legacyOwner)))
+                  tbl.accountId.equals(accountId)))
             .go();
       }
     });

@@ -1,6 +1,6 @@
 /// Test for LoadMyWordInteractor UseCase
 /// Priority: ★★★★★ (Critical pagination business logic)
-/// 
+///
 /// Tests demonstrate:
 /// - Pagination logic validation
 /// - Input validation for page numbers and size
@@ -15,6 +15,7 @@ import 'package:my_dic/features/my_word/domain/usecase/my_word/load_my_word/load
 import 'package:my_dic/features/my_word/domain/usecase/my_word/load_my_word/load_my_word_interactor.dart';
 
 import '../../../../../helpers/fake_my_word_repository.dart';
+import '../../../../../helpers/fake_current_session.dart';
 
 void main() {
   group('LoadMyWordInteractor', () {
@@ -22,7 +23,7 @@ void main() {
       test('execute_returnsValidationError_whenPageNumberIsNegative', () async {
         // Arrange
         final repository = FakeMyWordRepository.success();
-        final useCase = LoadMyWordInteractor(repository);
+        final useCase = LoadMyWordInteractor(repository, FakeCurrentSession());
         final input = LoadMyWordInputData(10, -1); // Negative page
 
         // Act
@@ -43,7 +44,7 @@ void main() {
       test('execute_returnsValidationError_whenPageSizeIsZero', () async {
         // Arrange
         final repository = FakeMyWordRepository.success();
-        final useCase = LoadMyWordInteractor(repository);
+        final useCase = LoadMyWordInteractor(repository, FakeCurrentSession());
         final input = LoadMyWordInputData(0, 0); // Size = 0
 
         // Act
@@ -64,7 +65,7 @@ void main() {
       test('execute_returnsValidationError_whenPageSizeIsNegative', () async {
         // Arrange
         final repository = FakeMyWordRepository.success();
-        final useCase = LoadMyWordInteractor(repository);
+        final useCase = LoadMyWordInteractor(repository, FakeCurrentSession());
         final input = LoadMyWordInputData(-5, 0); // Negative size
 
         // Act
@@ -79,12 +80,12 @@ void main() {
     group('Success Scenarios', () {
       test('execute_returnsWords_whenInputIsValid', () async {
         // Arrange
-        const testWords = [
-          MyWord(wordId: 1, word: 'casa', contents: '家'),
-          MyWord(wordId: 2, word: 'libro', contents: '本'),
+        final testWords = [
+          MyWord(wordId: '1', word: 'casa', contents: '家'),
+          MyWord(wordId: '2', word: 'libro', contents: '本'),
         ];
         final repository = FakeMyWordRepository.success(words: testWords);
-        final useCase = LoadMyWordInteractor(repository);
+        final useCase = LoadMyWordInteractor(repository, FakeCurrentSession());
         final input = LoadMyWordInputData(10, 0); // Page 0, size 10
 
         // Act
@@ -101,7 +102,7 @@ void main() {
       test('execute_returnsEmptyList_whenNoWordsExist', () async {
         // Arrange
         final repository = FakeMyWordRepository.empty();
-        final useCase = LoadMyWordInteractor(repository);
+        final useCase = LoadMyWordInteractor(repository, FakeCurrentSession());
         final input = LoadMyWordInputData(20, 0);
 
         // Act
@@ -118,7 +119,7 @@ void main() {
       test('execute_calculatesCorrectOffset_forFirstPage', () async {
         // Arrange
         final repository = FakeMyWordRepository.success();
-        final useCase = LoadMyWordInteractor(repository);
+        final useCase = LoadMyWordInteractor(repository, FakeCurrentSession());
         final input = LoadMyWordInputData(10, 0); // Page 0, size 10
 
         // Act
@@ -132,7 +133,7 @@ void main() {
       test('execute_calculatesCorrectOffset_forSecondPage', () async {
         // Arrange
         final repository = FakeMyWordRepository.success();
-        final useCase = LoadMyWordInteractor(repository);
+        final useCase = LoadMyWordInteractor(repository, FakeCurrentSession());
         final input = LoadMyWordInputData(10, 1); // Page 1, size 10
 
         // Act
@@ -142,10 +143,11 @@ void main() {
         expect(repository.lastOffset, 10); // 1 * 10 = 10
       });
 
-      test('execute_calculatesCorrectOffset_forThirdPageWithDifferentSize', () async {
+      test('execute_calculatesCorrectOffset_forThirdPageWithDifferentSize',
+          () async {
         // Arrange
         final repository = FakeMyWordRepository.success();
-        final useCase = LoadMyWordInteractor(repository);
+        final useCase = LoadMyWordInteractor(repository, FakeCurrentSession());
         final input = LoadMyWordInputData(20, 2); // Page 2, size 20
 
         // Act
@@ -159,7 +161,7 @@ void main() {
       test('execute_passesCorrectLimit_toRepository', () async {
         // Arrange
         final repository = FakeMyWordRepository.success();
-        final useCase = LoadMyWordInteractor(repository);
+        final useCase = LoadMyWordInteractor(repository, FakeCurrentSession());
         final input = LoadMyWordInputData(50, 3); // Size 50
 
         // Act
@@ -175,7 +177,7 @@ void main() {
       test('execute_returnsDatabaseError_whenRepositoryFails', () async {
         // Arrange
         final repository = FakeMyWordRepository.databaseError();
-        final useCase = LoadMyWordInteractor(repository);
+        final useCase = LoadMyWordInteractor(repository, FakeCurrentSession());
         final input = LoadMyWordInputData(10, 0);
 
         // Act
@@ -192,7 +194,7 @@ void main() {
       test('execute_allowsPageNumberZero', () async {
         // Arrange
         final repository = FakeMyWordRepository.success();
-        final useCase = LoadMyWordInteractor(repository);
+        final useCase = LoadMyWordInteractor(repository, FakeCurrentSession());
         final input = LoadMyWordInputData(10, 0);
 
         // Act
@@ -205,7 +207,7 @@ void main() {
       test('execute_allowsLargePageNumbers', () async {
         // Arrange
         final repository = FakeMyWordRepository.success();
-        final useCase = LoadMyWordInteractor(repository);
+        final useCase = LoadMyWordInteractor(repository, FakeCurrentSession());
         final input = LoadMyWordInputData(10, 1000);
 
         // Act
@@ -219,7 +221,7 @@ void main() {
       test('execute_allowsPageSizeOfOne', () async {
         // Arrange
         final repository = FakeMyWordRepository.success();
-        final useCase = LoadMyWordInteractor(repository);
+        final useCase = LoadMyWordInteractor(repository, FakeCurrentSession());
         final input = LoadMyWordInputData(1, 5);
 
         // Act

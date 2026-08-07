@@ -137,7 +137,8 @@ void main() {
       expect(row.entityId, wordId);
       expect(row.localRevision, 2);
 
-      final getResult = await repository.getById(wordId);
+      final getResult =
+          await repository.getById(wordId, accountId: 'account-a');
       expect(getResult.isFailure, isTrue);
     });
 

@@ -27,12 +27,14 @@ class MyWordStatusDriftDataSource implements IMyWordStatusLocalDataSource {
   Future<bool> existStatus(String id) => _wordStatusDao.exist(id);
 
   @override
-  Stream<db.MyWordStatusTableData?> watchWordStatus(String wordId) =>
-      _wordStatusDao.watchWordStatus(wordId);
+  Stream<db.MyWordStatusTableData?> watchWordStatus(
+          String wordId, String accountId) =>
+      _wordStatusDao.watchWordStatus(wordId, accountId);
 
   @override
-  Future<db.MyWordStatusTableData?> getWordStatus(String wordId) async {
-    return await _wordStatusDao.getWordStatus(wordId);
+  Future<db.MyWordStatusTableData?> getWordStatus(
+      String wordId, String accountId) async {
+    return await _wordStatusDao.getWordStatus(wordId, accountId);
   }
 
   @override
@@ -42,9 +44,10 @@ class MyWordStatusDriftDataSource implements IMyWordStatusLocalDataSource {
     int? isBookmarked,
     int? hasNote,
     String editAt,
+    String accountId,
   ) {
     return _wordStatusDao.applyStatusPatch(
-        myWordId, isLearned, isBookmarked, hasNote, editAt);
+        myWordId, isLearned, isBookmarked, hasNote, editAt, accountId);
   }
 
   @override
@@ -54,6 +57,7 @@ class MyWordStatusDriftDataSource implements IMyWordStatusLocalDataSource {
     int? isBookmarked,
     int? hasNote,
     required String editAt,
+    required String accountId,
   }) {
     return _wordStatusDao.applyRemoteFields(
       myWordId,
@@ -61,10 +65,24 @@ class MyWordStatusDriftDataSource implements IMyWordStatusLocalDataSource {
       isBookmarked: isBookmarked,
       hasNote: hasNote,
       editAt: editAt,
+      accountId: accountId,
     );
   }
 
   @override
   Future<T> runInTransaction<T>(Future<T> Function() action) =>
       _wordStatusDao.transaction(action);
+
+  @override
+  Future<List<db.MyWordStatusTableData>> getAllByAccountId(String accountId) =>
+      _wordStatusDao.getAllByAccountId(accountId);
+
+  @override
+  Future<db.MyWordStatusTableData?> reassignAccountId(
+          String myWordId, String fromAccountId, String toAccountId) =>
+      _wordStatusDao.reassignAccountId(myWordId, fromAccountId, toAccountId);
+
+  @override
+  Future<void> deleteRow(String myWordId, String accountId) =>
+      _wordStatusDao.deleteRow(myWordId, accountId);
 }

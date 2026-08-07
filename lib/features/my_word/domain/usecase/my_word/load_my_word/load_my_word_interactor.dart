@@ -1,3 +1,5 @@
+import 'package:my_dic/app/session/current_session.dart';
+import 'package:my_dic/core/shared/consts/account_scope.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word/load_my_word/load_my_word_input_data.dart';
@@ -8,8 +10,11 @@ import 'package:my_dic/features/my_word/domain/i_repository/i_my_word_repository
 
 class LoadMyWordInteractor implements ILoadMyWordUseCase {
   final IMyWordRepository _driftLoadMyWordRepository;
+  final CurrentSession _currentSession;
 
-  LoadMyWordInteractor(this._driftLoadMyWordRepository);
+  LoadMyWordInteractor(this._driftLoadMyWordRepository, this._currentSession);
+
+  String get _scope => _currentSession.accountIdOrNull ?? guestAccountScope;
 
   @override //TODO 使っていない
   Future<Result<List<MyWord>>> execute(LoadMyWordInputData input) async {
@@ -23,7 +28,8 @@ class LoadMyWordInteractor implements ILoadMyWordUseCase {
     LoadMyWordRepositoryInputData repositoryInput =
         LoadMyWordRepositoryInputData(input.size, offset);
 
-    return await _driftLoadMyWordRepository.getFilteredByPage(repositoryInput);
+    return await _driftLoadMyWordRepository.getFilteredByPage(repositoryInput,
+        accountId: _scope);
   }
 
   ValidationError? _validateInput(LoadMyWordInputData input) {
@@ -55,6 +61,6 @@ class LoadMyWordInteractor implements ILoadMyWordUseCase {
         LoadMyWordRepositoryInputData(input.size, offset);
 
     return await _driftLoadMyWordRepository
-        .getIdsFilteredByPage(repositoryInput);
+        .getIdsFilteredByPage(repositoryInput, accountId: _scope);
   }
 }

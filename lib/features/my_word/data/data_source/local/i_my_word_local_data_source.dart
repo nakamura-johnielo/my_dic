@@ -1,11 +1,13 @@
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart' as db;
 
 abstract class IMyWordLocalDataSource {
-  Future<db.MyWordTableData?> getMyWordById(String id);
+  Future<db.MyWordTableData?> getMyWordById(String id, String accountId);
 
-  Future<List<db.MyWordTableData>?> getFilteredMyWordByPage(int size, int offset);
+  Future<List<db.MyWordTableData>?> getFilteredMyWordByPage(
+      int size, int offset, String accountId);
 
-  Future<List<String>?> getIdsFilteredMyWordByPage(int size, int offset);
+  Future<List<String>?> getIdsFilteredMyWordByPage(
+      int size, int offset, String accountId);
 
   Future<void> insertMyWord(String id, String headword, String description, String dateTime);
 
@@ -16,7 +18,7 @@ abstract class IMyWordLocalDataSource {
   Future<List<db.MyWordTableData>> getMyWordsAfter(String dateTime);
 
   Stream<List<String>> watchMyWordIdsAfter(String dateTime);
-  Stream<db.MyWordTableData?> streamMyWordById(String id);
+  Stream<db.MyWordTableData?> streamMyWordById(String id, String accountId);
 
   /// Inserts a brand-new MyWord row with `local_revision` starting at 1.
   Future<db.MyWordTableData> insertMyWordWithRevision({
@@ -24,6 +26,7 @@ abstract class IMyWordLocalDataSource {
     required String word,
     required String contents,
     required String editAt,
+    required String accountId,
   });
 
   /// Updates an existing MyWord row and bumps `local_revision` by 1.
@@ -33,11 +36,13 @@ abstract class IMyWordLocalDataSource {
     required String word,
     required String contents,
     required String editAt,
+    required String accountId,
   });
 
   /// Soft-deletes (tombstones) a MyWord row instead of a hard delete.
   /// Returns `null` if no non-deleted row matched.
-  Future<db.MyWordTableData?> tombstoneMyWord(String wordId, String deletedAt);
+  Future<db.MyWordTableData?> tombstoneMyWord(
+      String wordId, String deletedAt, String accountId);
 
   /// Applies a pulled remote snapshot without bumping `local_revision` or
   /// enqueueing an outbox mutation. `null` per field means "leave untouched".
@@ -47,9 +52,19 @@ abstract class IMyWordLocalDataSource {
     String? contents,
     String? deletedAt,
     required String editAt,
+    required String accountId,
   });
 
   /// Runs [action] within a single Drift transaction so callers can combine
   /// a MyWord row write with an outbox mutation atomically.
   Future<T> runInTransaction<T>(Future<T> Function() action);
+
+  /// Returns every non-deleted row for [accountId]. Used by the guest-data
+  /// detector/migration, which needs the full set rather than a page.
+  Future<List<db.MyWordTableData>> getAllByAccountId(String accountId);
+
+  /// Reassigns a row's account scope in place. Returns `null` if no row
+  /// matched at [fromAccountId] or a row already exists at [toAccountId].
+  Future<db.MyWordTableData?> reassignAccountId(
+      String wordId, String fromAccountId, String toAccountId);
 }

@@ -113,6 +113,15 @@ class JpnEspWordStatusDao extends DatabaseAccessor<DatabaseProvider>
     return existingColum != null;
   }
 
+  /// Deletes a single row for [wordId] scoped to [accountId]. Used by the
+  /// guest-to-account migration to remove a guest row once its values have
+  /// been merged into the target account's row.
+  Future<void> deleteRow(int wordId, String accountId) async {
+    await (delete(jpnEspWordStatus)
+          ..where((t) => t.wordId.equals(wordId) & t.accountId.equals(accountId)))
+        .go();
+  }
+
   /// Applies a pulled remote snapshot to the local row without bumping
   /// `local_revision` or touching the outbox, so remote apply never looks
   /// like a fresh local edit. `null` per field means "leave untouched"

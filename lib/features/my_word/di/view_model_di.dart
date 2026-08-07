@@ -25,7 +25,7 @@ final myWordFragmentViewModelProvider =
 final _myWordStatusStreamProvider =
     StreamProvider.family.autoDispose<MyWordStatus, String>(
   (ref, wordId) {
-    final watchUsecase = ref.read(watchMyWordStatusUseCaseProvider);
+    final watchUsecase = ref.watch(watchMyWordStatusUseCaseProvider);
     return watchUsecase.execute(wordId);
   },
 );
@@ -33,7 +33,7 @@ final _myWordStatusStreamProvider =
 final _myWordStreamProviderNEW =
     StreamProvider.family.autoDispose<MyWord, String>(
   (ref, wordId) {
-    final watchUsecase = ref.read(watchMyWordUseCaseProvider);
+    final watchUsecase = ref.watch(watchMyWordUseCaseProvider);
     return watchUsecase.execute(wordId);
   },
 );

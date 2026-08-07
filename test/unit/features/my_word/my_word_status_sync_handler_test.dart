@@ -138,7 +138,7 @@ void main() {
 
     expect(result, isA<DatasetSyncSuccess>());
     expect((result as DatasetSyncSuccess).pulledCount, 1);
-    final row = await dao.getWordStatus('word-2');
+    final row = await dao.getWordStatus('word-2', _accountId);
     expect(row, isNotNull);
     expect(row!.isLearned, 1);
     expect(row.isBookmarked, 0);
@@ -151,7 +151,7 @@ void main() {
   test('a pulled field with an in-flight local mutation is not overwritten',
       () async {
     await dao.applyStatusPatch('word-3', 0, 1, 0,
-        DateTime.utc(2026, 8, 1).toIso8601String());
+        DateTime.utc(2026, 8, 1).toIso8601String(), _accountId);
     queue.enqueue(_mutation(
       entityId: 'word-3',
       fieldMask: const ['isBookmarked'],
@@ -179,7 +179,7 @@ void main() {
 
     await handler.run(context());
 
-    final row = await dao.getWordStatus('word-3');
+    final row = await dao.getWordStatus('word-3', _accountId);
     expect(row, isNotNull);
     expect(row!.isLearned, 1);
     expect(row.isBookmarked, 1,

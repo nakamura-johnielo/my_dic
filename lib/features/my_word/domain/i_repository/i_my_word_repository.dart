@@ -7,11 +7,13 @@ import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
 
 abstract class IMyWordRepository {
   // normal methods
-  Future<Result<MyWord>> getById(String id);
+  Future<Result<MyWord>> getById(String id, {required String accountId});
   Future<Result<List<MyWord>>> getFilteredByPage(
-      LoadMyWordRepositoryInputData input); //TODO 使っていない
+      LoadMyWordRepositoryInputData input,
+      {required String accountId}); //TODO 使っていない
   Future<Result<List<String>>> getIdsFilteredByPage(
-      LoadMyWordRepositoryInputData input);
+      LoadMyWordRepositoryInputData input,
+      {required String accountId});
 
   Future<Result<String>> registerWord(RegisterMyWordRepositoryInputData input);
   Future<Result<void>> updateWord(UpdateMyWordRepositoryInputData input);
@@ -35,5 +37,5 @@ abstract class IMyWordRepository {
 
   Stream<List<String>> watchRemoteChangedIds(String userId);
   Stream<List<String>> watchLocalChangedIds(DateTime datetime);
-  Stream<MyWord> watchMyWord(String id);
+  Stream<MyWord> watchMyWord(String id, {required String accountId});
 }

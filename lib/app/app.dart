@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/app/guest_migration/presentation/guest_migration_prompt.dart';
 import 'package:my_dic/app/routing/router.dart';
 import 'package:my_dic/core/presentation/theme/color_scheme.dart';
 import 'package:my_dic/core/section/db_loading/db_loader_overlay.dart';
@@ -27,6 +28,7 @@ class MyApp extends ConsumerWidget {
         children: [
           child ?? const SizedBox.shrink(),
           const DatabaseLoadingOverlay(),
+          const GuestMigrationPrompt(),
         ],
       ),
     );

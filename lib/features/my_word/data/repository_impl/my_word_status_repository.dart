@@ -3,6 +3,7 @@ import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:uuid/uuid.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
+import 'package:my_dic/core/shared/consts/account_scope.dart';
 import 'package:my_dic/core/shared/enums/sync_dataset.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/errors/unexpected_error.dart';
@@ -35,6 +36,7 @@ class MyWordStatusRepository implements IMyWordStatusRepository {
     try {
       AppLogger.print("updatestatusrepo");
       final editAt = input.editAt.toIso8601String();
+      final scope = input.userId ?? guestAccountScope;
       await _localDataSource.runInTransaction(() async {
         final row = await _localDataSource.applyStatusPatch(
           input.wordId,
@@ -42,6 +44,7 @@ class MyWordStatusRepository implements IMyWordStatusRepository {
           input.isBookmarked,
           input.hasNote,
           editAt,
+          scope,
         );
         if (input.userId != null) {
           final fieldMask = <String>[];
@@ -84,8 +87,8 @@ class MyWordStatusRepository implements IMyWordStatusRepository {
   }
 
   @override
-  Stream<MyWordStatus> watchStatus(String wordId) {
-    return _localDataSource.watchWordStatus(wordId).map((statusData) {
+  Stream<MyWordStatus> watchStatus(String wordId, {required String accountId}) {
+    return _localDataSource.watchWordStatus(wordId, accountId).map((statusData) {
       AppLogger.print("mywordstatus stream");
       if (statusData == null) {
         AppLogger.print("null");
@@ -226,7 +229,10 @@ class MyWordStatusRepository implements IMyWordStatusRepository {
   @override
   Future<Result<MyWordStatus?>> getLocalStatusById(String myWordId) async {
     try {
-      final statusData = await _localDataSource.watchWordStatus(myWordId).first;
+      // Legacy sync path predates real account scoping; preserves prior
+      // behavior by keeping the same fixed scope it always used.
+      final statusData =
+          await _localDataSource.watchWordStatus(myWordId, guestAccountScope).first;
       if (statusData == null) {
         return const Result.success(null);
       }

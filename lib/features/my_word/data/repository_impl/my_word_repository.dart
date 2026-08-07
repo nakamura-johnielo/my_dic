@@ -1,6 +1,7 @@
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:uuid/uuid.dart';
+import 'package:my_dic/core/shared/consts/account_scope.dart';
 import 'package:my_dic/core/shared/enums/sync_dataset.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
@@ -34,9 +35,9 @@ class MyWordRepository implements IMyWordRepository {
   }) : _uuid = uuid ?? const Uuid();
 
   @override
-  Future<Result<MyWord>> getById(String id) async {
+  Future<Result<MyWord>> getById(String id, {required String accountId}) async {
     try {
-      final data = await _localDataSource.getMyWordById(id);
+      final data = await _localDataSource.getMyWordById(id, accountId);
       if (data == null) {
         return Result.failure(NotFoundError(
           message: '指定された単語が見つかりません',
@@ -62,10 +63,11 @@ class MyWordRepository implements IMyWordRepository {
 
   @override
   Future<Result<List<MyWord>>> getFilteredByPage(
-      LoadMyWordRepositoryInputData input) async {
+      LoadMyWordRepositoryInputData input,
+      {required String accountId}) async {
     try {
       final dataList = await _localDataSource.getFilteredMyWordByPage(
-          input.size, input.offset);
+          input.size, input.offset, accountId);
       if (dataList == null) {
         return const Result.success([]);
       }
@@ -91,10 +93,11 @@ class MyWordRepository implements IMyWordRepository {
 
   @override
   Future<Result<List<String>>> getIdsFilteredByPage(
-      LoadMyWordRepositoryInputData input) async {
+      LoadMyWordRepositoryInputData input,
+      {required String accountId}) async {
     try {
       final dataList = await _localDataSource.getIdsFilteredMyWordByPage(
-          input.size, input.offset);
+          input.size, input.offset, accountId);
       if (dataList == null) {
         return const Result.success([]);
       }
@@ -119,12 +122,14 @@ class MyWordRepository implements IMyWordRepository {
 
       final wordId = MyUUID.generate();
       final editAt = input.dateTime.toIso8601String();
+      final scope = input.userId ?? guestAccountScope;
       await _localDataSource.runInTransaction(() async {
         final row = await _localDataSource.insertMyWordWithRevision(
           id: wordId,
           word: input.headword,
           contents: input.description,
           editAt: editAt,
+          accountId: scope,
         );
         if (input.userId != null) {
           await _outboxWriter.enqueue(SyncMutation(
@@ -163,9 +168,10 @@ class MyWordRepository implements IMyWordRepository {
   @override
   Future<Result<void>> deleteWord(DeleteMyWordRepositoryInputData input) async {
     try {
+      final scope = input.userId ?? guestAccountScope;
       final tombstoned = await _localDataSource.runInTransaction(() async {
-        final row =
-            await _localDataSource.tombstoneMyWord(input.id, input.dateTime);
+        final row = await _localDataSource.tombstoneMyWord(
+            input.id, input.dateTime, scope);
         if (row != null && input.userId != null) {
           await _outboxWriter.enqueue(SyncMutation(
             mutationId: _uuid.v4(),
@@ -200,12 +206,14 @@ class MyWordRepository implements IMyWordRepository {
   Future<Result<void>> updateWord(UpdateMyWordRepositoryInputData input) async {
     try {
       final editAt = input.editAt.toIso8601String();
+      final scope = input.userId ?? guestAccountScope;
       final updated = await _localDataSource.runInTransaction(() async {
         final row = await _localDataSource.updateMyWordWithRevision(
           id: input.myWordId,
           word: input.headword,
           contents: input.description,
           editAt: editAt,
+          accountId: scope,
         );
         if (row != null && input.userId != null) {
           await _outboxWriter.enqueue(SyncMutation(
@@ -388,7 +396,9 @@ class MyWordRepository implements IMyWordRepository {
 
   @override
   Future<Result<MyWord?>> getLocalMyWordById(String myWordId) async {
-    return await getById(myWordId);
+    // Legacy sync path predates real account scoping; preserves prior
+    // behavior by keeping the same fixed scope it always used.
+    return await getById(myWordId, accountId: guestAccountScope);
   }
 
   @override
@@ -460,8 +470,8 @@ class MyWordRepository implements IMyWordRepository {
   }
 
   @override
-  Stream<MyWord> watchMyWord(String id) {
-    return _localDataSource.streamMyWordById(id).map((data) {
+  Stream<MyWord> watchMyWord(String id, {required String accountId}) {
+    return _localDataSource.streamMyWordById(id, accountId).map((data) {
       if (data == null) {
         throw NotFoundError(message: '指定された単語が見つかりません');
       }

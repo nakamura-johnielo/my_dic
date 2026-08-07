@@ -131,6 +131,7 @@ class MyWordSyncHandler implements DatasetSyncHandler {
             contents: skip.contains('contents') ? null : dto.contents,
             deletedAt: tombstoned ? dto.deletedAt!.toIso8601String() : null,
             editAt: dto.updatedAt.toIso8601String(),
+            accountId: context.accountId,
           );
           pulledCount++;
           final candidate = SyncCursor(

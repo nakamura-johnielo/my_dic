@@ -14,8 +14,7 @@ import 'package:my_dic/features/my_word/domain/usecase/my_word_status/update_my_
 class FakeMyWordRepository implements IMyWordRepository {
   final Result<List<MyWord>>? _getFilteredResult;
   final Result<MyWord>? _getByIdResult;
-  final Result<void>? _updateStatusResult;
-  final Result<int>? _registerResult;
+  final Result<String>? _registerResult;
   final Result<void>? _updateResult;
   final Result<void>? _deleteResult;
 
@@ -27,13 +26,11 @@ class FakeMyWordRepository implements IMyWordRepository {
   FakeMyWordRepository({
     Result<List<MyWord>>? getFilteredResult,
     Result<MyWord>? getByIdResult,
-    Result<void>? updateStatusResult,
-    Result<int>? registerResult,
+    Result<String>? registerResult,
     Result<void>? updateResult,
     Result<void>? deleteResult,
   })  : _getFilteredResult = getFilteredResult,
         _getByIdResult = getByIdResult,
-        _updateStatusResult = updateStatusResult,
         _registerResult = registerResult,
         _updateResult = updateResult,
         _deleteResult = deleteResult;
@@ -42,14 +39,14 @@ class FakeMyWordRepository implements IMyWordRepository {
   factory FakeMyWordRepository.success({List<MyWord>? words}) {
     final defaultWords = words ??
         [
-          const MyWord(
-            wordId: 1,
+          MyWord(
+            wordId: '1',
             word: 'hola',
             contents: 'こんにちは',
             isBookmarked: true,
           ),
-          const MyWord(
-            wordId: 2,
+          MyWord(
+            wordId: '2',
             word: 'gracias',
             contents: 'ありがとう',
             isLearned: true,
@@ -59,8 +56,7 @@ class FakeMyWordRepository implements IMyWordRepository {
     return FakeMyWordRepository(
       getFilteredResult: Result.success(defaultWords),
       getByIdResult: Result.success(defaultWords.first),
-      updateStatusResult: const Result.success(null),
-      registerResult: const Result.success(123),
+      registerResult: const Result.success('123'),
       updateResult: const Result.success(null),
       deleteResult: const Result.success(null),
     );
@@ -93,8 +89,8 @@ class FakeMyWordRepository implements IMyWordRepository {
 
   @override
   Future<Result<List<MyWord>>> getFilteredByPage(
-    LoadMyWordRepositoryInputData input,
-  ) async {
+      LoadMyWordRepositoryInputData input,
+      {required String accountId}) async {
     getFilteredCallCount++;
     lastSize = input.size;
     lastOffset = input.offset;
@@ -106,7 +102,7 @@ class FakeMyWordRepository implements IMyWordRepository {
   }
 
   @override
-  Future<Result<MyWord>> getById(int id) async {
+  Future<Result<MyWord>> getById(String id, {required String accountId}) async {
     return _getByIdResult ??
         Result.failure(
           NotFoundError(message: 'Not found'),
@@ -114,17 +110,11 @@ class FakeMyWordRepository implements IMyWordRepository {
   }
 
   @override
-  Future<Result<void>> updateStatus(
-    UpdateMyWordStatusRepositoryInputData input,
-  ) async {
-    return _updateStatusResult ?? const Result.success(null);
-  }
-
   @override
-  Future<Result<int>> registerWord(
+  Future<Result<String>> registerWord(
     RegisterMyWordRepositoryInputData input,
   ) async {
-    return _registerResult ?? const Result.success(1);
+    return _registerResult ?? const Result.success('1');
   }
 
   @override
@@ -140,4 +130,64 @@ class FakeMyWordRepository implements IMyWordRepository {
   ) async {
     return _deleteResult ?? const Result.success(null);
   }
+
+  @override
+  Future<Result<List<String>>> getIdsFilteredByPage(
+    LoadMyWordRepositoryInputData input, {
+    required String accountId,
+  }) async =>
+      const Result.success([]);
+
+  @override
+  Future<Result<List<MyWord>>> getRemoteMyWordsAfter(
+          String userId, DateTime datetime) async =>
+      const Result.success([]);
+
+  @override
+  Future<Result<MyWord?>> getRemoteMyWordById(
+          String userId, String myWordId) async =>
+      const Result.success(null);
+
+  @override
+  Future<Result<void>> updateRemoteMyWord(
+          String userId, MyWord myWord, DateTime? now) async =>
+      const Result.success(null);
+
+  @override
+  Future<Result<void>> updateBatchRemoteMyWords(
+          String userId, List<MyWord> myWordList) async =>
+      const Result.success(null);
+
+  @override
+  Future<Result<void>> deleteRemoteMyWord(
+          String userId, String myWordId) async =>
+      const Result.success(null);
+
+  @override
+  Future<Result<List<MyWord>>> getLocalMyWordsAfter(DateTime datetime) async =>
+      const Result.success([]);
+
+  @override
+  Future<Result<MyWord?>> getLocalMyWordById(String myWordId) async =>
+      const Result.success(null);
+
+  @override
+  Future<Result<void>> updateLocalMyWord(MyWord myWord, DateTime now) async =>
+      const Result.success(null);
+
+  @override
+  Future<Result<void>> createLocalMyWord(MyWord myWord) async =>
+      const Result.success(null);
+
+  @override
+  Stream<List<String>> watchRemoteChangedIds(String userId) =>
+      const Stream.empty();
+
+  @override
+  Stream<List<String>> watchLocalChangedIds(DateTime datetime) =>
+      const Stream.empty();
+
+  @override
+  Stream<MyWord> watchMyWord(String id, {required String accountId}) =>
+      const Stream.empty();
 }
