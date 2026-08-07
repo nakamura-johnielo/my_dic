@@ -13,6 +13,9 @@ class UserProfileDriftDataSource implements IUserProfileLocalDataSource {
       _dao.getProfile(accountId);
 
   @override
+  Future<void> deleteProfile(String accountId) => _dao.deleteProfile(accountId);
+
+  @override
   Future<String?> getUsername(String accountId) => _dao.getUsername(accountId);
 
   @override

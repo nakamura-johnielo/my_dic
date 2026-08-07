@@ -4,6 +4,8 @@ import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart
 abstract class IUserProfileLocalDataSource {
   Future<db.UserProfile?> getProfile(String accountId);
 
+  Future<void> deleteProfile(String accountId);
+
   /// Reads the editable `username` field out of the profile JSON payload,
   /// or `null` if the account has no local profile row yet.
   Future<String?> getUsername(String accountId);

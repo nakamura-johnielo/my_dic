@@ -16,6 +16,12 @@ class UserProfileDao extends DatabaseAccessor<DatabaseProvider>
         .getSingleOrNull();
   }
 
+  Future<void> deleteProfile(String accountId) async {
+    await (delete(userProfiles)
+          ..where((tbl) => tbl.accountId.equals(accountId)))
+        .go();
+  }
+
   /// Reads the editable `username` field out of the profile JSON payload,
   /// or `null` if the account has no local profile row yet.
   Future<String?> getUsername(String accountId) async {

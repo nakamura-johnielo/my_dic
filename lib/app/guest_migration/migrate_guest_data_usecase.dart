@@ -9,6 +9,7 @@ import 'package:my_dic/features/my_word/data/data_source/local/i_my_word_local_d
 import 'package:my_dic/features/my_word/data/data_source/local/i_my_word_status_local_data_source.dart';
 import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
 import 'package:my_dic/features/sync/application/port/outbox_writer.dart';
+import 'package:my_dic/features/user/data/data_source/local/i_user_profile_local_data_source.dart';
 
 /// Moves every guest-scoped local row to a signed-in account, atomically.
 ///
@@ -22,9 +23,10 @@ import 'package:my_dic/features/sync/application/port/outbox_writer.dart';
 /// and in the practically-impossible collision case the account's existing
 /// row is kept and the guest row is left untouched (not migrated).
 ///
-/// Idempotency: a successful run leaves no guest-scoped rows behind, so
-/// re-running this for the same account is a no-op rather than needing a
-/// separate migration-id ledger.
+/// Idempotency: every approved run creates one migration ID, shared by its
+/// outbox mutations. A successful transaction leaves no guest-scoped rows,
+/// so a later run is a no-op; a failed transaction rolls back both rows and
+/// queued mutations together.
 class MigrateGuestDataUseCase {
   MigrateGuestDataUseCase({
     required DatabaseProvider database,
@@ -32,6 +34,7 @@ class MigrateGuestDataUseCase {
     required ILocalJpnEspWordStatusDataSource jpnEspWordStatus,
     required IMyWordLocalDataSource myWord,
     required IMyWordStatusLocalDataSource myWordStatus,
+    required IUserProfileLocalDataSource userProfile,
     required OutboxWriter outboxWriter,
     Uuid? uuid,
     DateTime Function()? clock,
@@ -40,6 +43,7 @@ class MigrateGuestDataUseCase {
         _jpnEspWordStatus = jpnEspWordStatus,
         _myWord = myWord,
         _myWordStatus = myWordStatus,
+        _userProfile = userProfile,
         _outboxWriter = outboxWriter,
         _uuid = uuid ?? const Uuid(),
         _clock = clock ?? DateTime.now;
@@ -49,20 +53,63 @@ class MigrateGuestDataUseCase {
   final ILocalJpnEspWordStatusDataSource _jpnEspWordStatus;
   final IMyWordLocalDataSource _myWord;
   final IMyWordStatusLocalDataSource _myWordStatus;
+  final IUserProfileLocalDataSource _userProfile;
   final OutboxWriter _outboxWriter;
   final Uuid _uuid;
   final DateTime Function() _clock;
 
   Future<void> execute(String accountId) async {
+    final migrationId = _uuid.v4();
     await _database.transaction(() async {
-      await _migrateEspJpnWordStatus(accountId);
-      await _migrateJpnEspWordStatus(accountId);
-      await _migrateMyWords(accountId);
-      await _migrateMyWordStatuses(accountId);
+      await _migrateEspJpnWordStatus(accountId, migrationId);
+      await _migrateJpnEspWordStatus(accountId, migrationId);
+      await _migrateMyWords(accountId, migrationId);
+      await _migrateMyWordStatuses(accountId, migrationId);
+      await _migrateUserProfile(accountId, migrationId);
     });
   }
 
-  Future<void> _migrateEspJpnWordStatus(String accountId) async {
+  String _mutationId(
+          String migrationId, SyncDataset dataset, String entityId) =>
+      '$migrationId:${dataset.stableId}:$entityId';
+
+  /// Imports the only editable profile field. An account profile takes
+  /// precedence when it already has a username; otherwise the guest value is
+  /// retained. The guest row is removed in the same transaction as its
+  /// outbox mutation, making retries safe after a successful import.
+  Future<void> _migrateUserProfile(String accountId, String migrationId) async {
+    final guest = await _userProfile.getProfile(guestAccountScope);
+    if (guest == null) return;
+
+    final guestUsername = await _userProfile.getUsername(guestAccountScope);
+    final accountUsername = await _userProfile.getUsername(accountId);
+    if (accountUsername == null && guestUsername != null) {
+      final migrated = await _userProfile.upsertProfileFields(
+        accountId,
+        {'username': guestUsername},
+      );
+      await _outboxWriter.enqueue(SyncMutation(
+        // One migration ID scopes all rows imported during this approval.
+        // The dataset/entity suffix keeps each outbox primary key unique.
+        mutationId:
+            _mutationId(migrationId, SyncDataset.userProfile, accountId),
+        accountId: accountId,
+        dataset: SyncDataset.userProfile,
+        entityId: accountId,
+        operation: SyncMutationOperation.upsert,
+        payload: {'username': guestUsername},
+        fieldMask: const ['username'],
+        localRevision: migrated.localRevision,
+      ));
+    }
+
+    // There is no delete mutation: a guest scope has no remote account.
+    // Removing this local source row is transactional with the account write.
+    await _userProfile.deleteProfile(guestAccountScope);
+  }
+
+  Future<void> _migrateEspJpnWordStatus(
+      String accountId, String migrationId) async {
     final guestRows = await _espJpnWordStatus.getWordStatusAfter(
         MyDateTime.sentinel, guestAccountScope);
     final editAt = _clock().toIso8601String();
@@ -83,7 +130,8 @@ class MigrateGuestDataUseCase {
       );
       await _espJpnWordStatus.deleteRow(guestRow.wordId, guestAccountScope);
       await _outboxWriter.enqueue(SyncMutation(
-        mutationId: _uuid.v4(),
+        mutationId: _mutationId(migrationId, SyncDataset.espJpnWordStatus,
+            guestRow.wordId.toString()),
         accountId: accountId,
         dataset: SyncDataset.espJpnWordStatus,
         entityId: guestRow.wordId.toString(),
@@ -99,7 +147,8 @@ class MigrateGuestDataUseCase {
     }
   }
 
-  Future<void> _migrateJpnEspWordStatus(String accountId) async {
+  Future<void> _migrateJpnEspWordStatus(
+      String accountId, String migrationId) async {
     final guestRows = await _jpnEspWordStatus.getWordStatusAfter(
         MyDateTime.sentinel, guestAccountScope);
     final editAt = _clock().toIso8601String();
@@ -120,7 +169,8 @@ class MigrateGuestDataUseCase {
       );
       await _jpnEspWordStatus.deleteRow(guestRow.wordId, guestAccountScope);
       await _outboxWriter.enqueue(SyncMutation(
-        mutationId: _uuid.v4(),
+        mutationId: _mutationId(migrationId, SyncDataset.jpnEspWordStatus,
+            guestRow.wordId.toString()),
         accountId: accountId,
         dataset: SyncDataset.jpnEspWordStatus,
         entityId: guestRow.wordId.toString(),
@@ -136,7 +186,7 @@ class MigrateGuestDataUseCase {
     }
   }
 
-  Future<void> _migrateMyWords(String accountId) async {
+  Future<void> _migrateMyWords(String accountId, String migrationId) async {
     final guestRows = await _myWord.getAllByAccountId(guestAccountScope);
     for (final guestRow in guestRows) {
       final migrated = await _myWord.reassignAccountId(
@@ -148,7 +198,8 @@ class MigrateGuestDataUseCase {
         continue;
       }
       await _outboxWriter.enqueue(SyncMutation(
-        mutationId: _uuid.v4(),
+        mutationId:
+            _mutationId(migrationId, SyncDataset.myWords, migrated.myWordId),
         accountId: accountId,
         dataset: SyncDataset.myWords,
         entityId: migrated.myWordId,
@@ -160,7 +211,8 @@ class MigrateGuestDataUseCase {
     }
   }
 
-  Future<void> _migrateMyWordStatuses(String accountId) async {
+  Future<void> _migrateMyWordStatuses(
+      String accountId, String migrationId) async {
     final guestRows = await _myWordStatus.getAllByAccountId(guestAccountScope);
     final editAt = _clock().toIso8601String();
     for (final guestRow in guestRows) {
@@ -188,7 +240,8 @@ class MigrateGuestDataUseCase {
       );
       await _myWordStatus.deleteRow(guestRow.myWordId, guestAccountScope);
       await _outboxWriter.enqueue(SyncMutation(
-        mutationId: _uuid.v4(),
+        mutationId: _mutationId(
+            migrationId, SyncDataset.myWordStatus, migrated.myWordId),
         accountId: accountId,
         dataset: SyncDataset.myWordStatus,
         entityId: migrated.myWordId,
