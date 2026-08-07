@@ -1,11 +1,16 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:uuid/uuid.dart';
+import 'package:my_dic/core/shared/enums/sync_dataset.dart';
 import 'package:my_dic/core/shared/errors/app_error.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/shared/utils/uuid.dart';
+import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
+import 'package:my_dic/features/sync/application/port/outbox_writer.dart';
 import 'package:my_dic/features/user/data/data_source/local/i_user_local_data_source.dart';
+import 'package:my_dic/features/user/data/data_source/local/i_user_profile_local_data_source.dart';
 import 'package:my_dic/features/user/data/dto/local_user_dto.dart';
 import 'package:my_dic/features/user/domain/entity/user.dart';
 import 'package:my_dic/features/user/domain/i_repository/i_user_repository.dart';
@@ -15,7 +20,17 @@ import 'package:my_dic/features/user/data/dto/user_dto.dart';
 class UserRepository implements IUserRepository {
   final IUserRemoteDataSource _remote;
   final IUserLocalDataSource _local;
-  UserRepository(this._remote, this._local);
+  final IUserProfileLocalDataSource _profileLocal;
+  final OutboxWriter _outboxWriter;
+  final Uuid _uuid;
+
+  UserRepository(
+    this._remote,
+    this._local,
+    this._profileLocal,
+    this._outboxWriter, {
+    Uuid? uuid,
+  }) : _uuid = uuid ?? const Uuid();
 
   AppError? _handleIdError(AppUser user, String? accountId) {
     if (user.deviceId?.isEmpty ?? true) {
@@ -91,14 +106,25 @@ class UserRepository implements IUserRepository {
         return Result.failure(error);
       }
 
-      final dto = UserDTO(
-        userId: accountId!,
-        userName: user.username,
-        email: user.email,
-        createdAt: null,
-        updatedAt: null,
-      );
-      await _remote.updateUser(dto);
+      await _profileLocal.runInTransaction(() async {
+        final row = await _profileLocal.upsertProfileFields(
+          accountId!,
+          {'username': user.username},
+        );
+        await _outboxWriter.enqueue(SyncMutation(
+          mutationId: _uuid.v4(),
+          accountId: accountId,
+          dataset: SyncDataset.userProfile,
+          entityId: accountId,
+          operation: SyncMutationOperation.upsert,
+          payload: {'username': user.username},
+          fieldMask: const ['username'],
+          localRevision: row.localRevision,
+        ));
+      });
+
+      // Delivery to Firestore now goes exclusively through
+      // `UserProfileSyncHandler` via the outbox mutation enqueued above.
       return const Result.success(null);
     } on FirebaseException catch (e, s) {
       return Result.failure(FirebaseError(
@@ -191,10 +217,20 @@ class UserRepository implements IUserRepository {
         userId: accountId,
         email: email,
       ));
+
+      // Editable fields are read back from Drift once seeded, so a later
+      // ensure (e.g. re-login) reflects local edits/synced pulls instead of
+      // the remote baseline captured at first provisioning.
+      var username = await _profileLocal.getUsername(accountId);
+      if (username == null) {
+        await _profileLocal.applyRemoteFields(accountId, username: dto.userName);
+        username = dto.userName;
+      }
+
       return Result.success(AppUser(
         deviceId: deviceId,
         email: dto.email ?? email,
-        username: dto.userName,
+        username: username,
         subscriptionStatus: dto.subscriptionStatus,
       ));
     } on FirebaseException catch (e, s) {

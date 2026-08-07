@@ -54,4 +54,34 @@ class UserDao {
       return defaults;
     });
   }
+
+  /// Maps the local-first editable profile field key to its Firestore field
+  /// name. Only `username` is editable via this path today.
+  static const Map<String, String> _editableFieldNames = {
+    'username': fieldUserName,
+  };
+
+  /// Writes only the fields named in [fieldMask], leaving every other remote
+  /// field (including authorization fields) untouched. [isNew] controls
+  /// whether `createdAt` is also stamped.
+  Future<void> patch(
+    String accountId,
+    Map<String, Object?> fields,
+    List<String> fieldMask, {
+    required bool isNew,
+  }) async {
+    final docRef = _db.collection(collectionName).doc(accountId);
+    final data = <String, dynamic>{fieldUserId: accountId};
+    for (final field in fieldMask) {
+      final remoteField = _editableFieldNames[field];
+      if (remoteField == null) continue;
+      data[remoteField] = fields[field];
+    }
+    data[fieldUpdatedAt] = FieldValue.serverTimestamp();
+    if (isNew) {
+      data[fieldCreatedAt] = FieldValue.serverTimestamp();
+    }
+    await docRef.set(data, SetOptions(merge: true));
+  }
 }
+

@@ -1,6 +1,6 @@
 # Local-first 7: 編集可能User Profileとguest統合を移行する
 
-- 状態: 未着手
+- 状態: 進行中（編集可能profileのDrift SoT + outbox同期は完了。guest統合は未着手・ブロッカーあり。詳細は[`../contexts/plans/local_first.7-migrate-user-profile.plan.md`](../contexts/plans/local_first.7-migrate-user-profile.plan.md)を参照）
 - 優先度: P1 / session data
 - 依存タスク: [`6-migrate-my-word.md`](6-migrate-my-word.md)、[`../phase0/6-complete-auth-user-lifecycle.md`](../phase0/6-complete-auth-user-lifecycle.md)、[`../phase1/4-introduce-current-session.md`](../phase1/4-introduce-current-session.md)
 - 関連タスク: [`8-cut-over-and-remove-legacy-sync.md`](8-cut-over-and-remove-legacy-sync.md)
@@ -55,11 +55,11 @@ remote authority fieldをlocal編集commandやoutbox payloadへ含めない。
 
 ## 完了条件
 
-- [ ] editable profileのSoTがDriftである
-- [ ] AuthとProfileが別Repositoryとして維持されている
-- [ ] authorization fieldがsync mutationに含まれない
-- [ ] guest統合が明示的かつtransactionalである
-- [ ] `AppSession`がDrift profileとFirebase identityから派生する
+- [x] editable profileのSoTがDriftである（`username`のみ。書き込み・push/pullともDrift transaction経由）
+- [x] AuthとProfileが別Repositoryとして維持されている
+- [x] authorization fieldがsync mutationに含まれない
+- [ ] guest統合が明示的かつtransactionalである（未着手。read側account scopingが前提として未実装のためブロック中。詳細は[`../contexts/plans/local_first.7-migrate-user-profile.plan.md`](../contexts/plans/local_first.7-migrate-user-profile.plan.md)の「Stage 4が未着手である理由」を参照）
+- [ ] `AppSession`がDrift profileとFirebase identityから派生する（`ensureUserProfile`呼び出し時点のDriftスナップショット読み取りまでは実施。live streamでの派生は未実施）
 
 ## LLMへの引き継ぎ事項
 

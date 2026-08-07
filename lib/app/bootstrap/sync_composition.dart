@@ -12,6 +12,7 @@ import 'package:my_dic/features/sync/application/sync_scheduler.dart';
 import 'package:my_dic/features/sync/infrastructure/persistence/drift/drift_outbox_writer.dart';
 import 'package:my_dic/features/sync/infrastructure/persistence/drift/drift_sync_checkpoint_store.dart';
 import 'package:my_dic/features/sync/infrastructure/persistence/drift/drift_sync_queue.dart';
+import 'package:my_dic/features/user/di/data_di.dart';
 
 /// New local-first infrastructure is composed here, rather than inside a
 /// feature or widget.
@@ -41,6 +42,7 @@ final syncDatasetHandlerRegistryProvider = Provider<DatasetHandlerRegistry>(
     ref.watch(jpnEspWordStatusSyncHandlerProvider),
     ref.watch(myWordSyncHandlerProvider),
     ref.watch(myWordStatusSyncHandlerProvider),
+    ref.watch(userProfileSyncHandlerProvider),
   ]),
 );
 

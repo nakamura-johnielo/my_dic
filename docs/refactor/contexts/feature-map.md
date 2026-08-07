@@ -31,7 +31,8 @@
 | `data/data_source/local/**` | SharedPreferences device/user local data | device ID保持。Local-first profileとは別物として扱う |
 | `data/data_source/remote/**` | Firestore user profile DAO/data source | Local-first 7でremote adapter化対象 |
 | `data/dto/**` | local/remote user DTO | Firestore timestamp/subscription変換 |
-| `data/repository_impl/user_repository.dart` | local device ID + remote user profile操作 | まだremote直書き。Local-first 7移行対象 |
+| `data/repository_impl/user_repository.dart` | local device ID + remote user profile操作 | `updateUser`はDrift transaction+outbox化し、旧remote直接呼び出しを除去済み（Local-first 7 Stage 1〜2完了、`username`のみ、配送は`UserProfileSyncHandler`のみ）。`ensureUserProfile`は初回nremote baselineをDriftへ種付けし、2回目以降Driftの`username`を優先（Stage 3完了）。`getUserByAccountId`/`createNewUser`は未変更 |
+| `data/sync/user_profile_sync_handler.dart` | User Profile dataset sync handler | 新規（Local-first 7 Stage 2完了）。`syncDatasetHandlerRegistryProvider`に登録済み |
 | `presentation/view_model/app_user_store.dart` | AppUser可変store | AuthLifecycleがwriter。profile表示用途のみ継続利用（identity解決には使わない） |
 | `presentation/view_model/user_profile_view_model.dart` | profile UI VM | User usecaseへ接続 |
 | `presentation/view/profile.dart` | profile画面 | Router redirect先 |

@@ -93,11 +93,27 @@
 - [feature-map.md](feature-map.md)
 - [core-map.md](core-map.md)
 - [runtime-and-status.md](runtime-and-status.md)
+- [`plans/local_first.7-migrate-user-profile.plan.md`](plans/local_first.7-migrate-user-profile.plan.md)
 
 作業対象の中心:
 
 - `features/user/data/repository_impl/user_repository.dart`
+- `features/user/data/data_source/local/*user_profile*`（新規）
 - `core/application/auth_lifecycle/**`
+
+状態（Stage 1〜3完了、Stage 4はブロッカーありで未着手: 2026-08-06）:
+
+- `UserProfiles` Drift table（Local-first 2でschema追加済み、JSON payload blob）に対する`UserProfileDao`（`@DriftAccessor`）、`IUserProfileLocalDataSource`、`UserProfileDriftDataSource`を新規追加した。
+- `UserRepository.updateUser`が、署名ユーザーの場合に`username`フィールドをDrift transaction内でJSON payloadへmergeし（`local_revision`を+1）、同一transactionでfield mask付きoutbox mutation（`dataset: userProfile`、`operation: upsert`、`fieldMask: ['username']`）を`OutboxWriter`へenqueueするようになった。
+- `UserProfileSyncHandler`を実装し、`syncDatasetHandlerRegistryProvider`へ登録済み。push（field mask付きFirestore merge write、`patchUser`。local key`username`→Firestore field`userName`のmappingはremote DAO内に閉じる）とpull（1 account=1 entityのため、`getUserById`単発呼び出しの`updatedAt`をcheckpoint cursorと比較し、pending fieldがあればskip）の両方が動く。`updateUser`の旧remote直接呼び出しは削除し、配送はoutbox+handlerへ一本化した。
+- `UserRepository.ensureUserProfile`を変更し、初回ensure時のみremote baselineをDriftへ種付け（`applyRemoteFields`、`local_revision`は変えない）、2回目以降はDriftの`username`を優先して返すようにした。ただし`AppSession`/UIをDriftのlive streamへ接続するアーキテクチャ変更（`AppSessionReady.profile`は現状どこからも参照されていないため）は行っていない。
+- `email`/`subscriptionStatus`/`deviceId`はoutbox payloadに含めていない。`accountId`が`null`/emptyの場合は既存の`UnauthorizedError`のまま失敗し、enqueueされない。
+- 新規test: `test/unit/features/user/user_profile_outbox_enqueue_test.dart`、`user_profile_sync_handler_test.dart`（push/retry/pull/pending field skipを検証）。既存`user_repository_ensure_profile_test.dart`にDrift username優先のtestを追加。
+
+未対応（次段階、詳細は[`plans/local_first.7-migrate-user-profile.plan.md`](plans/local_first.7-migrate-user-profile.plan.md)参照）:
+
+- Stage 4（guest統合）: 5 dataset（esp_jpn/jpn_esp word status、MyWord、MyWordStatus、User Profile）共通のread側account scoping（`legacy_unowned`固定）が前提として未実装のため着手不可と判断した。read側account scopingを別タスクとして先に実施することを推奨する。
+- `AppSession`/UIをDrift profile watchのlive streamへ接続すること（現状は`ensureUserProfile`呼び出し時点のスナップショット読み取りのみ）。
 
 注意:
 

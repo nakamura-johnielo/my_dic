@@ -23,4 +23,14 @@ class FirebaseUserRemoteDataSource implements IUserRemoteDataSource {
 
   @override
   Future<UserDTO> ensureUser(UserDTO user) => _dao.ensure(user);
+
+  @override
+  Future<void> patchUser(
+    String accountId,
+    Map<String, Object?> fields,
+    List<String> fieldMask, {
+    required bool isNew,
+  }) {
+    return _dao.patch(accountId, fields, fieldMask, isNew: isNew);
+  }
 }
