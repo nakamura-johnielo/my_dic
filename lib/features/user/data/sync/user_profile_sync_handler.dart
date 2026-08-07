@@ -66,7 +66,8 @@ class UserProfileSyncHandler implements DatasetSyncHandler {
 
   Future<DatasetSyncResult> _run(SyncContext context) async {
     if (!_executionGuard.canContinue(context)) {
-      return const DatasetSyncResult.cancelled('cancelled before start');
+      return DatasetSyncResult.cancelled(
+          _executionGuard.cancellationReason(context));
     }
 
     final now = _clock();
@@ -85,7 +86,8 @@ class UserProfileSyncHandler implements DatasetSyncHandler {
 
     for (final lease in leases) {
       if (!_executionGuard.canContinue(context)) {
-        return const DatasetSyncResult.cancelled('cancelled during push');
+        return DatasetSyncResult.cancelled(
+            _executionGuard.cancellationReason(context));
       }
       try {
         final ack = await _remote.patchUser(
@@ -132,7 +134,8 @@ class UserProfileSyncHandler implements DatasetSyncHandler {
     }
 
     if (!_executionGuard.canContinue(context)) {
-      return const DatasetSyncResult.cancelled('cancelled after push');
+      return DatasetSyncResult.cancelled(
+          _executionGuard.cancellationReason(context));
     }
 
     final cursor = await _checkpointStore.read(

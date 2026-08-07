@@ -5,6 +5,7 @@ import 'package:my_dic/features/sync/application/model/sync_context.dart';
 import 'package:my_dic/features/sync/application/model/sync_report.dart';
 import 'package:my_dic/features/sync/application/port/session_fence.dart';
 import 'package:my_dic/features/sync/application/policy/dataset_plan.dart';
+import 'package:my_dic/features/sync/application/report/sync_reason_codes.dart';
 import 'package:my_dic/features/sync/application/single_flight_coordinator.dart';
 
 class SyncEngine {
@@ -21,7 +22,7 @@ class SyncEngine {
   final SessionFence sessionFence;
   final SingleFlightCoordinator singleFlightCoordinator;
   final DateTime Function() _clock;
-  
+
   Future<SyncReport> runOnce(SyncContext context) async {
     final startedAt = _clock();
     final results = <SyncDataset, DatasetSyncResult>{};
@@ -33,7 +34,8 @@ class SyncEngine {
           finishedAt: _clock(),
           datasetResults: {
             for (final d in orderedDatasets)
-              d: const DatasetSyncResult.skipped('sync already running')
+              d: const DatasetSyncResult.skipped(
+                  SyncReasonCodes.syncAlreadyRunning)
           });
     }
     try {
@@ -47,7 +49,11 @@ class SyncEngine {
                   accountId: context.accountId,
                   sessionEpoch: context.sessionEpoch)) {
             results[dataset] = DatasetSyncResult.cancelled(
-                context.cancellation.reason ?? 'session changed');
+                sessionFence.isCurrent(
+                        accountId: context.accountId,
+                        sessionEpoch: context.sessionEpoch)
+                    ? SyncReasonCodes.callerCancelled
+                    : SyncReasonCodes.sessionChanged);
             continue;
           }
           final blocked =
@@ -58,14 +64,14 @@ class SyncEngine {
                 result is DatasetSyncSkipped;
           });
           if (blocked) {
-            results[dataset] =
-                const DatasetSyncResult.skipped('dependency did not succeed');
+            results[dataset] = const DatasetSyncResult.skipped(
+                SyncReasonCodes.dependencyFailed);
             continue;
           }
           final handler = _handlers[dataset];
           if (handler == null) {
-            results[dataset] =
-                const DatasetSyncResult.skipped('handler unavailable');
+            results[dataset] = const DatasetSyncResult.skipped(
+                SyncReasonCodes.handlerUnavailable);
             continue;
           }
           try {
@@ -76,15 +82,15 @@ class SyncEngine {
             if (!sessionFence.isCurrent(
                 accountId: context.accountId,
                 sessionEpoch: context.sessionEpoch)) {
-              context.cancellation.cancel('session changed');
-              results[dataset] =
-                  const DatasetSyncResult.cancelled('session changed');
+              context.cancellation.cancel(SyncReasonCodes.sessionChanged);
+              results[dataset] = const DatasetSyncResult.cancelled(
+                  SyncReasonCodes.sessionChanged);
             } else {
               results[dataset] = result;
             }
           } catch (_) {
             results[dataset] = const DatasetSyncResult.failed(
-                errorCode: 'handler_exception',
+                errorCode: SyncReasonCodes.handlerException,
                 retryable: true,
                 cursorUnchanged: true);
           }

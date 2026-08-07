@@ -83,6 +83,21 @@ class FakeSyncQueue implements SyncQueue {
   }
 
   @override
+  Future<DateTime?> earliestPendingAttemptAt(
+      {required String accountId}) async {
+    DateTime? earliest;
+    for (final mutation
+        in pending.where((item) => item.accountId == accountId)) {
+      final dueAt =
+          nextAttemptAt[mutation.mutationId] ?? mutation.clientUpdatedAt;
+      if (earliest == null || dueAt.toUtc().isBefore(earliest)) {
+        earliest = dueAt.toUtc();
+      }
+    }
+    return earliest;
+  }
+
+  @override
   Future<List<SyncMutation>> peekPending(
       {required String accountId, required SyncDataset dataset}) async {
     return [

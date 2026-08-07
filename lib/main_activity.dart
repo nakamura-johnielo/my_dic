@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/core/di/router/router.dart';
+import 'package:my_dic/app/presentation/sync/manual_sync_action.dart';
 import 'package:my_dic/core/presentation/components/nav_bar/item.dart';
 import 'package:my_dic/core/presentation/components/nav_bar/studay_bottom_bar.dart';
 import 'package:my_dic/core/shared/enums/entry_point.dart';
@@ -10,7 +11,7 @@ import 'package:my_dic/router/route_names.dart';
 
 import 'package:my_dic/core/shared/utils/logger.dart';
 
-class MainActivity extends ConsumerWidget {
+class MainActivity extends ConsumerStatefulWidget {
   const MainActivity({
     super.key,
     required this.navigationShell,
@@ -18,12 +19,17 @@ class MainActivity extends ConsumerWidget {
 
   final StatefulNavigationShell navigationShell;
 
+  @override
+  ConsumerState<MainActivity> createState() => _MainActivityState();
+}
+
+class _MainActivityState extends ConsumerState<MainActivity> {
   DestinatioinItem _buildDestinatioinItem(ScreenTabBehaivor tab) {
     return DestinatioinItem(icon: tab.icon, label: tab.label);
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     int getDestinationShellIndex(index, changeBranch) {
       final entryPoint = ref.read(entryPointProvider);
       if (changeBranch) {
@@ -54,6 +60,7 @@ class MainActivity extends ConsumerWidget {
           "My Dic",
         ),
         actions: [
+          const ManualSyncAction(),
           IconButton(
               onPressed: () {
                 context.pushNamed(RouteNames.profile);
@@ -61,10 +68,10 @@ class MainActivity extends ConsumerWidget {
               icon: Icon(Icons.person))
         ],
       ),
-      body: navigationShell,
+      body: widget.navigationShell,
       bottomNavigationBar: SwitchableFloatBottomBar(
         entryPoint: entryPoint,
-        selectedIndex: navBarPhantomIndex(navigationShell.currentIndex),
+        selectedIndex: navBarPhantomIndex(widget.navigationShell.currentIndex),
         destinationMap: {
           EntryPointCategory.main:
               MainScreenTab.values.map(_buildDestinatioinItem).toList(),
@@ -72,10 +79,11 @@ class MainActivity extends ConsumerWidget {
               StudyScreenTab.values.map(_buildDestinatioinItem).toList(),
         },
         onDestinationSelected: (tabIndex) {
-          if (tabIndex == navBarPhantomIndex(navigationShell.currentIndex)) {
+          if (tabIndex ==
+              navBarPhantomIndex(widget.navigationShell.currentIndex)) {
             AppLogger.print("00000000000000000000000000000");
-            navigationShell.goBranch(
-              navigationShell.currentIndex,
+            widget.navigationShell.goBranch(
+              widget.navigationShell.currentIndex,
               initialLocation: true,
             );
             return;
@@ -96,10 +104,10 @@ class MainActivity extends ConsumerWidget {
             // Study内のStatefulNavigationShellを取得して切り替え
             // final nestedShell = navigationShell;
             // ネストしたShell内のタブを切り替え
-            navigationShell.goBranch(
+            widget.navigationShell.goBranch(
               getDestinationShellIndex(tabIndex, false),
               initialLocation:
-                  false, //tabIndex == navigationShell.currentIndex,
+                  false, //tabIndex == widget.navigationShell.currentIndex,
             );
           } else {
             // Main階層のタブ切り替え
@@ -115,10 +123,10 @@ class MainActivity extends ConsumerWidget {
             AppLogger.print(
                 "main ||||||||||||||||||||entrypoint move: $nextEntryPoint");
 
-            navigationShell.goBranch(
+            widget.navigationShell.goBranch(
               getDestinationShellIndex(
                   tabIndex, nextEntryPoint.category != EntryPointCategory.main),
-              initialLocation: tabIndex == navigationShell.currentIndex,
+              initialLocation: tabIndex == widget.navigationShell.currentIndex,
             );
           }
         },
@@ -136,7 +144,7 @@ class MainActivity extends ConsumerWidget {
           }
 
           ref.read(entryPointProvider.notifier).state = lastEntryPoint;
-          navigationShell.goBranch(
+          widget.navigationShell.goBranch(
             ref.read(lastMainBranchIndexProvider),
           );
         },

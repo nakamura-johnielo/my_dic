@@ -25,6 +25,7 @@
 1. `app/bootstrap`は新しいcomposition rootの入口になっているが、DB probeと横断effect起動が`AppReadinessGate`に残っている。
 2. `features/sync/application`と`features/sync/infrastructure`にはLocal-first共通基盤があり、`syncDatasetHandlerRegistryProvider`はEsp-Jpn、Jpn-Esp、MyWord、MyWordStatus、User Profileの本番`DatasetSyncHandler`5件を登録済み。全handlerへ`SyncExecutionGuard`が注入される。
 3. 5 datasetの自動同期は新`SyncEngine`（`syncSchedulerProvider.foreground(...)`）が担当する。handlerはremote commit後のack前、remote例外後のqueue遷移前、pull apply/checkpoint/transaction commit前にsessionを検証する。transaction内の失効はrollback後に`DatasetSyncCancelled`となる。
+   Schedulerは完了reportをallowlisted telemetryへ渡し、retryable結果だけをaccount-scoped Queueの最初の`nextAttemptAt`へarmする。manual UIはreportを一時的な安全なnoticeへ変換し、report/retry状態を永続化しない。
 4. Drift schema v6で`account_id`、`local_revision`、`remote_revision`、tombstone、`sync_outbox`、`sync_checkpoints`、`user_profiles`は入っている。対象5 datasetの通常書き込みはDrift+outboxへ移行済み。一方、local列が存在してもremote revision/server acknowledgment/idempotency protocolは未実装である。
 5. route contractは`app/routing/contracts`へ抽出済み。GoRouter定義はまだ`lib/router/**`が主で、`app/routing/router.dart`は旧router exportのbridge。
 6. Auth lifecycleは`core/application/auth_lifecycle`が現在の中心。`appSessionProvider`はFirebase identityとaccount-scoped Drift `watchProfile`を合成し、Profile UIもこのlive stateをwatchする。guest migrationは承認後とtransaction開始/commit直前にsessionを再検証し、失効時は5 datasetのrow/outboxをrollbackする。

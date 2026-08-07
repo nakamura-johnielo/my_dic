@@ -13,6 +13,8 @@ import 'package:my_dic/features/sync/application/sync_scheduler.dart';
 import 'package:my_dic/features/sync/infrastructure/persistence/drift/drift_outbox_writer.dart';
 import 'package:my_dic/features/sync/infrastructure/persistence/drift/drift_sync_checkpoint_store.dart';
 import 'package:my_dic/features/sync/infrastructure/persistence/drift/drift_sync_queue.dart';
+import 'package:my_dic/features/sync/infrastructure/scheduling/timer_sync_retry_wakeup.dart';
+import 'package:my_dic/features/sync/infrastructure/telemetry/app_logger_sync_telemetry.dart';
 import 'package:my_dic/features/user/di/data_di.dart';
 
 /// New local-first infrastructure is composed here, rather than inside a
@@ -60,6 +62,22 @@ final syncEngineProvider = Provider<SyncEngine>((ref) {
   );
 });
 
+final syncRetryWakeupProvider = Provider<TimerSyncRetryWakeup>((ref) {
+  final wakeup = TimerSyncRetryWakeup();
+  ref.onDispose(wakeup.dispose);
+  return wakeup;
+});
+
 final syncSchedulerProvider = Provider<SyncScheduler>(
-  (ref) => SyncScheduler(ref.watch(syncEngineProvider)),
+  (ref) {
+    final scheduler = SyncScheduler(
+      ref.watch(syncEngineProvider),
+      telemetry: AppLoggerSyncTelemetry(),
+      queue: ref.watch(driftSyncQueueProvider),
+      retryWakeup: ref.watch(syncRetryWakeupProvider),
+      sessionFence: ref.watch(syncSessionFenceProvider),
+    );
+    ref.onDispose(scheduler.dispose);
+    return scheduler;
+  },
 );

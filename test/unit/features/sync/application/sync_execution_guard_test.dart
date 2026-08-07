@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/features/sync/application/cancellation_token.dart';
 import 'package:my_dic/features/sync/application/in_memory_session_fence.dart';
 import 'package:my_dic/features/sync/application/model/sync_context.dart';
+import 'package:my_dic/features/sync/application/report/sync_reason_codes.dart';
 import 'package:my_dic/features/sync/application/sync_execution_guard.dart';
 
 void main() {
@@ -22,7 +23,8 @@ void main() {
     fence.setCurrent('account-a', 2);
 
     expect(guard.canContinue(context(token)), isFalse);
-    expect(guard.cancellationReason(context(token)), 'session changed');
+    expect(guard.cancellationReason(context(token)),
+        SyncReasonCodes.sessionChanged);
   });
 
   test('rejects a cancelled context even while its epoch is current', () {
@@ -30,5 +32,7 @@ void main() {
     final token = CancellationToken()..cancel('sign out');
 
     expect(SyncExecutionGuard(fence).canContinue(context(token)), isFalse);
+    expect(SyncExecutionGuard(fence).cancellationReason(context(token)),
+        SyncReasonCodes.callerCancelled);
   });
 }

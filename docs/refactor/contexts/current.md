@@ -132,6 +132,19 @@
   work, and naming/copy-file cleanup remain explicit Phase 3 scope rather than
   unfinished Phase 2-5 ownership work.
 
+## Phase 2-6: SyncReport consumption complete
+
+- Manual sync converts the scheduler report to a safe outcome/summary and
+  one-shot notice only. It persists neither report/retry/UI delivery state nor
+  account, cursor, or payload details; the Drift queue remains the retry SoT.
+- Scheduler-owned telemetry is allowlisted and retry wake-ups use the queue's
+  earliest `nextAttemptAt`. Lifecycle and post-guest-migration triggers are
+  non-interactive scheduler callers and log only fixed text for unexpected
+  failures.
+- Validation on 2026-08-07: focused sync/presentation/widget/security tests
+  (56), import-boundary check, `flutter analyze`, and full `flutter test`
+  (332) passed.
+
 ## Phase 1-7 remote revision/server ack update
 
 - All five dataset adapters now use a shared Firestore transaction request/ack

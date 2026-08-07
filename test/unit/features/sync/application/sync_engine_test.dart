@@ -8,6 +8,7 @@ import 'package:my_dic/features/sync/application/model/sync_context.dart';
 import 'package:my_dic/features/sync/application/port/dataset_sync_handler.dart';
 import 'package:my_dic/features/sync/application/port/session_fence.dart';
 import 'package:my_dic/features/sync/application/policy/dataset_plan.dart';
+import 'package:my_dic/features/sync/application/report/sync_reason_codes.dart';
 import 'package:my_dic/features/sync/application/single_flight_coordinator.dart';
 import 'package:my_dic/features/sync/application/in_memory_session_fence.dart';
 import 'package:my_dic/features/sync/application/sync_engine.dart';
@@ -50,6 +51,16 @@ class _BlockingHandler implements DatasetSyncHandler {
   }
 }
 
+class _ThrowingHandler implements DatasetSyncHandler {
+  @override
+  final SyncDataset dataset = SyncDataset.myWords;
+
+  @override
+  Future<DatasetSyncResult> run(SyncContext context) async {
+    throw StateError('unexpected handler failure');
+  }
+}
+
 void main() {
   test('runs handlers in the declared dataset order', () async {
     final first = _Handler(SyncDataset.myWords);
@@ -86,8 +97,73 @@ void main() {
     final report = await engine.runOnce(SyncContext(
         accountId: 'a', sessionEpoch: 1, reason: 'test', cancellation: token));
     expect(handler.calls, 0);
-    expect(report.datasetResults[SyncDataset.myWords],
-        isA<DatasetSyncCancelled>());
+    expect(
+        report.datasetResults[SyncDataset.myWords],
+        isA<DatasetSyncCancelled>().having((result) => result.reason, 'reason',
+            SyncReasonCodes.callerCancelled));
+  });
+
+  test('reports the stable busy code when another cycle is running', () async {
+    final coordinator = SingleFlightCoordinator();
+    expect(coordinator.tryAcquire('a'), isTrue);
+    final engine = SyncEngine(
+      handlers: DatasetHandlerRegistry([]),
+      datasetPlan: const DatasetPlan([SyncDataset.myWords]),
+      sessionFence: _Fence(),
+      singleFlightCoordinator: coordinator,
+    );
+
+    final report = await engine.runOnce(SyncContext(
+        accountId: 'a',
+        sessionEpoch: 1,
+        reason: 'test',
+        cancellation: CancellationToken()));
+
+    expect(
+        report.datasetResults[SyncDataset.myWords],
+        isA<DatasetSyncSkipped>().having((result) => result.reason, 'reason',
+            SyncReasonCodes.syncAlreadyRunning));
+    coordinator.release('a');
+  });
+
+  test('reports a stable code when a handler is unavailable', () async {
+    final engine = SyncEngine(
+      handlers: DatasetHandlerRegistry([]),
+      datasetPlan: const DatasetPlan([SyncDataset.myWords]),
+      sessionFence: _Fence(),
+      singleFlightCoordinator: SingleFlightCoordinator(),
+    );
+
+    final report = await engine.runOnce(SyncContext(
+        accountId: 'a',
+        sessionEpoch: 1,
+        reason: 'test',
+        cancellation: CancellationToken()));
+
+    expect(
+        report.datasetResults[SyncDataset.myWords],
+        isA<DatasetSyncSkipped>().having((result) => result.reason, 'reason',
+            SyncReasonCodes.handlerUnavailable));
+  });
+
+  test('normalizes unexpected handler exceptions', () async {
+    final engine = SyncEngine(
+      handlers: DatasetHandlerRegistry([_ThrowingHandler()]),
+      datasetPlan: const DatasetPlan([SyncDataset.myWords]),
+      sessionFence: _Fence(),
+      singleFlightCoordinator: SingleFlightCoordinator(),
+    );
+
+    final report = await engine.runOnce(SyncContext(
+        accountId: 'a',
+        sessionEpoch: 1,
+        reason: 'test',
+        cancellation: CancellationToken()));
+
+    expect(
+        report.datasetResults[SyncDataset.myWords],
+        isA<DatasetSyncFailed>().having((result) => result.errorCode,
+            'error code', SyncReasonCodes.handlerException));
   });
 
   test('an account epoch change cancels the report after a handler returns',
@@ -107,8 +183,10 @@ void main() {
         reason: 'test',
         cancellation: CancellationToken()));
     expect(handler.calls, 0);
-    expect(report.datasetResults[SyncDataset.myWords],
-        isA<DatasetSyncCancelled>());
+    expect(
+        report.datasetResults[SyncDataset.myWords],
+        isA<DatasetSyncCancelled>().having((result) => result.reason, 'reason',
+            SyncReasonCodes.sessionChanged));
   });
 
   test(
@@ -139,8 +217,10 @@ void main() {
         sessionEpoch: 1,
         reason: 'test',
         cancellation: CancellationToken()));
-    expect(report.datasetResults[SyncDataset.myWordStatus],
-        isA<DatasetSyncSkipped>());
+    expect(
+        report.datasetResults[SyncDataset.myWordStatus],
+        isA<DatasetSyncSkipped>().having((result) => result.reason, 'reason',
+            SyncReasonCodes.dependencyFailed));
     expect(child.calls, 0);
     expect(independent.calls, 1);
   });

@@ -8,6 +8,7 @@ import 'package:my_dic/app/session/app_session.dart';
 import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/features/sync/application/cancellation_token.dart';
 import 'package:my_dic/features/sync/application/model/sync_context.dart';
+import 'package:my_dic/features/sync/application/report/sync_reason_codes.dart';
 
 /// Owns application-wide effects independently from widget rebuilds.
 ///
@@ -15,7 +16,10 @@ import 'package:my_dic/features/sync/application/model/sync_context.dart';
 /// whenever the session becomes ready and whenever the app is resumed.
 final applicationLifecycleEffectsProvider = Provider<void>((ref) {
   final observer = _ApplicationLifecycleObserver(
-    onResumed: () => _triggerForegroundSync(ref, reason: 'app_resumed'),
+    onResumed: () => _triggerForegroundSync(
+      ref,
+      reason: SyncReasonCodes.appResumed,
+    ),
   );
   WidgetsBinding.instance.addObserver(observer);
   ref.onDispose(() {
@@ -28,7 +32,7 @@ final applicationLifecycleEffectsProvider = Provider<void>((ref) {
 
   ref.listen<AppSession>(appSessionProvider, (previous, next) {
     if (next is AppSessionReady) {
-      _triggerForegroundSync(ref, reason: 'session_ready');
+      _triggerForegroundSync(ref, reason: SyncReasonCodes.sessionReady);
     }
   }, fireImmediately: true);
 });
@@ -45,8 +49,10 @@ Future<void> _triggerForegroundSync(Ref ref, {required String reason}) async {
           reason: reason,
           cancellation: CancellationToken(),
         ));
-  } catch (error) {
-    AppLogger.print('Foreground sync failed: $error');
+  } catch (_) {
+    // Sync outcomes are reported by the scheduler; never expose an unexpected
+    // exception's free-form text in an application log.
+    AppLogger.print('Foreground sync did not complete.');
   }
 }
 
@@ -59,4 +65,3 @@ class _ApplicationLifecycleObserver with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) onResumed();
   }
 }
-

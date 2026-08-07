@@ -1,3 +1,5 @@
+import 'package:my_dic/features/sync/application/report/sync_reason_codes.dart';
+
 enum SyncFailureKind { retry, pause, deadLetter }
 
 class SyncErrorClassification {
@@ -17,15 +19,22 @@ class SyncErrorClassifier {
     if (value.contains('unauthenticated') ||
         value.contains('permission-denied')) {
       return const SyncErrorClassification(
-          SyncFailureKind.pause, 'auth_required');
+          SyncFailureKind.pause, SyncReasonCodes.authRequired);
     }
     if (value.contains('invalid-argument') ||
         value.contains('schema') ||
         value.contains('validation')) {
       return const SyncErrorClassification(
-          SyncFailureKind.deadLetter, 'invalid_payload');
+          SyncFailureKind.deadLetter, SyncReasonCodes.invalidPayload);
+    }
+    if (value.contains('unavailable') ||
+        value.contains('network-request-failed') ||
+        value.contains('network error') ||
+        value.contains('offline')) {
+      return const SyncErrorClassification(
+          SyncFailureKind.retry, SyncReasonCodes.offline);
     }
     return const SyncErrorClassification(
-        SyncFailureKind.retry, 'transient_remote_failure');
+        SyncFailureKind.retry, SyncReasonCodes.transientRemoteFailure);
   }
 }

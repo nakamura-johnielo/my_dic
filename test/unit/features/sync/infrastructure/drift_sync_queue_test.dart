@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' hide isNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
@@ -219,5 +219,55 @@ void main() {
           leaseDuration: const Duration(minutes: 1),
         ),
         isEmpty);
+  });
+
+  test('finds the earliest pending retry for its account in UTC only',
+      () async {
+    await writer.enqueue(mutation(id: 'a-now', revision: 1));
+    await writer.enqueue(mutation(id: 'b', revision: 1, account: 'account-b'));
+    final aLease = (await queue.leasePending(
+      accountId: 'account-a',
+      dataset: SyncDataset.espJpnWordStatus,
+      limit: 1,
+      now: DateTime.utc(2026),
+      leaseDuration: const Duration(minutes: 1),
+    ))
+        .single;
+    await queue.retry(
+      aLease,
+      errorCode: 'network',
+      nextAttemptAt: DateTime(2026, 1, 1, 0, 2),
+    );
+    final bLease = (await queue.leasePending(
+      accountId: 'account-b',
+      dataset: SyncDataset.espJpnWordStatus,
+      limit: 1,
+      now: DateTime.utc(2026),
+      leaseDuration: const Duration(minutes: 1),
+    ))
+        .single;
+    await queue.retry(
+      bLease,
+      errorCode: 'network',
+      nextAttemptAt: DateTime.utc(2026, 1, 1, 0, 1),
+    );
+
+    expect(
+      await queue.earliestPendingAttemptAt(accountId: 'account-a'),
+      DateTime(2026, 1, 1, 0, 2).toUtc(),
+    );
+    expect(
+      await queue.earliestPendingAttemptAt(accountId: 'account-none'),
+      isNull,
+    );
+
+    final row = await (database.select(database.syncOutbox)
+          ..where((row) => row.mutationId.equals('a-now')))
+        .getSingle();
+    await database.update(database.syncOutbox).replace(row.copyWith(
+          state: 'deadLetter',
+        ));
+    expect(
+        await queue.earliestPendingAttemptAt(accountId: 'account-a'), isNull);
   });
 }

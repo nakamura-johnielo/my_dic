@@ -169,8 +169,8 @@
 | --- | --- | --- |
 | `application/cancellation_token.dart` | SyncEngine用cancel token | 新基盤 |
 | `application/dataset_handler_registry.dart` | dataset handler registry | registry重複検出の正本 |
-| `application/sync_engine.dart` | dataset orchestration | production handler未接続 |
-| `application/sync_scheduler.dart` | lifecycleからSyncEngineへ入る薄い口 | まだ具体的trigger未接続 |
+| `application/sync_engine.dart` | dataset orchestration | 5 production handler接続済み |
+| `application/sync_scheduler.dart` | lifecycleからSyncEngineへ入る薄い口 | session-ready/resume/manual/guest migration、telemetry/retry接続済み |
 | `application/single_flight_coordinator.dart` | account別single-flight/rerun管理 | 新基盤 |
 | `application/in_memory_session_fence.dart` | account/session epoch fence | CurrentSession接続待ち |
 | `application/model/**` | sync context/report/mutation/cursor/result/lease | Local-first contract |

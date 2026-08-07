@@ -1,5 +1,6 @@
 import 'package:my_dic/features/sync/application/model/sync_context.dart';
 import 'package:my_dic/features/sync/application/port/session_fence.dart';
+import 'package:my_dic/features/sync/application/report/sync_reason_codes.dart';
 
 /// Guards handler-side effects against a session that changed mid-cycle.
 ///
@@ -28,8 +29,13 @@ class SyncExecutionGuard {
     }
   }
 
-  String cancellationReason(SyncContext context) =>
-      context.cancellation.reason ?? 'session changed';
+  String cancellationReason(SyncContext context) => _sessionFence?.isCurrent(
+            accountId: context.accountId,
+            sessionEpoch: context.sessionEpoch,
+          ) ==
+          false
+      ? SyncReasonCodes.sessionChanged
+      : SyncReasonCodes.callerCancelled;
 }
 
 class SyncExecutionCancelled implements Exception {

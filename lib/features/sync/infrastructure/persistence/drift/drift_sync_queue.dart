@@ -121,6 +121,19 @@ class DriftSyncQueue implements SyncQueue {
           state: const Value('pending'),
           leaseToken: const Value(null),
           leaseUntil: const Value(null)));
+
+  @override
+  Future<DateTime?> earliestPendingAttemptAt(
+      {required String accountId}) async {
+    final row = await (_db.select(_db.syncOutbox)
+          ..where(
+              (r) => r.accountId.equals(accountId) & r.state.equals('pending'))
+          ..orderBy([(r) => OrderingTerm.asc(r.nextAttemptAt)])
+          ..limit(1))
+        .getSingleOrNull();
+    return row?.nextAttemptAt.toUtc();
+  }
+
   @override
   Future<List<SyncMutation>> peekPending(
       {required String accountId, required SyncDataset dataset}) async {

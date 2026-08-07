@@ -8,6 +8,7 @@ import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/features/sync/application/cancellation_token.dart';
 import 'package:my_dic/features/sync/application/model/sync_context.dart';
+import 'package:my_dic/features/sync/application/report/sync_reason_codes.dart';
 import 'package:my_dic/router/router.dart';
 
 /// Invisible widget that watches for a newly-ready session and, if any
@@ -78,8 +79,8 @@ class _GuestMigrationPromptState extends ConsumerState<GuestMigrationPrompt> {
             .execute(accountId, sessionEpoch);
         await _triggerForegroundSyncAfterMigration(accountId);
       }
-    } catch (error) {
-      AppLogger.print('Guest data migration prompt failed: $error');
+    } catch (_) {
+      AppLogger.print('Guest data migration prompt did not complete.');
     } finally {
       _checking = false;
     }
@@ -92,11 +93,13 @@ class _GuestMigrationPromptState extends ConsumerState<GuestMigrationPrompt> {
       await ref.read(syncSchedulerProvider).foreground(SyncContext(
             accountId: accountId,
             sessionEpoch: epoch,
-            reason: 'guest_migration',
+            reason: SyncReasonCodes.postGuestMigration,
             cancellation: CancellationToken(),
           ));
-    } catch (error) {
-      AppLogger.print('Post-migration foreground sync failed: $error');
+    } catch (_) {
+      // The scheduler records completed reports itself. Keep unexpected
+      // exceptions out of logs because their text may carry remote details.
+      AppLogger.print('Post-migration foreground sync did not complete.');
     }
   }
 }

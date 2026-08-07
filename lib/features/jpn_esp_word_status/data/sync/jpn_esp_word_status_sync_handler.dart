@@ -62,7 +62,8 @@ class JpnEspWordStatusSyncHandler implements DatasetSyncHandler {
 
   Future<DatasetSyncResult> _run(SyncContext context) async {
     if (!_executionGuard.canContinue(context)) {
-      return const DatasetSyncResult.cancelled('cancelled before start');
+      return DatasetSyncResult.cancelled(
+          _executionGuard.cancellationReason(context));
     }
 
     final now = _clock();
@@ -81,7 +82,8 @@ class JpnEspWordStatusSyncHandler implements DatasetSyncHandler {
 
     for (final lease in leases) {
       if (!_executionGuard.canContinue(context)) {
-        return const DatasetSyncResult.cancelled('cancelled during push');
+        return DatasetSyncResult.cancelled(
+            _executionGuard.cancellationReason(context));
       }
       try {
         final wordId = int.parse(lease.mutation.entityId);
@@ -130,7 +132,8 @@ class JpnEspWordStatusSyncHandler implements DatasetSyncHandler {
     }
 
     if (!_executionGuard.canContinue(context)) {
-      return const DatasetSyncResult.cancelled('cancelled after push');
+      return DatasetSyncResult.cancelled(
+          _executionGuard.cancellationReason(context));
     }
 
     final cursor = await _checkpointStore.read(

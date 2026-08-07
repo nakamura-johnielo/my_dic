@@ -187,6 +187,15 @@ ranking snapshots into WordPage detail data.
 - `InMemorySessionFence`へのepoch配線（account切替のたびにepochを進める）を`lib/app/bootstrap/session_composition.dart`に追加済み。production `SyncEngine` triggerは`AppSessionReady`遷移時とapp resume時に接続済みである。
 - Local-first 8 Stage 2でlegacy同期usecase（`sync_myword_status_usecase.dart`、`sync_my_word_interactor copy.dart`）は削除済み。Stage 5 Release Bでlegacy SharedPreferences sync-status checkpoint chainも削除済み（Release A cleanupはsupported upgrade用に残る）。Stage 6のFirebase import allowlist / legacy-import baselineは0である。この早期進行はユーザー承認済みであり、ship/telemetry/acceptance evidenceは主張しない。`AppAuth`の命名整理、guest data統合（Local-first 7 Stage 4）、Stage 7の残件は各計画を参照。
 
+## Phase 2-6: completed sync-report consumption
+
+- `SyncScheduler` owns completed-cycle allowlisted telemetry and queue-derived
+  retry wake-ups. Manual sync alone maps `SyncReport` to an ephemeral safe UI
+  notice; no report, retry, account, cursor, or payload state is persisted.
+- Future work may add a production telemetry backend, connectivity wake signal,
+  OS background scheduling, or a dead-letter detail UI. Those are not part of
+  the completed report-consumption contract.
+
 ## Phase 1-5/1-6: ownership整理
 
 先に読む文書:

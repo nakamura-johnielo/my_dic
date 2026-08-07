@@ -1,10 +1,11 @@
 # Phase 2-6: SyncReportをUI・retry・telemetryへ接続する
 
-- 状態: 未着手
+- 状態: 完了（2026-08-07）
 - 優先度: 中〜高 / 同期可観測性
 - 依存タスク: [`../local_first/4-build-sync-engine.md`](../local_first/4-build-sync-engine.md)、[`../local_first/5-migrate-word-status.md`](../local_first/5-migrate-word-status.md)
 - 関連タスク: [`../local_first/8-cut-over-and-remove-legacy-sync.md`](../local_first/8-cut-over-and-remove-legacy-sync.md)
 - 元調査: [`FLUTTER_ARCHITECTURE_REVIEW.md`](../../FLUTTER_ARCHITECTURE_REVIEW.md) 9.4
+- 詳細実装プラン: [`../contexts/plans/phase2.6-consume-sync-report.plan.md`](../contexts/plans/phase2.6-consume-sync-report.plan.md)
 
 ## 目的
 
@@ -50,11 +51,21 @@ DatasetSyncResult
 
 ## 完了条件
 
-- [ ] manual syncとUIが型付きreportを利用する
-- [ ] 部分失敗がログだけで失われない
-- [ ] retry schedulingがQueueの状態と一致する
-- [ ] local successとremote delivery状態が分離されている
-- [ ] telemetryが機密・個人データを含まない
+- [x] manual syncとUIが型付きreportを利用する
+- [x] 部分失敗がログだけで失われない
+- [x] retry schedulingがQueueの状態と一致する
+- [x] local successとremote delivery状態が分離されている
+- [x] telemetryが機密・個人データを含まない
+
+## 完了時の検証
+
+- manual controllerは`SyncReport`を安全なsummary/outcomeとone-shot UI effectへ
+  変換し、raw report・account・cursor・payloadを状態へ保持しない。
+- lifecycle と guest migration は scheduler を通す非対話 trigger であり、
+  telemetry/retry は scheduler が所有する。例外ログは固定文言のみで、raw
+  exception text を出力しない。
+- 2026-08-07: focused sync/presentation/widget/security tests（56件）、
+  import-boundary check、`flutter analyze`、full `flutter test`（332件）が成功。
 
 ## LLMへの引き継ぎ事項
 

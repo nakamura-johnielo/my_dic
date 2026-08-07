@@ -3,6 +3,7 @@ import 'package:my_dic/app/bootstrap/sync_composition.dart';
 import 'package:my_dic/app/session/app_session.dart';
 import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/features/sync/application/in_memory_session_fence.dart';
+import 'package:my_dic/features/sync/application/sync_scheduler.dart';
 
 /// Advances the sync session epoch whenever the signed-in account changes,
 /// and marks it current in [InMemorySessionFence].
@@ -14,7 +15,7 @@ import 'package:my_dic/features/sync/application/in_memory_session_fence.dart';
 /// already rejected by `SessionFence.isCurrent`.
 final sessionFenceEffectProvider = Provider<void>((ref) {
   final fence = ref.watch(syncSessionFenceProvider);
-  final tracker = _SessionEpochTracker(fence);
+  final tracker = _SessionEpochTracker(fence, ref.read(syncSchedulerProvider));
   ref.listen<AppSession>(
     appSessionProvider,
     tracker.onSessionChanged,
@@ -23,9 +24,10 @@ final sessionFenceEffectProvider = Provider<void>((ref) {
 });
 
 class _SessionEpochTracker {
-  _SessionEpochTracker(this._fence);
+  _SessionEpochTracker(this._fence, this._scheduler);
 
   final InMemorySessionFence _fence;
+  final SyncScheduler _scheduler;
   String? _accountId;
   int _epoch = 0;
 
@@ -34,6 +36,7 @@ class _SessionEpochTracker {
     if (nextAccountId == _accountId) return;
 
     if (_accountId != null) {
+      _scheduler.cancelRetryForAccount(_accountId!);
       _fence.remove(_accountId!);
     }
     _accountId = nextAccountId;
