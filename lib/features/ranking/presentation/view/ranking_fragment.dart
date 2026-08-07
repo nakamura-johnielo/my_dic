@@ -154,7 +154,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
                     final route = WordDetailRoute(
                       wordId: ranking.wordId,
                       wordType: WordType.espJpn,
-                      hasConj: ranking.hasConj,
+                      hasConj: ranking.hasConjugation,
                     );
                     context.pushNamed(
                       wordDetailRouteNameFor(ref.read(entryPointProvider)),

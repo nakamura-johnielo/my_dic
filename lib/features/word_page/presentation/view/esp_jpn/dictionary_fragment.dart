@@ -1,72 +1,65 @@
-import 'package:my_dic/core/shared/utils/logger.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/core/presentation/error/app_error_message.dart';
+import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/core/shared/consts/ui/ui2.dart';
 import 'package:my_dic/core/domain/entity/dictionary/esj_dictionary.dart';
-import 'package:my_dic/features/word_page/di/view_model_di.dart';
-import 'package:my_dic/features/word_page/presentation/ui_model/word_page_load_key.dart';
+import 'package:my_dic/features/word_page/application/query/word_detail_view_data.dart';
 import 'package:my_dic/features/word_page/presentation/view/html_style_kotobank.dart';
-import 'package:my_dic/core/presentation/error/app_error_message.dart';
-import 'package:my_dic/core/presentation/state/query_state.dart';
 
-class EspJpnDictionaryFragment extends ConsumerWidget {
-  const EspJpnDictionaryFragment({super.key, required this.loadKey});
+class EspJpnDictionaryFragment extends StatelessWidget {
+  const EspJpnDictionaryFragment({super.key, required this.detail});
 
-  final WordPageLoadKey loadKey;
+  final QueryState<WordDetailViewData> detail;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    AppLogger.print("dic key: $key");
+  Widget build(BuildContext context) {
+    final dictionaries = switch (detail.dataOrNull) {
+      EspJpnWordDetailViewData(dictionaries: final dictionaries) =>
+        dictionaries,
+      _ => null,
+    };
+    if (dictionaries == null) return _DictionaryReadState(state: detail);
+    if (dictionaries.isEmpty) return _DictionaryReadState(state: detail);
 
-    final viewModel = ref.watch(wordPageViewModelProvider(loadKey));
-
-    final dictionaryState = viewModel.espJpnDictionary;
-    final List<EspJpnDictionary>? dictionaries = dictionaryState.dataOrNull;
-
-    return dictionaries == null
-        ? _DictionaryReadState(state: dictionaryState)
-        : (SingleChildScrollView(
-            child: Container(
-            margin: const EdgeInsets.only(
-                top: MARGIN_TOP_SCROLLABLE_CHILD,
-                bottom: MARGIN_BOTTOM_SCROLLABLE_CHILD),
-            padding: const EdgeInsets.fromLTRB(
-              PADDING_X_DISPLAY, 0, PADDING_X_DISPLAY,
-              UIConsts.scrollBottomPadding, // FAB分の余白
-            ),
-            child: Column(
-              children: [
-                if (dictionaryState.hasWarnings)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Text(
-                      AppErrorMessage.from(dictionaryState.warnings.first.error)
-                          .text,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                  ),
-                Text(
-                  dictionaries[0].word,
-                  style: TextStyle(fontSize: 24),
+    return SingleChildScrollView(
+      child: Container(
+        margin: const EdgeInsets.only(
+          top: MARGIN_TOP_SCROLLABLE_CHILD,
+          bottom: MARGIN_BOTTOM_SCROLLABLE_CHILD,
+        ),
+        padding: const EdgeInsets.fromLTRB(
+          PADDING_X_DISPLAY,
+          0,
+          PADDING_X_DISPLAY,
+          UIConsts.scrollBottomPadding,
+        ),
+        child: Column(
+          children: [
+            if (detail.hasWarnings)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Text(
+                  AppErrorMessage.from(detail.warnings.first.error).text,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
-                for (var item in dictionaries) ...[
-                  DicSection(dictionary: item),
-                  SizedBox(height: 40),
-                ],
-              ],
-            ),
-          )));
+              ),
+            Text(dictionaries.first.word, style: const TextStyle(fontSize: 24)),
+            for (final item in dictionaries) ...[
+              DicSection(dictionary: item),
+              const SizedBox(height: 40),
+            ],
+          ],
+        ),
+      ),
+    );
   }
 }
 
 class _DictionaryReadState extends StatelessWidget {
   const _DictionaryReadState({required this.state});
-  final QueryState<List<EspJpnDictionary>> state;
+  final QueryState<WordDetailViewData> state;
 
   @override
   Widget build(BuildContext context) => Center(
@@ -85,18 +78,12 @@ class DicSection extends StatelessWidget {
   final EspJpnDictionary dictionary;
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Html(
-          data: '<p class="hw">${dictionary.headword}</p>',
-          style: htmlStyles,
-        ),
-        Html(
-          data: dictionary.content,
-          style: htmlStyles,
-        ),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => Column(
+        children: [
+          Html(
+              data: '<p class="hw">${dictionary.headword}</p>',
+              style: htmlStyles),
+          Html(data: dictionary.content, style: htmlStyles),
+        ],
+      );
 }

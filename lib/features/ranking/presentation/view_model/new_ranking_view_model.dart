@@ -35,7 +35,7 @@ class RankingViewModel extends StateNotifier<RankingState> {
       rankings: QueryState.loading(previousData: previous),
     );
     try {
-      const pageSize = _pageSize + 1;
+      const pageSize = _pageSize;
       final input = LoadRankingsInputData(
           state.partOfSpeechFilters,
           state.featureTagFilters,
@@ -50,21 +50,19 @@ class RankingViewModel extends StateNotifier<RankingState> {
       return result.when(
         success: (output) {
           AppLogger.print(
-              "==================- ranking items: ${output.length}");
-          final hasNext = output.length == pageSize;
-          final visibleItems = hasNext ? output.take(_pageSize) : output;
+              "==================- ranking items: ${output.items.length}");
 
           final value =
-              (previous ?? const RankingResults([])).append(visibleItems);
+              (previous ?? const RankingResults([])).append(output.items);
           state = state.copyWith(
             rankings: value.items.isEmpty
                 ? QueryState.empty()
                 : QueryState.data(value),
             currentPageRange: [state.currentPageRange[0], nextPage],
-            hasNext: hasNext,
+            hasNext: output.hasNext,
           );
 
-          return hasNext;
+          return output.hasNext;
         },
         failure: (error) {
           AppLogger.print("==================- ranking items:FAILURE");

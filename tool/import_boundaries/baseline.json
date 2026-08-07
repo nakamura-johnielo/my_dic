@@ -6,14 +6,6 @@
   "violations": [
     {
       "ruleId": "core_no_feature",
-      "source": "lib/core/di/data/repository_di.dart",
-      "target": "package:my_dic/features/ranking/di/data_di.dart",
-      "introducedAt": "2026-08-06",
-      "owner": "architecture",
-      "trackingIssue": "docs/refactor/phase1"
-    },
-    {
-      "ruleId": "core_no_feature",
       "source": "lib/core/infrastructure/database/drift/database_provider.dart",
       "target": "package:my_dic/features/my_word/data/data_source/local/drift_my_word_dao.dart",
       "introducedAt": "2026-08-06",
@@ -56,14 +48,6 @@
       "ruleId": "core_no_feature",
       "source": "lib/core/infrastructure/repositories/converters/word_status_converter.dart",
       "target": "package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart",
-      "introducedAt": "2026-08-06",
-      "owner": "architecture",
-      "trackingIssue": "docs/refactor/phase1"
-    },
-    {
-      "ruleId": "core_no_feature",
-      "source": "lib/core/infrastructure/repositories/drift_esj_word_repository.dart",
-      "target": "package:my_dic/features/ranking/data/data_source/local/i_ranking_local_data_source.dart",
       "introducedAt": "2026-08-06",
       "owner": "architecture",
       "trackingIssue": "docs/refactor/phase1"
@@ -207,14 +191,6 @@
     {
       "ruleId": "domain_no_framework",
       "source": "lib/features/my_word/domain/entity/my_word_status.dart",
-      "target": "package:flutter/foundation.dart",
-      "introducedAt": "2026-08-06",
-      "owner": "architecture",
-      "trackingIssue": "docs/refactor/phase1"
-    },
-    {
-      "ruleId": "domain_no_framework",
-      "source": "lib/features/ranking/domain/entity/ranking.dart",
       "target": "package:flutter/foundation.dart",
       "introducedAt": "2026-08-06",
       "owner": "architecture",

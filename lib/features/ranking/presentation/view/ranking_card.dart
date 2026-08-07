@@ -5,7 +5,7 @@ import 'package:my_dic/core/presentation/components/button/my_icon_button.dart';
 import 'package:my_dic/features/word_status/domain/dictionary_direction.dart';
 import 'package:my_dic/app/presentation/word_status_buttons.dart';
 import 'package:my_dic/features/quiz/consts/card_state.dart';
-import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
+import 'package:my_dic/features/ranking/application/query/ranking_list_item.dart';
 import 'package:my_dic/app/presentation/quiz_view_models.dart';
 import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
 import 'package:my_dic/app/routing/route_name_resolver.dart';
@@ -22,7 +22,7 @@ class RankingCard extends ConsumerWidget {
     this.margin = const EdgeInsets.symmetric(vertical: 1, horizontal: 16),
   });
 
-  final Ranking ranking;
+  final RankingListItem ranking;
   final VoidCallback? onTap;
   final EdgeInsetsGeometry? margin;
 
@@ -88,7 +88,7 @@ class RankingCard extends ConsumerWidget {
             ),
 
             SizedBox(width: 5),
-            if (ranking.hasConj)
+            if (ranking.hasConjugation)
               MyIconButton(
                 iconSize: 22,
                 defaultIcon: Icons.handshake_rounded,
@@ -108,7 +108,7 @@ class RankingCard extends ConsumerWidget {
                 },
               ),
 
-            if (ranking.hasConj) SizedBox(width: 3),
+            if (ranking.hasConjugation) SizedBox(width: 3),
 
             DictionaryStatusButtons(
               wordId: ranking.wordId,

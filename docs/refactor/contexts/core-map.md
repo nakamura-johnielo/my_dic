@@ -20,8 +20,8 @@
 | --- | --- | --- |
 | `di/data/data_di.dart` | `DatabaseProvider`、Drift DAO、Firebase status DAO、SharedPreferences sync DAOを組み立てる | coreからfeature DAO/tableをimportしており境界違反baselineあり |
 | `di/data/datasource.dart` | catalog/status/checkpoint系datasource provider | 旧core data composition |
-| `di/data/repository_di.dart` | catalog repositoryとsync status repository provider | ranking feature providerへの依存がbaselineにある |
-| `di/usecase/usecase_di.dart` | core catalog usecase provider | WordPage/Searchから利用 |
+| `di/data/repository_di.dart` | catalog repositoryとsync status repository provider | catalog composition only; Phase 2-5 removed the legacy core-to-Ranking read composition |
+| `di/usecase/usecase_di.dart` | core catalog usecase provider | Quiz and catalog callers still use these APIs. WordPage now reads the catalog repositories through its feature-owned `LoadWordDetailQuery` instead of these three fetch use cases |
 | `di/router/router.dart` | entry point/tab index state provider | Router/tab source of truth整理の対象 |
 | `di/ui/ui_di.dart` | bottom bar height state | shared UI state |
 | `di/view_model/view_model.dart` | DB loading notifier provider | `DatabaseLoadingOverlay`用 |
@@ -39,9 +39,9 @@
 | `entity/verb/**` | スペイン語活用、時制、分詞、検索一致箇所、活用検索結果catalog item（`ConjugacionSearchResultItem`） | Search/Quiz/WordPageで共有されるcatalog model。Phase 1-5 slice 1で`features/quiz`から移設済み |
 | `entity/word/word.dart` | 西和word entity | Search/Ranking/WordPageで共有されるcatalog model |
 | `i_repository/**` | catalog/conjugation/sync repository port | 一部feature型へ依存しbaseline違反あり |
-| `usecase/fetch_dictionary/**` | 西和辞書詳細取得 | WordPage用catalog query |
-| `usecase/fetch_jpn_esp_dictionary/**` | 和西辞書詳細取得 | WordPage用catalog query。interactorにDrift importあり |
-| `usecase/fetch_conjugation/**` | 活用詳細取得 | WordPage/Quiz用catalog query |
+| `usecase/fetch_dictionary/**` | 西和辞書詳細取得 | retained catalog application API; no longer the WordPage screen orchestration path |
+| `usecase/fetch_jpn_esp_dictionary/**` | 和西辞書詳細取得 | retained catalog application API; no longer the WordPage screen orchestration path. The existing Drift import remains a boundary-cleanup item |
+| `usecase/fetch_conjugation/**` | 活用詳細取得 | retained for Quiz and other catalog callers; no longer combined by WordPage directly |
 | `usecase/i_sync_usecase.dart` | 旧SyncService用sync usecase contract | Local-first 8で削除対象になる旧同期port |
 
 ## `lib/core/infrastructure`

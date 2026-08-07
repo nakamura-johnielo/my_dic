@@ -1,323 +1,133 @@
 import 'package:drift/drift.dart';
-import 'package:my_dic/core/shared/enums/feature_tag.dart';
-import 'package:my_dic/core/shared/enums/i_enum.dart';
-import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
+import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/conjugations.dart';
-import 'package:my_dic/features/ranking/data/data_source/local/rankings_entity.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/part_of_speech_lists.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/word_status.dart';
-import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
-import 'package:tuple/tuple.dart';
+import 'package:my_dic/core/shared/enums/feature_tag.dart';
+import 'package:my_dic/features/ranking/application/query/ranking_query.dart';
+import 'package:my_dic/features/ranking/data/data_source/local/rankings_entity.dart';
+import 'package:my_dic/features/ranking/data/query/ranking_query_row.dart';
+
 part '../../../../../__generated/features/ranking/data/data_source/local/ranking_dao.g.dart';
 
 @DriftAccessor(
-    tables: [Rankings, PartOfSpeechLists, EspJpnWordStatus, EspConjugations])
+  tables: [Rankings, PartOfSpeechLists, EspJpnWordStatus, EspConjugations],
+)
 class RankingDao extends DatabaseAccessor<DatabaseProvider>
     with _$RankingDaoMixin {
   RankingDao(super.database);
-  Future<int?> getRankingNoById(int id) async {
-    final res = await (select(rankings)
-          ..where((tbl) => tbl.rankingId.equals(id))
-          ..addColumns([rankings.rankingNo]))
-        .getSingleOrNull();
-    return res?.rankingNo;
-  }
 
-  Future<int?> getRankingNoByWordId(int wordId) async {
-    final res = await (select(rankings)
-          ..where((tbl) => tbl.wordId.equals(wordId))
-          ..addColumns([rankings.rankingNo]))
-        .getSingleOrNull();
-    return res?.rankingNo;
-  }
+  /// Fetches one ranking query page plus a look-ahead row.
+  Future<List<RankingQueryRow>> fetchRankingQueryPage(
+    RankingQuery query,
+  ) async {
+    final variables = <Variable>[];
+    final predicates = <String>[];
 
-  Future<Map<int, int>> getRankingNosByWordIds(List<int> wordIds) async {
-    if (wordIds.isEmpty) return {};
-
-//TODO 最適化！query
-    // final query = select(rankings)
-    //   ..where((tbl) => tbl.wordId.isIn(wordIds))
-    //   ..addColumns([rankings.wordId, rankings.rankingNo])
-    //   ..orderBy([(tbl) => OrderingTerm(expression: tbl.rankingId)]); // rankingId順
-    final ids = wordIds.join(',');
-    final query = customSelect(
-      '''
-      SELECT r.word_id, r.ranking_no
-      FROM rankings r
-      WHERE r.word_id IN ($ids)
-        AND r.ranking_id = (
-          SELECT MIN(r2.ranking_id) FROM rankings r2 WHERE r2.word_id = r.word_id
-        )
-      ''',
-      readsFrom: {rankings},
-    );
-
-    final rows = await query.get();
-    final res = <int, int>{};
-    for (final row in rows) {
-      // final wid = row.wordId;
-      final wid = row.read<int?>('word_id');
-
-      if (wid == null) continue;
-      if (!res.containsKey(wid)) {
-        // 最初に見つかった（最小の rankingId）のものだけを採用
-        // res[wid] = row.rankingNo;
-        res[wid] = row.read<int>('ranking_no');
+    String placeholders(Iterable<String> values) {
+      final marks = <String>[];
+      for (final value in values) {
+        variables.add(Variable.withString(value));
+        marks.add('?');
       }
+      return marks.join(', ');
     }
-    return res;
-  }
 
-  Future<RankingTableData?> getRankingById(int id) {
-    return (select(rankings)..where((tbl) => tbl.rankingId.equals(id)))
-        .getSingleOrNull();
-  }
+    if (query.includedPartOfSpeech.isNotEmpty) {
+      predicates.add('''EXISTS (
+        SELECT 1 FROM part_of_speech_lists pos
+        WHERE pos.word_id = r.word_id AND pos.part_of_speech IN
+          (${placeholders(query.includedPartOfSpeech.map((value) => value.display))})
+      )''');
+    }
+    if (query.excludedPartOfSpeech.isNotEmpty) {
+      predicates.add('''NOT EXISTS (
+        SELECT 1 FROM part_of_speech_lists pos
+        WHERE pos.word_id = r.word_id AND pos.part_of_speech IN
+          (${placeholders(query.excludedPartOfSpeech.map((value) => value.display))})
+      )''');
+    }
 
-  Future<List<RankingTableData>> getRankingListByPage(int page, int size) {
-    return (select(rankings)
-          ..limit(size, offset: size * page)
-          ..orderBy([(tbl) => OrderingTerm(expression: tbl.rankingId)]))
-        .get();
-  }
+    final includedStatusTags = query.includedFeatureTags
+        .where((tag) => tag != FeatureTag.multiLemma)
+        .toList(growable: false);
+    final excludedStatusTags = query.excludedFeatureTags
+        .where((tag) => tag != FeatureTag.multiLemma)
+        .toList(growable: false);
+    if (includedStatusTags.isNotEmpty) {
+      predicates.add(_statusExistsPredicate(
+        tags: includedStatusTags,
+        accountId: query.accountId,
+        variables: variables,
+      ));
+    }
+    if (excludedStatusTags.isNotEmpty) {
+      predicates.add(_statusExistsPredicate(
+        tags: excludedStatusTags,
+        accountId: query.accountId,
+        variables: variables,
+        negate: true,
+      ));
+    }
 
-  Future<List<RankingTableData>> getFilteredRankingListByPage(
-      int requiredPage,
-      int size,
-      Set<PartOfSpeech> partOfSpeechFilters,
-      Set<FeatureTag> featureTagFilters) async {
-    //where句生成
-    final whereQuery = _getEqualsQuery(partOfSpeechFilters, "part_of_speech");
-
-    final mainQuery = customSelect(
+    final groupByWord =
+        query.includedFeatureTags.contains(FeatureTag.multiLemma);
+    final selectColumns = groupByWord
+        ? '''MIN(r.ranking_no) AS ranking_no, MIN(r.word) AS word,
+            MIN(r.word_origin) AS word_origin, r.word_id AS word_id'''
+        : '''r.ranking_no AS ranking_no, r.word AS word,
+            r.word_origin AS word_origin, r.word_id AS word_id''';
+    final where = predicates.isEmpty ? '' : 'WHERE ${predicates.join(' AND ')}';
+    variables
+      ..add(Variable.withInt(query.size + 1))
+      ..add(Variable.withInt(query.size * query.page));
+    final rows = await customSelect(
       '''
-        with filtered_partofspeech as(
-        select  min(part_of_speech_id) as part_of_speech_id ,part_of_speech,word_id
-        from part_of_speech_lists 
-        $whereQuery
-        group by word_id
-        order by part_of_speech_id asc
-        )
-
-        select r.* 
-        from filtered_partofspeech f
-        inner join rankings r on f.word_id = r.word_id
-        order by r.ranking_no
-        limit $size offset ${size * requiredPage};
+        SELECT $selectColumns,
+          CASE WHEN EXISTS (
+            SELECT 1 FROM conjugations c WHERE c.word_id = r.word_id
+          ) THEN 1 ELSE 0 END AS has_conjugation
+        FROM rankings r $where
+        ${groupByWord ? 'GROUP BY r.word_id' : ''}
+        ORDER BY ranking_no LIMIT ? OFFSET ?
       ''',
-      //, f.part_of_speech_id,f.word_id,f.part_of_speech
-      // 取得データrankingのみ
-      readsFrom: {rankings, partOfSpeechLists},
-    );
-
-    final res = await mainQuery.get();
-
-    return res.map((row) {
-      return RankingTableData(
-        rankingId: row.read<int>('ranking_id'),
-        rankingNo: row.read<int>('ranking_no'),
-        word: row.read<String?>('word'),
-        wordOrigin: row.read<String?>('word_origin'),
-        wordId: row.read<int?>('word_id') ?? -1,
-      );
-    }).toList();
-  }
-
-  // 結合クエリを使用して特定の単語に関連する例文を取得するメソッド
-  Future<List<Tuple2<RankingTableData, EspJpnWordStatusTableData>>?>
-      getFilteredRankingWithStatusByPage(
-          int requiredPage,
-          int size,
-          Set<PartOfSpeech> partOfSpeechFilters,
-          Set<FeatureTag> featureTagFilters,
-          Set<PartOfSpeech> partOfSpeechExcludeFilters,
-          Set<FeatureTag> featureTagExcludeFilters) async {
-    //where句生成
-    final speechWhereQuery = _getWhereQuery(
-        partOfSpeechFilters, partOfSpeechExcludeFilters, "part_of_speech");
-
-    final bool multiLemmaHidden =
-        featureTagFilters.contains(FeatureTag.multiLemma) ? true : false;
-    featureTagFilters.remove(FeatureTag.multiLemma);
-    final featureWhereQuery = _getWhereQueryWordStatus(
-        featureTagFilters, featureTagExcludeFilters, "part_of_speech");
-
-    final mainQuery = customSelect(
-      '''
-        with rankingtable as(  
-            with rankingtable as(
-                with filtered_partofspeech as(
-                select  min(part_of_speech_id) as part_of_speech_id ,part_of_speech,word_id
-                from part_of_speech_lists 
-                $speechWhereQuery
-                group by word_id
-                
-                )
-
-                select r.* 
-                from filtered_partofspeech f
-                inner join rankings r on f.word_id = r.word_id
-                
-            )
-
-            select r.*, w.word_id as w_word_id,w.is_learned,w.is_bookmarked,w.has_note
-            from rankingtable r
-            inner join 
-            ( $featureWhereQuery
-            ) w 
-            on r.word_id=w.word_id
-            
-        )
-
-        select r.ranking_id , 
-                ${multiLemmaHidden ? "min (r.ranking_no) as ranking_no" : "r.ranking_no"}  , 
-                r.word, 
-                r.word_origin, 
-                r.word_id, 
-                r.w_word_id, 
-                r.is_learned, 
-                r.is_bookmarked, 
-                r.has_note,
-                CASE 
-                  WHEN EXISTS (SELECT 1 FROM conjugations c WHERE c.word_id = r.word_id)
-                  THEN 1 ELSE 0 
-                END AS has_conj
-        from rankingtable r
-        ${multiLemmaHidden ? "group by r.word_id" : ""}
-        order by r.ranking_no
-
-                limit $size offset ${size * requiredPage}
-      ''',
-      //, f.part_of_speech_id,f.word_id,f.part_of_speech
-      // 取得データrankingのみ
-      readsFrom: {
-        rankings,
-        partOfSpeechLists,
-        espJpnWordStatus,
-        espConjugations
-      },
-    );
-
-    final res = await mainQuery.get();
-
-    return res.map((row) {
-      final ranking = RankingTableData(
-        rankingId: row.read<int>('ranking_id'),
-        rankingNo: row.read<int>('ranking_no'),
-        word: row.read<String?>('word'),
-        wordOrigin: row.read<String?>('word_origin'),
-        wordId: row.read<int?>('word_id') ?? -1,
-        hasConj: row.read<int>('has_conj'),
-      );
-      final status = EspJpnWordStatusTableData(
-        wordId: row.read<int?>('w_word_id') ?? -1,
-        isLearned: row.read<int?>('is_learned'),
-        isBookmarked: row.read<int?>('is_bookmarked'),
-        hasNote: row.read<int?>('has_note'),
-        editAt: '',
-        accountId: 'legacy_unowned',
-        localRevision: 0,
-      );
-      return Tuple2(ranking, status);
-    }).toList();
+      variables: variables,
+      readsFrom: {rankings, partOfSpeechLists, espJpnWordStatus, espConjugations},
+    ).get();
+    return rows
+        .map((row) => RankingQueryRow(
+              rank: row.read<int?>('ranking_no'),
+              rankedWord: row.read<String?>('word'),
+              lemma: row.read<String?>('word_origin'),
+              wordId: row.read<int?>('word_id'),
+              hasConjugation: row.read<int>('has_conjugation') == 1,
+            ))
+        .toList(growable: false);
   }
 }
 
-String _getEqualsQuery(Set<DisplayEnumMixin> data, String colName) {
-  String res = "";
-  if (data.isEmpty) {
-    return "";
+String _statusExistsPredicate({
+  required List<FeatureTag> tags,
+  required String accountId,
+  required List<Variable> variables,
+  bool negate = false,
+}) {
+  variables.add(Variable.withString(accountId));
+  final conditions = <String>[];
+  for (final tag in tags) {
+    final column = switch (tag) {
+      FeatureTag.isLearned => 'is_learned',
+      FeatureTag.isBookmarked => 'is_bookmarked',
+      FeatureTag.hasNote => 'has_note',
+      FeatureTag.myWord => 'my_word',
+      FeatureTag.multiLemma => throw ArgumentError.value(tag),
+    };
+    conditions.add('s.$column = ?');
+    variables.add(Variable.withInt(1));
   }
-
-  bool first = true;
-  for (var d in data) {
-    if (!first) {
-      res = "$res or ";
-    }
-    res = "$res $colName = '${d.display}'";
-    first = false;
-  }
-  return res;
-}
-
-String _getExcludeQuery(Set<DisplayEnumMixin> data, String colName) {
-  if (data.isEmpty) {
-    return "";
-  }
-
-  String res = """
-  word_id NOT IN (
-    SELECT word_id
-    FROM part_of_speech_lists
-    WHERE ${_getEqualsQuery(data, colName)}
-  )
-  """;
-  return res;
-}
-
-String _getEqualsQueryWordStatus(Set<DisplayEnumMixin> data) {
-  String res = "";
-  if (data.isEmpty) {
-    return "";
-  }
-
-  bool first = true;
-  for (var d in data) {
-    if (!first) {
-      res = "$res or ";
-    }
-    res = "$res ${d.dbColName} = 1 ";
-    first = false;
-  }
-  return res;
-}
-
-String _getWhereQuery(Set<DisplayEnumMixin> filter,
-    Set<DisplayEnumMixin> excludeFilter, String colName) {
-  String res = "where";
-
-  if (filter.isEmpty && excludeFilter.isEmpty) {
-    return "";
-  }
-
-  String where = _getEqualsQuery(filter, colName);
-  String notWhere = _getExcludeQuery(excludeFilter, colName);
-  if (filter.isNotEmpty && excludeFilter.isNotEmpty) {
-    res = "$res ($where) and $notWhere";
-    return res;
-  }
-  res = "$res $where $notWhere";
-  return res;
-}
-
-String _getExcludeQueryWordStatus(Set<DisplayEnumMixin> data) {
-  if (data.isEmpty) {
-    return "";
-  }
-
-  String res = """
-  word_id NOT IN (
-    SELECT word_id
-    FROM word_status
-    WHERE ${_getEqualsQueryWordStatus(data)}
-  )
-  """;
-  return res;
-}
-
-String _getWhereQueryWordStatus(Set<DisplayEnumMixin> filter,
-    Set<DisplayEnumMixin> excludeFilter, String colName) {
-  String res = "select  * from word_status";
-
-  if (filter.isEmpty && excludeFilter.isEmpty) {
-    return res;
-  }
-  res = "$res where ";
-  String where = _getEqualsQueryWordStatus(filter);
-  String notWhere = _getExcludeQueryWordStatus(excludeFilter);
-  if (filter.isNotEmpty && excludeFilter.isNotEmpty) {
-    res = "$res ($where) and $notWhere";
-    return res;
-  }
-  res = "$res $where $notWhere";
-  return res;
+  return '''${negate ? 'NOT ' : ''}EXISTS (
+    SELECT 1 FROM word_status s
+    WHERE s.word_id = r.word_id AND s.account_id = ?
+      AND (${conditions.join(' OR ')})
+  )''';
 }

@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -14,6 +13,9 @@ import 'package:my_dic/core/shared/enums/ui/word_status_type.dart';
 import 'package:my_dic/core/shared/enums/word/word_type.dart';
 import 'package:my_dic/features/search/di/view_model_di.dart';
 import 'package:my_dic/features/search/presentation/components/card/card_view.dart';
+import 'package:my_dic/features/search/application/query/conjugation_search_item.dart';
+import 'package:my_dic/features/search/application/query/search_direction.dart';
+import 'package:my_dic/features/search/application/query/search_result_item.dart';
 import 'package:my_dic/features/search/presentation/ui_model/search_ui_model.dart';
 import 'package:my_dic/features/search/presentation/view_model/viewmodel.dart';
 
@@ -42,11 +44,8 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
         before;
   }
 
-  int _count(SearchResults? data) => data == null
-      ? 0
-      : data.espJpnWords.length +
-          data.jpnEspWords.length +
-          data.conjugacions.length;
+  int _count(SearchResults? data) =>
+      data == null ? 0 : data.items.length + data.conjugationSuggestions.length;
 
   void _toWordDetail(WordDetailRoute route) => context.pushNamed(
         wordDetailRouteNameFor(ref.read(entryPointProvider)),
@@ -101,68 +100,91 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
           _list(screen.query, data, notifier),
       };
   Widget _list(String query, SearchResults data, SearchViewModel notifier) {
-    if (data.jpnEspWords.isNotEmpty) {
+    if (data.direction == SearchDirection.jpnEsp) {
       return InfinityScrollListView(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           initialPage: 0,
           controller: _scroll,
-          itemCount: data.jpnEspWords.length,
+          itemCount: data.items.length,
           itemBuilder: (context, index) {
-            final word = data.jpnEspWords[index];
+            final word = data.items[index];
             return Padding(
                 padding: const EdgeInsets.only(bottom: 11),
                 child: CardView(
                     query: query,
-                    wordId: word.id,
+                    wordId: word.wordId,
                     rankingON: false,
-                    word: word.word,
-                    meaning: data.simpleMeanings[word.id] ?? '----',
+                    word: word.headword,
+                    meaning: word.meaningText ?? '',
                     isBookmarked: false,
                     isLearned: false,
                     wordStatusType: WordStatusType.jpnEspWord,
                     onTap: () => _toWordDetail(WordDetailRoute(
-                        wordId: word.id,
+                        wordId: word.wordId,
                         wordType: WordType.jpnEsp,
                         hasConj: false))));
           },
           onLoadMore: _load);
     }
-    final conjunctions = min(_conjCount, data.conjugacions.length);
+    final conjunctions =
+        data.conjugationSuggestions.take(_conjCount).toList(growable: false);
     return InfinityScrollListView(
         padding: const EdgeInsets.symmetric(horizontal: 10),
         initialPage: 0,
         controller: _scroll,
-        itemCount: conjunctions + data.espJpnWords.length,
+        itemCount: conjunctions.length + data.items.length,
         itemBuilder: (context, index) {
-          if (index < conjunctions) {
-            final word = data.conjugacions[index];
-            return _espCard(query, word.wordId, word.word, word.matches, data,
-                notifier, true);
+          if (index < conjunctions.length) {
+            return _conjugationCard(query, conjunctions[index]);
           }
-          final word = data.espJpnWords[index - conjunctions];
-          return _espCard(query, word.wordId, word.word, null, data, notifier,
-              word.hasVerb());
+          return _espCard(query, data.items[index - conjunctions.length]);
         },
         onLoadMore: _load);
   }
 
-  Widget _espCard(String query, int id, String word, dynamic matches,
-          SearchResults data, SearchViewModel notifier, bool hasConj) =>
-      Padding(
-          padding: const EdgeInsets.only(bottom: 11),
-          child: CardView(
-              wordStatusType: WordStatusType.espJpnWord,
-              goToQuiz: () => _toQuiz(QuizGameRoute(wordId: id, word: word)),
-              query: query,
-              wordId: id,
-              ranking: data.rankingNos[id],
-              rankingON: true,
-              word: word,
-              conjugacions: matches,
-              starCount: data.starCounts[id],
-              meaning: data.simpleMeanings[id] ?? '',
-              isBookmarked: false,
-              isLearned: false,
-              onTap: () => _toWordDetail(WordDetailRoute(
-                  wordId: id, wordType: WordType.espJpn, hasConj: hasConj))));
+  Widget _espCard(String query, SearchResultItem item) => Padding(
+      padding: const EdgeInsets.only(bottom: 11),
+      child: CardView(
+          wordStatusType: WordStatusType.espJpnWord,
+          goToQuiz: item.hasConjugation
+              ? () => _toQuiz(
+                  QuizGameRoute(wordId: item.wordId, word: item.headword))
+              : null,
+          query: query,
+          wordId: item.wordId,
+          ranking: item.rankingNo,
+          rankingON: true,
+          word: item.headword,
+          starCount: item.starCount,
+          meaning: item.meaningText ?? '',
+          isBookmarked: false,
+          isLearned: false,
+          onTap: () => _toWordDetail(WordDetailRoute(
+              wordId: item.wordId,
+              wordType: WordType.espJpn,
+              hasConj: item.hasConjugation))));
+
+  Widget _conjugationCard(String query, ConjugationSearchItem item) => Padding(
+        padding: const EdgeInsets.only(bottom: 11),
+        child: CardView(
+          wordStatusType: WordStatusType.espJpnWord,
+          goToQuiz: () =>
+              _toQuiz(QuizGameRoute(wordId: item.wordId, word: item.headword)),
+          query: query,
+          wordId: item.wordId,
+          ranking: item.rankingNo,
+          rankingON: true,
+          word: item.headword,
+          conjugacions: item.matches,
+          starCount: item.starCount,
+          meaning: item.meaningText ?? '',
+          isBookmarked: false,
+          isLearned: false,
+          onTap: () => _toWordDetail(WordDetailRoute(
+            wordId: item.wordId,
+            wordType: WordType.espJpn,
+            hasConj: true,
+          )),
+        ),
+      );
 }

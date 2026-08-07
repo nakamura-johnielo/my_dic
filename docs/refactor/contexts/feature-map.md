@@ -104,8 +104,10 @@
 | area / file | 責務 | 状態 |
 | --- | --- | --- |
 | `domain/usecase/judge_search_word/**` | 入力語が西和/和西か判定 | Search VMで使用 |
-| `domain/usecase/search_word/**` | 西和/和西/活用検索とranking/meaning/star付加 | Phase 1-5 slice 1でQuiz entity依存を解消し、`core/domain/entity/verb/conjugacion/conjugacion_search_result_item.dart`（catalog型）を利用するよう変更済み |
-| `di/**` | Search usecase/viewmodel provider | Router/NavigatorServiceへ接続 |
+| `application/query/**` | `SearchQuery`、typed result items/page、`ISearchQueryRepository` | query model is plain Dart; page carries non-fatal `QueryIssue`s |
+| `data/query/**` | Search projection DAO/mapper and Drift query repository | primary query and enrichment projection are active; SQL/query-count optimization is Phase 3 work |
+| `application/usecase/search_word/**` | typed Search query validation/delegation | active Search and Quiz callers use the query contract |
+| `di/**` | Search query/usecase/viewmodel provider | query repository is wired into the active presentation paths |
 | `presentation/ui_model/search_ui_model.dart` | SearchState | loading/data/errorは独自形 |
 | `presentation/view_model/viewmodel.dart` | query更新、paging、検索、detail/quiz遷移 | AppNavigatorServiceに依存 |
 | `presentation/view/search_fragment.dart` | 検索画面 | active版 |
@@ -116,12 +118,13 @@
 
 | area / file | 責務 | 状態 |
 | --- | --- | --- |
-| `di/view_model_di.dart` | WordPageViewModel provider | route contractからVMへ接続 |
-| `presentation/view_model/word_page_view_model.dart` | 辞書/活用詳細取得、quiz遷移 | core catalog usecaseとNavigatorServiceに依存 |
-| `presentation/ui_model/jpn_esp_state.dart` | WordPageState | 名前はjpn_espだが西和も持つ |
-| `presentation/view/word_page_fragment.dart` | word detail画面、tab/single入力、keep alive | 旧input型が一部残る。route contractへ寄せる対象 |
-| `presentation/view/esp_jpn/**` | 西和辞書/活用fragment | detail UI |
-| `presentation/view/jpn_esp/**` | 和西辞書fragment | `JpnEspDictionaryFragmentInputData`がView内に残る |
+| `application/query/**` | `WordDetailQuery`、sealed `WordDetailViewData`、`ILoadWordDetailQuery`/`LoadWordDetailQuery` | feature-owned aggregate over catalog repositories; full nested catalog entities are preserved |
+| `di/view_model_di.dart` | WordPageViewModel provider | constructs the single word-detail query handler and initializes it from the route key |
+| `presentation/view_model/word_page_view_model.dart` | one detail query request and stale-result protection | depends only on `ILoadWordDetailQuery`; maps result to `QueryState<WordDetailViewData>` |
+| `presentation/ui_model/jpn_esp_state.dart` | WordPageState | now contains only the detail query state; filename is legacy naming |
+| `presentation/view/word_page_fragment.dart` | word detail screen, tab/single input, keep alive | sealed direction variants select dictionary/conjugation fragments; route and live status controls are unchanged |
+| `presentation/view/esp_jpn/**` | 西和辞書/活用fragment | renders `EspJpnWordDetailViewData`, including a non-fatal conjugation warning |
+| `presentation/view/jpn_esp/**` | 和西辞書fragment | renders `JpnEspWordDetailViewData` |
 | `presentation/components/conjugacion_card.dart` | 活用カード | Quiz/WordPageで似たUIあり |
 | `presentation/view/html_style_kotobank.dart` | HTML style定義 | flutter_html表示補助 |
 
@@ -152,8 +155,9 @@
 | `domain/usecase/update_ranking_filter/**` | filter変更 | UI state変換寄り |
 | `domain/usecase/locate_ranking_pagenation/**` | pagination位置決定 | spelling `pagenation`揺れあり |
 | `data/data_source/local/**` | ranking Drift table/DAO/data source | DAO 323 lines。Phase 3分割候補 |
-| `data/repository_impl/wiki_esp_ranking_repository.dart` | ranking repository実装 | namingはwikiだがlocal ranking read |
-| `di/**` | data/usecase/viewmodel provider | provider小規模 |
+| `application/query/**` | `RankingQuery`、`RankingListItem`、`RankingPage`、`IRankingQueryRepository` | account ID is an explicit query input; items do not carry a status snapshot |
+| `data/query/**` | Drift-backed ranking projection mapper | maps `size + 1` rows to `hasNext`; required null projection fields become a typed failure |
+| `di/**` | query/usecase/viewmodel providers | query port is wired through the active presentation path; legacy Ranking read APIs were removed |
 | `presentation/view_model/new_ranking_view_model.dart` | ranking paging/filter/detail/quiz遷移 | `new_`命名はPhase 3整理候補 |
 | `presentation/ui_model/ranking_ui_model.dart` | RankingState | Flutter importあり |
 | `presentation/effect_provider.dart` | ranking filter side effect | UI effect provider |
@@ -190,8 +194,7 @@ Phase 1-5 slice 1（完了）: 活用検索結果item（旧`features/quiz/domain
 未対応（次スライス向け、`no_cross_feature_presentation`として現存）:
 
 - `word_page/presentation/view/esp_jpn/conjugacion_fragment.dart`が`features/search/di/view_model_di.dart`の`searchViewModelProvider`から検索queryを直接参照している（活用表示のハイライト用）。
-- `word_page/presentation/view/esp_jpn/dictionary_fragment.dart`が`features/quiz/di/view_model_di.dart`の`quizWordProvider`へ現在表示中の単語を書き込んでいる。
-- `word_page_fragment.dart`が`features/quiz/di/view_model_di.dart`の`quizGameViewModelProvider`をWordPage内Quizタブ表示のため直接初期化している。
+- WordPageの辞書fragmentからQuiz providerへ単語を書き込む経路と、WordPage内でQuiz ViewModelを直接初期化する経路は削除済み。ただしWordPageのFABはQuiz route/card-stateを利用するため、Quizとの残るpresentation-level結合をroute/app compositionへ寄せる判断は未着手である。
 - `features/quiz/presentation/view/quiz_search_fragment.dart`が`features/search/presentation/components/card/card_view.dart`（`CardView`）を再利用している。`CardView`自体は`features/esp_jpn_word_status/components/status_button`のstatus button widgetへ依存しており、Phase 1-6のstatus button ownership整理が先に必要なため、design systemへの移設は見送った。
 
 これらはWordPage/Quiz/Searchの実際のUI埋め込み・状態共有であり、route contractまたはapp-level portの新規設計判断が必要。次に着手する場合は`next-phase-guide.md`の該当節を参照する。

@@ -108,6 +108,30 @@
   `test` references. The repository-wide analyzer remains subject to any
   concurrent routing work in the working tree.
 
+## Phase 2-5: query-projection ownership migration complete
+
+- Search, Ranking, and WordPage now have feature-owned `application/query`
+  contracts. `QueryIssue` is the shared application-level representation of a
+  non-fatal read concern; it carries a source and `AppError`, not UI text.
+- Search has `SearchQuery`, typed search items/pages, `ISearchQueryRepository`,
+  and a Drift-backed repository. Ranking has `RankingQuery`,
+  `RankingListItem`/`RankingPage`, an account-scoped query port, and a
+  Drift-backed page mapper. Search, Ranking, and Quiz now consume their typed
+  query contracts; legacy screen DTO and repository paths were removed as part
+  of this migration.
+- WordPage is migrated end-to-end within its feature: `LoadWordDetailQuery`
+  aggregates the catalog dictionary repositories and optional conjugation;
+  `WordPageViewModel` owns one `QueryState<WordDetailViewData>`; fragments
+  render the sealed direction variants. A dictionary failure remains a query
+  failure, an empty dictionary becomes `QueryEmpty`, and a conjugation failure
+  preserves dictionary data with `QueryIssue(source: 'conjugation')`.
+  Existing status controls remain the live `features/word_status` projection;
+  no ranking or status snapshot was added to `WordDetailViewData`.
+- Repository-wide `flutter analyze` passed after the Search, Ranking, Quiz,
+  and WordPage migrations converged. SQL/query-plan optimization, FTS/index
+  work, and naming/copy-file cleanup remain explicit Phase 3 scope rather than
+  unfinished Phase 2-5 ownership work.
+
 ## Phase 1-7 remote revision/server ack update
 
 - All five dataset adapters now use a shared Firestore transaction request/ack
@@ -170,7 +194,7 @@
 5. route contractは`app/routing/contracts`へ抽出済み。GoRouter定義はまだ`lib/router/**`が主で、`app/routing/router.dart`は旧router exportのbridge。
 6. Auth lifecycleは`core/application/auth_lifecycle`が現在の中心。`appSessionProvider`はFirebase identityとaccount-scoped Drift profile streamを合成し、profile loading/failure/readyを型で表す。Router、autoSync、Profile UI、user向けmutation usecaseはそこから派生する。`AuthStoreNotifier`、`AppUserStoreNotifier`は互換bridgeとして残る。
 7. `tool/import_boundaries`は導入済み。baselineは既存違反を固定する台帳であり、違反があること自体は現状を表す。
-8. Phase 1-5 slice 1（活用検索結果itemのcatalog化）が完了し、`feature:quiz`<->`feature:search`の双方向importと関連する`core_no_feature`違反3件を解消した。WordPageがQuiz/Searchの`di`層へ直接依存する3箇所と、`CardView`のsearch/quiz間再利用は未対応のまま残る。詳細は[`plans/phase1.5-define-catalog-ownership.plan.md`](plans/phase1.5-define-catalog-ownership.plan.md)と[`next-phase-guide.md`](next-phase-guide.md)。
+8. Phase 1-5 slice 1（活用検索結果itemのcatalog化）が完了し、`feature:quiz`<->`feature:search`の双方向importと関連する`core_no_feature`違反3件を解消した。Phase 2-5でSearch/Ranking/Quizのquery contract移行とlegacy cleanup、WordPageのaggregate detail query移行も完了した。SQL/FTS最適化とrename/copy cleanupはPhase 3で扱う。詳細は[`plans/phase1.5-define-catalog-ownership.plan.md`](plans/phase1.5-define-catalog-ownership.plan.md)と[`next-phase-guide.md`](next-phase-guide.md)。
 9. Local-first 5（word status）はEsp-Jpn/Jpn-Espともoutbox→`DatasetSyncHandler`→Firestoreのpush/pullが本番接続された。read側は実accountId（guestは`guestAccountScope`）でスコープされ、guestからaccountへのtransactional移管もLocal-first 7で接続済み。旧`SyncEspJpnWordStatusInteractor`とRepository/interfaceのFirebase操作メソッドは削除済み。詳細は[`plans/local_first.5-migrate-word-status.plan.md`](plans/local_first.5-migrate-word-status.plan.md)。
 10. Local-first 6（MyWord）は`MyWordRepository`と`MyWordStatusRepository`がDrift transaction+outbox enqueueへ切り替わり、`MyWordSyncHandler`/`MyWordStatusSyncHandler`がpush/pullを本番接続した。`DatasetPlan`でMyWordStatusはMyWordに依存し、read/account scopeとguest移管も接続済み。ただしremote revision競合とtombstone対古いupdateのremote protocolは未実装。詳細は[`plans/local_first.6-migrate-my-word.plan.md`](plans/local_first.6-migrate-my-word.plan.md)。
 11. Local-first 7（User Profile）はproduction handler登録、guest統合、Profile live sessionまで実装済み。`MigrateGuestDataUseCase`は5 datasetを単一Drift transactionで移管し、session失効時は`GuestMigrationSessionChanged`でrow/outboxをrollbackする。`UserRepository.updateUser`のDrift+outbox書き込みと`UserProfileSyncHandler`のpush/pullも本番接続済み。ただしremote revision/idempotencyは未実装である。詳細は[`plans/local_first.7-migrate-user-profile.plan.md`](plans/local_first.7-migrate-user-profile.plan.md)。

@@ -5,7 +5,8 @@ import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/ranking/di/view_model_di.dart';
-import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
+import 'package:my_dic/features/ranking/application/query/ranking_list_item.dart';
+import 'package:my_dic/features/ranking/application/query/ranking_page.dart';
 import 'package:my_dic/features/ranking/di/usecase_di.dart';
 
 import '../../../../../helpers/fake_ranking_usecases.dart';
@@ -203,7 +204,7 @@ void main() {
           () async {
         final viewModel = container.read(rankingViewModelProvider.notifier);
         fakeLoadRankingsUseCase
-            .setResult(Result.success(_createRankingPage(101)));
+            .setResult(Result.success(_createRankingPage(100, hasNext: true)));
 
         final hasNext = await viewModel.loadNextPage(0);
 
@@ -335,47 +336,40 @@ void main() {
   });
 }
 
-List<Ranking> _createTestRankings({String prefix = ''}) {
-  return [
-    Ranking(
-      rank: 1,
-      rankedWord: '${prefix}ser',
-      lemma: '${prefix}ser',
-      wordId: 1,
-      hasConj: true,
-      isLearned: false,
-      isBookmarked: false,
-      hasNote: false,
-    ),
-    Ranking(
-      rank: 2,
-      rankedWord: '${prefix}estar',
-      lemma: '${prefix}estar',
-      wordId: 2,
-      hasConj: true,
-      isLearned: true,
-      isBookmarked: false,
-      hasNote: false,
-    ),
-    Ranking(
-      rank: 3,
-      rankedWord: '${prefix}casa',
-      lemma: '${prefix}casa',
-      wordId: 3,
-      hasConj: false,
-      isLearned: false,
-      isBookmarked: true,
-      hasNote: true,
-    ),
-  ];
-}
-
-List<Ranking> _createRankingPage(int length) => List.generate(
-      length,
-      (index) => Ranking(
-        rank: index + 1,
-        rankedWord: 'word_$index',
-        lemma: 'word_$index',
-        wordId: index + 1,
+RankingPage _createTestRankings({String prefix = ''}) => RankingPage(items: [
+      RankingListItem(
+        rank: 1,
+        rankedWord: '${prefix}ser',
+        lemma: '${prefix}ser',
+        wordId: 1,
+        hasConjugation: true,
       ),
-    );
+      RankingListItem(
+        rank: 2,
+        rankedWord: '${prefix}estar',
+        lemma: '${prefix}estar',
+        wordId: 2,
+        hasConjugation: true,
+      ),
+      RankingListItem(
+        rank: 3,
+        rankedWord: '${prefix}casa',
+        lemma: '${prefix}casa',
+        wordId: 3,
+        hasConjugation: false,
+      ),
+    ], hasNext: false);
+
+RankingPage _createRankingPage(int length, {required bool hasNext}) =>
+    RankingPage(
+        items: List.generate(
+          length,
+          (index) => RankingListItem(
+            rank: index + 1,
+            rankedWord: 'word_$index',
+            lemma: 'word_$index',
+            wordId: index + 1,
+            hasConjugation: false,
+          ),
+        ),
+        hasNext: hasNext);

@@ -1,13 +1,9 @@
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/search/application/usecase/search_word/search_word_input_data.dart';
-import 'package:my_dic/features/search/application/usecase/search_word/search_word_output_data.dart';
+import 'package:my_dic/features/search/application/query/search_query.dart';
+import 'package:my_dic/features/search/application/query/search_result_page.dart';
 
 abstract class ISearchWordUseCase {
-  Future<Result<SearchWordOutputData>> executeEspJpn(SearchWordInputData input);
-  Future<Result<SearchQuizOutputData>> executeVerbs(SearchWordInputData input);
-  SearchWordOutputData executeEmptyQuery();
-  Future<Result<SearchJpnEspWordOutputData>> executeJpnEsp(
-      SearchJpnEspWordInputData input);
-  Future<Result<SearchConjugacionOutputData>> executeConjugacion(
-      SearchConjugacionInputData input);
+  Future<Result<SearchResultPage>> execute(SearchQuery query);
+
+  Future<Result<SearchResultPage>> executeQuiz(SearchQuery query);
 }

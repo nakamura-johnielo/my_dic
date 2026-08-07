@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/shared/enums/feature_tag.dart';
 import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
-import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
+import 'package:my_dic/features/ranking/application/query/ranking_list_item.dart';
 
 /// The read payload for the ranking screen. Filters and page selection live in
 /// [RankingState], so a query transition never discards the user's selection.
@@ -10,9 +10,9 @@ import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
 class RankingResults {
   const RankingResults(this.items);
 
-  final List<Ranking> items;
+  final List<RankingListItem> items;
 
-  RankingResults append(Iterable<Ranking> next) =>
+  RankingResults append(Iterable<RankingListItem> next) =>
       RankingResults([...items, ...next]);
 }
 
@@ -35,7 +35,7 @@ class RankingState {
   final int pagenationFilter;
 
   /// Compatibility accessor for cards and pagination callers.
-  List<Ranking> get items => rankings.dataOrNull?.items ?? const [];
+  List<RankingListItem> get items => rankings.dataOrNull?.items ?? const [];
 
   RankingState copyWith({
     QueryState<RankingResults>? rankings,

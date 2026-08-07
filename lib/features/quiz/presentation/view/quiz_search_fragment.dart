@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:my_dic/app/presentation/search_card.dart';
 import 'package:my_dic/app/routing/route_name_resolver.dart';
 import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
-import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacion_search_result_item.dart';
 import 'package:my_dic/core/di/router/router.dart';
 import 'package:my_dic/core/presentation/components/auto_focus_text_field.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
@@ -14,6 +13,7 @@ import 'package:my_dic/core/shared/enums/ui/word_status_type.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/features/quiz/presentation/ui_model/quiz_search_model.dart';
 import 'package:my_dic/features/quiz/presentation/view_model/quiz_search_view_model.dart';
+import 'package:my_dic/features/search/application/query/conjugation_search_item.dart';
 
 class QuizSearchFragment extends ConsumerStatefulWidget {
   const QuizSearchFragment({super.key});
@@ -51,14 +51,14 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
         before;
   }
 
-  void _tap(ConjugacionSearchResultItem word) {
+  void _tap(ConjugationSearchItem word) {
     ref.read(quizGameViewModelProvider.notifier).initialize();
     context.pushNamed(
       quizGameRouteNameFor(ref.read(entryPointProvider)),
       pathParameters:
-          QuizGameRoute(wordId: word.wordId, word: word.word).pathParameters,
+          QuizGameRoute(wordId: word.wordId, word: word.headword).pathParameters,
       queryParameters:
-          QuizGameRoute(wordId: word.wordId, word: word.word).queryParameters,
+          QuizGameRoute(wordId: word.wordId, word: word.headword).queryParameters,
     );
   }
 
@@ -116,10 +116,10 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
                 goToQuiz: () => _tap(word),
                 query: query,
                 wordId: word.wordId,
-                ranking: data.rankingNos[word.wordId],
+                ranking: word.rankingNo,
                 rankingON: true,
-                word: word.word,
-                meaning: data.simpleMeanings[word.wordId] ?? word.simpleMeaning,
+                word: word.headword,
+                meaning: word.meaningText ?? '',
                 isBookmarked: false,
                 isLearned: false,
                 onTap: () => _tap(word)));

@@ -1,5 +1,5 @@
-import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacion_search_result_item.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
+import 'package:my_dic/features/search/application/query/conjugation_search_item.dart';
 
 class QuizSearchState {
   const QuizSearchState(
@@ -17,14 +17,8 @@ class QuizSearchState {
 class QuizSearchResults {
   const QuizSearchResults({
     this.items = const [],
-    this.rankingNos = const {},
-    this.simpleMeanings = const {},
-    this.starCounts = const {},
   });
-  final List<ConjugacionSearchResultItem> items;
-  final Map<int, int> rankingNos;
-  final Map<int, String> simpleMeanings;
-  final Map<int, int> starCounts;
+  final List<ConjugationSearchItem> items;
   bool get isEmpty => items.isEmpty;
 
   QuizSearchResults merge(QuizSearchResults next, {required bool append}) =>
@@ -32,8 +26,5 @@ class QuizSearchResults {
           ? next
           : QuizSearchResults(
               items: [...items, ...next.items],
-              rankingNos: {...rankingNos, ...next.rankingNos},
-              simpleMeanings: {...simpleMeanings, ...next.simpleMeanings},
-              starCounts: {...starCounts, ...next.starCounts},
             );
 }

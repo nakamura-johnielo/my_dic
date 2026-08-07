@@ -1,8 +1,7 @@
-import 'package:my_dic/core/domain/entity/jpn_esp/jpn_esp_word.dart';
-import 'package:my_dic/core/domain/entity/verb/conjugacion/result_conjugacions.dart';
-import 'package:my_dic/core/domain/entity/word/word.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
-import 'package:my_dic/core/shared/enums/dictionary/dictionary_type.dart';
+import 'package:my_dic/features/search/application/query/conjugation_search_item.dart';
+import 'package:my_dic/features/search/application/query/search_direction.dart';
+import 'package:my_dic/features/search/application/query/search_result_item.dart';
 
 /// User input is deliberately separate from the result lifecycle.
 class SearchState {
@@ -14,47 +13,31 @@ class SearchState {
 
   SearchState copyWith({String? query, QueryState<SearchResults>? results}) =>
       SearchState(query: query ?? this.query, results: results ?? this.results);
-
-  // Transitional read-only accessors for the unused copy fragment.
-  List<EspJpnWord> get espJpnWords =>
-      results.dataOrNull?.espJpnWords ?? const [];
-  List<JpnEspWord> get jpnEspWords =>
-      results.dataOrNull?.jpnEspWords ?? const [];
-  List<SearchResultConjugacions> get conjugacions =>
-      results.dataOrNull?.conjugacions ?? const [];
 }
 
 class SearchResults {
-  const SearchResults({
-    this.espJpnWords = const [],
-    this.jpnEspWords = const [],
-    this.conjugacions = const [],
-    this.rankingNos = const {},
-    this.simpleMeanings = const {},
-    this.starCounts = const {},
-  });
+  SearchResults({
+    required List<SearchResultItem> items,
+    required List<ConjugationSearchItem> conjugationSuggestions,
+    required this.hasNext,
+  })  : items = List.unmodifiable(items),
+        conjugationSuggestions = List.unmodifiable(conjugationSuggestions);
 
-  final List<EspJpnWord> espJpnWords;
-  final List<JpnEspWord> jpnEspWords;
-  final List<SearchResultConjugacions> conjugacions;
-  final Map<int, int> rankingNos;
-  final Map<int, String> simpleMeanings;
-  final Map<int, int> starCounts;
+  final List<SearchResultItem> items;
+  final List<ConjugationSearchItem> conjugationSuggestions;
+  final bool hasNext;
 
-  bool get isEmpty =>
-      espJpnWords.isEmpty && jpnEspWords.isEmpty && conjugacions.isEmpty;
-  DictionaryType get activeDictionaryType =>
-      jpnEspWords.isNotEmpty ? DictionaryType.jpnEsp : DictionaryType.espJpn;
+  bool get isEmpty => items.isEmpty && conjugationSuggestions.isEmpty;
+  SearchDirection get direction =>
+      items.isNotEmpty ? items.first.direction : SearchDirection.espJpn;
 
   SearchResults merge(SearchResults next, {required bool append}) => !append
       ? next
       : SearchResults(
-          espJpnWords: [...espJpnWords, ...next.espJpnWords],
-          jpnEspWords: [...jpnEspWords, ...next.jpnEspWords],
-          conjugacions:
-              next.conjugacions.isEmpty ? conjugacions : next.conjugacions,
-          rankingNos: {...rankingNos, ...next.rankingNos},
-          simpleMeanings: {...simpleMeanings, ...next.simpleMeanings},
-          starCounts: {...starCounts, ...next.starCounts},
+          items: [...items, ...next.items],
+          conjugationSuggestions: next.conjugationSuggestions.isEmpty
+              ? conjugationSuggestions
+              : next.conjugationSuggestions,
+          hasNext: next.hasNext,
         );
 }

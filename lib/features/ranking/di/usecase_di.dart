@@ -1,6 +1,7 @@
 //================usecase=================
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/features/ranking/di/data_di.dart';
 import 'package:my_dic/features/ranking/application/usecase/load_rankings/i_load_rankings_use_case.dart';
 import 'package:my_dic/features/ranking/application/usecase/load_rankings/load_rankings_interactor.dart';
@@ -9,7 +10,8 @@ import 'package:my_dic/features/ranking/application/usecase/update_ranking_filte
 
 final loadRankingsUseCaseProvider = Provider<ILoadRankingsUseCase>((ref) {
   return LoadRankingsInteractor(
-    ref.read(espRankingRepositoryProvider),
+    ref.read(rankingQueryRepositoryProvider),
+    ref.read(currentSessionProvider),
   );
 });
 

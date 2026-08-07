@@ -55,7 +55,7 @@ class NotchCornerPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color =color
+      ..color = color
       ..style = PaintingStyle.fill;
 
     final path = Path()
@@ -73,14 +73,14 @@ class NotchCornerPainter extends CustomPainter {
 
     // ストローク 接合部分の隙間消し
     final strokePaint = Paint()
-      ..color =color
+      ..color = color
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.0;
 
     final strokePath = Path()
       ..moveTo(-1, 0)
-      ..lineTo(-1, 1+size.height - notchOffset.dy)
-      ..lineTo(size.width - notchOffset.dx,1+ size.height - notchOffset.dy);
+      ..lineTo(-1, 1 + size.height - notchOffset.dy)
+      ..lineTo(size.width - notchOffset.dx, 1 + size.height - notchOffset.dy);
 
     canvas.drawPath(strokePath, strokePaint);
   }

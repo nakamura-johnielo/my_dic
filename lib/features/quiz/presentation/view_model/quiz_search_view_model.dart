@@ -2,8 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/quiz/presentation/ui_model/quiz_search_model.dart';
+import 'package:my_dic/features/search/application/query/search_direction.dart';
+import 'package:my_dic/features/search/application/query/search_query.dart';
 import 'package:my_dic/features/search/application/usecase/search_word/i_search_word_use_case.dart';
-import 'package:my_dic/features/search/application/usecase/search_word/search_word_input_data.dart';
 
 class QuizSearchViewModel extends StateNotifier<QuizSearchState> {
   QuizSearchViewModel(this._search) : super(const QuizSearchState());
@@ -29,18 +30,19 @@ class QuizSearchViewModel extends StateNotifier<QuizSearchState> {
     final generation = ++_generation;
     final previous = state.results.dataOrNull;
     state = state.copyWith(results: QueryState.loading(previousData: previous));
-    final result = await _search
-        .executeVerbs(SearchWordInputData(query, size, currentPage + 1, true));
+    final result = await _search.executeQuiz(SearchQuery(
+      text: query,
+      direction: SearchDirection.espJpn,
+      page: currentPage + 1,
+      size: size,
+      includeConjugationSuggestions: false,
+    ));
     if (!mounted || generation != _generation || query != state.query) return;
     result.when(
         success: (output) {
-          final next = QuizSearchResults(
-              items: output.quizList,
-              rankingNos: output.rankingNos,
-              simpleMeanings: output.simpleMeanings,
-              starCounts: output.starCounts);
+          final next = QuizSearchResults(items: output.conjugationSuggestions);
           final value = previous?.merge(next, append: currentPage >= 0) ?? next;
-          final warnings = output.warnings
+          final warnings = output.issues
               .map((w) => QueryWarning(source: w.source, error: w.error))
               .toList();
           state = state.copyWith(
