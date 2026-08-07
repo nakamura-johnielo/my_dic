@@ -16,7 +16,8 @@ SyncMutation mutation(
         required int revision,
         String account = 'account-a',
         Map<String, Object?> payload = const {'learned': true},
-        List<String> mask = const ['learned']}) =>
+        List<String> mask = const ['learned'],
+        DateTime? clientUpdatedAt}) =>
     SyncMutation(
       mutationId: id,
       accountId: account,
@@ -26,6 +27,7 @@ SyncMutation mutation(
       payload: payload,
       fieldMask: mask,
       localRevision: revision,
+      clientUpdatedAt: clientUpdatedAt ?? DateTime.utc(2026),
     );
 
 void main() {
@@ -43,12 +45,18 @@ void main() {
 
   test('coalesces only pending mutations while preserving changed fields',
       () async {
-    await writer.enqueue(mutation(id: 'm1', revision: 1));
     await writer.enqueue(mutation(
-        id: 'm2',
-        revision: 2,
-        payload: {'bookmarked': true},
-        mask: ['bookmarked']));
+      id: 'm1',
+      revision: 1,
+      clientUpdatedAt: DateTime.utc(2026, 8, 6),
+    ));
+    await writer.enqueue(mutation(
+      id: 'm2',
+      revision: 2,
+      payload: {'bookmarked': true},
+      mask: ['bookmarked'],
+      clientUpdatedAt: DateTime.utc(2026, 8, 7),
+    ));
 
     final rows = await database.select(database.syncOutbox).get();
     expect(rows, hasLength(1));
@@ -57,6 +65,24 @@ void main() {
         jsonDecode(rows.single.payload), {'learned': true, 'bookmarked': true});
     expect(jsonDecode(rows.single.fieldMask),
         containsAll(['learned', 'bookmarked']));
+    expect(rows.single.clientUpdatedAt.toUtc(), DateTime.utc(2026, 8, 7));
+  });
+
+  test('persists the mutation client update time in UTC', () async {
+    final clientUpdatedAt = DateTime(2026, 8, 7, 4, 5, 6);
+    await writer.enqueue(
+        mutation(id: 'm1', revision: 1, clientUpdatedAt: clientUpdatedAt));
+
+    final row = await database.select(database.syncOutbox).getSingle();
+    expect(row.clientUpdatedAt.toUtc(), clientUpdatedAt.toUtc());
+    expect(
+        (await queue.peekPending(
+          accountId: 'account-a',
+          dataset: SyncDataset.espJpnWordStatus,
+        ))
+            .single
+            .clientUpdatedAt,
+        clientUpdatedAt.toUtc());
   });
 
   test('ack requires both lease token and the leased revision', () async {

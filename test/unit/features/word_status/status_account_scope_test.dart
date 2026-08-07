@@ -75,8 +75,7 @@ class _EspJpnScopeFixture implements _ScopeFixture {
 
   @override
   Future<({bool? learned, bool? bookmarked})?> readAs(String accountId) async {
-    final result =
-        await _repository.getWordStatusById(1, accountId: accountId);
+    final result = await _repository.getWordStatusById(1, accountId: accountId);
     expect(result.isSuccess, isTrue);
     final data = result.dataOrNull;
     if (data == null) return null;
@@ -123,8 +122,7 @@ class _JpnEspScopeFixture implements _ScopeFixture {
 
   @override
   Future<({bool? learned, bool? bookmarked})?> readAs(String accountId) async {
-    final result =
-        await _repository.getWordStatusById(1, accountId: accountId);
+    final result = await _repository.getWordStatusById(1, accountId: accountId);
     expect(result.isSuccess, isTrue);
     final data = result.dataOrNull;
     if (data == null) return null;
@@ -160,6 +158,7 @@ void main() {
       payload: const {},
       fieldMask: const [],
       localRevision: 0,
+      clientUpdatedAt: DateTime.utc(2026),
     ));
   });
 
@@ -214,25 +213,27 @@ void main() {
               accountId: any(named: 'accountId')))
           .thenAnswer((_) => Stream.value(WordStatus(wordId: 1)));
 
-      final interactorUnderFetch = FetchEspJpnWordStatusInteractor(
-          repository, FakeCurrentSession());
+      final interactorUnderFetch =
+          FetchEspJpnWordStatusInteractor(repository, FakeCurrentSession());
       await interactorUnderFetch.execute(1);
       interactorUnderFetch.watch(1);
 
-      verify(() => repository.getWordStatusById(1,
-          accountId: guestAccountScope)).called(1);
-      verify(() => repository.watchWordStatusById(1,
-          accountId: guestAccountScope)).called(1);
+      verify(() =>
+              repository.getWordStatusById(1, accountId: guestAccountScope))
+          .called(1);
+      verify(() =>
+              repository.watchWordStatusById(1, accountId: guestAccountScope))
+          .called(1);
 
       final watchInteractor =
           WatchEspJpnWordStatusInteractor(repository, FakeCurrentSession());
       watchInteractor.execute(1);
-      verify(() => repository.watchWordStatusById(1,
-          accountId: guestAccountScope)).called(1);
+      verify(() =>
+              repository.watchWordStatusById(1, accountId: guestAccountScope))
+          .called(1);
     });
 
-    test('Esp-Jpn fetch/watch use the real accountId when signed in',
-        () async {
+    test('Esp-Jpn fetch/watch use the real accountId when signed in', () async {
       final repository = _MockEspJpnRepository();
       when(() => repository.getWordStatusById(1,
               accountId: any(named: 'accountId')))
@@ -246,8 +247,7 @@ void main() {
           FetchEspJpnWordStatusInteractor(repository, session);
       await fetchInteractor.execute(1);
 
-      verify(() =>
-              repository.getWordStatusById(1, accountId: 'account-a'))
+      verify(() => repository.getWordStatusById(1, accountId: 'account-a'))
           .called(1);
     });
 
@@ -260,14 +260,15 @@ void main() {
       final signedIn = WatchJpnEspWordStatusInteractor(
           repository, FakeCurrentSession(accountIdOrNull: 'account-c'));
       signedIn.execute(1);
-      verify(() => repository.watchWordStatusById(1,
-          accountId: 'account-c')).called(1);
+      verify(() => repository.watchWordStatusById(1, accountId: 'account-c'))
+          .called(1);
 
       final guest =
           WatchJpnEspWordStatusInteractor(repository, FakeCurrentSession());
       guest.execute(1);
-      verify(() => repository.watchWordStatusById(1,
-          accountId: guestAccountScope)).called(1);
+      verify(() =>
+              repository.watchWordStatusById(1, accountId: guestAccountScope))
+          .called(1);
     });
   });
 }

@@ -74,24 +74,52 @@ class UserProfileDao extends DatabaseAccessor<DatabaseProvider>
     return transaction(action);
   }
 
+  /// Persists the remote transaction acknowledgement only when no later
+  /// local write has superseded the leased revision.
+  Future<bool> acknowledgeRemoteMutation({
+    required String accountId,
+    required int localRevision,
+    required String remoteRevision,
+    required String? lastMutationId,
+  }) async {
+    final changed = await (update(userProfiles)
+          ..where((t) =>
+              t.accountId.equals(accountId) &
+              t.localRevision.equals(localRevision)))
+        .write(UserProfilesCompanion(
+      remoteRevision: Value(remoteRevision),
+      lastMutationId: Value(lastMutationId),
+    ));
+    return changed == 1;
+  }
+
   /// Applies a pulled remote snapshot without bumping `local_revision` or
   /// enqueueing an outbox mutation. `null` per field means "leave untouched".
   Future<void> applyRemoteFields(
     String accountId, {
     String? username,
+    String? remoteRevision,
+    String? lastMutationId,
   }) async {
-    if (username == null) return;
     final existing = await getProfile(accountId);
     final currentPayload = existing == null
         ? <String, Object?>{}
         : Map<String, Object?>.from(jsonDecode(existing.payload) as Map);
-    final mergedPayload = {...currentPayload, 'username': username};
+    final mergedPayload = username == null
+        ? currentPayload
+        : {...currentPayload, 'username': username};
 
     await into(userProfiles).insertOnConflictUpdate(
       UserProfilesCompanion(
         accountId: Value(accountId),
         payload: Value(jsonEncode(mergedPayload)),
         localRevision: Value(existing?.localRevision ?? 0),
+        remoteRevision: remoteRevision != null
+            ? Value(remoteRevision)
+            : Value(existing?.remoteRevision),
+        lastMutationId: lastMutationId != null
+            ? Value(lastMutationId)
+            : Value(existing?.lastMutationId),
       ),
     );
   }

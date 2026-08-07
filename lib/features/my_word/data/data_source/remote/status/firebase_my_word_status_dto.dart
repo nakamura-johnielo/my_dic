@@ -11,6 +11,9 @@ class MyWordStatusDTO {
   static const String fieldUpdateBy = "updateBy";
   static const String fieldCreatedAt = "createdAt";
   static const String fieldUpdatedAt = "updatedAt";
+  static const String fieldRevision = "revision";
+  static const String fieldLastMutationId = "lastMutationId";
+  static const String fieldClientUpdatedAt = "clientUpdatedAt";
 
   final String myWordId;
   int isLearned;
@@ -18,6 +21,9 @@ class MyWordStatusDTO {
   String? updateBy;
   DateTime createdAt;
   DateTime updatedAt;
+  int remoteRevision;
+  String? lastMutationId;
+  DateTime? clientUpdatedAt;
 
   MyWordStatusDTO({
     required this.myWordId,
@@ -26,6 +32,9 @@ class MyWordStatusDTO {
     this.updateBy,
     required this.createdAt,
     required this.updatedAt,
+    this.remoteRevision = 0,
+    this.lastMutationId,
+    this.clientUpdatedAt,
   });
 
   /// Firestore → MyWordStatusDTO
@@ -39,6 +48,10 @@ class MyWordStatusDTO {
       updateBy: data[fieldUpdateBy] as String?,
       createdAt: (data[fieldCreatedAt] as Timestamp).toDate().toUtc(),
       updatedAt: (data[fieldUpdatedAt] as Timestamp).toDate().toUtc(),
+      remoteRevision: data[fieldRevision] as int? ?? 0,
+      lastMutationId: data[fieldLastMutationId] as String?,
+      clientUpdatedAt:
+          (data[fieldClientUpdatedAt] as Timestamp?)?.toDate().toUtc(),
     );
   }
 
@@ -61,6 +74,10 @@ class MyWordStatusDTO {
       fieldUpdateBy: updateBy,
       fieldCreatedAt: Timestamp.fromDate(createdAt.toUtc()),
       fieldUpdatedAt: Timestamp.fromDate(updatedAt.toUtc()),
+      fieldRevision: remoteRevision,
+      fieldLastMutationId: lastMutationId,
+      if (clientUpdatedAt != null)
+        fieldClientUpdatedAt: Timestamp.fromDate(clientUpdatedAt!.toUtc()),
     };
   }
 

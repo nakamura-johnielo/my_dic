@@ -3,6 +3,7 @@ import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/i_remo
 import 'package:my_dic/core/shared/consts/dates.dart';
 import 'package:my_dic/core/shared/enums/sync_dataset.dart';
 import 'package:my_dic/features/sync/application/model/dataset_sync_result.dart';
+import 'package:my_dic/features/sync/application/model/remote_mutation.dart';
 import 'package:my_dic/features/sync/application/model/sync_context.dart';
 import 'package:my_dic/features/sync/application/model/sync_cursor.dart';
 import 'package:my_dic/features/sync/application/sync_execution_guard.dart';
@@ -85,21 +86,34 @@ class JpnEspWordStatusSyncHandler implements DatasetSyncHandler {
       }
       try {
         final wordId = int.parse(lease.mutation.entityId);
-        final existing =
-            await _remote.getWordStatusById(context.accountId, wordId);
-        _executionGuard.ensureCanContinue(context);
-        await _remote.patchWordStatus(
-          context.accountId,
-          wordId,
-          lease.mutation.payload,
-          lease.mutation.fieldMask,
-          isNew: existing == null,
+        final ack = await _remote.patchWordStatus(
+          RemoteMutationRequest(
+            accountId: context.accountId,
+            entityId: lease.mutation.entityId,
+            mutationId: lease.mutation.mutationId,
+            fields: lease.mutation.payload,
+            fieldMask: lease.mutation.fieldMask,
+            clientUpdatedAt: lease.mutation.clientUpdatedAt,
+            baseRemoteRevision: lease.mutation.baseRemoteRevision,
+          ),
         );
         if (!_executionGuard.canContinue(context)) {
           return DatasetSyncResult.cancelled(
               _executionGuard.cancellationReason(context));
         }
-        if (await _queue.ack(lease)) pushedCount++;
+        await _local.runInTransaction(() async {
+          final metadataUpdated = await _local.acknowledgeRemoteMutation(
+            wordId: wordId,
+            accountId: context.accountId,
+            localRevision: lease.leasedLocalRevision,
+            remoteRevision: ack.remoteRevision.toString(),
+            lastMutationId: ack.lastMutationId,
+          );
+          if (!metadataUpdated || !await _queue.ack(lease)) {
+            throw StateError('Jpn-Esp remote acknowledgement is stale');
+          }
+        });
+        pushedCount++;
       } catch (error) {
         _executionGuard.ensureCanContinue(context);
         final classification = _classifier.classify(error);
@@ -160,6 +174,8 @@ class JpnEspWordStatusSyncHandler implements DatasetSyncHandler {
             hasNote: skip.contains('hasNote') ? null : entity.hasNote,
             editAt: entity.editAt.toIso8601String(),
             accountId: context.accountId,
+            remoteRevision: dto.remoteRevision.toString(),
+            lastMutationId: dto.lastMutationId,
           );
           _executionGuard.ensureCanContinue(context);
           pulledCount++;

@@ -120,6 +120,7 @@ class UserRepository implements IUserRepository {
           payload: {'username': user.username},
           fieldMask: const ['username'],
           localRevision: row.localRevision,
+          clientUpdatedAt: DateTime.now().toUtc(),
         ));
       });
 
@@ -223,7 +224,8 @@ class UserRepository implements IUserRepository {
       // the remote baseline captured at first provisioning.
       var username = await _profileLocal.getUsername(accountId);
       if (username == null) {
-        await _profileLocal.applyRemoteFields(accountId, username: dto.userName);
+        await _profileLocal.applyRemoteFields(accountId,
+            username: dto.userName);
         username = dto.userName;
       }
 

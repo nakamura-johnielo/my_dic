@@ -1,0 +1,135 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function owner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function validMetadata() {
+      return request.resource.data.schemaVersion == 1
+          && request.resource.data.revision is int
+          && request.resource.data.revision >= 1
+          && request.resource.data.lastMutationId is string
+          && request.resource.data.clientUpdatedAt is timestamp
+          // A FieldValue.serverTimestamp resolves to request.time in rules.
+          && request.resource.data.updatedAt == request.time;
+    }
+
+    function validMutationCreate(identityField, identityValue, allowedFields) {
+      return request.resource.data.keys().hasOnly(allowedFields)
+          && request.resource.data[identityField] == identityValue
+          && request.resource.data.createdAt == request.time
+          && validMetadata()
+          && request.resource.data.revision == 1;
+    }
+
+    function validMutationUpdate(identityField, identityValue, mutableFields) {
+      return request.resource.data[identityField] == identityValue
+          && request.resource.data.createdAt == resource.data.createdAt
+          && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(mutableFields)
+          && validMetadata()
+          && request.resource.data.revision ==
+              (resource.data.keys().hasAll(['revision'])
+                  ? resource.data.revision + 1
+                  : 1)
+          && request.resource.data.clientUpdatedAt >
+              (resource.data.keys().hasAll(['clientUpdatedAt'])
+                  ? resource.data.clientUpdatedAt
+                  : resource.data.updatedAt);
+    }
+
+    match /Users/{uid} {
+      allow read: if owner(uid);
+      allow delete: if false;
+
+      // Profile provisioning is separate from a sync mutation. It cannot set
+      // paid status and starts at revision 0; later edits use the transaction
+      // rule below and may change only userName.
+      allow create: if owner(uid)
+          && request.resource.data.keys().hasOnly([
+            'userId', 'email', 'userName', 'subscriptionStatus', 'createdAt',
+            'updatedAt', 'clientUpdatedAt', 'revision', 'lastMutationId',
+            'schemaVersion'
+          ])
+          && request.resource.data.userId == uid
+          && request.resource.data.subscriptionStatus == 'free'
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.updatedAt == request.time
+          && request.resource.data.clientUpdatedAt == request.time
+          && request.resource.data.revision == 0
+          && request.resource.data.lastMutationId == null
+          && request.resource.data.schemaVersion == 1;
+      allow update: if owner(uid)
+          && validMutationUpdate('userId', uid, [
+            'userName', 'updatedAt', 'clientUpdatedAt', 'revision',
+            'lastMutationId', 'schemaVersion'
+          ]);
+
+      match /WordStatus/{wordId} {
+        allow read: if owner(uid);
+        allow delete: if false;
+        allow create: if owner(uid)
+            && validMutationCreate('wordId', int(wordId), [
+              'wordId', 'isLearned', 'isBookmarked', 'hasNote', 'updateBy',
+              'createdAt', 'updatedAt', 'clientUpdatedAt', 'revision',
+              'lastMutationId', 'schemaVersion'
+            ]);
+        allow update: if owner(uid)
+            && validMutationUpdate('wordId', int(wordId), [
+              'isLearned', 'isBookmarked', 'hasNote', 'updateBy', 'updatedAt',
+              'clientUpdatedAt', 'revision', 'lastMutationId', 'schemaVersion'
+            ]);
+      }
+
+      match /JpnEspWordStatus/{wordId} {
+        allow read: if owner(uid);
+        allow delete: if false;
+        allow create: if owner(uid)
+            && validMutationCreate('wordId', int(wordId), [
+              'wordId', 'isLearned', 'isBookmarked', 'hasNote', 'updateBy',
+              'createdAt', 'updatedAt', 'clientUpdatedAt', 'revision',
+              'lastMutationId', 'schemaVersion'
+            ]);
+        allow update: if owner(uid)
+            && validMutationUpdate('wordId', int(wordId), [
+              'isLearned', 'isBookmarked', 'hasNote', 'updateBy', 'updatedAt',
+              'clientUpdatedAt', 'revision', 'lastMutationId', 'schemaVersion'
+            ]);
+      }
+
+      match /MyWords/{wordId} {
+        allow read: if owner(uid);
+        allow delete: if false;
+        allow create: if owner(uid)
+            && validMutationCreate('wordId', wordId, [
+              'wordId', 'word', 'contents', 'updateBy', 'deletedAt', 'createdAt',
+              'updatedAt', 'clientUpdatedAt', 'revision', 'lastMutationId',
+              'schemaVersion'
+            ]);
+        allow update: if owner(uid)
+            && validMutationUpdate('wordId', wordId, [
+              'word', 'contents', 'updateBy', 'deletedAt', 'updatedAt',
+              'clientUpdatedAt', 'revision', 'lastMutationId', 'schemaVersion'
+            ]);
+      }
+
+      match /MyWordStatus/{wordId} {
+        allow read: if owner(uid);
+        allow delete: if false;
+        allow create: if owner(uid)
+            && validMutationCreate('myWordId', wordId, [
+              'myWordId', 'isLearned', 'isBookmarked', 'updateBy', 'createdAt',
+              'updatedAt', 'clientUpdatedAt', 'revision', 'lastMutationId',
+              'schemaVersion'
+            ]);
+        allow update: if owner(uid)
+            && validMutationUpdate('myWordId', wordId, [
+              'isLearned', 'isBookmarked', 'updateBy', 'updatedAt',
+              'clientUpdatedAt', 'revision', 'lastMutationId', 'schemaVersion'
+            ]);
+      }
+    }
+  }
+}

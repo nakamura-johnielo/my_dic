@@ -10,6 +10,7 @@ import 'package:my_dic/features/my_word/data/data_source/remote/status/i_my_word
 import 'package:my_dic/features/my_word/data/sync/my_word_status_sync_handler.dart';
 import 'package:my_dic/features/sync/application/cancellation_token.dart';
 import 'package:my_dic/features/sync/application/model/dataset_sync_result.dart';
+import 'package:my_dic/features/sync/application/model/remote_mutation.dart';
 import 'package:my_dic/features/sync/application/model/sync_context.dart';
 import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
 import 'package:my_dic/features/sync/infrastructure/persistence/drift/drift_sync_checkpoint_store.dart';
@@ -19,6 +20,13 @@ import '../../../helpers/sync/fake_sync_queue.dart';
 class _MockRemote extends Mock implements IMyWordStatusRemoteDataSource {}
 
 const _accountId = 'account-a';
+
+const _ack = RemoteMutationAck(
+  status: RemoteMutationAckStatus.applied,
+  remoteRevision: 1,
+  lastMutationId: 'remote-mutation',
+  serverUpdatedAt: null,
+);
 
 SyncMutation _mutation({
   required List<String> fieldMask,
@@ -35,6 +43,7 @@ SyncMutation _mutation({
       payload: payload,
       fieldMask: fieldMask,
       localRevision: localRevision,
+      clientUpdatedAt: DateTime.utc(2026),
     );
 
 void main() {
@@ -43,6 +52,14 @@ void main() {
   setUpAll(() {
     registerFallbackValue(<String, Object?>{});
     registerFallbackValue(<String>[]);
+    registerFallbackValue(RemoteMutationRequest(
+      accountId: _accountId,
+      entityId: 'word-1',
+      mutationId: 'fallback-mutation',
+      fields: const {'isLearned': 1},
+      fieldMask: const ['isLearned'],
+      clientUpdatedAt: DateTime.utc(2026),
+    ));
   });
 
   late DatabaseProvider database;
@@ -78,19 +95,15 @@ void main() {
       );
 
   test('pushes a leased mutation as a field-mask patch and acks it', () async {
+    await dao.applyStatusPatch('word-1', 0, 0, 0,
+        DateTime.utc(2026, 8, 1).toIso8601String(), _accountId);
     queue.enqueue(_mutation(
       fieldMask: const ['isBookmarked'],
       payload: const {'isBookmarked': true},
     ));
     when(() => remote.getStatusById(_accountId, 'word-1'))
         .thenAnswer((_) async => null);
-    when(() => remote.patchStatus(
-          _accountId,
-          'word-1',
-          any(),
-          any(),
-          isNew: any(named: 'isNew'),
-        )).thenAnswer((_) async {});
+    when(() => remote.patchStatus(any())).thenAnswer((_) async => _ack);
     when(() => remote.getStatusAfter(_accountId, any()))
         .thenAnswer((_) async => const []);
 
@@ -101,17 +114,15 @@ void main() {
     expect(queue.pending, isEmpty);
   });
 
-  test('session invalidation after remote read does not patch or ack',
-      () async {
+  test('session invalidation after remote write does not ack', () async {
     queue.enqueue(_mutation(
       fieldMask: const ['isLearned'],
       payload: const {'isLearned': true},
     ));
     final cancellation = CancellationToken();
-    when(() => remote.getStatusById(_accountId, 'word-1'))
-        .thenAnswer((_) async {
+    when(() => remote.patchStatus(any())).thenAnswer((_) async {
       cancellation.cancel('account changed');
-      return null;
+      return _ack;
     });
 
     final result = await handler.run(SyncContext(
@@ -124,13 +135,7 @@ void main() {
     expect(result, isA<DatasetSyncCancelled>());
     expect(queue.leased, hasLength(1));
     expect(queue.pending, isEmpty);
-    verifyNever(() => remote.patchStatus(
-          any(),
-          any(),
-          any(),
-          any(),
-          isNew: any(named: 'isNew'),
-        ));
+    verify(() => remote.patchStatus(any())).called(1);
   });
 
   test('a retryable remote failure re-queues the mutation as pending',
@@ -139,8 +144,7 @@ void main() {
       fieldMask: const ['isLearned'],
       payload: const {'isLearned': true},
     ));
-    when(() => remote.getStatusById(_accountId, 'word-1'))
-        .thenThrow(Exception('unavailable'));
+    when(() => remote.patchStatus(any())).thenThrow(Exception('unavailable'));
     when(() => remote.getStatusAfter(_accountId, any()))
         .thenAnswer((_) async => const []);
 

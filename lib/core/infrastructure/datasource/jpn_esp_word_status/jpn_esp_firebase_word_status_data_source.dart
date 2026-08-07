@@ -1,9 +1,11 @@
 import 'package:my_dic/core/infrastructure/database/firebase/daos/jpn_esp/firebase_jpn_esp_word_status_dao.dart';
 import 'package:my_dic/features/jpn_esp_word_status/data/jpn_esp_word_status_entity.dart';
+import 'package:my_dic/features/sync/application/model/remote_mutation.dart';
 
 import 'i_remote_jpn_esp_word_status_data_source.dart';
 
-class JpnEspFirebaseWordStatusDataSource implements IRemoteJpnEspWordStatusDataSource {
+class JpnEspFirebaseWordStatusDataSource
+    implements IRemoteJpnEspWordStatusDataSource {
   final FirebaseJpnEspWordStatusDao _dao;
   JpnEspFirebaseWordStatusDataSource(this._dao);
 
@@ -21,7 +23,8 @@ class JpnEspFirebaseWordStatusDataSource implements IRemoteJpnEspWordStatusDataS
   }
 
   @override
-  Future<void> updateWordStatus(String userId, JpnEspWordStatusDTO wordStatus) async {
+  Future<void> updateWordStatus(
+      String userId, JpnEspWordStatusDTO wordStatus) async {
     await _dao.update(wordStatus, userId);
   }
 
@@ -51,13 +54,7 @@ class JpnEspFirebaseWordStatusDataSource implements IRemoteJpnEspWordStatusDataS
   }
 
   @override
-  Future<void> patchWordStatus(
-    String userId,
-    int wordId,
-    Map<String, Object?> fields,
-    List<String> fieldMask, {
-    required bool isNew,
-  }) {
-    return _dao.patch(userId, wordId, fieldMask, fields, isNew: isNew);
+  Future<RemoteMutationAck> patchWordStatus(RemoteMutationRequest request) {
+    return _dao.patch(request);
   }
 }

@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:my_dic/core/infrastructure/database/firebase/remote_mutation_transaction.dart';
+import 'package:my_dic/features/sync/application/model/remote_mutation.dart';
 import 'package:my_dic/features/user/data/dto/user_dto.dart';
 
 class UserDao {
@@ -22,13 +24,11 @@ class UserDao {
   }
 
   Future<void> update(UserDTO userEntity) async {
-    final docRef = _db.collection(collectionName).doc(userEntity.userId);
-    await docRef.set(userEntity.toFirebase(), SetOptions(merge: true));
+    await ensure(userEntity);
   }
 
   Future<void> create(UserDTO userEntity) async {
-    final docRef = _db.collection(collectionName).doc(userEntity.userId);
-    await docRef.set(userEntity.toFirebase());
+    await ensure(userEntity);
   }
 
   /// UID 固定のdocumentを冪等にprovisioningする。
@@ -43,17 +43,26 @@ class UserDao {
         return UserDTO.fromFirebase(snapshot);
       }
 
-      final data = <String, dynamic>{
-        fieldUserId: defaults.userId,
-        fieldCreatedAt: FieldValue.serverTimestamp(),
-      };
-      if (defaults.email != null && defaults.email!.isNotEmpty) {
-        data[fieldEmail] = defaults.email;
-      }
+      final data = _provisioningData(defaults);
       transaction.set(docRef, data);
       return defaults;
     });
   }
+
+  Map<String, dynamic> _provisioningData(UserDTO defaults) => {
+        fieldUserId: defaults.userId,
+        if (defaults.email != null && defaults.email!.isNotEmpty)
+          fieldEmail: defaults.email,
+        if (defaults.userName != null && defaults.userName!.isNotEmpty)
+          fieldUserName: defaults.userName,
+        fieldSubscriptionStatus: 'free',
+        fieldCreatedAt: FieldValue.serverTimestamp(),
+        fieldUpdatedAt: FieldValue.serverTimestamp(),
+        'clientUpdatedAt': FieldValue.serverTimestamp(),
+        'revision': 0,
+        'lastMutationId': null,
+        'schemaVersion': 1,
+      };
 
   /// Maps the local-first editable profile field key to its Firestore field
   /// name. Only `username` is editable via this path today.
@@ -64,24 +73,17 @@ class UserDao {
   /// Writes only the fields named in [fieldMask], leaving every other remote
   /// field (including authorization fields) untouched. [isNew] controls
   /// whether `createdAt` is also stamped.
-  Future<void> patch(
-    String accountId,
-    Map<String, Object?> fields,
-    List<String> fieldMask, {
-    required bool isNew,
-  }) async {
-    final docRef = _db.collection(collectionName).doc(accountId);
-    final data = <String, dynamic>{fieldUserId: accountId};
-    for (final field in fieldMask) {
-      final remoteField = _editableFieldNames[field];
-      if (remoteField == null) continue;
-      data[remoteField] = fields[field];
-    }
-    data[fieldUpdatedAt] = FieldValue.serverTimestamp();
-    if (isNew) {
-      data[fieldCreatedAt] = FieldValue.serverTimestamp();
-    }
-    await docRef.set(data, SetOptions(merge: true));
+  Future<RemoteMutationAck> patch(RemoteMutationRequest request) {
+    final docRef = _db.collection(collectionName).doc(request.accountId);
+    return RemoteMutationTransaction.apply(
+      firestore: _db,
+      reference: docRef,
+      request: request,
+      identityFields: {fieldUserId: request.accountId},
+      encodeField: (field, value) {
+        final remoteField = _editableFieldNames[field];
+        return remoteField == null ? const {} : {remoteField: value};
+      },
+    );
   }
 }
-

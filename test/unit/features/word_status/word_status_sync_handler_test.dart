@@ -15,6 +15,7 @@ import 'package:my_dic/features/jpn_esp_word_status/data/jpn_esp_word_status_ent
 import 'package:my_dic/features/jpn_esp_word_status/data/sync/jpn_esp_word_status_sync_handler.dart';
 import 'package:my_dic/features/sync/application/cancellation_token.dart';
 import 'package:my_dic/features/sync/application/model/dataset_sync_result.dart';
+import 'package:my_dic/features/sync/application/model/remote_mutation.dart';
 import 'package:my_dic/features/sync/application/model/sync_context.dart';
 import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
 import 'package:my_dic/features/sync/application/port/dataset_sync_handler.dart';
@@ -28,6 +29,13 @@ class _MockJpnEspRemote extends Mock
     implements IRemoteJpnEspWordStatusDataSource {}
 
 const _accountId = 'account-a';
+
+const _ack = RemoteMutationAck(
+  status: RemoteMutationAckStatus.applied,
+  remoteRevision: 1,
+  lastMutationId: 'remote-mutation',
+  serverUpdatedAt: null,
+);
 
 SyncMutation _mutation({
   required SyncDataset dataset,
@@ -45,6 +53,7 @@ SyncMutation _mutation({
       payload: payload,
       fieldMask: fieldMask,
       localRevision: localRevision,
+      clientUpdatedAt: DateTime.utc(2026),
     );
 
 abstract interface class _HandlerFixture {
@@ -190,6 +199,14 @@ void main() {
   setUpAll(() {
     registerFallbackValue(<String, Object?>{});
     registerFallbackValue(<String>[]);
+    registerFallbackValue(RemoteMutationRequest(
+      accountId: _accountId,
+      entityId: '1',
+      mutationId: 'fallback-mutation',
+      fields: const {'isLearned': true},
+      fieldMask: const ['isLearned'],
+      clientUpdatedAt: DateTime.utc(2026),
+    ));
   });
 
   final fixtures = <String, Future<_HandlerFixture> Function()>{
@@ -209,6 +226,8 @@ void main() {
 
       test('pushes a leased mutation as a field-mask patch and acks it',
           () async {
+        await fixture.seed(1,
+            isLearned: false, isBookmarked: false, hasNote: false);
         fixture.queue.enqueue(_mutation(
           dataset: fixture.dataset,
           fieldMask: const ['isBookmarked'],
@@ -218,26 +237,16 @@ void main() {
           final espJpn = fixture as _EspJpnFixture;
           when(() => espJpn.remote.getWordStatusById(_accountId, 1))
               .thenAnswer((_) async => null);
-          when(() => espJpn.remote.patchWordStatus(
-                _accountId,
-                1,
-                any(),
-                any(),
-                isNew: any(named: 'isNew'),
-              )).thenAnswer((_) async {});
+          when(() => espJpn.remote.patchWordStatus(any()))
+              .thenAnswer((_) async => _ack);
           when(() => espJpn.remote.getWordStatusAfter(_accountId, any()))
               .thenAnswer((_) async => const []);
         } else {
           final jpnEsp = fixture as _JpnEspFixture;
           when(() => jpnEsp.remote.getWordStatusById(_accountId, 1))
               .thenAnswer((_) async => null);
-          when(() => jpnEsp.remote.patchWordStatus(
-                _accountId,
-                1,
-                any(),
-                any(),
-                isNew: any(named: 'isNew'),
-              )).thenAnswer((_) async {});
+          when(() => jpnEsp.remote.patchWordStatus(any()))
+              .thenAnswer((_) async => _ack);
           when(() => jpnEsp.remote.getWordStatusAfter(_accountId, any()))
               .thenAnswer((_) async => const []);
         }
@@ -255,8 +264,7 @@ void main() {
         expect(fixture.queue.leased, isEmpty);
       });
 
-      test('session invalidation after remote read does not patch or ack',
-          () async {
+      test('session invalidation after remote write does not ack', () async {
         fixture.queue.enqueue(_mutation(
           dataset: fixture.dataset,
           fieldMask: const ['isLearned'],
@@ -265,17 +273,17 @@ void main() {
         final cancellation = CancellationToken();
         if (fixture is _EspJpnFixture) {
           final espJpn = fixture as _EspJpnFixture;
-          when(() => espJpn.remote.getWordStatusById(_accountId, 1))
+          when(() => espJpn.remote.patchWordStatus(any()))
               .thenAnswer((_) async {
             cancellation.cancel('account changed');
-            return null;
+            return _ack;
           });
         } else {
           final jpnEsp = fixture as _JpnEspFixture;
-          when(() => jpnEsp.remote.getWordStatusById(_accountId, 1))
+          when(() => jpnEsp.remote.patchWordStatus(any()))
               .thenAnswer((_) async {
             cancellation.cancel('account changed');
-            return null;
+            return _ack;
           });
         }
 
@@ -291,22 +299,10 @@ void main() {
         expect(fixture.queue.pending, isEmpty);
         if (fixture is _EspJpnFixture) {
           final espJpn = fixture as _EspJpnFixture;
-          verifyNever(() => espJpn.remote.patchWordStatus(
-                any(),
-                any(),
-                any(),
-                any(),
-                isNew: any(named: 'isNew'),
-              ));
+          verify(() => espJpn.remote.patchWordStatus(any())).called(1);
         } else {
           final jpnEsp = fixture as _JpnEspFixture;
-          verifyNever(() => jpnEsp.remote.patchWordStatus(
-                any(),
-                any(),
-                any(),
-                any(),
-                isNew: any(named: 'isNew'),
-              ));
+          verify(() => jpnEsp.remote.patchWordStatus(any())).called(1);
         }
       });
 
@@ -319,13 +315,13 @@ void main() {
         ));
         if (fixture is _EspJpnFixture) {
           final espJpn = fixture as _EspJpnFixture;
-          when(() => espJpn.remote.getWordStatusById(_accountId, 1))
+          when(() => espJpn.remote.patchWordStatus(any()))
               .thenThrow(Exception('unavailable'));
           when(() => espJpn.remote.getWordStatusAfter(_accountId, any()))
               .thenAnswer((_) async => const []);
         } else {
           final jpnEsp = fixture as _JpnEspFixture;
-          when(() => jpnEsp.remote.getWordStatusById(_accountId, 1))
+          when(() => jpnEsp.remote.patchWordStatus(any()))
               .thenThrow(Exception('unavailable'));
           when(() => jpnEsp.remote.getWordStatusAfter(_accountId, any()))
               .thenAnswer((_) async => const []);
@@ -352,13 +348,13 @@ void main() {
         ));
         if (fixture is _EspJpnFixture) {
           final espJpn = fixture as _EspJpnFixture;
-          when(() => espJpn.remote.getWordStatusById(_accountId, 1))
+          when(() => espJpn.remote.patchWordStatus(any()))
               .thenThrow(Exception('invalid-argument'));
           when(() => espJpn.remote.getWordStatusAfter(_accountId, any()))
               .thenAnswer((_) async => const []);
         } else {
           final jpnEsp = fixture as _JpnEspFixture;
-          when(() => jpnEsp.remote.getWordStatusById(_accountId, 1))
+          when(() => jpnEsp.remote.patchWordStatus(any()))
               .thenThrow(Exception('invalid-argument'));
           when(() => jpnEsp.remote.getWordStatusAfter(_accountId, any()))
               .thenAnswer((_) async => const []);

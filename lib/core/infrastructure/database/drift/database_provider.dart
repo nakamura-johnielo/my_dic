@@ -99,7 +99,7 @@ class DatabaseProvider extends _$DatabaseProvider {
   final bool _seedEsEnConjugacionsOnUpgrade;
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
   //==============================================================
   //2025/11/12
   // EsEnConjugacionsテーブル追加
@@ -329,6 +329,22 @@ class DatabaseProvider extends _$DatabaseProvider {
           await m.createTable(syncCheckpoints);
           await m.createTable(userProfiles);
           await _createSyncOutboxIndexes();
+        }
+
+        if (from >= 6 && from < 7) {
+          // SQLite cannot add a non-constant default. Add a temporary
+          // sentinel, then replace it with the existing enqueue timestamp.
+          await customStatement('''
+            ALTER TABLE sync_outbox
+            ADD COLUMN client_updated_at INTEGER NOT NULL DEFAULT 0
+          ''');
+          // Existing queued mutations predate the explicit client edit time.
+          // Their enqueue time is the best available stable approximation.
+          await customStatement('''
+            UPDATE sync_outbox
+            SET client_updated_at = created_at
+            WHERE client_updated_at = 0
+          ''');
         }
       },
       beforeOpen: (details) async {

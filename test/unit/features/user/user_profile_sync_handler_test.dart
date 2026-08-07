@@ -5,6 +5,7 @@ import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart
 import 'package:my_dic/core/shared/enums/sync_dataset.dart';
 import 'package:my_dic/features/sync/application/cancellation_token.dart';
 import 'package:my_dic/features/sync/application/model/dataset_sync_result.dart';
+import 'package:my_dic/features/sync/application/model/remote_mutation.dart';
 import 'package:my_dic/features/sync/application/model/sync_context.dart';
 import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
 import 'package:my_dic/features/sync/infrastructure/persistence/drift/drift_sync_checkpoint_store.dart';
@@ -20,6 +21,13 @@ class _MockRemote extends Mock implements IUserRemoteDataSource {}
 
 const _accountId = 'account-a';
 
+const _ack = RemoteMutationAck(
+  status: RemoteMutationAckStatus.applied,
+  remoteRevision: 1,
+  lastMutationId: 'remote-mutation',
+  serverUpdatedAt: null,
+);
+
 SyncMutation _mutation({
   required List<String> fieldMask,
   required Map<String, Object?> payload,
@@ -34,6 +42,7 @@ SyncMutation _mutation({
       payload: payload,
       fieldMask: fieldMask,
       localRevision: localRevision,
+      clientUpdatedAt: DateTime.utc(2026),
     );
 
 void main() {
@@ -42,6 +51,14 @@ void main() {
   setUpAll(() {
     registerFallbackValue(<String, Object?>{});
     registerFallbackValue(<String>[]);
+    registerFallbackValue(RemoteMutationRequest(
+      accountId: _accountId,
+      entityId: _accountId,
+      mutationId: 'fallback-mutation',
+      fields: const {'username': 'Taro'},
+      fieldMask: const ['username'],
+      clientUpdatedAt: DateTime.utc(2026),
+    ));
   });
 
   late DatabaseProvider database;
@@ -77,41 +94,31 @@ void main() {
       );
 
   test('pushes a leased mutation as a field-mask patch and acks it', () async {
+    await dao.upsertProfileFields(_accountId, {'username': 'Taro'});
     queue.enqueue(_mutation(
       fieldMask: const ['username'],
       payload: const {'username': 'Taro'},
     ));
     when(() => remote.getUserById(_accountId)).thenAnswer((_) async => null);
-    when(() => remote.patchUser(
-          _accountId,
-          any(),
-          any(),
-          isNew: any(named: 'isNew'),
-        )).thenAnswer((_) async {});
+    when(() => remote.patchUser(any())).thenAnswer((_) async => _ack);
 
     final result = await handler.run(context());
 
     expect(result, isA<DatasetSyncSuccess>());
     expect((result as DatasetSyncSuccess).pushedCount, 1);
     expect(queue.pending, isEmpty);
-    verify(() => remote.patchUser(
-          _accountId,
-          const {'username': 'Taro'},
-          const ['username'],
-          isNew: true,
-        )).called(1);
+    verify(() => remote.patchUser(any())).called(1);
   });
 
-  test('session invalidation after remote read does not patch or ack',
-      () async {
+  test('session invalidation after remote write does not ack', () async {
     queue.enqueue(_mutation(
       fieldMask: const ['username'],
       payload: const {'username': 'Taro'},
     ));
     final cancellation = CancellationToken();
-    when(() => remote.getUserById(_accountId)).thenAnswer((_) async {
+    when(() => remote.patchUser(any())).thenAnswer((_) async {
       cancellation.cancel('account changed');
-      return null;
+      return _ack;
     });
 
     final result = await handler.run(SyncContext(
@@ -124,12 +131,7 @@ void main() {
     expect(result, isA<DatasetSyncCancelled>());
     expect(queue.leased, hasLength(1));
     expect(queue.pending, isEmpty);
-    verifyNever(() => remote.patchUser(
-          any(),
-          any(),
-          any(),
-          isNew: any(named: 'isNew'),
-        ));
+    verify(() => remote.patchUser(any())).called(1);
   });
 
   test('a retryable remote failure re-queues the mutation as pending',
@@ -138,8 +140,7 @@ void main() {
       fieldMask: const ['username'],
       payload: const {'username': 'Taro'},
     ));
-    when(() => remote.getUserById(_accountId))
-        .thenThrow(Exception('unavailable'));
+    when(() => remote.patchUser(any())).thenThrow(Exception('unavailable'));
 
     final result = await handler.run(context());
 
@@ -193,12 +194,7 @@ void main() {
         updatedAt: updatedAt,
       ),
     );
-    when(() => remote.patchUser(
-          _accountId,
-          any(),
-          any(),
-          isNew: any(named: 'isNew'),
-        )).thenAnswer((_) async {});
+    when(() => remote.patchUser(any())).thenAnswer((_) async => _ack);
 
     await handler.run(context());
 

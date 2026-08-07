@@ -1,5 +1,6 @@
 import 'package:my_dic/features/user/data/data_source/remote/user_profile_dao.dart';
 import 'package:my_dic/features/user/data/dto/user_dto.dart';
+import 'package:my_dic/features/sync/application/model/remote_mutation.dart';
 import 'i_user_remote_data_source.dart';
 
 class FirebaseUserRemoteDataSource implements IUserRemoteDataSource {
@@ -25,12 +26,7 @@ class FirebaseUserRemoteDataSource implements IUserRemoteDataSource {
   Future<UserDTO> ensureUser(UserDTO user) => _dao.ensure(user);
 
   @override
-  Future<void> patchUser(
-    String accountId,
-    Map<String, Object?> fields,
-    List<String> fieldMask, {
-    required bool isNew,
-  }) {
-    return _dao.patch(accountId, fields, fieldMask, isNew: isNew);
+  Future<RemoteMutationAck> patchUser(RemoteMutationRequest request) {
+    return _dao.patch(request);
   }
 }

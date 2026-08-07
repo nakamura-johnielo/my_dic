@@ -71,6 +71,7 @@ class MyWordStatusRepository implements IMyWordStatusRepository {
               payload: payload,
               fieldMask: fieldMask,
               localRevision: row.localRevision,
+              clientUpdatedAt: input.editAt.toUtc(),
             ));
           }
         }
@@ -88,7 +89,9 @@ class MyWordStatusRepository implements IMyWordStatusRepository {
 
   @override
   Stream<MyWordStatus> watchStatus(String wordId, {required String accountId}) {
-    return _localDataSource.watchWordStatus(wordId, accountId).map((statusData) {
+    return _localDataSource
+        .watchWordStatus(wordId, accountId)
+        .map((statusData) {
       AppLogger.print("mywordstatus stream");
       if (statusData == null) {
         AppLogger.print("null");
@@ -231,8 +234,9 @@ class MyWordStatusRepository implements IMyWordStatusRepository {
     try {
       // Legacy sync path predates real account scoping; preserves prior
       // behavior by keeping the same fixed scope it always used.
-      final statusData =
-          await _localDataSource.watchWordStatus(myWordId, guestAccountScope).first;
+      final statusData = await _localDataSource
+          .watchWordStatus(myWordId, guestAccountScope)
+          .first;
       if (statusData == null) {
         return const Result.success(null);
       }

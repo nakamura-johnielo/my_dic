@@ -143,5 +143,6 @@ class DriftSyncQueue implements SyncQueue {
       fieldMask: List<String>.from(jsonDecode(row.fieldMask) as List),
       payloadVersion: row.payloadVersion,
       localRevision: row.localRevision,
+      clientUpdatedAt: row.clientUpdatedAt,
       baseRemoteRevision: row.baseRemoteRevision);
 }

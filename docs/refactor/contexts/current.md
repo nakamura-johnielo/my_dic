@@ -2,6 +2,25 @@
 
 最終更新: 2026-08-07
 
+## Phase 1-7 remote revision/server ack update
+
+- All five dataset adapters now use a shared Firestore transaction request/ack
+  contract. Remote documents carry `revision`, `lastMutationId`,
+  `clientUpdatedAt`, server `updatedAt`, and `schemaVersion`; duplicate and
+  stale mutations are returned as explicit acknowledgements.
+- `SyncMutation.clientUpdatedAt` is required and UTC-normalized. Drift v7
+  persists it in `sync_outbox` and backfills v6 rows from `created_at`.
+  Handlers atomically guard local revision, persist remote metadata, and ack
+  the lease; a superseded mutation is removed and the subsequent pull applies
+  the authoritative remote snapshot. MyWord tombstones remain terminal.
+- `firestore.rules` and Emulator configuration were added. Emulator Rules
+  tests remain unexecuted because the installed JDK 8 cannot run the current
+  firebase-tools requirement (JDK 21+); install the compatible JDK and add/run
+  the Rules test harness in CI before treating Emulator coverage as complete.
+  The remote contract, migration/queue, handler, import-boundary, and full
+  Flutter suites passed on 2026-08-07 (270 tests); `flutter analyze` reported
+  no issues.
+
 ## Convergence update: word status presentation boundary
 
 - The shared status controls remain in `features/word_status`, while the
@@ -21,8 +40,8 @@
 - retryは`MutationLease.attemptCount`とDrift/Fake queue contractを通してactual attemptに接続済み。固定`delayForAttempt(1)`ではない。
 - guest migrationはprompt承認後とtransaction開始/commit直前にaccount+epochを再検証し、失効時はrowとoutboxを同時rollbackする。
 - User Profileはaccount-scoped Drift `watchProfile`をSoTとして`appSessionProvider`へ投影され、Profile UIもlive sessionをwatchする。
-- import checkerは`lib/**`と`test/**`を走査する実装へ更新され、analyzerの`test/**`除外も削除された。2026-08-07の現working treeでimport checker、`flutter analyze`（0 issues）、全`flutter test`（266 test）は成功した。clean checkoutとCIでの再現は未確認。
-- remote revision/server acknowledgment/mutation冪等性、MyWord revision競合は未実装。repository内にSecurity Rules/backendの契約がないため、推測でremote protocolを追加せずPhase 1-7の中断条件として記録する。routing、bootstrap composition、word-status契約統合の残件も完了扱いにしない。
+- import checkerは`lib/**`と`test/**`を走査する実装へ更新され、analyzerの`test/**`除外も削除された。2026-08-07の現working treeでimport checker、`flutter analyze`（0 issues）、全`flutter test`（270 test）は成功した。clean checkoutとCIでの再現は未確認。
+- remote revision/server acknowledgment/mutation冪等性は7-2で実装済み。複雑なMyWord rebase/競合UI、Firestore Emulator Rules実行、routing、bootstrap composition、word-status契約統合の残件は完了扱いにしない。
 
 このファイルは、長大な`lib/`責務調査メモを分割した後の短い入口である。詳細は目的別に分けた同階層の文書を参照する。
 

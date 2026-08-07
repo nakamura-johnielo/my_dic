@@ -118,8 +118,30 @@ class JpnEspWordStatusDao extends DatabaseAccessor<DatabaseProvider>
   /// been merged into the target account's row.
   Future<void> deleteRow(int wordId, String accountId) async {
     await (delete(jpnEspWordStatus)
-          ..where((t) => t.wordId.equals(wordId) & t.accountId.equals(accountId)))
+          ..where(
+              (t) => t.wordId.equals(wordId) & t.accountId.equals(accountId)))
         .go();
+  }
+
+  /// Persists the remote transaction acknowledgement only when no later
+  /// local write has superseded the leased revision.
+  Future<bool> acknowledgeRemoteMutation({
+    required int wordId,
+    required String accountId,
+    required int localRevision,
+    required String remoteRevision,
+    required String? lastMutationId,
+  }) async {
+    final changed = await (update(jpnEspWordStatus)
+          ..where((t) =>
+              t.wordId.equals(wordId) &
+              t.accountId.equals(accountId) &
+              t.localRevision.equals(localRevision)))
+        .write(JpnEspWordStatusCompanion(
+      remoteRevision: Value(remoteRevision),
+      lastMutationId: Value(lastMutationId),
+    ));
+    return changed == 1;
   }
 
   /// Applies a pulled remote snapshot to the local row without bumping
@@ -133,6 +155,8 @@ class JpnEspWordStatusDao extends DatabaseAccessor<DatabaseProvider>
     bool? hasNote,
     required String editAt,
     required String accountId,
+    String? remoteRevision,
+    String? lastMutationId,
   }) {
     return transaction(() async {
       final existing = await getStatusById(wordId, accountId);
@@ -146,13 +170,15 @@ class JpnEspWordStatusDao extends DatabaseAccessor<DatabaseProvider>
             editAt: editAt,
             accountId: Value(accountId),
             localRevision: const Value(0),
+            remoteRevision: Value(remoteRevision),
+            lastMutationId: Value(lastMutationId),
           ),
         );
         return;
       }
       await (update(jpnEspWordStatus)
-            ..where((t) =>
-                t.wordId.equals(wordId) & t.accountId.equals(accountId)))
+            ..where(
+                (t) => t.wordId.equals(wordId) & t.accountId.equals(accountId)))
           .write(
         JpnEspWordStatusCompanion(
           isLearned: isLearned != null
@@ -164,6 +190,12 @@ class JpnEspWordStatusDao extends DatabaseAccessor<DatabaseProvider>
           hasNote:
               hasNote != null ? Value(hasNote ? 1 : 0) : const Value.absent(),
           editAt: Value(editAt),
+          remoteRevision: remoteRevision != null
+              ? Value(remoteRevision)
+              : const Value.absent(),
+          lastMutationId: lastMutationId != null
+              ? Value(lastMutationId)
+              : const Value.absent(),
         ),
       );
     });

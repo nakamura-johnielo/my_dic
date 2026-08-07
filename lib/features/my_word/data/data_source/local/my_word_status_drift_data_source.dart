@@ -58,6 +58,8 @@ class MyWordStatusDriftDataSource implements IMyWordStatusLocalDataSource {
     int? hasNote,
     required String editAt,
     required String accountId,
+    String? remoteRevision,
+    String? lastMutationId,
   }) {
     return _wordStatusDao.applyRemoteFields(
       myWordId,
@@ -66,12 +68,30 @@ class MyWordStatusDriftDataSource implements IMyWordStatusLocalDataSource {
       hasNote: hasNote,
       editAt: editAt,
       accountId: accountId,
+      remoteRevision: remoteRevision,
+      lastMutationId: lastMutationId,
     );
   }
 
   @override
   Future<T> runInTransaction<T>(Future<T> Function() action) =>
       _wordStatusDao.transaction(action);
+
+  @override
+  Future<bool> acknowledgeRemoteMutation({
+    required String myWordId,
+    required String accountId,
+    required int localRevision,
+    required String remoteRevision,
+    required String? lastMutationId,
+  }) =>
+      _wordStatusDao.acknowledgeRemoteMutation(
+        myWordId: myWordId,
+        accountId: accountId,
+        localRevision: localRevision,
+        remoteRevision: remoteRevision,
+        lastMutationId: lastMutationId,
+      );
 
   @override
   Future<List<db.MyWordStatusTableData>> getAllByAccountId(String accountId) =>

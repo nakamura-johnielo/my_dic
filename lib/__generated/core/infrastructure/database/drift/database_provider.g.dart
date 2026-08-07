@@ -8644,6 +8644,12 @@ class $SyncOutboxTable extends SyncOutbox
   late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
       'created_at', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _clientUpdatedAtMeta =
+      const VerificationMeta('clientUpdatedAt');
+  @override
+  late final GeneratedColumn<DateTime> clientUpdatedAt =
+      GeneratedColumn<DateTime>('client_updated_at', aliasedName, false,
+          type: DriftSqlType.dateTime, requiredDuringInsert: true);
   static const VerificationMeta _lastErrorCodeMeta =
       const VerificationMeta('lastErrorCode');
   @override
@@ -8668,6 +8674,7 @@ class $SyncOutboxTable extends SyncOutbox
         leaseToken,
         leaseUntil,
         createdAt,
+        clientUpdatedAt,
         lastErrorCode
       ];
   @override
@@ -8784,6 +8791,14 @@ class $SyncOutboxTable extends SyncOutbox
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
+    if (data.containsKey('client_updated_at')) {
+      context.handle(
+          _clientUpdatedAtMeta,
+          clientUpdatedAt.isAcceptableOrUnknown(
+              data['client_updated_at']!, _clientUpdatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_clientUpdatedAtMeta);
+    }
     if (data.containsKey('last_error_code')) {
       context.handle(
           _lastErrorCodeMeta,
@@ -8831,6 +8846,8 @@ class $SyncOutboxTable extends SyncOutbox
           .read(DriftSqlType.dateTime, data['${effectivePrefix}lease_until']),
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      clientUpdatedAt: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}client_updated_at'])!,
       lastErrorCode: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}last_error_code']),
     );
@@ -8859,6 +8876,7 @@ class SyncOutboxData extends DataClass implements Insertable<SyncOutboxData> {
   final String? leaseToken;
   final DateTime? leaseUntil;
   final DateTime createdAt;
+  final DateTime clientUpdatedAt;
   final String? lastErrorCode;
   const SyncOutboxData(
       {required this.mutationId,
@@ -8877,6 +8895,7 @@ class SyncOutboxData extends DataClass implements Insertable<SyncOutboxData> {
       this.leaseToken,
       this.leaseUntil,
       required this.createdAt,
+      required this.clientUpdatedAt,
       this.lastErrorCode});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -8903,6 +8922,7 @@ class SyncOutboxData extends DataClass implements Insertable<SyncOutboxData> {
       map['lease_until'] = Variable<DateTime>(leaseUntil);
     }
     map['created_at'] = Variable<DateTime>(createdAt);
+    map['client_updated_at'] = Variable<DateTime>(clientUpdatedAt);
     if (!nullToAbsent || lastErrorCode != null) {
       map['last_error_code'] = Variable<String>(lastErrorCode);
     }
@@ -8933,6 +8953,7 @@ class SyncOutboxData extends DataClass implements Insertable<SyncOutboxData> {
           ? const Value.absent()
           : Value(leaseUntil),
       createdAt: Value(createdAt),
+      clientUpdatedAt: Value(clientUpdatedAt),
       lastErrorCode: lastErrorCode == null && nullToAbsent
           ? const Value.absent()
           : Value(lastErrorCode),
@@ -8960,6 +8981,7 @@ class SyncOutboxData extends DataClass implements Insertable<SyncOutboxData> {
       leaseToken: serializer.fromJson<String?>(json['leaseToken']),
       leaseUntil: serializer.fromJson<DateTime?>(json['leaseUntil']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      clientUpdatedAt: serializer.fromJson<DateTime>(json['clientUpdatedAt']),
       lastErrorCode: serializer.fromJson<String?>(json['lastErrorCode']),
     );
   }
@@ -8983,6 +9005,7 @@ class SyncOutboxData extends DataClass implements Insertable<SyncOutboxData> {
       'leaseToken': serializer.toJson<String?>(leaseToken),
       'leaseUntil': serializer.toJson<DateTime?>(leaseUntil),
       'createdAt': serializer.toJson<DateTime>(createdAt),
+      'clientUpdatedAt': serializer.toJson<DateTime>(clientUpdatedAt),
       'lastErrorCode': serializer.toJson<String?>(lastErrorCode),
     };
   }
@@ -9004,6 +9027,7 @@ class SyncOutboxData extends DataClass implements Insertable<SyncOutboxData> {
           Value<String?> leaseToken = const Value.absent(),
           Value<DateTime?> leaseUntil = const Value.absent(),
           DateTime? createdAt,
+          DateTime? clientUpdatedAt,
           Value<String?> lastErrorCode = const Value.absent()}) =>
       SyncOutboxData(
         mutationId: mutationId ?? this.mutationId,
@@ -9024,6 +9048,7 @@ class SyncOutboxData extends DataClass implements Insertable<SyncOutboxData> {
         leaseToken: leaseToken.present ? leaseToken.value : this.leaseToken,
         leaseUntil: leaseUntil.present ? leaseUntil.value : this.leaseUntil,
         createdAt: createdAt ?? this.createdAt,
+        clientUpdatedAt: clientUpdatedAt ?? this.clientUpdatedAt,
         lastErrorCode:
             lastErrorCode.present ? lastErrorCode.value : this.lastErrorCode,
       );
@@ -9058,6 +9083,9 @@ class SyncOutboxData extends DataClass implements Insertable<SyncOutboxData> {
       leaseUntil:
           data.leaseUntil.present ? data.leaseUntil.value : this.leaseUntil,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      clientUpdatedAt: data.clientUpdatedAt.present
+          ? data.clientUpdatedAt.value
+          : this.clientUpdatedAt,
       lastErrorCode: data.lastErrorCode.present
           ? data.lastErrorCode.value
           : this.lastErrorCode,
@@ -9083,6 +9111,7 @@ class SyncOutboxData extends DataClass implements Insertable<SyncOutboxData> {
           ..write('leaseToken: $leaseToken, ')
           ..write('leaseUntil: $leaseUntil, ')
           ..write('createdAt: $createdAt, ')
+          ..write('clientUpdatedAt: $clientUpdatedAt, ')
           ..write('lastErrorCode: $lastErrorCode')
           ..write(')'))
         .toString();
@@ -9106,6 +9135,7 @@ class SyncOutboxData extends DataClass implements Insertable<SyncOutboxData> {
       leaseToken,
       leaseUntil,
       createdAt,
+      clientUpdatedAt,
       lastErrorCode);
   @override
   bool operator ==(Object other) =>
@@ -9127,6 +9157,7 @@ class SyncOutboxData extends DataClass implements Insertable<SyncOutboxData> {
           other.leaseToken == this.leaseToken &&
           other.leaseUntil == this.leaseUntil &&
           other.createdAt == this.createdAt &&
+          other.clientUpdatedAt == this.clientUpdatedAt &&
           other.lastErrorCode == this.lastErrorCode);
 }
 
@@ -9147,6 +9178,7 @@ class SyncOutboxCompanion extends UpdateCompanion<SyncOutboxData> {
   final Value<String?> leaseToken;
   final Value<DateTime?> leaseUntil;
   final Value<DateTime> createdAt;
+  final Value<DateTime> clientUpdatedAt;
   final Value<String?> lastErrorCode;
   final Value<int> rowid;
   const SyncOutboxCompanion({
@@ -9166,6 +9198,7 @@ class SyncOutboxCompanion extends UpdateCompanion<SyncOutboxData> {
     this.leaseToken = const Value.absent(),
     this.leaseUntil = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.clientUpdatedAt = const Value.absent(),
     this.lastErrorCode = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -9186,6 +9219,7 @@ class SyncOutboxCompanion extends UpdateCompanion<SyncOutboxData> {
     this.leaseToken = const Value.absent(),
     this.leaseUntil = const Value.absent(),
     required DateTime createdAt,
+    required DateTime clientUpdatedAt,
     this.lastErrorCode = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : mutationId = Value(mutationId),
@@ -9199,7 +9233,8 @@ class SyncOutboxCompanion extends UpdateCompanion<SyncOutboxData> {
         localRevision = Value(localRevision),
         state = Value(state),
         nextAttemptAt = Value(nextAttemptAt),
-        createdAt = Value(createdAt);
+        createdAt = Value(createdAt),
+        clientUpdatedAt = Value(clientUpdatedAt);
   static Insertable<SyncOutboxData> custom({
     Expression<String>? mutationId,
     Expression<String>? accountId,
@@ -9217,6 +9252,7 @@ class SyncOutboxCompanion extends UpdateCompanion<SyncOutboxData> {
     Expression<String>? leaseToken,
     Expression<DateTime>? leaseUntil,
     Expression<DateTime>? createdAt,
+    Expression<DateTime>? clientUpdatedAt,
     Expression<String>? lastErrorCode,
     Expression<int>? rowid,
   }) {
@@ -9238,6 +9274,7 @@ class SyncOutboxCompanion extends UpdateCompanion<SyncOutboxData> {
       if (leaseToken != null) 'lease_token': leaseToken,
       if (leaseUntil != null) 'lease_until': leaseUntil,
       if (createdAt != null) 'created_at': createdAt,
+      if (clientUpdatedAt != null) 'client_updated_at': clientUpdatedAt,
       if (lastErrorCode != null) 'last_error_code': lastErrorCode,
       if (rowid != null) 'rowid': rowid,
     });
@@ -9260,6 +9297,7 @@ class SyncOutboxCompanion extends UpdateCompanion<SyncOutboxData> {
       Value<String?>? leaseToken,
       Value<DateTime?>? leaseUntil,
       Value<DateTime>? createdAt,
+      Value<DateTime>? clientUpdatedAt,
       Value<String?>? lastErrorCode,
       Value<int>? rowid}) {
     return SyncOutboxCompanion(
@@ -9279,6 +9317,7 @@ class SyncOutboxCompanion extends UpdateCompanion<SyncOutboxData> {
       leaseToken: leaseToken ?? this.leaseToken,
       leaseUntil: leaseUntil ?? this.leaseUntil,
       createdAt: createdAt ?? this.createdAt,
+      clientUpdatedAt: clientUpdatedAt ?? this.clientUpdatedAt,
       lastErrorCode: lastErrorCode ?? this.lastErrorCode,
       rowid: rowid ?? this.rowid,
     );
@@ -9335,6 +9374,9 @@ class SyncOutboxCompanion extends UpdateCompanion<SyncOutboxData> {
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
+    if (clientUpdatedAt.present) {
+      map['client_updated_at'] = Variable<DateTime>(clientUpdatedAt.value);
+    }
     if (lastErrorCode.present) {
       map['last_error_code'] = Variable<String>(lastErrorCode.value);
     }
@@ -9363,6 +9405,7 @@ class SyncOutboxCompanion extends UpdateCompanion<SyncOutboxData> {
           ..write('leaseToken: $leaseToken, ')
           ..write('leaseUntil: $leaseUntil, ')
           ..write('createdAt: $createdAt, ')
+          ..write('clientUpdatedAt: $clientUpdatedAt, ')
           ..write('lastErrorCode: $lastErrorCode, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -16585,6 +16628,7 @@ typedef $$SyncOutboxTableCreateCompanionBuilder = SyncOutboxCompanion Function({
   Value<String?> leaseToken,
   Value<DateTime?> leaseUntil,
   required DateTime createdAt,
+  required DateTime clientUpdatedAt,
   Value<String?> lastErrorCode,
   Value<int> rowid,
 });
@@ -16605,6 +16649,7 @@ typedef $$SyncOutboxTableUpdateCompanionBuilder = SyncOutboxCompanion Function({
   Value<String?> leaseToken,
   Value<DateTime?> leaseUntil,
   Value<DateTime> createdAt,
+  Value<DateTime> clientUpdatedAt,
   Value<String?> lastErrorCode,
   Value<int> rowid,
 });
@@ -16667,6 +16712,10 @@ class $$SyncOutboxTableFilterComposer
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get clientUpdatedAt => $composableBuilder(
+      column: $table.clientUpdatedAt,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get lastErrorCode => $composableBuilder(
       column: $table.lastErrorCode, builder: (column) => ColumnFilters(column));
@@ -16734,6 +16783,10 @@ class $$SyncOutboxTableOrderingComposer
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<DateTime> get clientUpdatedAt => $composableBuilder(
+      column: $table.clientUpdatedAt,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get lastErrorCode => $composableBuilder(
       column: $table.lastErrorCode,
       builder: (column) => ColumnOrderings(column));
@@ -16796,6 +16849,9 @@ class $$SyncOutboxTableAnnotationComposer
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
+  GeneratedColumn<DateTime> get clientUpdatedAt => $composableBuilder(
+      column: $table.clientUpdatedAt, builder: (column) => column);
+
   GeneratedColumn<String> get lastErrorCode => $composableBuilder(
       column: $table.lastErrorCode, builder: (column) => column);
 }
@@ -16842,6 +16898,7 @@ class $$SyncOutboxTableTableManager extends RootTableManager<
             Value<String?> leaseToken = const Value.absent(),
             Value<DateTime?> leaseUntil = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> clientUpdatedAt = const Value.absent(),
             Value<String?> lastErrorCode = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -16862,6 +16919,7 @@ class $$SyncOutboxTableTableManager extends RootTableManager<
             leaseToken: leaseToken,
             leaseUntil: leaseUntil,
             createdAt: createdAt,
+            clientUpdatedAt: clientUpdatedAt,
             lastErrorCode: lastErrorCode,
             rowid: rowid,
           ),
@@ -16882,6 +16940,7 @@ class $$SyncOutboxTableTableManager extends RootTableManager<
             Value<String?> leaseToken = const Value.absent(),
             Value<DateTime?> leaseUntil = const Value.absent(),
             required DateTime createdAt,
+            required DateTime clientUpdatedAt,
             Value<String?> lastErrorCode = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -16902,6 +16961,7 @@ class $$SyncOutboxTableTableManager extends RootTableManager<
             leaseToken: leaseToken,
             leaseUntil: leaseUntil,
             createdAt: createdAt,
+            clientUpdatedAt: clientUpdatedAt,
             lastErrorCode: lastErrorCode,
             rowid: rowid,
           ),

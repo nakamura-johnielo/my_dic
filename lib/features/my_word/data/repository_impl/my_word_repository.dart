@@ -139,6 +139,7 @@ class MyWordRepository implements IMyWordRepository {
             payload: {'word': row.word, 'contents': row.contents},
             fieldMask: const ['word', 'contents'],
             localRevision: row.localRevision,
+            clientUpdatedAt: input.dateTime.toUtc(),
           ));
         }
         return row;
@@ -180,6 +181,7 @@ class MyWordRepository implements IMyWordRepository {
             payload: {'deletedAt': input.dateTime},
             fieldMask: const ['deletedAt'],
             localRevision: row.localRevision,
+            clientUpdatedAt: DateTime.parse(input.dateTime).toUtc(),
           ));
         }
         return row;
@@ -223,6 +225,7 @@ class MyWordRepository implements IMyWordRepository {
             payload: {'word': row.word, 'contents': row.contents},
             fieldMask: const ['word', 'contents'],
             localRevision: row.localRevision,
+            clientUpdatedAt: input.editAt.toUtc(),
           ));
         }
         return row;

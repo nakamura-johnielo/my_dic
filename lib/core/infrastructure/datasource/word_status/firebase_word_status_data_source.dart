@@ -1,5 +1,6 @@
 import 'package:my_dic/core/infrastructure/database/firebase/daos/firebase_word_status_dao.dart';
 import 'package:my_dic/features/esp_jpn_word_status/data/word_status_entity.dart';
+import 'package:my_dic/features/sync/application/model/remote_mutation.dart';
 
 import 'i_remote_word_status_data_source.dart';
 
@@ -51,13 +52,7 @@ class FirebaseWordStatusDataSource implements IRemoteWordStatusDataSource {
   }
 
   @override
-  Future<void> patchWordStatus(
-    String userId,
-    int wordId,
-    Map<String, Object?> fields,
-    List<String> fieldMask, {
-    required bool isNew,
-  }) {
-    return _dao.patch(userId, wordId, fieldMask, fields, isNew: isNew);
+  Future<RemoteMutationAck> patchWordStatus(RemoteMutationRequest request) {
+    return _dao.patch(request);
   }
 }

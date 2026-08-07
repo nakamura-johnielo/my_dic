@@ -3,6 +3,7 @@ import 'package:my_dic/core/shared/enums/sync_dataset.dart';
 import 'package:my_dic/features/my_word/data/data_source/local/i_my_word_status_local_data_source.dart';
 import 'package:my_dic/features/my_word/data/data_source/remote/status/i_my_word_status_remote_data_source.dart';
 import 'package:my_dic/features/sync/application/model/dataset_sync_result.dart';
+import 'package:my_dic/features/sync/application/model/remote_mutation.dart';
 import 'package:my_dic/features/sync/application/model/sync_context.dart';
 import 'package:my_dic/features/sync/application/model/sync_cursor.dart';
 import 'package:my_dic/features/sync/application/sync_execution_guard.dart';
@@ -87,21 +88,34 @@ class MyWordStatusSyncHandler implements DatasetSyncHandler {
       }
       try {
         final entityId = lease.mutation.entityId;
-        final existing =
-            await _remote.getStatusById(context.accountId, entityId);
-        _executionGuard.ensureCanContinue(context);
-        await _remote.patchStatus(
-          context.accountId,
-          entityId,
-          lease.mutation.payload,
-          lease.mutation.fieldMask,
-          isNew: existing == null,
+        final ack = await _remote.patchStatus(
+          RemoteMutationRequest(
+            accountId: context.accountId,
+            entityId: entityId,
+            mutationId: lease.mutation.mutationId,
+            fields: lease.mutation.payload,
+            fieldMask: lease.mutation.fieldMask,
+            clientUpdatedAt: lease.mutation.clientUpdatedAt,
+            baseRemoteRevision: lease.mutation.baseRemoteRevision,
+          ),
         );
         if (!_executionGuard.canContinue(context)) {
           return DatasetSyncResult.cancelled(
               _executionGuard.cancellationReason(context));
         }
-        if (await _queue.ack(lease)) pushedCount++;
+        await _local.runInTransaction(() async {
+          final metadataUpdated = await _local.acknowledgeRemoteMutation(
+            myWordId: entityId,
+            accountId: context.accountId,
+            localRevision: lease.leasedLocalRevision,
+            remoteRevision: ack.remoteRevision.toString(),
+            lastMutationId: ack.lastMutationId,
+          );
+          if (!metadataUpdated || !await _queue.ack(lease)) {
+            throw StateError('MyWord status remote acknowledgement is stale');
+          }
+        });
+        pushedCount++;
       } catch (error) {
         _executionGuard.ensureCanContinue(context);
         final classification = _classifier.classify(error);
@@ -159,6 +173,8 @@ class MyWordStatusSyncHandler implements DatasetSyncHandler {
                 skip.contains('isBookmarked') ? null : dto.isBookmarked,
             editAt: dto.updatedAt.toIso8601String(),
             accountId: context.accountId,
+            remoteRevision: dto.remoteRevision.toString(),
+            lastMutationId: dto.lastMutationId,
           );
           _executionGuard.ensureCanContinue(context);
           pulledCount++;

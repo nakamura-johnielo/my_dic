@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_dic/core/shared/consts/firebase.dart';
+import 'package:my_dic/core/infrastructure/database/firebase/remote_mutation_transaction.dart';
 import 'package:my_dic/features/jpn_esp_word_status/data/jpn_esp_word_status_entity.dart';
+import 'package:my_dic/features/sync/application/model/remote_mutation.dart';
 import 'package:my_dic/features/user/data/dto/user_dto.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 
@@ -66,28 +68,23 @@ class FirebaseJpnEspWordStatusDao {
 
   /// Merge-writes only [fieldMask] keys plus bookkeeping timestamps, so that
   /// fields not covered by the sync outbox mutation are left untouched.
-  Future<void> patch(
-    String userId,
-    int wordId,
-    List<String> fieldMask,
-    Map<String, Object?> fields, {
-    required bool isNew,
-  }) async {
+  Future<RemoteMutationAck> patch(RemoteMutationRequest request) {
     final docRef = _db
         .collection(UserDTO.collectionName)
-        .doc(userId)
+        .doc(request.accountId)
         .collection(JpnEspWordStatusDTO.collectionName)
-        .doc(wordId.toString());
-    final data = <String, dynamic>{JpnEspWordStatusDTO.fieldwordId: wordId};
-    for (final field in fieldMask) {
-      final value = fields[field];
-      data[field] = value is bool ? (value ? 1 : 0) : value;
-    }
-    data[JpnEspWordStatusDTO.fieldUpdatedAt] = FieldValue.serverTimestamp();
-    if (isNew) {
-      data[JpnEspWordStatusDTO.fieldCreatedAt] = FieldValue.serverTimestamp();
-    }
-    await docRef.set(data, SetOptions(merge: true));
+        .doc(request.entityId);
+    return RemoteMutationTransaction.apply(
+      firestore: _db,
+      reference: docRef,
+      request: request,
+      identityFields: {
+        JpnEspWordStatusDTO.fieldwordId: int.parse(request.entityId)
+      },
+      encodeField: (field, value) => {
+        field: value is bool ? (value ? 1 : 0) : value,
+      },
+    );
   }
 
   Stream<List<JpnEspWordStatusDTO>> watchAll(String userId) {

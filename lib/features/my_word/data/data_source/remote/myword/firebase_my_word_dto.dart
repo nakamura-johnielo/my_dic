@@ -24,6 +24,9 @@ class MyWordDTO {
   static const String fieldCreatedAt = "createdAt";
   static const String fieldUpdatedAt = "updatedAt";
   static const String fieldDeletedAt = "deletedAt";
+  static const String fieldRevision = "revision";
+  static const String fieldLastMutationId = "lastMutationId";
+  static const String fieldClientUpdatedAt = "clientUpdatedAt";
 
   //!TODO finalにすべき？copywith?
 
@@ -34,6 +37,9 @@ class MyWordDTO {
   DateTime createdAt;
   DateTime updatedAt;
   DateTime? deletedAt;
+  int remoteRevision;
+  String? lastMutationId;
+  DateTime? clientUpdatedAt;
 
   MyWordDTO({
     required this.myWordId,
@@ -43,6 +49,9 @@ class MyWordDTO {
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
+    this.remoteRevision = 0,
+    this.lastMutationId,
+    this.clientUpdatedAt,
   });
 
   /// ----------------------------
@@ -60,7 +69,11 @@ class MyWordDTO {
         updatedAt: (data[fieldUpdatedAt] as Timestamp).toDate().toUtc(),
         deletedAt: deletedAtValue is Timestamp
             ? deletedAtValue.toDate().toUtc()
-            : null);
+            : null,
+        remoteRevision: data[fieldRevision] as int? ?? 0,
+        lastMutationId: data[fieldLastMutationId] as String?,
+        clientUpdatedAt:
+            (data[fieldClientUpdatedAt] as Timestamp?)?.toDate().toUtc());
   }
 
   MyWord toEntity() {
@@ -85,7 +98,12 @@ class MyWordDTO {
       fieldupdateBy: updateBy,
       fieldCreatedAt: Timestamp.fromDate(createdAt.toUtc()),
       fieldUpdatedAt: Timestamp.fromDate(updatedAt.toUtc()),
-      if (deletedAt != null) fieldDeletedAt: Timestamp.fromDate(deletedAt!.toUtc()),
+      if (deletedAt != null)
+        fieldDeletedAt: Timestamp.fromDate(deletedAt!.toUtc()),
+      fieldRevision: remoteRevision,
+      fieldLastMutationId: lastMutationId,
+      if (clientUpdatedAt != null)
+        fieldClientUpdatedAt: Timestamp.fromDate(clientUpdatedAt!.toUtc()),
     };
   }
 

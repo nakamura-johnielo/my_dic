@@ -48,6 +48,7 @@ void main() {
       payload: payload,
       fieldMask: const ['value'],
       localRevision: 1,
+      clientUpdatedAt: DateTime.utc(2026),
     );
     payload['value'] = 2;
     expect(mutation.payload['value'], 1);

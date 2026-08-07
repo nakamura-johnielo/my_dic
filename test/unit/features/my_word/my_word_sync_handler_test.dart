@@ -10,6 +10,7 @@ import 'package:my_dic/features/my_word/data/data_source/remote/myword/i_my_word
 import 'package:my_dic/features/my_word/data/sync/my_word_sync_handler.dart';
 import 'package:my_dic/features/sync/application/cancellation_token.dart';
 import 'package:my_dic/features/sync/application/model/dataset_sync_result.dart';
+import 'package:my_dic/features/sync/application/model/remote_mutation.dart';
 import 'package:my_dic/features/sync/application/model/sync_context.dart';
 import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
 import 'package:my_dic/features/sync/infrastructure/persistence/drift/drift_sync_checkpoint_store.dart';
@@ -19,6 +20,13 @@ import '../../../helpers/sync/fake_sync_queue.dart';
 class _MockRemote extends Mock implements IMyWordRemoteDataSource {}
 
 const _accountId = 'account-a';
+
+const _ack = RemoteMutationAck(
+  status: RemoteMutationAckStatus.applied,
+  remoteRevision: 1,
+  lastMutationId: 'remote-mutation',
+  serverUpdatedAt: null,
+);
 
 SyncMutation _mutation({
   required SyncMutationOperation operation,
@@ -36,6 +44,7 @@ SyncMutation _mutation({
       payload: payload,
       fieldMask: fieldMask,
       localRevision: localRevision,
+      clientUpdatedAt: DateTime.utc(2026),
     );
 
 void main() {
@@ -44,6 +53,14 @@ void main() {
   setUpAll(() {
     registerFallbackValue(<String, Object?>{});
     registerFallbackValue(<String>[]);
+    registerFallbackValue(RemoteMutationRequest(
+      accountId: _accountId,
+      entityId: 'word-1',
+      mutationId: 'fallback-mutation',
+      fields: const {'word': 'hola'},
+      fieldMask: const ['word'],
+      clientUpdatedAt: DateTime.utc(2026),
+    ));
   });
 
   late DatabaseProvider database;
@@ -81,6 +98,13 @@ void main() {
   group('MyWord sync handler push', () {
     test('pushes an upsert mutation as a field-mask patch and acks it',
         () async {
+      await dao.insertMyWordWithRevision(
+        id: 'word-1',
+        word: 'hola',
+        contents: 'greeting',
+        editAt: DateTime.utc(2026, 8, 1).toIso8601String(),
+        accountId: _accountId,
+      );
       queue.enqueue(_mutation(
         operation: SyncMutationOperation.upsert,
         fieldMask: const ['word', 'contents'],
@@ -88,13 +112,7 @@ void main() {
       ));
       when(() => remote.getMyWordById(_accountId, 'word-1'))
           .thenAnswer((_) async => null);
-      when(() => remote.patchMyWord(
-            _accountId,
-            'word-1',
-            any(),
-            any(),
-            isNew: any(named: 'isNew'),
-          )).thenAnswer((_) async {});
+      when(() => remote.patchMyWord(any())).thenAnswer((_) async => _ack);
       when(() => remote.getMyWordsAfter(_accountId, any()))
           .thenAnswer((_) async => const []);
 
@@ -104,16 +122,17 @@ void main() {
       expect((result as DatasetSyncSuccess).pushedCount, 1);
       expect(queue.pending, isEmpty);
       expect(queue.leased, isEmpty);
-      verify(() => remote.patchMyWord(
-            _accountId,
-            'word-1',
-            const {'word': 'hola', 'contents': 'greeting'},
-            const ['word', 'contents'],
-            isNew: true,
-          )).called(1);
+      verify(() => remote.patchMyWord(any())).called(1);
     });
 
     test('pushes a delete mutation using the same patch contract', () async {
+      await dao.insertMyWordWithRevision(
+        id: 'word-1',
+        word: 'hola',
+        contents: 'greeting',
+        editAt: DateTime.utc(2026, 8, 1).toIso8601String(),
+        accountId: _accountId,
+      );
       queue.enqueue(_mutation(
         operation: SyncMutationOperation.delete,
         fieldMask: const ['deletedAt'],
@@ -127,13 +146,7 @@ void main() {
                 createdAt: DateTime.utc(2026, 8, 1),
                 updatedAt: DateTime.utc(2026, 8, 1),
               ));
-      when(() => remote.patchMyWord(
-            _accountId,
-            'word-1',
-            any(),
-            any(),
-            isNew: any(named: 'isNew'),
-          )).thenAnswer((_) async {});
+      when(() => remote.patchMyWord(any())).thenAnswer((_) async => _ack);
       when(() => remote.getMyWordsAfter(_accountId, any()))
           .thenAnswer((_) async => const []);
 
@@ -141,27 +154,19 @@ void main() {
 
       expect(result, isA<DatasetSyncSuccess>());
       expect((result as DatasetSyncSuccess).pushedCount, 1);
-      verify(() => remote.patchMyWord(
-            _accountId,
-            'word-1',
-            any(that: containsPair('deletedAt', isNotNull)),
-            const ['deletedAt'],
-            isNew: false,
-          )).called(1);
+      verify(() => remote.patchMyWord(any())).called(1);
     });
 
-    test('session invalidation after remote read does not patch or ack',
-        () async {
+    test('session invalidation after remote write does not ack', () async {
       queue.enqueue(_mutation(
         operation: SyncMutationOperation.patch,
         fieldMask: const ['word'],
         payload: const {'word': 'hola!'},
       ));
       final cancellation = CancellationToken();
-      when(() => remote.getMyWordById(_accountId, 'word-1'))
-          .thenAnswer((_) async {
+      when(() => remote.patchMyWord(any())).thenAnswer((_) async {
         cancellation.cancel('account changed');
-        return null;
+        return _ack;
       });
 
       final result = await handler.run(SyncContext(
@@ -174,13 +179,7 @@ void main() {
       expect(result, isA<DatasetSyncCancelled>());
       expect(queue.leased, hasLength(1));
       expect(queue.pending, isEmpty);
-      verifyNever(() => remote.patchMyWord(
-            any(),
-            any(),
-            any(),
-            any(),
-            isNew: any(named: 'isNew'),
-          ));
+      verify(() => remote.patchMyWord(any())).called(1);
     });
 
     test('a retryable remote failure re-queues the mutation as pending',
@@ -190,8 +189,7 @@ void main() {
         fieldMask: const ['word'],
         payload: const {'word': 'hola!'},
       ));
-      when(() => remote.getMyWordById(_accountId, 'word-1'))
-          .thenThrow(Exception('unavailable'));
+      when(() => remote.patchMyWord(any())).thenThrow(Exception('unavailable'));
       when(() => remote.getMyWordsAfter(_accountId, any()))
           .thenAnswer((_) async => const []);
 
@@ -209,7 +207,7 @@ void main() {
         fieldMask: const ['word'],
         payload: const {'word': 'hola!'},
       ));
-      when(() => remote.getMyWordById(_accountId, 'word-1'))
+      when(() => remote.patchMyWord(any()))
           .thenThrow(Exception('invalid-argument'));
       when(() => remote.getMyWordsAfter(_accountId, any()))
           .thenAnswer((_) async => const []);

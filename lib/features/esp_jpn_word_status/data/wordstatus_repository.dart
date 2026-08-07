@@ -54,6 +54,7 @@ class WordStatusRepository implements IWordStatusRepository {
               payload: payload,
               fieldMask: fieldMask,
               localRevision: row.localRevision,
+              clientUpdatedAt: editAt.toUtc(),
             ));
           }
         }

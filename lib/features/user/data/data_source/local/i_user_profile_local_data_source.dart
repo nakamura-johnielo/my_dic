@@ -20,9 +20,19 @@ abstract class IUserProfileLocalDataSource {
 
   /// Applies a pulled remote snapshot without bumping `local_revision` or
   /// enqueueing an outbox mutation. `null` per field means "leave untouched".
-  Future<void> applyRemoteFields(String accountId, {String? username});
+  Future<void> applyRemoteFields(String accountId,
+      {String? username, String? remoteRevision, String? lastMutationId});
 
   /// Runs [action] within a single Drift transaction so callers can combine
   /// a profile row write with an outbox mutation atomically.
   Future<T> runInTransaction<T>(Future<T> Function() action);
+
+  /// Stores server metadata only if the local profile still has the revision
+  /// leased for the remote mutation.
+  Future<bool> acknowledgeRemoteMutation({
+    required String accountId,
+    required int localRevision,
+    required String remoteRevision,
+    required String? lastMutationId,
+  });
 }

@@ -26,11 +26,23 @@ abstract class ILocalJpnEspWordStatusDataSource {
     bool? hasNote,
     required String editAt,
     required String accountId,
+    String? remoteRevision,
+    String? lastMutationId,
   });
 
   /// Runs [action] within a single Drift transaction so that callers can
   /// combine a status row write with an outbox mutation atomically.
   Future<T> runInTransaction<T>(Future<T> Function() action);
+
+  /// Stores server metadata only if [localRevision] still identifies the
+  /// leased edit.
+  Future<bool> acknowledgeRemoteMutation({
+    required int wordId,
+    required String accountId,
+    required int localRevision,
+    required String remoteRevision,
+    required String? lastMutationId,
+  });
 
   /// Deletes a single row for [id] scoped to [accountId]. Used by the
   /// guest-to-account migration to remove a guest row once merged.

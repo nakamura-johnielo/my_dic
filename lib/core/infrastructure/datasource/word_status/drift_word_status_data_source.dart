@@ -59,6 +59,8 @@ class DriftWordStatusDataSource implements ILocalWordStatusDataSource {
     bool? hasNote,
     required String editAt,
     required String accountId,
+    String? remoteRevision,
+    String? lastMutationId,
   }) {
     return _dao.applyRemoteFields(
       wordId,
@@ -67,12 +69,30 @@ class DriftWordStatusDataSource implements ILocalWordStatusDataSource {
       hasNote: hasNote,
       editAt: editAt,
       accountId: accountId,
+      remoteRevision: remoteRevision,
+      lastMutationId: lastMutationId,
     );
   }
 
   @override
   Future<T> runInTransaction<T>(Future<T> Function() action) =>
       _dao.transaction(action);
+
+  @override
+  Future<bool> acknowledgeRemoteMutation({
+    required int wordId,
+    required String accountId,
+    required int localRevision,
+    required String remoteRevision,
+    required String? lastMutationId,
+  }) =>
+      _dao.acknowledgeRemoteMutation(
+        wordId: wordId,
+        accountId: accountId,
+        localRevision: localRevision,
+        remoteRevision: remoteRevision,
+        lastMutationId: lastMutationId,
+      );
 
   @override
   Future<void> deleteRow(int id, String accountId) =>

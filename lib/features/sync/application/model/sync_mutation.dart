@@ -14,10 +14,12 @@ class SyncMutation {
     required Map<String, Object?> payload,
     required Iterable<String> fieldMask,
     required this.localRevision,
+    required DateTime clientUpdatedAt,
     this.baseRemoteRevision,
     this.payloadVersion = 1,
   })  : payload = UnmodifiableMapView(Map.of(payload)),
         fieldMask = List.unmodifiable(fieldMask),
+        clientUpdatedAt = clientUpdatedAt.toUtc(),
         assert(mutationId != ''),
         assert(accountId != ''),
         assert(entityId != ''),
@@ -33,6 +35,9 @@ class SyncMutation {
   final List<String> fieldMask;
   final int payloadVersion;
   final int localRevision;
+
+  /// UTC timestamp of the local edit represented by this mutation.
+  final DateTime clientUpdatedAt;
   final String? baseRemoteRevision;
 }
 

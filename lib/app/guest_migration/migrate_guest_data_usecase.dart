@@ -119,6 +119,7 @@ class MigrateGuestDataUseCase {
         payload: {'username': guestUsername},
         fieldMask: const ['username'],
         localRevision: migrated.localRevision,
+        clientUpdatedAt: _clock().toUtc(),
       ));
     }
 
@@ -162,6 +163,7 @@ class MigrateGuestDataUseCase {
         },
         fieldMask: const ['isLearned', 'isBookmarked', 'hasNote'],
         localRevision: updated.localRevision,
+        clientUpdatedAt: DateTime.parse(editAt).toUtc(),
       ));
     }
   }
@@ -201,6 +203,7 @@ class MigrateGuestDataUseCase {
         },
         fieldMask: const ['isLearned', 'isBookmarked', 'hasNote'],
         localRevision: updated.localRevision,
+        clientUpdatedAt: DateTime.parse(editAt).toUtc(),
       ));
     }
   }
@@ -226,6 +229,7 @@ class MigrateGuestDataUseCase {
         payload: {'word': migrated.word, 'contents': migrated.contents},
         fieldMask: const ['word', 'contents'],
         localRevision: migrated.localRevision,
+        clientUpdatedAt: _clock().toUtc(),
       ));
     }
   }
@@ -272,6 +276,7 @@ class MigrateGuestDataUseCase {
         },
         fieldMask: const ['isLearned', 'isBookmarked', 'hasNote'],
         localRevision: migrated.localRevision,
+        clientUpdatedAt: DateTime.parse(editAt).toUtc(),
       ));
     }
   }

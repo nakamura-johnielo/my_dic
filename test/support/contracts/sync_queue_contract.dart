@@ -20,6 +20,7 @@ SyncMutation contractMutation(String id,
       payload: {'id': id},
       fieldMask: const ['id'],
       localRevision: revision,
+      clientUpdatedAt: DateTime.utc(2026),
     );
 
 void syncQueueContract(

@@ -1,7 +1,9 @@
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_dic/core/shared/consts/firebase.dart';
+import 'package:my_dic/core/infrastructure/database/firebase/remote_mutation_transaction.dart';
 import 'package:my_dic/features/my_word/data/data_source/remote/status/firebase_my_word_status_dto.dart';
+import 'package:my_dic/features/sync/application/model/remote_mutation.dart';
 import 'package:my_dic/features/user/data/dto/user_dto.dart';
 
 class FirebaseMyWordStatusDao {
@@ -139,27 +141,20 @@ class FirebaseMyWordStatusDao {
   /// Merge-writes only [fieldMask] keys plus bookkeeping timestamps, so that
   /// fields not covered by the sync outbox mutation are left untouched. Bool
   /// payload values are converted to the DTO's 0/1 int convention.
-  Future<void> patch(
-    String userId,
-    String myWordId,
-    Map<String, Object?> fields,
-    List<String> fieldMask, {
-    required bool isNew,
-  }) async {
+  Future<RemoteMutationAck> patch(RemoteMutationRequest request) {
     final docRef = _db
         .collection(UserDTO.collectionName)
-        .doc(userId)
+        .doc(request.accountId)
         .collection(MyWordStatusDTO.collectionName)
-        .doc(myWordId);
-    final data = <String, dynamic>{MyWordStatusDTO.fieldMyWordId: myWordId};
-    for (final field in fieldMask) {
-      final value = fields[field];
-      data[field] = value is bool ? (value ? 1 : 0) : value;
-    }
-    data[MyWordStatusDTO.fieldUpdatedAt] = FieldValue.serverTimestamp();
-    if (isNew) {
-      data[MyWordStatusDTO.fieldCreatedAt] = FieldValue.serverTimestamp();
-    }
-    await docRef.set(data, SetOptions(merge: true));
+        .doc(request.entityId);
+    return RemoteMutationTransaction.apply(
+      firestore: _db,
+      reference: docRef,
+      request: request,
+      identityFields: {MyWordStatusDTO.fieldMyWordId: request.entityId},
+      encodeField: (field, value) => {
+        field: value is bool ? (value ? 1 : 0) : value,
+      },
+    );
   }
 }

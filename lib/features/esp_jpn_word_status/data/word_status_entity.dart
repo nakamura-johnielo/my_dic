@@ -12,6 +12,9 @@ class WordStatusDTO {
   static const String fieldupdateBy = "updateBy";
   static const String fieldCreatedAt = "createdAt";
   static const String fieldUpdatedAt = "updatedAt";
+  static const String fieldRevision = "revision";
+  static const String fieldLastMutationId = "lastMutationId";
+  static const String fieldClientUpdatedAt = "clientUpdatedAt";
 
   //!TODO finalにすべき？copywith?
 
@@ -22,6 +25,9 @@ class WordStatusDTO {
   String? updateBy;
   DateTime createdAt;
   DateTime updatedAt;
+  int remoteRevision;
+  String? lastMutationId;
+  DateTime? clientUpdatedAt;
 
   WordStatusDTO({
     required this.wordId,
@@ -31,6 +37,9 @@ class WordStatusDTO {
     this.updateBy,
     required this.createdAt,
     required this.updatedAt,
+    this.remoteRevision = 0,
+    this.lastMutationId,
+    this.clientUpdatedAt,
   });
 
   /// ----------------------------
@@ -46,7 +55,11 @@ class WordStatusDTO {
         hasNote: data[fieldHasNote],
         updateBy: data[fieldupdateBy],
         createdAt: (data[fieldCreatedAt] as Timestamp).toDate().toUtc(),
-        updatedAt: (data[fieldUpdatedAt] as Timestamp).toDate().toUtc());
+        updatedAt: (data[fieldUpdatedAt] as Timestamp).toDate().toUtc(),
+        remoteRevision: data[fieldRevision] as int? ?? 0,
+        lastMutationId: data[fieldLastMutationId] as String?,
+        clientUpdatedAt:
+            (data[fieldClientUpdatedAt] as Timestamp?)?.toDate().toUtc());
   }
 
   WordStatus toEntity() {
@@ -71,6 +84,10 @@ class WordStatusDTO {
       fieldupdateBy: updateBy,
       fieldCreatedAt: Timestamp.fromDate(createdAt.toUtc()),
       fieldUpdatedAt: Timestamp.fromDate(updatedAt.toUtc()),
+      fieldRevision: remoteRevision,
+      fieldLastMutationId: lastMutationId,
+      if (clientUpdatedAt != null)
+        fieldClientUpdatedAt: Timestamp.fromDate(clientUpdatedAt!.toUtc()),
     };
   }
 

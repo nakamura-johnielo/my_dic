@@ -176,13 +176,11 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
       final nextRevision = existing.localRevision + 1;
       await (delete(myWordStatus)
             ..where((tbl) =>
-                tbl.myWordId.equals(wordId) &
-                tbl.accountId.equals(accountId)))
+                tbl.myWordId.equals(wordId) & tbl.accountId.equals(accountId)))
           .go();
       await (update(myWords)
             ..where((tbl) =>
-                tbl.myWordId.equals(wordId) &
-                tbl.accountId.equals(accountId)))
+                tbl.myWordId.equals(wordId) & tbl.accountId.equals(accountId)))
           .write(
         MyWordsCompanion(
           deletedAt: Value(DateTime.parse(deletedAt)),
@@ -247,6 +245,27 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
         .distinct();
   }
 
+  /// Persists the remote transaction acknowledgement only when no later
+  /// local write has superseded the leased revision.
+  Future<bool> acknowledgeRemoteMutation({
+    required String wordId,
+    required String accountId,
+    required int localRevision,
+    required String remoteRevision,
+    required String? lastMutationId,
+  }) async {
+    final changed = await (update(myWords)
+          ..where((t) =>
+              t.myWordId.equals(wordId) &
+              t.accountId.equals(accountId) &
+              t.localRevision.equals(localRevision)))
+        .write(MyWordsCompanion(
+      remoteRevision: Value(remoteRevision),
+      lastMutationId: Value(lastMutationId),
+    ));
+    return changed == 1;
+  }
+
   /// Applies a pulled remote snapshot to the local row without bumping
   /// `local_revision` or touching the outbox, so remote apply never looks
   /// like a fresh local edit. `null` per field means "leave untouched" (used
@@ -261,6 +280,8 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
     String? deletedAt,
     required String editAt,
     required String accountId,
+    String? remoteRevision,
+    String? lastMutationId,
   }) {
     return transaction(() async {
       final existing = await (select(myWords)
@@ -281,8 +302,10 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
             editAt: editAt,
             accountId: Value(accountId),
             localRevision: const Value(0),
-            deletedAt: Value(
-                deletedAt != null ? DateTime.parse(deletedAt) : null),
+            remoteRevision: Value(remoteRevision),
+            lastMutationId: Value(lastMutationId),
+            deletedAt:
+                Value(deletedAt != null ? DateTime.parse(deletedAt) : null),
           ),
         );
         return;
@@ -298,6 +321,12 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
           editAt: Value(editAt),
           deletedAt: deletedAt != null
               ? Value(DateTime.parse(deletedAt))
+              : const Value.absent(),
+          remoteRevision: remoteRevision != null
+              ? Value(remoteRevision)
+              : const Value.absent(),
+          lastMutationId: lastMutationId != null
+              ? Value(lastMutationId)
               : const Value.absent(),
         ),
       );

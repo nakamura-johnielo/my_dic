@@ -10,7 +10,7 @@ void main() {
 
   group('DatabaseProvider legacy migrations', () {
     for (final version in [1, 2, 3, 4, 5]) {
-      test('migrates v$version MyWord relations and values to v6', () async {
+      test('migrates v$version MyWord relations and values to v7', () async {
         final fixture = await _LegacyFixture.create(version: version);
         final database = DatabaseProvider.forTesting(
           NativeDatabase(fixture.file),
@@ -35,7 +35,7 @@ void main() {
               await database.customSelect('PRAGMA user_version;').getSingle();
 
           expect(idColumn.data['type'], 'TEXT');
-          expect(userVersion.data['user_version'], 6);
+          expect(userVersion.data['user_version'], 7);
           final ownership = await database.customSelect('''
             SELECT account_id, local_revision, deleted_at
             FROM my_words ORDER BY CAST(my_word_id AS INTEGER)
@@ -142,7 +142,79 @@ void main() {
         await fixture.dispose();
       }
     });
+
+    test('migrates v6 outbox client update time from its enqueue time',
+        () async {
+      final fixture = await _V6OutboxFixture.create();
+      final database =
+          DatabaseProvider.forTesting(NativeDatabase(fixture.file));
+
+      try {
+        final row = await database.customSelect('''
+          SELECT created_at, client_updated_at FROM sync_outbox
+          WHERE mutation_id = 'queued-mutation'
+        ''').getSingle();
+        final userVersion =
+            await database.customSelect('PRAGMA user_version;').getSingle();
+
+        expect(row.data['client_updated_at'], row.data['created_at']);
+        expect(userVersion.data['user_version'], 7);
+      } finally {
+        await database.close();
+        await fixture.dispose();
+      }
+    });
   });
+}
+
+class _V6OutboxFixture {
+  _V6OutboxFixture._(this.directory, this.file);
+
+  final Directory directory;
+  final File file;
+
+  static Future<_V6OutboxFixture> create() async {
+    final directory = await Directory.systemTemp.createTemp('my_dic_v6_outbox');
+    final file = File(
+      '${directory.path}${Platform.pathSeparator}fixture.sqlite',
+    );
+    final database = sqlite3.open(file.path);
+    try {
+      final createdAt = DateTime.utc(2026, 8, 7).millisecondsSinceEpoch;
+      database.execute('''
+        CREATE TABLE sync_outbox (
+          mutation_id TEXT NOT NULL PRIMARY KEY,
+          account_id TEXT NOT NULL,
+          dataset TEXT NOT NULL,
+          entity_id TEXT NOT NULL,
+          operation TEXT NOT NULL,
+          payload TEXT NOT NULL,
+          field_mask TEXT NOT NULL,
+          payload_version INTEGER NOT NULL,
+          local_revision INTEGER NOT NULL,
+          base_remote_revision TEXT,
+          state TEXT NOT NULL,
+          attempt_count INTEGER NOT NULL,
+          next_attempt_at INTEGER NOT NULL,
+          lease_token TEXT,
+          lease_until INTEGER,
+          created_at INTEGER NOT NULL,
+          last_error_code TEXT
+        );
+        INSERT INTO sync_outbox VALUES (
+          'queued-mutation', 'account-a', 'my_words', 'word-1', 'patch',
+          '{}', '[]', 1, 1, NULL, 'pending', 0, $createdAt, NULL, NULL,
+          $createdAt, NULL
+        );
+        PRAGMA user_version = 6;
+      ''');
+    } finally {
+      database.dispose();
+    }
+    return _V6OutboxFixture._(directory, file);
+  }
+
+  Future<void> dispose() => directory.delete(recursive: true);
 }
 
 class _LegacyFixture {

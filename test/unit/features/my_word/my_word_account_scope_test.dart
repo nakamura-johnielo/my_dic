@@ -46,8 +46,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() {
-    registerFallbackValue(RegisterMyWordRepositoryInputData(
-        'w', '', DateTime.utc(2026), null));
+    registerFallbackValue(
+        RegisterMyWordRepositoryInputData('w', '', DateTime.utc(2026), null));
     registerFallbackValue(UpdateMyWordStatusRepositoryInputData(
         'w', null, null, null, DateTime.utc(2026), null));
     registerFallbackValue(LoadMyWordRepositoryInputData(0, 0));
@@ -60,6 +60,7 @@ void main() {
       payload: const {},
       fieldMask: const [],
       localRevision: 0,
+      clientUpdatedAt: DateTime.utc(2026),
     ));
     registerFallbackValue(MyWordDTO.fromAppEntity(
       MyWord(wordId: 'fallback', word: 'fallback', contents: ''),
@@ -109,8 +110,7 @@ void main() {
       expect(crossRead.isFailure, isTrue);
     });
 
-    test('guest writes are isolated from a signed-in account scope',
-        () async {
+    test('guest writes are isolated from a signed-in account scope', () async {
       final guestResult = await repository.registerWord(
           RegisterMyWordRepositoryInputData(
               'perro', 'dog', DateTime.utc(2026, 8, 6), null));
@@ -142,7 +142,8 @@ void main() {
 
     tearDown(() => database.close());
 
-    test('two signed-in accounts on the same wordId do not overwrite each '
+    test(
+        'two signed-in accounts on the same wordId do not overwrite each '
         'other', () async {
       await repository.updateStatus(UpdateMyWordStatusRepositoryInputData(
           'word-1', 1, 0, null, DateTime.utc(2026, 8, 6), 'account-a'));
@@ -160,8 +161,7 @@ void main() {
       expect(bStatus.isBookmarked, isTrue);
     });
 
-    test('guest writes are isolated from a signed-in account scope',
-        () async {
+    test('guest writes are isolated from a signed-in account scope', () async {
       await repository.updateStatus(UpdateMyWordStatusRepositoryInputData(
           'word-1', 1, 1, null, DateTime.utc(2026, 8, 6), null));
 
@@ -179,15 +179,13 @@ void main() {
   });
 
   group('Load/Watch interactors resolve accountId from CurrentSession', () {
-    test('LoadMyWordInteractor uses the guest scope when signed out',
-        () async {
+    test('LoadMyWordInteractor uses the guest scope when signed out', () async {
       final repository = _MockMyWordRepository();
       when(() => repository.getIdsFilteredByPage(any(),
               accountId: any(named: 'accountId')))
           .thenAnswer((_) async => const Result.success(['w1']));
 
-      final interactor =
-          LoadMyWordInteractor(repository, FakeCurrentSession());
+      final interactor = LoadMyWordInteractor(repository, FakeCurrentSession());
       await interactor.executeIds(LoadMyWordInputData(10, 0));
 
       verify(() => repository.getIdsFilteredByPage(any(),
@@ -205,17 +203,18 @@ void main() {
       final interactor = LoadMyWordInteractor(repository, session);
       await interactor.executeIds(LoadMyWordInputData(10, 0));
 
-      verify(() => repository.getIdsFilteredByPage(any(),
-          accountId: 'account-a')).called(1);
+      verify(() =>
+              repository.getIdsFilteredByPage(any(), accountId: 'account-a'))
+          .called(1);
     });
 
     test('WatchMyWordInteractor resolves CurrentSession accountId scope',
         () async {
       final repository = _MockMyWordRepository();
-      when(() => repository.watchMyWord(any(),
-              accountId: any(named: 'accountId')))
-          .thenAnswer((_) => Stream.value(MyWord(
-              wordId: 'w1', word: 'hola', contents: '')));
+      when(() =>
+              repository.watchMyWord(any(), accountId: any(named: 'accountId')))
+          .thenAnswer((_) =>
+              Stream.value(MyWord(wordId: 'w1', word: 'hola', contents: '')));
 
       final signedIn = WatchMyWordInteractor(
           repository, FakeCurrentSession(accountIdOrNull: 'account-c'));
@@ -225,16 +224,16 @@ void main() {
 
       final guest = WatchMyWordInteractor(repository, FakeCurrentSession());
       guest.execute('w1');
-      verify(() =>
-              repository.watchMyWord('w1', accountId: guestAccountScope))
+      verify(() => repository.watchMyWord('w1', accountId: guestAccountScope))
           .called(1);
     });
 
-    test('WatchMyWordStatusInteractor resolves CurrentSession accountId '
+    test(
+        'WatchMyWordStatusInteractor resolves CurrentSession accountId '
         'scope', () async {
       final repository = _MockMyWordStatusRepository();
-      when(() => repository.watchStatus(any(),
-              accountId: any(named: 'accountId')))
+      when(() =>
+              repository.watchStatus(any(), accountId: any(named: 'accountId')))
           .thenAnswer((_) => Stream.value(MyWordStatus(wordId: 'w1')));
 
       final signedIn = WatchMyWordStatusInteractor(
@@ -246,8 +245,7 @@ void main() {
       final guest =
           WatchMyWordStatusInteractor(repository, FakeCurrentSession());
       guest.execute('w1');
-      verify(() =>
-              repository.watchStatus('w1', accountId: guestAccountScope))
+      verify(() => repository.watchStatus('w1', accountId: guestAccountScope))
           .called(1);
     });
   });

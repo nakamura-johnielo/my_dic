@@ -9,6 +9,9 @@ class UserDTO {
   static const String fieldCreatedAt = "createdAt";
   static const String fieldUpdatedAt = "updatedAt";
   static const String fieldSubscriptionStatus = "subscriptionStatus";
+  static const String fieldRevision = "revision";
+  static const String fieldLastMutationId = "lastMutationId";
+  static const String fieldClientUpdatedAt = "clientUpdatedAt";
 
   final String userId; //TODO accountID
   //TODO List devices
@@ -17,6 +20,9 @@ class UserDTO {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final SubscriptionStatus? subscriptionStatus;
+  final int remoteRevision;
+  final String? lastMutationId;
+  final DateTime? clientUpdatedAt;
 
   UserDTO({
     this.subscriptionStatus,
@@ -25,6 +31,9 @@ class UserDTO {
     this.userName,
     this.createdAt,
     this.updatedAt,
+    this.remoteRevision = 0,
+    this.lastMutationId,
+    this.clientUpdatedAt,
   });
 
   /// ----------------------------
@@ -46,6 +55,9 @@ class UserDTO {
       updatedAt: (data[fieldUpdatedAt] is Timestamp)
           ? (data[fieldUpdatedAt] as Timestamp).toDate()
           : null,
+      remoteRevision: data[fieldRevision] as int? ?? 0,
+      lastMutationId: data[fieldLastMutationId] as String?,
+      clientUpdatedAt: (data[fieldClientUpdatedAt] as Timestamp?)?.toDate(),
     );
   }
 
@@ -59,6 +71,9 @@ class UserDTO {
       'subscriptionStatus': subscriptionStatus?.subscriptionCode,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
+      fieldRevision: remoteRevision,
+      fieldLastMutationId: lastMutationId,
+      if (clientUpdatedAt != null) fieldClientUpdatedAt: clientUpdatedAt,
     };
   }
 
@@ -77,6 +92,9 @@ class UserDTO {
       createdAt: createdAt,
       updatedAt: DateTime.now().toUtc(),
       subscriptionStatus: subscriptionStatus ?? this.subscriptionStatus,
+      remoteRevision: remoteRevision,
+      lastMutationId: lastMutationId,
+      clientUpdatedAt: clientUpdatedAt,
     );
   }
 

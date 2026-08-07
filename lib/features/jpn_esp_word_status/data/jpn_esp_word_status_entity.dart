@@ -11,6 +11,9 @@ class JpnEspWordStatusDTO {
   static const String fieldupdateBy = "updateBy";
   static const String fieldCreatedAt = "createdAt";
   static const String fieldUpdatedAt = "updatedAt";
+  static const String fieldRevision = "revision";
+  static const String fieldLastMutationId = "lastMutationId";
+  static const String fieldClientUpdatedAt = "clientUpdatedAt";
 
   final int wordId;
   int isLearned;
@@ -19,6 +22,9 @@ class JpnEspWordStatusDTO {
   String? updateBy;
   DateTime createdAt;
   DateTime updatedAt;
+  int remoteRevision;
+  String? lastMutationId;
+  DateTime? clientUpdatedAt;
 
   JpnEspWordStatusDTO({
     required this.wordId,
@@ -28,6 +34,9 @@ class JpnEspWordStatusDTO {
     this.updateBy,
     required this.createdAt,
     required this.updatedAt,
+    this.remoteRevision = 0,
+    this.lastMutationId,
+    this.clientUpdatedAt,
   });
 
   /// Firestore → DTO conversion
@@ -41,7 +50,11 @@ class JpnEspWordStatusDTO {
         hasNote: data[fieldHasNote],
         updateBy: data[fieldupdateBy],
         createdAt: (data[fieldCreatedAt] as Timestamp).toDate().toUtc(),
-        updatedAt: (data[fieldUpdatedAt] as Timestamp).toDate().toUtc());
+        updatedAt: (data[fieldUpdatedAt] as Timestamp).toDate().toUtc(),
+        remoteRevision: data[fieldRevision] as int? ?? 0,
+        lastMutationId: data[fieldLastMutationId] as String?,
+        clientUpdatedAt:
+            (data[fieldClientUpdatedAt] as Timestamp?)?.toDate().toUtc());
   }
 
   /// DTO → Firestore conversion
@@ -54,6 +67,10 @@ class JpnEspWordStatusDTO {
       fieldupdateBy: updateBy,
       fieldCreatedAt: Timestamp.fromDate(createdAt),
       fieldUpdatedAt: Timestamp.fromDate(updatedAt),
+      fieldRevision: remoteRevision,
+      fieldLastMutationId: lastMutationId,
+      if (clientUpdatedAt != null)
+        fieldClientUpdatedAt: Timestamp.fromDate(clientUpdatedAt!.toUtc()),
     };
   }
 
@@ -69,7 +86,8 @@ class JpnEspWordStatusDTO {
   }
 
   /// Domain Entity → DTO conversion
-  static JpnEspWordStatusDTO fromDomain(JpnEspWordStatus status, {DateTime? now}) {
+  static JpnEspWordStatusDTO fromDomain(JpnEspWordStatus status,
+      {DateTime? now}) {
     final timestamp = now ?? DateTime.now().toUtc();
     return JpnEspWordStatusDTO(
       wordId: status.wordId,

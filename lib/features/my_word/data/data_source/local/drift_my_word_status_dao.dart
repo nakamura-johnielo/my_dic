@@ -102,6 +102,27 @@ class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
         .go();
   }
 
+  /// Persists the remote transaction acknowledgement only when no later
+  /// local write has superseded the leased revision.
+  Future<bool> acknowledgeRemoteMutation({
+    required String myWordId,
+    required String accountId,
+    required int localRevision,
+    required String remoteRevision,
+    required String? lastMutationId,
+  }) async {
+    final changed = await (update(myWordStatus)
+          ..where((t) =>
+              t.myWordId.equals(myWordId) &
+              t.accountId.equals(accountId) &
+              t.localRevision.equals(localRevision)))
+        .write(MyWordStatusCompanion(
+      remoteRevision: Value(remoteRevision),
+      lastMutationId: Value(lastMutationId),
+    ));
+    return changed == 1;
+  }
+
   /// Upserts the status row and bumps `local_revision` by 1 (new rows start
   /// at 1), so callers can enqueue a matching outbox mutation in the same
   /// transaction. `null` per field means "leave unchanged" on an update.
@@ -163,6 +184,8 @@ class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
     int? hasNote,
     required String editAt,
     required String accountId,
+    String? remoteRevision,
+    String? lastMutationId,
   }) {
     return transaction(() async {
       final existing = await getWordStatus(myWordId, accountId);
@@ -176,6 +199,8 @@ class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
             editAt: editAt,
             accountId: Value(accountId),
             localRevision: const Value(0),
+            remoteRevision: Value(remoteRevision),
+            lastMutationId: Value(lastMutationId),
           ),
         );
         return;
@@ -191,6 +216,12 @@ class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
               isBookmarked != null ? Value(isBookmarked) : const Value.absent(),
           hasNote: hasNote != null ? Value(hasNote) : const Value.absent(),
           editAt: Value(editAt),
+          remoteRevision: remoteRevision != null
+              ? Value(remoteRevision)
+              : const Value.absent(),
+          lastMutationId: lastMutationId != null
+              ? Value(lastMutationId)
+              : const Value.absent(),
         ),
       );
     });

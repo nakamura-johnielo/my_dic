@@ -17,6 +17,7 @@ class SyncOutbox extends Table {
   TextColumn get leaseToken => text().nullable()();
   DateTimeColumn get leaseUntil => dateTime().nullable()();
   DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get clientUpdatedAt => dateTime().named('client_updated_at')();
   TextColumn get lastErrorCode => text().nullable()();
   @override
   Set<Column> get primaryKey => {mutationId};

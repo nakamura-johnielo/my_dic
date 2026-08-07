@@ -1,6 +1,6 @@
 # Phase 1-7: Phase 2移行前の安全性・境界・品質ゲートを収束させる
 
-- 状態: 進行中（Stage 1、Stage 2のlocal品質ゲート、retry契約、Stage 4の実装は収束。remote protocolとPhase 1境界、clean checkout/CI確認は未完了）
+- 状態: 進行中（Stage 1〜4の実装は収束。Phase 1境界、clean checkout/CI、Firestore Emulator Rules実行は未完了）
 - 優先度: P0 / Phase 2移行ゲート
 - 依存タスク: [`1-create-composition-root.md`](1-create-composition-root.md)〜[`6-unify-word-status.md`](6-unify-word-status.md)、[`../local_first/1-define-local-first-contract.md`](../local_first/1-define-local-first-contract.md)〜[`../local_first/7-migrate-user-profile.md`](../local_first/7-migrate-user-profile.md)
 - 後続タスク: [`../local_first/8-cut-over-and-remove-legacy-sync.md`](../local_first/8-cut-over-and-remove-legacy-sync.md)、Phase 2
@@ -36,7 +36,7 @@ Phase 0、Phase 1、Local-first 1〜7で作った足場とproduction接続を監
 
 - 5つのproduction handlerは共通`SyncExecutionGuard`を注入済み。remote read後かつwrite前、remote commit後かつack前、remote例外後かつretry/dead-letter前、pull transaction内のapply/checkpoint/commit直前でsessionを再検証する。transaction内の失効は`SyncExecutionCancelled`を投げてDriftをrollbackし、handler境界で`DatasetSyncCancelled`へ変換する。
 - `MutationLease.attemptCount`、Drift/Fake queueのretry遷移、`delayForAttempt(lease.attemptCount + 1)`を接続済み。backoffの下限・上限・jitterとDrift queueのattempt増加testも存在する。
-- remote patchへ`mutationId`、revision、`baseRemoteRevision`が接続されていない。
+- remote patchは5 dataset共通の`RemoteMutationRequest`/`RemoteMutationAck`へ接続済み。Firestore client transactionが`revision`、`lastMutationId`、`clientUpdatedAt`、`updatedAt`、`schemaVersion`を一貫して扱い、duplicate/superseded/appliedを返す。handlerはローカルrevision照合、metadata更新、outbox ackを同じDrift transactionで確定し、superseded mutationはack後のpullでremote snapshotを反映する。
 - import境界検査器は`lib/**`に加えて`test/**`も走査し、fixture専用除外、test sourceのrule mapping、Windows/relative/package path、2/3 feature cycleを検査する。`analysis_options.yaml`の`test/**`除外も削除済み。2026-08-07に現working treeでbaseline照合、`flutter analyze`、全`flutter test`が成功した。clean checkoutとCIでの再現は未確認である。
 - `FakeEspRankingRepository.getRankingById`は現行interfaceへ追従済み。ただし全testの最終結果はこの文書では確定しない。
 - guest migrationはdialog承認後にもaccount+epochを確認し、usecase開始時・transaction開始時・commit直前にも`SessionFence`を検証する。失効時は`GuestMigrationSessionChanged`で全row/outboxをrollbackする。
@@ -44,9 +44,11 @@ Phase 0、Phase 1、Local-first 1〜7で作った足場とproduction接続を監
 - GoRouter本体の移設、bootstrap lifecycle、word statusのdomain/application契約統合などPhase 1境界の残件は未完了である。
 - `next-phase-guide.md`、`current.md`、`phase-scaffolding.md`、Local-first 6/7文書に実装済み状態と食い違う記述がある。
 
-### protocol Stageの中断判断
+### protocol Stageの実装状況
 
-repository内にはremote revision、server-confirmed acknowledgment、`lastMutationId`/`schemaVersion`、Firestore transaction/precondition、および対応するSecurity Rules/backend契約が存在しない。したがってStage 3のremote acknowledgment/revision/idempotencyとMyWordの`baseRemoteRevision`競合・rebase・tombstone競合は、中断条件に該当する未実装事項として残す。local schemaに`remoteRevision`/`lastMutationId`列があることやoutboxに`mutationId`があることだけで、remote protocolが完成したとは扱わない。
+7-2でremote revision/server acknowledgmentを実装した。`SyncMutation.clientUpdatedAt`は必須UTC値となり、Drift v7はv6 outboxの値を`created_at`から補完する。MyWord tombstoneはremote pullでもterminalであり、古い非削除snapshotは再生させない。`firestore.rules`と`firebase.json`は追加済みで、本人のUsers documentと4 subcollection、dataset別field allowlist、revision遷移、profileの認可field不変、hard delete禁止を制限する。
+
+Firestore Emulator Rulesの実行は未対応である。現行JDK 8ではfirebase-toolsが要求するJDK 21以上を満たさず、rules-unit-testing基盤も未導入のため、CI/環境整備後にEmulator上で認可・field/revision制約を検証する。
 
 ## 実装スコープ
 

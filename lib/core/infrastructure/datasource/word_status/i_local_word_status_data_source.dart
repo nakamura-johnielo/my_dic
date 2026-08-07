@@ -26,11 +26,24 @@ abstract class ILocalWordStatusDataSource {
     bool? hasNote,
     required String editAt,
     required String accountId,
+    String? remoteRevision,
+    String? lastMutationId,
   });
 
   /// Runs [action] within a single Drift transaction so that callers can
   /// combine a status row write with an outbox mutation atomically.
   Future<T> runInTransaction<T>(Future<T> Function() action);
+
+  /// Stores the server-confirmed revision only while the pushed local edit is
+  /// still the revision that was leased. This prevents an older push from
+  /// acknowledging metadata for a newer local edit.
+  Future<bool> acknowledgeRemoteMutation({
+    required int wordId,
+    required String accountId,
+    required int localRevision,
+    required String remoteRevision,
+    required String? lastMutationId,
+  });
 
   /// Deletes a single row for [id] scoped to [accountId]. Used by the
   /// guest-to-account migration to remove a guest row once merged.

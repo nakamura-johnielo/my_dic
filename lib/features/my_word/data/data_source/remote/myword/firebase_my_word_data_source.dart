@@ -1,6 +1,7 @@
 import 'package:my_dic/features/my_word/data/data_source/remote/myword/firebase_my_word_dao.dart';
 import 'package:my_dic/features/my_word/data/data_source/remote/myword/firebase_my_word_dto.dart';
 import 'package:my_dic/features/my_word/data/data_source/remote/myword/i_my_word_remote_data_source.dart';
+import 'package:my_dic/features/sync/application/model/remote_mutation.dart';
 
 class FirebaseMyWordDataSource implements IMyWordRemoteDataSource {
   final FirebaseMyWordDao _dao;
@@ -38,13 +39,7 @@ class FirebaseMyWordDataSource implements IMyWordRemoteDataSource {
   }
 
   @override
-  Future<void> patchMyWord(
-    String userId,
-    String myWordId,
-    Map<String, Object?> fields,
-    List<String> fieldMask, {
-    required bool isNew,
-  }) {
-    return _dao.patch(userId, myWordId, fields, fieldMask, isNew: isNew);
+  Future<RemoteMutationAck> patchMyWord(RemoteMutationRequest request) {
+    return _dao.patch(request);
   }
 }

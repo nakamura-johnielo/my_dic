@@ -39,6 +39,7 @@ class DriftOutboxWriter implements OutboxWriter {
               payloadVersion: Value(mutation.payloadVersion),
               localRevision: Value(mutation.localRevision),
               baseRemoteRevision: Value(mutation.baseRemoteRevision),
+              clientUpdatedAt: Value(mutation.clientUpdatedAt),
               nextAttemptAt: Value(now),
               lastErrorCode: const Value(null),
             ),
@@ -60,6 +61,7 @@ class DriftOutboxWriter implements OutboxWriter {
                 state: 'pending',
                 nextAttemptAt: now,
                 createdAt: now,
+                clientUpdatedAt: mutation.clientUpdatedAt,
               ),
             );
       });

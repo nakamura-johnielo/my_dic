@@ -28,10 +28,28 @@ class UserProfileDriftDataSource implements IUserProfileLocalDataSource {
       _dao.upsertProfileFields(accountId, fields);
 
   @override
-  Future<void> applyRemoteFields(String accountId, {String? username}) =>
-      _dao.applyRemoteFields(accountId, username: username);
+  Future<void> applyRemoteFields(String accountId,
+          {String? username, String? remoteRevision, String? lastMutationId}) =>
+      _dao.applyRemoteFields(accountId,
+          username: username,
+          remoteRevision: remoteRevision,
+          lastMutationId: lastMutationId);
 
   @override
   Future<T> runInTransaction<T>(Future<T> Function() action) =>
       _dao.runInTransaction(action);
+
+  @override
+  Future<bool> acknowledgeRemoteMutation({
+    required String accountId,
+    required int localRevision,
+    required String remoteRevision,
+    required String? lastMutationId,
+  }) =>
+      _dao.acknowledgeRemoteMutation(
+        accountId: accountId,
+        localRevision: localRevision,
+        remoteRevision: remoteRevision,
+        lastMutationId: lastMutationId,
+      );
 }

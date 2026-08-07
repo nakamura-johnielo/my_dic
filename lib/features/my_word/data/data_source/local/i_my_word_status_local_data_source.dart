@@ -35,11 +35,23 @@ abstract class IMyWordStatusLocalDataSource {
     int? hasNote,
     required String editAt,
     required String accountId,
+    String? remoteRevision,
+    String? lastMutationId,
   });
 
   /// Runs [action] within a single Drift transaction so callers can combine
   /// a status row write with an outbox mutation atomically.
   Future<T> runInTransaction<T>(Future<T> Function() action);
+
+  /// Stores server metadata only if the local row still has the revision
+  /// leased for the remote mutation.
+  Future<bool> acknowledgeRemoteMutation({
+    required String myWordId,
+    required String accountId,
+    required int localRevision,
+    required String remoteRevision,
+    required String? lastMutationId,
+  });
 
   /// Returns every row for [accountId]. Used by the guest-data
   /// detector/migration, which needs the full set rather than a single row.

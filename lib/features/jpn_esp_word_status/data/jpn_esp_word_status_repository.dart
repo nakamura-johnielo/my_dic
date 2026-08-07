@@ -54,6 +54,7 @@ class JpnEspWordStatusRepository implements IJpnEspWordStatusRepository {
               payload: payload,
               fieldMask: fieldMask,
               localRevision: row.localRevision,
+              clientUpdatedAt: editAt.toUtc(),
             ));
           }
         }
