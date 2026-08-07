@@ -102,50 +102,31 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
     );
   }
 
-  Widget _content(RankingState screen, EdgeInsetsGeometry margin) =>
-      switch (screen.rankings) {
-        QueryInitial() =>
-          const Center(child: Text('Rankings will load shortly.')),
-        QueryLoading(previousData: null) =>
-          const Center(child: CircularProgressIndicator()),
-        QueryEmpty() => const Center(child: Text('No rankings found.')),
-        QueryFailure(previousData: null, error: final error) => Center(
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Text(AppErrorMessage.from(error).text),
-              TextButton(
-                onPressed: () =>
-                    ref.read(rankingViewModelProvider.notifier).retry(),
-                child: const Text('Retry'),
-              ),
-            ]),
-          ),
-        QueryData(value: final data) ||
-        QueryLoading(previousData: final data?) ||
-        QueryFailure(previousData: final data?, error: _) =>
-          Column(children: [
-            for (final warning in screen.rankings.warnings)
-              _RetryWarning(
-                message: AppErrorMessage.from(warning.error).text,
-                onRetry: () =>
-                    ref.read(rankingViewModelProvider.notifier).retry(),
-              ),
-            if (screen.rankings
-                case QueryFailure(error: final error, previousData: _))
-              _RetryWarning(
-                message: AppErrorMessage.from(error).text,
-                onRetry: () =>
-                    ref.read(rankingViewModelProvider.notifier).retry(),
-              ),
-            Expanded(
-                child: InfinityScrollListView(
+  Widget _content(RankingState screen, EdgeInsetsGeometry margin) {
+    final data = screen.rankings.dataOrNull;
+    return Stack(
+      children: [
+        Column(children: [
+          for (final warning in screen.rankings.warnings)
+            _RetryWarning(
+              message: AppErrorMessage.from(warning.error).text,
+              onRetry: _infinityScrollController.retry,
+            ),
+          if (screen.rankings
+              case QueryFailure(error: final error, previousData: final _?))
+            _RetryWarning(
+              message: AppErrorMessage.from(error).text,
+              onRetry: _infinityScrollController.retry,
+            ),
+          Expanded(
+            child: InfinityScrollListView(
               autoLoadFirstPage: true,
               initialPage: _initialPage,
               controller: _infinityScrollController,
               onLoadMore: loadNextPage,
-              itemCount: data.items.length,
+              itemCount: data?.items.length ?? 0,
               itemBuilder: (context, index) {
-                final ranking = data.items[index];
-
+                final ranking = data!.items[index];
                 return RankingCard(
                   key: ValueKey("ranking-card-${ranking.wordId}"),
                   ranking: ranking,
@@ -164,8 +145,31 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
                   },
                 );
               },
-            )),
-          ]),
+            ),
+          ),
+        ]),
+        if (data == null)
+          Positioned.fill(child: _queryStateOverlay(screen.rankings)),
+      ],
+    );
+  }
+
+  Widget _queryStateOverlay(QueryState<RankingResults> rankings) =>
+      switch (rankings) {
+        QueryInitial() =>
+          const Center(child: Text('Rankings will load shortly.')),
+        QueryLoading() => const Center(child: CircularProgressIndicator()),
+        QueryEmpty() => const Center(child: Text('No rankings found.')),
+        QueryFailure(error: final error) => Center(
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Text(AppErrorMessage.from(error).text),
+              TextButton(
+                onPressed: _infinityScrollController.retry,
+                child: const Text('Retry'),
+              ),
+            ]),
+          ),
+        QueryData() => const SizedBox.shrink(),
       };
 }
 

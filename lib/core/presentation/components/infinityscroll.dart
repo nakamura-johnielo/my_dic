@@ -1,4 +1,3 @@
-
 import 'dart:math';
 import 'package:my_dic/core/shared/utils/logger.dart';
 
@@ -7,9 +6,13 @@ import 'package:flutter/material.dart';
 /// 親から reset を呼べるようにするための controller
 class InfinityScrollController {
   VoidCallback? _reset;
+  VoidCallback? _retry;
 
   /// ページ状態をリセット（次回スクロール/呼び出しで先頭ページからロード）
   void reset() => _reset?.call();
+
+  /// Retries the current page without resetting pagination.
+  void retry() => _retry?.call();
 }
 
 class InfinityScrollListView extends StatefulWidget {
@@ -80,11 +83,13 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
 
     // controller を接続
     widget.controller?._reset = _resetInternal;
+    widget.controller?._retry = _retryCurrentPage;
 
     if (widget.autoLoadFirstPage) {
       //default false
       // 初回はフレーム後に呼ぶ（position 未attach対策）
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
         _loadMore(); //TODO ifneeded?
       });
     }
@@ -96,13 +101,16 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
 
     if (oldWidget.controller != widget.controller) {
       oldWidget.controller?._reset = null;
+      oldWidget.controller?._retry = null;
       widget.controller?._reset = _resetInternal;
+      widget.controller?._retry = _retryCurrentPage;
     }
   }
 
   @override
   void dispose() {
     widget.controller?._reset = null;
+    widget.controller?._retry = null;
     _scrollController.removeListener(_onScroll);
     if (widget.scrollController == null) {
       _scrollController.dispose();
@@ -124,6 +132,7 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
   }
 
   void _resetInternal() {
+    if (!mounted) return;
     AppLogger.print("InfinityScrollListView reset");
     _resetScrollPosition();
 
@@ -136,12 +145,19 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
     if (widget.autoLoadFirstPage) {
       //default false
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
         _loadMore(); //TODO ifneeded?
       });
     }
   }
 
   void _onScroll() => _loadMoreIfNeeded();
+
+  void _retryCurrentPage() {
+    if (!mounted || _isLoading) return;
+    setState(() => _hasMore = true);
+    _loadMore();
+  }
 
   void _loadMoreIfNeeded() {
     if (!mounted) return;
@@ -159,7 +175,7 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
   }
 
   Future<void> _loadMore() async {
-    if (_isLoading || !_hasMore) return;
+    if (!mounted || _isLoading || !_hasMore) return;
 
     setState(() => _isLoading = true);
 

@@ -8,6 +8,7 @@ import 'package:my_dic/features/ranking/application/usecase/update_ranking_filte
 
 class FakeLoadRankingsUseCase implements ILoadRankingsUseCase {
   Result<RankingPage> _result;
+  final inputs = <LoadRankingsInputData>[];
 
   FakeLoadRankingsUseCase({required Result<RankingPage> result})
       : _result = result;
@@ -18,6 +19,7 @@ class FakeLoadRankingsUseCase implements ILoadRankingsUseCase {
 
   @override
   Future<Result<RankingPage>> execute(LoadRankingsInputData input) async {
+    inputs.add(input);
     return _result;
   }
 }
