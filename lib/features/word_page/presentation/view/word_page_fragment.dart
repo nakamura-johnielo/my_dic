@@ -199,20 +199,37 @@ class _TabWordPage extends ConsumerStatefulWidget {
 class _TabWordPageState extends ConsumerState<_TabWordPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  late List<Widget> _tabBodies;
-  late List<Widget> _tabBars;
 
   @override
   void initState() {
     super.initState();
+    _tabController = _createTabController(widget.input.tabs.length);
+  }
 
-    _tabController =
-        TabController(length: widget.input.tabs.keys.length, vsync: this);
-    _tabController.addListener(_tabListener);
+  @override
+  void didUpdateWidget(covariant _TabWordPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
 
-    _tabBodies =
-        widget.input.tabs.values.map((t) => _KeepAlivePage(child: t)).toList();
-    _tabBars = widget.input.tabs.keys.map((t) => Tab(text: t)).toList();
+    final tabCount = widget.input.tabs.length;
+    if (tabCount == _tabController.length) return;
+
+    final previousIndex = _tabController.index;
+    _tabController.removeListener(_tabListener);
+    _tabController.dispose();
+    _tabController = _createTabController(
+      tabCount,
+      initialIndex: previousIndex.clamp(0, tabCount - 1).toInt(),
+    );
+  }
+
+  TabController _createTabController(int length, {int initialIndex = 0}) {
+    final controller = TabController(
+      length: length,
+      vsync: this,
+      initialIndex: initialIndex,
+    );
+    controller.addListener(_tabListener);
+    return controller;
   }
 
   void _tabListener() {
@@ -228,6 +245,7 @@ class _TabWordPageState extends ConsumerState<_TabWordPage>
 
   @override
   Widget build(BuildContext context) {
+    final tabs = widget.input.tabs;
     return Scaffold(
       appBar: AppBar(
         title: Text('Word Page'),
@@ -239,13 +257,18 @@ class _TabWordPageState extends ConsumerState<_TabWordPage>
         ],
         bottom: TabBar(
           controller: _tabController,
-          tabs: _tabBars,
+          tabs: tabs.keys.map((title) => Tab(text: title)).toList(),
         ),
       ),
       body: TabBarView(
         //コンテンツ内でpadding,margin調整
         controller: _tabController,
-        children: _tabBodies,
+        children: tabs.entries
+            .map((entry) => _KeepAlivePage(
+                  key: ValueKey(entry.key),
+                  child: entry.value,
+                ))
+            .toList(),
       ),
       floatingActionButton: widget.input.floatingButton,
       floatingActionButtonLocation:
@@ -282,7 +305,7 @@ class _SingleWordPage extends StatelessWidget {
 //====================================================
 class _KeepAlivePage extends StatefulWidget {
   final Widget child;
-  const _KeepAlivePage({required this.child});
+  const _KeepAlivePage({super.key, required this.child});
 
   @override
   State<_KeepAlivePage> createState() => _KeepAlivePageState();
