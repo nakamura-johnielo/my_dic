@@ -16,6 +16,12 @@ class UserProfileDao extends DatabaseAccessor<DatabaseProvider>
         .getSingleOrNull();
   }
 
+  Stream<UserProfile?> watchProfile(String accountId) {
+    return (select(userProfiles)
+          ..where((tbl) => tbl.accountId.equals(accountId)))
+        .watchSingleOrNull();
+  }
+
   Future<void> deleteProfile(String accountId) async {
     await (delete(userProfiles)
           ..where((tbl) => tbl.accountId.equals(accountId)))

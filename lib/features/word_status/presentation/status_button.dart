@@ -1,10 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/components/button/my_icon_button.dart';
-import 'package:my_dic/features/word_status/domain/dictionary_direction.dart';
-import 'package:my_dic/features/word_status/presentation/word_status_di.dart';
 
 abstract interface class WordStatusViewModel {
   bool get isLearned;
@@ -18,37 +15,30 @@ abstract interface class WordStatusViewModel {
 
 /// Shared presentation component for dictionary word status.
 ///
-/// Dataset-specific repository and sync details stay behind the direction
-/// adapters registered in [wordStatusViewModelProvider].
-class DictionaryStatusButtons extends ConsumerWidget {
+/// Dataset-specific repository and sync details are resolved by the app-level
+/// composition adapter before this shared component is built.
+class DictionaryStatusButtons extends StatelessWidget {
   const DictionaryStatusButtons({
     super.key,
-    required this.wordId,
-    required this.direction,
+    required this.viewModel,
   });
 
-  final int wordId;
-  final DictionaryDirection direction;
+  final WordStatusViewModel viewModel;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final viewModel = ref.watch(wordStatusViewModelProvider((
-      direction: direction,
-      wordId: wordId,
-    )));
+  Widget build(BuildContext context) {
     return _StatusButtons(viewModel: viewModel);
   }
 }
 
-class MyWordStatusButtons extends ConsumerWidget {
-  const MyWordStatusButtons({super.key, required this.wordId});
+class MyWordStatusButtons extends StatelessWidget {
+  const MyWordStatusButtons({super.key, required this.viewModel});
 
-  final String wordId;
+  final WordStatusViewModel viewModel;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return _StatusButtons(
-        viewModel: ref.watch(myWordStatusViewModelProvider(wordId)));
+  Widget build(BuildContext context) {
+    return _StatusButtons(viewModel: viewModel);
   }
 }
 

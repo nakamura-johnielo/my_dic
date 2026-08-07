@@ -113,8 +113,9 @@ class JpnEspWordStatusRepository implements IJpnEspWordStatusRepository {
   Stream<JpnEspWordStatus> watchWordStatusById(int id,
       {required String accountId}) {
     return _local.watchWordStatusById(id, accountId).map((data) {
-      if (data == null)
+      if (data == null) {
         throw Exception('JpnEsp word status not found for id: $id');
+      }
       return JpnEspWordStatusConverter.toEntity(data);
     });
   }

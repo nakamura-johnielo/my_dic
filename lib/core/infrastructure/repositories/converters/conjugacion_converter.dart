@@ -48,239 +48,239 @@ class ConjugacionConverter {
 
     if (conjugacion.presentParticiple != null &&
         conjugacion.presentParticiple!.isNotEmpty) {
-      res[MoodTenseSubject.present_participle] = conjugacion.presentParticiple!;
+      res[MoodTenseSubject.presentParticiple] = conjugacion.presentParticiple!;
     }
     if (conjugacion.pastParticiple != null &&
         conjugacion.pastParticiple!.isNotEmpty) {
-      res[MoodTenseSubject.past_participle] = conjugacion.pastParticiple!;
+      res[MoodTenseSubject.pastParticiple] = conjugacion.pastParticiple!;
     }
     if (conjugacion.indicativePresentYo != null &&
         conjugacion.indicativePresentYo!.isNotEmpty) {
-      res[MoodTenseSubject.indicativePresent_yo] =
+      res[MoodTenseSubject.indicativePresentYo] =
           conjugacion.indicativePresentYo!;
     }
     if (conjugacion.indicativePresentTu != null &&
         conjugacion.indicativePresentTu!.isNotEmpty) {
-      res[MoodTenseSubject.indicativePresent_tu] =
+      res[MoodTenseSubject.indicativePresentTu] =
           conjugacion.indicativePresentTu!;
     }
     if (conjugacion.indicativePresentEl != null &&
         conjugacion.indicativePresentEl!.isNotEmpty) {
-      res[MoodTenseSubject.indicativePresent_el] =
+      res[MoodTenseSubject.indicativePresentEl] =
           conjugacion.indicativePresentEl!;
     }
     if (conjugacion.indicativePresentNosotros != null &&
         conjugacion.indicativePresentNosotros!.isNotEmpty) {
-      res[MoodTenseSubject.indicativePresent_nosotros] =
+      res[MoodTenseSubject.indicativePresentNosotros] =
           conjugacion.indicativePresentNosotros!;
     }
     if (conjugacion.indicativePresentVosotros != null &&
         conjugacion.indicativePresentVosotros!.isNotEmpty) {
-      res[MoodTenseSubject.indicativePresent_vosotros] =
+      res[MoodTenseSubject.indicativePresentVosotros] =
           conjugacion.indicativePresentVosotros!;
     }
     if (conjugacion.indicativePresentEllos != null &&
         conjugacion.indicativePresentEllos!.isNotEmpty) {
-      res[MoodTenseSubject.indicativePresent_ellos] =
+      res[MoodTenseSubject.indicativePresentEllos] =
           conjugacion.indicativePresentEllos!;
     }
     if (conjugacion.indicativePreteriteYo != null &&
         conjugacion.indicativePreteriteYo!.isNotEmpty) {
-      res[MoodTenseSubject.indicativePreterite_yo] =
+      res[MoodTenseSubject.indicativePreteriteYo] =
           conjugacion.indicativePreteriteYo!;
     }
     if (conjugacion.indicativePreteriteTu != null &&
         conjugacion.indicativePreteriteTu!.isNotEmpty) {
-      res[MoodTenseSubject.indicativePreterite_tu] =
+      res[MoodTenseSubject.indicativePreteriteTu] =
           conjugacion.indicativePreteriteTu!;
     }
     if (conjugacion.indicativePreteriteEl != null &&
         conjugacion.indicativePreteriteEl!.isNotEmpty) {
-      res[MoodTenseSubject.indicativePreterite_el] =
+      res[MoodTenseSubject.indicativePreteriteEl] =
           conjugacion.indicativePreteriteEl!;
     }
     if (conjugacion.indicativePreteriteNosotros != null &&
         conjugacion.indicativePreteriteNosotros!.isNotEmpty) {
-      res[MoodTenseSubject.indicativePreterite_nosotros] =
+      res[MoodTenseSubject.indicativePreteriteNosotros] =
           conjugacion.indicativePreteriteNosotros!;
     }
     if (conjugacion.indicativePreteriteVosotros != null &&
         conjugacion.indicativePreteriteVosotros!.isNotEmpty) {
-      res[MoodTenseSubject.indicativePreterite_vosotros] =
+      res[MoodTenseSubject.indicativePreteriteVosotros] =
           conjugacion.indicativePreteriteVosotros!;
     }
     if (conjugacion.indicativePreteriteEllos != null &&
         conjugacion.indicativePreteriteEllos!.isNotEmpty) {
-      res[MoodTenseSubject.indicativePreterite_ellos] =
+      res[MoodTenseSubject.indicativePreteriteEllos] =
           conjugacion.indicativePreteriteEllos!;
     }
     if (conjugacion.indicativeImperfectYo != null &&
         conjugacion.indicativeImperfectYo!.isNotEmpty) {
-      res[MoodTenseSubject.indicativeImperfect_yo] =
+      res[MoodTenseSubject.indicativeImperfectYo] =
           conjugacion.indicativeImperfectYo!;
     }
     if (conjugacion.indicativeImperfectTu != null &&
         conjugacion.indicativeImperfectTu!.isNotEmpty) {
-      res[MoodTenseSubject.indicativeImperfect_tu] =
+      res[MoodTenseSubject.indicativeImperfectTu] =
           conjugacion.indicativeImperfectTu!;
     }
     if (conjugacion.indicativeImperfectEl != null &&
         conjugacion.indicativeImperfectEl!.isNotEmpty) {
-      res[MoodTenseSubject.indicativeImperfect_el] =
+      res[MoodTenseSubject.indicativeImperfectEl] =
           conjugacion.indicativeImperfectEl!;
     }
     if (conjugacion.indicativeImperfectNosotros != null &&
         conjugacion.indicativeImperfectNosotros!.isNotEmpty) {
-      res[MoodTenseSubject.indicativeImperfect_nosotros] =
+      res[MoodTenseSubject.indicativeImperfectNosotros] =
           conjugacion.indicativeImperfectNosotros!;
     }
     if (conjugacion.indicativeImperfectVosotros != null &&
         conjugacion.indicativeImperfectVosotros!.isNotEmpty) {
-      res[MoodTenseSubject.indicativeImperfect_vosotros] =
+      res[MoodTenseSubject.indicativeImperfectVosotros] =
           conjugacion.indicativeImperfectVosotros!;
     }
     if (conjugacion.indicativeImperfectEllos != null &&
         conjugacion.indicativeImperfectEllos!.isNotEmpty) {
-      res[MoodTenseSubject.indicativeImperfect_ellos] =
+      res[MoodTenseSubject.indicativeImperfectEllos] =
           conjugacion.indicativeImperfectEllos!;
     }
     if (conjugacion.indicativeFutureYo != null &&
         conjugacion.indicativeFutureYo!.isNotEmpty) {
-      res[MoodTenseSubject.indicativeFuture_yo] =
+      res[MoodTenseSubject.indicativeFutureYo] =
           conjugacion.indicativeFutureYo!;
     }
     if (conjugacion.indicativeFutureTu != null &&
         conjugacion.indicativeFutureTu!.isNotEmpty) {
-      res[MoodTenseSubject.indicativeFuture_tu] =
+      res[MoodTenseSubject.indicativeFutureTu] =
           conjugacion.indicativeFutureTu!;
     }
     if (conjugacion.indicativeFutureEl != null &&
         conjugacion.indicativeFutureEl!.isNotEmpty) {
-      res[MoodTenseSubject.indicativeFuture_el] =
+      res[MoodTenseSubject.indicativeFutureEl] =
           conjugacion.indicativeFutureEl!;
     }
     if (conjugacion.indicativeFutureNosotros != null &&
         conjugacion.indicativeFutureNosotros!.isNotEmpty) {
-      res[MoodTenseSubject.indicativeFuture_nosotros] =
+      res[MoodTenseSubject.indicativeFutureNosotros] =
           conjugacion.indicativeFutureNosotros!;
     }
     if (conjugacion.indicativeFutureVosotros != null &&
         conjugacion.indicativeFutureVosotros!.isNotEmpty) {
-      res[MoodTenseSubject.indicativeFuture_vosotros] =
+      res[MoodTenseSubject.indicativeFutureVosotros] =
           conjugacion.indicativeFutureVosotros!;
     }
     if (conjugacion.indicativeFutureEllos != null &&
         conjugacion.indicativeFutureEllos!.isNotEmpty) {
-      res[MoodTenseSubject.indicativeFuture_ellos] =
+      res[MoodTenseSubject.indicativeFutureEllos] =
           conjugacion.indicativeFutureEllos!;
     }
     if (conjugacion.indicativeConditionalYo != null &&
         conjugacion.indicativeConditionalYo!.isNotEmpty) {
-      res[MoodTenseSubject.indicativeConditional_yo] =
+      res[MoodTenseSubject.indicativeConditionalYo] =
           conjugacion.indicativeConditionalYo!;
     }
     if (conjugacion.indicativeConditionalTu != null &&
         conjugacion.indicativeConditionalTu!.isNotEmpty) {
-      res[MoodTenseSubject.indicativeConditional_tu] =
+      res[MoodTenseSubject.indicativeConditionalTu] =
           conjugacion.indicativeConditionalTu!;
     }
     if (conjugacion.indicativeConditionalEl != null &&
         conjugacion.indicativeConditionalEl!.isNotEmpty) {
-      res[MoodTenseSubject.indicativeConditional_el] =
+      res[MoodTenseSubject.indicativeConditionalEl] =
           conjugacion.indicativeConditionalEl!;
     }
     if (conjugacion.indicativeConditionalNosotros != null &&
         conjugacion.indicativeConditionalNosotros!.isNotEmpty) {
-      res[MoodTenseSubject.indicativeConditional_nosotros] =
+      res[MoodTenseSubject.indicativeConditionalNosotros] =
           conjugacion.indicativeConditionalNosotros!;
     }
     if (conjugacion.indicativeConditionalVosotros != null &&
         conjugacion.indicativeConditionalVosotros!.isNotEmpty) {
-      res[MoodTenseSubject.indicativeConditional_vosotros] =
+      res[MoodTenseSubject.indicativeConditionalVosotros] =
           conjugacion.indicativeConditionalVosotros!;
     }
     if (conjugacion.indicativeConditionalEllos != null &&
         conjugacion.indicativeConditionalEllos!.isNotEmpty) {
-      res[MoodTenseSubject.indicativeConditional_ellos] =
+      res[MoodTenseSubject.indicativeConditionalEllos] =
           conjugacion.indicativeConditionalEllos!;
     }
     if (conjugacion.imperativeTu != null &&
         conjugacion.imperativeTu!.isNotEmpty) {
-      res[MoodTenseSubject.imperative_tu] = conjugacion.imperativeTu!;
+      res[MoodTenseSubject.imperativeTu] = conjugacion.imperativeTu!;
     }
     if (conjugacion.imperativeEl != null &&
         conjugacion.imperativeEl!.isNotEmpty) {
-      res[MoodTenseSubject.imperative_el] = conjugacion.imperativeEl!;
+      res[MoodTenseSubject.imperativeEl] = conjugacion.imperativeEl!;
     }
     if (conjugacion.imperativeNosotros != null &&
         conjugacion.imperativeNosotros!.isNotEmpty) {
-      res[MoodTenseSubject.imperative_nosotros] =
+      res[MoodTenseSubject.imperativeNosotros] =
           conjugacion.imperativeNosotros!;
     }
     if (conjugacion.imperativeVosotros != null &&
         conjugacion.imperativeVosotros!.isNotEmpty) {
-      res[MoodTenseSubject.imperative_vosotros] =
+      res[MoodTenseSubject.imperativeVosotros] =
           conjugacion.imperativeVosotros!;
     }
     if (conjugacion.imperativeEllos != null &&
         conjugacion.imperativeEllos!.isNotEmpty) {
-      res[MoodTenseSubject.imperative_ellos] = conjugacion.imperativeEllos!;
+      res[MoodTenseSubject.imperativeEllos] = conjugacion.imperativeEllos!;
     }
     if (conjugacion.subjunctivePresentYo != null &&
         conjugacion.subjunctivePresentYo!.isNotEmpty) {
-      res[MoodTenseSubject.subjunctivePresent_yo] =
+      res[MoodTenseSubject.subjunctivePresentYo] =
           conjugacion.subjunctivePresentYo!;
     }
     if (conjugacion.subjunctivePresentTu != null &&
         conjugacion.subjunctivePresentTu!.isNotEmpty) {
-      res[MoodTenseSubject.subjunctivePresent_tu] =
+      res[MoodTenseSubject.subjunctivePresentTu] =
           conjugacion.subjunctivePresentTu!;
     }
     if (conjugacion.subjunctivePresentEl != null &&
         conjugacion.subjunctivePresentEl!.isNotEmpty) {
-      res[MoodTenseSubject.subjunctivePresent_el] =
+      res[MoodTenseSubject.subjunctivePresentEl] =
           conjugacion.subjunctivePresentEl!;
     }
     if (conjugacion.subjunctivePresentNosotros != null &&
         conjugacion.subjunctivePresentNosotros!.isNotEmpty) {
-      res[MoodTenseSubject.subjunctivePresent_nosotros] =
+      res[MoodTenseSubject.subjunctivePresentNosotros] =
           conjugacion.subjunctivePresentNosotros!;
     }
     if (conjugacion.subjunctivePresentVosotros != null &&
         conjugacion.subjunctivePresentVosotros!.isNotEmpty) {
-      res[MoodTenseSubject.subjunctivePresent_vosotros] =
+      res[MoodTenseSubject.subjunctivePresentVosotros] =
           conjugacion.subjunctivePresentVosotros!;
     }
     if (conjugacion.subjunctivePresentEllos != null &&
         conjugacion.subjunctivePresentEllos!.isNotEmpty) {
-      res[MoodTenseSubject.subjunctivePresent_ellos] =
+      res[MoodTenseSubject.subjunctivePresentEllos] =
           conjugacion.subjunctivePresentEllos!;
     }
     if (conjugacion.subjunctivePastYo != null &&
         conjugacion.subjunctivePastYo!.isNotEmpty) {
-      res[MoodTenseSubject.subjunctivePast_yo] = conjugacion.subjunctivePastYo!;
+      res[MoodTenseSubject.subjunctivePastYo] = conjugacion.subjunctivePastYo!;
     }
     if (conjugacion.subjunctivePastTu != null &&
         conjugacion.subjunctivePastTu!.isNotEmpty) {
-      res[MoodTenseSubject.subjunctivePast_tu] = conjugacion.subjunctivePastTu!;
+      res[MoodTenseSubject.subjunctivePastTu] = conjugacion.subjunctivePastTu!;
     }
     if (conjugacion.subjunctivePastEl != null &&
         conjugacion.subjunctivePastEl!.isNotEmpty) {
-      res[MoodTenseSubject.subjunctivePast_el] = conjugacion.subjunctivePastEl!;
+      res[MoodTenseSubject.subjunctivePastEl] = conjugacion.subjunctivePastEl!;
     }
     if (conjugacion.subjunctivePastNosotros != null &&
         conjugacion.subjunctivePastNosotros!.isNotEmpty) {
-      res[MoodTenseSubject.subjunctivePast_nosotros] =
+      res[MoodTenseSubject.subjunctivePastNosotros] =
           conjugacion.subjunctivePastNosotros!;
     }
     if (conjugacion.subjunctivePastVosotros != null &&
         conjugacion.subjunctivePastVosotros!.isNotEmpty) {
-      res[MoodTenseSubject.subjunctivePast_vosotros] =
+      res[MoodTenseSubject.subjunctivePastVosotros] =
           conjugacion.subjunctivePastVosotros!;
     }
     if (conjugacion.subjunctivePastEllos != null &&
         conjugacion.subjunctivePastEllos!.isNotEmpty) {
-      res[MoodTenseSubject.subjunctivePast_ellos] =
+      res[MoodTenseSubject.subjunctivePastEllos] =
           conjugacion.subjunctivePastEllos!;
     }
     return res;

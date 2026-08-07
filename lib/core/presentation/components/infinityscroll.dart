@@ -178,7 +178,7 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
         }
         AppLogger.print("in infi _nextPage: $_nextPage");
       });
-    } catch (e, st) {
+    } catch (e) {
       AppLogger.print("InfinityScrollListView loadMore error: $e");
       if (!mounted) return;
       setState(() => _isLoading = false);

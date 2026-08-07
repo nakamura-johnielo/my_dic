@@ -8,6 +8,7 @@ import 'package:my_dic/features/sync/application/in_memory_session_fence.dart';
 import 'package:my_dic/features/sync/application/policy/dataset_plan.dart';
 import 'package:my_dic/features/sync/application/single_flight_coordinator.dart';
 import 'package:my_dic/features/sync/application/sync_engine.dart';
+import 'package:my_dic/features/sync/application/sync_execution_guard.dart';
 import 'package:my_dic/features/sync/application/sync_scheduler.dart';
 import 'package:my_dic/features/sync/infrastructure/persistence/drift/drift_outbox_writer.dart';
 import 'package:my_dic/features/sync/infrastructure/persistence/drift/drift_sync_checkpoint_store.dart';
@@ -34,6 +35,10 @@ final syncSessionFenceProvider = Provider<InMemorySessionFence>(
 
 final syncSingleFlightCoordinatorProvider = Provider<SingleFlightCoordinator>(
   (ref) => SingleFlightCoordinator(),
+);
+
+final syncExecutionGuardProvider = Provider<SyncExecutionGuard>(
+  (ref) => SyncExecutionGuard(ref.watch(syncSessionFenceProvider)),
 );
 
 final syncDatasetHandlerRegistryProvider = Provider<DatasetHandlerRegistry>(

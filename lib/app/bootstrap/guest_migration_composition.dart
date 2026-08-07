@@ -32,5 +32,6 @@ final migrateGuestDataUseCaseProvider =
     myWordStatus: ref.watch(myWordStatusLocalDataSourceProvider),
     userProfile: ref.watch(userProfileLocalDataSourceProvider),
     outboxWriter: ref.watch(driftOutboxWriterProvider),
+    sessionFence: ref.watch(syncSessionFenceProvider),
   );
 });

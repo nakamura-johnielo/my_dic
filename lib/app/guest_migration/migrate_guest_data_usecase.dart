@@ -9,6 +9,7 @@ import 'package:my_dic/features/my_word/data/data_source/local/i_my_word_local_d
 import 'package:my_dic/features/my_word/data/data_source/local/i_my_word_status_local_data_source.dart';
 import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
 import 'package:my_dic/features/sync/application/port/outbox_writer.dart';
+import 'package:my_dic/features/sync/application/port/session_fence.dart';
 import 'package:my_dic/features/user/data/data_source/local/i_user_profile_local_data_source.dart';
 
 /// Moves every guest-scoped local row to a signed-in account, atomically.
@@ -36,6 +37,7 @@ class MigrateGuestDataUseCase {
     required IMyWordStatusLocalDataSource myWordStatus,
     required IUserProfileLocalDataSource userProfile,
     required OutboxWriter outboxWriter,
+    required SessionFence sessionFence,
     Uuid? uuid,
     DateTime Function()? clock,
   })  : _database = database,
@@ -45,6 +47,7 @@ class MigrateGuestDataUseCase {
         _myWordStatus = myWordStatus,
         _userProfile = userProfile,
         _outboxWriter = outboxWriter,
+        _sessionFence = sessionFence,
         _uuid = uuid ?? const Uuid(),
         _clock = clock ?? DateTime.now;
 
@@ -55,18 +58,34 @@ class MigrateGuestDataUseCase {
   final IMyWordStatusLocalDataSource _myWordStatus;
   final IUserProfileLocalDataSource _userProfile;
   final OutboxWriter _outboxWriter;
+  final SessionFence _sessionFence;
   final Uuid _uuid;
   final DateTime Function() _clock;
 
-  Future<void> execute(String accountId) async {
+  Future<void> execute(String accountId, int sessionEpoch) async {
+    _ensureCurrent(accountId, sessionEpoch);
     final migrationId = _uuid.v4();
     await _database.transaction(() async {
+      _ensureCurrent(accountId, sessionEpoch);
       await _migrateEspJpnWordStatus(accountId, migrationId);
       await _migrateJpnEspWordStatus(accountId, migrationId);
       await _migrateMyWords(accountId, migrationId);
       await _migrateMyWordStatuses(accountId, migrationId);
       await _migrateUserProfile(accountId, migrationId);
+      // Throwing here is intentional: Drift rolls back every migrated row and
+      // outbox mutation if the user changed account while the work was in
+      // progress.
+      _ensureCurrent(accountId, sessionEpoch);
     });
+  }
+
+  void _ensureCurrent(String accountId, int sessionEpoch) {
+    if (!_sessionFence.isCurrent(
+      accountId: accountId,
+      sessionEpoch: sessionEpoch,
+    )) {
+      throw const GuestMigrationSessionChanged();
+    }
   }
 
   String _mutationId(
@@ -256,4 +275,11 @@ class MigrateGuestDataUseCase {
       ));
     }
   }
+}
+
+class GuestMigrationSessionChanged implements Exception {
+  const GuestMigrationSessionChanged();
+
+  @override
+  String toString() => 'Guest migration session changed';
 }

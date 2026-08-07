@@ -13,6 +13,10 @@ class UserProfileDriftDataSource implements IUserProfileLocalDataSource {
       _dao.getProfile(accountId);
 
   @override
+  Stream<db.UserProfile?> watchProfile(String accountId) =>
+      _dao.watchProfile(accountId);
+
+  @override
   Future<void> deleteProfile(String accountId) => _dao.deleteProfile(accountId);
 
   @override

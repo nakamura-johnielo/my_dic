@@ -37,7 +37,7 @@ class ConjugacionCard extends StatelessWidget {
     //完全一致か部分一致か
     Color highlightColor = text.length == query.length
         ? Theme.of(context).colorScheme.primary //Colors.indigo[200]!
-        : Theme.of(context).colorScheme.primary.withOpacity(0.5);
+        : Theme.of(context).colorScheme.primary.withValues(alpha: 0.5);
     Color? highlightTextColor = text.length == query.length
         ? Theme.of(context).colorScheme.onPrimary //Colors.indigo[200]!
         : null;

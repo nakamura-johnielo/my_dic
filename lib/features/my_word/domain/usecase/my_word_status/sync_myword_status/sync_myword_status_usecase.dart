@@ -2,7 +2,7 @@ import 'package:my_dic/core/domain/entity/sync_checkpoint.dart';
 import 'package:my_dic/core/domain/i_repository/i_sync_status_repository.dart';
 import 'package:my_dic/core/domain/usecase/i_sync_usecase.dart';
 import 'package:my_dic/core/shared/consts/dates.dart';
-import 'package:my_dic/core/shared/consts/syncPriority.dart';
+import 'package:my_dic/core/shared/consts/sync_priority.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 import 'package:my_dic/core/shared/utils/result.dart';

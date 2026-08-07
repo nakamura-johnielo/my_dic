@@ -4,13 +4,48 @@ import 'package:my_dic/app/session/current_session.dart';
 import 'package:my_dic/core/application/auth_lifecycle/auth_lifecycle_provider.dart';
 import 'package:my_dic/core/application/auth_lifecycle/auth_lifecycle_state.dart';
 import 'package:my_dic/core/shared/errors/unexpected_error.dart';
+import 'package:my_dic/features/user/di/data_di.dart';
+import 'package:my_dic/features/user/presentation/model/live_user_profile_projection.dart';
 
 /// The single Router/UI-facing session state, derived from
 /// `authLifecycleProvider`. Nothing else should be treated as the entry
 /// point for "is there a usable session".
 final appSessionProvider = Provider<AppSession>((ref) {
   final lifecycle = ref.watch(authLifecycleProvider);
-  return _toAppSession(lifecycle);
+  final baseSession = _toAppSession(lifecycle);
+  if (baseSession is! AppSessionReady) return baseSession;
+
+  final liveProfile =
+      ref.watch(watchedUserProfileProvider(baseSession.identity.accountId));
+  return liveProfile.when(
+    loading: () => AppSessionLoadingProfile(baseSession.identity),
+    error: (error, stackTrace) => AppSessionFailure(
+      UnexpectedError(
+        message: 'Local profile stream failed',
+        originalError: error,
+        stackTrace: stackTrace,
+      ),
+      identity: baseSession.identity,
+    ),
+    data: (row) {
+      if (row == null) return AppSessionLoadingProfile(baseSession.identity);
+      try {
+        return AppSessionReady(
+          baseSession.identity,
+          projectLiveUserProfile(baseline: baseSession.profile, row: row),
+        );
+      } catch (error, stackTrace) {
+        return AppSessionFailure(
+          UnexpectedError(
+            message: 'Invalid local profile payload',
+            originalError: error,
+            stackTrace: stackTrace,
+          ),
+          identity: baseSession.identity,
+        );
+      }
+    },
+  );
 });
 
 /// The accountId resolution port features depend on instead of Auth

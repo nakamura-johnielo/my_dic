@@ -38,7 +38,8 @@ final myWordLocalDataSourceProvider = Provider<IMyWordLocalDataSource>((ref) {
   );
 });
 
-final myWordStatusLocalDataSourceProvider = Provider<IMyWordStatusLocalDataSource>((ref) {
+final myWordStatusLocalDataSourceProvider =
+    Provider<IMyWordStatusLocalDataSource>((ref) {
   return MyWordStatusDriftDataSource(
     ref.read(myWordStatusDaoProvider),
   );
@@ -52,7 +53,8 @@ final myWordFirebaseDaoProvider = Provider<FirebaseMyWordDao>((ref) {
   return FirebaseMyWordDao(ref.read(firestoreDBProvider));
 });
 
-final myWordStatusFirebaseDaoProvider = Provider<FirebaseMyWordStatusDao>((ref) {
+final myWordStatusFirebaseDaoProvider =
+    Provider<FirebaseMyWordStatusDao>((ref) {
   return FirebaseMyWordStatusDao(ref.read(firestoreDBProvider));
 });
 
@@ -66,7 +68,8 @@ final myWordRemoteDataSourceProvider = Provider<IMyWordRemoteDataSource>((ref) {
   );
 });
 
-final myWordStatusRemoteDataSourceProvider = Provider<IMyWordStatusRemoteDataSource>((ref) {
+final myWordStatusRemoteDataSourceProvider =
+    Provider<IMyWordStatusRemoteDataSource>((ref) {
   return FirebaseMyWordStatusDataSource(
     ref.read(myWordStatusFirebaseDaoProvider),
   );
@@ -99,15 +102,18 @@ final myWordStatusRepositoryProvider = Provider<IMyWordStatusRepository>((ref) {
 final myWordSyncHandlerProvider = Provider<MyWordSyncHandler>((ref) {
   return MyWordSyncHandler(
     queue: ref.watch(driftSyncQueueProvider),
+    executionGuard: ref.watch(syncExecutionGuardProvider),
     checkpointStore: ref.watch(driftSyncCheckpointStoreProvider),
     local: ref.read(myWordLocalDataSourceProvider),
     remote: ref.read(myWordRemoteDataSourceProvider),
   );
 });
 
-final myWordStatusSyncHandlerProvider = Provider<MyWordStatusSyncHandler>((ref) {
+final myWordStatusSyncHandlerProvider =
+    Provider<MyWordStatusSyncHandler>((ref) {
   return MyWordStatusSyncHandler(
     queue: ref.watch(driftSyncQueueProvider),
+    executionGuard: ref.watch(syncExecutionGuardProvider),
     checkpointStore: ref.watch(driftSyncCheckpointStoreProvider),
     local: ref.read(myWordStatusLocalDataSourceProvider),
     remote: ref.read(myWordStatusRemoteDataSourceProvider),

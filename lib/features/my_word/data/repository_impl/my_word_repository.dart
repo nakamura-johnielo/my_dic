@@ -1,4 +1,3 @@
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:uuid/uuid.dart';
 import 'package:my_dic/core/shared/consts/account_scope.dart';
@@ -17,7 +16,6 @@ import 'package:my_dic/features/my_word/domain/usecase/my_word/load_my_word/load
 import 'package:my_dic/features/my_word/data/data_source/local/i_my_word_local_data_source.dart';
 import 'package:my_dic/features/my_word/data/data_source/remote/myword/i_my_word_remote_data_source.dart';
 import 'package:my_dic/features/my_word/data/data_source/remote/myword/firebase_my_word_dto.dart';
-import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
 import 'package:my_dic/features/sync/application/port/outbox_writer.dart';
 
@@ -404,14 +402,6 @@ class MyWordRepository implements IMyWordRepository {
   @override
   Future<Result<void>> updateLocalMyWord(MyWord myWord, DateTime now) async {
     try {
-      final data = MyWordTableData(
-        myWordId: myWord.wordId,
-        word: myWord.word,
-        contents: myWord.contents,
-        editAt: now.toIso8601String(),
-        accountId: 'legacy_unowned',
-        localRevision: 0,
-      );
       // Need to add updateMyWordFromData method to data source
       // For now, use existing updateMyWord
       final affectedRows = await _localDataSource.updateMyWord(

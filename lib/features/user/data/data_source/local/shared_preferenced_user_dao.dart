@@ -1,4 +1,4 @@
-import 'package:my_dic/core/shared/consts/sharedPreference.dart';
+import 'package:my_dic/core/shared/consts/shared_preference.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPreferencesUserDao {

@@ -14,227 +14,227 @@
  */
 
 /* 
-  present_participle,
-  past_participle,
-  indicativePresent_yo, // 直接法現在
-  indicativePresent_tu, // 直接法現在
-  indicativePresent_el, // 直接法現在
-  indicativePresent_nosotros, // 直接法現在
-  indicativePresent_vosotros, // 直接法現在
-  indicativePresent_ellos, // 直接法現在
-  indicativePreterite_yo, // 直接法点過去
-  indicativePreterite_tu, // 直接法点過去
-  indicativePreterite_el, // 直接法点過去
-  indicativePreterite_nosotros, // 直接法点過去
-  indicativePreterite_vosotros, // 直接法点過去
-  indicativePreterite_ellos, // 直接法点過去
-  indicativeImperfect_yo, // 直接法線過去
-  indicativeImperfect_tu, // 直接法線過去
-  indicativeImperfect_el, // 直接法線過去
-  indicativeImperfect_nosotros, // 直接法線過去
-  indicativeImperfect_vosotros, // 直接法線過去
-  indicativeImperfect_ellos, // 直接法線過去
-  indicativeFuture_yo, // 直接法未来
-  indicativeFuture_tu, // 直接法未来
-  indicativeFuture_el, // 直接法未来
-  indicativeFuture_nosotros, // 直接法未来
-  indicativeFuture_vosotros, // 直接法未来
-  indicativeFuture_ellos, // 直接法未来
-  indicativeConditional_yo, // 直接法過去未来
-  indicativeConditional_tu, // 直接法過去未来
-  indicativeConditional_el, // 直接法過去未来
-  indicativeConditional_nosotros, // 直接法過去未来
-  indicativeConditional_vosotros, // 直接法過去未来
-  indicativeConditional_ellos, // 直接法過去未来
-  imperative_tu, // 命令
-  imperative_el, // 命令
-  imperative_nosotros, // 命令
-  imperative_vosotros, // 命令
-  imperative_ellos, // 命令
-  subjunctivePresent_yo, // 接続法現在
-  subjunctivePresent_tu, // 接続法現在
-  subjunctivePresent_el, // 接続法現在
-  subjunctivePresent_nosotros, // 接続法現在
-  subjunctivePresent_vosotros, // 接続法現在
-  subjunctivePresent_ellos, // 接続法現在
-  subjunctivePast_yo, // 接続法過去
-  subjunctivePast_tu, // 接続法過去
-  subjunctivePast_el, // 接続法過去
-  subjunctivePast_nosotros, // 接続法過去
-  subjunctivePast_vosotros, // 接続法過去
-  subjunctivePast_ellos // 接続法過去 */
+  presentParticiple,
+  pastParticiple,
+  indicativePresentYo, // 直接法現在
+  indicativePresentTu, // 直接法現在
+  indicativePresentEl, // 直接法現在
+  indicativePresentNosotros, // 直接法現在
+  indicativePresentVosotros, // 直接法現在
+  indicativePresentEllos, // 直接法現在
+  indicativePreteriteYo, // 直接法点過去
+  indicativePreteriteTu, // 直接法点過去
+  indicativePreteriteEl, // 直接法点過去
+  indicativePreteriteNosotros, // 直接法点過去
+  indicativePreteriteVosotros, // 直接法点過去
+  indicativePreteriteEllos, // 直接法点過去
+  indicativeImperfectYo, // 直接法線過去
+  indicativeImperfectTu, // 直接法線過去
+  indicativeImperfectEl, // 直接法線過去
+  indicativeImperfectNosotros, // 直接法線過去
+  indicativeImperfectVosotros, // 直接法線過去
+  indicativeImperfectEllos, // 直接法線過去
+  indicativeFutureYo, // 直接法未来
+  indicativeFutureTu, // 直接法未来
+  indicativeFutureEl, // 直接法未来
+  indicativeFutureNosotros, // 直接法未来
+  indicativeFutureVosotros, // 直接法未来
+  indicativeFutureEllos, // 直接法未来
+  indicativeConditionalYo, // 直接法過去未来
+  indicativeConditionalTu, // 直接法過去未来
+  indicativeConditionalEl, // 直接法過去未来
+  indicativeConditionalNosotros, // 直接法過去未来
+  indicativeConditionalVosotros, // 直接法過去未来
+  indicativeConditionalEllos, // 直接法過去未来
+  imperativeTu, // 命令
+  imperativeEl, // 命令
+  imperativeNosotros, // 命令
+  imperativeVosotros, // 命令
+  imperativeEllos, // 命令
+  subjunctivePresentYo, // 接続法現在
+  subjunctivePresentTu, // 接続法現在
+  subjunctivePresentEl, // 接続法現在
+  subjunctivePresentNosotros, // 接続法現在
+  subjunctivePresentVosotros, // 接続法現在
+  subjunctivePresentEllos, // 接続法現在
+  subjunctivePastYo, // 接続法過去
+  subjunctivePastTu, // 接続法過去
+  subjunctivePastEl, // 接続法過去
+  subjunctivePastNosotros, // 接続法過去
+  subjunctivePastVosotros, // 接続法過去
+  subjunctivePastEllos // 接続法過去 */
 
 import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
 import 'package:my_dic/core/shared/enums/conjugacion/subject.dart';
 
 enum MoodTenseSubject {
-  present_participle,
-  past_participle,
+  presentParticiple,
+  pastParticiple,
 
-  indicativePresent_yo, // 直接法現在
-  indicativePresent_tu, // 直接法現在
-  indicativePresent_el, // 直接法現在
-  indicativePresent_nosotros, // 直接法現在
-  indicativePresent_vosotros, // 直接法現在
-  indicativePresent_ellos, // 直接法現在
+  indicativePresentYo, // 直接法現在
+  indicativePresentTu, // 直接法現在
+  indicativePresentEl, // 直接法現在
+  indicativePresentNosotros, // 直接法現在
+  indicativePresentVosotros, // 直接法現在
+  indicativePresentEllos, // 直接法現在
 
-  indicativePreterite_yo, // 直接法点過去
-  indicativePreterite_tu, // 直接法点過去
-  indicativePreterite_el, // 直接法点過去
-  indicativePreterite_nosotros, // 直接法点過去
-  indicativePreterite_vosotros, // 直接法点過去
-  indicativePreterite_ellos, // 直接法点過去
+  indicativePreteriteYo, // 直接法点過去
+  indicativePreteriteTu, // 直接法点過去
+  indicativePreteriteEl, // 直接法点過去
+  indicativePreteriteNosotros, // 直接法点過去
+  indicativePreteriteVosotros, // 直接法点過去
+  indicativePreteriteEllos, // 直接法点過去
 
-  indicativeImperfect_yo, // 直接法線過去
-  indicativeImperfect_tu, // 直接法線過去
-  indicativeImperfect_el, // 直接法線過去
-  indicativeImperfect_nosotros, // 直接法線過去
-  indicativeImperfect_vosotros, // 直接法線過去
-  indicativeImperfect_ellos, // 直接法線過去
+  indicativeImperfectYo, // 直接法線過去
+  indicativeImperfectTu, // 直接法線過去
+  indicativeImperfectEl, // 直接法線過去
+  indicativeImperfectNosotros, // 直接法線過去
+  indicativeImperfectVosotros, // 直接法線過去
+  indicativeImperfectEllos, // 直接法線過去
 
-  indicativeFuture_yo, // 直接法未来
-  indicativeFuture_tu, // 直接法未来
-  indicativeFuture_el, // 直接法未来
-  indicativeFuture_nosotros, // 直接法未来
-  indicativeFuture_vosotros, // 直接法未来
-  indicativeFuture_ellos, // 直接法未来
+  indicativeFutureYo, // 直接法未来
+  indicativeFutureTu, // 直接法未来
+  indicativeFutureEl, // 直接法未来
+  indicativeFutureNosotros, // 直接法未来
+  indicativeFutureVosotros, // 直接法未来
+  indicativeFutureEllos, // 直接法未来
 
-  indicativeConditional_yo, // 直接法過去未来
-  indicativeConditional_tu, // 直接法過去未来
-  indicativeConditional_el, // 直接法過去未来
-  indicativeConditional_nosotros, // 直接法過去未来
-  indicativeConditional_vosotros, // 直接法過去未来
-  indicativeConditional_ellos, // 直接法過去未来
+  indicativeConditionalYo, // 直接法過去未来
+  indicativeConditionalTu, // 直接法過去未来
+  indicativeConditionalEl, // 直接法過去未来
+  indicativeConditionalNosotros, // 直接法過去未来
+  indicativeConditionalVosotros, // 直接法過去未来
+  indicativeConditionalEllos, // 直接法過去未来
 
-  imperative_tu, // 命令
-  imperative_el, // 命令
-  imperative_nosotros, // 命令
-  imperative_vosotros, // 命令
-  imperative_ellos, // 命令
+  imperativeTu, // 命令
+  imperativeEl, // 命令
+  imperativeNosotros, // 命令
+  imperativeVosotros, // 命令
+  imperativeEllos, // 命令
 
-  subjunctivePresent_yo, // 接続法現在
-  subjunctivePresent_tu, // 接続法現在
-  subjunctivePresent_el, // 接続法現在
-  subjunctivePresent_nosotros, // 接続法現在
-  subjunctivePresent_vosotros, // 接続法現在
-  subjunctivePresent_ellos, // 接続法現在
+  subjunctivePresentYo, // 接続法現在
+  subjunctivePresentTu, // 接続法現在
+  subjunctivePresentEl, // 接続法現在
+  subjunctivePresentNosotros, // 接続法現在
+  subjunctivePresentVosotros, // 接続法現在
+  subjunctivePresentEllos, // 接続法現在
 
-  subjunctivePast_yo, // 接続法過去
-  subjunctivePast_tu, // 接続法過去
-  subjunctivePast_el, // 接続法過去
-  subjunctivePast_nosotros, // 接続法過去
-  subjunctivePast_vosotros, // 接続法過去
-  subjunctivePast_ellos // 接続法過去
+  subjunctivePastYo, // 接続法過去
+  subjunctivePastTu, // 接続法過去
+  subjunctivePastEl, // 接続法過去
+  subjunctivePastNosotros, // 接続法過去
+  subjunctivePastVosotros, // 接続法過去
+  subjunctivePastEllos // 接続法過去
 }
 
 extension MoodTenseSubjectExtension on MoodTenseSubject {
   String get dbColName {
     switch (this) {
-      case MoodTenseSubject.present_participle:
+      case MoodTenseSubject.presentParticiple:
         return 'present_participle';
-      case MoodTenseSubject.past_participle:
+      case MoodTenseSubject.pastParticiple:
         return 'past_participle';
 
-      case MoodTenseSubject.indicativePresent_yo:
+      case MoodTenseSubject.indicativePresentYo:
         return 'indicative_present_yo';
-      case MoodTenseSubject.indicativePresent_tu:
+      case MoodTenseSubject.indicativePresentTu:
         return 'indicative_present_tu';
-      case MoodTenseSubject.indicativePresent_el:
+      case MoodTenseSubject.indicativePresentEl:
         return 'indicative_present_el';
-      case MoodTenseSubject.indicativePresent_nosotros:
+      case MoodTenseSubject.indicativePresentNosotros:
         return 'indicative_present_nosotros';
-      case MoodTenseSubject.indicativePresent_vosotros:
+      case MoodTenseSubject.indicativePresentVosotros:
         return 'indicative_present_vosotros';
-      case MoodTenseSubject.indicativePresent_ellos: //
+      case MoodTenseSubject.indicativePresentEllos: //
         return 'indicative_present_ellos';
 
-      case MoodTenseSubject.indicativePreterite_yo: //
+      case MoodTenseSubject.indicativePreteriteYo: //
         return 'indicative_preterite_yo';
-      case MoodTenseSubject.indicativePreterite_tu:
+      case MoodTenseSubject.indicativePreteriteTu:
         return 'indicative_preterite_tu';
-      case MoodTenseSubject.indicativePreterite_el:
+      case MoodTenseSubject.indicativePreteriteEl:
         return 'indicative_preterite_el';
-      case MoodTenseSubject.indicativePreterite_nosotros:
+      case MoodTenseSubject.indicativePreteriteNosotros:
         return 'indicative_preterite_nosotros';
-      case MoodTenseSubject.indicativePreterite_vosotros:
+      case MoodTenseSubject.indicativePreteriteVosotros:
         return 'indicative_preterite_vosotros';
-      case MoodTenseSubject.indicativePreterite_ellos: //
+      case MoodTenseSubject.indicativePreteriteEllos: //
         return 'indicative_preterite_ellos';
 
-      case MoodTenseSubject.indicativeImperfect_yo: //
+      case MoodTenseSubject.indicativeImperfectYo: //
         return 'indicative_imperfect_yo';
-      case MoodTenseSubject.indicativeImperfect_tu:
+      case MoodTenseSubject.indicativeImperfectTu:
         return 'indicative_imperfect_tu';
-      case MoodTenseSubject.indicativeImperfect_el:
+      case MoodTenseSubject.indicativeImperfectEl:
         return 'indicative_imperfect_el';
-      case MoodTenseSubject.indicativeImperfect_nosotros:
+      case MoodTenseSubject.indicativeImperfectNosotros:
         return 'indicative_imperfect_nosotros';
-      case MoodTenseSubject.indicativeImperfect_vosotros:
+      case MoodTenseSubject.indicativeImperfectVosotros:
         return 'indicative_imperfect_vosotros';
-      case MoodTenseSubject.indicativeImperfect_ellos: //
+      case MoodTenseSubject.indicativeImperfectEllos: //
         return 'indicative_imperfect_ellos';
 
-      case MoodTenseSubject.indicativeFuture_yo: //
+      case MoodTenseSubject.indicativeFutureYo: //
         return 'indicative_future_yo';
-      case MoodTenseSubject.indicativeFuture_tu:
+      case MoodTenseSubject.indicativeFutureTu:
         return 'indicative_future_tu';
-      case MoodTenseSubject.indicativeFuture_el:
+      case MoodTenseSubject.indicativeFutureEl:
         return 'indicative_future_el';
-      case MoodTenseSubject.indicativeFuture_nosotros:
+      case MoodTenseSubject.indicativeFutureNosotros:
         return 'indicative_future_nosotros';
-      case MoodTenseSubject.indicativeFuture_vosotros:
+      case MoodTenseSubject.indicativeFutureVosotros:
         return 'indicative_future_vosotros';
-      case MoodTenseSubject.indicativeFuture_ellos: //
+      case MoodTenseSubject.indicativeFutureEllos: //
         return 'indicative_future_ellos';
 
-      case MoodTenseSubject.indicativeConditional_yo: //
+      case MoodTenseSubject.indicativeConditionalYo: //
         return 'indicative_conditional_yo';
-      case MoodTenseSubject.indicativeConditional_tu:
+      case MoodTenseSubject.indicativeConditionalTu:
         return 'indicative_conditional_tu';
-      case MoodTenseSubject.indicativeConditional_el:
+      case MoodTenseSubject.indicativeConditionalEl:
         return 'indicative_conditional_el';
-      case MoodTenseSubject.indicativeConditional_nosotros:
+      case MoodTenseSubject.indicativeConditionalNosotros:
         return 'indicative_conditional_nosotros';
-      case MoodTenseSubject.indicativeConditional_vosotros:
+      case MoodTenseSubject.indicativeConditionalVosotros:
         return 'indicative_conditional_vosotros';
-      case MoodTenseSubject.indicativeConditional_ellos: //
+      case MoodTenseSubject.indicativeConditionalEllos: //
         return 'indicative_conditional_ellos';
 
-      case MoodTenseSubject.imperative_tu: //
+      case MoodTenseSubject.imperativeTu: //
         return 'imperative_tu';
-      case MoodTenseSubject.imperative_el:
+      case MoodTenseSubject.imperativeEl:
         return 'imperative_el';
-      case MoodTenseSubject.imperative_nosotros:
+      case MoodTenseSubject.imperativeNosotros:
         return 'imperative_nosotros';
-      case MoodTenseSubject.imperative_vosotros:
+      case MoodTenseSubject.imperativeVosotros:
         return 'imperative_vosotros';
-      case MoodTenseSubject.imperative_ellos: //
+      case MoodTenseSubject.imperativeEllos: //
         return 'imperative_ellos';
 
-      case MoodTenseSubject.subjunctivePresent_yo: //
+      case MoodTenseSubject.subjunctivePresentYo: //
         return 'subjunctive_present_yo';
-      case MoodTenseSubject.subjunctivePresent_tu:
+      case MoodTenseSubject.subjunctivePresentTu:
         return 'subjunctive_present_tu';
-      case MoodTenseSubject.subjunctivePresent_el:
+      case MoodTenseSubject.subjunctivePresentEl:
         return 'subjunctive_present_el';
-      case MoodTenseSubject.subjunctivePresent_nosotros:
+      case MoodTenseSubject.subjunctivePresentNosotros:
         return 'subjunctive_present_nosotros';
-      case MoodTenseSubject.subjunctivePresent_vosotros:
+      case MoodTenseSubject.subjunctivePresentVosotros:
         return 'subjunctive_present_vosotros';
-      case MoodTenseSubject.subjunctivePresent_ellos: //
+      case MoodTenseSubject.subjunctivePresentEllos: //
         return 'subjunctive_present_ellos';
 
-      case MoodTenseSubject.subjunctivePast_yo: //
+      case MoodTenseSubject.subjunctivePastYo: //
         return 'subjunctive_past_yo';
-      case MoodTenseSubject.subjunctivePast_tu:
+      case MoodTenseSubject.subjunctivePastTu:
         return 'subjunctive_past_tu';
-      case MoodTenseSubject.subjunctivePast_el:
+      case MoodTenseSubject.subjunctivePastEl:
         return 'subjunctive_past_el';
-      case MoodTenseSubject.subjunctivePast_nosotros:
+      case MoodTenseSubject.subjunctivePastNosotros:
         return 'subjunctive_past_nosotros';
-      case MoodTenseSubject.subjunctivePast_vosotros:
+      case MoodTenseSubject.subjunctivePastVosotros:
         return 'subjunctive_past_vosotros';
-      case MoodTenseSubject.subjunctivePast_ellos: //
+      case MoodTenseSubject.subjunctivePastEllos: //
         return 'subjunctive_past_ellos';
     }
   }
@@ -243,111 +243,111 @@ extension MoodTenseSubjectExtension on MoodTenseSubject {
 extension MoodTenseExtension on MoodTenseSubject {
   MoodTense get moodTense {
     switch (this) {
-      case MoodTenseSubject.present_participle:
+      case MoodTenseSubject.presentParticiple:
         return MoodTense.participlePresent;
-      case MoodTenseSubject.past_participle:
+      case MoodTenseSubject.pastParticiple:
         return MoodTense.participlePast;
 
-      case MoodTenseSubject.indicativePresent_yo:
+      case MoodTenseSubject.indicativePresentYo:
         return MoodTense.indicativePresent;
-      case MoodTenseSubject.indicativePresent_tu:
+      case MoodTenseSubject.indicativePresentTu:
         return MoodTense.indicativePresent;
-      case MoodTenseSubject.indicativePresent_el:
+      case MoodTenseSubject.indicativePresentEl:
         return MoodTense.indicativePresent;
-      case MoodTenseSubject.indicativePresent_nosotros:
+      case MoodTenseSubject.indicativePresentNosotros:
         return MoodTense.indicativePresent;
-      case MoodTenseSubject.indicativePresent_vosotros:
+      case MoodTenseSubject.indicativePresentVosotros:
         return MoodTense.indicativePresent;
-      case MoodTenseSubject.indicativePresent_ellos: //
+      case MoodTenseSubject.indicativePresentEllos: //
         return MoodTense.indicativePresent;
 
-      case MoodTenseSubject.indicativePreterite_yo: //
+      case MoodTenseSubject.indicativePreteriteYo: //
         return MoodTense.indicativePreterite;
-      case MoodTenseSubject.indicativePreterite_tu:
+      case MoodTenseSubject.indicativePreteriteTu:
         return MoodTense.indicativePreterite;
-      case MoodTenseSubject.indicativePreterite_el:
+      case MoodTenseSubject.indicativePreteriteEl:
         return MoodTense.indicativePreterite;
-      case MoodTenseSubject.indicativePreterite_nosotros:
+      case MoodTenseSubject.indicativePreteriteNosotros:
         return MoodTense.indicativePreterite;
-      case MoodTenseSubject.indicativePreterite_vosotros:
+      case MoodTenseSubject.indicativePreteriteVosotros:
         return MoodTense.indicativePreterite;
-      case MoodTenseSubject.indicativePreterite_ellos: //
+      case MoodTenseSubject.indicativePreteriteEllos: //
         return MoodTense.indicativePreterite;
 
-      case MoodTenseSubject.indicativeImperfect_yo: //
+      case MoodTenseSubject.indicativeImperfectYo: //
         return MoodTense.indicativeImperfect;
-      case MoodTenseSubject.indicativeImperfect_tu:
+      case MoodTenseSubject.indicativeImperfectTu:
         return MoodTense.indicativeImperfect;
-      case MoodTenseSubject.indicativeImperfect_el:
+      case MoodTenseSubject.indicativeImperfectEl:
         return MoodTense.indicativeImperfect;
-      case MoodTenseSubject.indicativeImperfect_nosotros:
+      case MoodTenseSubject.indicativeImperfectNosotros:
         return MoodTense.indicativeImperfect;
-      case MoodTenseSubject.indicativeImperfect_vosotros:
+      case MoodTenseSubject.indicativeImperfectVosotros:
         return MoodTense.indicativeImperfect;
-      case MoodTenseSubject.indicativeImperfect_ellos: //
+      case MoodTenseSubject.indicativeImperfectEllos: //
         return MoodTense.indicativeImperfect;
 
-      case MoodTenseSubject.indicativeFuture_yo: //
+      case MoodTenseSubject.indicativeFutureYo: //
         return MoodTense.indicativeFuture;
-      case MoodTenseSubject.indicativeFuture_tu:
+      case MoodTenseSubject.indicativeFutureTu:
         return MoodTense.indicativeFuture;
-      case MoodTenseSubject.indicativeFuture_el:
+      case MoodTenseSubject.indicativeFutureEl:
         return MoodTense.indicativeFuture;
-      case MoodTenseSubject.indicativeFuture_nosotros:
+      case MoodTenseSubject.indicativeFutureNosotros:
         return MoodTense.indicativeFuture;
-      case MoodTenseSubject.indicativeFuture_vosotros:
+      case MoodTenseSubject.indicativeFutureVosotros:
         return MoodTense.indicativeFuture;
-      case MoodTenseSubject.indicativeFuture_ellos: //
+      case MoodTenseSubject.indicativeFutureEllos: //
         return MoodTense.indicativeFuture;
 
-      case MoodTenseSubject.indicativeConditional_yo: //
+      case MoodTenseSubject.indicativeConditionalYo: //
         return MoodTense.indicativeConditional;
-      case MoodTenseSubject.indicativeConditional_tu:
+      case MoodTenseSubject.indicativeConditionalTu:
         return MoodTense.indicativeConditional;
-      case MoodTenseSubject.indicativeConditional_el:
+      case MoodTenseSubject.indicativeConditionalEl:
         return MoodTense.indicativeConditional;
-      case MoodTenseSubject.indicativeConditional_nosotros:
+      case MoodTenseSubject.indicativeConditionalNosotros:
         return MoodTense.indicativeConditional;
-      case MoodTenseSubject.indicativeConditional_vosotros:
+      case MoodTenseSubject.indicativeConditionalVosotros:
         return MoodTense.indicativeConditional;
-      case MoodTenseSubject.indicativeConditional_ellos: //
+      case MoodTenseSubject.indicativeConditionalEllos: //
         return MoodTense.indicativeConditional;
 
-      case MoodTenseSubject.imperative_tu: //
+      case MoodTenseSubject.imperativeTu: //
         return MoodTense.imperative;
-      case MoodTenseSubject.imperative_el:
+      case MoodTenseSubject.imperativeEl:
         return MoodTense.imperative;
-      case MoodTenseSubject.imperative_nosotros:
+      case MoodTenseSubject.imperativeNosotros:
         return MoodTense.imperative;
-      case MoodTenseSubject.imperative_vosotros:
+      case MoodTenseSubject.imperativeVosotros:
         return MoodTense.imperative;
-      case MoodTenseSubject.imperative_ellos: //
+      case MoodTenseSubject.imperativeEllos: //
         return MoodTense.imperative;
 
-      case MoodTenseSubject.subjunctivePresent_yo: //
+      case MoodTenseSubject.subjunctivePresentYo: //
         return MoodTense.subjunctivePresent;
-      case MoodTenseSubject.subjunctivePresent_tu:
+      case MoodTenseSubject.subjunctivePresentTu:
         return MoodTense.subjunctivePresent;
-      case MoodTenseSubject.subjunctivePresent_el:
+      case MoodTenseSubject.subjunctivePresentEl:
         return MoodTense.subjunctivePresent;
-      case MoodTenseSubject.subjunctivePresent_nosotros:
+      case MoodTenseSubject.subjunctivePresentNosotros:
         return MoodTense.subjunctivePresent;
-      case MoodTenseSubject.subjunctivePresent_vosotros:
+      case MoodTenseSubject.subjunctivePresentVosotros:
         return MoodTense.subjunctivePresent;
-      case MoodTenseSubject.subjunctivePresent_ellos: //
+      case MoodTenseSubject.subjunctivePresentEllos: //
         return MoodTense.subjunctivePresent;
 
-      case MoodTenseSubject.subjunctivePast_yo: //
+      case MoodTenseSubject.subjunctivePastYo: //
         return MoodTense.subjunctivePast;
-      case MoodTenseSubject.subjunctivePast_tu:
+      case MoodTenseSubject.subjunctivePastTu:
         return MoodTense.subjunctivePast;
-      case MoodTenseSubject.subjunctivePast_el:
+      case MoodTenseSubject.subjunctivePastEl:
         return MoodTense.subjunctivePast;
-      case MoodTenseSubject.subjunctivePast_nosotros:
+      case MoodTenseSubject.subjunctivePastNosotros:
         return MoodTense.subjunctivePast;
-      case MoodTenseSubject.subjunctivePast_vosotros:
+      case MoodTenseSubject.subjunctivePastVosotros:
         return MoodTense.subjunctivePast;
-      case MoodTenseSubject.subjunctivePast_ellos: //
+      case MoodTenseSubject.subjunctivePastEllos: //
         return MoodTense.subjunctivePast;
     }
   }
@@ -356,111 +356,111 @@ extension MoodTenseExtension on MoodTenseSubject {
 extension SubjectExtension on MoodTenseSubject {
   Subject get subject {
     switch (this) {
-      case MoodTenseSubject.present_participle:
+      case MoodTenseSubject.presentParticiple:
         return Subject.yo;
-      case MoodTenseSubject.past_participle:
+      case MoodTenseSubject.pastParticiple:
         return Subject.yo;
 
-      case MoodTenseSubject.indicativePresent_yo:
+      case MoodTenseSubject.indicativePresentYo:
         return Subject.yo;
-      case MoodTenseSubject.indicativePresent_tu:
+      case MoodTenseSubject.indicativePresentTu:
         return Subject.tu;
-      case MoodTenseSubject.indicativePresent_el:
+      case MoodTenseSubject.indicativePresentEl:
         return Subject.el;
-      case MoodTenseSubject.indicativePresent_nosotros:
+      case MoodTenseSubject.indicativePresentNosotros:
         return Subject.nosotros;
-      case MoodTenseSubject.indicativePresent_vosotros:
+      case MoodTenseSubject.indicativePresentVosotros:
         return Subject.vosotros;
-      case MoodTenseSubject.indicativePresent_ellos: //
+      case MoodTenseSubject.indicativePresentEllos: //
         return Subject.ellos;
 
-      case MoodTenseSubject.indicativePreterite_yo: //
+      case MoodTenseSubject.indicativePreteriteYo: //
         return Subject.yo;
-      case MoodTenseSubject.indicativePreterite_tu:
+      case MoodTenseSubject.indicativePreteriteTu:
         return Subject.tu;
-      case MoodTenseSubject.indicativePreterite_el:
+      case MoodTenseSubject.indicativePreteriteEl:
         return Subject.el;
-      case MoodTenseSubject.indicativePreterite_nosotros:
+      case MoodTenseSubject.indicativePreteriteNosotros:
         return Subject.nosotros;
-      case MoodTenseSubject.indicativePreterite_vosotros:
+      case MoodTenseSubject.indicativePreteriteVosotros:
         return Subject.vosotros;
-      case MoodTenseSubject.indicativePreterite_ellos: //
+      case MoodTenseSubject.indicativePreteriteEllos: //
         return Subject.ellos;
 
-      case MoodTenseSubject.indicativeImperfect_yo: //
+      case MoodTenseSubject.indicativeImperfectYo: //
         return Subject.yo;
-      case MoodTenseSubject.indicativeImperfect_tu:
+      case MoodTenseSubject.indicativeImperfectTu:
         return Subject.tu;
-      case MoodTenseSubject.indicativeImperfect_el:
+      case MoodTenseSubject.indicativeImperfectEl:
         return Subject.el;
-      case MoodTenseSubject.indicativeImperfect_nosotros:
+      case MoodTenseSubject.indicativeImperfectNosotros:
         return Subject.nosotros;
-      case MoodTenseSubject.indicativeImperfect_vosotros:
+      case MoodTenseSubject.indicativeImperfectVosotros:
         return Subject.vosotros;
-      case MoodTenseSubject.indicativeImperfect_ellos: //
+      case MoodTenseSubject.indicativeImperfectEllos: //
         return Subject.ellos;
 
-      case MoodTenseSubject.indicativeFuture_yo: //
+      case MoodTenseSubject.indicativeFutureYo: //
         return Subject.yo;
-      case MoodTenseSubject.indicativeFuture_tu:
+      case MoodTenseSubject.indicativeFutureTu:
         return Subject.tu;
-      case MoodTenseSubject.indicativeFuture_el:
+      case MoodTenseSubject.indicativeFutureEl:
         return Subject.el;
-      case MoodTenseSubject.indicativeFuture_nosotros:
+      case MoodTenseSubject.indicativeFutureNosotros:
         return Subject.nosotros;
-      case MoodTenseSubject.indicativeFuture_vosotros:
+      case MoodTenseSubject.indicativeFutureVosotros:
         return Subject.vosotros;
-      case MoodTenseSubject.indicativeFuture_ellos: //
+      case MoodTenseSubject.indicativeFutureEllos: //
         return Subject.ellos;
 
-      case MoodTenseSubject.indicativeConditional_yo: //
+      case MoodTenseSubject.indicativeConditionalYo: //
         return Subject.yo;
-      case MoodTenseSubject.indicativeConditional_tu:
+      case MoodTenseSubject.indicativeConditionalTu:
         return Subject.tu;
-      case MoodTenseSubject.indicativeConditional_el:
+      case MoodTenseSubject.indicativeConditionalEl:
         return Subject.el;
-      case MoodTenseSubject.indicativeConditional_nosotros:
+      case MoodTenseSubject.indicativeConditionalNosotros:
         return Subject.nosotros;
-      case MoodTenseSubject.indicativeConditional_vosotros:
+      case MoodTenseSubject.indicativeConditionalVosotros:
         return Subject.vosotros;
-      case MoodTenseSubject.indicativeConditional_ellos: //
+      case MoodTenseSubject.indicativeConditionalEllos: //
         return Subject.ellos;
 
-      case MoodTenseSubject.imperative_tu: //
+      case MoodTenseSubject.imperativeTu: //
         return Subject.tu;
-      case MoodTenseSubject.imperative_el:
+      case MoodTenseSubject.imperativeEl:
         return Subject.el;
-      case MoodTenseSubject.imperative_nosotros:
+      case MoodTenseSubject.imperativeNosotros:
         return Subject.nosotros;
-      case MoodTenseSubject.imperative_vosotros:
+      case MoodTenseSubject.imperativeVosotros:
         return Subject.vosotros;
-      case MoodTenseSubject.imperative_ellos: //
+      case MoodTenseSubject.imperativeEllos: //
         return Subject.ellos;
 
-      case MoodTenseSubject.subjunctivePresent_yo: //
+      case MoodTenseSubject.subjunctivePresentYo: //
         return Subject.yo;
-      case MoodTenseSubject.subjunctivePresent_tu:
+      case MoodTenseSubject.subjunctivePresentTu:
         return Subject.tu;
-      case MoodTenseSubject.subjunctivePresent_el:
+      case MoodTenseSubject.subjunctivePresentEl:
         return Subject.el;
-      case MoodTenseSubject.subjunctivePresent_nosotros:
+      case MoodTenseSubject.subjunctivePresentNosotros:
         return Subject.nosotros;
-      case MoodTenseSubject.subjunctivePresent_vosotros:
+      case MoodTenseSubject.subjunctivePresentVosotros:
         return Subject.vosotros;
-      case MoodTenseSubject.subjunctivePresent_ellos: //
+      case MoodTenseSubject.subjunctivePresentEllos: //
         return Subject.ellos;
 
-      case MoodTenseSubject.subjunctivePast_yo: //
+      case MoodTenseSubject.subjunctivePastYo: //
         return Subject.yo;
-      case MoodTenseSubject.subjunctivePast_tu:
+      case MoodTenseSubject.subjunctivePastTu:
         return Subject.tu;
-      case MoodTenseSubject.subjunctivePast_el:
+      case MoodTenseSubject.subjunctivePastEl:
         return Subject.el;
-      case MoodTenseSubject.subjunctivePast_nosotros:
+      case MoodTenseSubject.subjunctivePastNosotros:
         return Subject.nosotros;
-      case MoodTenseSubject.subjunctivePast_vosotros:
+      case MoodTenseSubject.subjunctivePastVosotros:
         return Subject.vosotros;
-      case MoodTenseSubject.subjunctivePast_ellos: //
+      case MoodTenseSubject.subjunctivePastEllos: //
         return Subject.ellos;
     }
   }

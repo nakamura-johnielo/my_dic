@@ -20,7 +20,6 @@ class SearchFragment extends ConsumerStatefulWidget {
 }
 
 class _SearchFragmentState extends ConsumerState<SearchFragment> {
-  int _currentPage = -1;
   final int _size = 30; //searchの1ページの取得件数
   int _previousConjItemLength = 0;
   int _previousEspJpnItemLength = 0;
@@ -57,7 +56,6 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
       _previousEspJpnItemLength = 0;
       _previousConjItemLength = 0;
       _previousJpnEspItemLength = 0;
-      _currentPage = -1;
     });
   }
 

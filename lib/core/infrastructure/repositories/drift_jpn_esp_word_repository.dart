@@ -82,7 +82,7 @@ class JpnEspWordRepository implements IJpnEspWordRepository {
       String text = m.group(1)!;
       // さらにタグを除去（bタグなど）
       text = text.replaceAll(RegExp(r'<[^>]+>'), '');
-      meanings += text + "  ";
+      meanings += "$text  ";
       if (meanings.length > UIConsts.oneLineMeaningMaxLength) {
         meanings = meanings.substring(0, UIConsts.oneLineMeaningMaxLength);
         break;

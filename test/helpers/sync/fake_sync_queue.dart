@@ -7,6 +7,8 @@ class FakeSyncQueue implements SyncQueue {
   final List<SyncMutation> pending = [];
   final Map<String, MutationLease> leased = {};
   final Set<String> deadLetters = {};
+  final Map<String, int> _attempts = {};
+  final Map<String, DateTime> nextAttemptAt = {};
   int _token = 0;
 
   void enqueue(SyncMutation mutation) => pending.add(mutation);
@@ -19,7 +21,10 @@ class FakeSyncQueue implements SyncQueue {
       required DateTime now,
       required Duration leaseDuration}) async {
     final matches = pending
-        .where((item) => item.accountId == accountId && item.dataset == dataset)
+        .where((item) =>
+            item.accountId == accountId &&
+            item.dataset == dataset &&
+            !(nextAttemptAt[item.mutationId]?.isAfter(now.toUtc()) ?? false))
         .take(limit)
         .toList();
     final result = <MutationLease>[];
@@ -29,7 +34,8 @@ class FakeSyncQueue implements SyncQueue {
           mutation: mutation,
           leaseToken: 'fake-${_token++}',
           leasedLocalRevision: mutation.localRevision,
-          leaseUntil: now.add(leaseDuration));
+          leaseUntil: now.add(leaseDuration),
+          attemptCount: _attempts[mutation.mutationId] ?? 0);
       leased[mutation.mutationId] = lease;
       result.add(lease);
     }
@@ -49,6 +55,9 @@ class FakeSyncQueue implements SyncQueue {
       {required String errorCode, required DateTime nextAttemptAt}) async {
     if (_owns(lease)) {
       leased.remove(lease.mutation.mutationId);
+      _attempts.update(lease.mutation.mutationId, (attempt) => attempt + 1,
+          ifAbsent: () => 1);
+      this.nextAttemptAt[lease.mutation.mutationId] = nextAttemptAt.toUtc();
       pending.add(lease.mutation);
     }
   }

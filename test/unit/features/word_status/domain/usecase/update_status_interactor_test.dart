@@ -14,7 +14,7 @@ import 'package:my_dic/features/jpn_esp_word_status/domain/usecase/update_jpn_es
 import 'package:my_dic/features/jpn_esp_word_status/domain/usecase/update_jpn_esp_status/update_jpn_esp_status_interactor.dart';
 import 'package:my_dic/features/jpn_esp_word_status/domain/usecase/update_jpn_esp_status/update_jpn_esp_status_repository_input_data.dart';
 
-import '../../../../helpers/fake_current_session.dart';
+import '../../../../../helpers/fake_current_session.dart';
 
 class _MockEspJpnRepository extends Mock implements IWordStatusRepository {}
 
@@ -160,4 +160,3 @@ void main() {
     expect(result.isSuccess, isTrue);
   });
 }
-

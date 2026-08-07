@@ -16,15 +16,11 @@ import 'package:my_dic/router/navigator_service.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 
 class RankingViewModel extends StateNotifier<RankingState> {
-  RankingViewModel(
-      this._loadRankingsUseCase,
-      this._locateRankingPagenationUseCase,
-      this._updateRankingFilterUseCase,
-      this._naviService)
+  RankingViewModel(this._loadRankingsUseCase, ILocateRankingPagenationUseCase _,
+      this._updateRankingFilterUseCase, this._naviService)
       : super(const RankingState());
 
   final ILoadRankingsUseCase _loadRankingsUseCase;
-  final ILocateRankingPagenationUseCase _locateRankingPagenationUseCase;
   final IUpdateRankingFilterUseCase _updateRankingFilterUseCase;
   final AppNavigatorService _naviService;
   final _logger = Logger('RankingViewModelV2');

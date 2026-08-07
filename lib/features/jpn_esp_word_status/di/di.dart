@@ -8,7 +8,7 @@ import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/i_loca
 import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/i_remote_jpn_esp_word_status_data_source.dart';
 import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/jpn_esp_drift_word_status_data_source.dart';
 import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/jpn_esp_firebase_word_status_data_source.dart';
-import 'package:my_dic/features/word_status/presentation/dictionary_status_view_models.dart';
+import 'package:my_dic/app/presentation/dictionary_status_view_models.dart';
 import 'package:my_dic/features/jpn_esp_word_status/data/jpn_esp_word_status_repository.dart';
 import 'package:my_dic/features/jpn_esp_word_status/domain/i_jpn_esp_word_status_repository.dart';
 import 'package:my_dic/features/jpn_esp_word_status/domain/jpn_esp_word_status.dart';
@@ -67,6 +67,7 @@ final jpnEspWordStatusSyncHandlerProvider =
     Provider<JpnEspWordStatusSyncHandler>((ref) {
   return JpnEspWordStatusSyncHandler(
     queue: ref.watch(driftSyncQueueProvider),
+    executionGuard: ref.watch(syncExecutionGuardProvider),
     checkpointStore: ref.watch(driftSyncCheckpointStoreProvider),
     local: ref.read(jpnEspLocalWordStatusDataSourceProvider),
     remote: ref.read(jpnEspRemoteWordStatusDataSourceProvider),

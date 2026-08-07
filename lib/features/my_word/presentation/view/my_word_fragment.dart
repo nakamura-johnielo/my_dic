@@ -156,7 +156,7 @@ void openDetailModal(
   showDialog<void>(
     context: context,
     barrierDismissible: true, // カード外タップで閉じる
-    barrierColor: Colors.black.withOpacity(0.5),
+    barrierColor: Colors.black.withValues(alpha: 0.5),
     builder: (context) {
       return Center(
         child: Padding(
@@ -194,7 +194,7 @@ class RegisterButton extends StatelessWidget {
         showDialog<void>(
           context: context,
           barrierDismissible: true,
-          barrierColor: Colors.black.withOpacity(0.5),
+          barrierColor: Colors.black.withValues(alpha: 0.5),
           builder: (context) {
             return Center(
               child: Padding(

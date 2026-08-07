@@ -29,7 +29,7 @@ class JpnEspDictionaryDao extends DatabaseAccessor<DatabaseProvider>
     final res = <int, String>{};
     for (final row in rows) {
       final content = row.content;
-      if (content == null || content.isEmpty) continue;
+      if (content.isEmpty) continue;
       res.putIfAbsent(row.wordId, () => content);
     }
     return res;

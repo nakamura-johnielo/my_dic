@@ -6,10 +6,11 @@ import 'package:my_dic/features/ranking/domain/usecase/load_rankings/filtered_ra
 
 class FakeEspRankingRepository implements IEspRankingRepository {
   final Result<List<Ranking>> _result;
-  
+
   FilteredRankingListInputData? lastFilteredInput;
   int? lastPage;
   int? lastSize;
+  int? lastRequestedWordId;
   int callCount = 0;
   int filteredCallCount = 0;
 
@@ -25,7 +26,8 @@ class FakeEspRankingRepository implements IEspRankingRepository {
 
   factory FakeEspRankingRepository.databaseError() {
     return FakeEspRankingRepository(
-      result: Result.failure(DatabaseError(message: 'Database connection failed')),
+      result:
+          Result.failure(DatabaseError(message: 'Database connection failed')),
     );
   }
 
@@ -43,6 +45,22 @@ class FakeEspRankingRepository implements IEspRankingRepository {
     filteredCallCount++;
     lastFilteredInput = input;
     return _result;
+  }
+
+  @override
+  Future<Result<Ranking>> getRankingById(int wordId) async {
+    lastRequestedWordId = wordId;
+    return _result.when(
+      success: (rankings) {
+        for (final ranking in rankings) {
+          if (ranking.wordId == wordId) return Result.success(ranking);
+        }
+        return Result.failure(
+          DatabaseError(message: 'Ranking not found for wordId: $wordId'),
+        );
+      },
+      failure: Result.failure,
+    );
   }
 
   static List<Ranking> _defaultRankings() {

@@ -5,6 +5,7 @@ import 'package:my_dic/features/my_word/data/data_source/remote/myword/i_my_word
 import 'package:my_dic/features/sync/application/model/dataset_sync_result.dart';
 import 'package:my_dic/features/sync/application/model/sync_context.dart';
 import 'package:my_dic/features/sync/application/model/sync_cursor.dart';
+import 'package:my_dic/features/sync/application/sync_execution_guard.dart';
 import 'package:my_dic/features/sync/application/policy/exponential_backoff.dart';
 import 'package:my_dic/features/sync/application/policy/retry_policy.dart';
 import 'package:my_dic/features/sync/application/policy/sync_error_classifier.dart';
@@ -25,6 +26,7 @@ class MyWordSyncHandler implements DatasetSyncHandler {
     required IMyWordRemoteDataSource remote,
     RetryPolicy? retryPolicy,
     SyncErrorClassifier? classifier,
+    SyncExecutionGuard? executionGuard,
     DateTime Function()? clock,
     this.pushBatchLimit = 50,
     this.leaseDuration = const Duration(minutes: 2),
@@ -34,6 +36,7 @@ class MyWordSyncHandler implements DatasetSyncHandler {
         _remote = remote,
         _retryPolicy = retryPolicy ?? ExponentialBackoff(),
         _classifier = classifier ?? const SyncErrorClassifier(),
+        _executionGuard = executionGuard ?? const SyncExecutionGuard(),
         _clock = clock ?? DateTime.now;
 
   final SyncQueue _queue;
@@ -42,6 +45,7 @@ class MyWordSyncHandler implements DatasetSyncHandler {
   final IMyWordRemoteDataSource _remote;
   final RetryPolicy _retryPolicy;
   final SyncErrorClassifier _classifier;
+  final SyncExecutionGuard _executionGuard;
   final DateTime Function() _clock;
   final int pushBatchLimit;
   final Duration leaseDuration;
@@ -51,7 +55,15 @@ class MyWordSyncHandler implements DatasetSyncHandler {
 
   @override
   Future<DatasetSyncResult> run(SyncContext context) async {
-    if (context.cancellation.isCancelled) {
+    try {
+      return await _run(context);
+    } on SyncExecutionCancelled catch (error) {
+      return DatasetSyncResult.cancelled(error.reason);
+    }
+  }
+
+  Future<DatasetSyncResult> _run(SyncContext context) async {
+    if (!_executionGuard.canContinue(context)) {
       return const DatasetSyncResult.cancelled('cancelled before start');
     }
 
@@ -67,15 +79,17 @@ class MyWordSyncHandler implements DatasetSyncHandler {
       now: now,
       leaseDuration: leaseDuration,
     );
+    _executionGuard.ensureCanContinue(context);
 
     for (final lease in leases) {
-      if (context.cancellation.isCancelled) {
+      if (!_executionGuard.canContinue(context)) {
         return const DatasetSyncResult.cancelled('cancelled during push');
       }
       try {
         final entityId = lease.mutation.entityId;
         final existing =
             await _remote.getMyWordById(context.accountId, entityId);
+        _executionGuard.ensureCanContinue(context);
         await _remote.patchMyWord(
           context.accountId,
           entityId,
@@ -83,36 +97,49 @@ class MyWordSyncHandler implements DatasetSyncHandler {
           lease.mutation.fieldMask,
           isNew: existing == null,
         );
+        if (!_executionGuard.canContinue(context)) {
+          return DatasetSyncResult.cancelled(
+              _executionGuard.cancellationReason(context));
+        }
         if (await _queue.ack(lease)) pushedCount++;
       } catch (error) {
+        _executionGuard.ensureCanContinue(context);
         final classification = _classifier.classify(error);
         if (classification.kind == SyncFailureKind.deadLetter) {
           await _queue.deadLetter(lease, errorCode: classification.code);
         } else {
           await _queue.retry(lease,
               errorCode: classification.code,
-              nextAttemptAt: now.add(_retryPolicy.delayForAttempt(1)));
+              nextAttemptAt: now
+                  .add(_retryPolicy.delayForAttempt(lease.attemptCount + 1)));
         }
         pushErrorCode = classification.code;
         pushRetryable = classification.retryable;
       }
     }
 
-    if (context.cancellation.isCancelled) {
+    if (!_executionGuard.canContinue(context)) {
       return const DatasetSyncResult.cancelled('cancelled after push');
     }
 
     final cursor = await _checkpointStore.read(
         accountId: context.accountId, dataset: dataset);
+    _executionGuard.ensureCanContinue(context);
     final since = cursor == null ? MyDateTime.sentinel : _toDateTime(cursor);
     final remoteItems = await _remote.getMyWordsAfter(context.accountId, since);
+    _executionGuard.ensureCanContinue(context);
 
     var pulledCount = 0;
     var newCursor = cursor;
 
     if (remoteItems.isNotEmpty) {
+      if (!_executionGuard.canContinue(context)) {
+        return DatasetSyncResult.cancelled(
+            _executionGuard.cancellationReason(context));
+      }
       final pending = await _queue.peekPending(
           accountId: context.accountId, dataset: dataset);
+      _executionGuard.ensureCanContinue(context);
       final pendingFieldsByEntity = <String, Set<String>>{};
       for (final mutation in pending) {
         pendingFieldsByEntity
@@ -122,6 +149,7 @@ class MyWordSyncHandler implements DatasetSyncHandler {
 
       await _local.runInTransaction(() async {
         for (final dto in remoteItems) {
+          _executionGuard.ensureCanContinue(context);
           final entityId = dto.myWordId;
           final skip = pendingFieldsByEntity[entityId] ?? const {};
           final tombstoned = dto.deletedAt != null;
@@ -133,6 +161,7 @@ class MyWordSyncHandler implements DatasetSyncHandler {
             editAt: dto.updatedAt.toIso8601String(),
             accountId: context.accountId,
           );
+          _executionGuard.ensureCanContinue(context);
           pulledCount++;
           final candidate = SyncCursor(
             seconds: dto.updatedAt.millisecondsSinceEpoch ~/ 1000,
@@ -145,6 +174,7 @@ class MyWordSyncHandler implements DatasetSyncHandler {
           }
         }
         if (newCursor != null && (cursor == null || newCursor != cursor)) {
+          _executionGuard.ensureCanContinue(context);
           await _checkpointStore.write(
             accountId: context.accountId,
             dataset: dataset,
@@ -152,8 +182,11 @@ class MyWordSyncHandler implements DatasetSyncHandler {
             lastSuccessfulAt: now,
           );
         }
+        _executionGuard.ensureCanContinue(context);
       });
     }
+
+    _executionGuard.ensureCanContinue(context);
 
     if (pushErrorCode != null) {
       return DatasetSyncResult.failed(
@@ -170,7 +203,8 @@ class MyWordSyncHandler implements DatasetSyncHandler {
     );
   }
 
-  DateTime _toDateTime(SyncCursor cursor) => DateTime.fromMicrosecondsSinceEpoch(
-      cursor.seconds * 1000000 + cursor.nanoseconds ~/ 1000,
-      isUtc: true);
+  DateTime _toDateTime(SyncCursor cursor) =>
+      DateTime.fromMicrosecondsSinceEpoch(
+          cursor.seconds * 1000000 + cursor.nanoseconds ~/ 1000,
+          isUtc: true);
 }

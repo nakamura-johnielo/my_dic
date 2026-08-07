@@ -6,6 +6,7 @@
 /// - Input validation for page numbers and size
 /// - Offset calculation correctness
 /// - Fake repository usage
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';

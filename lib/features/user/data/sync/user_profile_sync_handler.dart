@@ -2,6 +2,7 @@ import 'package:my_dic/core/shared/enums/sync_dataset.dart';
 import 'package:my_dic/features/sync/application/model/dataset_sync_result.dart';
 import 'package:my_dic/features/sync/application/model/sync_context.dart';
 import 'package:my_dic/features/sync/application/model/sync_cursor.dart';
+import 'package:my_dic/features/sync/application/sync_execution_guard.dart';
 import 'package:my_dic/features/sync/application/policy/exponential_backoff.dart';
 import 'package:my_dic/features/sync/application/policy/retry_policy.dart';
 import 'package:my_dic/features/sync/application/policy/sync_error_classifier.dart';
@@ -26,6 +27,7 @@ class UserProfileSyncHandler implements DatasetSyncHandler {
     required IUserRemoteDataSource remote,
     RetryPolicy? retryPolicy,
     SyncErrorClassifier? classifier,
+    SyncExecutionGuard? executionGuard,
     DateTime Function()? clock,
     this.pushBatchLimit = 50,
     this.leaseDuration = const Duration(minutes: 2),
@@ -35,6 +37,7 @@ class UserProfileSyncHandler implements DatasetSyncHandler {
         _remote = remote,
         _retryPolicy = retryPolicy ?? ExponentialBackoff(),
         _classifier = classifier ?? const SyncErrorClassifier(),
+        _executionGuard = executionGuard ?? const SyncExecutionGuard(),
         _clock = clock ?? DateTime.now;
 
   final SyncQueue _queue;
@@ -43,6 +46,7 @@ class UserProfileSyncHandler implements DatasetSyncHandler {
   final IUserRemoteDataSource _remote;
   final RetryPolicy _retryPolicy;
   final SyncErrorClassifier _classifier;
+  final SyncExecutionGuard _executionGuard;
   final DateTime Function() _clock;
   final int pushBatchLimit;
   final Duration leaseDuration;
@@ -52,7 +56,15 @@ class UserProfileSyncHandler implements DatasetSyncHandler {
 
   @override
   Future<DatasetSyncResult> run(SyncContext context) async {
-    if (context.cancellation.isCancelled) {
+    try {
+      return await _run(context);
+    } on SyncExecutionCancelled catch (error) {
+      return DatasetSyncResult.cancelled(error.reason);
+    }
+  }
+
+  Future<DatasetSyncResult> _run(SyncContext context) async {
+    if (!_executionGuard.canContinue(context)) {
       return const DatasetSyncResult.cancelled('cancelled before start');
     }
 
@@ -68,47 +80,58 @@ class UserProfileSyncHandler implements DatasetSyncHandler {
       now: now,
       leaseDuration: leaseDuration,
     );
+    _executionGuard.ensureCanContinue(context);
 
     for (final lease in leases) {
-      if (context.cancellation.isCancelled) {
+      if (!_executionGuard.canContinue(context)) {
         return const DatasetSyncResult.cancelled('cancelled during push');
       }
       try {
         final existing = await _remote.getUserById(context.accountId);
+        _executionGuard.ensureCanContinue(context);
         await _remote.patchUser(
           context.accountId,
           lease.mutation.payload,
           lease.mutation.fieldMask,
           isNew: existing == null,
         );
+        if (!_executionGuard.canContinue(context)) {
+          return DatasetSyncResult.cancelled(
+              _executionGuard.cancellationReason(context));
+        }
         if (await _queue.ack(lease)) pushedCount++;
       } catch (error) {
+        _executionGuard.ensureCanContinue(context);
         final classification = _classifier.classify(error);
         if (classification.kind == SyncFailureKind.deadLetter) {
           await _queue.deadLetter(lease, errorCode: classification.code);
         } else {
           await _queue.retry(lease,
               errorCode: classification.code,
-              nextAttemptAt: now.add(_retryPolicy.delayForAttempt(1)));
+              nextAttemptAt: now
+                  .add(_retryPolicy.delayForAttempt(lease.attemptCount + 1)));
         }
         pushErrorCode = classification.code;
         pushRetryable = classification.retryable;
       }
     }
 
-    if (context.cancellation.isCancelled) {
+    if (!_executionGuard.canContinue(context)) {
       return const DatasetSyncResult.cancelled('cancelled after push');
     }
 
     final cursor = await _checkpointStore.read(
         accountId: context.accountId, dataset: dataset);
+    _executionGuard.ensureCanContinue(context);
 
     UserDTO? remoteUser;
     String? pullErrorCode;
     var pullRetryable = true;
     try {
       remoteUser = await _remote.getUserById(context.accountId);
+      _executionGuard.ensureCanContinue(context);
     } catch (error) {
+      _executionGuard.ensureCanContinue(context);
       final classification = _classifier.classify(error);
       pullErrorCode = classification.code;
       pullRetryable = classification.retryable;
@@ -118,6 +141,10 @@ class UserProfileSyncHandler implements DatasetSyncHandler {
     var newCursor = cursor;
 
     if (remoteUser != null && remoteUser.updatedAt != null) {
+      if (!_executionGuard.canContinue(context)) {
+        return DatasetSyncResult.cancelled(
+            _executionGuard.cancellationReason(context));
+      }
       final candidate = SyncCursor(
         seconds: remoteUser.updatedAt!.millisecondsSinceEpoch ~/ 1000,
         nanoseconds:
@@ -127,28 +154,34 @@ class UserProfileSyncHandler implements DatasetSyncHandler {
       if (cursor == null || candidate.compareTo(cursor) > 0) {
         final pending = await _queue.peekPending(
             accountId: context.accountId, dataset: dataset);
+        _executionGuard.ensureCanContinue(context);
         final pendingFields = <String>{
           for (final mutation in pending) ...mutation.fieldMask,
         };
 
         await _local.runInTransaction(() async {
+          _executionGuard.ensureCanContinue(context);
           await _local.applyRemoteFields(
             context.accountId,
             username: pendingFields.contains('username')
                 ? null
                 : remoteUser!.userName,
           );
+          _executionGuard.ensureCanContinue(context);
           await _checkpointStore.write(
             accountId: context.accountId,
             dataset: dataset,
             cursor: candidate,
             lastSuccessfulAt: now,
           );
+          _executionGuard.ensureCanContinue(context);
         });
         pulledCount = 1;
         newCursor = candidate;
       }
     }
+
+    _executionGuard.ensureCanContinue(context);
 
     final errorCode = pushErrorCode ?? pullErrorCode;
     if (errorCode != null) {
@@ -166,4 +199,3 @@ class UserProfileSyncHandler implements DatasetSyncHandler {
     );
   }
 }
-

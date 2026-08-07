@@ -4,6 +4,9 @@ import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart
 abstract class IUserProfileLocalDataSource {
   Future<db.UserProfile?> getProfile(String accountId);
 
+  /// Emits the account-scoped local profile whenever Drift persists a change.
+  Stream<db.UserProfile?> watchProfile(String accountId);
+
   Future<void> deleteProfile(String accountId);
 
   /// Reads the editable `username` field out of the profile JSON payload,

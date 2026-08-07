@@ -111,16 +111,13 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
                         children: [
                           //word.
                           if (!_isOnEdit)
-                            Container(
-                              //width: 45,
-                              child: Text(
-                                myHeaderWord,
-                                style: TextStyle(
-                                    fontSize: 19,
-                                    fontWeight: FontWeight.w600,
-                                    color: headwordColor),
-                                textAlign: TextAlign.left,
-                              ),
+                            Text(
+                              myHeaderWord,
+                              style: TextStyle(
+                                  fontSize: 19,
+                                  fontWeight: FontWeight.w600,
+                                  color: headwordColor),
+                              textAlign: TextAlign.left,
                             ),
                           if (_isOnEdit)
                             TextField(
@@ -323,16 +320,13 @@ class MyWordCardModal4 extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       //word.
-                      Container(
-                        //width: 45,
-                        child: Text(
-                          myWord.word,
-                          style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              color: headwordColor),
-                          textAlign: TextAlign.left,
-                        ),
+                      Text(
+                        myWord.word,
+                        style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: headwordColor),
+                        textAlign: TextAlign.left,
                       ),
 
                       //description

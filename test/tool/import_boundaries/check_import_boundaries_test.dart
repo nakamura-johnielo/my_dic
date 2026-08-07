@@ -49,6 +49,29 @@ void main() {
       expect(await checker().check(root: root.path), isEmpty);
     });
 
+    test('scans test sources but excludes only the boundary-checker fixtures',
+        () async {
+      await write(root, 'test/unit/features/catalog/domain/model_test.dart',
+          "import 'package:flutter/material.dart';");
+      await write(root, 'test/tool/import_boundaries/fixtures/violation.dart',
+          "import 'package:flutter/material.dart';");
+
+      final violations = await checker().check(root: root.path);
+
+      expect(
+          violations,
+          contains(const Violation(
+              'domain_no_framework',
+              'test/unit/features/catalog/domain/model_test.dart',
+              'package:flutter/material.dart')));
+      expect(
+          violations,
+          isNot(contains(const Violation(
+              'domain_no_framework',
+              'test/tool/import_boundaries/fixtures/violation.dart',
+              'package:flutter/material.dart'))));
+    });
+
     test('finds presentation dependency and feature cycle', () async {
       await write(root, 'lib/features/a/presentation/a.dart',
           "import 'package:my_dic/features/b/presentation/b.dart';");
@@ -62,6 +85,20 @@ void main() {
           hasLength(2));
       expect(violations.where((v) => v.ruleId == 'no_feature_cycle'),
           hasLength(2));
+    });
+
+    test('finds a three-feature cycle', () async {
+      await write(root, 'lib/features/a/domain/a.dart',
+          "import 'package:my_dic/features/b/domain/b.dart';");
+      await write(root, 'lib/features/b/domain/b.dart',
+          "import 'package:my_dic/features/c/domain/c.dart';");
+      await write(root, 'lib/features/c/domain/c.dart',
+          "import 'package:my_dic/features/a/domain/a.dart';");
+
+      final cycles = (await checker().check(root: root.path))
+          .where((violation) => violation.ruleId == 'no_feature_cycle');
+
+      expect(cycles, hasLength(3));
     });
 
     test('baseline comparison reports additions and removals', () async {

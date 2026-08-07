@@ -101,6 +101,38 @@ void main() {
     expect(queue.pending, isEmpty);
   });
 
+  test('session invalidation after remote read does not patch or ack',
+      () async {
+    queue.enqueue(_mutation(
+      fieldMask: const ['isLearned'],
+      payload: const {'isLearned': true},
+    ));
+    final cancellation = CancellationToken();
+    when(() => remote.getStatusById(_accountId, 'word-1'))
+        .thenAnswer((_) async {
+      cancellation.cancel('account changed');
+      return null;
+    });
+
+    final result = await handler.run(SyncContext(
+      accountId: _accountId,
+      sessionEpoch: 1,
+      reason: 'test',
+      cancellation: cancellation,
+    ));
+
+    expect(result, isA<DatasetSyncCancelled>());
+    expect(queue.leased, hasLength(1));
+    expect(queue.pending, isEmpty);
+    verifyNever(() => remote.patchStatus(
+          any(),
+          any(),
+          any(),
+          any(),
+          isNew: any(named: 'isNew'),
+        ));
+  });
+
   test('a retryable remote failure re-queues the mutation as pending',
       () async {
     queue.enqueue(_mutation(

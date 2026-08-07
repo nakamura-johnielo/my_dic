@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/app/bootstrap/sync_composition.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
+import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart'
+    as db;
 import 'package:my_dic/core/infrastructure/database/firebase/firebase_provider.dart';
 import 'package:my_dic/core/infrastructure/database/shared_preferences/shared_preferences.dart';
 import 'package:my_dic/features/user/data/data_source/local/drift_user_profile_dao.dart';
@@ -19,16 +21,16 @@ import 'package:my_dic/features/user/domain/i_repository/i_user_repository.dart'
 final userDaoProvider =
     Provider((ref) => UserDao(ref.watch(firestoreDBProvider)));
 
-final userRemoteDataSourceProvider =
-  Provider<IUserRemoteDataSource>((ref) =>
-    FirebaseUserRemoteDataSource(ref.watch(userDaoProvider)));
+final userRemoteDataSourceProvider = Provider<IUserRemoteDataSource>(
+    (ref) => FirebaseUserRemoteDataSource(ref.watch(userDaoProvider)));
 
-final sharedPreferencesUserDaoProvider =
-    Provider((ref) => SharedPreferencesUserDao(ref.watch(sharedPreferencesProvider)));//TODO sharedpref
+final sharedPreferencesUserDaoProvider = Provider((ref) =>
+    SharedPreferencesUserDao(
+        ref.watch(sharedPreferencesProvider))); //TODO sharedpref
 
-final userLocalDataSourceProvider =
-  Provider<IUserLocalDataSource>((ref) =>
-    SharedPreferencesUserDataSource(ref.watch(sharedPreferencesUserDaoProvider)));
+final userLocalDataSourceProvider = Provider<IUserLocalDataSource>((ref) =>
+    SharedPreferencesUserDataSource(
+        ref.watch(sharedPreferencesUserDaoProvider)));
 
 final userProfileDaoProvider = Provider<UserProfileDao>(
     (ref) => UserProfileDao(ref.watch(databaseProvider)));
@@ -37,9 +39,15 @@ final userProfileLocalDataSourceProvider =
     Provider<IUserProfileLocalDataSource>(
         (ref) => UserProfileDriftDataSource(ref.watch(userProfileDaoProvider)));
 
+/// Account-scoped live profile projection for presentation and session wiring.
+final watchedUserProfileProvider = StreamProvider.autoDispose
+    .family<db.UserProfile?, String>((ref, accountId) {
+  return ref.watch(userProfileLocalDataSourceProvider).watchProfile(accountId);
+});
+
 final firebaseUserRepositoryProvider = Provider<IUserRepository>((ref) {
   final remote = ref.watch(userRemoteDataSourceProvider);
-  final local=ref.watch(userLocalDataSourceProvider);
+  final local = ref.watch(userLocalDataSourceProvider);
   final profileLocal = ref.watch(userProfileLocalDataSourceProvider);
   final outboxWriter = ref.watch(driftOutboxWriterProvider);
   return UserRepository(remote, local, profileLocal, outboxWriter);
@@ -48,9 +56,9 @@ final firebaseUserRepositoryProvider = Provider<IUserRepository>((ref) {
 final userProfileSyncHandlerProvider = Provider<UserProfileSyncHandler>((ref) {
   return UserProfileSyncHandler(
     queue: ref.watch(driftSyncQueueProvider),
+    executionGuard: ref.watch(syncExecutionGuardProvider),
     checkpointStore: ref.watch(driftSyncCheckpointStoreProvider),
     local: ref.watch(userProfileLocalDataSourceProvider),
     remote: ref.watch(userRemoteDataSourceProvider),
   );
 });
-

@@ -10,7 +10,7 @@ import 'package:my_dic/core/infrastructure/datasource/word_status/drift_word_sta
 import 'package:my_dic/core/infrastructure/datasource/word_status/i_remote_word_status_data_source.dart';
 import 'package:my_dic/core/shared/enums/sync_dataset.dart';
 import 'package:my_dic/features/esp_jpn_word_status/data/sync/esp_jpn_word_status_sync_handler.dart';
-import 'package:my_dic/features/esp_jpn_word_status/data/wordStatusEntity.dart';
+import 'package:my_dic/features/esp_jpn_word_status/data/word_status_entity.dart';
 import 'package:my_dic/features/jpn_esp_word_status/data/jpn_esp_word_status_entity.dart';
 import 'package:my_dic/features/jpn_esp_word_status/data/sync/jpn_esp_word_status_sync_handler.dart';
 import 'package:my_dic/features/sync/application/cancellation_token.dart';
@@ -255,6 +255,61 @@ void main() {
         expect(fixture.queue.leased, isEmpty);
       });
 
+      test('session invalidation after remote read does not patch or ack',
+          () async {
+        fixture.queue.enqueue(_mutation(
+          dataset: fixture.dataset,
+          fieldMask: const ['isLearned'],
+          payload: const {'isLearned': true},
+        ));
+        final cancellation = CancellationToken();
+        if (fixture is _EspJpnFixture) {
+          final espJpn = fixture as _EspJpnFixture;
+          when(() => espJpn.remote.getWordStatusById(_accountId, 1))
+              .thenAnswer((_) async {
+            cancellation.cancel('account changed');
+            return null;
+          });
+        } else {
+          final jpnEsp = fixture as _JpnEspFixture;
+          when(() => jpnEsp.remote.getWordStatusById(_accountId, 1))
+              .thenAnswer((_) async {
+            cancellation.cancel('account changed');
+            return null;
+          });
+        }
+
+        final result = await fixture.handler.run(SyncContext(
+          accountId: _accountId,
+          sessionEpoch: 1,
+          reason: 'test',
+          cancellation: cancellation,
+        ));
+
+        expect(result, isA<DatasetSyncCancelled>());
+        expect(fixture.queue.leased, hasLength(1));
+        expect(fixture.queue.pending, isEmpty);
+        if (fixture is _EspJpnFixture) {
+          final espJpn = fixture as _EspJpnFixture;
+          verifyNever(() => espJpn.remote.patchWordStatus(
+                any(),
+                any(),
+                any(),
+                any(),
+                isNew: any(named: 'isNew'),
+              ));
+        } else {
+          final jpnEsp = fixture as _JpnEspFixture;
+          verifyNever(() => jpnEsp.remote.patchWordStatus(
+                any(),
+                any(),
+                any(),
+                any(),
+                isNew: any(named: 'isNew'),
+              ));
+        }
+      });
+
       test('a retryable remote failure re-queues the mutation as pending',
           () async {
         fixture.queue.enqueue(_mutation(
@@ -371,8 +426,7 @@ void main() {
                 'mutation');
       });
 
-      test(
-          'a pulled field with an in-flight local mutation is not overwritten',
+      test('a pulled field with an in-flight local mutation is not overwritten',
           () async {
         await fixture.seed(3,
             isLearned: false, isBookmarked: true, hasNote: false);

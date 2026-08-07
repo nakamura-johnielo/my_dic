@@ -39,24 +39,34 @@ class ImportBoundaryChecker {
   final List<String> generatedPatterns;
   final String packageName;
 
+  static const excludedFixturePatterns = <String>[
+    'test/tool/import_boundaries/fixtures/**',
+  ];
+
   Future<List<Violation>> check({String root = '.'}) async {
     final imports = <ImportEntry>[];
-    await for (final entity in Directory('$root${Platform.pathSeparator}lib')
-        .list(recursive: true)) {
-      if (entity is! File || !entity.path.endsWith('.dart')) continue;
-      final source = relative(root, entity.path);
-      if (isGenerated(source)) continue;
-      for (final target in dartImports(await entity.readAsString())) {
-        imports.add(ImportEntry(source, target, resolveTarget(source, target)));
+    for (final sourceRoot in const ['lib', 'test']) {
+      final directory = Directory('$root${Platform.pathSeparator}$sourceRoot');
+      if (!await directory.exists()) continue;
+      await for (final entity in directory.list(recursive: true)) {
+        if (entity is! File || !entity.path.endsWith('.dart')) continue;
+        final source = relative(root, entity.path);
+        if (isExcluded(source)) continue;
+        for (final target in dartImports(await entity.readAsString())) {
+          imports
+              .add(ImportEntry(source, target, resolveTarget(source, target)));
+        }
       }
     }
     final violations = <Violation>[];
     for (final entry in imports) {
-      if (entry.localTarget != null && isGenerated(entry.localTarget!))
+      if (entry.localTarget != null && isGenerated(entry.localTarget!)) {
         continue;
+      }
       for (final rule in rules) {
-        if (rule.violates(entry))
+        if (rule.violates(entry)) {
           violations.add(Violation(rule.id, entry.source, entry.target));
+        }
       }
     }
     violations.addAll(findFeatureCycles(imports));
@@ -65,11 +75,16 @@ class ImportBoundaryChecker {
 
   bool isGenerated(String path) =>
       generatedPatterns.any((pattern) => matches(path, pattern));
+  bool isExcluded(String path) =>
+      isGenerated(path) ||
+      excludedFixturePatterns.any((pattern) => matches(path, pattern));
   String? resolveTarget(String source, String target) {
-    if (target.startsWith('package:$packageName/'))
+    if (target.startsWith('package:$packageName/')) {
       return 'lib/${target.substring('package:$packageName/'.length)}';
-    if (target.startsWith('package:') || target.startsWith('dart:'))
+    }
+    if (target.startsWith('package:') || target.startsWith('dart:')) {
       return null;
+    }
     return join(dirname(source), normalize(target));
   }
 }
@@ -88,11 +103,15 @@ class BoundaryRule {
   final String? forbiddenSourcePath, forbiddenTargetPath;
   final List<String> forbiddenPackages, allowedSourcePaths;
   bool violates(ImportEntry entry) {
-    if (!matches(entry.source, sourcePath) ||
-        allowedSourcePaths.any((path) => matches(entry.source, path)))
+    final ruleSource = sourceForRuleMatching(entry.source);
+    if (!matches(ruleSource, sourcePath) ||
+        allowedSourcePaths.any((path) => matches(entry.source, path))) {
       return false;
+    }
     if (forbiddenSourcePath != null &&
-        !matches(entry.source, forbiddenSourcePath!)) return false;
+        !matches(ruleSource, forbiddenSourcePath!)) {
+      return false;
+    }
     final forbiddenPackage = forbiddenPackages
         .any((package) => entry.target.startsWith('package:$package/'));
     final forbiddenTarget = entry.localTarget != null &&
@@ -205,26 +224,28 @@ class Options {
         rules = 'tool/import_boundaries/rules.json';
     for (var i = 0; i < args.length; i++) {
       final arg = args[i];
-      if (arg == '--baseline')
+      if (arg == '--baseline') {
         baseline = args[++i];
-      else if (arg == '--rules')
+      } else if (arg == '--rules') {
         rules = args[++i];
-      else if (arg == '--update-baseline')
+      } else if (arg == '--update-baseline') {
         update = true;
-      else if (arg == '--check')
+      } else if (arg == '--check') {
         check = true;
-      else if (arg == '--format')
+      } else if (arg == '--format') {
         format = args[++i];
-      else if (arg.startsWith('--format='))
+      } else if (arg.startsWith('--format=')) {
         format = arg.substring(9);
-      else {
+      } else {
         throw ArgumentError('Unknown argument: $arg');
       }
     }
-    if (check && baseline == null)
+    if (check && baseline == null) {
       throw ArgumentError('--check requires --baseline <path>.');
-    if (format != 'text' && format != 'json')
+    }
+    if (format != 'text' && format != 'json') {
       throw ArgumentError('Unsupported format: $format');
+    }
     return Options(rules, baseline, update, check, format);
   }
   final String rulesPath;
@@ -239,15 +260,17 @@ List<Violation> findFeatureCycles(List<ImportEntry> imports) {
     final source = featureOf(entry.source),
         target =
             entry.localTarget == null ? null : featureOf(entry.localTarget!);
-    if (source != null && target != null && source != target)
+    if (source != null && target != null && source != target) {
       (graph[source] ??= {}).add(target);
+    }
   }
   final result = <Violation>[];
   for (final source in graph.keys) {
     for (final target in graph[source]!) {
-      if (reachable(graph, target, source, {}))
+      if (reachable(graph, target, source, {})) {
         result.add(Violation(
             'no_feature_cycle', 'feature:$source', 'feature:$target'));
+      }
     }
   }
   return result;
@@ -285,11 +308,18 @@ String join(String base, String path) {
 
 String? featureOf(String path) =>
     RegExp(r'^lib/features/([^/]+)/').firstMatch(path)?.group(1);
+String sourceForRuleMatching(String source) {
+  if (!source.startsWith('test/')) return source;
+  final match = RegExp(r'^test/(?:.*?/)?(app|core|features|router)/(.+)$')
+      .firstMatch(source);
+  return match == null ? source : 'lib/${match.group(1)}/${match.group(2)}';
+}
+
 String key(Violation v) => '${v.ruleId}|${v.source}|${v.target}';
 String keyJson(Map<String, dynamic> value) =>
     '${value['ruleId']}|${value['source']}|${value['target']}';
 bool matches(String path, String pattern) => expandBraces(pattern)
-    .any((glob) => RegExp('^' + globRegExp(glob) + r'$').hasMatch(path));
+    .any((glob) => RegExp('^${globRegExp(glob)}\$').hasMatch(path));
 List<String> expandBraces(String pattern) {
   final match = RegExp(r'\{([^{}]+)\}').firstMatch(pattern);
   return match == null
@@ -328,11 +358,14 @@ void printReport(Report report) {
   final reported = report.added.isEmpty && report.removed.isEmpty
       ? report.violations
       : report.added;
-  for (final v in reported)
+  for (final v in reported) {
     stdout.writeln('${v.ruleId}: ${v.source} -> ${v.target}');
-  for (final v in report.removed)
+  }
+  for (final v in report.removed) {
     stdout.writeln(
         'removed baseline violation: ${v.ruleId}: ${v.source} -> ${v.target}');
-  if (report.violations.isEmpty)
+  }
+  if (report.violations.isEmpty) {
     stdout.writeln('No import-boundary violations found.');
+  }
 }

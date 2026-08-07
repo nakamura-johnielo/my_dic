@@ -35,6 +35,7 @@ dependencies:
   shared_preferences:
   archive: ^4.0.7
   async: ^2.13.0
+  logging:
 
 dev_dependencies:
   flutter_test:

@@ -65,16 +65,13 @@ class MyWordCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       //No.
-                      Container(
-                        //width: 45,
-                        child: Text(
-                          myWord.word,
-                          style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              color: headwordColor),
-                          textAlign: TextAlign.left,
-                        ),
+                      Text(
+                        myWord.word,
+                        style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: headwordColor),
+                        textAlign: TextAlign.left,
                       ),
 
                       //description

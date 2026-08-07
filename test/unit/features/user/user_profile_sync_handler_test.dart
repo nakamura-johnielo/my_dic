@@ -102,6 +102,36 @@ void main() {
         )).called(1);
   });
 
+  test('session invalidation after remote read does not patch or ack',
+      () async {
+    queue.enqueue(_mutation(
+      fieldMask: const ['username'],
+      payload: const {'username': 'Taro'},
+    ));
+    final cancellation = CancellationToken();
+    when(() => remote.getUserById(_accountId)).thenAnswer((_) async {
+      cancellation.cancel('account changed');
+      return null;
+    });
+
+    final result = await handler.run(SyncContext(
+      accountId: _accountId,
+      sessionEpoch: 1,
+      reason: 'test',
+      cancellation: cancellation,
+    ));
+
+    expect(result, isA<DatasetSyncCancelled>());
+    expect(queue.leased, hasLength(1));
+    expect(queue.pending, isEmpty);
+    verifyNever(() => remote.patchUser(
+          any(),
+          any(),
+          any(),
+          isNew: any(named: 'isNew'),
+        ));
+  });
+
   test('a retryable remote failure re-queues the mutation as pending',
       () async {
     queue.enqueue(_mutation(
@@ -137,11 +167,11 @@ void main() {
     expect(row, isNotNull);
     expect(row!.payload, contains('Remote Name'));
     expect(row.localRevision, 0,
-        reason:
-            'applying a remote snapshot must not look like a local edit');
+        reason: 'applying a remote snapshot must not look like a local edit');
   });
 
-  test('a pending local username mutation blocks the pulled value from '
+  test(
+      'a pending local username mutation blocks the pulled value from '
       'overwriting it', () async {
     await dao.upsertProfileFields(_accountId, {'username': 'Local Edit'});
     queue.enqueue(_mutation(

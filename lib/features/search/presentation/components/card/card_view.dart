@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:my_dic/core/shared/enums/conjugacion/enum_mood_tense_subject.dart';
 import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
 import 'package:my_dic/core/shared/enums/ui/word_status_type.dart';
 import 'package:my_dic/features/word_status/domain/dictionary_direction.dart';
-import 'package:my_dic/features/word_status/presentation/status_button.dart';
+import 'package:my_dic/app/presentation/word_status_buttons.dart';
 import 'package:my_dic/features/search/presentation/components/card/reverse_curve.dart';
 
 class CardView extends StatefulWidget {
@@ -111,15 +110,14 @@ class _CardViewState extends State<CardView> {
     final backgroundColor =
         widget.bgColor ?? Theme.of(context).colorScheme.surfaceContainer;
     final Color hoverColor = Color.alphaBlend(
-        Theme.of(context).colorScheme.primary.withOpacity(0.1),
+        Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
         backgroundColor);
     final Color hoverQuizColor = Color.alphaBlend(
-        Theme.of(context).colorScheme.primary.withOpacity(0.4),
+        Theme.of(context).colorScheme.primary.withValues(alpha: 0.4),
         backgroundColor);
-    final textColor = Theme.of(context).colorScheme.onSurfaceVariant;
     final rankingColor = Theme.of(context).colorScheme.onSurfaceVariant;
     final inactiveColor = widget.disableColor ??
-        Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5);
+        Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5);
 
     return MouseRegion(
       onEnter: (_) => _onMainHover(true),
@@ -309,7 +307,7 @@ class _CardViewState extends State<CardView> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
-                            child: Container(
+                            child: SizedBox(
                               width: double.infinity,
                               child: Text(
                                 maxLines: 1,
@@ -460,7 +458,7 @@ class ConjMiniSection extends StatelessWidget {
     //完全一致か部分一致か
     Color highlightColor = conj.length == query.length
         ? Theme.of(context).colorScheme.primary //Colors.indigo[200]!
-        : Theme.of(context).colorScheme.primary.withOpacity(0.5);
+        : Theme.of(context).colorScheme.primary.withValues(alpha: 0.5);
     Color? highlightTextColor = conj.length == query.length
         ? Theme.of(context).colorScheme.onPrimary //Colors.indigo[200]!
         : null;
@@ -488,8 +486,6 @@ class ConjMiniSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color color = Theme.of(context).colorScheme.onSurfaceVariant;
-
     String title =
         "${moodTenseSubject.moodTense.shorten}${moodTenseSubject.subject.name}:";
 

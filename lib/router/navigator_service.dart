@@ -76,23 +76,6 @@ class AppNavigatorService {
   }
 
   // 指定エントリーポイントのルート名を返す（_getFormerName の汎用版）
-  String _routeNameForEntryPoint(EntryPoint entry) {
-    switch (entry) {
-      case EntryPoint.search:
-        return RouteNames.search;
-      case EntryPoint.studyDashboard:
-        return RouteNames.dashboard;
-      case EntryPoint.studyRanking:
-        return RouteNames.ranking;
-      case EntryPoint.studyQuiz:
-        return RouteNames.quiz;
-      case EntryPoint.myword:
-        return RouteNames.myWord;
-      case EntryPoint.profile:
-        return RouteNames.profile;
-    }
-  }
-
   // 指定したブランチのNavigatorスタックをクリアして、そのブランチの初期ルートに戻す
   void clearBranchHistoryAndGoRoot(EntryPoint entry) {
     final key = _navigatorKeyForEntryPoint(entry);

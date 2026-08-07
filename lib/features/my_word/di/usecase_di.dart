@@ -14,7 +14,7 @@ import 'package:my_dic/features/my_word/domain/usecase/my_word/create/register_m
 import 'package:my_dic/features/my_word/domain/usecase/my_word/create/register_my_word/register_my_word_interactor.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word/update/update_my_word/i_update_my_word_use_case.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word/update/update_my_word/update_my_word_interactor.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word/sync_my_word/sync_my_word_interactor%20copy.dart';
+import 'package:my_dic/features/my_word/domain/usecase/my_word/sync_my_word/sync_my_word_interactor_copy.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word/watch/watch_my_word_interactor.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word/watch/watch_my_word_usecase.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word_status/sync_myword_status/sync_myword_status_usecase.dart';

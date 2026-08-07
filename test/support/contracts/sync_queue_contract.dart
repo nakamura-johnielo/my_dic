@@ -74,5 +74,46 @@ void syncQueueContract(
           leaseDuration: const Duration(minutes: 1));
       expect(leases.single.mutation.mutationId, 'm1');
     });
+
+    test('retry increments attempt and waits until nextAttemptAt', () async {
+      final now = DateTime.utc(2026);
+      await harness.enqueue(contractMutation('m1'));
+      final first = (await harness.queue.leasePending(
+        accountId: 'a',
+        dataset: SyncDataset.myWords,
+        limit: 1,
+        now: now,
+        leaseDuration: const Duration(minutes: 1),
+      ))
+          .single;
+      expect(first.attemptCount, 0);
+
+      final retryAt = now.add(const Duration(seconds: 30));
+      await harness.queue.retry(
+        first,
+        errorCode: 'network',
+        nextAttemptAt: retryAt,
+      );
+      expect(
+        await harness.queue.leasePending(
+          accountId: 'a',
+          dataset: SyncDataset.myWords,
+          limit: 1,
+          now: now.add(const Duration(seconds: 29)),
+          leaseDuration: const Duration(minutes: 1),
+        ),
+        isEmpty,
+      );
+
+      final second = (await harness.queue.leasePending(
+        accountId: 'a',
+        dataset: SyncDataset.myWords,
+        limit: 1,
+        now: retryAt,
+        leaseDuration: const Duration(minutes: 1),
+      ))
+          .single;
+      expect(second.attemptCount, 1);
+    });
   });
 }

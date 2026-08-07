@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:my_dic/core/shared/enums/conjugacion/enum_mood_tense_subject.dart';
 import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
 import 'package:my_dic/features/word_status/domain/dictionary_direction.dart';
-import 'package:my_dic/features/word_status/presentation/status_button.dart';
+import 'package:my_dic/app/presentation/word_status_buttons.dart';
 import 'package:my_dic/features/search/presentation/components/card/reverse_curve.dart';
 
 class CardView extends StatelessWidget {
@@ -69,10 +68,9 @@ class CardView extends StatelessWidget {
     final hasQuiz = goToQuiz != null;
     final backgroundColor =
         bgColor ?? Theme.of(context).colorScheme.surfaceContainer;
-    final textColor = Theme.of(context).colorScheme.onSurfaceVariant;
     final rankingColor = Theme.of(context).colorScheme.onSurfaceVariant;
     final inactiveColor = disableColor ??
-        Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5);
+        Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5);
 
     return GestureDetector(
       onTap: onTap,
@@ -245,7 +243,7 @@ class CardView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
-                          child: Container(
+                          child: SizedBox(
                             width: double.infinity,
                             child: Text(
                               maxLines: 1,
@@ -369,8 +367,6 @@ class ConjMiniSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color color = Theme.of(context).colorScheme.onSurfaceVariant;
-
     String title =
         "${moodTenseSubject.moodTense.shorten}${moodTenseSubject.subject.name}:";
 

@@ -45,8 +45,18 @@ class _GuestMigrationPromptState extends ConsumerState<GuestMigrationPrompt> {
     if (_checking) return;
     _checking = true;
     try {
+      final fence = ref.read(syncSessionFenceProvider);
+      final sessionEpoch = fence.epochFor(accountId);
+      if (sessionEpoch == null) return;
       final summary = await ref.read(detectGuestDataUseCaseProvider).execute();
-      if (!mounted || summary.isEmpty) return;
+      if (!mounted ||
+          summary.isEmpty ||
+          !fence.isCurrent(
+            accountId: accountId,
+            sessionEpoch: sessionEpoch,
+          )) {
+        return;
+      }
 
       final navigatorContext =
           ref.read(rootNavigatorKeyProvider).currentContext;
@@ -58,8 +68,14 @@ class _GuestMigrationPromptState extends ConsumerState<GuestMigrationPrompt> {
         builder: (_) => GuestDataMigrationDialog(summary: summary),
       );
 
-      if (approved == true) {
-        await ref.read(migrateGuestDataUseCaseProvider).execute(accountId);
+      if (approved == true &&
+          fence.isCurrent(
+            accountId: accountId,
+            sessionEpoch: sessionEpoch,
+          )) {
+        await ref
+            .read(migrateGuestDataUseCaseProvider)
+            .execute(accountId, sessionEpoch);
         await _triggerForegroundSyncAfterMigration(accountId);
       }
     } catch (error) {

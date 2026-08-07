@@ -47,7 +47,8 @@ class DriftSyncQueue implements SyncQueue {
               mutation: _mutation(row),
               leaseToken: token,
               leasedLocalRevision: row.localRevision,
-              leaseUntil: until));
+              leaseUntil: until,
+              attemptCount: row.attemptCount));
         }
       }
       return result;

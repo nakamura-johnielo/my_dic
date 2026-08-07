@@ -1,4 +1,5 @@
 /// Fake implementation of IMyWordRepository for testing
+library;
 
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
@@ -9,7 +10,6 @@ import 'package:my_dic/features/my_word/domain/usecase/my_word/load_my_word/load
 import 'package:my_dic/features/my_word/domain/usecase/my_word/create/register_my_word/register_my_word_repository_input_data.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word/delete/delete_my_word/delete_my_word_repository_input_data.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word/update/update_my_word/update_my_word_repository_input_data.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word_status/update_my_word_status/update_my_word_status_repository_input_data.dart';
 
 class FakeMyWordRepository implements IMyWordRepository {
   final Result<List<MyWord>>? _getFilteredResult;

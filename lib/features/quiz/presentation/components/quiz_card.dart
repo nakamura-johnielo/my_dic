@@ -159,7 +159,7 @@ class ParticipleCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cardState = ref.watch(quizGameViewModelProvider).quizCardState;
     return Card(
-      //shadowColor: Colors.grey.withOpacity(0.5),
+      //shadowColor: Colors.grey.withValues(alpha: 0.5),
       elevation: 5,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),

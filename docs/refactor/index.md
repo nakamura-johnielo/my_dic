@@ -34,6 +34,8 @@ Local-first 1〜4                 Phase 1-1・1-2・1-4
                 Local-first 5〜7
           status → MyWord → User Profile
                        |
+        Phase 1-7: Phase 2前の収束
+                       |
                 Local-first 8
 ```
 
@@ -62,6 +64,7 @@ Phase 1では、今後の変更で依存関係が再び崩れないよう、comp
 | 4 | [`phase1/4-introduce-current-session.md`](phase1/4-introduce-current-session.md) | 認証状態の単一source of truthと`CurrentSession` portを導入する |
 | 5 | [`phase1/5-define-catalog-ownership.md`](phase1/5-define-catalog-ownership.md) | Search、Quiz、WordPage間の共有概念の所有者を決める |
 | 6 | [`phase1/6-unify-word-status.md`](phase1/6-unify-word-status.md) | 西和・和西のword status featureを統合する |
+| 7 | [`phase1/7-pre-phase2-convergence.md`](phase1/7-pre-phase2-convergence.md) | Phase 2前に同期安全性、CI、競合、guest/Profile、Phase 1境界、文書を収束させる |
 
 ## Phase 2: ApplicationとPresentationを整理する
 

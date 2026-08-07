@@ -43,11 +43,9 @@ class WordStatusState {
     this.isBookmarked = false,
     this.hasNote = false,
   });
-
   final bool isLearned;
   final bool isBookmarked;
   final bool hasNote;
-
   factory WordStatusState.fromAsync(AsyncValue<WordStatus> value) => value.when(
         data: (status) => WordStatusState(
           isLearned: status.isLearned,
@@ -65,11 +63,9 @@ class JpnEspWordStatusState {
     this.isBookmarked = false,
     this.hasNote = false,
   });
-
   final bool isLearned;
   final bool isBookmarked;
   final bool hasNote;
-
   factory JpnEspWordStatusState.fromAsync(AsyncValue<JpnEspWordStatus> value) =>
       value.when(
         data: (status) => JpnEspWordStatusState(
@@ -86,7 +82,6 @@ class EspJpnWordStatusCommand extends StateNotifier<WordStatusCommandEvent?> {
   EspJpnWordStatusCommand(this._wordId, this._useCase) : super(null);
   final int _wordId;
   final IUpdateStatusUseCase _useCase;
-
   Future<void> toggleBookmark(bool current) => _update(
         UpdateStatusInputData(
           wordId: _wordId,
@@ -97,17 +92,20 @@ class EspJpnWordStatusCommand extends StateNotifier<WordStatusCommandEvent?> {
       );
   Future<void> toggleLearned(bool current) => _update(
         UpdateStatusInputData(
-            wordId: _wordId, isLearned: FieldUpdate.set(!current)),
+          wordId: _wordId,
+          isLearned: FieldUpdate.set(!current),
+        ),
         const ToggleLearnedSucceeded(),
         const ToggleLearnedFailed(),
       );
   Future<void> toggleHasNote(bool current) => _update(
         UpdateStatusInputData(
-            wordId: _wordId, hasNote: FieldUpdate.set(!current)),
+          wordId: _wordId,
+          hasNote: FieldUpdate.set(!current),
+        ),
         const ToggleNoteSucceeded(),
         const ToggleNoteFailed(),
       );
-
   Future<void> _update(UpdateStatusInputData input,
       WordStatusCommandEvent success, WordStatusCommandEvent failure) async {
     final result = await _useCase.execute(input);
@@ -121,7 +119,6 @@ class JpnEspWordStatusCommand extends StateNotifier<WordStatusCommandEvent?> {
   JpnEspWordStatusCommand(this._wordId, this._useCase) : super(null);
   final int _wordId;
   final IUpdateJpnEspStatusUseCase _useCase;
-
   Future<void> toggleBookmark(bool current) => _update(
         UpdateJpnEspStatusInputData(
           wordId: _wordId,
@@ -132,17 +129,20 @@ class JpnEspWordStatusCommand extends StateNotifier<WordStatusCommandEvent?> {
       );
   Future<void> toggleLearned(bool current) => _update(
         UpdateJpnEspStatusInputData(
-            wordId: _wordId, isLearned: FieldUpdate.set(!current)),
+          wordId: _wordId,
+          isLearned: FieldUpdate.set(!current),
+        ),
         const ToggleLearnedSucceeded(),
         const ToggleLearnedFailed(),
       );
   Future<void> toggleHasNote(bool current) => _update(
         UpdateJpnEspStatusInputData(
-            wordId: _wordId, hasNote: FieldUpdate.set(!current)),
+          wordId: _wordId,
+          hasNote: FieldUpdate.set(!current),
+        ),
         const ToggleNoteSucceeded(),
         const ToggleNoteFailed(),
       );
-
   Future<void> _update(UpdateJpnEspStatusInputData input,
       WordStatusCommandEvent success, WordStatusCommandEvent failure) async {
     final result = await _useCase.execute(input);
