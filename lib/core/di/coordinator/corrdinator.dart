@@ -1,6 +1,3 @@
-// import 'package:my_dic/core/application/services/remote_word_status_sync_service.dart';
-
-
 // sigin signup signoutは個々から使える
 // final authUserCoordinatorProvider=Provider<AuthUserCoordinator>((ref){
 //   final auth=ref.watch(authCoordinatorProvider);

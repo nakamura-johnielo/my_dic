@@ -5,9 +5,7 @@ import 'package:my_dic/core/domain/i_repository/i_esj_dictionary_repository.dart
 import 'package:my_dic/core/domain/i_repository/i_esj_word_repository.dart';
 import 'package:my_dic/core/domain/i_repository/i_jpn_esp_dictionary_repository.dart';
 import 'package:my_dic/core/domain/i_repository/i_jpn_esp_word_repository.dart';
-import 'package:my_dic/core/domain/i_repository/i_sync_status_repository.dart';
 import 'package:my_dic/core/infrastructure/repositories/drift_conjugacion_repository.dart';
-import 'package:my_dic/core/infrastructure/repositories/sync_status_repository.dart';
 import 'package:my_dic/core/infrastructure/repositories/drift_esj_dictionary_repository.dart';
 import 'package:my_dic/core/infrastructure/repositories/drift_esj_word_repository.dart';
 import 'package:my_dic/core/infrastructure/repositories/drift_jpn_esp_dictionary_repository.dart';
@@ -43,9 +41,4 @@ final jpnEspDictionaryRepositoryProvider =
     Provider<IJpnEspDictionaryRepository>((ref) {
   final ds = ref.read(jpnEspDictionaryDataSourceProvider);
   return JpnEspDictionaryRepository(ds);
-});
-
-final syncStatusRepositoryProvider = Provider<ISyncStatusRepository>((ref) {
-  final ds = ref.read(sharedPreferencesSyncStatusDataSourceProvider);
-  return SyncStatusRepository(ds);
 });

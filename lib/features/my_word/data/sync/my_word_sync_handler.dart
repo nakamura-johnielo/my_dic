@@ -1,7 +1,7 @@
 import 'package:my_dic/core/shared/consts/dates.dart';
 import 'package:my_dic/core/shared/enums/sync_dataset.dart';
 import 'package:my_dic/features/my_word/data/data_source/local/i_my_word_local_data_source.dart';
-import 'package:my_dic/features/my_word/data/data_source/remote/myword/i_my_word_remote_data_source.dart';
+import 'package:my_dic/features/my_word/data/sync/remote/myword/i_my_word_remote_data_source.dart';
 import 'package:my_dic/features/sync/application/model/dataset_sync_result.dart';
 import 'package:my_dic/features/sync/application/model/remote_mutation.dart';
 import 'package:my_dic/features/sync/application/model/sync_context.dart';

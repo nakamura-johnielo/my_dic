@@ -101,6 +101,61 @@ void main() {
       expect(cycles, hasLength(3));
     });
 
+    test('allows Firebase imports only at explicit infrastructure boundaries',
+        () async {
+      await write(root, 'lib/features/auth/data/auth.dart',
+          sdkImport('firebase_auth/firebase_auth.dart'));
+      await write(root, 'lib/app/bootstrap/firebase.dart',
+          sdkImport('firebase_core/firebase_core.dart'));
+      await write(root, 'lib/features/catalog/data/sync/remote/adapter.dart',
+          sdkImport('cloud_firestore/cloud_firestore.dart'));
+      await write(root, 'integration_test/firebase_emulator_test.dart',
+          sdkImport('cloud_firestore/cloud_firestore.dart'));
+
+      expect(await checker().check(root: root.path), isEmpty);
+    });
+
+    test('finds Firebase imports in repository_impl, closing the old glob gap',
+        () async {
+      const source = 'lib/features/catalog/data/repository_impl/catalog.dart';
+      await write(
+          root, source, sdkImport('cloud_firestore/cloud_firestore.dart'));
+
+      expect(
+          await checker().check(root: root.path),
+          contains(const Violation('firebase_import_allowlist', source,
+              'package:cloud_firestore/cloud_firestore.dart')));
+    });
+
+    test('applies the Firebase allowlist to every Firebase SDK package',
+        () async {
+      const source = 'lib/features/catalog/application/catalog.dart';
+      await write(
+          root,
+          source,
+          [
+            sdkImport('firebase_core/firebase_core.dart'),
+            sdkImport('firebase_auth/firebase_auth.dart'),
+            sdkImport('cloud_firestore/cloud_firestore.dart'),
+          ].join('\n'));
+
+      final violations = await checker().check(root: root.path);
+
+      expect(violations.where((v) => v.ruleId == 'firebase_import_allowlist'),
+          hasLength(3));
+    });
+
+    test('forbids imports of removed legacy sync APIs', () async {
+      const source = 'lib/features/catalog/application/catalog.dart';
+      const target = 'package:my_dic/features/sync/sync_service.dart';
+      await write(root, source, "import '$target';");
+
+      expect(
+          await checker().check(root: root.path),
+          contains(const Violation(
+              'legacy_sync_imports_forbidden', source, target)));
+    });
+
     test('baseline comparison reports additions and removals', () async {
       final baseline =
           File('${root.path}${Platform.pathSeparator}baseline.json');
@@ -119,6 +174,23 @@ void main() {
       expect(report.added, hasLength(1));
       expect(report.removed, hasLength(1));
     });
+
+    test('does not allow zero-violation rules into the baseline', () async {
+      final baseline =
+          Baseline({}, zeroViolationRuleIds: {'firebase_import_allowlist'});
+
+      await expectLater(
+          Baseline.write(
+              '${root.path}${Platform.pathSeparator}baseline.json',
+              [
+                const Violation(
+                    'firebase_import_allowlist',
+                    'lib/features/catalog/data/repository_impl/catalog.dart',
+                    'package:cloud_firestore/cloud_firestore.dart')
+              ],
+              previous: baseline),
+          throwsStateError);
+    });
   });
 }
 
@@ -131,3 +203,5 @@ Future<void> write(Directory root, String relativePath, String contents) async {
   await file.parent.create(recursive: true);
   await file.writeAsString(contents);
 }
+
+String sdkImport(String packagePath) => 'im' 'port \'package:$packagePath\';';

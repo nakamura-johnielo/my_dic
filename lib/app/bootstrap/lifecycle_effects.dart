@@ -8,13 +8,11 @@ import 'package:my_dic/app/session/app_session.dart';
 import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/features/sync/application/cancellation_token.dart';
 import 'package:my_dic/features/sync/application/model/sync_context.dart';
-import 'package:my_dic/features/sync/di.dart';
 
 /// Owns application-wide effects independently from widget rebuilds.
 ///
 /// Drives the new `SyncEngine` via `syncSchedulerProvider.foreground(...)`
-/// whenever the session becomes ready and whenever the app is resumed, in
-/// addition to the existing legacy auto-sync path.
+/// whenever the session becomes ready and whenever the app is resumed.
 final applicationLifecycleEffectsProvider = Provider<void>((ref) {
   final observer = _ApplicationLifecycleObserver(
     onResumed: () => _triggerForegroundSync(ref, reason: 'app_resumed'),
@@ -26,7 +24,6 @@ final applicationLifecycleEffectsProvider = Provider<void>((ref) {
 
   ref.watch(authEffectProvider);
   ref.watch(sessionFenceEffectProvider);
-  ref.watch(autoSyncProvider);
   ref.read(syncSchedulerProvider);
 
   ref.listen<AppSession>(appSessionProvider, (previous, next) {

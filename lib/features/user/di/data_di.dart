@@ -3,7 +3,7 @@ import 'package:my_dic/app/bootstrap/sync_composition.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart'
     as db;
-import 'package:my_dic/core/infrastructure/database/firebase/firebase_provider.dart';
+import 'package:my_dic/app/bootstrap/firebase_providers.dart';
 import 'package:my_dic/core/infrastructure/database/shared_preferences/shared_preferences.dart';
 import 'package:my_dic/features/user/data/data_source/local/drift_user_profile_dao.dart';
 import 'package:my_dic/features/user/data/data_source/local/i_user_local_data_source.dart';
@@ -11,12 +11,14 @@ import 'package:my_dic/features/user/data/data_source/local/i_user_profile_local
 import 'package:my_dic/features/user/data/data_source/local/shared_preferenced_user_dao.dart';
 import 'package:my_dic/features/user/data/data_source/local/shared_preferenced_user_data_source.dart';
 import 'package:my_dic/features/user/data/data_source/local/user_profile_drift_data_source.dart';
-import 'package:my_dic/features/user/data/data_source/remote/user_profile_dao.dart';
-import 'package:my_dic/features/user/data/data_source/remote/i_user_remote_data_source.dart';
-import 'package:my_dic/features/user/data/data_source/remote/firebase_user_remote_data_source.dart';
+import 'package:my_dic/features/user/data/sync/remote/user_profile_dao.dart';
+import 'package:my_dic/features/user/data/sync/remote/i_user_remote_data_source.dart';
+import 'package:my_dic/features/user/data/sync/remote/firebase_user_remote_data_source.dart';
 import 'package:my_dic/features/user/data/repository_impl/user_repository.dart';
+import 'package:my_dic/features/user/data/repository_impl/user_profile_provisioner.dart';
 import 'package:my_dic/features/user/data/sync/user_profile_sync_handler.dart';
 import 'package:my_dic/features/user/domain/i_repository/i_user_repository.dart';
+import 'package:my_dic/features/user/domain/i_repository/i_user_profile_provisioner.dart';
 
 final userDaoProvider =
     Provider((ref) => UserDao(ref.watch(firestoreDBProvider)));
@@ -45,12 +47,22 @@ final watchedUserProfileProvider = StreamProvider.autoDispose
   return ref.watch(userProfileLocalDataSourceProvider).watchProfile(accountId);
 });
 
-final firebaseUserRepositoryProvider = Provider<IUserRepository>((ref) {
-  final remote = ref.watch(userRemoteDataSourceProvider);
+/// App-facing repository: Drift reads and atomic Drift/outbox writes only.
+final userRepositoryProvider = Provider<IUserRepository>((ref) {
   final local = ref.watch(userLocalDataSourceProvider);
   final profileLocal = ref.watch(userProfileLocalDataSourceProvider);
   final outboxWriter = ref.watch(driftOutboxWriterProvider);
-  return UserRepository(remote, local, profileLocal, outboxWriter);
+  return UserRepository(local, profileLocal, outboxWriter);
+});
+
+/// Lifecycle adapter which may provision the remote baseline before the local
+/// profile projection is used by the app.
+final userProfileProvisionerProvider = Provider<IUserProfileProvisioner>((ref) {
+  return UserProfileProvisioner(
+    ref.watch(userRemoteDataSourceProvider),
+    ref.watch(userLocalDataSourceProvider),
+    ref.watch(userProfileLocalDataSourceProvider),
+  );
 });
 
 final userProfileSyncHandlerProvider = Provider<UserProfileSyncHandler>((ref) {

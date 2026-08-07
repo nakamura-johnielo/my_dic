@@ -1,13 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/app/bootstrap/firebase_providers.dart';
 import 'package:my_dic/app/bootstrap/sync_composition.dart';
 import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
-import 'package:my_dic/core/infrastructure/database/firebase/daos/jpn_esp/firebase_jpn_esp_word_status_dao.dart';
 import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/i_local_jpn_esp_word_status_data_source.dart';
-import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/i_remote_jpn_esp_word_status_data_source.dart';
 import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/jpn_esp_drift_word_status_data_source.dart';
-import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/jpn_esp_firebase_word_status_data_source.dart';
 import 'package:my_dic/app/presentation/dictionary_status_view_models.dart';
 import 'package:my_dic/features/jpn_esp_word_status/data/jpn_esp_word_status_repository.dart';
 import 'package:my_dic/features/jpn_esp_word_status/domain/i_jpn_esp_word_status_repository.dart';
@@ -15,6 +12,9 @@ import 'package:my_dic/features/jpn_esp_word_status/domain/jpn_esp_word_status.d
 import 'package:my_dic/features/jpn_esp_word_status/application/update_jpn_esp_status_usecase.dart';
 import 'package:my_dic/features/jpn_esp_word_status/application/watch_jpn_esp_word_status_usecase.dart';
 import 'package:my_dic/features/jpn_esp_word_status/data/sync/jpn_esp_word_status_sync_handler.dart';
+import 'package:my_dic/features/jpn_esp_word_status/data/sync/remote/firebase_jpn_esp_word_status_data_source.dart';
+import 'package:my_dic/features/jpn_esp_word_status/data/sync/remote/firebase_jpn_esp_word_status_dao.dart';
+import 'package:my_dic/features/jpn_esp_word_status/data/sync/remote/i_jpn_esp_word_status_remote_data_source.dart';
 
 //==========Usecase=====================
 
@@ -37,7 +37,7 @@ final updateJpnEspStatusUseCaseProvider =
 // ===============Firebase DAO====================
 final firebaseJpnEspWordStatusDaoProvider =
     Provider<FirebaseJpnEspWordStatusDao>((ref) {
-  return FirebaseJpnEspWordStatusDao(FirebaseFirestore.instance);
+  return FirebaseJpnEspWordStatusDao(ref.read(firestoreDBProvider));
 });
 
 // ===============datasource====================
@@ -48,8 +48,8 @@ final jpnEspLocalWordStatusDataSourceProvider =
 });
 
 final jpnEspRemoteWordStatusDataSourceProvider =
-    Provider<IRemoteJpnEspWordStatusDataSource>((ref) {
-  return JpnEspFirebaseWordStatusDataSource(
+    Provider<IJpnEspWordStatusRemoteDataSource>((ref) {
+  return FirebaseJpnEspWordStatusDataSource(
       ref.read(firebaseJpnEspWordStatusDaoProvider));
 });
 

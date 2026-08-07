@@ -5,7 +5,8 @@
     {"id": "domain_no_framework", "sourcePath": "lib/**/domain/**", "forbiddenPackages": ["flutter", "flutter_riverpod", "firebase_core", "firebase_auth", "cloud_firestore", "drift", "go_router"]},
     {"id": "core_no_feature", "sourcePath": "lib/core/**", "forbiddenTargetPath": "lib/features/**", "allowedSourcePaths": ["lib/core/application/auth_lifecycle/**", "lib/core/application/effects/**"]},
     {"id": "no_cross_feature_presentation", "sourcePath": "lib/features/*/presentation/**", "forbiddenTargetPath": "lib/features/*/{presentation,di}/**"},
-    {"id": "firebase_at_boundaries", "sourcePath": "lib/**", "forbiddenPackages": ["firebase_core", "firebase_auth", "cloud_firestore"], "forbiddenSourcePath": "lib/**/{presentation,domain,application,repository}/**"},
+    {"id": "firebase_import_allowlist", "sourcePath": "{lib,test,integration_test}/**", "forbiddenPackages": ["firebase_core", "firebase_auth", "cloud_firestore"], "allowedSourcePaths": ["lib/features/auth/data/**", "lib/app/bootstrap/**", "lib/features/*/data/sync/remote/**", "test/integration/**", "integration_test/**"]},
+    {"id": "legacy_sync_imports_forbidden", "sourcePath": "{lib,test,integration_test}/**", "forbiddenTargetPath": "lib/{features/sync/{sync_service.dart,di.dart},core/domain/{entity/sync_checkpoint.dart,i_repository/{i_sync_repository.dart,i_sync_status_repository.dart},usecase/i_sync_usecase.dart},core/infrastructure/{repositories/sync_status_repository.dart,datasource/sync/**,database/shared_preferences/shared_preferences_syncstatus_dao.dart},features/my_word/domain/usecase/{my_word/sync_my_word/**,my_word_status/sync_myword_status/**}}"},
     {"id": "sync_adapter_composition_only", "sourcePath": "lib/**", "forbiddenTargetPath": "lib/features/sync/**/{remote,di}/**", "allowedSourcePaths": ["lib/app/bootstrap/**", "test/**"]}
   ]
 }

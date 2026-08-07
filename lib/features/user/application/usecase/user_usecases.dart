@@ -4,6 +4,7 @@ import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/shared/utils/uuid.dart';
 import 'package:my_dic/features/user/domain/entity/user.dart';
 import 'package:my_dic/features/user/domain/i_repository/i_user_repository.dart';
+import 'package:my_dic/features/user/domain/i_repository/i_user_profile_provisioner.dart';
 
 abstract interface class IGetUserUseCase {
   Future<Result<AppUser>> execute();
@@ -96,10 +97,10 @@ class UpdateUserInteractor implements IUpdateUserUseCase {
 /// Lifecycle profile provisioning. The authenticated identity is supplied by
 /// the lifecycle controller, while persistence stays behind the domain port.
 class EnsureUserExistsInteractor implements IEnsureUserExistsUseCase {
-  EnsureUserExistsInteractor(this._repository);
-  final IUserRepository _repository;
+  EnsureUserExistsInteractor(this._provisioner);
+  final IUserProfileProvisioner _provisioner;
 
   @override
   Future<Result<AppUser>> execute(String id, {String? email}) =>
-      _repository.ensureUserProfile(accountId: id, email: email);
+      _provisioner.ensureUserProfile(accountId: id, email: email);
 }

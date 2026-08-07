@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/app/bootstrap/firebase_providers.dart';
 import 'package:my_dic/app/bootstrap/sync_composition.dart';
 import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
@@ -6,9 +7,10 @@ import 'package:my_dic/app/presentation/dictionary_status_view_models.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';
 import 'package:my_dic/features/esp_jpn_word_status/application/fetch_esp_jpn_word_status_usecase.dart';
 import 'package:my_dic/core/infrastructure/datasource/word_status/drift_word_status_data_source.dart';
-import 'package:my_dic/core/infrastructure/datasource/word_status/firebase_word_status_data_source.dart';
 import 'package:my_dic/core/infrastructure/datasource/word_status/i_local_word_status_data_source.dart';
-import 'package:my_dic/core/infrastructure/datasource/word_status/i_remote_word_status_data_source.dart';
+import 'package:my_dic/features/esp_jpn_word_status/data/sync/remote/firebase_esp_jpn_word_status_data_source.dart';
+import 'package:my_dic/features/esp_jpn_word_status/data/sync/remote/firebase_word_status_dao.dart';
+import 'package:my_dic/features/esp_jpn_word_status/data/sync/remote/i_esp_jpn_word_status_remote_data_source.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/i_word_status_repository.dart';
 import 'package:my_dic/features/esp_jpn_word_status/application/update_status_usecase.dart';
 import 'package:my_dic/features/esp_jpn_word_status/data/wordstatus_repository.dart';
@@ -47,8 +49,13 @@ final localWordStatusDataSourceProvider =
 });
 
 final remoteWordStatusDataSourceProvider =
-    Provider<IRemoteWordStatusDataSource>((ref) {
-  return FirebaseWordStatusDataSource(ref.read(remoteWordStatusDaoProvider));
+    Provider<IEspJpnWordStatusRemoteDataSource>((ref) {
+  return FirebaseEspJpnWordStatusDataSource(
+      ref.read(remoteWordStatusDaoProvider));
+});
+
+final remoteWordStatusDaoProvider = Provider<FirebaseWordStatusDao>((ref) {
+  return FirebaseWordStatusDao(ref.read(firestoreDBProvider));
 });
 
 // ===============repository====================

@@ -2,43 +2,26 @@ import 'dart:convert';
 
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/features/my_word/data/data_source/local/drift_my_word_dao.dart';
 import 'package:my_dic/features/my_word/data/data_source/local/my_word_drift_data_source.dart';
-import 'package:my_dic/features/my_word/data/data_source/remote/myword/firebase_my_word_dto.dart';
-import 'package:my_dic/features/my_word/data/data_source/remote/myword/i_my_word_remote_data_source.dart';
 import 'package:my_dic/features/my_word/data/repository_impl/my_word_repository.dart';
-import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
 import 'package:my_dic/features/my_word/domain/model/my_word/register_my_word_repository_input_data.dart';
 import 'package:my_dic/features/my_word/domain/model/my_word/delete_my_word_repository_input_data.dart';
 import 'package:my_dic/features/my_word/domain/model/my_word/update_my_word_repository_input_data.dart';
 import 'package:my_dic/features/sync/infrastructure/persistence/drift/drift_outbox_writer.dart';
 
-class _MockMyWordRemoteDataSource extends Mock
-    implements IMyWordRemoteDataSource {}
-
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUpAll(() {
-    registerFallbackValue(MyWordDTO.fromAppEntity(
-      MyWord(wordId: 'fallback', word: 'fallback', contents: ''),
-    ));
-  });
-
   late DatabaseProvider database;
   late MyWordRepository repository;
-  late _MockMyWordRemoteDataSource remote;
 
   setUp(() {
     database = DatabaseProvider.forTesting(NativeDatabase.memory());
-    remote = _MockMyWordRemoteDataSource();
-    when(() => remote.updateMyWord(any(), any())).thenAnswer((_) async {});
-    when(() => remote.deleteMyWord(any(), any())).thenAnswer((_) async {});
     final local = MyWordDriftDataSource(MyWordDao(database));
     final writer = DriftOutboxWriter(database, clock: () => DateTime.utc(2026));
-    repository = MyWordRepository(local, remote, writer);
+    repository = MyWordRepository(local, writer);
   });
 
   tearDown(() => database.close());

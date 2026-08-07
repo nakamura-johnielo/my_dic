@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_dic/features/jpn_esp_word_status/domain/jpn_esp_word_status.dart';
 
 class JpnEspWordStatusDTO {
@@ -40,40 +39,7 @@ class JpnEspWordStatusDTO {
   });
 
   /// Firestore → DTO conversion
-  factory JpnEspWordStatusDTO.fromFirebase(
-      DocumentSnapshot<Map<String, dynamic>> doc) {
-    final data = doc.data()!;
-    return JpnEspWordStatusDTO(
-        wordId: data[fieldwordId],
-        isLearned: data[fieldIsLearned],
-        isBookmarked: data[fieldIsBookmarked],
-        hasNote: data[fieldHasNote],
-        updateBy: data[fieldupdateBy],
-        createdAt: (data[fieldCreatedAt] as Timestamp).toDate().toUtc(),
-        updatedAt: (data[fieldUpdatedAt] as Timestamp).toDate().toUtc(),
-        remoteRevision: data[fieldRevision] as int? ?? 0,
-        lastMutationId: data[fieldLastMutationId] as String?,
-        clientUpdatedAt:
-            (data[fieldClientUpdatedAt] as Timestamp?)?.toDate().toUtc());
-  }
-
   /// DTO → Firestore conversion
-  Map<String, dynamic> toMap() {
-    return {
-      fieldwordId: wordId,
-      fieldIsLearned: isLearned,
-      fieldIsBookmarked: isBookmarked,
-      fieldHasNote: hasNote,
-      fieldupdateBy: updateBy,
-      fieldCreatedAt: Timestamp.fromDate(createdAt),
-      fieldUpdatedAt: Timestamp.fromDate(updatedAt),
-      fieldRevision: remoteRevision,
-      fieldLastMutationId: lastMutationId,
-      if (clientUpdatedAt != null)
-        fieldClientUpdatedAt: Timestamp.fromDate(clientUpdatedAt!.toUtc()),
-    };
-  }
-
   /// DTO → Domain Entity conversion
   JpnEspWordStatus toDomain() {
     return JpnEspWordStatus(

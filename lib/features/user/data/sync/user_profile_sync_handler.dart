@@ -11,7 +11,7 @@ import 'package:my_dic/features/sync/application/port/dataset_sync_handler.dart'
 import 'package:my_dic/features/sync/application/port/sync_checkpoint_store.dart';
 import 'package:my_dic/features/sync/application/port/sync_queue.dart';
 import 'package:my_dic/features/user/data/data_source/local/i_user_profile_local_data_source.dart';
-import 'package:my_dic/features/user/data/data_source/remote/i_user_remote_data_source.dart';
+import 'package:my_dic/features/user/data/sync/remote/i_user_remote_data_source.dart';
 import 'package:my_dic/features/user/data/dto/user_dto.dart';
 
 /// Pushes queued editable-profile mutations (currently just `username`) to

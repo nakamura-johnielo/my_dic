@@ -5,8 +5,8 @@ import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart
 import 'package:my_dic/core/shared/enums/sync_dataset.dart';
 import 'package:my_dic/features/my_word/data/data_source/local/drift_my_word_dao.dart';
 import 'package:my_dic/features/my_word/data/data_source/local/my_word_drift_data_source.dart';
-import 'package:my_dic/features/my_word/data/data_source/remote/myword/firebase_my_word_dto.dart';
-import 'package:my_dic/features/my_word/data/data_source/remote/myword/i_my_word_remote_data_source.dart';
+import 'package:my_dic/features/my_word/data/sync/remote/myword/firebase_my_word_dto.dart';
+import 'package:my_dic/features/my_word/data/sync/remote/myword/i_my_word_remote_data_source.dart';
 import 'package:my_dic/features/my_word/data/sync/my_word_sync_handler.dart';
 import 'package:my_dic/features/sync/application/cancellation_token.dart';
 import 'package:my_dic/features/sync/application/model/dataset_sync_result.dart';

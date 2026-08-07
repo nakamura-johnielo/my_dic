@@ -1,6 +1,6 @@
 # Phase 2-4: CoordinatorからRefを除き依存を明示する
 
-- 状態: 未着手
+- 状態: 実装プラン作成済み（未着手。詳細は[`../contexts/plans/phase2.4-remove-ref-from-coordinators.plan.md`](../contexts/plans/phase2.4-remove-ref-from-coordinators.plan.md)を参照）
 - 優先度: 中〜高 / test容易性
 - 依存タスク: [`../phase1/4-introduce-current-session.md`](../phase1/4-introduce-current-session.md)
 - 関連タスク: [`../phase1/1-create-composition-root.md`](../phase1/1-create-composition-root.md)

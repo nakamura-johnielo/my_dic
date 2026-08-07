@@ -45,7 +45,7 @@ class ImportBoundaryChecker {
 
   Future<List<Violation>> check({String root = '.'}) async {
     final imports = <ImportEntry>[];
-    for (final sourceRoot in const ['lib', 'test']) {
+    for (final sourceRoot in const ['lib', 'test', 'integration_test']) {
       final directory = Directory('$root${Platform.pathSeparator}$sourceRoot');
       if (!await directory.exists()) continue;
       await for (final entity in directory.list(recursive: true)) {
@@ -149,19 +149,33 @@ class Violation implements Comparable<Violation> {
 }
 
 class Baseline {
-  Baseline(this.records);
+  Baseline(this.records, {this.zeroViolationRuleIds = const {}});
   final Map<String, Map<String, dynamic>> records;
+  final Set<String> zeroViolationRuleIds;
   static Future<Baseline> read(String path) async {
     final file = File(path);
     if (!await file.exists()) return Baseline({});
     final json = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
     final entries =
         (json['violations'] as List? ?? const []).cast<Map<String, dynamic>>();
-    return Baseline({for (final entry in entries) keyJson(entry): entry});
+    return Baseline(
+      {for (final entry in entries) keyJson(entry): entry},
+      zeroViolationRuleIds: ((json['zeroViolationRuleIds'] as List? ?? const [])
+          .cast<String>()
+          .toSet()),
+    );
   }
 
   static Future<void> write(String path, List<Violation> violations,
       {required Baseline previous}) async {
+    final zeroViolationRecords = violations
+        .where((violation) =>
+            previous.zeroViolationRuleIds.contains(violation.ruleId))
+        .toList();
+    if (zeroViolationRecords.isNotEmpty) {
+      throw StateError(
+          'Cannot baseline zero-violation rules: $zeroViolationRecords');
+    }
     final entries = violations.map((v) {
       final old = previous.records[key(v)];
       return {
@@ -176,6 +190,8 @@ class Baseline {
     final file = File(path);
     await file.parent.create(recursive: true);
     await file.writeAsString('${const JsonEncoder.withIndent('  ').convert({
+          'zeroViolationRuleIds': previous.zeroViolationRuleIds.toList()
+            ..sort(),
           'violations': entries
         })}\n');
   }

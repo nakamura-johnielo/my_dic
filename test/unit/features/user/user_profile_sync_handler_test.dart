@@ -11,7 +11,7 @@ import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
 import 'package:my_dic/features/sync/infrastructure/persistence/drift/drift_sync_checkpoint_store.dart';
 import 'package:my_dic/features/user/data/data_source/local/drift_user_profile_dao.dart';
 import 'package:my_dic/features/user/data/data_source/local/user_profile_drift_data_source.dart';
-import 'package:my_dic/features/user/data/data_source/remote/i_user_remote_data_source.dart';
+import 'package:my_dic/features/user/data/sync/remote/i_user_remote_data_source.dart';
 import 'package:my_dic/features/user/data/dto/user_dto.dart';
 import 'package:my_dic/features/user/data/sync/user_profile_sync_handler.dart';
 

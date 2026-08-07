@@ -2,16 +2,12 @@ import 'dart:convert';
 
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/features/my_word/data/data_source/local/drift_my_word_status_dao.dart';
 import 'package:my_dic/features/my_word/data/data_source/local/my_word_status_drift_data_source.dart';
-import 'package:my_dic/features/my_word/data/data_source/remote/status/i_my_word_status_remote_data_source.dart';
 import 'package:my_dic/features/my_word/data/repository_impl/my_word_status_repository.dart';
 import 'package:my_dic/features/my_word/domain/model/my_word_status/update_my_word_status_repository_input_data.dart';
 import 'package:my_dic/features/sync/infrastructure/persistence/drift/drift_outbox_writer.dart';
-
-class _MockRemote extends Mock implements IMyWordStatusRemoteDataSource {}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -22,9 +18,8 @@ void main() {
   setUp(() {
     database = DatabaseProvider.forTesting(NativeDatabase.memory());
     final local = MyWordStatusDriftDataSource(MyWordStatusDao(database));
-    final remote = _MockRemote();
     final writer = DriftOutboxWriter(database, clock: () => DateTime.utc(2026));
-    repository = MyWordStatusRepository(local, remote, writer);
+    repository = MyWordStatusRepository(local, writer);
   });
 
   tearDown(() => database.close());

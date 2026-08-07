@@ -29,8 +29,8 @@
 | `domain/i_repository/i_user_repository.dart` | user repository port | AuthLifecycleのprofile provisioningで使用 |
 | `domain/usecase/**` | get/create/update/ensure user usecase | ensureはAuthLifecycleに接続済み |
 | `data/data_source/local/**` | SharedPreferences device/user local data | device ID保持。Local-first profileとは別物として扱う |
-| `data/data_source/remote/**` | Firestore user profile DAO/data source | Local-first 7でremote adapter化対象 |
-| `data/dto/**` | local/remote user DTO | Firestore timestamp/subscription変換 |
+| `data/sync/remote/**` | Firestore user profile DAO/data source | Stage 6 の feature-owned remote adapter boundary。Firestore値の変換もここで行う |
+| `data/dto/**` | local/remote user DTO | SDK非依存のlocal/remote DTO |
 | `data/repository_impl/user_repository.dart` | local device ID + remote user profile操作 | `updateUser`はDrift transaction+outbox化し、旧remote直接呼び出しを除去済み（Local-first 7 Stage 1〜2完了、`username`のみ、配送は`UserProfileSyncHandler`のみ）。`ensureUserProfile`は初回nremote baselineをDriftへ種付けし、2回目以降Driftの`username`を優先（Stage 3完了）。`getUserByAccountId`/`createNewUser`は未変更 |
 | `data/sync/user_profile_sync_handler.dart` | User Profile dataset sync handler | 新規（Local-first 7 Stage 2完了）。`syncDatasetHandlerRegistryProvider`に登録済み |
 | `presentation/view_model/app_user_store.dart` | AppUser可変store | AuthLifecycleがwriter。profile表示用途のみ継続利用（identity解決には使わない） |
@@ -86,11 +86,11 @@
 | `domain/usecase/my_word/delete/**` | MyWord削除 | tombstone化済み（Local-first 6完了）。`deleted_at`論理削除+outbox delete mutation |
 | `domain/usecase/my_word/load_my_word/**` | MyWord一覧取得 | local read |
 | `domain/usecase/my_word/watch/**` | MyWord watch | local stream |
-| `domain/usecase/my_word/sync_my_word/**` | 旧MyWord sync | `sync_my_word_interactor copy.dart`が残るが`syncServiceProvider`から除去済み（実行経路から外れた残骸）。Local-first 8で削除予定 |
-| `domain/usecase/my_word_status/**` | status update/watch/sync | outbox化済み（Local-first 6完了）。旧`SyncMyWordStatusUsecase`は実行経路から除去済みの残骸 |
+| `domain/usecase/my_word/sync_my_word/**` | 削除済み旧MyWord sync | Local-first 8 Stage 2で旧usecaseを削除 |
+| `domain/usecase/my_word_status/**` | status update/watch | outbox化済み。旧`SyncMyWordStatusUsecase`はLocal-first 8 Stage 2で削除 |
 | `data/data_source/local/**` | MyWord/MyWordStatus Drift table/DAO/data source | v6 account scope列あり。read系は`legacy_unowned`のまま（read側account scopingはLocal-first 7へ先送り）。tombstone/revision/remote-apply用メソッドをLocal-first 6で追加 |
-| `data/data_source/remote/myword/**` | Firebase MyWord DAO/data source/DTO | `patchMyWord`（field mask merge write）と`deletedAt`tombstone fieldを追加済み（Local-first 6完了） |
-| `data/data_source/remote/status/**` | Firebase MyWordStatus DAO/data source/DTO | `patchStatus`（field mask merge write）を追加済み（Local-first 6完了） |
+| `data/sync/remote/myword/**` | Firebase MyWord DAO/data source/DTO | Stage 6 の feature-owned remote adapter boundary。`patchMyWord`（field mask merge write）と`deletedAt`tombstone fieldを持つ |
+| `data/sync/remote/status/**` | Firebase MyWordStatus DAO/data source/DTO | Stage 6 の feature-owned remote adapter boundary。`patchStatus`（field mask merge write）を持つ |
 | `data/repository_impl/my_word_repository.dart` | MyWord local/remote repository | `registerWord`/`updateWord`/`deleteWord`はDrift transaction+outbox化・直接remote呼び出し除去済み（Local-first 6完了）。旧sync向け`createLocalMyWord`/`updateLocalMyWord`はシグネチャ未変更 |
 | `data/repository_impl/my_word_status_repository.dart` | MyWordStatus local/remote repository | `updateStatus`はDrift transaction+outbox化・直接remote呼び出し除去済み（Local-first 6完了）。旧sync向け`updateLocalStatus`等はシグネチャ未変更 |
 | `data/sync/my_word_sync_handler.dart`、`data/sync/my_word_status_sync_handler.dart` | MyWord/MyWordStatus dataset sync handler | 新規（Local-first 6完了）。`syncDatasetHandlerRegistryProvider`に登録済み、`DatasetPlan`でMyWordStatusはMyWordに依存 |
@@ -163,8 +163,6 @@
 
 | area / file | 責務 | 状態 |
 | --- | --- | --- |
-| `sync_service.dart` | 旧`ISyncUseCase`群をpriority順に実行し、remote changed streamをmerge | 現在のactive auto sync |
-| `di.dart` | legacy sync service/auto sync provider | `authLifecycle.isReady`で起動 |
 | `application/cancellation_token.dart` | SyncEngine用cancel token | 新基盤 |
 | `application/dataset_handler_registry.dart` | dataset handler registry | registry重複検出の正本 |
 | `application/sync_engine.dart` | dataset orchestration | production handler未接続 |
@@ -176,6 +174,12 @@
 | `application/policy/**` | dataset order、retry、backoff、error classification | handlerからpolicyを分離 |
 | `infrastructure/persistence/drift/**` | Drift queue/outbox/checkpoint実装 | Local-first 5〜7で接続する |
 | `description.md` | feature説明 | 実装ではないが文脈メモ |
+
+The legacy `sync_service.dart`/`di.dart` auto-sync surface and the
+SharedPreferences sync-status checkpoint chain were removed in Local-first 8
+Stages 2 and 5 Release B. Release A bootstrap cleanup remains only to delete
+old keys for supported upgrades; its early removal was explicitly
+user-authorized and does not establish shipment or telemetry evidence.
 
 ## Catalog ownership note
 

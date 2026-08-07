@@ -43,6 +43,23 @@ dart run tool/check_import_boundaries.dart --baseline tool/import_boundaries/bas
 See [the import-boundary guide](docs/architecture/import-boundaries.md) for
 rules and baseline updates.
 
+## Firestore Emulator rules test
+
+The sync remote schema and Firestore Rules are checked separately from the
+Flutter unit suite.  Install the Node test dependencies, then run the Auth and
+Firestore emulators together:
+
+```powershell
+npm --prefix firebase-tests ci
+Push-Location firebase-tests
+npx --yes firebase-tools@13.35.1 --config firebase.json emulators:exec --project my-dic-sync --only auth,firestore "npm test"
+Pop-Location
+```
+
+This requires Java 21 or later. The `firestore-emulator` CI job uses the same
+command, including the production `firestore.rules` file loaded by the test
+harness.
+
 
 ---
 

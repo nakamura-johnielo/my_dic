@@ -1,12 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:my_dic/features/sync/application/port/outbox_writer.dart';
 import 'package:my_dic/features/user/data/data_source/local/i_user_local_data_source.dart';
 import 'package:my_dic/features/user/data/data_source/local/i_user_profile_local_data_source.dart';
-import 'package:my_dic/features/user/data/data_source/remote/i_user_remote_data_source.dart';
+import 'package:my_dic/features/user/data/sync/remote/i_user_remote_data_source.dart';
 import 'package:my_dic/features/user/data/dto/local_user_dto.dart';
 import 'package:my_dic/features/user/data/dto/user_dto.dart';
-import 'package:my_dic/features/user/data/repository_impl/user_repository.dart';
+import 'package:my_dic/features/user/data/repository_impl/user_profile_provisioner.dart';
 
 class _MockRemote extends Mock implements IUserRemoteDataSource {}
 
@@ -15,13 +14,11 @@ class _MockLocal extends Mock implements IUserLocalDataSource {}
 class _MockUserProfileLocal extends Mock
     implements IUserProfileLocalDataSource {}
 
-class _MockOutboxWriter extends Mock implements OutboxWriter {}
-
 void main() {
   late _MockRemote remote;
   late _MockLocal local;
   late _MockUserProfileLocal profileLocal;
-  late UserRepository repository;
+  late UserProfileProvisioner repository;
 
   setUpAll(() {
     registerFallbackValue(UserDTO(userId: 'fallback'));
@@ -31,11 +28,10 @@ void main() {
     remote = _MockRemote();
     local = _MockLocal();
     profileLocal = _MockUserProfileLocal();
-    repository = UserRepository(
+    repository = UserProfileProvisioner(
       remote,
       local,
       profileLocal,
-      _MockOutboxWriter(),
     );
     when(() => local.getUser()).thenAnswer(
       (_) async => LocalUserDTO(deviceId: 'device-1'),

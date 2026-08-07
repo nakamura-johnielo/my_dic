@@ -4,29 +4,31 @@ import 'package:mocktail/mocktail.dart';
 import 'package:my_dic/core/infrastructure/database/drift/daos/esp_jpn/esp_jpn_word_status_dao.dart';
 import 'package:my_dic/core/infrastructure/database/drift/daos/jpn_esp/jpn_esp_word_status_dao.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
-import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/i_remote_jpn_esp_word_status_data_source.dart';
 import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/jpn_esp_drift_word_status_data_source.dart';
 import 'package:my_dic/core/infrastructure/datasource/word_status/drift_word_status_data_source.dart';
-import 'package:my_dic/core/infrastructure/datasource/word_status/i_remote_word_status_data_source.dart';
 import 'package:my_dic/core/shared/enums/sync_dataset.dart';
 import 'package:my_dic/features/esp_jpn_word_status/data/sync/esp_jpn_word_status_sync_handler.dart';
+import 'package:my_dic/features/esp_jpn_word_status/data/sync/remote/i_esp_jpn_word_status_remote_data_source.dart';
 import 'package:my_dic/features/esp_jpn_word_status/data/word_status_entity.dart';
 import 'package:my_dic/features/jpn_esp_word_status/data/jpn_esp_word_status_entity.dart';
 import 'package:my_dic/features/jpn_esp_word_status/data/sync/jpn_esp_word_status_sync_handler.dart';
+import 'package:my_dic/features/jpn_esp_word_status/data/sync/remote/i_jpn_esp_word_status_remote_data_source.dart';
 import 'package:my_dic/features/sync/application/cancellation_token.dart';
 import 'package:my_dic/features/sync/application/model/dataset_sync_result.dart';
 import 'package:my_dic/features/sync/application/model/remote_mutation.dart';
 import 'package:my_dic/features/sync/application/model/sync_context.dart';
+import 'package:my_dic/features/sync/application/model/sync_cursor.dart';
 import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
 import 'package:my_dic/features/sync/application/port/dataset_sync_handler.dart';
 import 'package:my_dic/features/sync/infrastructure/persistence/drift/drift_sync_checkpoint_store.dart';
 
 import '../../../helpers/sync/fake_sync_queue.dart';
 
-class _MockEspRemote extends Mock implements IRemoteWordStatusDataSource {}
+class _MockEspRemote extends Mock
+    implements IEspJpnWordStatusRemoteDataSource {}
 
 class _MockJpnEspRemote extends Mock
-    implements IRemoteJpnEspWordStatusDataSource {}
+    implements IJpnEspWordStatusRemoteDataSource {}
 
 const _accountId = 'account-a';
 
@@ -84,7 +86,7 @@ class _EspJpnFixture implements _HandlerFixture {
   @override
   final SyncDataset dataset = SyncDataset.espJpnWordStatus;
 
-  IRemoteWordStatusDataSource get remote => _remote;
+  IEspJpnWordStatusRemoteDataSource get remote => _remote;
 
   static Future<_EspJpnFixture> create() async {
     final database = DatabaseProvider.forTesting(NativeDatabase.memory());
@@ -146,7 +148,7 @@ class _JpnEspFixture implements _HandlerFixture {
   @override
   final SyncDataset dataset = SyncDataset.jpnEspWordStatus;
 
-  IRemoteJpnEspWordStatusDataSource get remote => _remote;
+  IJpnEspWordStatusRemoteDataSource get remote => _remote;
 
   static Future<_JpnEspFixture> create() async {
     final database = DatabaseProvider.forTesting(NativeDatabase.memory());
@@ -239,7 +241,7 @@ void main() {
               .thenAnswer((_) async => null);
           when(() => espJpn.remote.patchWordStatus(any()))
               .thenAnswer((_) async => _ack);
-          when(() => espJpn.remote.getWordStatusAfter(_accountId, any()))
+          when(() => espJpn.remote.fetchPage(_accountId, any()))
               .thenAnswer((_) async => const []);
         } else {
           final jpnEsp = fixture as _JpnEspFixture;
@@ -247,7 +249,7 @@ void main() {
               .thenAnswer((_) async => null);
           when(() => jpnEsp.remote.patchWordStatus(any()))
               .thenAnswer((_) async => _ack);
-          when(() => jpnEsp.remote.getWordStatusAfter(_accountId, any()))
+          when(() => jpnEsp.remote.fetchPage(_accountId, any()))
               .thenAnswer((_) async => const []);
         }
 
@@ -317,13 +319,13 @@ void main() {
           final espJpn = fixture as _EspJpnFixture;
           when(() => espJpn.remote.patchWordStatus(any()))
               .thenThrow(Exception('unavailable'));
-          when(() => espJpn.remote.getWordStatusAfter(_accountId, any()))
+          when(() => espJpn.remote.fetchPage(_accountId, any()))
               .thenAnswer((_) async => const []);
         } else {
           final jpnEsp = fixture as _JpnEspFixture;
           when(() => jpnEsp.remote.patchWordStatus(any()))
               .thenThrow(Exception('unavailable'));
-          when(() => jpnEsp.remote.getWordStatusAfter(_accountId, any()))
+          when(() => jpnEsp.remote.fetchPage(_accountId, any()))
               .thenAnswer((_) async => const []);
         }
 
@@ -350,13 +352,13 @@ void main() {
           final espJpn = fixture as _EspJpnFixture;
           when(() => espJpn.remote.patchWordStatus(any()))
               .thenThrow(Exception('invalid-argument'));
-          when(() => espJpn.remote.getWordStatusAfter(_accountId, any()))
+          when(() => espJpn.remote.fetchPage(_accountId, any()))
               .thenAnswer((_) async => const []);
         } else {
           final jpnEsp = fixture as _JpnEspFixture;
           when(() => jpnEsp.remote.patchWordStatus(any()))
               .thenThrow(Exception('invalid-argument'));
-          when(() => jpnEsp.remote.getWordStatusAfter(_accountId, any()))
+          when(() => jpnEsp.remote.fetchPage(_accountId, any()))
               .thenAnswer((_) async => const []);
         }
 
@@ -378,7 +380,7 @@ void main() {
         final updatedAt = DateTime.utc(2026, 8, 5, 12);
         if (fixture is _EspJpnFixture) {
           final espJpn = fixture as _EspJpnFixture;
-          when(() => espJpn.remote.getWordStatusAfter(_accountId, any()))
+          when(() => espJpn.remote.fetchPage(_accountId, any()))
               .thenAnswer((_) async => [
                     WordStatusDTO(
                       wordId: 2,
@@ -391,7 +393,7 @@ void main() {
                   ]);
         } else {
           final jpnEsp = fixture as _JpnEspFixture;
-          when(() => jpnEsp.remote.getWordStatusAfter(_accountId, any()))
+          when(() => jpnEsp.remote.fetchPage(_accountId, any()))
               .thenAnswer((_) async => [
                     JpnEspWordStatusDTO(
                       wordId: 2,
@@ -445,7 +447,7 @@ void main() {
         final updatedAt = DateTime.utc(2026, 8, 5, 12);
         if (fixture is _EspJpnFixture) {
           final espJpn = fixture as _EspJpnFixture;
-          when(() => espJpn.remote.getWordStatusAfter(_accountId, any()))
+          when(() => espJpn.remote.fetchPage(_accountId, any()))
               .thenAnswer((_) async => [
                     WordStatusDTO(
                       wordId: 3,
@@ -458,7 +460,7 @@ void main() {
                   ]);
         } else {
           final jpnEsp = fixture as _JpnEspFixture;
-          when(() => jpnEsp.remote.getWordStatusAfter(_accountId, any()))
+          when(() => jpnEsp.remote.fetchPage(_accountId, any()))
               .thenAnswer((_) async => [
                     JpnEspWordStatusDTO(
                       wordId: 3,
@@ -485,6 +487,70 @@ void main() {
         expect(row.learned, isTrue);
         expect(row.hasNote, isTrue);
         expect(row.bookmarked, isTrue);
+      });
+
+      test('next pull uses the inclusive timestamp and document-ID cursor',
+          () async {
+        final updatedAt = DateTime.utc(2026, 8, 5, 12, 34, 56, 789, 123);
+        var fetchCount = 0;
+        void expectCursor(Invocation invocation) {
+          final cursor = invocation.positionalArguments[1] as SyncCursor;
+          expect(cursor.documentId, '42');
+          expect(cursor.seconds, updatedAt.millisecondsSinceEpoch ~/ 1000);
+          expect(cursor.nanoseconds,
+              (updatedAt.microsecondsSinceEpoch % 1000000) * 1000);
+        }
+
+        if (fixture is _EspJpnFixture) {
+          when(() => (fixture as _EspJpnFixture)
+              .remote
+              .fetchPage(_accountId, any())).thenAnswer((invocation) async {
+            if (fetchCount++ == 0) {
+              return [
+                WordStatusDTO(
+                  wordId: 42,
+                  isLearned: 1,
+                  isBookmarked: 0,
+                  hasNote: 0,
+                  createdAt: updatedAt,
+                  updatedAt: updatedAt,
+                ),
+              ];
+            }
+            expectCursor(invocation);
+            return const [];
+          });
+        } else {
+          when(() => (fixture as _JpnEspFixture)
+              .remote
+              .fetchPage(_accountId, any())).thenAnswer((invocation) async {
+            if (fetchCount++ == 0) {
+              return [
+                JpnEspWordStatusDTO(
+                  wordId: 42,
+                  isLearned: 1,
+                  isBookmarked: 0,
+                  hasNote: 0,
+                  createdAt: updatedAt,
+                  updatedAt: updatedAt,
+                ),
+              ];
+            }
+            expectCursor(invocation);
+            return const [];
+          });
+        }
+
+        final context = SyncContext(
+          accountId: _accountId,
+          sessionEpoch: 1,
+          reason: 'test',
+          cancellation: CancellationToken(),
+        );
+        await fixture.handler.run(context);
+        await fixture.handler.run(context);
+
+        expect(fetchCount, 2);
       });
     });
   }

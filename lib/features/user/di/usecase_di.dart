@@ -4,16 +4,16 @@ import 'package:my_dic/features/user/di/data_di.dart';
 import 'package:my_dic/features/user/application/usecase/user_usecases.dart';
 
 final getUserInteractorProvider = Provider<IGetUserUseCase>(
-  (ref) => GetUserInteractor(ref.watch(firebaseUserRepositoryProvider),
-      ref.watch(currentSessionProvider)),
+  (ref) => GetUserInteractor(
+      ref.watch(userRepositoryProvider), ref.watch(currentSessionProvider)),
 );
 
 final createNewUserInteractorProvider = Provider<ICreateNewUserUseCase>(
-  (ref) => CreateNewUserInteractor(ref.watch(firebaseUserRepositoryProvider),
-      ref.watch(currentSessionProvider)),
+  (ref) => CreateNewUserInteractor(
+      ref.watch(userRepositoryProvider), ref.watch(currentSessionProvider)),
 );
 
 final updateUserInteractorProvider = Provider<IUpdateUserUseCase>(
-  (ref) => UpdateUserInteractor(ref.watch(firebaseUserRepositoryProvider),
-      ref.watch(currentSessionProvider)),
+  (ref) => UpdateUserInteractor(
+      ref.watch(userRepositoryProvider), ref.watch(currentSessionProvider)),
 );

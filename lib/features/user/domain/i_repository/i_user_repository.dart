@@ -6,8 +6,4 @@ abstract class IUserRepository {
   Future<Result<void>> updateUser(AppUser user, String? accountId);
   Future<Result<void>> createNewUser(AppUser user, String? accountIds);
   Future<Result<String>> getThisDeviceId();
-  Future<Result<AppUser>> ensureUserProfile({
-    required String accountId,
-    String? email,
-  });
 }

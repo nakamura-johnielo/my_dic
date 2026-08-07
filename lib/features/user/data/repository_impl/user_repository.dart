@@ -1,9 +1,7 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:uuid/uuid.dart';
 import 'package:my_dic/core/shared/enums/sync_dataset.dart';
 import 'package:my_dic/core/shared/errors/app_error.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
-import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/shared/utils/uuid.dart';
@@ -14,33 +12,28 @@ import 'package:my_dic/features/user/data/data_source/local/i_user_profile_local
 import 'package:my_dic/features/user/data/dto/local_user_dto.dart';
 import 'package:my_dic/features/user/domain/entity/user.dart';
 import 'package:my_dic/features/user/domain/i_repository/i_user_repository.dart';
-import 'package:my_dic/features/user/data/data_source/remote/i_user_remote_data_source.dart';
-import 'package:my_dic/features/user/data/dto/user_dto.dart';
 
+/// App-facing local-first profile repository.
+///
+/// Editable fields are read from Drift and written atomically with an outbox
+/// mutation. Remote provisioning and sync delivery are separate adapters.
 class UserRepository implements IUserRepository {
-  final IUserRemoteDataSource _remote;
+  UserRepository(this._local, this._profileLocal, this._outboxWriter,
+      {Uuid? uuid})
+      : _uuid = uuid ?? const Uuid();
+
   final IUserLocalDataSource _local;
   final IUserProfileLocalDataSource _profileLocal;
   final OutboxWriter _outboxWriter;
   final Uuid _uuid;
 
-  UserRepository(
-    this._remote,
-    this._local,
-    this._profileLocal,
-    this._outboxWriter, {
-    Uuid? uuid,
-  }) : _uuid = uuid ?? const Uuid();
-
   AppError? _handleIdError(AppUser user, String? accountId) {
     if (user.deviceId?.isEmpty ?? true) {
-      return DeviceNotFoundError(
-        message: 'device ID が生成されていません',
-      );
+      return DeviceNotFoundError(message: 'Device ID was not found');
     }
     if (accountId?.isEmpty ?? true) {
       return UnauthorizedError(
-          message: "Account ID cannot be empty. Must Login");
+          message: 'Account ID cannot be empty. Must Login');
     }
     return null;
   }
@@ -48,50 +41,33 @@ class UserRepository implements IUserRepository {
   Future<String> _getDeviceId() async {
     try {
       final deviceId = (await _local.getUser())?.deviceId;
-      if (deviceId == null || deviceId.isEmpty) {
-        //なかったら新たに生成
-        final deviceIdCreated = MyUUID.generate();
-        await _local.updateUser(LocalUserDTO(deviceId: deviceIdCreated));
-        return deviceIdCreated;
-      }
-      return deviceId;
+      if (deviceId != null && deviceId.isNotEmpty) return deviceId;
+      final created = MyUUID.generate();
+      await _local.updateUser(LocalUserDTO(deviceId: created));
+      return created;
     } catch (_) {
-      return "";
+      return '';
     }
   }
 
   @override
-  Future<Result<AppUser>> getUserByAccountId(String id) async {
+  Future<Result<AppUser>> getUserByAccountId(String accountId) async {
     try {
       final deviceId = await _getDeviceId();
-
       if (deviceId.isEmpty) {
-        return Result.failure(DeviceNotFoundError(
-          message: 'device ID が生成されていません',
-        ));
+        return Result.failure(
+            DeviceNotFoundError(message: 'Device ID was not found'));
       }
-      final dto = await _remote.getUserById(id);
-      if (dto == null) {
-        return Result.failure(UserNotFoundError(
-          message: 'ユーザーが見つかりません',
-        ));
+      if (await _profileLocal.getProfile(accountId) == null) {
+        return Result.failure(UserNotFoundError(message: 'User was not found'));
       }
-      final user = AppUser(
-        username: dto.userName,
-        email: dto.email,
+      return Result.success(AppUser(
         deviceId: deviceId,
-      );
-      return Result.success(user);
-    } on FirebaseException catch (e, s) {
-      return Result.failure(FirebaseError(
-        message: 'ユーザー情報の取得に失敗しました: ${e.message}',
-        code: e.code,
-        originalError: e,
-        stackTrace: s,
+        username: await _profileLocal.getUsername(accountId),
       ));
     } catch (e, s) {
       return Result.failure(UnexpectedError(
-        message: 'ユーザー情報の取得中に予期しないエラーが発生しました',
+        message: 'Failed to read the local user profile',
         originalError: e,
         stackTrace: s,
       ));
@@ -99,13 +75,29 @@ class UserRepository implements IUserRepository {
   }
 
   @override
-  Future<Result<void>> updateUser(AppUser user, String? accountId) async {
-    try {
-      final error = _handleIdError(user, accountId);
-      if (error != null) {
-        return Result.failure(error);
-      }
+  Future<Result<void>> updateUser(AppUser user, String? accountId) =>
+      _writeProfile(user, accountId);
 
+  @override
+  Future<Result<void>> createNewUser(AppUser user, String? accountId) async {
+    final error = _handleIdError(user, accountId);
+    if (error != null) return Result.failure(error);
+    try {
+      await _local.updateUser(LocalUserDTO(deviceId: user.deviceId!));
+      return _writeProfile(user, accountId);
+    } catch (e, s) {
+      return Result.failure(UnexpectedError(
+        message: 'Failed to create the local user profile',
+        originalError: e,
+        stackTrace: s,
+      ));
+    }
+  }
+
+  Future<Result<void>> _writeProfile(AppUser user, String? accountId) async {
+    final error = _handleIdError(user, accountId);
+    if (error != null) return Result.failure(error);
+    try {
       await _profileLocal.runInTransaction(() async {
         final row = await _profileLocal.upsertProfileFields(
           accountId!,
@@ -123,60 +115,10 @@ class UserRepository implements IUserRepository {
           clientUpdatedAt: DateTime.now().toUtc(),
         ));
       });
-
-      // Delivery to Firestore now goes exclusively through
-      // `UserProfileSyncHandler` via the outbox mutation enqueued above.
       return const Result.success(null);
-    } on FirebaseException catch (e, s) {
-      return Result.failure(FirebaseError(
-        message: 'ユーザー情報の更新に失敗しました: ${e.message}',
-        code: e.code,
-        originalError: e,
-        stackTrace: s,
-      ));
     } catch (e, s) {
       return Result.failure(UnexpectedError(
-        message: 'ユーザー情報の更新中に予期しないエラーが発生しました',
-        originalError: e,
-        stackTrace: s,
-      ));
-    }
-  }
-
-  @override
-  Future<Result<void>> createNewUser(AppUser user, String? accountId) async {
-    try {
-      final error = _handleIdError(user, accountId);
-      if (error != null) {
-        return Result.failure(error);
-      }
-
-      await _local.updateUser(
-        LocalUserDTO(
-          deviceId: user.deviceId!,
-        ),
-      );
-
-      final dto = UserDTO(
-        subscriptionStatus: user.subscriptionStatus,
-        userId: accountId!,
-        userName: user.username,
-        email: user.email,
-        createdAt: null,
-        updatedAt: null,
-      );
-      await _remote.updateUser(dto);
-      return const Result.success(null);
-    } on FirebaseException catch (e, s) {
-      return Result.failure(FirebaseError(
-        message: 'ユーザー情報の更新に失敗しました: ${e.message}',
-        code: e.code,
-        originalError: e,
-        stackTrace: s,
-      ));
-    } catch (e, s) {
-      return Result.failure(UnexpectedError(
-        message: 'ユーザー情報の更新中に予期しないエラーが発生しました',
+        message: 'Failed to update the local user profile',
         originalError: e,
         stackTrace: s,
       ));
@@ -186,68 +128,10 @@ class UserRepository implements IUserRepository {
   @override
   Future<Result<String>> getThisDeviceId() async {
     final localUser = await _local.getUser();
-
     if (localUser?.deviceId.isEmpty ?? true) {
-      return Result.failure(DeviceNotFoundError(
-        message: 'device ID が生成されていません',
-      ));
+      return Result.failure(
+          DeviceNotFoundError(message: 'Device ID was not found'));
     }
     return Result.success(localUser!.deviceId);
-  }
-
-  @override
-  Future<Result<AppUser>> ensureUserProfile({
-    required String accountId,
-    String? email,
-  }) async {
-    if (accountId.isEmpty) {
-      return Result.failure(UnauthorizedError(
-        message: 'Account ID cannot be empty. Must Login',
-      ));
-    }
-
-    try {
-      final deviceId = await _getDeviceId();
-      if (deviceId.isEmpty) {
-        return Result.failure(DeviceNotFoundError(
-          message: 'device ID が生成されていません',
-        ));
-      }
-
-      final dto = await _remote.ensureUser(UserDTO(
-        userId: accountId,
-        email: email,
-      ));
-
-      // Editable fields are read back from Drift once seeded, so a later
-      // ensure (e.g. re-login) reflects local edits/synced pulls instead of
-      // the remote baseline captured at first provisioning.
-      var username = await _profileLocal.getUsername(accountId);
-      if (username == null) {
-        await _profileLocal.applyRemoteFields(accountId,
-            username: dto.userName);
-        username = dto.userName;
-      }
-
-      return Result.success(AppUser(
-        deviceId: deviceId,
-        email: dto.email ?? email,
-        username: username,
-        subscriptionStatus: dto.subscriptionStatus,
-      ));
-    } on FirebaseException catch (e, s) {
-      return Result.failure(FirebaseError(
-        message: 'ユーザープロフィールの準備に失敗しました: ${e.message}',
-        code: e.code,
-        originalError: e,
-        stackTrace: s,
-      ));
-    } catch (e, s) {
-      return Result.failure(UnexpectedError(
-        message: 'ユーザープロフィールの準備中に予期しないエラーが発生しました',
-        originalError: e,
-        stackTrace: s,
-      ));
-    }
   }
 }

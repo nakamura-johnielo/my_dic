@@ -11,8 +11,6 @@ import 'package:my_dic/core/infrastructure/datasource/jpn_esp/jpn_esp_drift_word
 import 'package:my_dic/core/infrastructure/datasource/jpn_esp/jpn_esp_drift_dictionary_data_source.dart';
 import 'package:my_dic/core/infrastructure/datasource/jpn_esp/i_jpn_esp_word_data_source.dart';
 import 'package:my_dic/core/infrastructure/datasource/jpn_esp/i_jpn_esp_dictionary_data_source.dart';
-import 'package:my_dic/core/infrastructure/datasource/sync/shared_preferences_sync_status_data_source.dart';
-import 'package:my_dic/core/infrastructure/datasource/sync/i_sync_status_data_source.dart';
 
 // --- Datasource providers (wrap DAOs into concrete datasource implementations)
 final esjDictionaryDataSourceProvider =
@@ -47,10 +45,4 @@ final jpnEspDictionaryDataSourceProvider =
     ref.read(jpnEspDictionaryDaoProvider),
     ref.read(jpnEspExampleDaoProvider),
   );
-});
-
-final sharedPreferencesSyncStatusDataSourceProvider =
-    Provider<ISyncStatusDataSource>((ref) {
-  return SharedPreferencesSyncStatusDataSource(
-      ref.read(sharedPreferenceSyncStatusDaoProvider));
 });

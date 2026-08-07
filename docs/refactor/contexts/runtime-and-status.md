@@ -41,7 +41,6 @@ main.dart
           -> databaseProvider SELECT 1
           -> applicationLifecycleEffectsProvider
               -> authEffectProvider
-              -> legacy autoSyncProvider
               -> creates syncSchedulerProvider and triggers foreground sync
                  on AppSessionReady / app resume (5 local-first datasets)
       -> MyApp
@@ -64,10 +63,9 @@ active new-engine path (5 datasets):
     -> SyncExecutionGuard(accountId + sessionEpoch + CancellationToken)
     -> DriftSyncQueue / DriftSyncCheckpointStore (push field-mask patches, pull+merge remote snapshots)
 
-legacy compatibility surface:
-  old SyncService / legacy ISyncUseCase classes and providers remain where tests
-  or Local-first 8 removal work still references them; they are not the active
-  production path for the five registered datasets
+Local-first 8 Stage 2:
+  old SyncService / legacy ISyncUseCase classes and providers are removed;
+  lifecycle effects trigger only the SyncEngine scheduler
 ```
 
 Retryはlease時点の`attemptCount`を運び、handlerが次のattemptに対応するbackoffを計算する。remote revision、server-confirmed ack、mutation ID重複deliveryのno-op、MyWordの`baseRemoteRevision`競合処理は未接続である。repository内に対応するbackend/Security Rules契約がないため、Phase 1-7の中断条件として設計判断を待つ。
@@ -76,6 +74,34 @@ Retryはlease時点の`attemptCount`を運び、handlerが次のattemptに対応
 
 - `SyncEngine`は現在5 datasetの本番同期を担う。
 - `WordStatusRepository`/`JpnEspWordStatusRepository`の通常usecase経由の書き込みはoutbox+`DatasetSyncHandler`を通る。旧`SyncEspJpnWordStatusInteractor`は専用interface・di provider・test直接参照ごと完全に削除済み（2026-08-06セッション3）。両Repository/interfaceはFirebase操作メソッドを一切持たない。
-- 旧`SyncService`、旧sync usecase/providerはLocal-first 8の削除対象として一部残るが、5 handler registryとは別の互換surfaceである。
+- Local-first 8 Stage 2 removed `SyncService`, `ISyncUseCase`, and the legacy MyWord/MyWordStatus sync use cases/providers. `applicationLifecycleEffectsProvider` no longer watches `autoSyncProvider`.
+- Local-first 8 Stage 3 made the MyWord, MyWordStatus, and User app-facing repositories local-only; sync remote access remains behind handlers/adapters, and `UserProfileProvisioner` owns user-profile provisioning.
+- Local-first 8 Stage 4 removed the legacy remote listener/writer APIs. The
+  two word-status remote adapters now live in their owning features under
+  `data/sync/remote`, with Firestore `Timestamp`/`DocumentSnapshot` conversion
+  limited to DTO mappers. Their page query uses an inclusive
+  `(updatedAt, documentId)` cursor; focused boundary and handler tests cover
+  the tie-break and continued pull.
 - `app/routing/contracts`があることは、GoRouter本体が移動済みであることを意味しない。
-- session guardとretry収束はremote protocol完成を意味しない。remote revision/idempotency、MyWord競合、routing/composition残件は未完了である。2026-08-07の現working treeではimport checker、`flutter analyze`（0 issues）、全`flutter test`（266 test）が成功したが、clean checkoutとCIでの再現は未確認。
+- Local-first 8 Stage 5 Release A removes `lastSync_wordStatus` and
+  `sync_checkpoint.v1.*` during bootstrap without reading or copying legacy
+  cursors. It writes its completion marker only after cleanup succeeds;
+  failure is non-fatal and is retried on a later bootstrap.
+- Local-first 8 Stage 5 Release B removed the legacy SharedPreferences
+  sync-status checkpoint adapter/type/provider chain and its dedicated test.
+  Release A cleanup remains for supported upgrades. The user explicitly
+  authorized this progression before the plan's rollout gate; this is not a
+  claim that a Release A shipped or that telemetry/acceptance was collected.
+- Release B acceptance scan found no `SharedPreferencesSyncStatus`,
+  `ISyncStatus`, `SyncStatusRepository`, or `SyncCheckpointKey` references in
+  `lib` or `test`; remaining old-key literals are only in the Release A cleanup
+  implementation and its bootstrap tests. Stage 6 completed the import-boundary
+  baseline of zero; Stage 7 owns the full five-dataset upgrade integration
+  proof.
+- Stage 6 confines Firebase SDK imports to `features/auth/data/**`,
+  `app/bootstrap/**`, and feature `data/sync/remote/**` adapters. Firebase
+  provider/transaction composition is in bootstrap; feature DAOs and mappers
+  are in their owning remote-adapter paths. The boundary check, `flutter
+  analyze`, and the targeted sync/word-status/MyWord/User/app tests (161) pass.
+  `firebase_options.dart` is generated/ignored and must be emitted to
+  `lib/app/bootstrap/firebase_options.dart`.

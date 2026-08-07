@@ -2,6 +2,52 @@
 
 最終更新: 2026-08-07
 
+## Local-first 8 cutover: Stages 2–5 complete
+
+- Stage 2 removed the legacy `SyncService`, `ISyncUseCase`, and legacy
+  MyWord/MyWordStatus sync use cases and providers. Lifecycle effects no
+  longer import or watch `autoSyncProvider`; foreground synchronization uses
+  the composed `SyncEngine` scheduler.
+- Stage 3 made MyWord, MyWordStatus, and User app-facing repositories
+  local-only. Remote synchronization stays in the handler/adapter boundary,
+  while `UserProfileProvisioner` is responsible for user-profile
+  provisioning.
+- Stage 4 removed the legacy remote listener and writer surface. The Esp-Jpn
+  and Jpn-Esp status remote adapters are feature-owned under
+  `data/sync/remote`; Firestore SDK conversion is confined to their DTO
+  mappers. Status pulls now use an inclusive `(updatedAt, documentId)` cursor
+  to make same-timestamp pagination deterministic. Focused boundary and
+  handler tests cover the cursor and adapter contract.
+- Stage 5 Release A removed the bootstrap legacy preferences
+  `lastSync_wordStatus` and `sync_checkpoint.v1.*`. It does not read or copy
+  legacy cursors; its completion marker is written only after successful
+  cleanup. A cleanup failure is non-fatal and is retried on a later bootstrap.
+- Stage 5 Release B removed the legacy SharedPreferences sync-status
+  checkpoint adapter/type/provider chain and its dedicated test. The Release A
+  cleanup remains intentionally so supported upgrades can still delete old
+  keys. This progression was explicitly user-authorized before the original
+  rollout gate; no shipped-Release-A, telemetry, or acceptance evidence is
+  claimed here.
+- Release B acceptance scan: no `SharedPreferencesSyncStatus`, `ISyncStatus`,
+  `SyncStatusRepository`, or `SyncCheckpointKey` references remain in `lib`
+  or `test`. Remaining old-key literals are confined to the Release A cleanup
+  implementation and its bootstrap tests. Stage 6 completed the zero
+  import-boundary baseline; Stage 7 still owns the full five-dataset upgrade
+  integration proof.
+- Stage 6 restricts Firebase SDK imports to auth data, app bootstrap, and
+  feature `data/sync/remote` adapters. Core Firebase sources and the MyWord/
+  User legacy remote paths were removed or moved to those boundaries. The
+  boundary check, `flutter analyze`, and the targeted sync/word-status/MyWord/
+  User/app unit suite (161 tests) passed. FlutterFire output must be generated
+  at `lib/app/bootstrap/firebase_options.dart`; that generated file is ignored.
+- Stage 7 now has a committed Emulator Rules harness for all five datasets and
+  a separate CI job that runs Auth/Firestore Emulator with Node 20 and Java
+  21. Static validation succeeded on 2026-08-07 (`flutter analyze`, full
+  `flutter test`: 287 passed, and import-boundary check). The local Emulator
+  run remains blocked by the installed JDK 8; do not mark Local-first 8
+  complete until the documented Java-21 command or the CI job succeeds. The
+  full Stage 7 evidence is in the Local-first 8 plan.
+
 ## Phase 2-1: application use-case migration complete
 
 - Orchestration UseCases for Word status, MyWord/MyWordStatus, User/Auth,
@@ -38,7 +84,7 @@
 - This phase does not include Phase 2-3 build-time I/O removal or initial-load
   relocation, Phase 2-4 Coordinator/`Ref`/`AppNavigatorService` removal,
   Phase 2-5 query-projection ownership changes, or Phase 2-6 `SyncReport` UI.
-  The word-status contract consolidation, Local-first 8 old sync API removal,
+  The word-status contract consolidation,
   a full Riverpod Notifier migration, Freezed adoption, rename/copy cleanup,
   and DB/sync protocol/routing/search-page-size changes also remain future
   work.
@@ -100,8 +146,8 @@
 
 1. `app/bootstrap`は新しいcomposition rootの入口になっているが、DB probeと横断effect起動が`AppReadinessGate`に残っている。
 2. `features/sync/application`と`features/sync/infrastructure`にはLocal-first 1〜4の共通基盤があり、`syncDatasetHandlerRegistryProvider`はword status（Esp-Jpn/Jpn-Esp）、MyWord/MyWordStatus、User Profileの本番`DatasetSyncHandler`5件を登録済み。handler内session guardとpull rollbackも接続済み。
-3. word status・MyWord・MyWordStatus・User Profileの自動同期は新`SyncEngine`（`syncSchedulerProvider.foreground(...)`、`AppSessionReady`遷移時とapp resume時にtrigger）が担当するようになった。旧`features/sync/sync_service.dart`の`syncServiceProvider`は空配列となり実質無効化された（MyWord/MyWordStatus向け旧`ISyncUseCase`実装クラス自体とdi provider定義は`test/unit/features/sync/`のtestが直接参照するため未削除。esp_jpn word status向け旧`SyncEspJpnWordStatusInteractor`は専用interface・di provider・test参照ごと完全削除済み、2026-08-06セッション3）。
-4. Drift schema v6でaccount scope、revision、tombstone、`sync_outbox`、`sync_checkpoints`、`user_profiles`は入っている。word status・MyWord・MyWordStatus・User Profileの通常usecase書き込みパスはoutbox経由に一本化済み。word status（Esp-Jpn/Jpn-Esp）はRepositoryインターフェース自体からもremoteメソッドを全除去済み。MyWord/MyWordStatusのRepositoryインターフェースは旧sync usecase向けのremoteメソッドを引き続き公開している（Local-first 8で削除予定）。Rankingは未移行。
+3. word status・MyWord・MyWordStatus・User Profileの自動同期は新`SyncEngine`（`syncSchedulerProvider.foreground(...)`、`AppSessionReady`遷移時とapp resume時にtrigger）が担当する。Local-first 8 Stage 2で旧`SyncService`、`ISyncUseCase`、MyWord/MyWordStatus向け旧sync use case/provider、lifecycleの`autoSyncProvider`参照は削除済み。
+4. Drift schema v6でaccount scope、revision、tombstone、`sync_outbox`、`sync_checkpoints`、`user_profiles`は入っている。word status・MyWord・MyWordStatus・User Profileの通常usecase書き込みパスはoutbox経由に一本化済み。Local-first 8 Stage 3でMyWord/MyWordStatus/Userのapp-facing Repositoryはlocal-onlyとなり、User Profile provisioningは`UserProfileProvisioner`へ分離された。Rankingは未移行。
 5. route contractは`app/routing/contracts`へ抽出済み。GoRouter定義はまだ`lib/router/**`が主で、`app/routing/router.dart`は旧router exportのbridge。
 6. Auth lifecycleは`core/application/auth_lifecycle`が現在の中心。`appSessionProvider`はFirebase identityとaccount-scoped Drift profile streamを合成し、profile loading/failure/readyを型で表す。Router、autoSync、Profile UI、user向けmutation usecaseはそこから派生する。`AuthStoreNotifier`、`AppUserStoreNotifier`は互換bridgeとして残る。
 7. `tool/import_boundaries`は導入済み。baselineは既存違反を固定する台帳であり、違反があること自体は現状を表す。

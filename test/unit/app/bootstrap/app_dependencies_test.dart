@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/app/bootstrap/bootstrap.dart';
 import 'package:my_dic/app/bootstrap/app_dependencies.dart';
+import 'package:my_dic/app/bootstrap/legacy_sync_preferences_cleanup.dart';
 import 'package:my_dic/app/bootstrap/lifecycle_effects.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -45,6 +46,36 @@ void main() {
 
     await expectLater(bootstrapper.initialize(), throwsStateError);
     expect(preferencesCalls, 0);
+  });
+
+  test('continues bootstrap when legacy cleanup fails and retries next launch',
+      () async {
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setInt('lastSync_wordStatus', 123);
+    final failingBootstrapper = AppBootstrapper(
+      initializeFirebase: () async {},
+      loadSharedPreferences: () async => preferences,
+      legacySyncPreferencesCleanup: const _FailingLegacyCleanup(),
+    );
+
+    await failingBootstrapper.initialize();
+
+    expect(preferences.containsKey('lastSync_wordStatus'), isTrue);
+    expect(
+      preferences.containsKey(LegacySyncPreferencesCleanup.completionMarker),
+      isFalse,
+    );
+
+    await AppBootstrapper(
+      initializeFirebase: () async {},
+      loadSharedPreferences: () async => preferences,
+    ).initialize();
+
+    expect(preferences.containsKey('lastSync_wordStatus'), isFalse);
+    expect(
+      preferences.containsKey(LegacySyncPreferencesCleanup.completionMarker),
+      isTrue,
+    );
   });
 
   testWidgets('shows an error UI when environment initialization fails',
@@ -139,4 +170,11 @@ void main() {
     expect(find.text('My app'), findsNothing);
     expect(appBuilderCalls, 0);
   });
+}
+
+class _FailingLegacyCleanup extends LegacySyncPreferencesCleanup {
+  const _FailingLegacyCleanup();
+
+  @override
+  Future<bool> run(LegacySyncPreferencesStore preferences) async => false;
 }

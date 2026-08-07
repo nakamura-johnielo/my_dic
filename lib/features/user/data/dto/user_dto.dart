@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_dic/core/shared/enums/auth/subscription_status.dart';
 
 class UserDTO {
@@ -39,25 +38,23 @@ class UserDTO {
   /// ----------------------------
   /// Firestore → AppUser に変換
   /// ----------------------------
-  factory UserDTO.fromFirebase(DocumentSnapshot<Map<String, dynamic>> doc) {
-    final data = doc.data()!;
+  factory UserDTO.fromRemoteData({
+    required String userId,
+    required Map<String, dynamic> data,
+  }) {
     return UserDTO(
       subscriptionStatus: SubscriptionStatus.values.firstWhere(
         (e) => e.subscriptionCode == data[fieldSubscriptionStatus],
         orElse: () => SubscriptionStatus.free,
       ),
-      userId: doc.id,
+      userId: userId,
       email: data[fieldEmail] ?? "",
       userName: data[fieldUserName],
-      createdAt: (data[fieldCreatedAt] is Timestamp)
-          ? (data[fieldCreatedAt] as Timestamp).toDate()
-          : null,
-      updatedAt: (data[fieldUpdatedAt] is Timestamp)
-          ? (data[fieldUpdatedAt] as Timestamp).toDate()
-          : null,
+      createdAt: data[fieldCreatedAt] as DateTime?,
+      updatedAt: data[fieldUpdatedAt] as DateTime?,
       remoteRevision: data[fieldRevision] as int? ?? 0,
       lastMutationId: data[fieldLastMutationId] as String?,
-      clientUpdatedAt: (data[fieldClientUpdatedAt] as Timestamp?)?.toDate(),
+      clientUpdatedAt: data[fieldClientUpdatedAt] as DateTime?,
     );
   }
 

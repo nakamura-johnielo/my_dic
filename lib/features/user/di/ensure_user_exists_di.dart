@@ -9,5 +9,5 @@ import 'package:my_dic/features/user/application/usecase/user_usecases.dart';
 /// create an import cycle.
 final ensureUserExistsInteractorProvider = Provider<IEnsureUserExistsUseCase>(
   (ref) =>
-      EnsureUserExistsInteractor(ref.watch(firebaseUserRepositoryProvider)),
+      EnsureUserExistsInteractor(ref.watch(userProfileProvisionerProvider)),
 );

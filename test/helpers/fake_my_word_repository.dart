@@ -139,55 +139,6 @@ class FakeMyWordRepository implements IMyWordRepository {
       const Result.success([]);
 
   @override
-  Future<Result<List<MyWord>>> getRemoteMyWordsAfter(
-          String userId, DateTime datetime) async =>
-      const Result.success([]);
-
-  @override
-  Future<Result<MyWord?>> getRemoteMyWordById(
-          String userId, String myWordId) async =>
-      const Result.success(null);
-
-  @override
-  Future<Result<void>> updateRemoteMyWord(
-          String userId, MyWord myWord, DateTime? now) async =>
-      const Result.success(null);
-
-  @override
-  Future<Result<void>> updateBatchRemoteMyWords(
-          String userId, List<MyWord> myWordList) async =>
-      const Result.success(null);
-
-  @override
-  Future<Result<void>> deleteRemoteMyWord(
-          String userId, String myWordId) async =>
-      const Result.success(null);
-
-  @override
-  Future<Result<List<MyWord>>> getLocalMyWordsAfter(DateTime datetime) async =>
-      const Result.success([]);
-
-  @override
-  Future<Result<MyWord?>> getLocalMyWordById(String myWordId) async =>
-      const Result.success(null);
-
-  @override
-  Future<Result<void>> updateLocalMyWord(MyWord myWord, DateTime now) async =>
-      const Result.success(null);
-
-  @override
-  Future<Result<void>> createLocalMyWord(MyWord myWord) async =>
-      const Result.success(null);
-
-  @override
-  Stream<List<String>> watchRemoteChangedIds(String userId) =>
-      const Stream.empty();
-
-  @override
-  Stream<List<String>> watchLocalChangedIds(DateTime datetime) =>
-      const Stream.empty();
-
-  @override
   Stream<MyWord> watchMyWord(String id, {required String accountId}) =>
       const Stream.empty();
 }

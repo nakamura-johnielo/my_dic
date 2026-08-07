@@ -1,6 +1,4 @@
 import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/i_local_jpn_esp_word_status_data_source.dart';
-import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/i_remote_jpn_esp_word_status_data_source.dart';
-import 'package:my_dic/core/shared/consts/dates.dart';
 import 'package:my_dic/core/shared/enums/sync_dataset.dart';
 import 'package:my_dic/features/sync/application/model/dataset_sync_result.dart';
 import 'package:my_dic/features/sync/application/model/remote_mutation.dart';
@@ -13,6 +11,7 @@ import 'package:my_dic/features/sync/application/policy/sync_error_classifier.da
 import 'package:my_dic/features/sync/application/port/dataset_sync_handler.dart';
 import 'package:my_dic/features/sync/application/port/sync_checkpoint_store.dart';
 import 'package:my_dic/features/sync/application/port/sync_queue.dart';
+import 'package:my_dic/features/jpn_esp_word_status/data/sync/remote/i_jpn_esp_word_status_remote_data_source.dart';
 
 /// Pushes queued Jpn-Esp word status mutations to Firestore as field-mask
 /// patches and pulls remote changes back into Drift, skipping any field that
@@ -22,7 +21,7 @@ class JpnEspWordStatusSyncHandler implements DatasetSyncHandler {
     required SyncQueue queue,
     required SyncCheckpointStore checkpointStore,
     required ILocalJpnEspWordStatusDataSource local,
-    required IRemoteJpnEspWordStatusDataSource remote,
+    required IJpnEspWordStatusRemoteDataSource remote,
     RetryPolicy? retryPolicy,
     SyncErrorClassifier? classifier,
     SyncExecutionGuard? executionGuard,
@@ -41,7 +40,7 @@ class JpnEspWordStatusSyncHandler implements DatasetSyncHandler {
   final SyncQueue _queue;
   final SyncCheckpointStore _checkpointStore;
   final ILocalJpnEspWordStatusDataSource _local;
-  final IRemoteJpnEspWordStatusDataSource _remote;
+  final IJpnEspWordStatusRemoteDataSource _remote;
   final RetryPolicy _retryPolicy;
   final SyncErrorClassifier _classifier;
   final SyncExecutionGuard _executionGuard;
@@ -137,9 +136,7 @@ class JpnEspWordStatusSyncHandler implements DatasetSyncHandler {
     final cursor = await _checkpointStore.read(
         accountId: context.accountId, dataset: dataset);
     _executionGuard.ensureCanContinue(context);
-    final since = cursor == null ? MyDateTime.sentinel : _toDateTime(cursor);
-    final remoteItems =
-        await _remote.getWordStatusAfter(context.accountId, since);
+    final remoteItems = await _remote.fetchPage(context.accountId, cursor);
     _executionGuard.ensureCanContinue(context);
 
     var pulledCount = 0;
@@ -218,9 +215,4 @@ class JpnEspWordStatusSyncHandler implements DatasetSyncHandler {
       cursor: newCursor,
     );
   }
-
-  DateTime _toDateTime(SyncCursor cursor) =>
-      DateTime.fromMicrosecondsSinceEpoch(
-          cursor.seconds * 1000000 + cursor.nanoseconds ~/ 1000,
-          isUtc: true);
 }

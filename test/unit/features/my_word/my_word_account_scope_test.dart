@@ -10,9 +10,6 @@ import 'package:my_dic/features/my_word/data/data_source/local/drift_my_word_dao
 import 'package:my_dic/features/my_word/data/data_source/local/drift_my_word_status_dao.dart';
 import 'package:my_dic/features/my_word/data/data_source/local/my_word_drift_data_source.dart';
 import 'package:my_dic/features/my_word/data/data_source/local/my_word_status_drift_data_source.dart';
-import 'package:my_dic/features/my_word/data/data_source/remote/myword/i_my_word_remote_data_source.dart';
-import 'package:my_dic/features/my_word/data/data_source/remote/myword/firebase_my_word_dto.dart';
-import 'package:my_dic/features/my_word/data/data_source/remote/status/i_my_word_status_remote_data_source.dart';
 import 'package:my_dic/features/my_word/data/repository_impl/my_word_repository.dart';
 import 'package:my_dic/features/my_word/data/repository_impl/my_word_status_repository.dart';
 import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
@@ -30,11 +27,6 @@ import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
 import 'package:my_dic/features/sync/application/port/outbox_writer.dart';
 
 import '../../../helpers/fake_current_session.dart';
-
-class _MockMyWordRemote extends Mock implements IMyWordRemoteDataSource {}
-
-class _MockMyWordStatusRemote extends Mock
-    implements IMyWordStatusRemoteDataSource {}
 
 class _MockOutboxWriter extends Mock implements OutboxWriter {}
 
@@ -63,9 +55,6 @@ void main() {
       localRevision: 0,
       clientUpdatedAt: DateTime.utc(2026),
     ));
-    registerFallbackValue(MyWordDTO.fromAppEntity(
-      MyWord(wordId: 'fallback', word: 'fallback', contents: ''),
-    ));
   });
 
   group('MyWord local row account scoping', () {
@@ -75,12 +64,9 @@ void main() {
     setUp(() {
       database = DatabaseProvider.forTesting(NativeDatabase.memory());
       final local = MyWordDriftDataSource(MyWordDao(database));
-      final remote = _MockMyWordRemote();
-      when(() => remote.updateMyWord(any(), any())).thenAnswer((_) async {});
-      when(() => remote.deleteMyWord(any(), any())).thenAnswer((_) async {});
       final writer = _MockOutboxWriter();
       when(() => writer.enqueue(any())).thenAnswer((_) async {});
-      repository = MyWordRepository(local, remote, writer);
+      repository = MyWordRepository(local, writer);
     });
 
     tearDown(() => database.close());
@@ -135,10 +121,9 @@ void main() {
     setUp(() {
       database = DatabaseProvider.forTesting(NativeDatabase.memory());
       final local = MyWordStatusDriftDataSource(MyWordStatusDao(database));
-      final remote = _MockMyWordStatusRemote();
       final writer = _MockOutboxWriter();
       when(() => writer.enqueue(any())).thenAnswer((_) async {});
-      repository = MyWordStatusRepository(local, remote, writer);
+      repository = MyWordStatusRepository(local, writer);
     });
 
     tearDown(() => database.close());

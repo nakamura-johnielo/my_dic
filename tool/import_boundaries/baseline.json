@@ -1,4 +1,8 @@
 {
+  "zeroViolationRuleIds": [
+    "firebase_import_allowlist",
+    "legacy_sync_imports_forbidden"
+  ],
   "violations": [
     {
       "ruleId": "core_no_feature",
@@ -92,70 +96,6 @@
       "ruleId": "core_no_feature",
       "source": "lib/core/infrastructure/database/drift/database_provider.dart",
       "target": "package:my_dic/features/ranking/data/data_source/local/rankings_entity.dart",
-      "introducedAt": "2026-08-06",
-      "owner": "architecture",
-      "trackingIssue": "docs/refactor/phase1"
-    },
-    {
-      "ruleId": "core_no_feature",
-      "source": "lib/core/infrastructure/database/firebase/daos/firebase_word_status_dao.dart",
-      "target": "package:my_dic/features/esp_jpn_word_status/data/word_status_entity.dart",
-      "introducedAt": "2026-08-06",
-      "owner": "architecture",
-      "trackingIssue": "docs/refactor/phase1"
-    },
-    {
-      "ruleId": "core_no_feature",
-      "source": "lib/core/infrastructure/database/firebase/daos/firebase_word_status_dao.dart",
-      "target": "package:my_dic/features/user/data/dto/user_dto.dart",
-      "introducedAt": "2026-08-06",
-      "owner": "architecture",
-      "trackingIssue": "docs/refactor/phase1"
-    },
-    {
-      "ruleId": "core_no_feature",
-      "source": "lib/core/infrastructure/database/firebase/daos/jpn_esp/firebase_jpn_esp_word_status_dao.dart",
-      "target": "package:my_dic/features/jpn_esp_word_status/data/jpn_esp_word_status_entity.dart",
-      "introducedAt": "2026-08-06",
-      "owner": "architecture",
-      "trackingIssue": "docs/refactor/phase1"
-    },
-    {
-      "ruleId": "core_no_feature",
-      "source": "lib/core/infrastructure/database/firebase/daos/jpn_esp/firebase_jpn_esp_word_status_dao.dart",
-      "target": "package:my_dic/features/user/data/dto/user_dto.dart",
-      "introducedAt": "2026-08-06",
-      "owner": "architecture",
-      "trackingIssue": "docs/refactor/phase1"
-    },
-    {
-      "ruleId": "core_no_feature",
-      "source": "lib/core/infrastructure/datasource/jpn_esp_word_status/i_remote_jpn_esp_word_status_data_source.dart",
-      "target": "package:my_dic/features/jpn_esp_word_status/data/jpn_esp_word_status_entity.dart",
-      "introducedAt": "2026-08-06",
-      "owner": "architecture",
-      "trackingIssue": "docs/refactor/phase1"
-    },
-    {
-      "ruleId": "core_no_feature",
-      "source": "lib/core/infrastructure/datasource/jpn_esp_word_status/jpn_esp_firebase_word_status_data_source.dart",
-      "target": "package:my_dic/features/jpn_esp_word_status/data/jpn_esp_word_status_entity.dart",
-      "introducedAt": "2026-08-06",
-      "owner": "architecture",
-      "trackingIssue": "docs/refactor/phase1"
-    },
-    {
-      "ruleId": "core_no_feature",
-      "source": "lib/core/infrastructure/datasource/word_status/firebase_word_status_data_source.dart",
-      "target": "package:my_dic/features/esp_jpn_word_status/data/word_status_entity.dart",
-      "introducedAt": "2026-08-06",
-      "owner": "architecture",
-      "trackingIssue": "docs/refactor/phase1"
-    },
-    {
-      "ruleId": "core_no_feature",
-      "source": "lib/core/infrastructure/datasource/word_status/i_remote_word_status_data_source.dart",
-      "target": "package:my_dic/features/esp_jpn_word_status/data/word_status_entity.dart",
       "introducedAt": "2026-08-06",
       "owner": "architecture",
       "trackingIssue": "docs/refactor/phase1"

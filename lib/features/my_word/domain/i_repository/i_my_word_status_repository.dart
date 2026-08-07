@@ -7,23 +7,4 @@ abstract class IMyWordStatusRepository {
   Future<Result<void>> updateStatus(
       UpdateMyWordStatusRepositoryInputData input);
   Stream<MyWordStatus> watchStatus(String wordId, {required String accountId});
-
-  // Remote sync methods
-  Future<Result<List<MyWordStatus>>> getRemoteStatusAfter(
-      String userId, DateTime datetime);
-  Future<Result<MyWordStatus?>> getRemoteStatusById(
-      String userId, String myWordId);
-  Future<Result<void>> updateRemoteStatus(
-      String userId, MyWordStatus status, DateTime? now);
-  Future<Result<void>> updateBatchRemoteStatus(
-      String userId, List<MyWordStatus> statusList);
-
-  Future<Result<List<MyWordStatus>>> getLocalStatusAfter(DateTime datetime);
-  Future<Result<MyWordStatus?>> getLocalStatusById(String myWordId);
-  // Future<Result<void>> updateLocalStatus(MyWordStatus status, DateTime now);
-  Future<Result<void>> updateLocalStatus(
-      UpdateMyWordStatusRepositoryInputData input);
-
-  Stream<List<String>> watchRemoteChangedIds(String userId);
-  Stream<List<String>> watchLocalChangedIds(DateTime datetime);
 }

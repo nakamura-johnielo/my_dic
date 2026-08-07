@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_dic/core/shared/consts/dates.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';
 
@@ -45,23 +44,6 @@ class WordStatusDTO {
   /// ----------------------------
   /// Firestore → AppUser に変換
   /// ----------------------------
-  factory WordStatusDTO.fromFirebase(
-      DocumentSnapshot<Map<String, dynamic>> doc) {
-    final data = doc.data()!;
-    return WordStatusDTO(
-        wordId: data[fieldwordId],
-        isLearned: data[fieldIsLearned],
-        isBookmarked: data[fieldIsBookmarked],
-        hasNote: data[fieldHasNote],
-        updateBy: data[fieldupdateBy],
-        createdAt: (data[fieldCreatedAt] as Timestamp).toDate().toUtc(),
-        updatedAt: (data[fieldUpdatedAt] as Timestamp).toDate().toUtc(),
-        remoteRevision: data[fieldRevision] as int? ?? 0,
-        lastMutationId: data[fieldLastMutationId] as String?,
-        clientUpdatedAt:
-            (data[fieldClientUpdatedAt] as Timestamp?)?.toDate().toUtc());
-  }
-
   WordStatus toEntity() {
     return WordStatus(
       wordId: wordId,
@@ -75,22 +57,6 @@ class WordStatusDTO {
   /// ----------------------------
   /// AppUser → Firestore へ保存
   /// ----------------------------
-  Map<String, dynamic> toFirebase() {
-    return {
-      fieldwordId: wordId,
-      fieldIsLearned: isLearned,
-      fieldIsBookmarked: isBookmarked,
-      fieldHasNote: hasNote,
-      fieldupdateBy: updateBy,
-      fieldCreatedAt: Timestamp.fromDate(createdAt.toUtc()),
-      fieldUpdatedAt: Timestamp.fromDate(updatedAt.toUtc()),
-      fieldRevision: remoteRevision,
-      fieldLastMutationId: lastMutationId,
-      if (clientUpdatedAt != null)
-        fieldClientUpdatedAt: Timestamp.fromDate(clientUpdatedAt!.toUtc()),
-    };
-  }
-
   factory WordStatusDTO.fromAppEntity(WordStatus data) {
     return WordStatusDTO(
         wordId: data.wordId,
