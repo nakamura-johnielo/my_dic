@@ -26,7 +26,9 @@ import 'package:my_dic/features/jpn_esp_word_status/data/sync/jpn_esp_word_statu
 final watchJpnEspWordStatusUsecaseProvider =
     Provider<IWatchJpnEspWordStatusUsecase>((ref) {
   return WatchJpnEspWordStatusInteractor(
-      ref.read(jpnEspWordStatusRepositoryProvider));
+    ref.read(jpnEspWordStatusRepositoryProvider),
+    ref.watch(currentSessionProvider),
+  );
 });
 
 final updateJpnEspStatusUseCaseProvider =

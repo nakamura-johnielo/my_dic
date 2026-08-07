@@ -1,4 +1,5 @@
 import 'package:uuid/uuid.dart';
+import 'package:my_dic/core/shared/consts/account_scope.dart';
 import 'package:my_dic/core/shared/enums/sync_dataset.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/i_local_jpn_esp_word_status_data_source.dart';
@@ -26,6 +27,7 @@ class JpnEspWordStatusRepository implements IJpnEspWordStatusRepository {
     required String? accountId,
   }) async {
     try {
+      final scope = accountId ?? guestAccountScope;
       final updated = await _local.runInTransaction(() async {
         final row = await _local.updateWordStatus(
           input.wordId,
@@ -33,6 +35,7 @@ class JpnEspWordStatusRepository implements IJpnEspWordStatusRepository {
           _changedValue(input.isBookmarked),
           _changedValue(input.hasNote),
           editAt.toIso8601String(),
+          scope,
         );
         if (accountId != null) {
           final fieldMask = <String>[];
@@ -89,9 +92,10 @@ class JpnEspWordStatusRepository implements IJpnEspWordStatusRepository {
   }
 
   @override
-  Future<Result<JpnEspWordStatus?>> getWordStatusById(int id) async {
+  Future<Result<JpnEspWordStatus?>> getWordStatusById(int id,
+      {required String accountId}) async {
     try {
-      final res = await _local.getWordStatusById(id);
+      final res = await _local.getWordStatusById(id, accountId);
       if (res != null) {
         return Result.success(JpnEspWordStatusConverter.toEntity(res));
       }
@@ -106,8 +110,9 @@ class JpnEspWordStatusRepository implements IJpnEspWordStatusRepository {
   }
 
   @override
-  Stream<JpnEspWordStatus> watchWordStatusById(int id) {
-    return _local.watchWordStatusById(id).map((data) {
+  Stream<JpnEspWordStatus> watchWordStatusById(int id,
+      {required String accountId}) {
+    return _local.watchWordStatusById(id, accountId).map((data) {
       if (data == null)
         throw Exception('JpnEsp word status not found for id: $id');
       return JpnEspWordStatusConverter.toEntity(data);
@@ -116,10 +121,11 @@ class JpnEspWordStatusRepository implements IJpnEspWordStatusRepository {
 
   @override
   Future<Result<List<JpnEspWordStatus>>> getLocalWordStatusAfter(
-    DateTime datetime,
-  ) async {
+    DateTime datetime, {
+    required String accountId,
+  }) async {
     try {
-      final dataList = await _local.getWordStatusAfter(datetime);
+      final dataList = await _local.getWordStatusAfter(datetime, accountId);
       final entities = JpnEspWordStatusConverter.toEntityList(dataList);
       return Result.success(entities);
     } catch (e, s) {
@@ -132,9 +138,10 @@ class JpnEspWordStatusRepository implements IJpnEspWordStatusRepository {
   }
 
   @override
-  Future<Result<JpnEspWordStatus?>> getLocalWordStatusById(int id) async {
+  Future<Result<JpnEspWordStatus?>> getLocalWordStatusById(int id,
+      {required String accountId}) async {
     try {
-      final data = await _local.getWordStatusById(id);
+      final data = await _local.getWordStatusById(id, accountId);
       if (data == null) {
         return Result.success(null);
       }
@@ -149,7 +156,8 @@ class JpnEspWordStatusRepository implements IJpnEspWordStatusRepository {
   }
 
   @override
-  Stream<List<int>> watchLocalChangedIds(DateTime datetime) {
-    return _local.watchChangedIds(datetime);
+  Stream<List<int>> watchLocalChangedIds(DateTime datetime,
+      {required String accountId}) {
+    return _local.watchChangedIds(datetime, accountId);
   }
 }

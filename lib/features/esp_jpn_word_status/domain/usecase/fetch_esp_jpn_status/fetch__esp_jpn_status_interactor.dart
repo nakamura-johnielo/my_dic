@@ -1,3 +1,5 @@
+import 'package:my_dic/app/session/current_session.dart';
+import 'package:my_dic/core/shared/consts/account_scope.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/fetch_esp_jpn_status/fetch_esp_jpn_status_usecase.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/i_word_status_repository.dart';
@@ -5,11 +7,15 @@ import 'package:my_dic/core/shared/utils/result.dart';
 
 class FetchEspJpnWordStatusInteractor implements FetchEspJpnWordStatusUsecase {
   final IWordStatusRepository repository;
-  FetchEspJpnWordStatusInteractor(this.repository);
+  final CurrentSession _currentSession;
+  FetchEspJpnWordStatusInteractor(this.repository, this._currentSession);
+
+  String get _scope => _currentSession.accountIdOrNull ?? guestAccountScope;
 
   @override
   Future<Result<WordStatus>> execute(int wordId) async {
-    final result = await repository.getWordStatusById(wordId);
+    final result =
+        await repository.getWordStatusById(wordId, accountId: _scope);
     if (result.isFailure) {
       return Result.failure(result.errorOrNull!);
     }
@@ -19,6 +25,6 @@ class FetchEspJpnWordStatusInteractor implements FetchEspJpnWordStatusUsecase {
 
   @override
   Stream<WordStatus> watch(int wordId) {
-    return repository.watchWordStatusById(wordId);
+    return repository.watchWordStatusById(wordId, accountId: _scope);
   }
 }

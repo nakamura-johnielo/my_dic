@@ -1,10 +1,51 @@
 # Local-first 5: Word status migration
 
-状態: 進行中（Stage 1・Stage 3・Stage 4・Stage 5完了。Stage 2は縮小スコープでStage 1状態を維持する決定を採用し、read側account scopingはLocal-first 6/7へ明示的に先送り。旧`SyncEspJpnWordStatusInteractor`とRepositoryのFirebase操作は完全削除済み）
+状態: 完了（Stage 1〜5すべて完了。Stage 2はセッション4で縮小方針を撤回し、read/write両方の実accountId row-level scopingとguestスコープの正式化を完全実装した。ガイド統合フロー〔Local-first 7 Stage 4〕はスコープ外のまま）
 作成日: 2026-08-06
-最終更新: 2026-08-06（セッション3）
+最終更新: 2026-08-06（セッション4）
 
-## Stage 2スコープ決定（2026-08-06 セッション2）
+## Stage 2完全実装（2026-08-06 セッション4）
+
+「Stage2を一部ではなく完璧な状態にリファクタしてください」という依頼を受け、セッション2の縮小スコープ決定を再検討した。調査の結果、次のことが判明したため、read側account scopingを完全実装することにした。
+
+- Firebase remoteは元々`users/{accountId}/...`パスでaccount単位に分離されている。account混在のリスクは**ローカルDriftのみ**に存在した（write・read双方が`legacy_unowned`固定だったため、同一端末で複数accountがサインインすると同じrowを共有してしまう実データ分離バグがあった）。
+- 影響範囲はesp_jpn_word_status/jpn_esp_word_status feature内に閉じており、`my_word`/`ranking`/`user`は独立したDAO・テーブルであるため一切変更不要だった。
+- presentation層（status button widget）はRiverpod DIプロバイダ経由でusecaseを取得しており、`ref.watch(currentSessionProvider)`をdi.dart側でusecaseに注入するだけでUIコード自体は無変更のまま最新accountへ追従できた（`updateStatusUseCaseProvider`が既に同じパターンを使用済みだったため踏襲）。
+
+### 実装内容
+
+- `lib/core/shared/consts/account_scope.dart`（新規）: `guestAccountScope`定数（値は既存の`'legacy_unowned'`を継続利用）。ローカルrow scope専用であり、Firebaseへは一切送らない。guestスコープを正式なfallbackとして位置づけ、guest→account自動移行は行わない（Local-first 7の設計方針を維持）。
+- `EspJpnWordStatusDao`/`JpnEspWordStatusDao`: `watchWordStatus`、`watchChangedWordIdsWithFilter`、`applyStatusPatch`、`getStatusById`、`getWordStatusAfter`、`exist`、`applyRemoteFields`すべてに`accountId`引数を追加し、`tbl.accountId.equals(legacyOwner)`固定を撤廃。`legacyOwner`定数は`guestAccountScope`のエイリアスとして維持（後方互換）。
+- `ILocalWordStatusDataSource`/`ILocalJpnEspWordStatusDataSource`とDrift実装: 同様に`accountId`引数を追加。
+- `IWordStatusRepository`/`IJpnEspWordStatusRepository`: 読み取り系（`watchWordStatusById`、`getWordStatusById`、`getLocalWordStatusAfter`、`getLocalWordStatusById`、`watchLocalChangedIds`）に`required String accountId`を追加。`updateLocalWordStatus`のシグネチャ（`required String? accountId`、nullableのまま）は変更せず、実装内部で`accountId ?? guestAccountScope`をDAO呼び出し用scopeとして解決するようにした（outbox enqueueの可否判定は従来どおり`accountId != null`のまま）。
+- `FetchEspJpnWordStatusInteractor`/`WatchEspJpnWordStatusInteractor`/`WatchJpnEspWordStatusInteractor`: `CurrentSession`をコンストラクタ注入し、`accountIdOrNull ?? guestAccountScope`をrepository呼び出しのscopeとして解決するようにした。`UpdateStatusInteractor`/`UpdateJpnEspStatusInteractor`は無変更（既にrepositoryへnullable accountIdを渡す設計だったため）。
+- `esp_jpn_word_status/di/di.dart`・`jpn_esp_word_status/di/di.dart`: `fetchEspJpnWordStatusUsecaseProvider`/`watchEspJpnWordStatusUsecaseProvider`/`watchJpnEspWordStatusUsecaseProvider`へ`ref.watch(currentSessionProvider)`を注入。sign-in/sign-out時にproviderが再構築され、UIが自動的に現在のaccountスコープへ切り替わる。
+- `EspJpnWordStatusSyncHandler`/`JpnEspWordStatusSyncHandler`のpullループ: `_local.applyRemoteFields(...)`へ`accountId: context.accountId`を渡すよう変更（syncは常に署名済みaccountに対して実行されるため、pull結果は正しいaccountのローカルrowへ反映される）。
+
+### 新規/更新テスト
+
+- `test/unit/features/word_status/status_account_scope_test.dart`（新規）: Esp-Jpn/Jpn-Esp両方向で、(1) 2つの署名済みaccountが同一wordIdでも互いのrowを上書き・参照しないこと、(2) guest書き込み（`accountId: null`）が`guestAccountScope`へ隔離され、実accountからは見えないこと、(3) `FetchEspJpnWordStatusInteractor`/`WatchEspJpnWordStatusInteractor`/`WatchJpnEspWordStatusInteractor`が`CurrentSession`からguest/signed-inのscopeを正しく解決してrepositoryへ渡すこと、を検証。
+- `test/unit/features/word_status/word_status_sync_handler_test.dart`: DAO直接呼び出しのfixture（`seed`/`read`/`exists`）に、テスト用固定accountId（`account-a`）を渡すよう更新（挙動は既存のまま、シグネチャ追従のみ）。
+- `status_outbox_enqueue_test.dart`/`status_update_contract_test.dart`/`update_status_interactor_test.dart`は、いずれもrepository経由（`updateLocalWordStatus`）またはmock repositoryのみを使用しており、シグネチャ変更が読み取り専用メソッドに限定されていたため無変更で成功。
+
+### 検証
+
+```powershell
+flutter test test/unit/features/word_status/ test/unit/core/domain/usecase/update_status_interactor_test.dart   # 39件全て成功
+flutter test test/unit/features/sync/                                                                          # 36件全て成功
+dart run tool/check_import_boundaries.dart --baseline tool/import_boundaries/baseline.json --check              # exit code 0、既存baseline違反のみ
+flutter analyze <変更ディレクトリ>                                                                              # 既存の指摘5件のみ（本セッションの変更と無関係）
+```
+
+### 意図的にスコープ外のまま残したもの
+
+- **guestからaccountへのtransactional移管フロー**（sign-in時にguestスコープのrowをaccountスコープへ承認付きで移すUI/UseCase）は、[`../../local_first/7-migrate-user-profile.md`](../../local_first/7-migrate-user-profile.md)のStage 4（guest統合）に明示的に残す。理由: (1) 5 dataset横断の設計判断であり本タスク単体を超える、(2) 実データの不可逆に近い移行操作でありUI承認フロー設計とセットで慎重に行うべき、という従来の判断は変わらない。今回実装したのは「読み取りが正しいaccountだけを見る」ことのみであり、「guestのデータを後からaccountへ引き継ぐ」ことではない。
+- `my_word`/`ranking`/`user profile`のread側account scoping（同じ`legacy_unowned`固定パターン）は今回変更していない。word status feature内で完結する変更であり、他datasetへの波及は本タスクのスコープ外（Local-first 6/7側で同様のパターンを適用するかは各タスクの判断に委ねる）。
+- account切替（session epoch）を跨いだsync handlerのend-to-end testは引き続き未実装（Stage 3〜5実施結果の既知の未対応事項のまま）。
+
+## Stage 2スコープ決定（2026-08-06 セッション2、セッション4で撤回）
+
+> 以下はセッション2時点の判断記録であり、セッション4で「read側scopingをword status feature内に閉じて完全実装する」方針に更新された。経緯の参考として残す。
 
 「リファクタ全ステージを完了させる」依頼を受け、着手前に実装範囲を再調査した結果、Stage 2（実rowレベルaccount scoping）を素朴に実装すると、書き込み系だけでなく`EspJpnWordStatusDao`/`JpnEspWordStatusDao`の**読み取り系**（`watchWordStatusById`、`getWordStatusById`、`getLocalWordStatusAfter`等）も含めて全メソッドが`legacy_unowned`固定であることが判明した。読み取り系までaccount scopeを通すと、UI側の`FetchEspJpnStatusInteractor`/`WatchEspJpnWordStatusInteractor`/`WatchJpnEspWordStatusInteractor`経由でpresentation層（status button widget群）まで配線が必要になり、これは[`../../local_first/7-migrate-user-profile.md`](../../local_first/7-migrate-user-profile.md)が明示的に「guest統合はsign-inだけで自動化せず、Ready後の明示的フローで扱う」と定めている領域と重なる。
 
@@ -158,7 +199,8 @@ flutter test test/unit/features/sync/
 - [x] 両directionが同一のoutbox enqueue契約を持つ（Stage 1で対応）
 - [x] 両directionがSyncEngineへ登録されている（Stage 4で対応。`syncDatasetHandlerRegistryProvider`に`EspJpnWordStatusSyncHandler`/`JpnEspWordStatusSyncHandler`を登録済み）
 - [x] 旧status listenerと旧sync UseCaseがdataset registryから外れている（完全達成。`SyncEspJpnWordStatusInteractor`クラス自体、di provider定義、テスト直接参照も削除済み）
-- [ ] failure、retry、conflict、account切替testが通る（`test/unit/features/word_status/word_status_sync_handler_test.dart`でretry/dead-letter/pull/field-level merge-skipは検証済み。account切替（session epoch）specificなhandler testと、真の「同一fieldがserver受付順で収束する」複数端末シナリオのend-to-end testは未実装。詳細は下記Stage 3〜5実施結果を参照）
+- [x] read/writeともに実accountId row-level scopingが効いている（セッション4で完全達成。DAO・datasource・repository・Fetch/Watch usecase・sync handlerのpullがすべて`accountId`を明示的に受け取るようになり、`legacy_unowned`は「guest専用scope」として`guestAccountScope`定数に明文化された。2アカウントの同一wordIdが互いのrowを上書き・参照しないこと、guest書き込みが実accountから隔離されることを`status_account_scope_test.dart`で検証済み）
+- [ ] failure、retry、conflict、account切替testが通る（`test/unit/features/word_status/word_status_sync_handler_test.dart`でretry/dead-letter/pull/field-level merge-skipは検証済み。account切替（session epoch）specificなhandler testと、真の「同一fieldがserver受付順で収束する」複数端末シナリオのend-to-end testは未実装）
 
 ## セッション3実施結果（2026-08-06）
 

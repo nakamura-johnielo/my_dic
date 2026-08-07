@@ -1,4 +1,5 @@
 import 'package:uuid/uuid.dart';
+import 'package:my_dic/core/shared/consts/account_scope.dart';
 import 'package:my_dic/core/shared/enums/sync_dataset.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/core/infrastructure/datasource/word_status/i_local_word_status_data_source.dart';
@@ -26,6 +27,7 @@ class WordStatusRepository implements IWordStatusRepository {
     required String? accountId,
   }) async {
     try {
+      final scope = accountId ?? guestAccountScope;
       final updated = await _local.runInTransaction(() async {
         final row = await _local.updateWordStatus(
           input.wordId,
@@ -33,6 +35,7 @@ class WordStatusRepository implements IWordStatusRepository {
           _changedValue(input.isBookmarked),
           _changedValue(input.hasNote),
           editAt.toIso8601String(),
+          scope,
         );
         if (accountId != null) {
           final fieldMask = <String>[];
@@ -90,9 +93,10 @@ class WordStatusRepository implements IWordStatusRepository {
   }
 
   @override
-  Future<Result<WordStatus?>> getWordStatusById(int id) async {
+  Future<Result<WordStatus?>> getWordStatusById(int id,
+      {required String accountId}) async {
     try {
-      final res = await _local.getWordStatusById(id);
+      final res = await _local.getWordStatusById(id, accountId);
       if (res != null) {
         return Result.success(WordStatusConverter.toEntity(res));
       }
@@ -107,8 +111,8 @@ class WordStatusRepository implements IWordStatusRepository {
   }
 
   @override
-  Stream<WordStatus> watchWordStatusById(int id) {
-    return _local.watchWordStatusById(id).map((data) {
+  Stream<WordStatus> watchWordStatusById(int id, {required String accountId}) {
+    return _local.watchWordStatusById(id, accountId).map((data) {
       if (data == null) throw Exception('Word status not found for id: $id');
       return WordStatusConverter.toEntity(data);
     });
@@ -116,10 +120,11 @@ class WordStatusRepository implements IWordStatusRepository {
 
   @override
   Future<Result<List<WordStatus>>> getLocalWordStatusAfter(
-    DateTime datetime,
-  ) async {
+    DateTime datetime, {
+    required String accountId,
+  }) async {
     try {
-      final dataList = await _local.getWordStatusAfter(datetime);
+      final dataList = await _local.getWordStatusAfter(datetime, accountId);
       final entities = WordStatusConverter.toEntityList(dataList);
       return Result.success(entities);
     } catch (e, s) {
@@ -132,9 +137,10 @@ class WordStatusRepository implements IWordStatusRepository {
   }
 
   @override
-  Future<Result<WordStatus?>> getLocalWordStatusById(int id) async {
+  Future<Result<WordStatus?>> getLocalWordStatusById(int id,
+      {required String accountId}) async {
     try {
-      final data = await _local.getWordStatusById(id);
+      final data = await _local.getWordStatusById(id, accountId);
       if (data == null) {
         return Result.success(null);
       }
@@ -149,7 +155,8 @@ class WordStatusRepository implements IWordStatusRepository {
   }
 
   @override
-  Stream<List<int>> watchLocalChangedIds(DateTime datetime) {
-    return _local.watchChangedIds(datetime);
+  Stream<List<int>> watchLocalChangedIds(DateTime datetime,
+      {required String accountId}) {
+    return _local.watchChangedIds(datetime, accountId);
   }
 }

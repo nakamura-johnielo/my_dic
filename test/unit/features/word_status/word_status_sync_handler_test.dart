@@ -98,12 +98,12 @@ class _EspJpnFixture implements _HandlerFixture {
   Future<void> close() => _database.close();
 
   @override
-  Future<bool> exists(int wordId) => _dao.exist(wordId);
+  Future<bool> exists(int wordId) => _dao.exist(wordId, _accountId);
 
   @override
   Future<({bool? learned, bool? bookmarked, bool? hasNote})> read(
       int wordId) async {
-    final row = await _dao.getStatusById(wordId);
+    final row = await _dao.getStatusById(wordId, _accountId);
     if (row == null) return (learned: null, bookmarked: null, hasNote: null);
     return (
       learned: row.isLearned == 1,
@@ -118,7 +118,7 @@ class _EspJpnFixture implements _HandlerFixture {
       required bool isBookmarked,
       required bool hasNote}) {
     return _dao.applyStatusPatch(wordId, isLearned, isBookmarked, hasNote,
-        DateTime.utc(2026, 8, 1).toIso8601String());
+        DateTime.utc(2026, 8, 1).toIso8601String(), _accountId);
   }
 }
 
@@ -160,12 +160,12 @@ class _JpnEspFixture implements _HandlerFixture {
   Future<void> close() => _database.close();
 
   @override
-  Future<bool> exists(int wordId) => _dao.exist(wordId);
+  Future<bool> exists(int wordId) => _dao.exist(wordId, _accountId);
 
   @override
   Future<({bool? learned, bool? bookmarked, bool? hasNote})> read(
       int wordId) async {
-    final row = await _dao.getStatusById(wordId);
+    final row = await _dao.getStatusById(wordId, _accountId);
     if (row == null) return (learned: null, bookmarked: null, hasNote: null);
     return (
       learned: row.isLearned == 1,
@@ -180,7 +180,7 @@ class _JpnEspFixture implements _HandlerFixture {
       required bool isBookmarked,
       required bool hasNote}) {
     return _dao.applyStatusPatch(wordId, isLearned, isBookmarked, hasNote,
-        DateTime.utc(2026, 8, 1).toIso8601String());
+        DateTime.utc(2026, 8, 1).toIso8601String(), _accountId);
   }
 }
 

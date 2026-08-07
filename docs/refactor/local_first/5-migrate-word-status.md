@@ -1,6 +1,6 @@
 # Local-first 5: Word statusを最初のdatasetとして移行する
 
-- 状態: 進行中（Stage 1・3・4・5完了、read側account scoping/guest統合はLocal-first 6/7へ先送り。詳細は[`../contexts/plans/local_first.5-migrate-word-status.plan.md`](../contexts/plans/local_first.5-migrate-word-status.plan.md)）
+- 状態: 完了（Stage 1〜5すべて完了。read/write双方の実accountId row-level scopingを含む。guestからaccountへのtransactional移管フローはLocal-first 7 Stage 4へ意図的に残置。詳細は[`../contexts/plans/local_first.5-migrate-word-status.plan.md`](../contexts/plans/local_first.5-migrate-word-status.plan.md)）
 - 優先度: P0 / 最初のproduction切替
 - 依存タスク: [`4-build-sync-engine.md`](4-build-sync-engine.md)、[`../phase0/5-fix-status-update-contract.md`](../phase0/5-fix-status-update-contract.md)、[`../phase1/1-create-composition-root.md`](../phase1/1-create-composition-root.md)、[`../phase1/2-enforce-import-boundaries.md`](../phase1/2-enforce-import-boundaries.md)、[`../phase1/4-introduce-current-session.md`](../phase1/4-introduce-current-session.md)
 - 関連タスク: [`../phase1/6-unify-word-status.md`](../phase1/6-unify-word-status.md)
@@ -37,6 +37,7 @@ Esp-JpnとJpn-Espのstatus更新をDriftだけへ書き込み、outbox経由でF
 - [x] 通常status RepositoryにFirebase操作がない（旧`SyncEspJpnWordStatusInteractor`とその関連di/testを削除し、`WordStatusRepository`/`JpnEspWordStatusRepository`および両interfaceからFirebase操作メソッドを完全に除去済み）
 - [x] 両directionがSyncEngineへ登録されている
 - [x] 旧status listenerと旧sync UseCaseがdataset registryから外れている
+- [x] read/writeともに実accountId row-level scopingが効いている（DAO/datasource/repository/usecase/sync handlerのpullすべてが`accountId`を明示的に扱う。`legacy_unowned`はguest専用scope定数として明文化）
 - [ ] failure、retry、conflict、account切替testが通る（retry/dead-letter/pull/field merge-skipは検証済み。account切替を跨ぐhandler単体end-to-end testは未実装）
 
 ## LLMへの引き継ぎ事項

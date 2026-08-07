@@ -25,13 +25,17 @@ import 'package:my_dic/features/esp_jpn_word_status/data/sync/esp_jpn_word_statu
 final fetchEspJpnWordStatusUsecaseProvider =
     Provider<FetchEspJpnWordStatusUsecase>((ref) {
   return FetchEspJpnWordStatusInteractor(
-      ref.read(wordStatusRepositoryProvider));
+    ref.read(wordStatusRepositoryProvider),
+    ref.watch(currentSessionProvider),
+  );
 });
 
 final watchEspJpnWordStatusUsecaseProvider =
     Provider<IWatchEspJpnWordStatusUsecase>((ref) {
   return WatchEspJpnWordStatusInteractor(
-      ref.read(wordStatusRepositoryProvider));
+    ref.read(wordStatusRepositoryProvider),
+    ref.watch(currentSessionProvider),
+  );
 });
 
 final updateStatusUseCaseProvider = Provider<IUpdateStatusUseCase>((ref) {

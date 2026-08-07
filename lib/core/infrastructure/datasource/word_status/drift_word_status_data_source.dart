@@ -8,15 +8,16 @@ class DriftWordStatusDataSource implements ILocalWordStatusDataSource {
   DriftWordStatusDataSource(this._dao);
 
   @override
-  Future<EspJpnWordStatusTableData?> getWordStatusById(int id) async {
-    final data = await _dao.getStatusById(id);
+  Future<EspJpnWordStatusTableData?> getWordStatusById(
+      int id, String accountId) async {
+    final data = await _dao.getStatusById(id, accountId);
     return data;
   }
 
   @override
   Future<List<EspJpnWordStatusTableData>> getWordStatusAfter(
-      DateTime datetime) async {
-    final list = await _dao.getWordStatusAfter(datetime);
+      DateTime datetime, String accountId) async {
+    final list = await _dao.getWordStatusAfter(datetime, accountId);
     return list;
   }
 
@@ -27,6 +28,7 @@ class DriftWordStatusDataSource implements ILocalWordStatusDataSource {
     bool? isBookmarked,
     bool? hasNote,
     String editAt,
+    String accountId,
   ) async {
     return _dao.applyStatusPatch(
       wordId,
@@ -34,17 +36,19 @@ class DriftWordStatusDataSource implements ILocalWordStatusDataSource {
       isBookmarked,
       hasNote,
       editAt,
+      accountId,
     );
   }
 
   @override
-  Stream<EspJpnWordStatusTableData?> watchWordStatusById(int id) {
-    return _dao.watchWordStatus(id);
+  Stream<EspJpnWordStatusTableData?> watchWordStatusById(
+      int id, String accountId) {
+    return _dao.watchWordStatus(id, accountId);
   }
 
   @override
-  Stream<List<int>> watchChangedIds(DateTime datetime) {
-    return _dao.watchChangedWordIdsWithFilter(datetime);
+  Stream<List<int>> watchChangedIds(DateTime datetime, String accountId) {
+    return _dao.watchChangedWordIdsWithFilter(datetime, accountId);
   }
 
   @override
@@ -54,6 +58,7 @@ class DriftWordStatusDataSource implements ILocalWordStatusDataSource {
     bool? isBookmarked,
     bool? hasNote,
     required String editAt,
+    required String accountId,
   }) {
     return _dao.applyRemoteFields(
       wordId,
@@ -61,6 +66,7 @@ class DriftWordStatusDataSource implements ILocalWordStatusDataSource {
       isBookmarked: isBookmarked,
       hasNote: hasNote,
       editAt: editAt,
+      accountId: accountId,
     );
   }
 

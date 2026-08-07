@@ -131,6 +131,7 @@ class JpnEspWordStatusSyncHandler implements DatasetSyncHandler {
                 skip.contains('isBookmarked') ? null : entity.isBookmarked,
             hasNote: skip.contains('hasNote') ? null : entity.hasNote,
             editAt: entity.editAt.toIso8601String(),
+            accountId: context.accountId,
           );
           pulledCount++;
           final candidate = SyncCursor(

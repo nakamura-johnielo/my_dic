@@ -153,3 +153,7 @@ Stage 4に着手する前に、次を別タスクとして先に実施するこ�
 
 この判断は[`../../local_first/8-cut-over-and-remove-legacy-sync.md`](../../local_first/8-cut-over-and-remove-legacy-sync.md)（全面切替）にも影響するため、着手時は両文書を合わせて確認すること。
 
+### 追記（2026-08-06、Local-first 5セッション4）
+
+esp_jpn/jpn_esp word statusの2 datasetについては、read側account scopingを`guestAccountScope`定数（`lib/core/shared/consts/account_scope.dart`、値は従来どおり`'legacy_unowned'`）による正式なguest専用scopeとして完全実装済み（[`local_first.5-migrate-word-status.plan.md`](local_first.5-migrate-word-status.plan.md)参照）。DAO/datasource/repository/usecase/sync handlerへ`accountId`引数を通す変更パターンが実例として存在するため、MyWord/MyWordStatus/User Profileへ同パターンを適用する際の参考にできる。ただし本追記はStage 4着手可否の判断（5 dataset横断・guest→account移管UIを要する）を変更するものではなく、read側scopingという前提条件のうち2/5 datasetが解消されたことを記録するに留める。
+
