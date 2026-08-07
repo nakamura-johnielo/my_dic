@@ -14,6 +14,8 @@ import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
 import 'package:my_dic/app/routing/contracts/word_detail_route.dart';
+import 'package:my_dic/core/presentation/error/app_error_message.dart';
+import 'package:my_dic/core/shared/errors/app_error.dart';
 
 // ConsumerStatefulWidgetに変更
 class QuizGameFragment extends ConsumerWidget {
@@ -41,14 +43,21 @@ class QuizGameFragment extends ConsumerWidget {
     if (conjEnglishAsync.hasError ||
         beConjAsync.hasError ||
         englishConjAsync.hasError) {
-      return const Center(child: Text('Load error'));
+      final error =
+          conjEnglishAsync.error ?? beConjAsync.error ?? englishConjAsync.error;
+      return Scaffold(
+        appBar: AppBar(title: Text('Quiz Game - ${input.word}')),
+        body: Center(child: Text(_quizErrorText(error))),
+      );
     }
 
     AppLogger.print("conjEnglishAsync");
     AppLogger.print("beConjAsync");
-    final Map<String, String> englishSubMap = conjEnglishAsync.value!;
-    final Map<String, Map<String, String>> beConj = beConjAsync.value!;
-    final englishConj = englishConjAsync.value!;
+    final Map<String, String> englishSubMap =
+        conjEnglishAsync.value ?? const {};
+    final Map<String, Map<String, String>> beConj =
+        beConjAsync.value ?? const {};
+    final englishConj = englishConjAsync.value ?? const <String, String>{};
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     //
@@ -123,7 +132,9 @@ class QuizGameFragment extends ConsumerWidget {
                   ),
                   Row(spacing: 10, mainAxisSize: MainAxisSize.min, children: [
                     Text(
-                      (quizGame.currentIndex + 1).toString(),
+                      quizGame.hasCurrentQuestion
+                          ? (quizGame.currentIndex + 1).toString()
+                          : '0',
                       style:
                           TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
                     ),
@@ -138,29 +149,31 @@ class QuizGameFragment extends ConsumerWidget {
                           TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
                     )
                   ]),
-                  QuizCard(
-                      onSwipe: onSwipe,
-                      moodTense: quizGame.currentTense,
-                      conjugacion: displayConjugacion(conjugaciones,
-                          quizGame.currentSubject, quizGame.currentTense),
-                      subject: quizGame.currentSubject,
-                      englishSub: quizGameNotifier.quiz1EnglishSub(
-                          englishSubMap, beConj, englishConj),
-                      onToggle: quizGameNotifier.toggleQuizCardStatus),
-                  Row(spacing: 34, mainAxisSize: MainAxisSize.min, children: [
-                    IconButton(
-                        onPressed: () => onSwipe("left"),
-                        icon: Icon(Icons.arrow_left_rounded)),
-                    ElevatedButton(
-                      onPressed: () {
-                        quizGameNotifier.toggleQuizCardStatus();
-                      },
-                      child: Text("FLIP!"),
-                    ),
-                    IconButton(
-                        onPressed: () => onSwipe("right"),
-                        icon: Icon(Icons.arrow_right_rounded)),
-                  ])
+                  if (quizGame.hasCurrentQuestion)
+                    QuizCard(
+                        onSwipe: onSwipe,
+                        moodTense: quizGame.currentTense,
+                        conjugacion: displayConjugacion(conjugaciones,
+                            quizGame.currentSubject, quizGame.currentTense),
+                        subject: quizGame.currentSubject,
+                        englishSub: quizGameNotifier.quiz1EnglishSub(
+                            englishSubMap, beConj, englishConj),
+                        onToggle: quizGameNotifier.toggleQuizCardStatus),
+                  if (quizGame.hasCurrentQuestion)
+                    Row(spacing: 34, mainAxisSize: MainAxisSize.min, children: [
+                      IconButton(
+                          onPressed: () => onSwipe("left"),
+                          icon: Icon(Icons.arrow_left_rounded)),
+                      ElevatedButton(
+                        onPressed: () {
+                          quizGameNotifier.toggleQuizCardStatus();
+                        },
+                        child: Text("FLIP!"),
+                      ),
+                      IconButton(
+                          onPressed: () => onSwipe("right"),
+                          icon: Icon(Icons.arrow_right_rounded)),
+                    ])
                 ],
               ),
             ),
@@ -172,9 +185,7 @@ class QuizGameFragment extends ConsumerWidget {
           appBar: AppBar(
             title: Text('Quiz Game - ${input.word}'),
           ),
-          body: Center(
-            child: Text("No results...."),
-          ),
+          body: Center(child: Text(_quizErrorText(error))),
         );
       },
       loading: () {
@@ -182,14 +193,16 @@ class QuizGameFragment extends ConsumerWidget {
           appBar: AppBar(
             title: Text('Quiz Game - ${input.word}'),
           ),
-          body: Center(
-            child: Text("No results...."),
-          ),
+          body: const Center(child: CircularProgressIndicator()),
         );
       },
     );
   }
 }
+
+String _quizErrorText(Object? error) => error is AppError
+    ? AppErrorMessage.from(error).text
+    : 'Unable to load the quiz. Please try again.';
 
 //TODO usecase化
 String displayConjugacion(EspConjugacions conjugaciones, Subject currentSubject,

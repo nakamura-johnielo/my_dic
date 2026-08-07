@@ -11,19 +11,11 @@ class MyWordItemViewModel {
   String get headword => word.word;
   String get contents => word.contents;
 
-  void deleteWord({required void Function() onComplete}) {
-    _command.deleteWord(onComplete: onComplete);
-  }
+  Future<void> deleteWord() => _command.deleteWord();
 
   void updateWord({
     required String headword,
     required String description,
-    required void Function() onComplete,
-  }) {
-    _command.updateWord(
-      headword: headword,
-      description: description,
-      onComplete: onComplete,
-    );
-  }
+  }) =>
+      _command.updateWord(headword: headword, description: description);
 }

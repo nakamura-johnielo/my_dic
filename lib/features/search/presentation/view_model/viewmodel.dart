@@ -1,215 +1,165 @@
-// lib/features/search/presentation/view_model/search_view_model.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logging/logging.dart';
+import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
+import 'package:my_dic/app/routing/contracts/word_detail_route.dart';
+import 'package:my_dic/core/presentation/state/query_state.dart';
+import 'package:my_dic/core/shared/errors/app_error.dart';
 import 'package:my_dic/core/shared/enums/dictionary/dictionary_type.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
-import 'package:my_dic/features/search/domain/usecase/judge_search_word/i_judge_search_word_use_case.dart';
-import 'package:my_dic/features/search/domain/usecase/judge_search_word/judge_search_word_input_data.dart';
 import 'package:my_dic/features/search/application/usecase/search_word/i_search_word_use_case.dart';
 import 'package:my_dic/features/search/application/usecase/search_word/search_word_input_data.dart';
+import 'package:my_dic/features/search/application/usecase/search_word/search_word_output_data.dart';
+import 'package:my_dic/features/search/domain/usecase/judge_search_word/i_judge_search_word_use_case.dart';
+import 'package:my_dic/features/search/domain/usecase/judge_search_word/judge_search_word_input_data.dart';
 import 'package:my_dic/features/search/presentation/ui_model/search_ui_model.dart';
-import 'package:logging/logging.dart';
-import 'package:my_dic/app/routing/contracts/word_detail_route.dart';
 import 'package:my_dic/router/navigator_service.dart';
-import 'package:my_dic/core/shared/utils/logger.dart';
 
-/// 検索画面のViewModel
 class SearchViewModel extends StateNotifier<SearchState> {
-  final ISearchWordUseCase _searchWordUseCase;
-  final IJudgeSearchWordUseCase _judgeSearchWordUseCase;
-  final AppNavigatorService _naviService;
+  SearchViewModel(this._search, this._judge, this._navigator)
+      : super(const SearchState());
+  final ISearchWordUseCase _search;
+  final IJudgeSearchWordUseCase _judge;
+  final AppNavigatorService _navigator;
   final _logger = Logger('SearchViewModel');
+  int _generation = 0;
 
-  SearchViewModel(
-    this._searchWordUseCase,
-    this._judgeSearchWordUseCase,
-    this._naviService,
-  ) : super(SearchState());
+  void goToQuiz(QuizGameRoute route) => _navigator.toFlashCard(route);
+  void goToWordDetail(WordDetailRoute route) => _navigator.toWordDetail(route);
 
-  // ==================== Public Methods ====================
-
-  void goToQuiz(QuizGameRoute route) {
-    _naviService.toFlashCard(route);
-  }
-
-  void goToWordDetail(WordDetailRoute route) {
-    _naviService.toWordDetail(route);
-  }
-
-  /// 検索クエリを更新
   void updateQuery(String query) {
-    final trimmedQuery = query.trim();
+    final value = query.trim();
+    _generation++;
+    state = SearchState(
+        query: value,
+        results: value.isEmpty ? const QueryState.initial() : state.results);
+  }
 
-    if (trimmedQuery.isEmpty) {
-      clearResults();
-    }
-
-    state = state.copyWith(query: trimmedQuery);
+  void clearResults() {
+    _generation++;
+    state =
+        SearchState(query: state.query, results: const QueryState.initial());
   }
 
   Future<void> loadSearchResults(int size, int currentPage) async {
-    final word = state.query;
-    if (word.isEmpty) {
-      clearResults();
+    final query = state.query;
+    if (query.isEmpty || state.results.isLoading) return;
+    final page = currentPage + 1;
+    final generation = ++_generation;
+    final previous = state.results.dataOrNull;
+    state = state.copyWith(results: QueryState.loading(previousData: previous));
+    final dictionary = _dictionaryFor(query);
+    if (dictionary == DictionaryType.jpnEsp) {
+      final result = await _search
+          .executeJpnEsp(SearchJpnEspWordInputData(query, size, page));
+      if (!_isCurrent(generation, query)) return;
+      result.when(
+        success: (output) => _publish(
+          QuizlessResult.jpn(output).value,
+          previous,
+          page > 0,
+        ),
+        failure: (error) => _fail(error, previous),
+      );
       return;
     }
-    if (state.isLoading) return;
-
-    state = state.copyWith(isLoading: true, errorMessage: null);
-
-    final nextPage = currentPage + 1;
-
-    try {
-      final dictionaryType = _judgeDictionaryType(word);
-      AppLogger.print("#############Viewmodel nextpage:$nextPage");
-
-      if (dictionaryType == DictionaryType.jpnEsp) {
-        await _searchJpnEsp(word, size: size, page: nextPage);
-      } else {
-        AppLogger.print("#############true");
-        await _searchEspJpn(word, size: size, page: nextPage);
-        if (nextPage == 0) {
-          // 初回のみ活用形も検索
-          await _searchConjugacion(word, size: 4, page: 0);
+    final primary = await _search
+        .executeEspJpn(SearchWordInputData(query, size, page, false));
+    if (!_isCurrent(generation, query)) return;
+    await primary.when(
+      success: (output) async {
+        var next = QuizlessResult.esp(output);
+        var warnings = next.warnings;
+        if (page == 0) {
+          final conjugation = await _search
+              .executeConjugacion(SearchConjugacionInputData(query, 4, 0));
+          if (!_isCurrent(generation, query)) return;
+          conjugation.when(
+            success: (value) {
+              next = next.withConjugation(value);
+              warnings = [
+                ...warnings,
+                ...value.warnings
+                    .map((w) => QueryWarning(source: w.source, error: w.error))
+              ];
+            },
+            failure: (error) => warnings = [
+              ...warnings,
+              QueryWarning(source: 'conjugation', error: error)
+            ],
+          );
         }
-      }
-    } catch (e) {
+        _publish(next.value, previous, page > 0, warnings: warnings);
+      },
+      failure: (error) async => _fail(error, previous),
+    );
+  }
+
+  bool _isCurrent(int generation, String query) =>
+      mounted && generation == _generation && query == state.query;
+  DictionaryType _dictionaryFor(String query) =>
+      _judge.execute(JudgeSearchWordInputData(query)).when(
+            success: (value) => value.dictionaryType,
+            failure: (error) {
+              _logger.warning('Dictionary judgement failed', error);
+              return DictionaryType.espJpn;
+            },
+          );
+  void _fail(AppError error, SearchResults? previous) {
+    if (mounted) {
       state = state.copyWith(
-        isLoading: false,
-        errorMessage: 'Failed to load next page: $e',
-      );
+          results: QueryState.failure(error, previousData: previous));
     }
   }
 
-  /// 検索結果をクリア
-  void clearResults() {
+  void _publish(SearchResults next, SearchResults? previous, bool append,
+      {List<QueryWarning> warnings = const []}) {
+    final value = previous?.merge(next, append: append) ?? next;
     state = state.copyWith(
-      espJpnWords: [],
-      jpnEspWords: [],
-      conjugacions: [],
-      rankingNos: {},
-      simpleMeanings: {},
-      starCounts: {},
-      isLoading: false,
-      errorMessage: null,
-    );
+        results: value.isEmpty
+            ? QueryState.empty(warnings: warnings)
+            : QueryState.data(value, warnings: warnings));
   }
+}
 
-  // ==================== Private Methods ====================
-
-  /// 辞書タイプを判定
-  DictionaryType _judgeDictionaryType(String word) {
-    final judgeInput = JudgeSearchWordInputData(word);
-    final result = _judgeSearchWordUseCase.execute(judgeInput);
-    return result.when(
-      success: (data) => data.dictionaryType,
-      failure: (error) {
-        _logger.warning('判定失敗: ${error.message}');
-        return DictionaryType.espJpn; // Default fallback
-      },
-    );
-  }
-
-  /// 西和検索
-  Future<void> _searchEspJpn(String word,
-      {required int size, required int page}) async {
-    final input = SearchWordInputData(word, size, page, false);
-    final result = await _searchWordUseCase.executeEspJpn(input);
-
-    result.when(
-      success: (data) {
-        AppLogger.print("result length ${data.wordList.length}");
-
-        final newRankingNos = data.rankingNos;
-        final newSimpleMeanings = data.simpleMeanings;
-        final newStarCounts = data.starCounts;
-
-        if (page == 0) {
-          // 初回は置き換え
-          state = state.copyWith(
-            espJpnWords: data.wordList,
-            jpnEspWords: [],
-            rankingNos: newRankingNos,
-            simpleMeanings: newSimpleMeanings,
-            starCounts: newStarCounts,
-            isLoading: false,
-          );
-        } else {
-          // 追加読み込みは追加
-          state = state.copyWith(
-            espJpnWords: [...state.espJpnWords, ...data.wordList],
-            rankingNos: {...state.rankingNos, ...newRankingNos},
-            simpleMeanings: {...state.simpleMeanings, ...newSimpleMeanings},
-            starCounts: {...state.starCounts, ...newStarCounts},
-            isLoading: false,
-          );
-        }
-      },
-      failure: (error) {
-        _logger.warning('西和検索に失敗しました', error);
-        state = state.copyWith(
-          isLoading: false,
-          errorMessage: error.message,
-        );
-      },
-    );
-  }
-
-  /// 和西検索
-  Future<void> _searchJpnEsp(String word,
-      {required int size, required int page}) async {
-    final input = SearchJpnEspWordInputData(word, size, page);
-    final result = await _searchWordUseCase.executeJpnEsp(input);
-
-    result.when(
-      success: (data) {
-        final newSimpleMeanings = data.simpleMeanings;
-        if (page == 0) {
-          state = state.copyWith(
-            jpnEspWords: data.wordList,
-            simpleMeanings: newSimpleMeanings,
-            espJpnWords: [],
-            conjugacions: [],
-            isLoading: false,
-          );
-        } else {
-          state = state.copyWith(
-            jpnEspWords: [...state.jpnEspWords, ...data.wordList],
-            simpleMeanings: {...state.simpleMeanings, ...newSimpleMeanings},
-            isLoading: false,
-          );
-        }
-      },
-      failure: (error) {
-        _logger.warning('和西検索に失敗しました', error);
-        state = state.copyWith(
-          isLoading: false,
-          errorMessage: error.message,
-        );
-      },
-    );
-  }
-
-  /// 活用形検索
-  Future<void> _searchConjugacion(String word,
-      {required int size, required int page}) async {
-    final input = SearchConjugacionInputData(word, size, page);
-    final result = await _searchWordUseCase.executeConjugacion(input);
-
-    result.when(
-      success: (data) {
-        AppLogger.print("##############conjlength:${data.wordList.length}");
-        state = state.copyWith(
-          conjugacions: data.wordList,
-          rankingNos: {...state.rankingNos, ...data.rankingNos},
-          simpleMeanings: {...state.simpleMeanings, ...data.simpleMeanings},
-          starCounts: {...state.starCounts, ...data.starCounts},
-        );
-      },
-      failure: (error) {
-        _logger.warning('活用形検索に失敗しました', error);
-        // 活用形検索は失敗しても他の検索結果は表示する
-      },
-    );
-  }
+class QuizlessResult {
+  const QuizlessResult(this.value, this.warnings);
+  final SearchResults value;
+  final List<QueryWarning> warnings;
+  factory QuizlessResult.esp(SearchWordOutputData output) => QuizlessResult(
+      SearchResults(
+          espJpnWords: output.wordList,
+          rankingNos: output.rankingNos,
+          simpleMeanings: output.simpleMeanings,
+          starCounts: output.starCounts),
+      output.warnings
+          .map((w) => QueryWarning(source: w.source, error: w.error))
+          .toList());
+  factory QuizlessResult.jpn(SearchJpnEspWordOutputData output) =>
+      QuizlessResult(
+          SearchResults(
+              jpnEspWords: output.wordList,
+              rankingNos: output.rankingNos,
+              simpleMeanings: output.simpleMeanings,
+              starCounts: output.starCounts),
+          output.warnings
+              .map((w) => QueryWarning(source: w.source, error: w.error))
+              .toList());
+  QuizlessResult withConjugation(SearchConjugacionOutputData output) =>
+      QuizlessResult(
+          SearchResults(
+              espJpnWords: value.espJpnWords,
+              conjugacions: output.wordList,
+              rankingNos: {
+                ...value.rankingNos,
+                ...output.rankingNos
+              },
+              simpleMeanings: {
+                ...value.simpleMeanings,
+                ...output.simpleMeanings
+              },
+              starCounts: {
+                ...value.starCounts,
+                ...output.starCounts
+              }),
+          warnings);
 }

@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/application/auth_lifecycle/auth_lifecycle_controller.dart';
 import 'package:my_dic/core/application/auth_lifecycle/auth_lifecycle_provider.dart';
 import 'package:my_dic/core/application/auth_lifecycle/auth_lifecycle_state.dart';
+import 'package:my_dic/core/presentation/error/app_error_message.dart';
+import 'package:my_dic/core/presentation/state/ui_effect.dart';
 import 'package:my_dic/features/auth/di/view_model_di.dart';
+import 'package:my_dic/features/auth/presentation/ui_model/sign_in_model.dart';
 
 class EmailPasswordPage extends ConsumerStatefulWidget {
   const EmailPasswordPage({super.key});
@@ -16,12 +19,32 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
   final emailCtrl = TextEditingController();
   final passCtrl = TextEditingController();
   String? _localMessage;
+  ProviderSubscription<SignInUIState>? _commandSubscription;
 
   @override
   void dispose() {
+    _commandSubscription?.close();
     emailCtrl.dispose();
     passCtrl.dispose();
     super.dispose();
+  }
+
+  void _handleEffect(SignInUIState next) {
+    final envelope = next.pendingEffect;
+    if (envelope == null) return;
+    if (mounted && envelope.effect is UiNoticeEffect) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text((envelope.effect as UiNoticeEffect).message)),
+      );
+    }
+    ref.read(signInViewModelProvider.notifier).consumeEffect(envelope.id);
+  }
+
+  void _ensureCommandListener() {
+    _commandSubscription ??= ref.listenManual(
+      signInViewModelProvider,
+      (_, next) => _handleEffect(next),
+    );
   }
 
   @override
@@ -72,7 +95,10 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
     AuthLifecycleState lifecycle,
     AuthLifecycleController controller,
   ) {
-    final message = _localMessage ?? lifecycle.error?.message;
+    final message = _localMessage ??
+        (lifecycle.error == null
+            ? null
+            : AppErrorMessage.from(lifecycle.error!).text);
     return Column(
       children: [
         TextField(
@@ -113,16 +139,16 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
         ),
         const SizedBox(height: 16),
         TextButton(
-          onPressed: () async {
+          onPressed: () {
             final email = emailCtrl.text.trim();
             if (email.isEmpty) {
               setState(() => _localMessage = 'メールを入力してください');
               return;
             }
-            final message = await ref
+            _ensureCommandListener();
+            ref
                 .read(signInViewModelProvider.notifier)
                 .resetEmailPassword(email);
-            if (mounted) setState(() => _localMessage = message);
           },
           child: const Text('Forgot password?'),
         ),
@@ -162,7 +188,7 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
         if (lifecycle.error != null) ...[
           const SizedBox(height: 16),
           Text(
-            lifecycle.error!.message,
+            AppErrorMessage.from(lifecycle.error!).text,
             textAlign: TextAlign.center,
             style: TextStyle(color: Theme.of(context).colorScheme.error),
           ),
@@ -200,7 +226,7 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
         if (lifecycle.error != null) ...[
           const SizedBox(height: 8),
           Text(
-            lifecycle.error!.message,
+            AppErrorMessage.from(lifecycle.error!).text,
             textAlign: TextAlign.center,
             style: TextStyle(color: Theme.of(context).colorScheme.error),
           ),

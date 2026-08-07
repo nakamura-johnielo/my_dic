@@ -8,6 +8,8 @@ import 'package:my_dic/core/shared/consts/ui/ui2.dart';
 import 'package:my_dic/core/domain/entity/jpn_esp/jpn_esp_dictionary.dart';
 import 'package:my_dic/features/word_page/di/view_model_di.dart';
 import 'package:my_dic/features/word_page/presentation/view/html_style_kotobank.dart';
+import 'package:my_dic/core/presentation/error/app_error_message.dart';
+import 'package:my_dic/core/presentation/state/query_state.dart';
 
 class JpnEspDictionaryFragmentInputData {
   final int wordId;
@@ -24,14 +26,11 @@ class JpnEspDictionaryFragment extends ConsumerWidget {
 
     final viewModel = ref.watch(wordPageViewModelProvider(wordId));
 
-    final List<JpnEspDictionary>? dictionaries = viewModel.jpnEspDictionary;
+    final dictionaryState = viewModel.jpnEspDictionary;
+    final List<JpnEspDictionary>? dictionaries = dictionaryState.dataOrNull;
 
     return dictionaries == null
-        ? (Center(
-            child: Text(
-            'No data available',
-            style: TextStyle(fontSize: 24),
-          )))
+        ? _DictionaryReadState(state: dictionaryState)
         : (SingleChildScrollView(
             child: Container(
             margin: const EdgeInsets.only(
@@ -55,6 +54,22 @@ class JpnEspDictionaryFragment extends ConsumerWidget {
             ),
           )));
   }
+}
+
+class _DictionaryReadState extends StatelessWidget {
+  const _DictionaryReadState({required this.state});
+  final QueryState<List<JpnEspDictionary>> state;
+
+  @override
+  Widget build(BuildContext context) => Center(
+        child: switch (state) {
+          QueryLoading() => const CircularProgressIndicator(),
+          QueryFailure(error: final error) =>
+            Text(AppErrorMessage.from(error).text),
+          QueryEmpty() => const Text('No data available'),
+          _ => const SizedBox.shrink(),
+        },
+      );
 }
 
 class DicSection extends StatelessWidget {

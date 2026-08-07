@@ -58,6 +58,12 @@ class _MyWordStatusViewModel implements status_ui.WordStatusViewModel {
   bool get hasNote => false;
 
   @override
+  bool get isLoading => _delegate.isLoading;
+
+  @override
+  String? get readError => _delegate.readError;
+
+  @override
   bool get isBookmarked => _delegate.isBookmarked;
 
   @override

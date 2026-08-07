@@ -4,9 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/app/session/app_session.dart';
 import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/core/presentation/components/icons/rotating_icon.dart';
-import 'package:my_dic/core/shared/enums/ui/button_status.dart';
+import 'package:my_dic/core/presentation/error/app_error_message.dart';
+import 'package:my_dic/core/presentation/state/ui_effect.dart';
 import 'package:my_dic/features/user/di/viewmodel.dart';
-import 'package:my_dic/router/navigator_service.dart';
+import 'package:my_dic/features/user/presentation/model/user_profile_ui_model.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key, required this.uid});
@@ -18,39 +19,45 @@ class ProfilePage extends ConsumerStatefulWidget {
 
 class _ProfilePageState extends ConsumerState<ProfilePage> {
   final _nameCtrl = TextEditingController();
-  bool _saving = false;
-  String? _msg;
+  late final ProviderSubscription<UserProfileUIState> _commandSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _commandSubscription = ref.listenManual(
+      userProfileViewModelProvider,
+      (_, next) => _handleEffect(next),
+    );
+  }
 
   @override
   void dispose() {
+    _commandSubscription.close();
     _nameCtrl.dispose();
     super.dispose();
   }
 
-  Future<void> _save() async {
-    final name = _nameCtrl.text.trim();
-    setState(() {
-      _saving = true;
-      _msg = null;
-    });
-
-    await ref.read(userProfileViewModelProvider.notifier).save(username: name);
-
-    final message = ref.read(userProfileViewModelProvider).errorMessage;
-
-    if (mounted) {
-      setState(() {
-        _msg = message;
-        _saving = false;
-      });
+  void _handleEffect(UserProfileUIState next) {
+    final envelope = next.pendingEffect;
+    if (envelope == null) return;
+    if (mounted && envelope.effect is UiNoticeEffect) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text((envelope.effect as UiNoticeEffect).message)),
+      );
     }
+    ref.read(userProfileViewModelProvider.notifier).consumeEffect(envelope.id);
+  }
+
+  void _save() {
+    final name = _nameCtrl.text.trim();
+    ref.read(userProfileViewModelProvider.notifier).save(username: name);
   }
 
   @override
   Widget build(BuildContext context) {
     final session = ref.watch(appSessionProvider);
-    final vmNotifier = ref.read(userProfileViewModelProvider.notifier);
     final viewModel = ref.watch(userProfileViewModelProvider);
+    final isSubmitting = viewModel.command.isSubmitting;
     final ready = session is AppSessionReady ? session : null;
     final user = ready?.profile;
 
@@ -64,18 +71,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           actions: [
             IconButton(
               icon: const Icon(Icons.logout),
-              onPressed: () async {
-                await vmNotifier.signOut();
-                if (!mounted) return;
-                ref.read(appNavigatorServiceProvider).toProfile();
-              },
+              onPressed: isSubmitting
+                  ? null
+                  : () =>
+                      ref.read(userProfileViewModelProvider.notifier).signOut(),
             )
           ],
         ),
         body: session is AppSessionLoadingProfile
             ? const Center(child: CircularProgressIndicator())
             : session is AppSessionFailure
-                ? Center(child: Text(session.error.message))
+                ? Center(child: Text(AppErrorMessage.from(session.error).text))
                 : user == null
                     ? const Center(child: Text('No user data available.'))
                     : Padding(
@@ -99,17 +105,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                               ),
                             ),
                             const SizedBox(height: 12),
-                            if (_msg != null)
-                              Text(_msg!,
-                                  style: const TextStyle(color: Colors.red)),
                             const Spacer(),
                             FilledButton.icon(
-                              onPressed: _saving ? null : _save,
-                              icon: viewModel.savingButtonStatus ==
-                                      ButtonStatus.waiting
+                              onPressed: isSubmitting ? null : _save,
+                              icon: isSubmitting
                                   ? RotatingIcon(icon: Icons.refresh)
                                   : const Icon(Icons.save),
-                              label: _saving
+                              label: isSubmitting
                                   ? const Text('Saving...')
                                   : const Text('Save'),
                             ),

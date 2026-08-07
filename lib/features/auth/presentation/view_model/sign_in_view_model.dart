@@ -1,81 +1,78 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/core/shared/enums/ui/button_status.dart';
-import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/core/shared/utils/logger.dart';
+import 'package:my_dic/core/presentation/error/app_error_message.dart';
+import 'package:my_dic/core/presentation/state/command_state.dart';
+import 'package:my_dic/core/presentation/state/ui_effect.dart';
+import 'package:my_dic/core/shared/errors/app_error.dart';
 import 'package:my_dic/features/auth/auth_coordinator.dart';
 import 'package:my_dic/features/auth/presentation/ui_model/sign_in_model.dart';
 
-class SignInViewModel extends StateNotifier<SignInUIState> {
+class SignInViewModel extends StateNotifier<SignInUIState>
+    implements UiEffectConsumer {
+  SignInViewModel(this._authCoordinator) : super(const SignInUIState());
+
   final AppAuthCoordinator _authCoordinator;
+  int _effectSequence = 0;
 
-  SignInViewModel(this._authCoordinator) : super(SignInUIState());
+  @override
+  UiEffectEnvelope<UiEffect>? get pendingEffect => state.pendingEffect;
 
-  Future<String> signOut() async {
-    state = state.copyWith(isWaitingSignOut: ButtonStatus.waiting);
+  @override
+  void consumeEffect(String id) {
+    if (shouldConsumeEffect(pendingEffect: state.pendingEffect, id: id)) {
+      state = state.copyWith(clearEffect: true);
+    }
+  }
 
-    final result = await _authCoordinator.signOut();
+  bool get isSubmitting => state.command.isSubmitting;
 
-    return result.when(
-      success: (_) {
-        state = state.copyWith(isWaitingSignOut: ButtonStatus.success);
+  Future<void> resetEmailPassword(String email) => _run(
+        operation: 'resetPassword',
+        action: () => _authCoordinator.resetEmailPassword(email),
+        successMessage: 'Password reset email sent.',
+      );
 
-        return 'ログアウトしました';
-      },
-      failure: (error) {
-        state = state.copyWith(isWaitingSignOut: ButtonStatus.error);
-        return 'ログアウトに失敗しました: ${error.message}';
-      },
+  // Retained for callers outside the lifecycle-driven email/password screen.
+  Future<void> signIn(String email, String password) => _run(
+        operation: 'signIn',
+        action: () => _authCoordinator.signIn(email, password),
+        successMessage: 'Signed in.',
+      );
+
+  Future<void> signUp(String email, String password) => _run(
+        operation: 'signUp',
+        action: () => _authCoordinator.signUp(email, password),
+        successMessage: 'Account created.',
+      );
+
+  Future<void> signOut() => _run(
+        operation: 'signOut',
+        action: _authCoordinator.signOut,
+        successMessage: 'Signed out.',
+      );
+
+  Future<void> _run({
+    required String operation,
+    required Future<dynamic> Function() action,
+    required String successMessage,
+  }) async {
+    if (isSubmitting) return;
+    state = state.copyWith(command: CommandState.submitting(operation));
+    final result = await action();
+    result.when(
+      success: (_) => state = SignInUIState(
+        command: CommandState.succeeded(operation),
+        pendingEffect: _notice(operation, successMessage),
+      ),
+      failure: (AppError error) => state = SignInUIState(
+        command: CommandState.failed(operation, error),
+        pendingEffect: _notice(operation, AppErrorMessage.from(error).text),
+      ),
     );
   }
 
-  Future<String> resetEmailPassword(String email) async {
-    state = state.copyWith(isWaitingResetPassword: ButtonStatus.waiting);
-    final result = await _authCoordinator.resetEmailPassword(email);
-    return result.when(
-      success: (_) {
-        state = state.copyWith(isWaitingResetPassword: ButtonStatus.success);
-        return 'リセット用メールを送信しました';
-      },
-      failure: (error) {
-        state = state.copyWith(isWaitingResetPassword: ButtonStatus.error);
-        return '送信に失敗しました: ${error.message}';
-      },
-    );
-  }
-
-  Future<String> signIn(String email, String password) async {
-    state = state.copyWith(isWaitingSignIn: ButtonStatus.waiting);
-    final result = await _authCoordinator.signIn(email, password);
-
-    return result.when(
-      success: (appAuth) async {
-        AppLogger.print("**********signin success**********");
-        state = state.copyWith(isWaitingSignIn: ButtonStatus.success);
-        return 'ログインに成功しました';
-      },
-      failure: (error) async {
-        state = state.copyWith(isWaitingSignIn: ButtonStatus.error);
-
-        return error.message;
-      },
-    );
-  }
-
-  Future<String> signUp(String email, String password) async {
-    state = state.copyWith(isWaitingSignUp: ButtonStatus.waiting);
-    final result = await _authCoordinator.signUp(email, password);
-
-    return result.when(
-      success: (appAuth) async {
-        AppLogger.print("##########################signUP success");
-        state = state.copyWith(isWaitingSignUp: ButtonStatus.success);
-
-        return 'アカウント作成に成功しました';
-      },
-      failure: (error) {
-        state = state.copyWith(isWaitingSignUp: ButtonStatus.error);
-        return error.message;
-      },
-    );
-  }
+  UiEffectEnvelope<UiEffect> _notice(String operation, String message) =>
+      UiEffectEnvelope(
+        id: '$operation-${++_effectSequence}',
+        effect: UiNoticeEffect(message),
+      );
 }

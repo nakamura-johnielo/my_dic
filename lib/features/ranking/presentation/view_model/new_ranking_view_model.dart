@@ -13,6 +13,8 @@ import 'package:logging/logging.dart';
 import 'package:my_dic/app/routing/contracts/word_detail_route.dart';
 import 'package:my_dic/router/navigator_service.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
+import 'package:my_dic/core/presentation/state/query_state.dart';
+import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 
 class RankingViewModel extends StateNotifier<RankingState> {
   RankingViewModel(this._loadRankingsUseCase, this._updateRankingFilterUseCase,
@@ -34,11 +36,17 @@ class RankingViewModel extends StateNotifier<RankingState> {
     _naviService.toWordDetail(route);
   }
 
+  Future<bool> retry() => loadNextPage(state.currentPageRange[1] + 1);
+
   //TODO currentPage List<int> -> int
   Future<bool> loadNextPage(int nextPage) async {
     AppLogger.print("loadnext on VM, pageRange: ${state.currentPageRange}");
     AppLogger.print("loadnext on VM, nextpage: $nextPage");
 
+    final previous = state.rankings.dataOrNull;
+    state = state.copyWith(
+      rankings: QueryState.loading(previousData: previous),
+    );
     try {
       const pageSize = _pageSize + 1;
       final input = LoadRankingsInputData(
@@ -59,11 +67,14 @@ class RankingViewModel extends StateNotifier<RankingState> {
           final hasNext = output.length == pageSize;
           final visibleItems = hasNext ? output.take(_pageSize) : output;
 
+          final value =
+              (previous ?? const RankingResults([])).append(visibleItems);
           state = state.copyWith(
-            items: [...state.items, ...visibleItems],
+            rankings: value.items.isEmpty
+                ? QueryState.empty()
+                : QueryState.data(value),
             currentPageRange: [state.currentPageRange[0], nextPage],
             hasNext: hasNext,
-            isLoadingNext: false,
           );
 
           return hasNext;
@@ -71,13 +82,20 @@ class RankingViewModel extends StateNotifier<RankingState> {
         failure: (error) {
           AppLogger.print("==================- ranking items:FAILURE");
           _logger.warning('ランキングの読み込みに失敗しました', error);
-          state = state.copyWith(isLoadingNext: false);
+          state = state.copyWith(
+            rankings: QueryState.failure(error, previousData: previous),
+          );
           return false;
         },
       );
-    } catch (_) {
-      state = state.copyWith(isLoadingNext: false);
-      rethrow;
+    } catch (error) {
+      state = state.copyWith(
+        rankings: QueryState.failure(
+          UnexpectedError(message: error.toString()),
+          previousData: previous,
+        ),
+      );
+      return false;
     }
   }
 
@@ -152,10 +170,16 @@ class RankingViewModel extends StateNotifier<RankingState> {
 
   void _resetPage(RankingState? currentState) {
     if (currentState == null) {
-      state = state.copyWith(currentPageRange: [-1, -1], items: []);
+      state = state.copyWith(
+        currentPageRange: [-1, -1],
+        rankings: const QueryState.initial(),
+      );
       return;
     }
-    state = currentState.copyWith(currentPageRange: [-1, -1], items: []);
+    state = currentState.copyWith(
+      currentPageRange: [-1, -1],
+      rankings: const QueryState.initial(),
+    );
   }
 
   ///============================================

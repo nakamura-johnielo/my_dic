@@ -1,33 +1,40 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/features/my_word/domain/entity/my_word_status.dart';
+import 'package:my_dic/core/presentation/state/query_state.dart';
+import 'package:my_dic/core/shared/errors/app_error.dart';
+import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 
 class MyWordStatusState {
-  final bool isLearned;
-  final bool isBookmarked;
+  final QueryState<MyWordStatus> status;
 
-  MyWordStatusState({
-    this.isLearned = false,
-    this.isBookmarked = false,
-  });
+  const MyWordStatusState({required this.status});
+
+  bool get isLearned => status.dataOrNull?.isLearned ?? false;
+  bool get isBookmarked => status.dataOrNull?.isBookmarked ?? false;
 
   MyWordStatusState copyWith({
-    bool? isLearned,
-    bool? isBookmarked,
+    QueryState<MyWordStatus>? status,
   }) {
     return MyWordStatusState(
-      isLearned: isLearned ?? this.isLearned,
-      isBookmarked: isBookmarked ?? this.isBookmarked,
+      status: status ?? this.status,
     );
   }
 
   factory MyWordStatusState.fromAsync(AsyncValue<MyWordStatus> async) {
     return async.when(
-      data: (status) => MyWordStatusState(
-        isLearned: status.isLearned,
-        isBookmarked: status.isBookmarked,
+      data: (status) => MyWordStatusState(status: QueryState.data(status)),
+      loading: () => MyWordStatusState(
+        status: QueryState.loading(previousData: async.valueOrNull),
       ),
-      loading: () => MyWordStatusState(),
-      error: (_, __) => MyWordStatusState(),
+      error: (error, _) => MyWordStatusState(
+        status: QueryState.failure(_asAppError(error),
+            previousData: async.valueOrNull),
+      ),
     );
   }
 }
+
+AppError _asAppError(Object error) => error is AppError
+    ? error
+    : UnexpectedError(
+        message: 'Unable to load word status.', originalError: error);

@@ -30,7 +30,8 @@ class SearchWordInteractor implements ISearchWordUseCase {
           return Result.success(SearchWordOutputData(words,
               rankingNos: records.rankingNos,
               simpleMeanings: records.simpleMeanings,
-              starCounts: records.starCounts));
+              starCounts: records.starCounts,
+              warnings: records.warnings));
         },
         failure: Result.failure);
   }
@@ -47,7 +48,8 @@ class SearchWordInteractor implements ISearchWordUseCase {
           return Result.success(SearchQuizOutputData(items,
               rankingNos: records.rankingNos,
               simpleMeanings: records.simpleMeanings,
-              starCounts: records.starCounts));
+              starCounts: records.starCounts,
+              warnings: records.warnings));
         },
         failure: Result.failure);
   }
@@ -72,7 +74,8 @@ class SearchWordInteractor implements ISearchWordUseCase {
           return Result.success(SearchJpnEspWordOutputData(words,
               rankingNos: records.rankingNos,
               simpleMeanings: records.simpleMeanings,
-              starCounts: records.starCounts));
+              starCounts: records.starCounts,
+              warnings: records.warnings));
         },
         failure: Result.failure);
   }
@@ -93,7 +96,8 @@ class SearchWordInteractor implements ISearchWordUseCase {
           return Result.success(SearchConjugacionOutputData(items,
               rankingNos: records.rankingNos,
               simpleMeanings: records.simpleMeanings,
-              starCounts: records.starCounts));
+              starCounts: records.starCounts,
+              warnings: records.warnings));
         },
         failure: Result.failure);
   }
@@ -114,17 +118,40 @@ class SearchWordInteractor implements ISearchWordUseCase {
     final rankingResult = await ranking;
     final meaningResult = await meaning;
     final starsResult = await stars;
-    return _OutputRecords(
-      rankingResult.when(success: (data) => data, failure: (_) => const {}),
-      meaningResult.when(success: (data) => data, failure: (_) => const {}),
-      starsResult.when(success: (data) => data, failure: (_) => const {}),
+    final warnings = <SearchSupplementaryFailure>[];
+    final rankingNos = rankingResult.when(
+      success: (data) => data,
+      failure: (error) {
+        warnings
+            .add(SearchSupplementaryFailure(source: 'ranking', error: error));
+        return const <int, int>{};
+      },
     );
+    final simpleMeanings = meaningResult.when(
+      success: (data) => data,
+      failure: (error) {
+        warnings
+            .add(SearchSupplementaryFailure(source: 'meaning', error: error));
+        return const <int, String>{};
+      },
+    );
+    final starCounts = starsResult.when(
+      success: (data) => data,
+      failure: (error) {
+        warnings
+            .add(SearchSupplementaryFailure(source: 'starCount', error: error));
+        return const <int, int>{};
+      },
+    );
+    return _OutputRecords(rankingNos, simpleMeanings, starCounts, warnings);
   }
 }
 
 class _OutputRecords {
-  const _OutputRecords(this.rankingNos, this.simpleMeanings, this.starCounts);
+  const _OutputRecords(
+      this.rankingNos, this.simpleMeanings, this.starCounts, this.warnings);
   final Map<int, int> rankingNos;
   final Map<int, String> simpleMeanings;
   final Map<int, int> starCounts;
+  final List<SearchSupplementaryFailure> warnings;
 }

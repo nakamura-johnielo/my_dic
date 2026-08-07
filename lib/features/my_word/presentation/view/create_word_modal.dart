@@ -1,10 +1,8 @@
-import 'package:my_dic/core/shared/utils/logger.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:my_dic/features/my_word/di/view_model_di.dart';
-import 'package:my_dic/features/my_word/presentation/view_model/my_word_view_model.dart';
+import 'package:my_dic/features/my_word/presentation/ui_model/my_word_event.dart';
+import 'package:my_dic/core/presentation/state/ui_effect.dart';
 
 class WordRegistrationModal extends ConsumerStatefulWidget {
   const WordRegistrationModal({super.key, this.onRegistered});
@@ -17,206 +15,98 @@ class WordRegistrationModal extends ConsumerStatefulWidget {
 }
 
 class _WordRegistrationModalState extends ConsumerState<WordRegistrationModal> {
-  final headwordTextFieldController = TextEditingController();
-  final descriptionTextFieldController = TextEditingController();
-  late final MyWordFragmentViewModel controller;
+  final _headwordController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  late final ProviderSubscription<MyWordCommandState> _commandSubscription;
 
   @override
   void initState() {
     super.initState();
-    controller = ref.read(myWordFragmentViewModelProvider.notifier);
+    _commandSubscription = ref.listenManual(
+      myWordRegistrationCommandProvider,
+      (_, next) => _handleEffect(next),
+    );
   }
 
   @override
   void dispose() {
-    headwordTextFieldController.dispose();
-    descriptionTextFieldController.dispose();
+    _commandSubscription.close();
+    _headwordController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final Color bg = Theme.of(context).colorScheme.surfaceContainer;
-    return FractionallySizedBox(
-      heightFactor: 0.9,
-      widthFactor: 0.8,
-      child: Container(
-        margin: EdgeInsets.all(0),
-        padding: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 20),
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(10),
-            topRight: Radius.circular(10),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'My Word 登録',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Expanded(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextField(
-                      autofocus: true,
-                      controller: headwordTextFieldController,
-                      decoration: InputDecoration(
-                        labelText: '見出し語',
-                        hintText: '単語・フレーズを入力',
-                      ),
-                    ),
-                    SizedBox(
-                      height: 26,
-                    ),
-                    TextField(
-                      minLines: 3,
-                      maxLines: null,
-                      controller: descriptionTextFieldController,
-                      decoration: InputDecoration(
-                        hintText: 'なにかしらの意味',
-                        labelText: 'メモ',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 56,
-                    ),
-                    Row(
-                      children: [
-                        SizedBox(width: 20),
-                        Expanded(
-                            child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          child: FilledButton(
-                            style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(vertical: 20),
-                              elevation: 0,
-                            ),
-                            onPressed: () {
-                              controller.registerWord(
-                                  headword: headwordTextFieldController.text,
-                                  description:
-                                      descriptionTextFieldController.text,
-                                  onComplete: () {
-                                    //モーダル閉じる
-                                    widget.onRegistered?.call();
-                                    Navigator.of(context).pop();
-                                  },
-                                  onError: () {},
-                                  onInvalid: () {
-                                    AppLogger.print("invalid input");
-                                  });
-                            },
-                            child: const Text('登録'),
-                          ),
-                        )),
-                        SizedBox(width: 20),
-                      ],
-                    ),
-                  ]),
-            )
-          ],
-        ),
-      ),
-    );
+  void _handleEffect(MyWordCommandState next) {
+    final envelope = next.pendingEffect;
+    if (envelope == null || !mounted) return;
+    final command = ref.read(myWordRegistrationCommandProvider.notifier);
+    if (envelope.effect is UiCloseDialogEffect &&
+        next.command.operation == 'register') {
+      widget.onRegistered?.call();
+      Navigator.of(context).pop();
+    } else if (envelope.effect is UiNoticeEffect) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text((envelope.effect as UiNoticeEffect).message)),
+      );
+    }
+    command.consumeEffect(envelope.id);
   }
-}
 
-void showToast(String message) {
-  Fluttertoast.showToast(
-    msg: message,
-    toastLength: Toast.LENGTH_SHORT, // 表示時間: SHORT or LONG
-    gravity: ToastGravity.BOTTOM, // 位置: BOTTOM, CENTER, TOP
-
-    fontSize: 16.0, // フォントサイズ
-  );
-}
-
-//===================================================
-class CreateWordModal2 extends StatelessWidget {
-  CreateWordModal2({super.key});
-
-  final textEditingController = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    final commandState = ref.watch(myWordRegistrationCommandProvider);
     return FractionallySizedBox(
-      heightFactor: 0.98,
-      widthFactor: 0.96,
-      child: Container(
-        margin: EdgeInsets.all(0),
-        padding: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(10),
-            topRight: Radius.circular(10),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'My Word 登録',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Expanded(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "見出し語:",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(
-                      height: 6,
-                    ),
-                    TextField(
-                      autofocus: true,
-                      controller: textEditingController,
-                      decoration: InputDecoration(
-                        hintText: '単語・フレーズを入力',
-                      ),
-                    ),
-                    SizedBox(
-                      height: 56,
-                    ),
-                    Row(
-                      children: [
-                        SizedBox(width: 20),
-                        Expanded(
-                            child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(vertical: 20),
-                              elevation: 0,
-                              foregroundColor:
-                                  const Color.fromARGB(255, 255, 255, 255),
-                              backgroundColor:
-                                  const Color.fromARGB(255, 44, 110, 215),
-                            ),
-                            onPressed: () {
-                              AppLogger.print(textEditingController.text);
-                            },
-                            child: const Text('登録'),
+      heightFactor: .9,
+      widthFactor: .8,
+      child: Material(
+        color: Theme.of(context).colorScheme.surfaceContainer,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Register My Word',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 20),
+              TextField(
+                autofocus: true,
+                controller: _headwordController,
+                decoration: const InputDecoration(labelText: 'Headword'),
+              ),
+              const SizedBox(height: 26),
+              TextField(
+                minLines: 3,
+                maxLines: null,
+                controller: _descriptionController,
+                decoration: const InputDecoration(
+                  labelText: 'Description',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const Spacer(),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: commandState.command.isSubmitting
+                      ? null
+                      : () => ref
+                          .read(myWordRegistrationCommandProvider.notifier)
+                          .registerWord(
+                            headword: _headwordController.text,
+                            description: _descriptionController.text,
                           ),
-                        )),
-                        SizedBox(width: 20),
-                      ],
-                    )
-                  ]),
-            )
-          ],
+                  child: commandState.command.isSubmitting
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(),
+                        )
+                      : const Text('Register'),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

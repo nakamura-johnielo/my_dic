@@ -6,6 +6,10 @@ import 'package:my_dic/features/esp_jpn_word_status/application/update_status_us
 import 'package:my_dic/features/jpn_esp_word_status/domain/jpn_esp_word_status.dart';
 import 'package:my_dic/features/jpn_esp_word_status/application/update_jpn_esp_status_usecase.dart';
 import 'package:my_dic/features/word_status/presentation/status_button.dart';
+import 'package:my_dic/core/presentation/state/query_state.dart';
+import 'package:my_dic/core/presentation/error/app_error_message.dart';
+import 'package:my_dic/core/shared/errors/app_error.dart';
+import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 
 sealed class WordStatusCommandEvent {
   const WordStatusCommandEvent();
@@ -37,44 +41,50 @@ class ToggleNoteFailed extends WordStatusCommandEvent {
 
 class WordStatusState {
   const WordStatusState({
-    this.isLearned = false,
-    this.isBookmarked = false,
-    this.hasNote = false,
+    required this.status,
   });
-  final bool isLearned;
-  final bool isBookmarked;
-  final bool hasNote;
+  final QueryState<WordStatus> status;
+  bool get isLearned => status.dataOrNull?.isLearned ?? false;
+  bool get isBookmarked => status.dataOrNull?.isBookmarked ?? false;
+  bool get hasNote => status.dataOrNull?.hasNote ?? false;
   factory WordStatusState.fromAsync(AsyncValue<WordStatus> value) => value.when(
-        data: (status) => WordStatusState(
-          isLearned: status.isLearned,
-          isBookmarked: status.isBookmarked,
-          hasNote: status.hasNote,
+        data: (status) => WordStatusState(status: QueryState.data(status)),
+        loading: () => WordStatusState(
+          status: QueryState.loading(previousData: value.valueOrNull),
         ),
-        loading: WordStatusState.new,
-        error: (_, __) => const WordStatusState(),
+        error: (error, _) => WordStatusState(
+          status: QueryState.failure(_asAppError(error),
+              previousData: value.valueOrNull),
+        ),
       );
 }
 
 class JpnEspWordStatusState {
   const JpnEspWordStatusState({
-    this.isLearned = false,
-    this.isBookmarked = false,
-    this.hasNote = false,
+    required this.status,
   });
-  final bool isLearned;
-  final bool isBookmarked;
-  final bool hasNote;
+  final QueryState<JpnEspWordStatus> status;
+  bool get isLearned => status.dataOrNull?.isLearned ?? false;
+  bool get isBookmarked => status.dataOrNull?.isBookmarked ?? false;
+  bool get hasNote => status.dataOrNull?.hasNote ?? false;
   factory JpnEspWordStatusState.fromAsync(AsyncValue<JpnEspWordStatus> value) =>
       value.when(
-        data: (status) => JpnEspWordStatusState(
-          isLearned: status.isLearned,
-          isBookmarked: status.isBookmarked,
-          hasNote: status.hasNote,
+        data: (status) =>
+            JpnEspWordStatusState(status: QueryState.data(status)),
+        loading: () => JpnEspWordStatusState(
+          status: QueryState.loading(previousData: value.valueOrNull),
         ),
-        loading: JpnEspWordStatusState.new,
-        error: (_, __) => const JpnEspWordStatusState(),
+        error: (error, _) => JpnEspWordStatusState(
+          status: QueryState.failure(_asAppError(error),
+              previousData: value.valueOrNull),
+        ),
       );
 }
+
+AppError _asAppError(Object error) => error is AppError
+    ? error
+    : UnexpectedError(
+        message: 'Unable to load word status.', originalError: error);
 
 class EspJpnWordStatusCommand extends StateNotifier<WordStatusCommandEvent?> {
   EspJpnWordStatusCommand(this._wordId, this._useCase) : super(null);
@@ -161,6 +171,13 @@ class EspJpnWordStatusViewModel implements WordStatusViewModel {
   @override
   bool get hasNote => _state.hasNote;
   @override
+  bool get isLoading => _state.status.isInitialLoading;
+  @override
+  String? get readError => switch (_state.status) {
+        QueryFailure(error: final error) => AppErrorMessage.from(error).text,
+        _ => null,
+      };
+  @override
   Future<void> toggleLearned() => _command.toggleLearned(isLearned);
   @override
   Future<void> toggleBookmark() => _command.toggleBookmark(isBookmarked);
@@ -178,6 +195,13 @@ class JpnEspWordStatusViewModel implements WordStatusViewModel {
   bool get isBookmarked => _state.isBookmarked;
   @override
   bool get hasNote => _state.hasNote;
+  @override
+  bool get isLoading => _state.status.isInitialLoading;
+  @override
+  String? get readError => switch (_state.status) {
+        QueryFailure(error: final error) => AppErrorMessage.from(error).text,
+        _ => null,
+      };
   @override
   Future<void> toggleLearned() => _command.toggleLearned(isLearned);
   @override

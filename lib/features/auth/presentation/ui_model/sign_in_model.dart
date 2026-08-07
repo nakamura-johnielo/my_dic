@@ -1,35 +1,22 @@
-
-
-import 'package:my_dic/core/shared/enums/ui/button_status.dart';
+import 'package:my_dic/core/presentation/state/command_state.dart';
+import 'package:my_dic/core/presentation/state/ui_effect.dart';
 
 class SignInUIState {
-  final ButtonStatus isWaitingSignIn;
-  final ButtonStatus isWaitingSignOut;
-  final ButtonStatus isWaitingSignUp;
-  final ButtonStatus isWaitingResetPassword;
-  final ButtonStatus isWaitingVerifyEmail;
+  const SignInUIState({
+    this.command = const CommandState.idle(),
+    this.pendingEffect,
+  });
 
-  SignInUIState(
-      {this.isWaitingSignIn = ButtonStatus.normal,
-      this.isWaitingSignOut = ButtonStatus.normal,
-      this.isWaitingSignUp = ButtonStatus.normal,
-      this.isWaitingResetPassword = ButtonStatus.normal,
-      this.isWaitingVerifyEmail = ButtonStatus.normal, });
+  final CommandState command;
+  final UiEffectEnvelope<UiEffect>? pendingEffect;
 
   SignInUIState copyWith({
-    ButtonStatus? isWaitingSignIn,
-    ButtonStatus? isWaitingSignOut,
-    ButtonStatus? isWaitingSignUp,
-    ButtonStatus? isWaitingResetPassword,
-    ButtonStatus? isWaitingVerifyEmail,
-  }) {
-    return SignInUIState(
-      isWaitingSignIn: isWaitingSignIn ?? this.isWaitingSignIn,
-      isWaitingSignOut: isWaitingSignOut ?? this.isWaitingSignOut,
-      isWaitingSignUp: isWaitingSignUp ?? this.isWaitingSignUp,
-      isWaitingResetPassword:
-          isWaitingResetPassword ?? this.isWaitingResetPassword,
-      isWaitingVerifyEmail: isWaitingVerifyEmail ?? this.isWaitingVerifyEmail,
-    );
-  }
+    CommandState? command,
+    UiEffectEnvelope<UiEffect>? pendingEffect,
+    bool clearEffect = false,
+  }) =>
+      SignInUIState(
+        command: command ?? this.command,
+        pendingEffect: clearEffect ? null : pendingEffect ?? this.pendingEffect,
+      );
 }

@@ -1,241 +1,154 @@
 import 'dart:math';
-
-import 'package:my_dic/core/shared/enums/ui/word_status_type.dart';
-import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/core/presentation/components/auto_focus_text_field.dart';
 import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
-import 'package:my_dic/features/search/presentation/components/card/card_view.dart';
-import 'package:my_dic/core/shared/enums/word/word_type.dart';
-import 'package:my_dic/core/presentation/components/infinityscroll.dart';
-import 'package:my_dic/features/search/di/view_model_di.dart';
 import 'package:my_dic/app/routing/contracts/word_detail_route.dart';
+import 'package:my_dic/core/presentation/components/auto_focus_text_field.dart';
+import 'package:my_dic/core/presentation/components/infinityscroll.dart';
+import 'package:my_dic/core/presentation/error/app_error_message.dart';
+import 'package:my_dic/core/presentation/state/query_state.dart';
+import 'package:my_dic/core/shared/enums/ui/word_status_type.dart';
+import 'package:my_dic/core/shared/enums/word/word_type.dart';
+import 'package:my_dic/features/search/di/view_model_di.dart';
+import 'package:my_dic/features/search/presentation/components/card/card_view.dart';
+import 'package:my_dic/features/search/presentation/ui_model/search_ui_model.dart';
+import 'package:my_dic/features/search/presentation/view_model/viewmodel.dart';
 
 class SearchFragment extends ConsumerStatefulWidget {
   const SearchFragment({super.key});
-
   @override
   ConsumerState<SearchFragment> createState() => _SearchFragmentState();
 }
 
 class _SearchFragmentState extends ConsumerState<SearchFragment> {
-  final int _size = 30; //searchの1ページの取得件数
-  int _previousConjItemLength = 0;
-  int _previousEspJpnItemLength = 0;
-  int _previousJpnEspItemLength = 0;
-  late final InfinityScrollController _infinityScrollController;
-  final int initialPage = 0;
-
-  final int conjDisplayCount = 2;
-
+  static const _size = 30;
+  static const _conjCount = 2;
+  late final InfinityScrollController _scroll;
   @override
   void initState() {
     super.initState();
-    _infinityScrollController = InfinityScrollController();
+    _scroll = InfinityScrollController();
   }
 
-  Future<bool> _loadNextPage(int nextPage) async {
-    AppLogger.print("_loadNextPage: $nextPage");
-
-    final viewModel = ref.read(searchViewModelProvider.notifier);
-
-    _setCurrentItemLength();
-    await viewModel.loadSearchResults(
-      _size,
-      nextPage - 1,
-    );
-    final canFetch = _canFetch();
-    AppLogger.print("canfetch:$canFetch");
-    return canFetch;
+  Future<bool> _load(int nextPage) async {
+    final before = _count(ref.read(searchViewModelProvider).results.dataOrNull);
+    await ref
+        .read(searchViewModelProvider.notifier)
+        .loadSearchResults(_size, nextPage - 1);
+    return _count(ref.read(searchViewModelProvider).results.dataOrNull) >
+        before;
   }
 
-  void _resetPage() {
-    _infinityScrollController.reset();
-    setState(() {
-      _previousEspJpnItemLength = 0;
-      _previousConjItemLength = 0;
-      _previousJpnEspItemLength = 0;
-    });
-  }
-
-  void _setCurrentItemLength() {
-    final viewModel = ref.read(searchViewModelProvider);
-    _previousEspJpnItemLength = viewModel.espJpnWords.length;
-    _previousConjItemLength = viewModel.conjugacions.length;
-    _previousJpnEspItemLength = viewModel.jpnEspWords.length;
-  }
-
-  bool _canFetch() {
-    final viewModel = ref.read(searchViewModelProvider);
-    final currentEspJpnItemLength = viewModel.espJpnWords.length;
-    final currentConjItemLength = viewModel.conjugacions.length;
-    final currentJpnEspItemLength = viewModel.jpnEspWords.length;
-    AppLogger.print(
-        "EspJpn current:$currentEspJpnItemLength, pre:$_previousEspJpnItemLength");
-    return currentEspJpnItemLength > _previousEspJpnItemLength ||
-        currentConjItemLength > _previousConjItemLength ||
-        currentJpnEspItemLength > _previousJpnEspItemLength;
-  }
-
+  int _count(SearchResults? data) => data == null
+      ? 0
+      : data.espJpnWords.length +
+          data.jpnEspWords.length +
+          data.conjugacions.length;
   @override
   Widget build(BuildContext context) {
-    final viewModel = ref.watch(searchViewModelProvider);
-    final viewModelNotifier = ref.read(searchViewModelProvider.notifier);
-    AppLogger.print("0 Fragment in build");
-
+    final screen = ref.watch(searchViewModelProvider);
+    final notifier = ref.read(searchViewModelProvider.notifier);
     return Scaffold(
-      appBar: AppBar(
-        title: Text('search'),
-      ),
-      body: Column(
-        children: [
+        appBar: AppBar(title: const Text('search')),
+        body: Column(children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: AutoFocusTextField(
-              decoration: InputDecoration(
-                labelText: 'Search',
-                border: OutlineInputBorder(),
-              ),
-              onChanged: (value) {
-                viewModelNotifier.updateQuery(value);
-                viewModelNotifier.clearResults();
-                _resetPage();
-              },
-            ),
-          ),
-          Expanded(
-              child: viewModel.jpnEspWords.isNotEmpty
-                  //========JPN ESP====================================
-                  ? InfinityScrollListView(
-                      padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
-                      autoLoadFirstPage: true,
-                      initialPage: initialPage,
-                      controller: _infinityScrollController,
-                      itemCount: viewModel.jpnEspWords.length,
-                      itemBuilder: (context, index) {
-                        final jpnEspWord = viewModel.jpnEspWords[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 11),
-                          child: CardView(
-                            query: viewModel.query,
-                            wordId: jpnEspWord.id,
-                            rankingON: false,
-                            word: jpnEspWord.word,
-                            meaning: viewModel.simpleMeanings[jpnEspWord.id] ??
-                                '----',
-                            isBookmarked: false,
-                            isLearned: false,
-                            onTap: () {
-                              //TODO gorouter check
-                              viewModelNotifier.goToWordDetail(WordDetailRoute(
-                                  wordId: jpnEspWord.id,
-                                  wordType: WordType.jpnEsp,
-                                  hasConj: false));
-                            },
-                            wordStatusType: WordStatusType.jpnEspWord,
-                          ),
-                        );
-                      },
-                      onLoadMore: _loadNextPage,
-                    )
-                  //===========ESP JPN================================
-                  : InfinityScrollListView(
-                      padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
-                      autoLoadFirstPage: true,
-                      initialPage: initialPage,
-                      controller: _infinityScrollController,
-                      itemCount: ( //viewModel.conjugacions.length +
-                          min(conjDisplayCount, viewModel.conjugacions.length) +
-                              viewModel.espJpnWords.length),
-                      itemBuilder: (context, index) {
-                        final query = viewModel.query;
-                        //表示個数と実際に持っいる個数を比較
-                        final conjLength = min(
-                            conjDisplayCount, viewModel.conjugacions.length);
-
-                        //先にconj
-                        if (index < conjLength) {
-                          final conjugacion = viewModel.conjugacions[index];
-                          final meaning =
-                              viewModel.simpleMeanings[conjugacion.wordId] ??
-                                  '';
-                          final ranking =
-                              viewModel.rankingNos[conjugacion.wordId];
-                          final starCount =
-                              viewModel.starCounts[conjugacion.wordId];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 11),
-                            child: CardView(
-                              wordStatusType: WordStatusType.espJpnWord,
-                              goToQuiz: () => viewModelNotifier.goToQuiz(
-                                  QuizGameRoute(
-                                      wordId: conjugacion.wordId,
-                                      word: conjugacion.word)),
-                              wordId: conjugacion.wordId,
-                              word: conjugacion.word,
-                              query: query,
-                              conjugacions: conjugacion.matches,
-                              rankingON: true,
-                              ranking: ranking,
-                              starCount: starCount,
-                              meaning: meaning,
-                              isBookmarked: false,
-                              isLearned: false,
-                              onTap: () {
-                                //TODO gorouter check
-
-                                viewModelNotifier.goToWordDetail(
-                                    WordDetailRoute(
-                                        wordId: conjugacion.wordId,
-                                        wordType: WordType.espJpn,
-                                        hasConj: true));
-                              },
-                            ),
-                          );
-                        }
-                        index = index - conjLength; //conjLength;
-                        final espJpnWord = viewModel.espJpnWords[index];
-                        final meaning =
-                            viewModel.simpleMeanings[espJpnWord.wordId] ?? '';
-                        final ranking = viewModel.rankingNos[espJpnWord.wordId];
-                        final starCount =
-                            viewModel.starCounts[espJpnWord.wordId];
-
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 11),
-                          child: CardView(
-                            wordStatusType: WordStatusType.espJpnWord,
-                            goToQuiz: () => viewModelNotifier.goToQuiz(
-                                QuizGameRoute(
-                                    wordId: espJpnWord.wordId,
-                                    word: espJpnWord.word)),
-                            query: query,
-                            wordId: espJpnWord.wordId, //jpnEspWord.id,
-                            ranking: ranking,
-                            rankingON: true,
-                            // conjugations: index % 3 == 0
-                            //     ? "現在-yo: soy  現在-yo: soy  現在-yo: soy  現在-yo: soy  現在-yo: soy"
-                            //     : null,
-                            word: espJpnWord.word,
-                            starCount: starCount,
-                            meaning: meaning,
-                            isBookmarked: false,
-                            isLearned: false,
-                            onTap: () {
-                              //TODO gorouter check
-                              viewModelNotifier.goToWordDetail(WordDetailRoute(
-                                  wordId: espJpnWord.wordId,
-                                  wordType: WordType.espJpn,
-                                  hasConj: espJpnWord.hasVerb()));
-                            },
-                          ),
-                        );
-                      },
-                      onLoadMore: _loadNextPage,
-                    )),
-        ],
-      ),
-    );
+              padding: const EdgeInsets.all(8),
+              child: AutoFocusTextField(
+                  decoration: const InputDecoration(
+                      labelText: 'Search', border: OutlineInputBorder()),
+                  onChanged: (text) {
+                    notifier.updateQuery(text);
+                    _scroll.reset();
+                    if (text.trim().isNotEmpty) {
+                      _load(0);
+                    }
+                  })),
+          Expanded(child: _content(screen, notifier))
+        ]));
   }
+
+  Widget _content(SearchState screen, SearchViewModel notifier) =>
+      switch (screen.results) {
+        QueryInitial() => const Center(child: Text('Enter a search term.')),
+        QueryLoading(previousData: null) =>
+          const Center(child: CircularProgressIndicator()),
+        QueryEmpty() => const Center(child: Text('No matching words found.')),
+        QueryFailure(previousData: null, error: final error) => Center(
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Text(AppErrorMessage.from(error).text),
+            TextButton(
+                onPressed: () => notifier.loadSearchResults(_size, -1),
+                child: const Text('Retry'))
+          ])),
+        QueryData(value: final data) ||
+        QueryLoading(previousData: final data?) ||
+        QueryFailure(previousData: final data?, error: _) =>
+          _list(screen.query, data, notifier),
+      };
+  Widget _list(String query, SearchResults data, SearchViewModel notifier) {
+    if (data.jpnEspWords.isNotEmpty) {
+      return InfinityScrollListView(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          initialPage: 0,
+          controller: _scroll,
+          itemCount: data.jpnEspWords.length,
+          itemBuilder: (context, index) {
+            final word = data.jpnEspWords[index];
+            return Padding(
+                padding: const EdgeInsets.only(bottom: 11),
+                child: CardView(
+                    query: query,
+                    wordId: word.id,
+                    rankingON: false,
+                    word: word.word,
+                    meaning: data.simpleMeanings[word.id] ?? '----',
+                    isBookmarked: false,
+                    isLearned: false,
+                    wordStatusType: WordStatusType.jpnEspWord,
+                    onTap: () => notifier.goToWordDetail(WordDetailRoute(
+                        wordId: word.id,
+                        wordType: WordType.jpnEsp,
+                        hasConj: false))));
+          },
+          onLoadMore: _load);
+    }
+    final conjunctions = min(_conjCount, data.conjugacions.length);
+    return InfinityScrollListView(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        initialPage: 0,
+        controller: _scroll,
+        itemCount: conjunctions + data.espJpnWords.length,
+        itemBuilder: (context, index) {
+          if (index < conjunctions) {
+            final word = data.conjugacions[index];
+            return _espCard(query, word.wordId, word.word, word.matches, data,
+                notifier, true);
+          }
+          final word = data.espJpnWords[index - conjunctions];
+          return _espCard(query, word.wordId, word.word, null, data, notifier,
+              word.hasVerb());
+        },
+        onLoadMore: _load);
+  }
+
+  Widget _espCard(String query, int id, String word, dynamic matches,
+          SearchResults data, SearchViewModel notifier, bool hasConj) =>
+      Padding(
+          padding: const EdgeInsets.only(bottom: 11),
+          child: CardView(
+              wordStatusType: WordStatusType.espJpnWord,
+              goToQuiz: () =>
+                  notifier.goToQuiz(QuizGameRoute(wordId: id, word: word)),
+              query: query,
+              wordId: id,
+              ranking: data.rankingNos[id],
+              rankingON: true,
+              word: word,
+              conjugacions: matches,
+              starCount: data.starCounts[id],
+              meaning: data.simpleMeanings[id] ?? '',
+              isBookmarked: false,
+              isLearned: false,
+              onTap: () => notifier.goToWordDetail(WordDetailRoute(
+                  wordId: id, wordType: WordType.espJpn, hasConj: hasConj))));
 }

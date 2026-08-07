@@ -11,6 +11,9 @@ import 'package:my_dic/features/ranking/presentation/view/ranking_card.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
 import 'package:my_dic/features/ranking/di/view_model_di.dart';
 import 'package:my_dic/app/routing/contracts/word_detail_route.dart';
+import 'package:my_dic/core/presentation/error/app_error_message.dart';
+import 'package:my_dic/core/presentation/state/query_state.dart';
+import 'package:my_dic/features/ranking/presentation/ui_model/ranking_ui_model.dart';
 
 class RankingFragment extends ConsumerStatefulWidget {
   const RankingFragment({super.key});
@@ -84,30 +87,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
             height: 12,
           ),
           Header(margin: margin),
-          Expanded(
-              child: InfinityScrollListView(
-            autoLoadFirstPage: true,
-            initialPage: _initialPage,
-            controller: _infinityScrollController,
-            onLoadMore: loadNextPage,
-            itemCount: viewModel.items.length,
-            itemBuilder: (context, index) {
-              final ranking = viewModel.items[index];
-
-              return RankingCard(
-                key: ValueKey("ranking-card-${ranking.wordId}"),
-                ranking: ranking,
-                margin: margin,
-                onTap: () {
-                  ref.read(rankingViewModelProvider.notifier).goToDetail(
-                      WordDetailRoute(
-                          wordId: ranking.wordId,
-                          wordType: WordType.espJpn,
-                          hasConj: ranking.hasConj));
-                },
-              );
-            },
-          )),
+          Expanded(child: _content(viewModel, margin)),
         ],
       ),
       floatingActionButton: const FilterButton(
@@ -118,6 +98,78 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
       floatingActionButtonAnimator: const NoScaleFloatingActionButtonAnimator(),
     );
   }
+
+  Widget _content(RankingState screen, EdgeInsetsGeometry margin) =>
+      switch (screen.rankings) {
+        QueryInitial() =>
+          const Center(child: Text('Rankings will load shortly.')),
+        QueryLoading(previousData: null) =>
+          const Center(child: CircularProgressIndicator()),
+        QueryEmpty() => const Center(child: Text('No rankings found.')),
+        QueryFailure(previousData: null, error: final error) => Center(
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Text(AppErrorMessage.from(error).text),
+              TextButton(
+                onPressed: () =>
+                    ref.read(rankingViewModelProvider.notifier).retry(),
+                child: const Text('Retry'),
+              ),
+            ]),
+          ),
+        QueryData(value: final data) ||
+        QueryLoading(previousData: final data?) ||
+        QueryFailure(previousData: final data?, error: _) =>
+          Column(children: [
+            for (final warning in screen.rankings.warnings)
+              _RetryWarning(
+                message: AppErrorMessage.from(warning.error).text,
+                onRetry: () =>
+                    ref.read(rankingViewModelProvider.notifier).retry(),
+              ),
+            if (screen.rankings
+                case QueryFailure(error: final error, previousData: _))
+              _RetryWarning(
+                message: AppErrorMessage.from(error).text,
+                onRetry: () =>
+                    ref.read(rankingViewModelProvider.notifier).retry(),
+              ),
+            Expanded(
+                child: InfinityScrollListView(
+              autoLoadFirstPage: true,
+              initialPage: _initialPage,
+              controller: _infinityScrollController,
+              onLoadMore: loadNextPage,
+              itemCount: data.items.length,
+              itemBuilder: (context, index) {
+                final ranking = data.items[index];
+
+                return RankingCard(
+                  key: ValueKey("ranking-card-${ranking.wordId}"),
+                  ranking: ranking,
+                  margin: margin,
+                  onTap: () {
+                    ref.read(rankingViewModelProvider.notifier).goToDetail(
+                        WordDetailRoute(
+                            wordId: ranking.wordId,
+                            wordType: WordType.espJpn,
+                            hasConj: ranking.hasConj));
+                  },
+                );
+              },
+            )),
+          ]),
+      };
+}
+
+class _RetryWarning extends StatelessWidget {
+  const _RetryWarning({required this.message, required this.onRetry});
+  final String message;
+  final VoidCallback onRetry;
+  @override
+  Widget build(BuildContext context) => MaterialBanner(
+        content: Text(message),
+        actions: [TextButton(onPressed: onRetry, child: const Text('Retry'))],
+      );
 }
 
 //スマホ用

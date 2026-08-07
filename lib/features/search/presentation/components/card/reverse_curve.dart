@@ -55,7 +55,7 @@ class NotchCornerPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = color
+      ..color =color
       ..style = PaintingStyle.fill;
 
     final path = Path()

@@ -9,6 +9,7 @@ import 'package:my_dic/core/application/usecase/fetch_conjugation/i_fetch_conjug
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
 import 'package:my_dic/features/word_page/presentation/ui_model/jpn_esp_state.dart';
+import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:logging/logging.dart';
 import 'package:my_dic/router/navigator_service.dart';
 
@@ -27,16 +28,28 @@ class WordPageViewModel extends StateNotifier<WordPageState> {
       : super(WordPageState(wordType: WordType.espJpn));
 
   Future<void> fetchJpnEspDictionaryById(int wordId) async {
+    final previous = state.jpnEspDictionary.dataOrNull;
+    state = state.copyWith(
+      jpnEspDictionary: QueryState.loading(previousData: previous),
+      wordType: WordType.jpnEsp,
+    );
     FetchJpnEspDictionaryInputData input =
         FetchJpnEspDictionaryInputData(wordId);
     final result = await _fetchDictionaryUseCase.execute(input);
 
     result.when(
       success: (res) {
-        state =
-            state.copyWith(jpnEspDictionary: res, wordType: WordType.jpnEsp);
+        state = state.copyWith(
+          jpnEspDictionary:
+              res.isEmpty ? QueryState.empty() : QueryState.data(res),
+          wordType: WordType.jpnEsp,
+        );
       },
       failure: (error) {
+        state = state.copyWith(
+          jpnEspDictionary: QueryState.failure(error, previousData: previous),
+          wordType: WordType.jpnEsp,
+        );
         _logger.warning('和西辞書の取得に失敗しました', error);
       },
     );
@@ -47,6 +60,13 @@ class WordPageViewModel extends StateNotifier<WordPageState> {
   }
 
   Future<void> fetchEspJpnItemsById(int wordId) async {
+    final previousDictionary = state.espJpnDictionary.dataOrNull;
+    final previousConjugations = state.conjugacions.dataOrNull;
+    state = state.copyWith(
+      espJpnDictionary: QueryState.loading(previousData: previousDictionary),
+      conjugacions: QueryState.loading(previousData: previousConjugations),
+      wordType: WordType.espJpn,
+    );
     FetchDictionaryInputData input = FetchDictionaryInputData(wordId);
     final dicResult = await _fetchEspJpnDictionaryUsecase.execute(input);
     FetchConjugationInputData input2 = FetchConjugationInputData(wordId);
@@ -56,17 +76,70 @@ class WordPageViewModel extends StateNotifier<WordPageState> {
       success: (dic) {
         conjResult.when(
           success: (conj) {
-            state = state.copyWithNull(
-                espJpnDictionary: dic,
-                conjugacions: conj,
-                wordType: WordType.espJpn);
+            state = state.copyWith(
+              espJpnDictionary:
+                  dic.isEmpty ? QueryState.empty() : QueryState.data(dic),
+              conjugacions:
+                  conj == null ? QueryState.empty() : QueryState.data(conj),
+              wordType: WordType.espJpn,
+            );
           },
           failure: (error) {
             _logger.warning('活用形の取得に失敗しました', error);
             // 活用形の取得に失敗しても辞書データは表示する
-            state = state.copyWithNull(
-                espJpnDictionary: dic, wordType: WordType.espJpn);
+            state = state.copyWith(
+              espJpnDictionary: dic.isEmpty
+                  ? QueryState.empty(
+                      warnings: [
+                        QueryWarning(source: 'conjugation', error: error),
+                      ],
+                    )
+                  : QueryState.data(
+                      dic,
+                      warnings: [
+                        QueryWarning(source: 'conjugation', error: error),
+                      ],
+                    ),
+              conjugacions:
+                  QueryState.failure(error, previousData: previousConjugations),
+              wordType: WordType.espJpn,
+            );
           },
+        );
+      },
+      failure: (error) {
+        _logger.warning('西和辞書の取得に失敗しました', error);
+      },
+    );
+    dicResult.when(
+      success: (_) {},
+      failure: (error) {
+        state = state.copyWith(
+          espJpnDictionary:
+              QueryState.failure(error, previousData: previousDictionary),
+          conjugacions:
+              QueryState.failure(error, previousData: previousConjugations),
+          wordType: WordType.espJpn,
+        );
+      },
+    );
+  }
+
+  Future<void> fetchEspJpnDictionaryById(int wordId) async {
+    final previous = state.espJpnDictionary.dataOrNull;
+    state = state.copyWith(
+      espJpnDictionary: QueryState.loading(previousData: previous),
+      wordType: WordType.espJpn,
+    );
+    FetchDictionaryInputData input = FetchDictionaryInputData(wordId);
+    final result = await _fetchEspJpnDictionaryUsecase.execute(input);
+
+    result.when(
+      success: (res) {
+        state = state.copyWith(
+          espJpnDictionary:
+              res.isEmpty ? QueryState.empty() : QueryState.data(res),
+          wordType: WordType.espJpn,
         );
       },
       failure: (error) {
@@ -75,29 +148,21 @@ class WordPageViewModel extends StateNotifier<WordPageState> {
     );
   }
 
-  Future<void> fetchEspJpnDictionaryById(int wordId) async {
-    FetchDictionaryInputData input = FetchDictionaryInputData(wordId);
-    final result = await _fetchEspJpnDictionaryUsecase.execute(input);
-
-    result.when(
-      success: (res) {
-        state = state.copyWithNull(
-            espJpnDictionary: res, wordType: WordType.espJpn);
-      },
-      failure: (error) {
-        _logger.warning('西和辞書の取得に失敗しました', error);
-      },
-    );
-  }
-
   Future<void> fetchEspConjugacionById(int wordId) async {
+    final previous = state.conjugacions.dataOrNull;
+    state = state.copyWith(
+      conjugacions: QueryState.loading(previousData: previous),
+      wordType: WordType.espJpn,
+    );
     FetchConjugationInputData input = FetchConjugationInputData(wordId);
     final result = await _fetchEspConjugacionUsecase.execute(input);
 
     result.when(
       success: (res) {
-        state =
-            state.copyWithNull(conjugacions: res, wordType: WordType.espJpn);
+        state = state.copyWith(
+          conjugacions: res == null ? QueryState.empty() : QueryState.data(res),
+          wordType: WordType.espJpn,
+        );
       },
       failure: (error) {
         _logger.warning('活用形の取得に失敗しました', error);

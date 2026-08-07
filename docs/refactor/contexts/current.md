@@ -23,6 +23,26 @@
   `flutter test` suite passed (267 tests).  The import-boundary test is part
   of that successful suite.
 
+## Phase 2-2: ViewModel state standardization complete
+
+- Shared presentation primitives now provide `QueryState`, `CommandState`,
+  one-shot effects, and `AppError`-to-message mapping.
+- Search and Quiz Search retain partial auxiliary-data failures as warnings;
+  Ranking and MyWord lists use explicit list/query states. WordPage, Quiz
+  Game, word status, and MyWord status now make loading and read failures
+  explicit instead of substituting `null`, dummy data, or `false` status.
+- MyWord/status and Auth/Profile mutations use command state and one-shot
+  effects, so validation or repository failures do not produce success UI.
+- Validation on 2026-08-07: `flutter analyze` reported no issues and the full
+  `flutter test` suite passed (275 tests).
+- This phase does not include Phase 2-3 build-time I/O removal or initial-load
+  relocation, Phase 2-4 Coordinator/`Ref`/`AppNavigatorService` removal,
+  Phase 2-5 query-projection ownership changes, or Phase 2-6 `SyncReport` UI.
+  The word-status contract consolidation, Local-first 8 old sync API removal,
+  a full Riverpod Notifier migration, Freezed adoption, rename/copy cleanup,
+  and DB/sync protocol/routing/search-page-size changes also remain future
+  work.
+
 ## Phase 1-7 remote revision/server ack update
 
 - All five dataset adapters now use a shared Firestore transaction request/ack

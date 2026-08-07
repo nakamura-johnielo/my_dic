@@ -1,142 +1,122 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/core/presentation/components/auto_focus_text_field.dart';
-import 'package:my_dic/core/shared/enums/ui/word_status_type.dart';
-import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacion_search_result_item.dart';
-import 'package:my_dic/features/quiz/di/view_model_di.dart';
-import 'package:my_dic/core/presentation/components/infinityscroll.dart';
-import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
-import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/app/presentation/search_card.dart';
+import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
+import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacion_search_result_item.dart';
+import 'package:my_dic/core/presentation/components/auto_focus_text_field.dart';
+import 'package:my_dic/core/presentation/components/infinityscroll.dart';
+import 'package:my_dic/core/presentation/error/app_error_message.dart';
+import 'package:my_dic/core/presentation/state/query_state.dart';
+import 'package:my_dic/core/shared/enums/ui/word_status_type.dart';
+import 'package:my_dic/features/quiz/di/view_model_di.dart';
+import 'package:my_dic/features/quiz/presentation/ui_model/quiz_search_model.dart';
+import 'package:my_dic/features/quiz/presentation/view_model/quiz_search_view_model.dart';
 
 class QuizSearchFragment extends ConsumerStatefulWidget {
   const QuizSearchFragment({super.key});
-
   @override
   ConsumerState<QuizSearchFragment> createState() => _QuizSearchFragmentState();
 }
 
 class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
-  final int _size = 30; //searchの1ページの取得件数
-  int _previousItemLength = 0;
-  final int _initialPage = 0;
-  late final InfinityScrollController _infinityScrollController;
-
+  static const _size = 30;
+  late final InfinityScrollController _scroll;
   @override
   void initState() {
     super.initState();
-    _infinityScrollController = InfinityScrollController();
+    _scroll = InfinityScrollController();
   }
 
-  Future<bool> loadNextPage(int nextPage) async {
-    final viewModel = ref.read(quizSearchViewModelProvider.notifier);
-
-    _setCurrentItemLength();
-
-    AppLogger.print("nextpage: $nextPage");
-    await viewModel.loadSearchResults(
-      _size,
-      nextPage - 1,
-    );
-
-    final canFetch = _canFetch();
-
-    return canFetch;
+  Future<bool> _load(int nextPage) async {
+    final before = ref
+            .read(quizSearchViewModelProvider)
+            .results
+            .dataOrNull
+            ?.items
+            .length ??
+        0;
+    await ref
+        .read(quizSearchViewModelProvider.notifier)
+        .loadSearchResults(_size, nextPage - 1);
+    return (ref
+                .read(quizSearchViewModelProvider)
+                .results
+                .dataOrNull
+                ?.items
+                .length ??
+            0) >
+        before;
   }
 
-  void _resetPage() {
-    _infinityScrollController.reset();
-
-    setState(() {
-      _previousItemLength = 0;
-    });
-  }
-
-  void _setCurrentItemLength() {
-    final viewModel = ref.read(quizSearchViewModelProvider);
-    _previousItemLength = viewModel.quizSearchedItems.length;
-  }
-
-  bool _canFetch() {
-    final viewModel = ref.read(quizSearchViewModelProvider);
-    final currentItemLength = viewModel.quizSearchedItems.length;
-    return currentItemLength > _previousItemLength;
-  }
-
-  void onTap(ConjugacionSearchResultItem quizWord) {
-    final int id = quizWord.wordId;
-
-    //Quiz game の初期化
+  void _tap(ConjugacionSearchResultItem word) {
     ref.read(quizGameViewModelProvider.notifier).initialize();
-
-    ref.read(quizWordProvider.notifier).state = quizWord.word;
-
-    //TODO gorouter check
-
+    ref.read(quizWordProvider.notifier).state = word.word;
     ref
         .read(quizSearchViewModelProvider.notifier)
-        .goToQuiz(QuizGameRoute(wordId: id, word: quizWord.word));
+        .goToQuiz(QuizGameRoute(wordId: word.wordId, word: word.word));
   }
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = ref.watch(quizSearchViewModelProvider);
-    final viewModelNotifier = ref.read(quizSearchViewModelProvider.notifier);
-
+    final state = ref.watch(quizSearchViewModelProvider);
+    final notifier = ref.read(quizSearchViewModelProvider.notifier);
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Quiz'),
-      ),
-      body: Column(
-        children: [
+        appBar: AppBar(title: const Text('Quiz')),
+        body: Column(children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: AutoFocusTextField(
-              decoration: InputDecoration(
-                labelText: 'Search',
-                border: OutlineInputBorder(),
-              ),
-              onChanged: (value) {
-                viewModelNotifier.updateQuery(value);
-                viewModelNotifier.clearResults();
-                _resetPage();
-                loadNextPage(_initialPage);
-              },
-            ),
-          ),
-          Expanded(
-              child: InfinityScrollListView(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            initialPage: _initialPage,
-            controller: _infinityScrollController,
-            itemCount: viewModel.quizSearchedItems.length,
-            itemBuilder: (context, index) {
-              final quizWord = viewModel.quizSearchedItems[index];
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 11),
-                child: CardView(
-                  wordStatusType: WordStatusType.espJpnWord,
-                  goToQuiz: () => onTap(quizWord),
-                  query: viewModel.query,
-                  wordId: quizWord.wordId, //jpnEspWord.id,
-                  ranking: viewModel.rankingNos[quizWord.wordId], //TODO ranking
-                  rankingON: true,
-                  // conjugations: index % 3 == 0
-                  //     ? "現在-yo: soy  現在-yo: soy  現在-yo: soy  現在-yo: soy  現在-yo: soy"
-                  //     : null,
-
-                  word: quizWord.word,
-                  meaning: quizWord.simpleMeaning,
-                  isBookmarked: false,
-                  isLearned: false,
-                  onTap: () => onTap(quizWord),
-                ),
-              );
-            },
-            onLoadMore: loadNextPage,
-          )),
-        ],
-      ),
-    );
+              padding: const EdgeInsets.all(8),
+              child: AutoFocusTextField(
+                  decoration: const InputDecoration(
+                      labelText: 'Search', border: OutlineInputBorder()),
+                  onChanged: (text) {
+                    notifier.updateQuery(text);
+                    _scroll.reset();
+                    if (text.trim().isNotEmpty) _load(0);
+                  })),
+          Expanded(child: _content(state, notifier))
+        ]));
   }
+
+  Widget _content(QuizSearchState screen, QuizSearchViewModel notifier) =>
+      switch (screen.results) {
+        QueryInitial() => const Center(child: Text('Enter a search term.')),
+        QueryLoading(previousData: null) =>
+          const Center(child: CircularProgressIndicator()),
+        QueryEmpty() => const Center(child: Text('No matching words found.')),
+        QueryFailure(previousData: null, error: final error) => _failure(
+            AppErrorMessage.from(error).text,
+            () => notifier.loadSearchResults(_size, -1)),
+        QueryData(value: final data) ||
+        QueryLoading(previousData: final data?) ||
+        QueryFailure(previousData: final data?, error: _) =>
+          _list(screen.query, data),
+      };
+  Widget _failure(String text, VoidCallback retry) => Center(
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+        Text(text),
+        TextButton(onPressed: retry, child: const Text('Retry'))
+      ]));
+  Widget _list(String query, QuizSearchResults data) => InfinityScrollListView(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      initialPage: 0,
+      controller: _scroll,
+      itemCount: data.items.length,
+      itemBuilder: (context, index) {
+        final word = data.items[index];
+        return Padding(
+            padding: const EdgeInsets.only(bottom: 11),
+            child: CardView(
+                wordStatusType: WordStatusType.espJpnWord,
+                goToQuiz: () => _tap(word),
+                query: query,
+                wordId: word.wordId,
+                ranking: data.rankingNos[word.wordId],
+                rankingON: true,
+                word: word.word,
+                meaning: data.simpleMeanings[word.wordId] ?? word.simpleMeaning,
+                isBookmarked: false,
+                isLearned: false,
+                onTap: () => _tap(word)));
+      },
+      onLoadMore: _load);
 }

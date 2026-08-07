@@ -9,6 +9,8 @@ import 'package:my_dic/core/shared/enums/ui/word_card_view_click_listener.dart';
 import 'package:my_dic/features/my_word/di/view_model_di.dart';
 import 'package:my_dic/features/my_word/presentation/view/create_word_modal.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
+import 'package:my_dic/core/presentation/error/app_error_message.dart';
+import 'package:my_dic/core/presentation/state/query_state.dart';
 
 class MyWordFragment extends ConsumerStatefulWidget {
   const MyWordFragment({super.key});
@@ -84,65 +86,101 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
           )
         ],
       ),
-      body: Center(
-          child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-              child: InfinityScrollListView(
-            padding: const EdgeInsets.only(
-              bottom: UIConsts.bottomBarCompleteHeight * 2, // FAB分の余白
-            ),
-            initialPage: _initialPage,
-            controller: _infinityScrollController,
-            autoLoadFirstPage: true,
-            onLoadMore: loadNextPage,
-            itemCount: myWordViewModel.myWordIds.length,
-            itemBuilder: (context, index) {
-              final id = myWordViewModel.myWordIds[index];
-
-              final myWordVm = ref.watch(myWordItemViewModelProvider(id));
-              final statusVm = ref.watch(myWordStatusViewModelProvider(id));
-
-              // 最新のステータスで MyWord を更新
-
-              final clickListeners = {
-                WordCardViewButton.bookmark: () {
-                  statusVm.toggleBookmark();
-                },
-                WordCardViewButton.learned: () {
-                  statusVm.toggleLearned();
-                },
-              };
-
-              return Padding(
-                key: ValueKey(
-                    "MyWordCard-${myWordVm.wordId}"), // パフォーマンス最適化のためKeyを付与
-                padding: const EdgeInsets.only(bottom: 7.0),
-                child: MyWordCard(
-                  onTap: () {
-                    openDetailModal(
-                      context,
-                      clickListeners,
-                      index,
-                      myWordVm.word,
-                      onChanged: _reloadMyWords,
-                    );
-                  },
-                  myWord: myWordVm.word,
-                  wordStatus: statusVm.state,
-                  clickListeners: clickListeners,
-                ),
-              );
-            },
-          )),
-        ],
-      )),
+      body: _content(myWordViewModel),
       floatingActionButton: RegisterButton(onRegistered: _reloadMyWords),
       floatingActionButtonLocation:
           FloatAboveNavBar(UIConsts.bottomBarCompleteHeight),
       floatingActionButtonAnimator: const NoScaleFloatingActionButtonAnimator(),
     );
+  }
+
+  Widget _content(MyWordFragmentState screen) => switch (screen.words) {
+        QueryInitial() =>
+          const Center(child: Text('My Word will load shortly.')),
+        QueryLoading(previousData: null) =>
+          const Center(child: CircularProgressIndicator()),
+        QueryEmpty() => const Center(child: Text('No saved words yet.')),
+        QueryFailure(previousData: null, error: final error) => Center(
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Text(AppErrorMessage.from(error).text),
+              TextButton(onPressed: () => _retry(), child: const Text('Retry')),
+            ]),
+          ),
+        QueryData(value: final data) ||
+        QueryLoading(previousData: final data?) ||
+        QueryFailure(previousData: final data?, error: _) =>
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final warning in screen.words.warnings)
+                MaterialBanner(
+                  content: Text(AppErrorMessage.from(warning.error).text),
+                  actions: [
+                    TextButton(onPressed: _retry, child: const Text('Retry')),
+                  ],
+                ),
+              if (screen.words
+                  case QueryFailure(error: final error, previousData: _))
+                MaterialBanner(
+                  content: Text(AppErrorMessage.from(error).text),
+                  actions: [
+                    TextButton(onPressed: _retry, child: const Text('Retry'))
+                  ],
+                ),
+              Expanded(
+                  child: InfinityScrollListView(
+                padding: const EdgeInsets.only(
+                  bottom: UIConsts.bottomBarCompleteHeight * 2, // FAB分の余白
+                ),
+                initialPage: _initialPage,
+                controller: _infinityScrollController,
+                autoLoadFirstPage: true,
+                onLoadMore: loadNextPage,
+                itemCount: data.ids.length,
+                itemBuilder: (context, index) {
+                  final id = data.ids[index];
+
+                  final myWordVm = ref.watch(myWordItemViewModelProvider(id));
+                  final statusVm = ref.watch(myWordStatusViewModelProvider(id));
+
+                  // 最新のステータスで MyWord を更新
+
+                  final clickListeners = {
+                    WordCardViewButton.bookmark: () {
+                      statusVm.toggleBookmark();
+                    },
+                    WordCardViewButton.learned: () {
+                      statusVm.toggleLearned();
+                    },
+                  };
+
+                  return Padding(
+                    key: ValueKey(
+                        "MyWordCard-${myWordVm.wordId}"), // パフォーマンス最適化のためKeyを付与
+                    padding: const EdgeInsets.only(bottom: 7.0),
+                    child: MyWordCard(
+                      onTap: () {
+                        openDetailModal(
+                          context,
+                          clickListeners,
+                          index,
+                          myWordVm.word,
+                          onChanged: _reloadMyWords,
+                        );
+                      },
+                      myWord: myWordVm.word,
+                      wordStatus: statusVm.state,
+                      clickListeners: clickListeners,
+                    ),
+                  );
+                },
+              )),
+            ],
+          ),
+      };
+
+  void _retry() {
+    ref.read(myWordFragmentViewModelProvider.notifier).retry(_size);
   }
 }
 

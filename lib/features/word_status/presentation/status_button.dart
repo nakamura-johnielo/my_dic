@@ -7,6 +7,8 @@ abstract interface class WordStatusViewModel {
   bool get isLearned;
   bool get isBookmarked;
   bool get hasNote;
+  bool get isLoading;
+  String? get readError;
 
   Future<void> toggleLearned();
   Future<void> toggleBookmark();
@@ -52,6 +54,23 @@ class _StatusButtons extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        if (viewModel.isLoading)
+          const Padding(
+            padding: EdgeInsets.only(right: 6),
+            child: SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          ),
+        if (viewModel.readError case final error?)
+          Padding(
+            padding: const EdgeInsets.only(right: 6),
+            child: Tooltip(
+              message: error,
+              child: const Icon(Icons.error_outline_rounded, size: 18),
+            ),
+          ),
         MyIconButton(
           iconSize: 22,
           defaultIcon: viewModel.isLearned

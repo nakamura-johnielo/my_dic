@@ -13,6 +13,9 @@ class QuizGameState {
   final int allLength;
   final QuizCardState quizCardState;
 
+  bool get isComplete => allLength == 0 || currentIndex >= allLength - 1;
+  bool get hasCurrentQuestion => currentIndex >= 0 && currentIndex < allLength;
+
   const QuizGameState({
     required this.currentIndex,
     required this.currentTense,

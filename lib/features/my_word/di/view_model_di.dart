@@ -55,7 +55,7 @@ final myWordUiStateProvider =
 // command
 
 final myWordStatusCommandProvider = StateNotifierProvider.family
-    .autoDispose<MyWordStatusCommand, MyWordStatusCommandEvent?, String>(
+    .autoDispose<MyWordStatusCommand, MyWordStatusCommandState, String>(
   (ref, wordId) {
     final updateUsecase = ref.read(updateMyWordStatusUseCaseProvider);
 
@@ -64,7 +64,7 @@ final myWordStatusCommandProvider = StateNotifierProvider.family
 );
 
 final myWordCommandProvider = StateNotifierProvider.family
-    .autoDispose<MyWordCommand, MyWordCommandEvent?, String>(
+    .autoDispose<MyWordCommand, MyWordCommandState, String>(
   (ref, wordId) {
     final updateUsecase = ref.read(updateMyWordUseCaseProvider);
     final deleteUsecase = ref.read(deleteMyWordUseCaseProvider);
@@ -72,6 +72,11 @@ final myWordCommandProvider = StateNotifierProvider.family
     return MyWordCommand(wordId, updateUsecase, deleteUsecase);
   },
 );
+
+final myWordRegistrationCommandProvider = StateNotifierProvider.autoDispose<
+    MyWordRegistrationCommand, MyWordCommandState>((ref) {
+  return MyWordRegistrationCommand(ref.read(registerMyWordUseCaseProvider));
+});
 
 // ViewModel (query + command wrapper)
 final myWordStatusViewModelProvider =

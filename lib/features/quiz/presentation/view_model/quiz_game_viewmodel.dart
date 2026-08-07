@@ -84,8 +84,7 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
       Map<String, String> englishConj) {
     final moodTense = state.currentTense;
     final subject = state.currentSubject;
-    String sub =
-        englishSubMap[moodTense.toString()]!; //"It's important that @ #"
+    String sub = englishSubMap[moodTense.toString()] ?? '@ #';
     AppLogger.print("sub: $sub");
 
     EnglishSubject englishSubject = subject.equiEnglish;
@@ -105,23 +104,23 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
           moodTense == MoodTense.imperative) {
         return sub.replaceAll("#", "be");
       }
-      sub = sub.replaceAll("#",
-          beConj[englishMoodTense.toString()]![englishSubject.toString()]!);
-
-      return sub;
+      final beForm =
+          beConj[englishMoodTense.toString()]?[englishSubject.toString()];
+      return sub.replaceAll("#", beForm ?? "be");
     }
-    if (englishConj[EnglishMoodTense.indicativePresent.toString()]!
-        .contains("be ")) {
+    final present =
+        englishConj[EnglishMoodTense.indicativePresent.toString()] ?? '';
+    if (present.contains("be ")) {
       if (moodTense == MoodTense.indicativeImperfect ||
           moodTense == MoodTense.indicativeFuture ||
           moodTense == MoodTense.indicativeConditional ||
           moodTense == MoodTense.imperative) {
-        return sub.replaceAll(
-            "#", englishConj[EnglishMoodTense.indicativePresent.toString()]!);
+        return sub.replaceAll("#", present);
       }
-      final text = englishConj[EnglishMoodTense.indicativePresent.toString()]!
-          .replaceFirst("be",
-              beConj[englishMoodTense.toString()]![englishSubject.toString()]!);
+      final text = present.replaceFirst(
+          "be",
+          beConj[englishMoodTense.toString()]?[englishSubject.toString()] ??
+              'be');
       sub = sub.replaceAll(
         "#",
         text,
@@ -135,7 +134,7 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
         englishMoodTense == EnglishMoodTense.indicativePresent) {
       englishMoodTense = EnglishMoodTense.indicativePresent3rd;
     }
-    sub = sub.replaceAll("#", englishConj[englishMoodTense.toString()]!);
+    sub = sub.replaceAll("#", englishConj[englishMoodTense.toString()] ?? '');
 
     return sub;
   }
@@ -155,7 +154,7 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
     final allLength = state.allLength;
 
     // すべての問題が終了
-    if (allLength == currentIndex + 1) {
+    if (allLength == 0 || currentIndex >= allLength - 1) {
       return;
     }
 
@@ -206,6 +205,7 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
 
   /// 現在の問題を設定
   void _setCurrentQuestion(int index) {
+    if (index < 0 || index >= _internalState.doneKeyOrder.length) return;
     final key = _internalState.doneKeyOrder[index];
     final parts = key.split('-');
 

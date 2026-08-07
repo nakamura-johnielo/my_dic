@@ -1,19 +1,22 @@
-import 'package:my_dic/core/shared/enums/ui/button_status.dart';
+import 'package:my_dic/core/presentation/state/command_state.dart';
+import 'package:my_dic/core/presentation/state/ui_effect.dart';
 
 class UserProfileUIState {
-  final ButtonStatus savingButtonStatus;
-  final String? errorMessage;
+  const UserProfileUIState({
+    this.command = const CommandState.idle(),
+    this.pendingEffect,
+  });
 
-  UserProfileUIState(
-      {this.savingButtonStatus = ButtonStatus.normal, this.errorMessage});
+  final CommandState command;
+  final UiEffectEnvelope<UiEffect>? pendingEffect;
 
   UserProfileUIState copyWith({
-    ButtonStatus? savingButtonStatus,
-    String? errorMessage,
-  }) {
-    return UserProfileUIState(
-      savingButtonStatus: savingButtonStatus ?? this.savingButtonStatus,
-      errorMessage: errorMessage ?? this.errorMessage,
-    );
-  }
+    CommandState? command,
+    UiEffectEnvelope<UiEffect>? pendingEffect,
+    bool clearEffect = false,
+  }) =>
+      UserProfileUIState(
+        command: command ?? this.command,
+        pendingEffect: clearEffect ? null : pendingEffect ?? this.pendingEffect,
+      );
 }

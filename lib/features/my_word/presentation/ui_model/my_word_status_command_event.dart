@@ -1,7 +1,22 @@
-sealed class MyWordStatusCommandEvent {}
+import 'package:my_dic/core/presentation/state/command_state.dart';
+import 'package:my_dic/core/presentation/state/ui_effect.dart';
 
-class ToggleLearnedSucceeded extends MyWordStatusCommandEvent {}
-class ToggleLearnedFailed extends MyWordStatusCommandEvent {}
+class MyWordStatusCommandState {
+  const MyWordStatusCommandState({
+    this.command = const CommandState.idle(),
+    this.pendingEffect,
+  });
 
-class ToggleBookmarkedSucceeded extends MyWordStatusCommandEvent {}
-class ToggleBookmarkedFailed extends MyWordStatusCommandEvent {}
+  final CommandState command;
+  final UiEffectEnvelope<UiEffect>? pendingEffect;
+
+  MyWordStatusCommandState copyWith({
+    CommandState? command,
+    UiEffectEnvelope<UiEffect>? pendingEffect,
+    bool clearEffect = false,
+  }) =>
+      MyWordStatusCommandState(
+        command: command ?? this.command,
+        pendingEffect: clearEffect ? null : pendingEffect ?? this.pendingEffect,
+      );
+}

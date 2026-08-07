@@ -9,6 +9,8 @@ import 'package:my_dic/core/domain/entity/dictionary/esj_dictionary.dart';
 import 'package:my_dic/app/presentation/quiz_view_models.dart';
 import 'package:my_dic/features/word_page/di/view_model_di.dart';
 import 'package:my_dic/features/word_page/presentation/view/html_style_kotobank.dart';
+import 'package:my_dic/core/presentation/error/app_error_message.dart';
+import 'package:my_dic/core/presentation/state/query_state.dart';
 
 class EspJpnDictionaryFragment extends ConsumerWidget {
   final int wordId;
@@ -20,7 +22,8 @@ class EspJpnDictionaryFragment extends ConsumerWidget {
 
     final viewModel = ref.watch(wordPageViewModelProvider(wordId));
 
-    final List<EspJpnDictionary>? dictionaries = viewModel.espJpnDictionary;
+    final dictionaryState = viewModel.espJpnDictionary;
+    final List<EspJpnDictionary>? dictionaries = dictionaryState.dataOrNull;
 
     if (dictionaries != null &&
         dictionaries.isNotEmpty &&
@@ -31,11 +34,7 @@ class EspJpnDictionaryFragment extends ConsumerWidget {
     }
 
     return dictionaries == null
-        ? (Center(
-            child: Text(
-            'No data available',
-            style: TextStyle(fontSize: 24),
-          )))
+        ? _DictionaryReadState(state: dictionaryState)
         : (SingleChildScrollView(
             child: Container(
             margin: const EdgeInsets.only(
@@ -47,6 +46,17 @@ class EspJpnDictionaryFragment extends ConsumerWidget {
             ),
             child: Column(
               children: [
+                if (dictionaryState.hasWarnings)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Text(
+                      AppErrorMessage.from(dictionaryState.warnings.first.error)
+                          .text,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                  ),
                 Text(
                   dictionaries[0].word,
                   style: TextStyle(fontSize: 24),
@@ -59,6 +69,22 @@ class EspJpnDictionaryFragment extends ConsumerWidget {
             ),
           )));
   }
+}
+
+class _DictionaryReadState extends StatelessWidget {
+  const _DictionaryReadState({required this.state});
+  final QueryState<List<EspJpnDictionary>> state;
+
+  @override
+  Widget build(BuildContext context) => Center(
+        child: switch (state) {
+          QueryLoading() => const CircularProgressIndicator(),
+          QueryFailure(error: final error) =>
+            Text(AppErrorMessage.from(error).text),
+          QueryEmpty() => const Text('No data available'),
+          _ => const SizedBox.shrink(),
+        },
+      );
 }
 
 class DicSection extends StatelessWidget {

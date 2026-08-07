@@ -1,7 +1,22 @@
-sealed class MyWordCommandEvent {}
+import 'package:my_dic/core/presentation/state/command_state.dart';
+import 'package:my_dic/core/presentation/state/ui_effect.dart';
 
-class DeleteSucceeded extends MyWordCommandEvent {}
-class DeleteFailed extends MyWordCommandEvent {}
+class MyWordCommandState {
+  const MyWordCommandState({
+    this.command = const CommandState.idle(),
+    this.pendingEffect,
+  });
 
-class UpdateSucceeded extends MyWordCommandEvent {}
-class UpdateFailed extends MyWordCommandEvent {}
+  final CommandState command;
+  final UiEffectEnvelope<UiEffect>? pendingEffect;
+
+  MyWordCommandState copyWith({
+    CommandState? command,
+    UiEffectEnvelope<UiEffect>? pendingEffect,
+    bool clearEffect = false,
+  }) =>
+      MyWordCommandState(
+        command: command ?? this.command,
+        pendingEffect: clearEffect ? null : pendingEffect ?? this.pendingEffect,
+      );
+}

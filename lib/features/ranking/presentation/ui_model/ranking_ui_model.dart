@@ -1,51 +1,56 @@
 import 'package:flutter/foundation.dart';
+import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/shared/enums/feature_tag.dart';
 import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
 import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
 
+/// The read payload for the ranking screen. Filters and page selection live in
+/// [RankingState], so a query transition never discards the user's selection.
+@immutable
+class RankingResults {
+  const RankingResults(this.items);
+
+  final List<Ranking> items;
+
+  RankingResults append(Iterable<Ranking> next) =>
+      RankingResults([...items, ...next]);
+}
+
 @immutable
 class RankingState {
-  final List<Ranking> items;
-  final List<int> currentPageRange; // [min,max]
-  final bool isLoadingNext;
-  final bool isLoadingPrev;
-  final bool hasNext;
-
-  // filters (0: none, 1: include, -1: exclude)
-  final Map<FeatureTag, int> featureTagFilters;
-  final Map<PartOfSpeech, int> partOfSpeechFilters;
-  final int pagenationFilter;
-
   const RankingState({
-    this.items = const [],
+    this.rankings = const QueryState.initial(),
     this.currentPageRange = const [-1, -1],
-    this.isLoadingNext = false,
-    this.isLoadingPrev = false,
     this.hasNext = true,
     this.featureTagFilters = const {},
     this.partOfSpeechFilters = const {},
     this.pagenationFilter = 0,
   });
 
+  final QueryState<RankingResults> rankings;
+  final List<int> currentPageRange; // [min,max]
+  final bool hasNext;
+  final Map<FeatureTag, int> featureTagFilters;
+  final Map<PartOfSpeech, int> partOfSpeechFilters;
+  final int pagenationFilter;
+
+  /// Compatibility accessor for cards and pagination callers.
+  List<Ranking> get items => rankings.dataOrNull?.items ?? const [];
+
   RankingState copyWith({
-    List<Ranking>? items,
+    QueryState<RankingResults>? rankings,
     List<int>? currentPageRange,
-    bool? isLoadingNext,
-    bool? isLoadingPrev,
     bool? hasNext,
     Map<FeatureTag, int>? featureTagFilters,
     Map<PartOfSpeech, int>? partOfSpeechFilters,
     int? paginationFilter,
-  }) {
-    return RankingState(
-      items: items ?? this.items,
-      currentPageRange: currentPageRange ?? this.currentPageRange,
-      isLoadingNext: isLoadingNext ?? this.isLoadingNext,
-      isLoadingPrev: isLoadingPrev ?? this.isLoadingPrev,
-      hasNext: hasNext ?? this.hasNext,
-      featureTagFilters: featureTagFilters ?? this.featureTagFilters,
-      partOfSpeechFilters: partOfSpeechFilters ?? this.partOfSpeechFilters,
-      pagenationFilter: paginationFilter ?? pagenationFilter,
-    );
-  }
+  }) =>
+      RankingState(
+        rankings: rankings ?? this.rankings,
+        currentPageRange: currentPageRange ?? this.currentPageRange,
+        hasNext: hasNext ?? this.hasNext,
+        featureTagFilters: featureTagFilters ?? this.featureTagFilters,
+        partOfSpeechFilters: partOfSpeechFilters ?? this.partOfSpeechFilters,
+        pagenationFilter: paginationFilter ?? pagenationFilter,
+      );
 }

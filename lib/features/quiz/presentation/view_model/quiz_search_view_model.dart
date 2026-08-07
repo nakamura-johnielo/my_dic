@@ -1,108 +1,59 @@
-// lib/features/search/presentation/view_model/search_view_model.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
+import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/quiz/presentation/ui_model/quiz_search_model.dart';
-import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
 import 'package:my_dic/features/search/application/usecase/search_word/i_search_word_use_case.dart';
 import 'package:my_dic/features/search/application/usecase/search_word/search_word_input_data.dart';
 import 'package:my_dic/router/navigator_service.dart';
-import 'package:my_dic/core/shared/utils/logger.dart';
 
-/// 検索画面のViewModel
 class QuizSearchViewModel extends StateNotifier<QuizSearchState> {
-  final ISearchWordUseCase _searchWordUseCase;
-  final AppNavigatorService _naviService;
-
-  QuizSearchViewModel(
-    this._searchWordUseCase,
-    this._naviService,
-  ) : super(QuizSearchState());
-
-  // ==================== Public Methods ====================
-
-  void goToQuiz(QuizGameRoute route) {
-    _naviService.toFlashCard(route);
+  QuizSearchViewModel(this._search, this._navigator)
+      : super(const QuizSearchState());
+  final ISearchWordUseCase _search;
+  final AppNavigatorService _navigator;
+  int _generation = 0;
+  void goToQuiz(QuizGameRoute route) => _navigator.toFlashCard(route);
+  void updateQuery(String query) {
+    final value = query.trim();
+    _generation++;
+    state = QuizSearchState(
+        query: value,
+        results: value.isEmpty ? const QueryState.initial() : state.results);
   }
 
-  /// 検索クエリを更新
-  void updateQuery(String query) {
-    final trimmedQuery = query.trim();
-
-    if (trimmedQuery.isEmpty) {
-      clearResults();
-    }
-
-    state = state.copyWith(query: trimmedQuery);
+  void clearResults() {
+    _generation++;
+    state = QuizSearchState(
+        query: state.query, results: const QueryState.initial());
   }
 
   Future<void> loadSearchResults(int size, int currentPage) async {
-    final word = state.query;
-    if (word.isEmpty) {
-      clearResults();
-      return;
-    }
-    if (state.isLoading) return;
-
-    state = state.copyWith(isLoading: true, errorMessage: null);
-
-    final nextPage = currentPage + 1;
-
-    try {
-      await _searchQuizEnableWord(word, size: size, page: nextPage);
-    } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: 'Failed to load next page: $e',
-      );
-    }
-  }
-
-  /// 検索結果をクリア
-  void clearResults() {
-    state = state.copyWith(
-      quizSearchedItems: [],
-      isLoading: false,
-      errorMessage: null,
-    );
-  }
-
-  // ==================== Private Methods ====================
-
-  /// 和西検索
-  Future<void> _searchQuizEnableWord(String word,
-      {required int size, required int page}) async {
-    final input = SearchWordInputData(word, size, page, true);
-    AppLogger.print("_searchQuizEnableWord");
-    final result = await _searchWordUseCase.executeVerbs(input);
-
+    final query = state.query;
+    if (query.isEmpty || state.results.isLoading) return;
+    final generation = ++_generation;
+    final previous = state.results.dataOrNull;
+    state = state.copyWith(results: QueryState.loading(previousData: previous));
+    final result = await _search
+        .executeVerbs(SearchWordInputData(query, size, currentPage + 1, true));
+    if (!mounted || generation != _generation || query != state.query) return;
     result.when(
-      success: (item) {
-        AppLogger.print("${item.quizList.length} in viewmodel");
-        if (page == 0) {
+        success: (output) {
+          final next = QuizSearchResults(
+              items: output.quizList,
+              rankingNos: output.rankingNos,
+              simpleMeanings: output.simpleMeanings,
+              starCounts: output.starCounts);
+          final value = previous?.merge(next, append: currentPage >= 0) ?? next;
+          final warnings = output.warnings
+              .map((w) => QueryWarning(source: w.source, error: w.error))
+              .toList();
           state = state.copyWith(
-            quizSearchedItems: item.quizList,
-            rankingNos: item.rankingNos,
-            simpleMeanings: item.simpleMeanings,
-            starCounts: item.starCounts,
-            isLoading: false,
-          );
-          return;
-        }
-        state = state.copyWith(
-          quizSearchedItems: [...state.quizSearchedItems, ...item.quizList],
-          rankingNos: {...state.rankingNos, ...item.rankingNos},
-          simpleMeanings: {...state.simpleMeanings, ...item.simpleMeanings},
-          starCounts: {...state.starCounts, ...item.starCounts},
-          isLoading: false,
-        );
-      },
-      failure: (error) {
-        AppLogger.print('クイズ用活用形の取得に失敗: ${error.message}');
-        state = state.copyWith(
-          isLoading: false,
-          errorMessage: error.message,
-        );
-      },
-    );
+              results: value.isEmpty
+                  ? QueryState.empty(warnings: warnings)
+                  : QueryState.data(value, warnings: warnings));
+        },
+        failure: (error) => state = state.copyWith(
+            results: QueryState.failure(error, previousData: previous)));
   }
 }

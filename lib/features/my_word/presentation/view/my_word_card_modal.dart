@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/components/button/my_icon_button.dart';
+import 'package:my_dic/core/presentation/state/ui_effect.dart';
 import 'package:my_dic/core/shared/enums/my_icons.dart';
 import 'package:my_dic/core/shared/enums/ui/word_card_view_click_listener.dart';
 import 'package:my_dic/features/my_word/di/view_model_di.dart';
 import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
 import 'package:my_dic/features/my_word/presentation/ui_model/my_word_ui_model.dart';
-import 'package:my_dic/core/shared/utils/logger.dart';
+import 'package:my_dic/features/my_word/presentation/ui_model/my_word_event.dart';
 
 const Map<String, IconData> _bookmarkIcon = {
   "true": Icons.bookmark_rounded,
@@ -50,6 +51,7 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
   late final TextEditingController descriptionTextFieldController;
 
   bool _isOnEdit = false;
+  late final ProviderSubscription<MyWordCommandState> _commandSubscription;
 
   @override
   void initState() {
@@ -61,6 +63,10 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
     margin = widget.margin;
     headwordTextFieldController = TextEditingController();
     descriptionTextFieldController = TextEditingController();
+    _commandSubscription = ref.listenManual(
+      myWordCommandProvider(widget.myWord.wordId),
+      (_, next) => _handleEffect(next),
+    );
   }
 
   void inicializeOnEdit() {
@@ -73,16 +79,40 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
 
   @override
   void dispose() {
+    _commandSubscription.close();
     // コントローラーを解放
     headwordTextFieldController.dispose();
     descriptionTextFieldController.dispose();
     super.dispose();
   }
 
+  void _handleEffect(MyWordCommandState next) {
+    final envelope = next.pendingEffect;
+    if (envelope == null || !mounted) return;
+    final command =
+        ref.read(myWordCommandProvider(widget.myWord.wordId).notifier);
+    if (envelope.effect is UiCloseDialogEffect &&
+        next.command.operation == 'delete') {
+      widget.onChanged?.call();
+      Navigator.of(context).pop();
+    } else if (envelope.effect is UiNoticeEffect) {
+      if (next.command.operation == 'update' && next.command.isSucceeded) {
+        setState(() {
+          _isOnEdit = false;
+          myDescription = descriptionTextFieldController.text;
+          myHeaderWord = headwordTextFieldController.text;
+        });
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text((envelope.effect as UiNoticeEffect).message)),
+      );
+    }
+    command.consumeEffect(envelope.id);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final myWordVm =
-        ref.watch(myWordItemViewModelProvider(widget.myWord.wordId));
+    final commandState = ref.watch(myWordCommandProvider(widget.myWord.wordId));
 
     Color descriptionColor = Theme.of(context).colorScheme.onSurfaceVariant;
     Color headwordColor = Theme.of(context).colorScheme.onSurface;
@@ -205,14 +235,12 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
                       hoveredIcon: MyIcons.delete.icon,
                       defaultIconColor: const Color.fromARGB(255, 217, 60, 60),
                       hoveredIconColor: const Color.fromARGB(255, 255, 0, 106),
-                      onTap: () {
-                        myWordVm.deleteWord(onComplete: () {
-                          widget.onChanged?.call();
-                          setState(() {
-                            Navigator.of(context).pop();
-                          });
-                        });
-                      },
+                      onTap: commandState.command.isSubmitting
+                          ? null
+                          : () => ref
+                              .read(myWordCommandProvider(widget.myWord.wordId)
+                                  .notifier)
+                              .deleteWord(),
                     ),
                   ],
                 ),
@@ -222,23 +250,25 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
                     SizedBox(width: 20),
                     Expanded(
                         child: FilledButton(
-                            onPressed: () {
-                              myWordVm.updateWord(
-                                  headword: headwordTextFieldController.text,
-                                  description:
-                                      descriptionTextFieldController.text,
-                                  onComplete: () {
-                                    AppLogger.print("~~~~~~~~update myword");
-                                    setState(() {
-                                      _isOnEdit = !_isOnEdit;
-                                      myDescription =
-                                          descriptionTextFieldController.text;
-                                      myHeaderWord =
-                                          headwordTextFieldController.text;
-                                    });
-                                  });
-                            },
-                            child: Text("save"))),
+                            onPressed: commandState.command.isSubmitting
+                                ? null
+                                : () => ref
+                                    .read(myWordCommandProvider(
+                                            widget.myWord.wordId)
+                                        .notifier)
+                                    .updateWord(
+                                      headword:
+                                          headwordTextFieldController.text,
+                                      description:
+                                          descriptionTextFieldController.text,
+                                    ),
+                            child: commandState.command.isSubmitting
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(),
+                                  )
+                                : const Text("save"))),
                     SizedBox(
                       width: 33,
                     ),

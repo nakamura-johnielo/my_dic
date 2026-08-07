@@ -3,31 +3,32 @@ import 'package:my_dic/core/shared/enums/word/word_type.dart';
 import 'package:my_dic/core/domain/entity/dictionary/esj_dictionary.dart';
 import 'package:my_dic/core/domain/entity/jpn_esp/jpn_esp_dictionary.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacions.dart';
+import 'package:my_dic/core/presentation/state/query_state.dart';
 
 @immutable
 class WordPageState {
   const WordPageState(
-      {this.jpnEspDictionary,
+      {this.jpnEspDictionary = const QueryState.initial(),
       this.dictionaryCache,
-      this.espJpnDictionary,
-      this.conjugacions,
+      this.espJpnDictionary = const QueryState.initial(),
+      this.conjugacions = const QueryState.initial(),
       required this.wordType});
   final Map<int, List<JpnEspDictionary>>? dictionaryCache;
 
   final WordType wordType;
 
   //====jpn-esp
-  final List<JpnEspDictionary>? jpnEspDictionary;
+  final QueryState<List<JpnEspDictionary>> jpnEspDictionary;
 
   //====esp-jpn
-  final List<EspJpnDictionary>? espJpnDictionary;
-  final EspConjugacions? conjugacions;
+  final QueryState<List<EspJpnDictionary>> espJpnDictionary;
+  final QueryState<EspConjugacions> conjugacions;
 
   WordPageState copyWith(
-      {List<JpnEspDictionary>? jpnEspDictionary,
+      {QueryState<List<JpnEspDictionary>>? jpnEspDictionary,
       Map<int, List<JpnEspDictionary>>? dictionaryCache,
-      List<EspJpnDictionary>? espJpnDictionary,
-      EspConjugacions? conjugacions,
+      QueryState<List<EspJpnDictionary>>? espJpnDictionary,
+      QueryState<EspConjugacions>? conjugacions,
       WordType? wordType}) {
     return WordPageState(
       jpnEspDictionary: jpnEspDictionary ?? this.jpnEspDictionary,
@@ -36,19 +37,5 @@ class WordPageState {
       conjugacions: conjugacions ?? this.conjugacions,
       wordType: wordType ?? this.wordType,
     );
-  }
-
-  WordPageState copyWithNull(
-      {List<JpnEspDictionary>? jpnEspDictionary,
-      Map<int, List<JpnEspDictionary>>? dictionaryCache,
-      List<EspJpnDictionary>? espJpnDictionary,
-      EspConjugacions? conjugacions,
-      WordType? wordType}) {
-    return WordPageState(
-        jpnEspDictionary: jpnEspDictionary,
-        dictionaryCache: dictionaryCache,
-        espJpnDictionary: espJpnDictionary,
-        conjugacions: conjugacions,
-        wordType: wordType ?? this.wordType);
   }
 }
