@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_dic/core/presentation/custom_floating_button_location.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/features/word_status/domain/dictionary_direction.dart';
@@ -9,6 +10,8 @@ import 'package:my_dic/app/presentation/quiz_view_models.dart';
 import 'package:my_dic/core/shared/enums/word/word_type.dart';
 import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
 import 'package:my_dic/app/routing/contracts/word_detail_route.dart';
+import 'package:my_dic/app/routing/route_name_resolver.dart';
+import 'package:my_dic/core/di/router/router.dart';
 import 'package:my_dic/features/word_page/di/view_model_di.dart';
 import 'package:my_dic/features/word_page/presentation/ui_model/word_page_load_key.dart';
 import 'package:my_dic/features/word_page/presentation/ui_model/jpn_esp_state.dart';
@@ -123,10 +126,12 @@ class WordPageFragment extends ConsumerWidget {
           : () {
               ref.read(quizCardStateProvider.notifier).state =
                   QuizCardState.question;
-              final viewModel =
-                  ref.read(wordPageViewModelProvider(loadKey).notifier);
-              viewModel.goToQuiz(
-                  QuizGameRoute(wordId: input.wordId, word: quizWord));
+              final route = QuizGameRoute(wordId: input.wordId, word: quizWord);
+              context.pushNamed(
+                quizGameRouteNameFor(ref.read(entryPointProvider)),
+                pathParameters: route.pathParameters,
+                queryParameters: route.queryParameters,
+              );
             },
       child: const Icon(Icons.handshake_rounded),
     );

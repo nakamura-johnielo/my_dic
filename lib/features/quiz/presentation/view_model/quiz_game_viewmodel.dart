@@ -9,8 +9,6 @@ import 'package:my_dic/core/application/usecase/fetch_conjugation/i_fetch_conjug
 import 'package:my_dic/features/quiz/application/fetch_english_conj/i_fetch_english_conj_usecase.dart';
 import 'package:my_dic/features/quiz/presentation/ui_model/quiz_game_model.dart';
 import 'package:logging/logging.dart';
-import 'package:my_dic/app/routing/contracts/word_detail_route.dart';
-import 'package:my_dic/router/navigator_service.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 
 /// クイズのViewModel
@@ -19,21 +17,16 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
   late QuizInternalState _internalState;
   final IFetchEspConjugationUseCase _fetchConjugationInteractor;
   final IFetchEnglishConjUseCase _fetchEnglishConjInteractor;
-  final AppNavigatorService _naviService;
   final _logger = Logger('QuizGameViewModel');
 
-  QuizGameViewModel(this._fetchConjugationInteractor,
-      this._fetchEnglishConjInteractor, this._naviService)
+  QuizGameViewModel(
+      this._fetchConjugationInteractor, this._fetchEnglishConjInteractor)
       : super(QuizGameState.initial()) {
     _internalState = QuizInternalState.initial();
     _updatePublicState();
   }
 
   // ==================== Public Methods ====================
-
-  void goToWordDetail(WordDetailRoute route) {
-    _naviService.toWordDetail(route);
-  }
 
   void inicializeQuizCardStatus() {
     _updateQuizCardStatus(QuizCardState.question);

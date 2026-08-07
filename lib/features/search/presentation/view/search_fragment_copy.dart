@@ -2,6 +2,9 @@ import 'package:my_dic/core/shared/utils/logger.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:my_dic/app/routing/route_name_resolver.dart';
+import 'package:my_dic/core/di/router/router.dart';
 import 'package:my_dic/core/presentation/components/auto_focus_text_field.dart';
 import 'package:my_dic/features/search/presentation/components/conjugacion_search_card.dart';
 import 'package:my_dic/features/search/presentation/components/jpn_esp_searh_card.dart';
@@ -75,6 +78,12 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
         currentJpnEspItemLength > _previousJpnEspItemLength;
   }
 
+  void _toWordDetail(WordDetailRoute route) => context.pushNamed(
+        wordDetailRouteNameFor(ref.read(entryPointProvider)),
+        pathParameters: route.pathParameters,
+        queryParameters: route.queryParameters,
+      );
+
   @override
   Widget build(BuildContext context) {
     final viewModel = ref.watch(searchViewModelProvider);
@@ -114,7 +123,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                           word: jpnEspWord.word,
                           onTap: () {
                             //TODO gorouter check
-                            viewModelNotifier.goToWordDetail(WordDetailRoute(
+                            _toWordDetail(WordDetailRoute(
                                 wordId: jpnEspWord.id,
                                 wordType: WordType.jpnEsp,
                                 hasConj: false));
@@ -142,7 +151,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                             onTap: () {
                               //TODO gorouter check
 
-                              viewModelNotifier.goToWordDetail(WordDetailRoute(
+                              _toWordDetail(WordDetailRoute(
                                   wordId: conjugacion.wordId,
                                   wordType: WordType.espJpn,
                                   hasConj: true));
@@ -156,7 +165,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                           partOfSpeech: espJpnWord.partOfSpeech,
                           onTap: () {
                             //TODO gorouter check
-                            viewModelNotifier.goToWordDetail(WordDetailRoute(
+                            _toWordDetail(WordDetailRoute(
                                 wordId: espJpnWord.wordId,
                                 wordType: WordType.espJpn,
                                 hasConj: espJpnWord.hasVerb()));

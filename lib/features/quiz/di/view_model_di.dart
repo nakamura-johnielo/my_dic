@@ -8,7 +8,6 @@ import 'package:my_dic/features/quiz/presentation/ui_model/quiz_search_model.dar
 import 'package:my_dic/features/quiz/presentation/view_model/quiz_game_viewmodel.dart';
 import 'package:my_dic/features/quiz/presentation/view_model/quiz_search_view_model.dart';
 import 'package:my_dic/features/search/di/usecase_di.dart';
-import 'package:my_dic/router/navigator_service.dart';
 
 final quizCardStateProvider =
     StateProvider<QuizCardState>((ref) => QuizCardState.question);
@@ -23,8 +22,7 @@ final quizConjugacionsProvider =
 
 final quizSearchViewModelProvider =
     StateNotifierProvider<QuizSearchViewModel, QuizSearchState>((ref) {
-  return QuizSearchViewModel(ref.read(searchWordUseCaseProvider),
-      ref.read(appNavigatorServiceProvider));
+  return QuizSearchViewModel(ref.read(searchWordUseCaseProvider));
 });
 
 final quizGameViewModelProvider =
@@ -32,6 +30,6 @@ final quizGameViewModelProvider =
   final fetchConjugationInteractor =
       ref.read(fetchEspConjugationUseCaseProvider);
   final fetchEnglishConjInteractor = ref.read(fetchEnglishConjUseCaseProvider);
-  return QuizGameViewModel(fetchConjugationInteractor,
-      fetchEnglishConjInteractor, ref.read(appNavigatorServiceProvider));
+  return QuizGameViewModel(
+      fetchConjugationInteractor, fetchEnglishConjInteractor);
 });

@@ -1,19 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/core/shared/enums/auth/subscription_status.dart';
 import 'package:my_dic/core/presentation/error/app_error_message.dart';
 import 'package:my_dic/core/presentation/state/command_state.dart';
 import 'package:my_dic/core/presentation/state/ui_effect.dart';
 import 'package:my_dic/core/shared/errors/app_error.dart';
-import 'package:my_dic/features/auth/auth_coordinator.dart';
+import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/features/user/application/usecase/user_usecases.dart';
+import 'package:my_dic/features/user/domain/entity/user.dart';
 import 'package:my_dic/features/user/presentation/model/user_profile_ui_model.dart';
-import 'package:my_dic/features/user/user_coodinator.dart';
 
 class UserProfileViewModel extends StateNotifier<UserProfileUIState>
     implements UiEffectConsumer {
-  UserProfileViewModel(this._coordinator, this._authCoordinator)
+  UserProfileViewModel(this._updateUserUseCase)
       : super(const UserProfileUIState());
 
-  final AppUserCoordinator _coordinator;
-  final AppAuthCoordinator _authCoordinator;
+  final IUpdateUserUseCase _updateUserUseCase;
   int _effectSequence = 0;
 
   @override
@@ -28,21 +29,29 @@ class UserProfileViewModel extends StateNotifier<UserProfileUIState>
 
   bool get isSubmitting => state.command.isSubmitting;
 
-  Future<void> signOut() => _run(
-        operation: 'signOut',
-        action: _authCoordinator.signOut,
-        successMessage: 'Signed out.',
-      );
-
-  Future<void> save({String? email, String? username}) => _run(
+  Future<void> save(
+    AppUser currentProfile, {
+    String? deviceId,
+    String? email,
+    String? username,
+    SubscriptionStatus? subscriptionStatus,
+  }) =>
+      _run(
         operation: 'save',
-        action: () => _coordinator.updateUser(email: email, username: username),
+        action: () => _updateUserUseCase.execute(
+          currentProfile.copyWith(
+            deviceId: deviceId,
+            email: email,
+            username: username,
+            subscriptionStatus: subscriptionStatus,
+          ),
+        ),
         successMessage: 'Profile saved.',
       );
 
   Future<void> _run({
     required String operation,
-    required Future<dynamic> Function() action,
+    required Future<Result<void>> Function() action,
     required String successMessage,
   }) async {
     if (isSubmitting) return;

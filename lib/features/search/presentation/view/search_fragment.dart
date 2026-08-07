@@ -1,6 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:my_dic/app/routing/route_name_resolver.dart';
+import 'package:my_dic/core/di/router/router.dart';
 import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
 import 'package:my_dic/app/routing/contracts/word_detail_route.dart';
 import 'package:my_dic/core/presentation/components/auto_focus_text_field.dart';
@@ -44,6 +47,18 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
       : data.espJpnWords.length +
           data.jpnEspWords.length +
           data.conjugacions.length;
+
+  void _toWordDetail(WordDetailRoute route) => context.pushNamed(
+        wordDetailRouteNameFor(ref.read(entryPointProvider)),
+        pathParameters: route.pathParameters,
+        queryParameters: route.queryParameters,
+      );
+
+  void _toQuiz(QuizGameRoute route) => context.pushNamed(
+        quizGameRouteNameFor(ref.read(entryPointProvider)),
+        pathParameters: route.pathParameters,
+        queryParameters: route.queryParameters,
+      );
   @override
   Widget build(BuildContext context) {
     final screen = ref.watch(searchViewModelProvider);
@@ -105,7 +120,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                     isBookmarked: false,
                     isLearned: false,
                     wordStatusType: WordStatusType.jpnEspWord,
-                    onTap: () => notifier.goToWordDetail(WordDetailRoute(
+                    onTap: () => _toWordDetail(WordDetailRoute(
                         wordId: word.id,
                         wordType: WordType.jpnEsp,
                         hasConj: false))));
@@ -137,8 +152,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
           padding: const EdgeInsets.only(bottom: 11),
           child: CardView(
               wordStatusType: WordStatusType.espJpnWord,
-              goToQuiz: () =>
-                  notifier.goToQuiz(QuizGameRoute(wordId: id, word: word)),
+              goToQuiz: () => _toQuiz(QuizGameRoute(wordId: id, word: word)),
               query: query,
               wordId: id,
               ranking: data.rankingNos[id],
@@ -149,6 +163,6 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
               meaning: data.simpleMeanings[id] ?? '',
               isBookmarked: false,
               isLearned: false,
-              onTap: () => notifier.goToWordDetail(WordDetailRoute(
+              onTap: () => _toWordDetail(WordDetailRoute(
                   wordId: id, wordType: WordType.espJpn, hasConj: hasConj))));
 }

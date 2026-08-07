@@ -6,54 +6,6 @@
   "violations": [
     {
       "ruleId": "core_no_feature",
-      "source": "lib/core/application/coordinator/auth_user_coordinator.dart",
-      "target": "package:my_dic/features/auth/auth_coordinator.dart",
-      "introducedAt": "2026-08-06",
-      "owner": "architecture",
-      "trackingIssue": "docs/refactor/phase1"
-    },
-    {
-      "ruleId": "core_no_feature",
-      "source": "lib/core/application/coordinator/auth_user_coordinator.dart",
-      "target": "package:my_dic/features/auth/di/service.dart",
-      "introducedAt": "2026-08-06",
-      "owner": "architecture",
-      "trackingIssue": "docs/refactor/phase1"
-    },
-    {
-      "ruleId": "core_no_feature",
-      "source": "lib/core/application/coordinator/auth_user_coordinator.dart",
-      "target": "package:my_dic/features/auth/domain/entity/app_auth.dart",
-      "introducedAt": "2026-08-06",
-      "owner": "architecture",
-      "trackingIssue": "docs/refactor/phase1"
-    },
-    {
-      "ruleId": "core_no_feature",
-      "source": "lib/core/application/coordinator/auth_user_coordinator.dart",
-      "target": "package:my_dic/features/user/di/service.dart",
-      "introducedAt": "2026-08-06",
-      "owner": "architecture",
-      "trackingIssue": "docs/refactor/phase1"
-    },
-    {
-      "ruleId": "core_no_feature",
-      "source": "lib/core/application/coordinator/auth_user_coordinator.dart",
-      "target": "package:my_dic/features/user/domain/entity/user.dart",
-      "introducedAt": "2026-08-06",
-      "owner": "architecture",
-      "trackingIssue": "docs/refactor/phase1"
-    },
-    {
-      "ruleId": "core_no_feature",
-      "source": "lib/core/application/coordinator/auth_user_coordinator.dart",
-      "target": "package:my_dic/features/user/user_coodinator.dart",
-      "introducedAt": "2026-08-06",
-      "owner": "architecture",
-      "trackingIssue": "docs/refactor/phase1"
-    },
-    {
-      "ruleId": "core_no_feature",
       "source": "lib/core/di/data/repository_di.dart",
       "target": "package:my_dic/features/ranking/di/data_di.dart",
       "introducedAt": "2026-08-06",

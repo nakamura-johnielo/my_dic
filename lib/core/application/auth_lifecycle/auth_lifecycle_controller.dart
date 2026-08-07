@@ -5,9 +5,7 @@ import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
 import 'package:my_dic/features/auth/application/usecase/auth_usecases.dart';
 import 'package:my_dic/features/auth/application/usecase/i_sign_in_use_case.dart';
-import 'package:my_dic/features/auth/presentation/view_model/auth_store.dart';
 import 'package:my_dic/features/user/application/usecase/user_usecases.dart';
-import 'package:my_dic/features/user/presentation/view_model/app_user_store.dart';
 
 class AuthLifecycleController extends StateNotifier<AuthLifecycleState> {
   final ISignInUseCase _signIn;
@@ -16,9 +14,6 @@ class AuthLifecycleController extends StateNotifier<AuthLifecycleState> {
   final IVerifyEmailUseCase _sendVerificationEmail;
   final IReloadCurrentAuthUseCase _reloadCurrentAuth;
   final IEnsureUserExistsUseCase _ensureUserExists;
-  final AuthStoreNotifier _authStore;
-  final AppUserStoreNotifier _userStore;
-
   int _profileOperation = 0;
 
   AuthLifecycleController({
@@ -28,31 +23,23 @@ class AuthLifecycleController extends StateNotifier<AuthLifecycleState> {
     required IVerifyEmailUseCase sendVerificationEmail,
     required IReloadCurrentAuthUseCase reloadCurrentAuth,
     required IEnsureUserExistsUseCase ensureUserExists,
-    required AuthStoreNotifier authStore,
-    required AppUserStoreNotifier userStore,
   })  : _signIn = signIn,
         _signUp = signUp,
         _signOut = signOut,
         _sendVerificationEmail = sendVerificationEmail,
         _reloadCurrentAuth = reloadCurrentAuth,
         _ensureUserExists = ensureUserExists,
-        _authStore = authStore,
-        _userStore = userStore,
         super(const AuthLifecycleState.initializing());
 
   Future<void> handleAuthStateChange(AppAuth? auth) async {
     if (auth == null) {
       _profileOperation++;
-      _authStore.clear();
-      _userStore.clear();
       state = const AuthLifecycleState(phase: AuthLifecyclePhase.signedOut);
       return;
     }
 
-    _authStore.setAuth(auth);
     if (!auth.emailVerified) {
       _profileOperation++;
-      _userStore.clear();
       if (state.phase == AuthLifecyclePhase.creatingAccount ||
           state.phase == AuthLifecyclePhase.sendingVerificationEmail ||
           state.phase == AuthLifecyclePhase.verificationEmailFailed) {
@@ -77,7 +64,6 @@ class AuthLifecycleController extends StateNotifier<AuthLifecycleState> {
     final result = await _signUp.execute(email, password);
     await result.when(
       success: (auth) async {
-        _authStore.setAuth(auth);
         state = AuthLifecycleState(
           phase: AuthLifecyclePhase.sendingVerificationEmail,
           auth: auth,
@@ -184,7 +170,6 @@ class AuthLifecycleController extends StateNotifier<AuthLifecycleState> {
 
     result.when(
       success: (user) {
-        _userStore.setUser(user);
         state = AuthLifecycleState(
           phase: AuthLifecyclePhase.ready,
           auth: auth,
@@ -192,7 +177,6 @@ class AuthLifecycleController extends StateNotifier<AuthLifecycleState> {
         );
       },
       failure: (error) {
-        _userStore.clear();
         state = AuthLifecycleState(
           phase: AuthLifecyclePhase.profileProvisioningFailed,
           auth: auth,

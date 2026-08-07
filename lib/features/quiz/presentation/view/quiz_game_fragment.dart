@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:my_dic/app/routing/route_name_resolver.dart';
+import 'package:my_dic/core/di/router/router.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/features/quiz/presentation/components/quiz_card.dart';
 import 'package:my_dic/features/word_status/domain/dictionary_direction.dart';
@@ -113,13 +116,20 @@ class QuizGameFragment extends ConsumerWidget {
                         spacing: 20,
                         children: [
                           TextButton(
-                            onPressed: () =>
-
-                                //TODO gorouter check
-                                quizGameNotifier.goToWordDetail(WordDetailRoute(
-                                    wordId: input.wordId,
-                                    wordType: WordType.espJpn,
-                                    hasConj: true)),
+                            onPressed: () => context.pushNamed(
+                              wordDetailRouteNameFor(
+                                  ref.read(entryPointProvider)),
+                              pathParameters: WordDetailRoute(
+                                wordId: input.wordId,
+                                wordType: WordType.espJpn,
+                                hasConj: true,
+                              ).pathParameters,
+                              queryParameters: WordDetailRoute(
+                                wordId: input.wordId,
+                                wordType: WordType.espJpn,
+                                hasConj: true,
+                              ).queryParameters,
+                            ),
                             child: Text("> 辞書確認"),
                           ),
                           DictionaryStatusButtons(

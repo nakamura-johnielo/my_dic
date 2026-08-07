@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
-import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
 import 'package:my_dic/core/application/usecase/fetch_conjugation/fetch_conjugation_input_data.dart';
 import 'package:my_dic/core/application/usecase/fetch_conjugation/i_fetch_conjugation_use_case.dart';
 import 'package:my_dic/core/application/usecase/fetch_dictionary/fetch_dictionary_input_data.dart';
@@ -13,20 +12,17 @@ import 'package:my_dic/core/shared/enums/word/word_type.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/word_page/presentation/ui_model/jpn_esp_state.dart';
 import 'package:my_dic/features/word_page/presentation/ui_model/word_page_load_key.dart';
-import 'package:my_dic/router/navigator_service.dart';
 
 class WordPageViewModel extends StateNotifier<WordPageState> {
   WordPageViewModel(
     this._fetchJpnEspDictionaryUseCase,
     this._fetchEspJpnDictionaryUseCase,
     this._fetchEspConjugationUseCase,
-    this._navigator,
   ) : super(WordPageState(wordType: WordType.espJpn));
 
   final IFetchJpnEspDictionaryUseCase _fetchJpnEspDictionaryUseCase;
   final IFetchEspJpnDictionaryUseCase _fetchEspJpnDictionaryUseCase;
   final IFetchEspConjugationUseCase _fetchEspConjugationUseCase;
-  final AppNavigatorService _navigator;
   final _logger = Logger('WordPageViewModel');
 
   Future<void>? _initialization;
@@ -181,8 +177,6 @@ class WordPageViewModel extends StateNotifier<WordPageState> {
   void _setState(int generation, WordPageState next) {
     if (_isCurrent(generation)) state = next;
   }
-
-  void goToQuiz(QuizGameRoute route) => _navigator.toFlashCard(route);
 
   @override
   void dispose() {

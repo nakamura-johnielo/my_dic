@@ -5,10 +5,8 @@ import 'package:my_dic/core/application/auth_lifecycle/auth_lifecycle_controller
 import 'package:my_dic/core/application/auth_lifecycle/auth_lifecycle_state.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/auth/presentation/view_model/auth_store.dart';
 import 'package:my_dic/features/user/domain/entity/user.dart';
 import 'package:my_dic/features/user/application/usecase/user_usecases.dart';
-import 'package:my_dic/features/user/presentation/view_model/app_user_store.dart';
 
 import '../../../../../helpers/fake_auth_usecases.dart';
 import '../../../../../helpers/fake_user_usecases.dart';
@@ -52,7 +50,7 @@ void main() {
       );
       expect(fixture.controller.state.notice, isNull);
       expect(fixture.controller.state.error?.message, '送信制限中です');
-      expect(fixture.authStore.state?.accountId, isNotEmpty);
+      expect(fixture.controller.state.auth?.accountId, isNotEmpty);
     });
 
     test('unverified identity does not provision a profile', () async {
@@ -66,7 +64,7 @@ void main() {
       expect(ensure.callCount, 0);
       expect(
           fixture.controller.state.phase, AuthLifecyclePhase.emailUnverified);
-      expect(fixture.userStore.state, isNull);
+      expect(fixture.controller.state.user, isNull);
     });
 
     test(
@@ -92,7 +90,7 @@ void main() {
       expect(ensure.lastId, 'test-user-123');
       expect(ensure.lastEmail, 'test@example.com');
       expect(fixture.controller.state.phase, AuthLifecyclePhase.ready);
-      expect(fixture.userStore.state?.deviceId, 'device-1');
+      expect(fixture.controller.state.user?.deviceId, 'device-1');
     });
 
     test('profile provisioning failure keeps auth and can be retried',
@@ -106,7 +104,7 @@ void main() {
         fixture.controller.state.phase,
         AuthLifecyclePhase.profileProvisioningFailed,
       );
-      expect(fixture.authStore.state?.accountId, auth.accountId);
+      expect(fixture.controller.state.auth?.accountId, auth.accountId);
 
       ensure.shouldFail = false;
       await fixture.controller.retryProfileProvisioning();
@@ -125,8 +123,8 @@ void main() {
       await fixture.controller.signOut();
 
       expect(fixture.controller.state.phase, AuthLifecyclePhase.signedOut);
-      expect(fixture.authStore.state, isNull);
-      expect(fixture.userStore.state, isNull);
+      expect(fixture.controller.state.auth, isNull);
+      expect(fixture.controller.state.user, isNull);
     });
 
     test(
@@ -145,15 +143,13 @@ void main() {
       await provisioning;
 
       expect(fixture.controller.state.phase, AuthLifecyclePhase.signedOut);
-      expect(fixture.authStore.state, isNull);
-      expect(fixture.userStore.state, isNull);
+      expect(fixture.controller.state.auth, isNull);
+      expect(fixture.controller.state.user, isNull);
     });
   });
 }
 
 class _Fixture {
-  late final AuthStoreNotifier authStore;
-  late final AppUserStoreNotifier userStore;
   late final AuthLifecycleController controller;
 
   _Fixture({
@@ -162,8 +158,6 @@ class _Fixture {
     FakeReloadCurrentAuthInteractor? reload,
     IEnsureUserExistsUseCase? ensure,
   }) {
-    authStore = AuthStoreNotifier();
-    userStore = AppUserStoreNotifier();
     controller = AuthLifecycleController(
       signIn: FakeSignInInteractor(),
       signUp: signUp ?? FakeSignUpInteractor(),
@@ -171,8 +165,6 @@ class _Fixture {
       sendVerificationEmail: verify ?? FakeVerifyEmailInteractor(),
       reloadCurrentAuth: reload ?? FakeReloadCurrentAuthInteractor(),
       ensureUserExists: ensure ?? FakeEnsureUserExistsInteractor(),
-      authStore: authStore,
-      userStore: userStore,
     );
   }
 }

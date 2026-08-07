@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_dic/core/presentation/components/button/my_icon_button.dart';
 import 'package:my_dic/features/word_status/domain/dictionary_direction.dart';
 import 'package:my_dic/app/presentation/word_status_buttons.dart';
@@ -7,7 +8,8 @@ import 'package:my_dic/features/quiz/consts/card_state.dart';
 import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
 import 'package:my_dic/app/presentation/quiz_view_models.dart';
 import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
-import 'package:my_dic/router/navigator_service.dart';
+import 'package:my_dic/app/routing/route_name_resolver.dart';
+import 'package:my_dic/core/di/router/router.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 
 //スマホ用
@@ -96,10 +98,13 @@ class RankingCard extends ConsumerWidget {
                   ref.read(quizGameViewModelProvider.notifier).initialize();
                   ref.read(quizCardStateProvider.notifier).state =
                       QuizCardState.question;
-                  //TODO gorouter check
-                  ref.read(appNavigatorServiceProvider).toFlashCard(
-                      QuizGameRoute(
-                          wordId: ranking.wordId, word: ranking.lemma));
+                  final route = QuizGameRoute(
+                      wordId: ranking.wordId, word: ranking.lemma);
+                  context.pushNamed(
+                    quizGameRouteNameFor(ref.read(entryPointProvider)),
+                    pathParameters: route.pathParameters,
+                    queryParameters: route.queryParameters,
+                  );
                 },
               ),
 

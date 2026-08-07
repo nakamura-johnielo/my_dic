@@ -1,19 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/quiz/presentation/ui_model/quiz_search_model.dart';
 import 'package:my_dic/features/search/application/usecase/search_word/i_search_word_use_case.dart';
 import 'package:my_dic/features/search/application/usecase/search_word/search_word_input_data.dart';
-import 'package:my_dic/router/navigator_service.dart';
 
 class QuizSearchViewModel extends StateNotifier<QuizSearchState> {
-  QuizSearchViewModel(this._search, this._navigator)
-      : super(const QuizSearchState());
+  QuizSearchViewModel(this._search) : super(const QuizSearchState());
   final ISearchWordUseCase _search;
-  final AppNavigatorService _navigator;
   int _generation = 0;
-  void goToQuiz(QuizGameRoute route) => _navigator.toFlashCard(route);
   void updateQuery(String query) {
     final value = query.trim();
     _generation++;

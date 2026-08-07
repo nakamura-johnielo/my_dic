@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,7 +6,7 @@ import 'package:my_dic/core/presentation/components/nav_bar/item.dart';
 import 'package:my_dic/core/presentation/components/nav_bar/studay_bottom_bar.dart';
 import 'package:my_dic/core/shared/enums/entry_point.dart';
 import 'package:my_dic/core/shared/consts/ui/tab.dart';
-import 'package:my_dic/router/navigator_service.dart';
+import 'package:my_dic/router/route_names.dart';
 
 import 'package:my_dic/core/shared/utils/logger.dart';
 
@@ -28,7 +27,8 @@ class MainActivity extends ConsumerWidget {
     int getDestinationShellIndex(index, changeBranch) {
       final entryPoint = ref.read(entryPointProvider);
       if (changeBranch) {
-        AppLogger.print("move index: ${ref.read(lastStudyBranchTabIndexProvider)}");
+        AppLogger.print(
+            "move index: ${ref.read(lastStudyBranchTabIndexProvider)}");
         index = ref.read(lastStudyBranchTabIndexProvider);
       }
 
@@ -46,7 +46,7 @@ class MainActivity extends ConsumerWidget {
       return shellIndex; // == 2 ? ref.read(lastStudyBranchIndexProvider) : shellIndex;
     }
 
- final entryPoint = ref.read(entryPointProvider);
+    final entryPoint = ref.read(entryPointProvider);
     return Scaffold(
       extendBody: true,
       appBar: AppBar(
@@ -56,14 +56,12 @@ class MainActivity extends ConsumerWidget {
         actions: [
           IconButton(
               onPressed: () {
-             ref.read(appNavigatorServiceProvider).pushToProfile();
+                context.pushNamed(RouteNames.profile);
               },
               icon: Icon(Icons.person))
         ],
       ),
-
       body: navigationShell,
-
       bottomNavigationBar: SwitchableFloatBottomBar(
         entryPoint: entryPoint,
         selectedIndex: navBarPhantomIndex(navigationShell.currentIndex),
@@ -76,13 +74,15 @@ class MainActivity extends ConsumerWidget {
         onDestinationSelected: (tabIndex) {
           if (tabIndex == navBarPhantomIndex(navigationShell.currentIndex)) {
             AppLogger.print("00000000000000000000000000000");
-            ref
-                .read(appNavigatorServiceProvider)
-                .clearCurrentBranchHistoryAndGoRoot();
+            navigationShell.goBranch(
+              navigationShell.currentIndex,
+              initialLocation: true,
+            );
             return;
           }
           final entryPoint = ref.read(entryPointProvider);
-          AppLogger.print("||||||||||||||||||||entrypoint current: $entryPoint");
+          AppLogger.print(
+              "||||||||||||||||||||entrypoint current: $entryPoint");
 
           if (entryPoint.category == EntryPointCategory.study) {
             // Study内のタブ切り替え
@@ -122,9 +122,9 @@ class MainActivity extends ConsumerWidget {
             );
           }
         },
-   
         onActionButtonSelected: () {
-          AppLogger.print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CLOSE BUTTON TAPPED");
+          AppLogger.print(
+              "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CLOSE BUTTON TAPPED");
           final lastIndex = ref.read(lastMainBranchIndexProvider);
           EntryPoint lastEntryPoint;
           if (lastIndex == 0) {
@@ -141,8 +141,6 @@ class MainActivity extends ConsumerWidget {
           );
         },
       ),
-
-    
     );
   }
 }

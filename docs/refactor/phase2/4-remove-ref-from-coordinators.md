@@ -20,6 +20,25 @@ CoordinatorとNavigatorが`Ref`をservice locatorとして使う状態を解消�
 ## 対象範囲
 
 - `lib/features/auth/auth_coordinator.dart`
+
+## Completion update (2026-08-07)
+
+- Removed `AppAuthCoordinator`, `AppUserCoordinator`, `AppNavigatorService`,
+  their providers, the old Auth/User presentation Stores, and the
+  comment-only coordinator definitions that referenced them.
+- `AuthLifecycleController` is the sole active path for sign-in, sign-up,
+  sign-out, and verification. `SignInViewModel` now owns only the
+  `IResetEmailPasswordUseCase` command and its notice effect.
+- `ProfilePage` supplies `AppSessionReady.profile` to
+  `UserProfileViewModel.save(currentProfile, patch)`. The ViewModel patches a
+  copy and calls `IUpdateUserUseCase`; sign-out calls the lifecycle controller
+  directly from the widget.
+- Navigation has moved to widget callbacks and the pure route-name resolver;
+  ViewModels no longer receive an `AppNavigatorService` dependency.
+- Verification: `flutter test test/unit/features/auth test/unit/features/user`
+  passed (29 tests); focused `flutter analyze` passed; the old
+  coordinator/store/provider names have zero `lib`/`test` references.
+
 - `lib/features/user/user_coodinator.dart`
 - `lib/router/navigator_service.dart`
 - 関連providerとtest

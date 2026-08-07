@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/app/session/app_session.dart';
 import 'package:my_dic/app/session/session_providers.dart';
+import 'package:my_dic/core/application/auth_lifecycle/auth_lifecycle_provider.dart';
 import 'package:my_dic/core/presentation/components/icons/rotating_icon.dart';
 import 'package:my_dic/core/presentation/error/app_error_message.dart';
 import 'package:my_dic/core/presentation/state/ui_effect.dart';
@@ -48,9 +49,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     ref.read(userProfileViewModelProvider.notifier).consumeEffect(envelope.id);
   }
 
-  void _save() {
+  void _save(AppSessionReady session) {
     final name = _nameCtrl.text.trim();
-    ref.read(userProfileViewModelProvider.notifier).save(username: name);
+    ref
+        .read(userProfileViewModelProvider.notifier)
+        .save(session.profile, username: name);
   }
 
   @override
@@ -73,8 +76,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               icon: const Icon(Icons.logout),
               onPressed: isSubmitting
                   ? null
-                  : () =>
-                      ref.read(userProfileViewModelProvider.notifier).signOut(),
+                  : () => ref.read(authLifecycleProvider.notifier).signOut(),
             )
           ],
         ),
@@ -107,7 +109,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                             const SizedBox(height: 12),
                             const Spacer(),
                             FilledButton.icon(
-                              onPressed: isSubmitting ? null : _save,
+                              onPressed:
+                                  isSubmitting ? null : () => _save(ready),
                               icon: isSubmitting
                                   ? RotatingIcon(icon: Icons.refresh)
                                   : const Icon(Icons.save),

@@ -89,6 +89,25 @@
   and DB/sync protocol/routing/search-page-size changes also remain future
   work.
 
+## Phase 2-4: Coordinator / Ref / navigator removal complete
+
+- Removed active `AppAuthCoordinator`, `AppUserCoordinator`, and
+  `AppNavigatorService` implementations and providers. The legacy Auth/User
+  presentation Stores and their comment-only coordinator remnants are gone.
+- Auth lifecycle is the one active command path for sign-in, sign-up,
+  sign-out, verification, and profile provisioning. Password reset remains a
+  standalone `SignInViewModel` command composed with
+  `IResetEmailPasswordUseCase`.
+- Profile edits start from `AppSessionReady.profile`; `UserProfileViewModel`
+  applies the requested patch and invokes `IUpdateUserUseCase`. `ProfilePage`
+  sends sign-out to `authLifecycleProvider.notifier`.
+- Widget callbacks and a pure route-name resolver now own navigation. The
+  removed navigator service is not a ViewModel dependency.
+- Validation: auth/user focused unit suite passed (29 tests), focused analyzer
+  passed, and the removed Coordinator/Store/provider names have no `lib` or
+  `test` references. The repository-wide analyzer remains subject to any
+  concurrent routing work in the working tree.
+
 ## Phase 1-7 remote revision/server ack update
 
 - All five dataset adapters now use a shared Firestore transaction request/ack

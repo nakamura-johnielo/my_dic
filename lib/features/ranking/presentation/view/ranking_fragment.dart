@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:my_dic/app/routing/route_name_resolver.dart';
+import 'package:my_dic/core/di/router/router.dart';
 import 'package:my_dic/core/presentation/custom_floating_button_location.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/features/ranking/presentation/view/ranking_filter_modal.dart';
@@ -148,11 +151,16 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
                   ranking: ranking,
                   margin: margin,
                   onTap: () {
-                    ref.read(rankingViewModelProvider.notifier).goToDetail(
-                        WordDetailRoute(
-                            wordId: ranking.wordId,
-                            wordType: WordType.espJpn,
-                            hasConj: ranking.hasConj));
+                    final route = WordDetailRoute(
+                      wordId: ranking.wordId,
+                      wordType: WordType.espJpn,
+                      hasConj: ranking.hasConj,
+                    );
+                    context.pushNamed(
+                      wordDetailRouteNameFor(ref.read(entryPointProvider)),
+                      pathParameters: route.pathParameters,
+                      queryParameters: route.queryParameters,
+                    );
                   },
                 );
               },

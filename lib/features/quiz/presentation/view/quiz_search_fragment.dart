@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_dic/app/presentation/search_card.dart';
+import 'package:my_dic/app/routing/route_name_resolver.dart';
 import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacion_search_result_item.dart';
+import 'package:my_dic/core/di/router/router.dart';
 import 'package:my_dic/core/presentation/components/auto_focus_text_field.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
 import 'package:my_dic/core/presentation/error/app_error_message.dart';
@@ -50,9 +53,13 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
 
   void _tap(ConjugacionSearchResultItem word) {
     ref.read(quizGameViewModelProvider.notifier).initialize();
-    ref
-        .read(quizSearchViewModelProvider.notifier)
-        .goToQuiz(QuizGameRoute(wordId: word.wordId, word: word.word));
+    context.pushNamed(
+      quizGameRouteNameFor(ref.read(entryPointProvider)),
+      pathParameters:
+          QuizGameRoute(wordId: word.wordId, word: word.word).pathParameters,
+      queryParameters:
+          QuizGameRoute(wordId: word.wordId, word: word.word).queryParameters,
+    );
   }
 
   @override

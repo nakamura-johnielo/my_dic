@@ -1,7 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
-import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
-import 'package:my_dic/app/routing/contracts/word_detail_route.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/shared/errors/app_error.dart';
 import 'package:my_dic/core/shared/enums/dictionary/dictionary_type.dart';
@@ -12,19 +10,13 @@ import 'package:my_dic/features/search/application/usecase/search_word/search_wo
 import 'package:my_dic/features/search/domain/usecase/judge_search_word/i_judge_search_word_use_case.dart';
 import 'package:my_dic/features/search/domain/usecase/judge_search_word/judge_search_word_input_data.dart';
 import 'package:my_dic/features/search/presentation/ui_model/search_ui_model.dart';
-import 'package:my_dic/router/navigator_service.dart';
 
 class SearchViewModel extends StateNotifier<SearchState> {
-  SearchViewModel(this._search, this._judge, this._navigator)
-      : super(const SearchState());
+  SearchViewModel(this._search, this._judge) : super(const SearchState());
   final ISearchWordUseCase _search;
   final IJudgeSearchWordUseCase _judge;
-  final AppNavigatorService _navigator;
   final _logger = Logger('SearchViewModel');
   int _generation = 0;
-
-  void goToQuiz(QuizGameRoute route) => _navigator.toFlashCard(route);
-  void goToWordDetail(WordDetailRoute route) => _navigator.toWordDetail(route);
 
   void updateQuery(String query) {
     final value = query.trim();

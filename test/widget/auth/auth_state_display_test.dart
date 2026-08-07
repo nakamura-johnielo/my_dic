@@ -6,8 +6,6 @@ import 'package:my_dic/core/application/auth_lifecycle/auth_lifecycle_provider.d
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/auth/presentation/view/sign_up.dart';
-import 'package:my_dic/features/auth/presentation/view_model/auth_store.dart';
-import 'package:my_dic/features/user/presentation/view_model/app_user_store.dart';
 
 import '../../helpers/fake_auth_usecases.dart';
 import '../../helpers/fake_user_usecases.dart';
@@ -79,7 +77,5 @@ AuthLifecycleController _controller({FakeVerifyEmailInteractor? verify}) {
     sendVerificationEmail: verify ?? FakeVerifyEmailInteractor(),
     reloadCurrentAuth: FakeReloadCurrentAuthInteractor(),
     ensureUserExists: FakeEnsureUserExistsInteractor(),
-    authStore: AuthStoreNotifier(),
-    userStore: AppUserStoreNotifier(),
   );
 }

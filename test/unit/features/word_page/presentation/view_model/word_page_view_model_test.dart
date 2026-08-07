@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:my_dic/core/application/usecase/fetch_conjugation/fetch_conjugation_input_data.dart';
 import 'package:my_dic/core/application/usecase/fetch_conjugation/i_fetch_conjugation_use_case.dart';
 import 'package:my_dic/core/application/usecase/fetch_dictionary/fetch_dictionary_input_data.dart';
@@ -16,7 +15,6 @@ import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/word_page/presentation/ui_model/word_page_load_key.dart';
 import 'package:my_dic/features/word_page/presentation/view_model/word_page_view_model.dart';
-import 'package:my_dic/router/navigator_service.dart';
 
 void main() {
   group('WordPageLoadKey', () {
@@ -189,10 +187,7 @@ WordPageViewModel _model({
       jpn ?? _JpnUseCase(Result.success([])),
       esp ?? _EspUseCase(Result.success([])),
       conjugation ?? _ConjugationUseCase(Result.success(null)),
-      _Navigator(),
     );
-
-class _Navigator extends Mock implements AppNavigatorService {}
 
 class _JpnUseCase implements IFetchJpnEspDictionaryUseCase {
   _JpnUseCase(this.result);

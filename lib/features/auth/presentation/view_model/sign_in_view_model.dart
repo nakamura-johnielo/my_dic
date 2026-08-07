@@ -3,14 +3,16 @@ import 'package:my_dic/core/presentation/error/app_error_message.dart';
 import 'package:my_dic/core/presentation/state/command_state.dart';
 import 'package:my_dic/core/presentation/state/ui_effect.dart';
 import 'package:my_dic/core/shared/errors/app_error.dart';
-import 'package:my_dic/features/auth/auth_coordinator.dart';
+import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/features/auth/application/usecase/auth_usecases.dart';
 import 'package:my_dic/features/auth/presentation/ui_model/sign_in_model.dart';
 
 class SignInViewModel extends StateNotifier<SignInUIState>
     implements UiEffectConsumer {
-  SignInViewModel(this._authCoordinator) : super(const SignInUIState());
+  SignInViewModel(this._resetEmailPasswordUseCase)
+      : super(const SignInUIState());
 
-  final AppAuthCoordinator _authCoordinator;
+  final IResetEmailPasswordUseCase _resetEmailPasswordUseCase;
   int _effectSequence = 0;
 
   @override
@@ -27,32 +29,13 @@ class SignInViewModel extends StateNotifier<SignInUIState>
 
   Future<void> resetEmailPassword(String email) => _run(
         operation: 'resetPassword',
-        action: () => _authCoordinator.resetEmailPassword(email),
+        action: () => _resetEmailPasswordUseCase.execute(email),
         successMessage: 'Password reset email sent.',
-      );
-
-  // Retained for callers outside the lifecycle-driven email/password screen.
-  Future<void> signIn(String email, String password) => _run(
-        operation: 'signIn',
-        action: () => _authCoordinator.signIn(email, password),
-        successMessage: 'Signed in.',
-      );
-
-  Future<void> signUp(String email, String password) => _run(
-        operation: 'signUp',
-        action: () => _authCoordinator.signUp(email, password),
-        successMessage: 'Account created.',
-      );
-
-  Future<void> signOut() => _run(
-        operation: 'signOut',
-        action: _authCoordinator.signOut,
-        successMessage: 'Signed out.',
       );
 
   Future<void> _run({
     required String operation,
-    required Future<dynamic> Function() action,
+    required Future<Result<void>> Function() action,
     required String successMessage,
   }) async {
     if (isSubmitting) return;
