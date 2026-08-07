@@ -1,6 +1,6 @@
 # Phase 1-6: 西和・和西のword status featureを統合する
 
-- 状態: 未着手
+- 状態: 進行中（presentation slice完了。domain/application/infrastructure統合は未対応）
 - 優先度: 中〜高 / 重複・循環
 - 依存タスク: [`../local_first/5-migrate-word-status.md`](../local_first/5-migrate-word-status.md)、[`2-enforce-import-boundaries.md`](2-enforce-import-boundaries.md)
 - 関連タスク: [`../phase0/5-fix-status-update-contract.md`](../phase0/5-fix-status-update-contract.md)、[`../phase2/1-move-usecases-to-application.md`](../phase2/1-move-usecases-to-application.md)
@@ -20,6 +20,13 @@
 ## 前提
 
 Phase 0-5で両方向のデータ整合性とcontract testを先に揃える。挙動が異なる状態で共通化すると、正しい差異とbugを区別できない。
+
+## 2026-08-06 実施済みスライス
+
+- `features/word_status` をstatus UIの所有featureとして新設し、辞書方向を`DictionaryDirection`で明示した共通buttonへ集約した。
+- Esp-Jpn/Jpn-Espのcommand・state・ViewModelとMyWordのUI adapterを同featureへ移し、旧`esp_jpn_word_status/components/status_button/**`を削除した。
+- WordPage、Search、Quiz、Rankingを共通buttonへ切り替え、Jpn-Esp DIからEsp-Jpn presentation実装へのimportを除去した。
+- entity、repository、usecase、datasource、sync handlerの統合は、このスライスでは行わない。詳細は[`../contexts/plans/phase1.6-unify-word-status.plan.md`](../contexts/plans/phase1.6-unify-word-status.plan.md)。
 
 ## 目標モデル例
 

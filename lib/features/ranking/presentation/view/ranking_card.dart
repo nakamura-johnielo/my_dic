@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/components/button/my_icon_button.dart';
-import 'package:my_dic/features/esp_jpn_word_status/di/di.dart';
+import 'package:my_dic/features/word_status/domain/dictionary_direction.dart';
+import 'package:my_dic/features/word_status/presentation/status_button.dart';
 import 'package:my_dic/features/quiz/consts/card_state.dart';
 import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
@@ -28,23 +29,8 @@ class RankingCard extends ConsumerWidget {
   static const Color rankingColor = Colors.black;
   static const Color meaningColor = Colors.black;
 
-  static const Map<String, IconData> bookmarkIcon = {
-    "true": Icons.bookmark_rounded,
-    "false": Icons.bookmark_border_rounded,
-    "added": Icons.bookmark_added_rounded
-  };
-  static const Map<String, IconData> learnedIcon = {
-    "true": Icons.check_circle_rounded,
-    "false": Icons.check_circle_outline_rounded
-  };
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final command =
-        ref.read(espJpnWordStatusCommandProvider(ranking.wordId).notifier);
-    final wordStatus =
-        ref.watch(espJpnWordStatusUiStateProvider(ranking.wordId));
-
     AppLogger.print("rankingcard wordID: ${ranking.rankedWord}");
     return GestureDetector(
       onTap: onTap,
@@ -120,32 +106,9 @@ class RankingCard extends ConsumerWidget {
 
             if (ranking.hasConj) SizedBox(width: 3),
 
-            MyIconButton(
-              iconSize: 22,
-              defaultIcon: wordStatus.isLearned
-                  ? learnedIcon["true"] ?? Icons.error
-                  : learnedIcon["false"] ?? Icons.error,
-              hoveredIcon: wordStatus.isLearned
-                  ? learnedIcon["true"] ?? Icons.error
-                  : learnedIcon["false"] ?? Icons.error,
-              hoveredIconColor: const Color.fromARGB(255, 119, 119, 119),
-              onTap: () {
-                command.toggleLearned(wordStatus.isLearned);
-              },
-            ),
-            SizedBox(width: 3),
-            MyIconButton(
-              iconSize: 24,
-              defaultIcon: wordStatus.isBookmarked
-                  ? bookmarkIcon["true"] ?? Icons.error
-                  : bookmarkIcon["false"] ?? Icons.error,
-              hoveredIcon: wordStatus.isBookmarked
-                  ? bookmarkIcon["true"] ?? Icons.error
-                  : bookmarkIcon["false"] ?? Icons.error,
-              hoveredIconColor: const Color.fromARGB(255, 119, 119, 119),
-              onTap: () {
-                command.toggleBookmark(wordStatus.isBookmarked);
-              },
+            DictionaryStatusButtons(
+              wordId: ranking.wordId,
+              direction: DictionaryDirection.espJpn,
             ),
           ]),
         ),

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/custom_floating_button_location.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
-import 'package:my_dic/features/esp_jpn_word_status/components/status_button/jpn_esp/jpn_esp_status_buttons.dart';
-import 'package:my_dic/features/esp_jpn_word_status/components/status_button/status_buttons.dart';
+import 'package:my_dic/features/word_status/domain/dictionary_direction.dart';
+import 'package:my_dic/features/word_status/presentation/status_button.dart';
 import 'package:my_dic/features/quiz/consts/card_state.dart';
 import 'package:my_dic/core/shared/enums/word/word_type.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
@@ -75,9 +75,15 @@ class WordPageFragment extends ConsumerWidget {
     if (input.wordType == WordType.jpnEsp) {
       viewModel.fetchJpnEspDictionaryById(input.wordId);
       tabs["Dictionary"] = JpnEspDictionaryFragment(wordId: input.wordId);
-      statusButton = JpnEspStatusButtons(wordId: input.wordId);
+      statusButton = DictionaryStatusButtons(
+        wordId: input.wordId,
+        direction: DictionaryDirection.jpnEsp,
+      );
     } else if (input.wordType == WordType.espJpn) {
-      statusButton = StatusButtons(wordId: input.wordId);
+      statusButton = DictionaryStatusButtons(
+        wordId: input.wordId,
+        direction: DictionaryDirection.espJpn,
+      );
       viewModel.fetchEspJpnItemsById(input.wordId);
       tabs["Dictionary"] = EspJpnDictionaryFragment(wordId: input.wordId);
       if (input.hasConj) {

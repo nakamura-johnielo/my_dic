@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/features/quiz/presentation/components/quiz_card.dart';
-import 'package:my_dic/features/esp_jpn_word_status/components/status_button/status_buttons.dart';
+import 'package:my_dic/features/word_status/domain/dictionary_direction.dart';
+import 'package:my_dic/features/word_status/presentation/status_button.dart';
 import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
 import 'package:my_dic/core/shared/enums/conjugacion/subject.dart';
 import 'package:my_dic/core/shared/enums/word/word_type.dart';
@@ -112,7 +113,10 @@ class QuizGameFragment extends ConsumerWidget {
                                     hasConj: true)),
                             child: Text("> 辞書確認"),
                           ),
-                          StatusButtons(wordId: input.wordId),
+                          DictionaryStatusButtons(
+                            wordId: input.wordId,
+                            direction: DictionaryDirection.espJpn,
+                          ),
                         ],
                       ),
                     ],

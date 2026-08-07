@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:my_dic/core/shared/enums/conjugacion/enum_mood_tense_subject.dart';
 import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
-import 'package:my_dic/features/esp_jpn_word_status/components/status_button/status_buttons.dart';
+import 'package:my_dic/features/word_status/domain/dictionary_direction.dart';
+import 'package:my_dic/features/word_status/presentation/status_button.dart';
 import 'package:my_dic/features/search/presentation/components/card/reverse_curve.dart';
 
 class CardView extends StatelessWidget {
@@ -44,7 +45,8 @@ class CardView extends StatelessWidget {
     this.onTap,
     this.disableColor,
     required this.query,
-    this.conjugacions, this.goToQuiz,
+    this.conjugacions,
+    this.goToQuiz,
   });
 
   final double ml = 16;
@@ -64,7 +66,7 @@ class CardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasQuiz= goToQuiz!=null;
+    final hasQuiz = goToQuiz != null;
     final backgroundColor =
         bgColor ?? Theme.of(context).colorScheme.surfaceContainer;
     final textColor = Theme.of(context).colorScheme.onSurfaceVariant;
@@ -83,7 +85,7 @@ class CardView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               //left==============================================
-      
+
               Expanded(
                 child: Container(
                   width: double.infinity,
@@ -96,7 +98,7 @@ class CardView extends StatelessWidget {
                     ),
                     color:
                         backgroundColor, // Theme.of(context).colorScheme.primary,
-      
+
                     //下段との接続部分に隙間ができるため、下段と同色のボーダーを入れて隙間を埋める
                     // border: Border(
                     //     bottom: BorderSide(color: backgroundColor, width: 4))
@@ -115,7 +117,7 @@ class CardView extends StatelessWidget {
                             child: Container(
                           width: double.infinity,
                         )),
-      
+
                         //====status button=================
                         SizedBox(
                           width: 40,
@@ -124,14 +126,17 @@ class CardView extends StatelessWidget {
                               alignment: Alignment.centerRight,
                               maxWidth: double.infinity,
                               maxHeight: double.infinity,
-                              child: StatusButtons(wordId: wordId)),
+                              child: DictionaryStatusButtons(
+                                wordId: wordId,
+                                direction: DictionaryDirection.espJpn,
+                              )),
                         )
                       ],
                     ),
                   ),
                 ),
               ),
-      
+
               //notch
               SizedBox(
                 width: quizBtnMargin,
@@ -177,7 +182,7 @@ class CardView extends StatelessWidget {
                                 style: TextStyle(
                                     fontSize: headWordFontSize,
                                     color: Colors.transparent)),
-                    
+
                             Text(
                               "Quiz",
                               style: TextStyle(
@@ -193,7 +198,7 @@ class CardView extends StatelessWidget {
                               size: quizIconSize,
                               color: hasQuiz ? rankingColor : inactiveColor,
                             ),
-                    
+
                             const Text("a",
                                 style: TextStyle(
                                     fontSize: headWordFontSize,
@@ -203,7 +208,7 @@ class CardView extends StatelessWidget {
                       ),
                     ),
                   ),
-      
+
                   //margin
                   SizedBox(
                     height: quizBtnMargin,
@@ -212,7 +217,7 @@ class CardView extends StatelessWidget {
               ),
             ],
           ),
-      
+
           // lower part
           Container(
             decoration: BoxDecoration(
@@ -228,7 +233,8 @@ class CardView extends StatelessWidget {
               //     width: 2)
             ),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   spacing: 6,
@@ -251,7 +257,7 @@ class CardView extends StatelessWidget {
                             ),
                           ),
                         ),
-      
+
                         //=====ranking===================
                         if (rankingON)
                           Row(
@@ -283,11 +289,11 @@ class CardView extends StatelessWidget {
                     ),
                     conjugacions != null
                         ? ConjSections(
-                          conjugacions: conjugacions!,
-                          query: query,
-                          conjFontSize: conjFontSize,
-                          metaFontSize: conjMetaFontSize,
-                        )
+                            conjugacions: conjugacions!,
+                            query: query,
+                            conjFontSize: conjFontSize,
+                            metaFontSize: conjMetaFontSize,
+                          )
                         : SizedBox.shrink(),
                   ]),
             ),

@@ -51,7 +51,7 @@
 | `data/wordstatus_repository.dart` | local Drift + remote Firebase status repository | local/remoteを直接持つ。Local-first 5の中心対象 |
 | `data/wordStatusEntity.dart` | Firebase status DTO | naming揺れあり |
 | `di/di.dart` | status data/usecase/stream/UI state/command provider | Riverpod providerが集中 |
-| `components/status_button/**` | status buttons、command、state、VM、jpn_esp/myword adapter | feature横断UI部品化しておりownership整理対象 |
+| （削除済み）`components/status_button/**` | status buttons、command、state、VM、jpn_esp/myword adapter | Phase 1-6 presentation sliceで`features/word_status`へ移設 |
 
 ## `features/jpn_esp_word_status`
 
@@ -64,7 +64,16 @@
 | `data/jpn_esp_word_status_repository.dart` | local Drift + remote Firebase status repository | Local-first 5の対象 |
 | `data/jpn_esp_word_status_entity.dart` | Firebase DTO | remote adapter化対象 |
 | `data/converter/jpn_esp_word_status_converter.dart` | Drift row/entity変換 | data層変換 |
-| `di/di.dart` | data/usecase/stream/UI state/command provider | Riverpod providerが集中 |
+| `di/di.dart` | data/usecase/stream/command provider | UI state/VMはPhase 1-6で`features/word_status`へ移設 |
+
+## `features/word_status`
+
+| area / file | 責務 | 状態 |
+| --- | --- | --- |
+| `domain/dictionary_direction.dart` | Esp-Jpn/Jpn-Esp datasetの方向型 | presentationの方向選択に使用 |
+| `presentation/status_button.dart` | 辞書・MyWord共通のstatus button | WordPage/Search/Quiz/Rankingから利用 |
+| `presentation/dictionary_status_view_models.dart` | 両辞書のcommand/state/ViewModel | 旧Esp-Jpn presentationから移設済み |
+| `presentation/word_status_di.dart` | direction別DI adapter | 現時点では両directionの既存DIを参照。application port化は次スライス |
 
 ## `features/my_word`
 

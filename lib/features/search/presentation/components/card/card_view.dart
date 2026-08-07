@@ -3,8 +3,8 @@ import 'package:flutter/widgets.dart';
 import 'package:my_dic/core/shared/enums/conjugacion/enum_mood_tense_subject.dart';
 import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
 import 'package:my_dic/core/shared/enums/ui/word_status_type.dart';
-import 'package:my_dic/features/esp_jpn_word_status/components/status_button/jpn_esp/jpn_esp_status_buttons.dart';
-import 'package:my_dic/features/esp_jpn_word_status/components/status_button/status_buttons.dart';
+import 'package:my_dic/features/word_status/domain/dictionary_direction.dart';
+import 'package:my_dic/features/word_status/presentation/status_button.dart';
 import 'package:my_dic/features/search/presentation/components/card/reverse_curve.dart';
 
 class CardView extends StatefulWidget {
@@ -91,13 +91,17 @@ class _CardViewState extends State<CardView> {
   Widget _buildStatusButtons() {
     switch (widget.wordStatusType) {
       case WordStatusType.myWord:
-        return StatusButtons(wordId: widget.wordId);
+        return const SizedBox.shrink();
       case WordStatusType.espJpnWord:
-        return StatusButtons(wordId: widget.wordId);
+        return DictionaryStatusButtons(
+          wordId: widget.wordId,
+          direction: DictionaryDirection.espJpn,
+        );
       case WordStatusType.jpnEspWord:
-        return JpnEspStatusButtons(wordId: widget.wordId);
-      default:
-        return SizedBox.shrink();
+        return DictionaryStatusButtons(
+          wordId: widget.wordId,
+          direction: DictionaryDirection.jpnEsp,
+        );
     }
   }
 

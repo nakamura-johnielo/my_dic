@@ -2,9 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/app/bootstrap/sync_composition.dart';
 import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
-import 'package:my_dic/features/esp_jpn_word_status/components/status_button/esp_jpn/status_buttons_command.dart';
-import 'package:my_dic/features/esp_jpn_word_status/components/status_button/word_status_command_event.dart';
-import 'package:my_dic/features/esp_jpn_word_status/components/status_button/viewmodel.dart';
+import 'package:my_dic/features/word_status/presentation/dictionary_status_view_models.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/fetch_esp_jpn_status/fetch__esp_jpn_status_interactor.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/fetch_esp_jpn_status/fetch_esp_jpn_status_usecase.dart';
@@ -16,7 +14,6 @@ import 'package:my_dic/features/esp_jpn_word_status/domain/i_word_status_reposit
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/i_update_status_use_case.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/update_status_interactor.dart';
 import 'package:my_dic/features/esp_jpn_word_status/data/wordstatus_repository.dart';
-import 'package:my_dic/features/esp_jpn_word_status/components/status_button/esp_jpn/word_status_state.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/watch/i_watch_esp_jpn_word_status_usecase.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/watch/watch_esp_jpn_word_status_interactor.dart';
 import 'package:my_dic/features/esp_jpn_word_status/data/sync/esp_jpn_word_status_sync_handler.dart';
