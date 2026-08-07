@@ -3,8 +3,8 @@ import 'package:my_dic/core/shared/enums/feature_tag.dart';
 import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/ranking/domain/usecase/load_rankings/load_rankings_input_data.dart';
-import 'package:my_dic/features/ranking/domain/usecase/load_rankings/load_rankings_interactor.dart';
+import 'package:my_dic/features/ranking/application/usecase/load_rankings/load_rankings_input_data.dart';
+import 'package:my_dic/features/ranking/application/usecase/load_rankings/load_rankings_interactor.dart';
 
 import '../../../../../helpers/fake_esp_ranking_repository.dart';
 
@@ -37,7 +37,8 @@ void main() {
         expect(repository.filteredCallCount, 1);
         expect(repository.lastFilteredInput!.partOfSpeechFilters,
             {PartOfSpeech.noun, PartOfSpeech.verb});
-        expect(repository.lastFilteredInput!.partOfSpeechExcludeFilters, isEmpty);
+        expect(
+            repository.lastFilteredInput!.partOfSpeechExcludeFilters, isEmpty);
       });
 
       test('converts value -1 to exclude filter set', () async {
@@ -63,7 +64,11 @@ void main() {
       test('ignores value 0 in filter conversion', () async {
         // Arrange
         final input = LoadRankingsInputData(
-          {PartOfSpeech.noun: 1, PartOfSpeech.verb: 0, PartOfSpeech.adjective: -1},
+          {
+            PartOfSpeech.noun: 1,
+            PartOfSpeech.verb: 0,
+            PartOfSpeech.adjective: -1
+          },
           {},
           [-1, -1],
           10,
@@ -75,11 +80,14 @@ void main() {
         await interactor.execute(input);
 
         // Assert
-        expect(repository.lastFilteredInput!.partOfSpeechFilters, {PartOfSpeech.noun});
-        expect(repository.lastFilteredInput!.partOfSpeechExcludeFilters, {PartOfSpeech.adjective});
+        expect(repository.lastFilteredInput!.partOfSpeechFilters,
+            {PartOfSpeech.noun});
+        expect(repository.lastFilteredInput!.partOfSpeechExcludeFilters,
+            {PartOfSpeech.adjective});
       });
 
-      test('converts feature tag filters with value 1 to include set', () async {
+      test('converts feature tag filters with value 1 to include set',
+          () async {
         // Arrange
         final input = LoadRankingsInputData(
           {},
@@ -99,7 +107,8 @@ void main() {
         expect(repository.lastFilteredInput!.featureTagExcludeFilters, isEmpty);
       });
 
-      test('converts feature tag filters with value -1 to exclude set', () async {
+      test('converts feature tag filters with value -1 to exclude set',
+          () async {
         // Arrange
         final input = LoadRankingsInputData(
           {},
@@ -134,10 +143,14 @@ void main() {
         await interactor.execute(input);
 
         // Assert
-        expect(repository.lastFilteredInput!.partOfSpeechFilters, {PartOfSpeech.noun});
-        expect(repository.lastFilteredInput!.partOfSpeechExcludeFilters, {PartOfSpeech.verb});
-        expect(repository.lastFilteredInput!.featureTagFilters, {FeatureTag.isLearned});
-        expect(repository.lastFilteredInput!.featureTagExcludeFilters, {FeatureTag.hasNote});
+        expect(repository.lastFilteredInput!.partOfSpeechFilters,
+            {PartOfSpeech.noun});
+        expect(repository.lastFilteredInput!.partOfSpeechExcludeFilters,
+            {PartOfSpeech.verb});
+        expect(repository.lastFilteredInput!.featureTagFilters,
+            {FeatureTag.isLearned});
+        expect(repository.lastFilteredInput!.featureTagExcludeFilters,
+            {FeatureTag.hasNote});
       });
 
       test('handles empty filter maps', () async {
@@ -156,14 +169,17 @@ void main() {
 
         // Assert
         expect(repository.lastFilteredInput!.partOfSpeechFilters, isEmpty);
-        expect(repository.lastFilteredInput!.partOfSpeechExcludeFilters, isEmpty);
+        expect(
+            repository.lastFilteredInput!.partOfSpeechExcludeFilters, isEmpty);
         expect(repository.lastFilteredInput!.featureTagFilters, isEmpty);
         expect(repository.lastFilteredInput!.featureTagExcludeFilters, isEmpty);
       });
     });
 
     group('Pagination logic', () {
-      test('calculates requiredNextPage for isNext=true with currentPage [-1,-1]', () async {
+      test(
+          'calculates requiredNextPage for isNext=true with currentPage [-1,-1]',
+          () async {
         // Arrange
         final input = LoadRankingsInputData(
           {},
@@ -319,14 +335,16 @@ void main() {
           success: (_) => fail('Should not succeed'),
           failure: (error) {
             expect(error, isA<DatabaseError>());
-            expect((error as DatabaseError).message, 'Database connection failed');
+            expect(
+                (error as DatabaseError).message, 'Database connection failed');
           },
         );
       });
     });
 
     group('Multiple filter combinations', () {
-      test('handles all part of speech types with mixed include and exclude', () async {
+      test('handles all part of speech types with mixed include and exclude',
+          () async {
         // Arrange
         final input = LoadRankingsInputData(
           {

@@ -4,13 +4,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:uuid/uuid.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/core/shared/consts/account_scope.dart';
+import 'package:my_dic/core/shared/value_objects/field_update.dart';
 import 'package:my_dic/core/shared/enums/sync_dataset.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/my_word/domain/entity/my_word_status.dart';
 import 'package:my_dic/features/my_word/domain/i_repository/i_my_word_status_repository.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word_status/update_my_word_status/update_my_word_status_repository_input_data.dart';
+import 'package:my_dic/features/my_word/domain/model/my_word_status/update_my_word_status_repository_input_data.dart';
 import 'package:my_dic/features/my_word/data/data_source/local/i_my_word_status_local_data_source.dart';
 import 'package:my_dic/features/my_word/data/data_source/remote/status/i_my_word_status_remote_data_source.dart';
 import 'package:my_dic/features/my_word/data/data_source/remote/status/firebase_my_word_status_dto.dart';
@@ -40,26 +41,26 @@ class MyWordStatusRepository implements IMyWordStatusRepository {
       await _localDataSource.runInTransaction(() async {
         final row = await _localDataSource.applyStatusPatch(
           input.wordId,
-          input.isLearned,
-          input.isBookmarked,
-          input.hasNote,
+          _toNullableInt(input.isLearned),
+          _toNullableInt(input.isBookmarked),
+          _toNullableInt(input.hasNote),
           editAt,
           scope,
         );
         if (input.userId != null) {
           final fieldMask = <String>[];
           final payload = <String, Object?>{};
-          if (input.isLearned != null) {
+          if (input.isLearned case SetValue(value: final value)) {
             fieldMask.add('isLearned');
-            payload['isLearned'] = input.isLearned == 1;
+            payload['isLearned'] = value;
           }
-          if (input.isBookmarked != null) {
+          if (input.isBookmarked case SetValue(value: final value)) {
             fieldMask.add('isBookmarked');
-            payload['isBookmarked'] = input.isBookmarked == 1;
+            payload['isBookmarked'] = value;
           }
-          if (input.hasNote != null) {
+          if (input.hasNote case SetValue(value: final value)) {
             fieldMask.add('hasNote');
-            payload['hasNote'] = input.hasNote == 1;
+            payload['hasNote'] = value;
           }
           if (fieldMask.isNotEmpty) {
             await _outboxWriter.enqueue(SyncMutation(
@@ -261,17 +262,22 @@ class MyWordStatusRepository implements IMyWordStatusRepository {
     try {
       MyWordStatusTableData data = MyWordStatusTableData(
         myWordId: input.wordId,
-        isLearned: input.isLearned ?? 0,
-        isBookmarked: input.isBookmarked ?? 0,
-        hasNote: input.hasNote ?? 0,
+        isLearned: _toNullableInt(input.isLearned) ?? 0,
+        isBookmarked: _toNullableInt(input.isBookmarked) ?? 0,
+        hasNote: _toNullableInt(input.hasNote) ?? 0,
         editAt: input.editAt.toIso8601String(),
         accountId: 'legacy_unowned',
         localRevision: 0,
       );
 
       if (await _localDataSource.existStatus(input.wordId)) {
-        await _localDataSource.updateStatus(input.wordId, input.isLearned,
-            input.isBookmarked, input.hasNote, input.editAt.toIso8601String());
+        await _localDataSource.updateStatus(
+          input.wordId,
+          _toNullableInt(input.isLearned),
+          _toNullableInt(input.isBookmarked),
+          _toNullableInt(input.hasNote),
+          input.editAt.toIso8601String(),
+        );
       } else {
         await _localDataSource.insertStatus(data);
       }
@@ -284,6 +290,11 @@ class MyWordStatusRepository implements IMyWordStatusRepository {
       ));
     }
   }
+
+  int? _toNullableInt(FieldUpdate<bool> update) => switch (update) {
+        SetValue(value: final value) => value ? 1 : 0,
+        Unchanged() => null,
+      };
 
   // ============================================================================
   // Watch Streams

@@ -1,7 +1,8 @@
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
+import 'package:my_dic/core/shared/enums/feature_tag.dart';
+import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
-import 'package:my_dic/features/ranking/domain/usecase/load_rankings/filtered_ranking_list_input_data.dart';
 import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
 import 'package:my_dic/features/ranking/domain/i_repository/i_esp_ranking_repository.dart';
 import 'package:my_dic/features/ranking/data/data_source/local/i_ranking_local_data_source.dart';
@@ -10,9 +11,9 @@ class RankingRepository implements IEspRankingRepository {
   final IRankingLocalDataSource _dataSource;
   RankingRepository(this._dataSource);
   @override
-   Future<Result<Ranking>> getRankingById(int wordId) async {
+  Future<Result<Ranking>> getRankingById(int wordId) async {
     try {
-      final data =await _dataSource.getRankingById(wordId);
+      final data = await _dataSource.getRankingById(wordId);
       if (data == null) {
         return Result.failure(DatabaseError(
           message: 'ランキングが見つかりませんでした',
@@ -33,7 +34,7 @@ class RankingRepository implements IEspRankingRepository {
         stackTrace: stackTrace,
       ));
     }
-   }
+  }
 
   @override
   Future<Result<List<Ranking>>> getRankingList(int page, int size) async {
@@ -59,18 +60,23 @@ class RankingRepository implements IEspRankingRepository {
 
   @override
   Future<Result<List<Ranking>>> getRankingListByFilters(
-      FilteredRankingListInputData input) async {
+      int page,
+      int size,
+      Set<PartOfSpeech> partOfSpeechFilters,
+      Set<FeatureTag> featureTagFilters,
+      Set<PartOfSpeech> partOfSpeechExcludeFilters,
+      Set<FeatureTag> featureTagExcludeFilters) async {
     try {
       // debug: removed direct DAO access
       AppLogger.print(
-          " =====repo input requiredPage: ${input.requiredPage}, size: ${input.size}, posFilters: ${input.partOfSpeechFilters}, tagFilters: ${input.featureTagFilters}, posExclu: ${input.partOfSpeechExcludeFilters}, tagExclu: ${input.featureTagExcludeFilters}");
+          " =====repo input requiredPage: $page, size: $size, posFilters: $partOfSpeechFilters, tagFilters: $featureTagFilters, posExclu: $partOfSpeechExcludeFilters, tagExclu: $featureTagExcludeFilters");
       final tupleList = await _dataSource.getFilteredRankingWithStatusByPage(
-        input.requiredPage,
-        input.size,
-        input.partOfSpeechFilters,
-        input.featureTagFilters,
-        input.partOfSpeechExcludeFilters,
-        input.featureTagExcludeFilters,
+        page,
+        size,
+        partOfSpeechFilters,
+        featureTagFilters,
+        partOfSpeechExcludeFilters,
+        featureTagExcludeFilters,
       );
       final entities = tupleList.map((tuple) {
         final rankingData = tuple.item1;

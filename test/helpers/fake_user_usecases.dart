@@ -2,9 +2,7 @@
 
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/user/domain/entity/user.dart';
-import 'package:my_dic/features/user/domain/usecase/i_ensure_user_exists_use_case.dart';
-import 'package:my_dic/features/user/domain/usecase/i_get_user_use_case.dart';
-import 'package:my_dic/features/user/domain/usecase/i_update_user_use_case.dart';
+import 'package:my_dic/features/user/application/usecase/user_usecases.dart';
 
 /// Fake GetUserInteractor for testing
 class FakeGetUserInteractor implements IGetUserUseCase {

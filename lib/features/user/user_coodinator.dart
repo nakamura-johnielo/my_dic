@@ -1,13 +1,10 @@
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/enums/auth/subscription_status.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/user/di/service.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
-import 'package:my_dic/features/user/domain/usecase/i_create_new_user_use_case.dart';
-import 'package:my_dic/features/user/domain/usecase/i_get_user_use_case.dart';
+import 'package:my_dic/features/user/application/usecase/user_usecases.dart';
 import 'package:my_dic/features/user/domain/entity/user.dart';
-import 'package:my_dic/features/user/domain/usecase/i_update_user_use_case.dart';
 import 'package:my_dic/features/user/presentation/view_model/app_user_store.dart';
 
 class AppUserCoordinator {

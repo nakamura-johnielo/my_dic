@@ -2,24 +2,20 @@ import 'package:my_dic/core/shared/utils/logger.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word/load_my_word/i_load_my_word_use_case.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word/load_my_word/load_my_word_input_data.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word/create/handle_word_registration/handle_word_registration_input_data.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word/create/handle_word_registration/i_handle_word_registration_use_case.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word/create/register_my_word/i_register_my_word_use_case.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word/create/register_my_word/register_my_word_input_data.dart';
+import 'package:my_dic/features/my_word/application/usecase/my_word/load_my_word/i_load_my_word_use_case.dart';
+import 'package:my_dic/features/my_word/application/usecase/my_word/load_my_word/load_my_word_input_data.dart';
+import 'package:my_dic/features/my_word/application/usecase/my_word/create/register_my_word/i_register_my_word_use_case.dart';
+import 'package:my_dic/features/my_word/application/usecase/my_word/create/register_my_word/register_my_word_input_data.dart';
 import 'package:my_dic/features/my_word/presentation/ui_model/my_word_ui_model.dart';
 //
 
 class MyWordFragmentViewModel extends StateNotifier<MyWordFragmentState> {
   final ILoadMyWordUseCase _loadMyWordInteractor;
   final IRegisterMyWordUseCase _registerMyWordInteractor;
-  final IHandleWordRegistrationUseCase _handleWordRegistrationInteractor;
 
   MyWordFragmentViewModel(
     this._loadMyWordInteractor,
     this._registerMyWordInteractor,
-    this._handleWordRegistrationInteractor,
   ) : super(MyWordFragmentState());
 
   void reset() {
@@ -42,33 +38,24 @@ class MyWordFragmentViewModel extends StateNotifier<MyWordFragmentState> {
     );
   }
 
-  void registerWord(
-      {required String headword,
-      required String description,
-      required void Function() onComplete,
-      required void Function() onError,
-      required void Function() onInvalid}) async {
-    if (headword.isEmpty) {
-      onInvalid();
-      return;
-    }
-
-    final result =
-        await _registerMyWordInteractor.execute(RegisterMyWordInputData(
-      headword,
-      description,
-    ));
-
+  Future<Result<String>> registerWord({
+    required String headword,
+    required String description,
+    void Function()? onComplete,
+    void Function()? onError,
+    void Function()? onInvalid,
+  }) async {
+    final result = await _registerMyWordInteractor.execute(
+      RegisterMyWordInputData(headword, description),
+    );
     result.when(
-      success: (_) {
-        _handleWordRegistrationInteractor.execute(
-            HandleWordRegistrationInputData(true, onComplete, onError));
-      },
+      success: (_) => onComplete?.call(),
       failure: (error) {
         AppLogger.print('Failed to register word: ${error.message}');
-        _handleWordRegistrationInteractor.execute(
-            HandleWordRegistrationInputData(false, onComplete, onError));
+        onError?.call();
+        onInvalid?.call();
       },
     );
+    return result;
   }
 }

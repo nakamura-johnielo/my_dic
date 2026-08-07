@@ -1,6 +1,5 @@
 import 'package:my_dic/core/domain/entity/jpn_esp/jpn_esp_dictionary.dart';
 import 'package:my_dic/core/domain/i_repository/i_jpn_esp_dictionary_repository.dart';
-import 'package:my_dic/core/domain/usecase/fetch_jpn_esp_dictionary/fetch_jpn_esp_dictionary_repository_input_data.dart';
 import 'package:my_dic/core/infrastructure/datasource/jpn_esp/i_jpn_esp_dictionary_data_source.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
@@ -13,9 +12,9 @@ class JpnEspDictionaryRepository implements IJpnEspDictionaryRepository {
 
   @override
   Future<Result<List<JpnEspDictionary>>> getDictionaryByWordId(
-      FetchJpnEspDictionaryRepositoryInputData input) async {
+      int wordId) async {
     try {
-      final dataSets = await _dataSource.getDictionaryByWordId(input);
+      final dataSets = await _dataSource.getDictionaryByWordId(wordId);
       final entities = JpnEspDictionaryConverter.toEntityList(dataSets);
       return Result.success(entities);
     } catch (e, stackTrace) {

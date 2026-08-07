@@ -12,10 +12,8 @@ import 'package:my_dic/app/presentation/dictionary_status_view_models.dart';
 import 'package:my_dic/features/jpn_esp_word_status/data/jpn_esp_word_status_repository.dart';
 import 'package:my_dic/features/jpn_esp_word_status/domain/i_jpn_esp_word_status_repository.dart';
 import 'package:my_dic/features/jpn_esp_word_status/domain/jpn_esp_word_status.dart';
-import 'package:my_dic/features/jpn_esp_word_status/domain/usecase/update_jpn_esp_status/i_update_jpn_esp_status_use_case.dart';
-import 'package:my_dic/features/jpn_esp_word_status/domain/usecase/update_jpn_esp_status/update_jpn_esp_status_interactor.dart';
-import 'package:my_dic/features/jpn_esp_word_status/domain/usecase/watch/i_watch_jpn_esp_word_status_usecase.dart';
-import 'package:my_dic/features/jpn_esp_word_status/domain/usecase/watch/watch_jpn_esp_word_status_interactor.dart';
+import 'package:my_dic/features/jpn_esp_word_status/application/update_jpn_esp_status_usecase.dart';
+import 'package:my_dic/features/jpn_esp_word_status/application/watch_jpn_esp_word_status_usecase.dart';
 import 'package:my_dic/features/jpn_esp_word_status/data/sync/jpn_esp_word_status_sync_handler.dart';
 
 //==========Usecase=====================

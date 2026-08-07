@@ -13,14 +13,12 @@ import 'package:my_dic/core/shared/value_objects/field_update.dart';
 import 'package:my_dic/features/esp_jpn_word_status/data/wordstatus_repository.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/i_word_status_repository.dart';
-import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/fetch_esp_jpn_status/fetch__esp_jpn_status_interactor.dart';
-import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/update_status_repository_input_data.dart';
-import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/watch/watch_esp_jpn_word_status_interactor.dart';
+import 'package:my_dic/features/esp_jpn_word_status/application/fetch_esp_jpn_word_status_usecase.dart';
+import 'package:my_dic/features/esp_jpn_word_status/application/watch_esp_jpn_word_status_usecase.dart';
 import 'package:my_dic/features/jpn_esp_word_status/data/jpn_esp_word_status_repository.dart';
 import 'package:my_dic/features/jpn_esp_word_status/domain/i_jpn_esp_word_status_repository.dart';
 import 'package:my_dic/features/jpn_esp_word_status/domain/jpn_esp_word_status.dart';
-import 'package:my_dic/features/jpn_esp_word_status/domain/usecase/update_jpn_esp_status/update_jpn_esp_status_repository_input_data.dart';
-import 'package:my_dic/features/jpn_esp_word_status/domain/usecase/watch/watch_jpn_esp_word_status_interactor.dart';
+import 'package:my_dic/features/jpn_esp_word_status/application/watch_jpn_esp_word_status_usecase.dart';
 import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
 import 'package:my_dic/features/sync/application/port/outbox_writer.dart';
 
@@ -61,13 +59,11 @@ class _EspJpnScopeFixture implements _ScopeFixture {
   Future<void> apply(String? accountId,
       {required bool isLearned, required bool isBookmarked}) async {
     final result = await _repository.updateLocalWordStatus(
-      UpdateStatusRepositoryInputData(
-        wordId: 1,
-        isLearned: FieldUpdate.set(isLearned),
-        isBookmarked: FieldUpdate.set(isBookmarked),
-        hasNote: const FieldUpdate.unchanged(),
-      ),
-      DateTime.utc(2026, 8, 6),
+      wordId: 1,
+      isLearned: FieldUpdate.set(isLearned),
+      isBookmarked: FieldUpdate.set(isBookmarked),
+      hasNote: const FieldUpdate.unchanged(),
+      editAt: DateTime.utc(2026, 8, 6),
       accountId: accountId,
     );
     expect(result.isSuccess, isTrue);
@@ -108,13 +104,11 @@ class _JpnEspScopeFixture implements _ScopeFixture {
   Future<void> apply(String? accountId,
       {required bool isLearned, required bool isBookmarked}) async {
     final result = await _repository.updateLocalWordStatus(
-      UpdateJpnEspStatusRepositoryInputData(
-        wordId: 1,
-        isLearned: FieldUpdate.set(isLearned),
-        isBookmarked: FieldUpdate.set(isBookmarked),
-        hasNote: const FieldUpdate.unchanged(),
-      ),
-      DateTime.utc(2026, 8, 6),
+      wordId: 1,
+      isLearned: FieldUpdate.set(isLearned),
+      isBookmarked: FieldUpdate.set(isBookmarked),
+      hasNote: const FieldUpdate.unchanged(),
+      editAt: DateTime.utc(2026, 8, 6),
       accountId: accountId,
     );
     expect(result.isSuccess, isTrue);
@@ -137,18 +131,6 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() {
-    registerFallbackValue(const UpdateStatusRepositoryInputData(
-      wordId: 0,
-      isLearned: FieldUpdate.unchanged(),
-      isBookmarked: FieldUpdate.unchanged(),
-      hasNote: FieldUpdate.unchanged(),
-    ));
-    registerFallbackValue(const UpdateJpnEspStatusRepositoryInputData(
-      wordId: 0,
-      isLearned: FieldUpdate.unchanged(),
-      isBookmarked: FieldUpdate.unchanged(),
-      hasNote: FieldUpdate.unchanged(),
-    ));
     registerFallbackValue(SyncMutation(
       mutationId: 'fallback',
       accountId: 'fallback',

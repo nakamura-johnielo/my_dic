@@ -1,7 +1,6 @@
 import 'package:my_dic/core/infrastructure/database/drift/daos/jpn_esp/jpn_esp_dictionary_dao.dart';
 import 'package:my_dic/core/infrastructure/database/drift/daos/jpn_esp/jpn_esp_example_dao.dart';
 import 'package:my_dic/core/infrastructure/datasource/jpn_esp/jpn_esp_dictionary_dataset.dart';
-import 'package:my_dic/core/domain/usecase/fetch_jpn_esp_dictionary/fetch_jpn_esp_dictionary_repository_input_data.dart';
 
 import 'i_jpn_esp_dictionary_data_source.dart';
 
@@ -14,8 +13,8 @@ class JpnEspDriftDictionaryDataSource
 
   @override
   Future<List<JpnEspDictionaryDataSet>> getDictionaryByWordId(
-      FetchJpnEspDictionaryRepositoryInputData input) async {
-    final dic = await _dictionaryDao.getDictionaryByWordId(input.id);
+      int wordId) async {
+    final dic = await _dictionaryDao.getDictionaryByWordId(wordId);
     if (dic.isEmpty) return [];
     final res = <JpnEspDictionaryDataSet>[];
     for (final d in dic) {
@@ -32,6 +31,5 @@ class JpnEspDriftDictionaryDataSource
   @override
   Future<Map<int, String>> getContentsByWordIds(List<int> wordIds) {
     return _dictionaryDao.getFirstContentsByWordIds(wordIds);
-
   }
 }

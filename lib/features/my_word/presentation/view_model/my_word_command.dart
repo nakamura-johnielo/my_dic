@@ -2,10 +2,10 @@ import 'package:my_dic/core/shared/utils/logger.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word/delete/delete_my_word/delete_my_word_input_data.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word/delete/delete_my_word/i_delete_my_word_use_case.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word/update/update_my_word/i_update_my_word_use_case.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word/update/update_my_word/update_my_word_input_data.dart';
+import 'package:my_dic/features/my_word/application/usecase/my_word/delete/delete_my_word/delete_my_word_input_data.dart';
+import 'package:my_dic/features/my_word/application/usecase/my_word/delete/delete_my_word/i_delete_my_word_use_case.dart';
+import 'package:my_dic/features/my_word/application/usecase/my_word/update/update_my_word/i_update_my_word_use_case.dart';
+import 'package:my_dic/features/my_word/application/usecase/my_word/update/update_my_word/update_my_word_input_data.dart';
 import 'package:my_dic/features/my_word/presentation/ui_model/my_word_event.dart';
 
 class MyWordCommand extends StateNotifier<MyWordCommandEvent?> {

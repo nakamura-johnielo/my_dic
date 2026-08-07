@@ -1,8 +1,10 @@
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
+import 'package:my_dic/core/shared/enums/feature_tag.dart';
+import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/ranking/domain/entity/ranking.dart';
+import 'package:my_dic/features/ranking/application/usecase/load_rankings/filtered_ranking_list_input_data.dart';
 import 'package:my_dic/features/ranking/domain/i_repository/i_esp_ranking_repository.dart';
-import 'package:my_dic/features/ranking/domain/usecase/load_rankings/filtered_ranking_list_input_data.dart';
 
 class FakeEspRankingRepository implements IEspRankingRepository {
   final Result<List<Ranking>> _result;
@@ -41,9 +43,21 @@ class FakeEspRankingRepository implements IEspRankingRepository {
 
   @override
   Future<Result<List<Ranking>>> getRankingListByFilters(
-      FilteredRankingListInputData input) async {
+      int page,
+      int size,
+      Set<PartOfSpeech> partOfSpeechFilters,
+      Set<FeatureTag> featureTagFilters,
+      Set<PartOfSpeech> partOfSpeechExcludeFilters,
+      Set<FeatureTag> featureTagExcludeFilters) async {
     filteredCallCount++;
-    lastFilteredInput = input;
+    lastFilteredInput = FilteredRankingListInputData(
+      partOfSpeechFilters,
+      featureTagFilters,
+      partOfSpeechExcludeFilters,
+      featureTagExcludeFilters,
+      page,
+      size,
+    );
     return _result;
   }
 

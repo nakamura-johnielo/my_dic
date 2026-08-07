@@ -4,18 +4,15 @@ import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
 import 'package:my_dic/app/presentation/dictionary_status_view_models.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';
-import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/fetch_esp_jpn_status/fetch__esp_jpn_status_interactor.dart';
-import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/fetch_esp_jpn_status/fetch_esp_jpn_status_usecase.dart';
+import 'package:my_dic/features/esp_jpn_word_status/application/fetch_esp_jpn_word_status_usecase.dart';
 import 'package:my_dic/core/infrastructure/datasource/word_status/drift_word_status_data_source.dart';
 import 'package:my_dic/core/infrastructure/datasource/word_status/firebase_word_status_data_source.dart';
 import 'package:my_dic/core/infrastructure/datasource/word_status/i_local_word_status_data_source.dart';
 import 'package:my_dic/core/infrastructure/datasource/word_status/i_remote_word_status_data_source.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/i_word_status_repository.dart';
-import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/i_update_status_use_case.dart';
-import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/update_status_interactor.dart';
+import 'package:my_dic/features/esp_jpn_word_status/application/update_status_usecase.dart';
 import 'package:my_dic/features/esp_jpn_word_status/data/wordstatus_repository.dart';
-import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/watch/i_watch_esp_jpn_word_status_usecase.dart';
-import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/watch/watch_esp_jpn_word_status_interactor.dart';
+import 'package:my_dic/features/esp_jpn_word_status/application/watch_esp_jpn_word_status_usecase.dart';
 import 'package:my_dic/features/esp_jpn_word_status/data/sync/esp_jpn_word_status_sync_handler.dart';
 
 //==========Usecase=====================

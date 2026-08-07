@@ -4,11 +4,10 @@ import 'package:my_dic/core/shared/enums/i_enum.dart';
 import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
-import 'package:my_dic/features/ranking/domain/usecase/load_rankings/i_load_rankings_use_case.dart';
-import 'package:my_dic/features/ranking/domain/usecase/load_rankings/load_rankings_input_data.dart';
-import 'package:my_dic/features/ranking/domain/usecase/locate_ranking_pagenation/i_locate_ranking_pagenation_use_case.dart';
-import 'package:my_dic/features/ranking/domain/usecase/update_ranking_filter/i_update_ranking_filter_use_case.dart';
-import 'package:my_dic/features/ranking/domain/usecase/update_ranking_filter/update_ranking_filter_input_data.dart';
+import 'package:my_dic/features/ranking/application/usecase/load_rankings/i_load_rankings_use_case.dart';
+import 'package:my_dic/features/ranking/application/usecase/load_rankings/load_rankings_input_data.dart';
+import 'package:my_dic/features/ranking/application/usecase/update_ranking_filter/i_update_ranking_filter_use_case.dart';
+import 'package:my_dic/features/ranking/application/usecase/update_ranking_filter/update_ranking_filter_input_data.dart';
 import 'package:my_dic/features/ranking/presentation/ui_model/ranking_ui_model.dart';
 import 'package:logging/logging.dart';
 import 'package:my_dic/app/routing/contracts/word_detail_route.dart';
@@ -16,8 +15,8 @@ import 'package:my_dic/router/navigator_service.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 
 class RankingViewModel extends StateNotifier<RankingState> {
-  RankingViewModel(this._loadRankingsUseCase, ILocateRankingPagenationUseCase _,
-      this._updateRankingFilterUseCase, this._naviService)
+  RankingViewModel(this._loadRankingsUseCase, this._updateRankingFilterUseCase,
+      this._naviService)
       : super(const RankingState());
 
   final ILoadRankingsUseCase _loadRankingsUseCase;
@@ -41,11 +40,12 @@ class RankingViewModel extends StateNotifier<RankingState> {
     AppLogger.print("loadnext on VM, nextpage: $nextPage");
 
     try {
+      const pageSize = _pageSize + 1;
       final input = LoadRankingsInputData(
           state.partOfSpeechFilters,
           state.featureTagFilters,
           [state.currentPageRange[0], nextPage - 1],
-          _pageSize,
+          pageSize,
           true,
           //TODO pagenationFilter
           state.pagenationFilter);
@@ -56,11 +56,11 @@ class RankingViewModel extends StateNotifier<RankingState> {
         success: (output) {
           AppLogger.print(
               "==================- ranking items: ${output.length}");
-          final appended = [...state.items, ...output];
-          final hasNext = output.length > _pageSize;
+          final hasNext = output.length == pageSize;
+          final visibleItems = hasNext ? output.take(_pageSize) : output;
 
           state = state.copyWith(
-            items: appended,
+            items: [...state.items, ...visibleItems],
             currentPageRange: [state.currentPageRange[0], nextPage],
             hasNext: hasNext,
             isLoadingNext: false,
@@ -165,14 +165,10 @@ class RankingViewModel extends StateNotifier<RankingState> {
   }
 
   void setFeatureTagFilter(FeatureTag tag, int value) {
-    final next = Map<FeatureTag, int>.from(state.featureTagFilters)
-      ..[tag] = value;
-    state = state.copyWith(featureTagFilters: next, hasNext: true);
+    _updateFilter(UpdateRankingFilterInputData(tag, value));
   }
 
   void setPartOfSpeechFilter(PartOfSpeech pos, int value) {
-    final next = Map<PartOfSpeech, int>.from(state.partOfSpeechFilters)
-      ..[pos] = value;
-    state = state.copyWith(partOfSpeechFilters: next, hasNext: true);
+    _updateFilter(UpdateRankingFilterInputData(pos, value));
   }
 }

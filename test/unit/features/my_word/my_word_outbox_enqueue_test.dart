@@ -10,9 +10,9 @@ import 'package:my_dic/features/my_word/data/data_source/remote/myword/firebase_
 import 'package:my_dic/features/my_word/data/data_source/remote/myword/i_my_word_remote_data_source.dart';
 import 'package:my_dic/features/my_word/data/repository_impl/my_word_repository.dart';
 import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word/create/register_my_word/register_my_word_repository_input_data.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word/delete/delete_my_word/delete_my_word_repository_input_data.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word/update/update_my_word/update_my_word_repository_input_data.dart';
+import 'package:my_dic/features/my_word/domain/model/my_word/register_my_word_repository_input_data.dart';
+import 'package:my_dic/features/my_word/domain/model/my_word/delete_my_word_repository_input_data.dart';
+import 'package:my_dic/features/my_word/domain/model/my_word/update_my_word_repository_input_data.dart';
 import 'package:my_dic/features/sync/infrastructure/persistence/drift/drift_outbox_writer.dart';
 
 class _MockMyWordRemoteDataSource extends Mock
@@ -34,8 +34,7 @@ void main() {
   setUp(() {
     database = DatabaseProvider.forTesting(NativeDatabase.memory());
     remote = _MockMyWordRemoteDataSource();
-    when(() => remote.updateMyWord(any(), any()))
-        .thenAnswer((_) async {});
+    when(() => remote.updateMyWord(any(), any())).thenAnswer((_) async {});
     when(() => remote.deleteMyWord(any(), any())).thenAnswer((_) async {});
     final local = MyWordDriftDataSource(MyWordDao(database));
     final writer = DriftOutboxWriter(database, clock: () => DateTime.utc(2026));
@@ -83,8 +82,7 @@ void main() {
       final wordId = registerResult.dataOrNull!;
 
       final updateResult = await repository.updateWord(
-        UpdateMyWordRepositoryInputData(
-            wordId, 'hola!', 'greeting (updated)',
+        UpdateMyWordRepositoryInputData(wordId, 'hola!', 'greeting (updated)',
             DateTime.utc(2026, 8, 6), 'account-a'),
       );
       expect(updateResult.isSuccess, isTrue);
@@ -106,8 +104,7 @@ void main() {
       final wordId = registerResult.dataOrNull!;
 
       final updateResult = await repository.updateWord(
-        UpdateMyWordRepositoryInputData(
-            wordId, 'hola!', 'greeting (updated)',
+        UpdateMyWordRepositoryInputData(wordId, 'hola!', 'greeting (updated)',
             DateTime.utc(2026, 8, 6), null),
       );
       expect(updateResult.isSuccess, isTrue);

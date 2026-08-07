@@ -2,11 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/shared/value_objects/field_update.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';
-import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/i_update_status_use_case.dart';
-import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/update_status_input_data.dart';
+import 'package:my_dic/features/esp_jpn_word_status/application/update_status_usecase.dart';
 import 'package:my_dic/features/jpn_esp_word_status/domain/jpn_esp_word_status.dart';
-import 'package:my_dic/features/jpn_esp_word_status/domain/usecase/update_jpn_esp_status/i_update_jpn_esp_status_use_case.dart';
-import 'package:my_dic/features/jpn_esp_word_status/domain/usecase/update_jpn_esp_status/update_jpn_esp_status_input_data.dart';
+import 'package:my_dic/features/jpn_esp_word_status/application/update_jpn_esp_status_usecase.dart';
 import 'package:my_dic/features/word_status/presentation/status_button.dart';
 
 sealed class WordStatusCommandEvent {

@@ -18,7 +18,7 @@ final conjEnglishProvider = FutureProvider<Map<String, String>>((ref) async {
 final beConjProvider =
     FutureProvider<Map<String, Map<String, String>>>((ref) async {
   final usecase = ref.read(fetchEnglishConjSubUsecaseProvider);
-  final res= await usecase.getConjOfBe();
+  final res = await usecase.getConjOfBe();
   return res.when(
       success: (data) => data,
       failure: (failure) {

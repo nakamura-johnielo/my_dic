@@ -8,9 +8,7 @@ import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/jpn_es
 import 'package:my_dic/core/infrastructure/datasource/word_status/drift_word_status_data_source.dart';
 import 'package:my_dic/core/shared/value_objects/field_update.dart';
 import 'package:my_dic/features/esp_jpn_word_status/data/wordstatus_repository.dart';
-import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/update_status_repository_input_data.dart';
 import 'package:my_dic/features/jpn_esp_word_status/data/jpn_esp_word_status_repository.dart';
-import 'package:my_dic/features/jpn_esp_word_status/domain/usecase/update_jpn_esp_status/update_jpn_esp_status_repository_input_data.dart';
 import 'package:my_dic/features/sync/application/port/outbox_writer.dart';
 
 class _MockOutboxWriter extends Mock implements OutboxWriter {}
@@ -49,13 +47,11 @@ class _EspJpnFixture implements _StatusContractFixture {
     FieldUpdate<bool> hasNote = const FieldUpdate.unchanged(),
   }) async {
     final result = await _repository.updateLocalWordStatus(
-      UpdateStatusRepositoryInputData(
-        wordId: 1,
-        isLearned: learned,
-        isBookmarked: bookmarked,
-        hasNote: hasNote,
-      ),
-      DateTime.utc(2026, 8, 5),
+      wordId: 1,
+      isLearned: learned,
+      isBookmarked: bookmarked,
+      hasNote: hasNote,
+      editAt: DateTime.utc(2026, 8, 5),
       accountId: null,
     );
     expect(result.isSuccess, isTrue);
@@ -95,13 +91,11 @@ class _JpnEspFixture implements _StatusContractFixture {
     FieldUpdate<bool> hasNote = const FieldUpdate.unchanged(),
   }) async {
     final result = await _repository.updateLocalWordStatus(
-      UpdateJpnEspStatusRepositoryInputData(
-        wordId: 1,
-        isLearned: learned,
-        isBookmarked: bookmarked,
-        hasNote: hasNote,
-      ),
-      DateTime.utc(2026, 8, 5),
+      wordId: 1,
+      isLearned: learned,
+      isBookmarked: bookmarked,
+      hasNote: hasNote,
+      editAt: DateTime.utc(2026, 8, 5),
       accountId: null,
     );
     expect(result.isSuccess, isTrue);

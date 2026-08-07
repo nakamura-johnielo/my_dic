@@ -1,21 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/features/auth/di/data_di.dart';
-import 'package:my_dic/features/auth/domain/usecase/i_observe_auth_state_use_case.dart';
-import 'package:my_dic/features/auth/domain/usecase/i_reload_current_auth_use_case.dart';
-import 'package:my_dic/features/auth/domain/usecase/i_send_email_use_case.dart';
-import 'package:my_dic/features/auth/domain/usecase/i_sign_in_use_case.dart';
-import 'package:my_dic/features/auth/domain/usecase/i_sign_out_use_case.dart';
-import 'package:my_dic/features/auth/domain/usecase/i_sign_up_use_case.dart';
-import 'package:my_dic/features/auth/domain/usecase/i_verify_email_use_case.dart';
-import 'package:my_dic/features/auth/domain/usecase/observe_auth_state_interactor.dart';
-import 'package:my_dic/features/auth/domain/usecase/reload_current_auth.dart';
-import 'package:my_dic/features/auth/domain/usecase/send_email_interactor.dart';
-import 'package:my_dic/features/auth/domain/usecase/signin.dart';
-import 'package:my_dic/features/auth/domain/usecase/signout.dart';
-import 'package:my_dic/features/auth/domain/usecase/signup.dart';
-import 'package:my_dic/features/auth/domain/usecase/verify_email.dart';
-
-
+import 'package:my_dic/features/auth/application/usecase/auth_usecases.dart';
+import 'package:my_dic/features/auth/application/usecase/i_sign_in_use_case.dart';
+import 'package:my_dic/features/auth/application/usecase/signin.dart';
 
 //Usecase
 final observeAuthStateUseCaseProvider = Provider<IObserveAuthStateUseCase>(
@@ -45,6 +32,8 @@ final verificateInteractorProvider = Provider<IVerifyEmailUseCase>(
   (ref) => VerifyEmailInteractor(ref.watch(firebaseAuthRepositoryProvider)),
 );
 
-final resetEmailPasswordInteractorProvider = Provider<IResetEmailPasswordUseCase>(
-  (ref) => ResetEmailPasswordInteractor(ref.watch(firebaseAuthRepositoryProvider)),
+final resetEmailPasswordInteractorProvider =
+    Provider<IResetEmailPasswordUseCase>(
+  (ref) =>
+      ResetEmailPasswordInteractor(ref.watch(firebaseAuthRepositoryProvider)),
 );

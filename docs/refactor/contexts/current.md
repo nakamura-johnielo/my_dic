@@ -2,6 +2,27 @@
 
 最終更新: 2026-08-07
 
+## Phase 2-1: application use-case migration complete
+
+- Orchestration UseCases for Word status, MyWord/MyWordStatus, User/Auth,
+  Search/Ranking, core catalog fetches, and Quiz fetches now live in their
+  respective `application` layers.  Feature and core domain layers retain
+  entities, value objects, repository ports, and domain-facing command data
+  only.
+- `CurrentSession`, account/guest scope, UTC timestamps, validation, filter
+  and page requests are now resolved by application services.  Repository
+  ports no longer import application request/DTO types; the application layer
+  expands its inputs into domain enums, `FieldUpdate<bool>`, primitives, or
+  domain command models.
+- Legacy domain Presenter/UI callback contracts and their orchestration DTOs
+  were removed for the migrated slices.  MyWord status adapter conversion of
+  `FieldUpdate<bool>` to Drift `0/1/null` remains at the infrastructure
+  boundary.  Existing local-first sync UseCases deliberately remain outside
+  this migration, per the Phase 2-1 scope.
+- Validation on 2026-08-07: `flutter analyze` reported no issues and the full
+  `flutter test` suite passed (267 tests).  The import-boundary test is part
+  of that successful suite.
+
 ## Phase 1-7 remote revision/server ack update
 
 - All five dataset adapters now use a shared Firestore transaction request/ack

@@ -12,8 +12,8 @@ import 'package:my_dic/features/my_word/domain/i_repository/i_my_word_repository
 import 'package:my_dic/features/my_word/domain/i_repository/i_my_word_status_repository.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word/sync_my_word/sync_my_word_interactor_copy.dart';
 import 'package:my_dic/features/my_word/domain/usecase/my_word_status/sync_myword_status/sync_myword_status_usecase.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word_status/update_my_word_status/update_my_word_status_interactor.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word_status/update_my_word_status/update_my_word_status_repository_input_data.dart';
+import 'package:my_dic/features/my_word/application/usecase/my_word_status/update_my_word_status/update_my_word_status_interactor.dart';
+import 'package:my_dic/features/my_word/domain/model/my_word_status/update_my_word_status_repository_input_data.dart';
 import 'package:my_dic/features/my_word/presentation/ui_model/my_word_status_command_event.dart';
 import 'package:my_dic/features/my_word/presentation/view_model/my_word_status_command.dart';
 

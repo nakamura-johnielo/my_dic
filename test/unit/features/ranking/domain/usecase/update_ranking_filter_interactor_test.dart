@@ -2,8 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/shared/enums/feature_tag.dart';
 import 'package:my_dic/core/shared/enums/i_enum.dart';
 import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
-import 'package:my_dic/features/ranking/domain/usecase/update_ranking_filter/update_ranking_filter_input_data.dart';
-import 'package:my_dic/features/ranking/domain/usecase/update_ranking_filter/update_ranking_filter_interactor.dart';
+import 'package:my_dic/features/ranking/application/usecase/update_ranking_filter/update_ranking_filter_input_data.dart';
+import 'package:my_dic/features/ranking/application/usecase/update_ranking_filter/update_ranking_filter_interactor.dart';
 
 void main() {
   group('UpdateRankingFilterInteractor', () {
@@ -99,7 +99,8 @@ void main() {
         ];
 
         for (final pos in posTypes) {
-          final input = UpdateRankingFilterInputData(pos as DisplayEnumMixin, 1);
+          final input =
+              UpdateRankingFilterInputData(pos as DisplayEnumMixin, 1);
 
           // Act
           final output = interactor.execute(input);
@@ -158,7 +159,8 @@ void main() {
         ];
 
         for (final tag in tags) {
-          final input = UpdateRankingFilterInputData(tag as DisplayEnumMixin, -1);
+          final input =
+              UpdateRankingFilterInputData(tag as DisplayEnumMixin, -1);
 
           // Act
           final output = interactor.execute(input);

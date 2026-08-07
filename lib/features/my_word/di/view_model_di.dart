@@ -17,7 +17,6 @@ final myWordFragmentViewModelProvider =
   return MyWordFragmentViewModel(
     ref.read(loadMyWordUseCaseProvider),
     ref.read(registerMyWordUseCaseProvider),
-    ref.read(handleWordRegistrationUseCaseProvider),
   );
 });
 

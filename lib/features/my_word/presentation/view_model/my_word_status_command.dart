@@ -1,7 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/core/shared/value_objects/field_update.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word_status/update_my_word_status/i_update_my_word_status_use_case.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word_status/update_my_word_status/update_my_word_status_input_data.dart';
+import 'package:my_dic/features/my_word/application/usecase/my_word_status/update_my_word_status/i_update_my_word_status_use_case.dart';
+import 'package:my_dic/features/my_word/application/usecase/my_word_status/update_my_word_status/update_my_word_status_input_data.dart';
 import 'package:my_dic/features/my_word/presentation/ui_model/my_word_status_command_event.dart';
 
 class MyWordStatusCommand extends StateNotifier<MyWordStatusCommandEvent?> {
@@ -21,9 +22,9 @@ class MyWordStatusCommand extends StateNotifier<MyWordStatusCommandEvent?> {
     final res = await _updateUsecase.execute(
       UpdateMyWordStatusInputData(
         _wordId,
-        null,
-        value ? 1 : 0,
-        null,
+        const FieldUpdate.unchanged(),
+        FieldUpdate.set(value),
+        const FieldUpdate.unchanged(),
       ),
     );
     res.when(failure: (error) {
@@ -37,9 +38,9 @@ class MyWordStatusCommand extends StateNotifier<MyWordStatusCommandEvent?> {
     final res = await _updateUsecase.execute(
       UpdateMyWordStatusInputData(
         _wordId,
-        value ? 1 : 0,
-        null,
-        null,
+        FieldUpdate.set(value),
+        const FieldUpdate.unchanged(),
+        const FieldUpdate.unchanged(),
       ),
     );
 

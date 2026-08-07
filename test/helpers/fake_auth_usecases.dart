@@ -2,11 +2,8 @@
 
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
-import 'package:my_dic/features/auth/domain/usecase/i_reload_current_auth_use_case.dart';
-import 'package:my_dic/features/auth/domain/usecase/i_sign_in_use_case.dart';
-import 'package:my_dic/features/auth/domain/usecase/i_sign_out_use_case.dart';
-import 'package:my_dic/features/auth/domain/usecase/i_sign_up_use_case.dart';
-import 'package:my_dic/features/auth/domain/usecase/i_verify_email_use_case.dart';
+import 'package:my_dic/features/auth/application/usecase/auth_usecases.dart';
+import 'package:my_dic/features/auth/application/usecase/i_sign_in_use_case.dart';
 
 import 'test_helpers.dart';
 

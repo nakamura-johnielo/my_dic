@@ -4,6 +4,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/core/shared/consts/account_scope.dart';
 import 'package:my_dic/core/shared/enums/sync_dataset.dart';
+import 'package:my_dic/core/shared/value_objects/field_update.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/my_word/data/data_source/local/drift_my_word_dao.dart';
 import 'package:my_dic/features/my_word/data/data_source/local/drift_my_word_status_dao.dart';
@@ -18,13 +19,13 @@ import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
 import 'package:my_dic/features/my_word/domain/entity/my_word_status.dart';
 import 'package:my_dic/features/my_word/domain/i_repository/i_my_word_repository.dart';
 import 'package:my_dic/features/my_word/domain/i_repository/i_my_word_status_repository.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word/load_my_word/load_my_word_input_data.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word/load_my_word/load_my_word_interactor.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word/load_my_word/load_my_word_repository_input_data.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word/watch/watch_my_word_interactor.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word/create/register_my_word/register_my_word_repository_input_data.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word_status/update_my_word_status/update_my_word_status_repository_input_data.dart';
-import 'package:my_dic/features/my_word/domain/usecase/my_word_status/watch_my_word_status/watch_my_word_status_interactor.dart';
+import 'package:my_dic/features/my_word/application/usecase/my_word/load_my_word/load_my_word_input_data.dart';
+import 'package:my_dic/features/my_word/application/usecase/my_word/load_my_word/load_my_word_interactor.dart';
+import 'package:my_dic/features/my_word/domain/model/my_word/load_my_word_repository_input_data.dart';
+import 'package:my_dic/features/my_word/application/usecase/my_word/watch/watch_my_word_interactor.dart';
+import 'package:my_dic/features/my_word/domain/model/my_word/register_my_word_repository_input_data.dart';
+import 'package:my_dic/features/my_word/domain/model/my_word_status/update_my_word_status_repository_input_data.dart';
+import 'package:my_dic/features/my_word/application/usecase/my_word_status/watch_my_word_status/watch_my_word_status_interactor.dart';
 import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
 import 'package:my_dic/features/sync/application/port/outbox_writer.dart';
 
@@ -146,9 +147,21 @@ void main() {
         'two signed-in accounts on the same wordId do not overwrite each '
         'other', () async {
       await repository.updateStatus(UpdateMyWordStatusRepositoryInputData(
-          'word-1', 1, 0, null, DateTime.utc(2026, 8, 6), 'account-a'));
+        'word-1',
+        const FieldUpdate.set(true),
+        const FieldUpdate.set(false),
+        const FieldUpdate.unchanged(),
+        DateTime.utc(2026, 8, 6),
+        'account-a',
+      ));
       await repository.updateStatus(UpdateMyWordStatusRepositoryInputData(
-          'word-1', 0, 1, null, DateTime.utc(2026, 8, 6), 'account-b'));
+        'word-1',
+        const FieldUpdate.set(false),
+        const FieldUpdate.set(true),
+        const FieldUpdate.unchanged(),
+        DateTime.utc(2026, 8, 6),
+        'account-b',
+      ));
 
       final aStatus =
           await repository.watchStatus('word-1', accountId: 'account-a').first;

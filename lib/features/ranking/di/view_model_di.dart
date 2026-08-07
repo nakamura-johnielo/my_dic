@@ -8,7 +8,6 @@ final rankingViewModelProvider =
     StateNotifierProvider<RankingViewModel, RankingState>((ref) {
   return RankingViewModel(
       ref.read(loadRankingsUseCaseProvider),
-      ref.read(locateRankingPagenationUseCaseProvider),
       ref.read(updateRankingFilterUseCaseProvider),
       ref.read(appNavigatorServiceProvider));
 });

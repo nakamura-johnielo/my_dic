@@ -7,9 +7,8 @@ import 'package:my_dic/features/quiz/data/repository_impl/drift_es_en_conjugacio
 import 'package:my_dic/features/quiz/data/repository_impl/json_quiz_repository_impl.dart';
 import 'package:my_dic/features/quiz/data/data_source/local/i_es_en_conjugacion_local_data_source.dart';
 import 'package:my_dic/features/quiz/data/data_source/local/es_en_conjugacion_drift_data_source.dart';
-import 'package:my_dic/features/quiz/domain/usecase/english_conj_sub/i_fetch_english_conj_sub_repository.dart';
-import 'package:my_dic/features/quiz/domain/usecase/fetch_english_conj.dart/i_fetch_english_conj_repository.dart';
-
+import 'package:my_dic/features/quiz/domain/repository/i_english_conj_sub_repository.dart';
+import 'package:my_dic/features/quiz/domain/repository/i_es_en_conjugacion_repository.dart';
 
 final quizJsonDaoProvider = Provider<QuizJsonDao>((ref) {
   return QuizJsonDao();
@@ -18,7 +17,6 @@ final quizJsonDaoProvider = Provider<QuizJsonDao>((ref) {
 final quizLocalDataSourceProvider = Provider<IQuizLocalDataSource>((ref) {
   return QuizLocalDataSource(dao: ref.read(quizJsonDaoProvider));
 });
-
 
 //===================repository
 

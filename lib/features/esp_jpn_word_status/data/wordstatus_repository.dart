@@ -7,7 +7,6 @@ import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/i_word_status_repository.dart';
-import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/update_status_repository_input_data.dart';
 import 'package:my_dic/core/infrastructure/repositories/converters/word_status_converter.dart';
 import 'package:my_dic/core/shared/value_objects/field_update.dart';
 import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
@@ -22,34 +21,37 @@ class WordStatusRepository implements IWordStatusRepository {
 
   @override
   Future<Result<WordStatus>> updateLocalWordStatus(
-    UpdateStatusRepositoryInputData input,
-    DateTime editAt, {
+    {required int wordId,
+    required FieldUpdate<bool> isLearned,
+    required FieldUpdate<bool> isBookmarked,
+    required FieldUpdate<bool> hasNote,
+    required DateTime editAt,
     required String? accountId,
   }) async {
     try {
       final scope = accountId ?? guestAccountScope;
       final updated = await _local.runInTransaction(() async {
         final row = await _local.updateWordStatus(
-          input.wordId,
-          _changedValue(input.isLearned),
-          _changedValue(input.isBookmarked),
-          _changedValue(input.hasNote),
+          wordId,
+          _changedValue(isLearned),
+          _changedValue(isBookmarked),
+          _changedValue(hasNote),
           editAt.toIso8601String(),
           scope,
         );
         if (accountId != null) {
           final fieldMask = <String>[];
           final payload = <String, Object?>{};
-          _collectChange(fieldMask, payload, 'isLearned', input.isLearned);
+          _collectChange(fieldMask, payload, 'isLearned', isLearned);
           _collectChange(
-              fieldMask, payload, 'isBookmarked', input.isBookmarked);
-          _collectChange(fieldMask, payload, 'hasNote', input.hasNote);
+              fieldMask, payload, 'isBookmarked', isBookmarked);
+          _collectChange(fieldMask, payload, 'hasNote', hasNote);
           if (fieldMask.isNotEmpty) {
             await _outboxWriter.enqueue(SyncMutation(
               mutationId: _uuid.v4(),
               accountId: accountId,
               dataset: SyncDataset.espJpnWordStatus,
-              entityId: input.wordId.toString(),
+              entityId: wordId.toString(),
               operation: SyncMutationOperation.patch,
               payload: payload,
               fieldMask: fieldMask,

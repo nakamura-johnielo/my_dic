@@ -2,9 +2,9 @@ import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/quiz/data/data_source/local/i_es_en_conjugacion_local_data_source.dart';
-import 'package:my_dic/features/quiz/domain/usecase/fetch_english_conj.dart/i_fetch_english_conj_repository.dart';
+import 'package:my_dic/features/quiz/domain/repository/i_es_en_conjugacion_repository.dart';
 
-class EsEnConjugacionRepository implements IEsEnConjugacionRepository{
+class EsEnConjugacionRepository implements IEsEnConjugacionRepository {
   final IEsEnConjugacionLocalDataSource _dataSource;
 
   EsEnConjugacionRepository(this._dataSource);
@@ -14,10 +14,12 @@ class EsEnConjugacionRepository implements IEsEnConjugacionRepository{
     try {
       final data = await _dataSource.getEnglishConjById(id);
       final result = {
-        EnglishMoodTense.participlePresent.toString(): data?.presentP ?? "V-ing",
+        EnglishMoodTense.participlePresent.toString():
+            data?.presentP ?? "V-ing",
         EnglishMoodTense.participlePast.toString(): data?.pastP ?? "V-en",
         EnglishMoodTense.indicativePresent.toString(): data?.english ?? "V",
-        EnglishMoodTense.indicativePresent3rd.toString(): data?.present3rd ?? "Vs",
+        EnglishMoodTense.indicativePresent3rd.toString():
+            data?.present3rd ?? "Vs",
         EnglishMoodTense.indicativePast.toString(): data?.past ?? "V-ed",
       };
       return Result.success(result);

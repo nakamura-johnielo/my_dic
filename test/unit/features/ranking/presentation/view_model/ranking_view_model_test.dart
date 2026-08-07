@@ -22,9 +22,8 @@ void main() {
 
       container = ProviderContainer(
         overrides: [
-          loadRankingsUseCaseProvider.overrideWithValue(fakeLoadRankingsUseCase),
-          locateRankingPagenationUseCaseProvider
-              .overrideWithValue(FakeLocateRankingPagenationUseCase()),
+          loadRankingsUseCaseProvider
+              .overrideWithValue(fakeLoadRankingsUseCase),
           updateRankingFilterUseCaseProvider
               .overrideWithValue(FakeUpdateRankingFilterUseCase()),
         ],
@@ -199,6 +198,22 @@ void main() {
         expect(state.items[3].rankedWord, 'page2_ser');
       });
 
+      test(
+          'uses the extra record only to determine whether another page exists',
+          () async {
+        final viewModel = container.read(rankingViewModelProvider.notifier);
+        fakeLoadRankingsUseCase
+            .setResult(Result.success(_createRankingPage(101)));
+
+        final hasNext = await viewModel.loadNextPage(0);
+
+        final state = container.read(rankingViewModelProvider);
+        expect(hasNext, isTrue);
+        expect(state.hasNext, isTrue);
+        expect(state.items, hasLength(100));
+        expect(state.items.last.rank, 100);
+      });
+
       test('setPageRange updates currentPageRange', () {
         // Arrange
         final viewModel = container.read(rankingViewModelProvider.notifier);
@@ -354,3 +369,13 @@ List<Ranking> _createTestRankings({String prefix = ''}) {
     ),
   ];
 }
+
+List<Ranking> _createRankingPage(int length) => List.generate(
+      length,
+      (index) => Ranking(
+        rank: index + 1,
+        rankedWord: 'word_$index',
+        lemma: 'word_$index',
+        wordId: index + 1,
+      ),
+    );
