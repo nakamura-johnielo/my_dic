@@ -2,14 +2,11 @@ import 'dart:convert';
 
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:my_dic/core/infrastructure/database/drift/daos/esp_jpn/esp_jpn_word_status_dao.dart';
 import 'package:my_dic/core/infrastructure/database/drift/daos/jpn_esp/jpn_esp_word_status_dao.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
-import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/i_remote_jpn_esp_word_status_data_source.dart';
 import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/jpn_esp_drift_word_status_data_source.dart';
 import 'package:my_dic/core/infrastructure/datasource/word_status/drift_word_status_data_source.dart';
-import 'package:my_dic/core/infrastructure/datasource/word_status/i_remote_word_status_data_source.dart';
 import 'package:my_dic/core/shared/enums/sync_dataset.dart';
 import 'package:my_dic/core/shared/value_objects/field_update.dart';
 import 'package:my_dic/features/esp_jpn_word_status/data/wordstatus_repository.dart';
@@ -17,12 +14,6 @@ import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status
 import 'package:my_dic/features/jpn_esp_word_status/data/jpn_esp_word_status_repository.dart';
 import 'package:my_dic/features/jpn_esp_word_status/domain/usecase/update_jpn_esp_status/update_jpn_esp_status_repository_input_data.dart';
 import 'package:my_dic/features/sync/infrastructure/persistence/drift/drift_outbox_writer.dart';
-
-class _MockEspRemoteDataSource extends Mock
-    implements IRemoteWordStatusDataSource {}
-
-class _MockJpnEspRemoteDataSource extends Mock
-    implements IRemoteJpnEspWordStatusDataSource {}
 
 abstract interface class _OutboxFixture {
   SyncDataset get dataset;
@@ -54,7 +45,7 @@ class _EspJpnOutboxFixture implements _OutboxFixture {
     final writer = DriftOutboxWriter(database, clock: () => DateTime.utc(2026));
     return _EspJpnOutboxFixture._(
       database,
-      WordStatusRepository(_MockEspRemoteDataSource(), local, writer),
+      WordStatusRepository(local, writer),
     );
   }
 
@@ -101,7 +92,7 @@ class _JpnEspOutboxFixture implements _OutboxFixture {
     final writer = DriftOutboxWriter(database, clock: () => DateTime.utc(2026));
     return _JpnEspOutboxFixture._(
       database,
-      JpnEspWordStatusRepository(_MockJpnEspRemoteDataSource(), local, writer),
+      JpnEspWordStatusRepository(local, writer),
     );
   }
 

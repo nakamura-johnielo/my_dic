@@ -34,7 +34,7 @@ Esp-JpnとJpn-Espのstatus更新をDriftだけへ書き込み、outbox経由でF
 ## 完了条件
 
 - [x] statusのread/writeがDriftだけを通る（通常usecaseの書き込みパスからremote直接呼び出しを除去済み）
-- [ ] 通常status RepositoryにFirebase操作がない（Repositoryクラス自体はFirebase操作メソッドを保持したまま。旧`SyncEspJpnWordStatusInteractor`削除後に完全達成）
+- [x] 通常status RepositoryにFirebase操作がない（旧`SyncEspJpnWordStatusInteractor`とその関連di/testを削除し、`WordStatusRepository`/`JpnEspWordStatusRepository`および両interfaceからFirebase操作メソッドを完全に除去済み）
 - [x] 両directionがSyncEngineへ登録されている
 - [x] 旧status listenerと旧sync UseCaseがdataset registryから外れている
 - [ ] failure、retry、conflict、account切替testが通る（retry/dead-letter/pull/field merge-skipは検証済み。account切替を跨ぐhandler単体end-to-end testは未実装）

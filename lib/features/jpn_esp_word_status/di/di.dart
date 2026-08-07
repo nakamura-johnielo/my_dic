@@ -60,9 +60,7 @@ final jpnEspRemoteWordStatusDataSourceProvider =
 final jpnEspWordStatusRepositoryProvider =
     Provider<IJpnEspWordStatusRepository>((ref) {
   final local = ref.read(jpnEspLocalWordStatusDataSourceProvider);
-  final remote = ref.read(jpnEspRemoteWordStatusDataSourceProvider);
-  return JpnEspWordStatusRepository(
-      remote, local, ref.read(driftOutboxWriterProvider));
+  return JpnEspWordStatusRepository(local, ref.read(driftOutboxWriterProvider));
 });
 
 // ===============sync handler====================

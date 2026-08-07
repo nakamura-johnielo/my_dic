@@ -74,6 +74,6 @@ prepared but inactive (MyWord/User Profile handlers, Local-first 6-7):
 ## 読み替えの注意
 
 - `SyncEngine`は現在word status 2 datasetの本番同期を担う。MyWord/User Profileはまだ新Engineへ切り替わっていない。
-- `WordStatusRepository`/`JpnEspWordStatusRepository`の通常usecase経由の書き込みはoutbox+`DatasetSyncHandler`を通る。旧`SyncEspJpnWordStatusInteractor`は`SyncService`から外れ、実行経路には残っていない（クラスファイル自体は削除していない）。
+- `WordStatusRepository`/`JpnEspWordStatusRepository`の通常usecase経由の書き込みはoutbox+`DatasetSyncHandler`を通る。旧`SyncEspJpnWordStatusInteractor`は専用interface・di provider・test直接参照ごと完全に削除済み（2026-08-06セッション3）。両Repository/interfaceはFirebase操作メソッドを一切持たない。
 - 旧`SyncService`、旧sync usecase、Repository内のremote直書きは、MyWord/MyWordStatusについて依然として現役経路である。
 - `app/routing/contracts`があることは、GoRouter本体が移動済みであることを意味しない。

@@ -7,22 +7,6 @@ abstract class IWordStatusRepository {
   Future<Result<WordStatus?>> getWordStatusById(int id);
   Future<Result<void>> deleteWordStatus(WordStatus wordStatus); //TODO 未使用
 
-  //remote
-  Stream<List<int>> watchRemoteChangedIds(String userId);
-  Future<Result<void>> updateRemoteWordStatus(
-    WordStatus wordStatus,
-    String userId,
-    DateTime? now,
-  );
-  Future<Result<void>> updateBatchRemoteWordStatus(
-    List<WordStatus> wordStatusList,
-    String userId,
-    DateTime? now,
-  );
-  Future<Result<List<WordStatus>>> getRemoteWordStatusAfter(
-      String userId, DateTime datetime);
-  Future<Result<WordStatus?>> getRemoteWordStatusById(String userId, int id);
-
   //local
   Stream<List<int>> watchLocalChangedIds(DateTime datetime); //TODO 未使用
   Future<Result<WordStatus>> updateLocalWordStatus(

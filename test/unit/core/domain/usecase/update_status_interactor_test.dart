@@ -58,7 +58,6 @@ void main() {
     ));
 
     expect(result.errorOrNull, same(error));
-    verifyNever(() => repository.updateRemoteWordStatus(any(), any(), any()));
   });
 
   test('Jpn-Esp local DatabaseError is propagated and remote is skipped',
@@ -76,7 +75,6 @@ void main() {
     ));
 
     expect(result.errorOrNull, same(error));
-    verifyNever(() => repository.updateRemoteWordStatus(any(), any(), any()));
   });
 
   test('Esp-Jpn signed-in update no longer pushes to legacy remote directly',
@@ -102,7 +100,6 @@ void main() {
     expect(result.isSuccess, isTrue);
     verify(() => repository.updateLocalWordStatus(any(), any(),
         accountId: accountId)).called(1);
-    verifyNever(() => repository.updateRemoteWordStatus(any(), any(), any()));
   });
 
   test('Jpn-Esp signed-in update no longer pushes to legacy remote directly',
@@ -131,7 +128,6 @@ void main() {
     expect(result.isSuccess, isTrue);
     verify(() => repository.updateLocalWordStatus(any(), any(),
         accountId: accountId)).called(1);
-    verifyNever(() => repository.updateRemoteWordStatus(any(), any(), any()));
   });
 
   test('an unchanged command is a no-op and does not advance persistence',
@@ -162,7 +158,6 @@ void main() {
     ));
 
     expect(result.isSuccess, isTrue);
-    verifyNever(() => repository.updateRemoteWordStatus(any(), any(), any()));
   });
 }
 

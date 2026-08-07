@@ -7,9 +7,6 @@ import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
 import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
-import 'package:my_dic/features/esp_jpn_word_status/domain/esp_word_status.dart';
-import 'package:my_dic/features/esp_jpn_word_status/domain/i_word_status_repository.dart';
-import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/sync_esp_jpn_word_status/sync_esp_jpn_word_status_interactor.dart';
 import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
 import 'package:my_dic/features/my_word/domain/i_repository/i_my_word_repository.dart';
 import 'package:my_dic/features/my_word/domain/i_repository/i_my_word_status_repository.dart';
@@ -28,8 +25,6 @@ class _MockMyWordRepository extends Mock implements IMyWordRepository {}
 
 class _MockMyWordStatusRepository extends Mock
     implements IMyWordStatusRepository {}
-
-class _MockWordStatusRepository extends Mock implements IWordStatusRepository {}
 
 class _MemorySyncStatusRepository implements ISyncStatusRepository {
   _MemorySyncStatusRepository({this.getResult});
@@ -246,30 +241,6 @@ void main() {
         .thenAnswer((_) async => Result.failure(error));
     final useCase =
         SyncMyWordStatusUsecase(checkpoints, repository, authRepository);
-
-    final result = await useCase.syncOnce();
-
-    expect(result.errorOrNull, same(error));
-    expect(checkpoints.saveCount, 0);
-  });
-
-  test('EspJpnWordStatus list failure is propagated without a null assertion',
-      () async {
-    final authRepository = _MockAuthRepository();
-    final repository = _MockWordStatusRepository();
-    final checkpoints = _MemorySyncStatusRepository();
-    final error = DatabaseError(message: 'local word status list failed');
-    when(() => authRepository.getCurrentAuth())
-        .thenAnswer((_) async => Result.success(authenticated));
-    when(() => repository.getRemoteWordStatusAfter(accountId, any()))
-        .thenAnswer((_) async => const Result.success(<WordStatus>[]));
-    when(() => repository.getLocalWordStatusAfter(any()))
-        .thenAnswer((_) async => Result.failure(error));
-    final useCase = SyncEspJpnWordStatusInteractor(
-      checkpoints,
-      repository,
-      authRepository,
-    );
 
     final result = await useCase.syncOnce();
 

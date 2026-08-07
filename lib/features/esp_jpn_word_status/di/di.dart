@@ -2,8 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/app/bootstrap/sync_composition.dart';
 import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
-import 'package:my_dic/core/di/data/repository_di.dart';
-import 'package:my_dic/core/domain/usecase/i_sync_usecase.dart';
 import 'package:my_dic/features/esp_jpn_word_status/components/status_button/esp_jpn/status_buttons_command.dart';
 import 'package:my_dic/features/esp_jpn_word_status/components/status_button/word_status_command_event.dart';
 import 'package:my_dic/features/esp_jpn_word_status/components/status_button/viewmodel.dart';
@@ -15,25 +13,15 @@ import 'package:my_dic/core/infrastructure/datasource/word_status/firebase_word_
 import 'package:my_dic/core/infrastructure/datasource/word_status/i_local_word_status_data_source.dart';
 import 'package:my_dic/core/infrastructure/datasource/word_status/i_remote_word_status_data_source.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/i_word_status_repository.dart';
-import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/sync_esp_jpn_word_status/sync_esp_jpn_word_status_interactor.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/i_update_status_use_case.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/update_status/update_status_interactor.dart';
 import 'package:my_dic/features/esp_jpn_word_status/data/wordstatus_repository.dart';
 import 'package:my_dic/features/esp_jpn_word_status/components/status_button/esp_jpn/word_status_state.dart';
-import 'package:my_dic/features/auth/di/data_di.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/watch/i_watch_esp_jpn_word_status_usecase.dart';
 import 'package:my_dic/features/esp_jpn_word_status/domain/usecase/watch/watch_esp_jpn_word_status_interactor.dart';
 import 'package:my_dic/features/esp_jpn_word_status/data/sync/esp_jpn_word_status_sync_handler.dart';
 
 //==========Usecase=====================
-final syncEspJpnWordStatusUseCaseProvider = Provider<ISyncUseCase>((ref) {
-  return SyncEspJpnWordStatusInteractor(
-    ref.read(syncStatusRepositoryProvider),
-    ref.read(wordStatusRepositoryProvider),
-    ref.read(firebaseAuthRepositoryProvider),
-  );
-});
-
 final fetchEspJpnWordStatusUsecaseProvider =
     Provider<FetchEspJpnWordStatusUsecase>((ref) {
   return FetchEspJpnWordStatusInteractor(
@@ -68,8 +56,7 @@ final remoteWordStatusDataSourceProvider =
 // ===============repository====================
 final wordStatusRepositoryProvider = Provider<IWordStatusRepository>((ref) {
   final local = ref.read(localWordStatusDataSourceProvider);
-  final remote = ref.read(remoteWordStatusDataSourceProvider);
-  return WordStatusRepository(remote, local, ref.read(driftOutboxWriterProvider));
+  return WordStatusRepository(local, ref.read(driftOutboxWriterProvider));
 });
 
 // ===============sync handler====================

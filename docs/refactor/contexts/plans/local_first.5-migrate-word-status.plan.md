@@ -1,8 +1,8 @@
 # Local-first 5: Word status migration
 
-状態: 進行中（Stage 1・Stage 3・Stage 4・Stage 5完了。Stage 2は縮小スコープでStage 1状態を維持する決定を採用し、read側account scopingはLocal-first 6/7へ明示的に先送り）
+状態: 進行中（Stage 1・Stage 3・Stage 4・Stage 5完了。Stage 2は縮小スコープでStage 1状態を維持する決定を採用し、read側account scopingはLocal-first 6/7へ明示的に先送り。旧`SyncEspJpnWordStatusInteractor`とRepositoryのFirebase操作は完全削除済み）
 作成日: 2026-08-06
-最終更新: 2026-08-06（セッション2）
+最終更新: 2026-08-06（セッション3）
 
 ## Stage 2スコープ決定（2026-08-06 セッション2）
 
@@ -154,8 +154,26 @@ flutter test test/unit/features/sync/
 ## 完了条件（本タスク全体）
 
 - [x] statusのread/writeがDriftだけを通る（通常usecaseの書き込みパスからは達成。`UpdateStatusInteractor`/`UpdateJpnEspStatusInteractor`は直接remote pushを行わなくなり、配送はoutbox+`DatasetSyncHandler`のみが担う）
-- [ ] 通常status RepositoryにFirebase操作がない（部分達成。usecaseからの直接呼び出しは除去したが、`WordStatusRepository`/`JpnEspWordStatusRepository`クラス自体は`updateRemoteWordStatus`等のFirebase操作を実装したまま残る。理由は旧`SyncEspJpnWordStatusInteractor`が同メソッドへ依存しており、そのinteractor自体をまだ削除していないため。完全達成は旧interactor削除後）
+- [x] 通常status RepositoryにFirebase操作がない（セッション3で完全達成。旧`SyncEspJpnWordStatusInteractor`と専用interface`ISyncEspJpnWordStatusUseCase`を削除し、`syncEspJpnWordStatusUseCaseProvider`と関連import（`features/esp_jpn_word_status/di/di.dart`）を除去した。`IWordStatusRepository`/`IJpnEspWordStatusRepository`から`updateRemoteWordStatus`/`updateBatchRemoteWordStatus`/`getRemoteWordStatusAfter`/`getRemoteWordStatusById`/`watchRemoteChangedIds`をすべて削除し、`WordStatusRepository`/`JpnEspWordStatusRepository`から`_remote`フィールドとコンストラクタ引数、対応する実装メソッドを削除した。両datasetの`DatasetSyncHandler`はもともとRepositoryではなくdatasource（`ILocalWordStatusDataSource`/`IRemoteWordStatusDataSource`等）を直接注入されていたため、Repository変更の影響を受けない。テスト側は`test/unit/features/word_status/status_outbox_enqueue_test.dart`・`status_update_contract_test.dart`のRepositoryコンストラクタ呼び出しからmock remote datasource引数を削除し、`test/unit/core/domain/usecase/update_status_interactor_test.dart`の`verifyNever(repository.updateRemoteWordStatus(...))`を削除し、`test/unit/features/sync/result_propagation_test.dart`から旧interactorに依存していた1テストと`_MockWordStatusRepository`を削除した）
 - [x] 両directionが同一のoutbox enqueue契約を持つ（Stage 1で対応）
 - [x] 両directionがSyncEngineへ登録されている（Stage 4で対応。`syncDatasetHandlerRegistryProvider`に`EspJpnWordStatusSyncHandler`/`JpnEspWordStatusSyncHandler`を登録済み）
-- [x] 旧status listenerと旧sync UseCaseがdataset registryから外れている（`features/sync/di.dart`の`syncServiceProvider`から`syncEspJpnWordStatusUseCaseProvider`を除去済み。ただし`SyncEspJpnWordStatusInteractor`クラス自体と、そのdi provider定義は削除していない。理由は`test/unit/features/sync/result_propagation_test.dart`が直接そのクラスを使っておりファイル削除は別途のテスト移行作業を要するため。実行経路からは完全に外れている）
+- [x] 旧status listenerと旧sync UseCaseがdataset registryから外れている（完全達成。`SyncEspJpnWordStatusInteractor`クラス自体、di provider定義、テスト直接参照も削除済み）
 - [ ] failure、retry、conflict、account切替testが通る（`test/unit/features/word_status/word_status_sync_handler_test.dart`でretry/dead-letter/pull/field-level merge-skipは検証済み。account切替（session epoch）specificなhandler testと、真の「同一fieldがserver受付順で収束する」複数端末シナリオのend-to-end testは未実装。詳細は下記Stage 3〜5実施結果を参照）
+
+## セッション3実施結果（2026-08-06）
+
+旧`SyncEspJpnWordStatusInteractor`削除の影響範囲を調査した結果、この旧interactorが唯一の実運用参照元であり、`WordStatusRepository`/`JpnEspWordStatusRepository`のremote系メソッド（`updateRemoteWordStatus`等）はJpn-Esp側も含めてすべて未使用のdead codeであることを確認した（`EspJpnWordStatusSyncHandler`/`JpnEspWordStatusSyncHandler`はRepositoryではなくdatasourceを直接注入されているため無関係）。このため、Esp-JpnとJpn-Esp両方のRepository/interfaceから対称的にFirebase操作を削除した。
+
+検証:
+
+```powershell
+dart run tool/check_import_boundaries.dart --baseline tool/import_boundaries/baseline.json --check   # exit code 0、既存baseline違反のみ
+flutter test test/unit/features/word_status/ test/unit/core/domain/usecase/update_status_interactor_test.dart test/unit/features/sync/   # 68件全て成功
+flutter analyze（変更ディレクトリのみ）   # 既存の指摘4件のみ（unused_import、file_names、curly_braces、いずれも本セッションの変更と無関係の既存コード）
+```
+
+未対応（次回セッションへの引き継ぎ、変更なし）:
+
+- account切替（session epoch）を跨いだhandler単体のend-to-end testは未実装。
+- pushのretry backoff計算が`attempt=1`固定の簡略実装。
+- pauseエラー分類をretryと同一に扱っている。

@@ -7,23 +7,6 @@ abstract class IJpnEspWordStatusRepository {
   Future<Result<JpnEspWordStatus?>> getWordStatusById(int id);
   Future<Result<void>> deleteWordStatus(JpnEspWordStatus wordStatus);
 
-  //remote
-  Stream<List<int>> watchRemoteChangedIds(String userId);
-  Future<Result<void>> updateRemoteWordStatus(
-    JpnEspWordStatus wordStatus,
-    String userId,
-    DateTime? now,
-  );
-  Future<Result<void>> updateBatchRemoteWordStatus(
-    List<JpnEspWordStatus> wordStatusList,
-    String userId,
-    DateTime? now,
-  );
-  Future<Result<List<JpnEspWordStatus>>> getRemoteWordStatusAfter(
-      String userId, DateTime datetime);
-  Future<Result<JpnEspWordStatus?>> getRemoteWordStatusById(
-      String userId, int id);
-
   //local
   Stream<List<int>> watchLocalChangedIds(DateTime datetime);
   Future<Result<JpnEspWordStatus>> updateLocalWordStatus(
