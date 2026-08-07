@@ -9,19 +9,20 @@ import 'package:my_dic/core/shared/consts/ui/ui2.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacions.dart';
 import 'package:my_dic/app/presentation/search_view_models.dart';
 import 'package:my_dic/features/word_page/di/view_model_di.dart';
+import 'package:my_dic/features/word_page/presentation/ui_model/word_page_load_key.dart';
 import 'package:my_dic/core/presentation/error/app_error_message.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
 
 class ConjugacionFragment extends ConsumerWidget {
-  const ConjugacionFragment({super.key, required this.wordId});
+  const ConjugacionFragment({super.key, required this.loadKey});
 
-  final int wordId;
+  final WordPageLoadKey loadKey;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     AppLogger.print("conj key: $key");
 
-    final viewModel = ref.watch(wordPageViewModelProvider(wordId));
+    final viewModel = ref.watch(wordPageViewModelProvider(loadKey));
 
     //TODO ここ修正
     final conjugationState = viewModel.conjugacions;

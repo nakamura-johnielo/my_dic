@@ -63,9 +63,13 @@ AppBootstrapper _productionBootstrapper() => AppBootstrapper(
       loadSharedPreferences: SharedPreferences.getInstance,
     );
 
-final appReadinessProvider = FutureProvider<void>((ref) async {
+final appReadinessProbeProvider = Provider<Future<void> Function()>((ref) {
   final database = ref.read(databaseProvider);
-  await database.customSelect('SELECT 1').get();
+  return () => database.customSelect('SELECT 1').get();
+});
+
+final appReadinessProvider = FutureProvider<void>((ref) async {
+  await ref.read(appReadinessProbeProvider)();
   ref.read(applicationLifecycleEffectsProvider);
 });
 

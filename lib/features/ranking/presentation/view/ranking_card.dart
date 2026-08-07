@@ -96,7 +96,6 @@ class RankingCard extends ConsumerWidget {
                   ref.read(quizGameViewModelProvider.notifier).initialize();
                   ref.read(quizCardStateProvider.notifier).state =
                       QuizCardState.question;
-                  ref.read(quizWordProvider.notifier).state = ranking.lemma;
                   //TODO gorouter check
                   ref.read(appNavigatorServiceProvider).toFlashCard(
                       QuizGameRoute(

@@ -5,11 +5,13 @@ import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/features/word_status/domain/dictionary_direction.dart';
 import 'package:my_dic/app/presentation/word_status_buttons.dart';
 import 'package:my_dic/features/quiz/consts/card_state.dart';
-import 'package:my_dic/core/shared/enums/word/word_type.dart';
 import 'package:my_dic/app/presentation/quiz_view_models.dart';
+import 'package:my_dic/core/shared/enums/word/word_type.dart';
 import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
 import 'package:my_dic/app/routing/contracts/word_detail_route.dart';
 import 'package:my_dic/features/word_page/di/view_model_di.dart';
+import 'package:my_dic/features/word_page/presentation/ui_model/word_page_load_key.dart';
+import 'package:my_dic/features/word_page/presentation/ui_model/jpn_esp_state.dart';
 import 'package:my_dic/features/word_page/presentation/view/esp_jpn/conjugacion_fragment.dart';
 import 'package:my_dic/features/word_page/presentation/view/esp_jpn/dictionary_fragment.dart';
 import 'package:my_dic/features/word_page/presentation/view/jpn_esp/jpn_esp_dictionary_fragment.dart';
@@ -62,6 +64,12 @@ class WordPageFragment extends ConsumerWidget {
 
   WordDetailRoute get input => route;
 
+  WordPageLoadKey get loadKey => WordPageLoadKey(
+        wordId: input.wordId,
+        wordType: input.wordType,
+        hasConj: input.hasConj,
+      );
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     //TODO ここでデータ取得
@@ -69,12 +77,10 @@ class WordPageFragment extends ConsumerWidget {
     FloatingActionButton? floatingButton;
     Widget? statusButton;
 
-    final viewModel =
-        ref.read(wordPageViewModelProvider(input.wordId).notifier);
+    final pageState = ref.watch(wordPageViewModelProvider(loadKey));
 
     if (input.wordType == WordType.jpnEsp) {
-      viewModel.fetchJpnEspDictionaryById(input.wordId);
-      tabs["Dictionary"] = JpnEspDictionaryFragment(wordId: input.wordId);
+      tabs["Dictionary"] = JpnEspDictionaryFragment(loadKey: loadKey);
       statusButton = DictionaryStatusButtons(
         wordId: input.wordId,
         direction: DictionaryDirection.jpnEsp,
@@ -84,11 +90,10 @@ class WordPageFragment extends ConsumerWidget {
         wordId: input.wordId,
         direction: DictionaryDirection.espJpn,
       );
-      viewModel.fetchEspJpnItemsById(input.wordId);
-      tabs["Dictionary"] = EspJpnDictionaryFragment(wordId: input.wordId);
+      tabs["Dictionary"] = EspJpnDictionaryFragment(loadKey: loadKey);
       if (input.hasConj) {
-        tabs["Conjugacion"] = ConjugacionFragment(wordId: input.wordId);
-        floatingButton = quizFloatingButton(context, ref);
+        tabs["Conjugacion"] = ConjugacionFragment(loadKey: loadKey);
+        floatingButton = quizFloatingButton(context, ref, pageState);
       }
     }
 
@@ -103,17 +108,26 @@ class WordPageFragment extends ConsumerWidget {
     return _WordPageFragmentBuilder(input: builderInput);
   }
 
-  FloatingActionButton quizFloatingButton(BuildContext context, WidgetRef ref) {
+  FloatingActionButton quizFloatingButton(
+    BuildContext context,
+    WidgetRef ref,
+    WordPageState pageState,
+  ) {
+    final dictionaries = pageState.espJpnDictionary.dataOrNull;
+    final quizWord = dictionaries != null && dictionaries.isNotEmpty
+        ? dictionaries.first.word
+        : null;
     return FloatingActionButton(
-      onPressed: () {
-        ref.read(quizGameViewModelProvider.notifier).initialize();
-        ref.read(quizCardStateProvider.notifier).state = QuizCardState.question;
-        //TODO gorouter check
-        final viewModel =
-            ref.read(wordPageViewModelProvider(input.wordId).notifier);
-        viewModel.goToQuiz(
-            QuizGameRoute(wordId: input.wordId, word: input.wordId.toString()));
-      },
+      onPressed: quizWord == null
+          ? null
+          : () {
+              ref.read(quizCardStateProvider.notifier).state =
+                  QuizCardState.question;
+              final viewModel =
+                  ref.read(wordPageViewModelProvider(loadKey).notifier);
+              viewModel.goToQuiz(
+                  QuizGameRoute(wordId: input.wordId, word: quizWord));
+            },
       child: const Icon(Icons.handshake_rounded),
     );
   }

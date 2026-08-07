@@ -6,32 +6,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/core/shared/consts/ui/ui2.dart';
 import 'package:my_dic/core/domain/entity/dictionary/esj_dictionary.dart';
-import 'package:my_dic/app/presentation/quiz_view_models.dart';
 import 'package:my_dic/features/word_page/di/view_model_di.dart';
+import 'package:my_dic/features/word_page/presentation/ui_model/word_page_load_key.dart';
 import 'package:my_dic/features/word_page/presentation/view/html_style_kotobank.dart';
 import 'package:my_dic/core/presentation/error/app_error_message.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
 
 class EspJpnDictionaryFragment extends ConsumerWidget {
-  final int wordId;
-  const EspJpnDictionaryFragment({super.key, required this.wordId});
+  const EspJpnDictionaryFragment({super.key, required this.loadKey});
+
+  final WordPageLoadKey loadKey;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     AppLogger.print("dic key: $key");
 
-    final viewModel = ref.watch(wordPageViewModelProvider(wordId));
+    final viewModel = ref.watch(wordPageViewModelProvider(loadKey));
 
     final dictionaryState = viewModel.espJpnDictionary;
     final List<EspJpnDictionary>? dictionaries = dictionaryState.dataOrNull;
-
-    if (dictionaries != null &&
-        dictionaries.isNotEmpty &&
-        (ref.watch(quizWordProvider) != dictionaries[0].word)) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(quizWordProvider.notifier).state = dictionaries[0].word;
-      });
-    }
 
     return dictionaries == null
         ? _DictionaryReadState(state: dictionaryState)

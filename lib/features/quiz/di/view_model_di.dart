@@ -21,8 +21,6 @@ final quizConjugacionsProvider =
   },
 );
 
-final quizWordProvider = StateProvider<String>((ref) => "");
-
 final quizSearchViewModelProvider =
     StateNotifierProvider<QuizSearchViewModel, QuizSearchState>((ref) {
   return QuizSearchViewModel(ref.read(searchWordUseCaseProvider),

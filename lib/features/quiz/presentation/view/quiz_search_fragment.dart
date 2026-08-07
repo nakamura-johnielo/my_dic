@@ -50,7 +50,6 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
 
   void _tap(ConjugacionSearchResultItem word) {
     ref.read(quizGameViewModelProvider.notifier).initialize();
-    ref.read(quizWordProvider.notifier).state = word.word;
     ref
         .read(quizSearchViewModelProvider.notifier)
         .goToQuiz(QuizGameRoute(wordId: word.wordId, word: word.word));

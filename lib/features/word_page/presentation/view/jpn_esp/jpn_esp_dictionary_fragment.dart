@@ -7,6 +7,7 @@ import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/core/shared/consts/ui/ui2.dart';
 import 'package:my_dic/core/domain/entity/jpn_esp/jpn_esp_dictionary.dart';
 import 'package:my_dic/features/word_page/di/view_model_di.dart';
+import 'package:my_dic/features/word_page/presentation/ui_model/word_page_load_key.dart';
 import 'package:my_dic/features/word_page/presentation/view/html_style_kotobank.dart';
 import 'package:my_dic/core/presentation/error/app_error_message.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
@@ -17,14 +18,15 @@ class JpnEspDictionaryFragmentInputData {
 }
 
 class JpnEspDictionaryFragment extends ConsumerWidget {
-  final int wordId;
-  const JpnEspDictionaryFragment({super.key, required this.wordId});
+  const JpnEspDictionaryFragment({super.key, required this.loadKey});
+
+  final WordPageLoadKey loadKey;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     AppLogger.print("dic key: $key");
 
-    final viewModel = ref.watch(wordPageViewModelProvider(wordId));
+    final viewModel = ref.watch(wordPageViewModelProvider(loadKey));
 
     final dictionaryState = viewModel.jpnEspDictionary;
     final List<JpnEspDictionary>? dictionaries = dictionaryState.dataOrNull;
