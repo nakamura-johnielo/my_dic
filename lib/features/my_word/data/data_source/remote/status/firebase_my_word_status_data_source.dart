@@ -37,4 +37,15 @@ class FirebaseMyWordStatusDataSource
   Future<void> deleteStatus(String userId, String myWordId) async {
     await _dao.delete(userId, myWordId);
   }
+
+  @override
+  Future<void> patchStatus(
+    String userId,
+    String myWordId,
+    Map<String, Object?> fields,
+    List<String> fieldMask, {
+    required bool isNew,
+  }) {
+    return _dao.patch(userId, myWordId, fields, fieldMask, isNew: isNew);
+  }
 }

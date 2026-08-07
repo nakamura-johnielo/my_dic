@@ -7,4 +7,14 @@ abstract class IMyWordRemoteDataSource {
   Stream<List<String>> watchChangedIds(String userId);
   Future<void> updateMyWordBatch(String userId, List<MyWordDTO> myWordList);
   Future<void> deleteMyWord(String userId, String myWordId);
+
+  /// Writes only the fields named in [fieldMask], leaving every other remote
+  /// field untouched. [isNew] controls whether `createdAt` is also stamped.
+  Future<void> patchMyWord(
+    String userId,
+    String myWordId,
+    Map<String, Object?> fields,
+    List<String> fieldMask, {
+    required bool isNew,
+  });
 }

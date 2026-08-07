@@ -5,7 +5,12 @@ class DatasetPlan {
   const DatasetPlan(this.datasets, {this.dependencies = const {}});
   final List<SyncDataset> datasets;
   final Map<SyncDataset, Set<SyncDataset>> dependencies;
-  static const localFirst = DatasetPlan(SyncDataset.values);
+  static const localFirst = DatasetPlan(
+    SyncDataset.values,
+    dependencies: {
+      SyncDataset.myWordStatus: {SyncDataset.myWords},
+    },
+  );
 
   List<SyncDataset> orderedDatasets() {
     final allowed = datasets.toSet();

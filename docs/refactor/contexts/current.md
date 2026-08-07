@@ -17,14 +17,15 @@
 ## 現在の大きな結論
 
 1. `app/bootstrap`は新しいcomposition rootの入口になっているが、DB probeと横断effect起動が`AppReadinessGate`に残っている。
-2. `features/sync/application`と`features/sync/infrastructure`にはLocal-first 1〜4の共通基盤があり、`syncDatasetHandlerRegistryProvider`はword status（Esp-Jpn/Jpn-Esp）向けの本番`DatasetSyncHandler`2件を登録済み（Local-first 5、2026-08-06）。MyWord/User Profile向けhandlerは未登録のまま。
-3. word statusの自動同期は新`SyncEngine`（`syncSchedulerProvider.foreground(...)`、`AppSessionReady`遷移時とapp resume時にtrigger）が担当するようになった。MyWord/MyWordStatusは引き続き`features/sync/sync_service.dart`と旧`ISyncUseCase`群が担当している。
-4. Drift schema v6でaccount scope、revision、tombstone、`sync_outbox`、`sync_checkpoints`、`user_profiles`は入っている。ただしRepositoryの多くはlocal更新とFirebase更新を同じRepositoryから直接呼んでいる（word statusの通常usecase書き込みパスはoutbox経由に一本化済みだが、Repositoryクラス自体は旧sync usecase向けにFirebase操作メソッドを保持している。MyWord/Ranking/Userは未着手）。
+2. `features/sync/application`と`features/sync/infrastructure`にはLocal-first 1〜4の共通基盤があり、`syncDatasetHandlerRegistryProvider`はword status（Esp-Jpn/Jpn-Esp）とMyWord/MyWordStatus向けの本番`DatasetSyncHandler`4件を登録済み（Local-first 5、2026-08-06／Local-first 6、2026-08-06セッション2）。User Profile向けhandlerのみ未登録。
+3. word status・MyWord・MyWordStatusの自動同期は新`SyncEngine`（`syncSchedulerProvider.foreground(...)`、`AppSessionReady`遷移時とapp resume時にtrigger）が担当するようになった。旧`features/sync/sync_service.dart`の`syncServiceProvider`は空配列となり実質無効化された（旧`ISyncUseCase`実装クラス自体とdi provider定義は`test/unit/features/sync/`のtestが直接参照するため未削除）。
+4. Drift schema v6でaccount scope、revision、tombstone、`sync_outbox`、`sync_checkpoints`、`user_profiles`は入っている。word status・MyWord・MyWordStatusの通常usecase書き込みパスはoutbox経由に一本化済み（直接remote呼び出しはすべて除去）。ただしRepositoryインターフェース自体は旧sync usecase向けのremoteメソッドを引き続き公開している。Ranking/Userは未着手。
 5. route contractは`app/routing/contracts`へ抽出済み。GoRouter定義はまだ`lib/router/**`が主で、`app/routing/router.dart`は旧router exportのbridge。
 6. Auth lifecycleは`core/application/auth_lifecycle`が現在の中心。Phase 1-4で`app/session`（`appSessionProvider`/`currentSessionProvider`）を導入し、Router、autoSync、profile UI、user向けmutation usecase 9件はそこから派生するようになった。`AuthStoreNotifier`、`AppUserStoreNotifier`は単一writerのまま残る。legacy同期usecase（jpn_esp/my_wordのsync系）とuser向けprofile表示は意図的に未変更（esp_jpnの旧sync usecaseはLocal-first 5 Stage 4で実行経路から除去済みだが、クラスファイル自体は残置）。詳細は[`phase1.4-introduce-current-session.plan.md`](plans/phase1.4-introduce-current-session.plan.md)。
 7. `tool/import_boundaries`は導入済み。baselineは既存違反を固定する台帳であり、違反があること自体は現状を表す。
 8. Phase 1-5 slice 1（活用検索結果itemのcatalog化）が完了し、`feature:quiz`<->`feature:search`の双方向importと関連する`core_no_feature`違反3件を解消した。WordPageがQuiz/Searchの`di`層へ直接依存する3箇所と、`CardView`のsearch/quiz間再利用は未対応のまま残る。詳細は[`plans/phase1.5-define-catalog-ownership.plan.md`](plans/phase1.5-define-catalog-ownership.plan.md)と[`next-phase-guide.md`](next-phase-guide.md)。
 9. Local-first 5（word status）はStage 1・3・4・5が完了し、Esp-Jpn/Jpn-Espともoutbox→`DatasetSyncHandler`→Firestoreのpush/pullが本番接続された。read側account scopingとguest統合（Stage 2）はLocal-first 6/7へ意図的に先送り。詳細は[`plans/local_first.5-migrate-word-status.plan.md`](plans/local_first.5-migrate-word-status.plan.md)。
+10. Local-first 6（MyWord）はStage 1〜5すべてが完了し、`MyWordRepository`（create/update/delete）と`MyWordStatusRepository`（update）がDrift transaction+outbox enqueueへ切り替わり、`MyWordSyncHandler`/`MyWordStatusSyncHandler`がoutbox→Firestoreのpush/pull（`deletedAt`tombstoneの双方向伝播を含む）を本番接続した。`DatasetPlan`でMyWordStatusはMyWordに依存させた。read側account scopingはLocal-first 7へ先送り。詳細は[`plans/local_first.6-migrate-my-word.plan.md`](plans/local_first.6-migrate-my-word.plan.md)。
 
 ## 触る領域別の最短参照
 

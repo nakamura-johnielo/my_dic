@@ -1,6 +1,6 @@
 # Local-first 6: MyWordとMyWordStatusを移行する
 
-- 状態: 未着手
+- 状態: 完了（Stage 1〜5すべて完了。create/update/deleteのtransactional outbox化、`MyWordSyncHandler`/`MyWordStatusSyncHandler`のproduction接続、MyWordStatusのMyWord依存dataset登録まで完了。read側account scopingはLocal-first 7へ意図的に先送り。詳細は[`../contexts/plans/local_first.6-migrate-my-word.plan.md`](../contexts/plans/local_first.6-migrate-my-word.plan.md)）
 - 優先度: P0 / user content
 - 依存タスク: [`5-migrate-word-status.md`](5-migrate-word-status.md)
 - 関連タスク: [`8-cut-over-and-remove-legacy-sync.md`](8-cut-over-and-remove-legacy-sync.md)、[`../phase2/1-move-usecases-to-application.md`](../phase2/1-move-usecases-to-application.md)
@@ -47,11 +47,18 @@ MyWordの作成・更新・削除とMyWordStatusをlocal-only commandへ変更�
 
 ## 完了条件
 
-- [ ] MyWord/MyWordStatusの通常Repositoryがlocal-onlyである
-- [ ] create/update/deleteがtransactional outboxを利用する
-- [ ] MyWordStatusが親dataset依存を守る
-- [ ] hard delete差分欠落がtombstoneで解消される
-- [ ] 旧MyWord sync UseCaseがproduction registryから外れている
+- [x] MyWord/MyWordStatusの通常Repositoryがlocal-onlyである（`registerWord`/`updateWord`/`deleteWord`/`updateStatus`からの直接remote呼び出しは除去済み。`IMyWordRepository`/`IMyWordStatusRepository`インターフェース自体は旧sync usecase向けのremoteメソッドを引き続き公開している）
+- [x] create/updateがtransactional outboxを利用する
+- [x] MyWordStatusが親dataset依存を守る（`DatasetPlan.dependencies`でMyWordStatusをMyWordに依存させ、MyWord失敗時はskipされる）
+- [x] hard delete差分欠落がtombstoneで解消される
+- [x] 旧MyWord sync UseCaseがproduction registryから外れている（`syncServiceProvider`は空配列。旧usecaseクラス自体は既存testが直接参照するため未削除、Local-first 8で削除）
+
+未対応（Local-first 7/8へ引き継ぎ、詳細は[`../contexts/plans/local_first.6-migrate-my-word.plan.md`](../contexts/plans/local_first.6-migrate-my-word.plan.md)参照）:
+
+- read側account scoping（`legacy_unowned`固定）。
+- account切替（session epoch）を跨いだhandler単体のend-to-end test。
+- `baseRemoteRevision`を使った明示的な本文競合検出（現状はfield mask patchのmerge writeのみ）。
+- 旧`SyncMyWordInteractor`/`SyncMyWordStatusUsecase`クラスファイル自体の削除。
 
 ## LLMへの引き継ぎ事項
 

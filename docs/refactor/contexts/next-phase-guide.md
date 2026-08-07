@@ -56,6 +56,7 @@
 - [feature-map.md](feature-map.md)
 - [phase-scaffolding.md](phase-scaffolding.md)
 - [runtime-and-status.md](runtime-and-status.md)
+- [`plans/local_first.6-migrate-my-word.plan.md`](plans/local_first.6-migrate-my-word.plan.md)
 
 作業対象の中心:
 
@@ -63,10 +64,26 @@
 - `features/my_word/data/data_source/local/**`
 - `features/my_word/data/data_source/remote/**`
 
+状態（Stage 1〜5完了: 2026-08-06）:
+
+- `MyWordRepository.registerWord`/`updateWord`/`deleteWord`が、`my_words`業務row更新（create/update/tombstone delete）とfield mask付きoutbox mutation enqueue（`upsert`/`patch`/`delete`）を同一Drift transactionで実行するようになった（署名ユーザーのみ。`OutboxWriter`/`Uuid`を注入済み）。直接remote呼び出しはすべて削除し、配送はoutbox+`MyWordSyncHandler`のみが担う。
+- `MyWordDao`に`insertMyWordWithRevision`/`updateMyWordWithRevision`/`tombstoneMyWord`/`applyRemoteFields`を追加。`local_revision`は書き込み時に+1、削除は`deleted_at`を立てる論理削除（子`my_word_status`行はhard delete）。`getMyWordById`等の読み取り系はすべて`deleted_at IS NULL`でtombstoneを除外する。
+- `MyWordStatusRepository.updateStatus`も同様にDrift transaction＋outbox enqueue化済み（`MyWordStatusDao.applyStatusPatch`/`applyRemoteFields`を追加）。直接remote呼び出しは削除済み。
+- `MyWordSyncHandler`/`MyWordStatusSyncHandler`を実装し、`syncDatasetHandlerRegistryProvider`へ登録済み。push（field mask付きFirestore merge write、`patchMyWord`/`patchStatus`）とpull（checkpoint差分取得→pending mutationとのfield単位merge→Drift反映+checkpoint更新を同一transaction）の両方が動く。remoteの`deletedAt`（tombstone）もpullで検出し、ローカルへ論理削除を伝播する。
+- `DatasetPlan.localFirst`に`dependencies: {SyncDataset.myWordStatus: {SyncDataset.myWords}}`を追加し、MyWord失敗時はMyWordStatusが`skipped`になるよう`SyncEngine`の既存依存解決ロジックへ接続した。
+- 旧`SyncMyWordInteractor`（`sync_my_word_interactor copy.dart`）・`SyncMyWordStatusUsecase`は`features/sync/di.dart`の`syncServiceProvider`から除去し、実行経路から外れた（`syncServiceProvider`は空配列。クラスファイルと対応するdi provider定義、`test/unit/features/sync/`内の直接参照は削除していない）。
+- `features/my_word`が`features/sync/application/**`へ依存する一方、旧`features/sync/di.dart -> features/my_word/di/usecase_di.dart`の逆方向importが消えたため、`no_feature_cycle`違反2件は解消し`baseline.json`から除去済み。
+- 新規test: `test/unit/features/my_word/my_word_outbox_enqueue_test.dart`（create/update/delete outbox enqueue）、`my_word_sync_handler_test.dart`（push/pull/tombstone契約）、`my_word_status_outbox_enqueue_test.dart`、`my_word_status_sync_handler_test.dart`。
+
+未対応（次フェーズ、詳細は[`plans/local_first.6-migrate-my-word.plan.md`](plans/local_first.6-migrate-my-word.plan.md)参照）:
+
+- read側account scoping（`legacy_unowned`固定）はword status Stage 2と同じ理由でLocal-first 7以降へ引き続き先送り。
+- account切替（session epoch）を跨いだMyWord/MyWordStatus handler単体のend-to-end testは未実装。
+- `baseRemoteRevision`を使った明示的な本文競合検出（現状はfield mask patchのmerge writeのみ）。
+- 旧`SyncMyWordInteractor`/`SyncMyWordStatusUsecase`クラスファイル自体の削除はLocal-first 8へ引き継ぎ。
+
 注意:
 
-- 現Repositoryにはremote直書き、`legacy_unowned`、未実装local sync streamが残る。
-- 親dataset `my_words`、子dataset `my_word_status`の順序を`DatasetPlan`で固定する。
 - `copy.dart`系と大型modalはproduction切替後のPhase 3で整理する。
 
 ## Local-first 7: User Profile

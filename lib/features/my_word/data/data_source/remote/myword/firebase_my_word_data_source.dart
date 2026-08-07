@@ -36,4 +36,15 @@ class FirebaseMyWordDataSource implements IMyWordRemoteDataSource {
   Future<void> deleteMyWord(String userId, String myWordId) async {
     await _dao.delete(userId, myWordId);
   }
+
+  @override
+  Future<void> patchMyWord(
+    String userId,
+    String myWordId,
+    Map<String, Object?> fields,
+    List<String> fieldMask, {
+    required bool isNew,
+  }) {
+    return _dao.patch(userId, myWordId, fields, fieldMask, isNew: isNew);
+  }
 }

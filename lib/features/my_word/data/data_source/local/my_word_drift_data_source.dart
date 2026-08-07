@@ -52,4 +52,60 @@ class MyWordDriftDataSource implements IMyWordLocalDataSource {
   Stream<db.MyWordTableData?> streamMyWordById(String id) {
     return _myWordDao.streamMyWordById(id);
   }
+
+  @override
+  Future<db.MyWordTableData> insertMyWordWithRevision({
+    required String id,
+    required String word,
+    required String contents,
+    required String editAt,
+  }) {
+    return _myWordDao.insertMyWordWithRevision(
+      id: id,
+      word: word,
+      contents: contents,
+      editAt: editAt,
+    );
+  }
+
+  @override
+  Future<db.MyWordTableData?> updateMyWordWithRevision({
+    required String id,
+    required String word,
+    required String contents,
+    required String editAt,
+  }) {
+    return _myWordDao.updateMyWordWithRevision(
+      id: id,
+      word: word,
+      contents: contents,
+      editAt: editAt,
+    );
+  }
+
+  @override
+  Future<db.MyWordTableData?> tombstoneMyWord(String wordId, String deletedAt) {
+    return _myWordDao.tombstoneMyWord(wordId, deletedAt);
+  }
+
+  @override
+  Future<void> applyRemoteFields(
+    String wordId, {
+    String? word,
+    String? contents,
+    String? deletedAt,
+    required String editAt,
+  }) {
+    return _myWordDao.applyRemoteFields(
+      wordId,
+      word: word,
+      contents: contents,
+      deletedAt: deletedAt,
+      editAt: editAt,
+    );
+  }
+
+  @override
+  Future<T> runInTransaction<T>(Future<T> Function() action) =>
+      _myWordDao.transaction(action);
 }

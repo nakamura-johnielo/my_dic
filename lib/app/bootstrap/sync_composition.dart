@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
 import 'package:my_dic/features/esp_jpn_word_status/di/di.dart';
 import 'package:my_dic/features/jpn_esp_word_status/di/di.dart';
+import 'package:my_dic/features/my_word/di/data_di.dart';
 import 'package:my_dic/features/sync/application/dataset_handler_registry.dart';
 import 'package:my_dic/features/sync/application/in_memory_session_fence.dart';
 import 'package:my_dic/features/sync/application/policy/dataset_plan.dart';
@@ -38,6 +39,8 @@ final syncDatasetHandlerRegistryProvider = Provider<DatasetHandlerRegistry>(
   (ref) => DatasetHandlerRegistry([
     ref.watch(espJpnWordStatusSyncHandlerProvider),
     ref.watch(jpnEspWordStatusSyncHandlerProvider),
+    ref.watch(myWordSyncHandlerProvider),
+    ref.watch(myWordStatusSyncHandlerProvider),
   ]),
 );
 

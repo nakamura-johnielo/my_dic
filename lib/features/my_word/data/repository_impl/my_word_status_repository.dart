@@ -1,8 +1,9 @@
 import 'package:my_dic/core/shared/utils/logger.dart';
 
 import 'package:firebase_core/firebase_core.dart';
-import 'package:my_dic/core/shared/utils/logger.dart';
+import 'package:uuid/uuid.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
+import 'package:my_dic/core/shared/enums/sync_dataset.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
@@ -12,51 +13,66 @@ import 'package:my_dic/features/my_word/domain/usecase/my_word_status/update_my_
 import 'package:my_dic/features/my_word/data/data_source/local/i_my_word_status_local_data_source.dart';
 import 'package:my_dic/features/my_word/data/data_source/remote/status/i_my_word_status_remote_data_source.dart';
 import 'package:my_dic/features/my_word/data/data_source/remote/status/firebase_my_word_status_dto.dart';
+import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
+import 'package:my_dic/features/sync/application/port/outbox_writer.dart';
 
 class MyWordStatusRepository implements IMyWordStatusRepository {
   final IMyWordStatusLocalDataSource _localDataSource;
   final IMyWordStatusRemoteDataSource _remoteDataSource;
+  final OutboxWriter _outboxWriter;
+  final Uuid _uuid;
 
-  MyWordStatusRepository(this._localDataSource, this._remoteDataSource);
+  MyWordStatusRepository(
+    this._localDataSource,
+    this._remoteDataSource,
+    this._outboxWriter, {
+    Uuid? uuid,
+  }) : _uuid = uuid ?? const Uuid();
 
   @override
   Future<Result<void>> updateStatus(
       UpdateMyWordStatusRepositoryInputData input) async {
     try {
       AppLogger.print("updatestatusrepo");
-      MyWordStatusTableData data = MyWordStatusTableData(
-        myWordId: input.wordId,
-        isLearned: input.isLearned ?? 0,
-        isBookmarked: input.isBookmarked ?? 0,
-        hasNote: input.hasNote ?? 0,
-        editAt: input.editAt.toIso8601String(),
-        accountId: 'legacy_unowned',
-        localRevision: 0,
-      );
-
-      if (await _localDataSource.existStatus(input.wordId)) {
-        await _localDataSource.updateStatus(input.wordId, input.isLearned,
-            input.isBookmarked, input.hasNote, input.editAt.toIso8601String());
-      } else {
-        await _localDataSource.insertStatus(data);
-      }
-      if (input.userId == null) return const Result.success(null);
-
-      final localRes = await _localDataSource.getWordStatus(input.wordId);
-      if (localRes == null) {
-        return Result.failure(DatabaseError(
-          message: 'ローカルの単語ステータス取得に失敗しました',
-        ));
-      }
-
-      await _remoteDataSource.updateStatus(
-          input.userId!,
-          MyWordStatusDTO(
-              myWordId: input.wordId,
-              isLearned: localRes.isLearned ?? 0,
-              isBookmarked: localRes.isBookmarked ?? 0,
-              createdAt: input.editAt,
-              updatedAt: input.editAt));
+      final editAt = input.editAt.toIso8601String();
+      await _localDataSource.runInTransaction(() async {
+        final row = await _localDataSource.applyStatusPatch(
+          input.wordId,
+          input.isLearned,
+          input.isBookmarked,
+          input.hasNote,
+          editAt,
+        );
+        if (input.userId != null) {
+          final fieldMask = <String>[];
+          final payload = <String, Object?>{};
+          if (input.isLearned != null) {
+            fieldMask.add('isLearned');
+            payload['isLearned'] = input.isLearned == 1;
+          }
+          if (input.isBookmarked != null) {
+            fieldMask.add('isBookmarked');
+            payload['isBookmarked'] = input.isBookmarked == 1;
+          }
+          if (input.hasNote != null) {
+            fieldMask.add('hasNote');
+            payload['hasNote'] = input.hasNote == 1;
+          }
+          if (fieldMask.isNotEmpty) {
+            await _outboxWriter.enqueue(SyncMutation(
+              mutationId: _uuid.v4(),
+              accountId: input.userId!,
+              dataset: SyncDataset.myWordStatus,
+              entityId: input.wordId,
+              operation: SyncMutationOperation.patch,
+              payload: payload,
+              fieldMask: fieldMask,
+              localRevision: row.localRevision,
+            ));
+          }
+        }
+        return row;
+      });
       return const Result.success(null);
     } catch (e, s) {
       return Result.failure(DatabaseError(

@@ -60,4 +60,98 @@ class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
         .getSingleOrNull();
     return data;
   }
+
+  /// Upserts the status row and bumps `local_revision` by 1 (new rows start
+  /// at 1), so callers can enqueue a matching outbox mutation in the same
+  /// transaction. `null` per field means "leave unchanged" on an update.
+  Future<MyWordStatusTableData> applyStatusPatch(
+    String myWordId,
+    int? isLearned,
+    int? isBookmarked,
+    int? hasNote,
+    String editAt,
+  ) {
+    return transaction(() async {
+      final existing = await getWordStatus(myWordId);
+      final nextRevision = (existing?.localRevision ?? 0) + 1;
+      if (existing == null) {
+        await into(myWordStatus).insert(
+          MyWordStatusCompanion.insert(
+            myWordId: myWordId,
+            isLearned: Value(isLearned ?? 0),
+            isBookmarked: Value(isBookmarked ?? 0),
+            hasNote: Value(hasNote ?? 0),
+            editAt: editAt,
+            accountId: const Value(legacyOwner),
+            localRevision: Value(nextRevision),
+          ),
+        );
+      } else {
+        await (update(myWordStatus)
+              ..where((t) =>
+                  t.myWordId.equals(myWordId) & t.accountId.equals(legacyOwner)))
+            .write(
+          MyWordStatusCompanion(
+            isLearned: isLearned != null ? Value(isLearned) : const Value.absent(),
+            isBookmarked:
+                isBookmarked != null ? Value(isBookmarked) : const Value.absent(),
+            hasNote: hasNote != null ? Value(hasNote) : const Value.absent(),
+            editAt: Value(editAt),
+            localRevision: Value(nextRevision),
+          ),
+        );
+      }
+      final updated = await getWordStatus(myWordId);
+      if (updated == null) {
+        throw StateError('MyWordStatus was not persisted: $myWordId');
+      }
+      return updated;
+    });
+  }
+
+  /// Applies a pulled remote snapshot without bumping `local_revision` or
+  /// touching the outbox. `null` per field means "leave untouched" (used by
+  /// the sync handler to skip fields with an in-flight local push).
+  Future<void> applyRemoteFields(
+    String myWordId, {
+    int? isLearned,
+    int? isBookmarked,
+    int? hasNote,
+    required String editAt,
+  }) {
+    return transaction(() async {
+      final existing = await getWordStatus(myWordId);
+      if (existing == null) {
+        await into(myWordStatus).insert(
+          MyWordStatusCompanion.insert(
+            myWordId: myWordId,
+            isLearned: Value(isLearned ?? 0),
+            isBookmarked: Value(isBookmarked ?? 0),
+            hasNote: Value(hasNote ?? 0),
+            editAt: editAt,
+            accountId: const Value(legacyOwner),
+            localRevision: const Value(0),
+          ),
+        );
+        return;
+      }
+      await (update(myWordStatus)
+            ..where((t) =>
+                t.myWordId.equals(myWordId) & t.accountId.equals(legacyOwner)))
+          .write(
+        MyWordStatusCompanion(
+          isLearned: isLearned != null ? Value(isLearned) : const Value.absent(),
+          isBookmarked:
+              isBookmarked != null ? Value(isBookmarked) : const Value.absent(),
+          hasNote: hasNote != null ? Value(hasNote) : const Value.absent(),
+          editAt: Value(editAt),
+        ),
+      );
+    });
+  }
+
+  /// Runs [action] within a single Drift transaction so callers can combine
+  /// a status row write with an outbox mutation atomically.
+  Future<T> runInTransaction<T>(Future<T> Function() action) =>
+      transaction(action);
 }

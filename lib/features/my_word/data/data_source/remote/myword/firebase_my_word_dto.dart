@@ -23,6 +23,7 @@ class MyWordDTO {
   static const String fieldupdateBy = "updateBy";
   static const String fieldCreatedAt = "createdAt";
   static const String fieldUpdatedAt = "updatedAt";
+  static const String fieldDeletedAt = "deletedAt";
 
   //!TODO finalにすべき？copywith?
 
@@ -32,6 +33,7 @@ class MyWordDTO {
   String? updateBy;
   DateTime createdAt;
   DateTime updatedAt;
+  DateTime? deletedAt;
 
   MyWordDTO({
     required this.myWordId,
@@ -40,6 +42,7 @@ class MyWordDTO {
     this.updateBy,
     required this.createdAt,
     required this.updatedAt,
+    this.deletedAt,
   });
 
   /// ----------------------------
@@ -47,13 +50,17 @@ class MyWordDTO {
   /// ----------------------------
   factory MyWordDTO.fromFirebase(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data()!;
+    final deletedAtValue = data[fieldDeletedAt];
     return MyWordDTO(
         myWordId: data[fieldMyWordId] as String,
         word: data[fieldMyWord],
         contents: data[fieldContents],
         updateBy: data[fieldupdateBy],
         createdAt: (data[fieldCreatedAt] as Timestamp).toDate().toUtc(),
-        updatedAt: (data[fieldUpdatedAt] as Timestamp).toDate().toUtc());
+        updatedAt: (data[fieldUpdatedAt] as Timestamp).toDate().toUtc(),
+        deletedAt: deletedAtValue is Timestamp
+            ? deletedAtValue.toDate().toUtc()
+            : null);
   }
 
   MyWord toEntity() {
@@ -78,6 +85,7 @@ class MyWordDTO {
       fieldupdateBy: updateBy,
       fieldCreatedAt: Timestamp.fromDate(createdAt.toUtc()),
       fieldUpdatedAt: Timestamp.fromDate(updatedAt.toUtc()),
+      if (deletedAt != null) fieldDeletedAt: Timestamp.fromDate(deletedAt!.toUtc()),
     };
   }
 

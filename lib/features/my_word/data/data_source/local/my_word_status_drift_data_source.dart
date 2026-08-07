@@ -34,4 +34,37 @@ class MyWordStatusDriftDataSource implements IMyWordStatusLocalDataSource {
   Future<db.MyWordStatusTableData?> getWordStatus(String wordId) async {
     return await _wordStatusDao.getWordStatus(wordId);
   }
+
+  @override
+  Future<db.MyWordStatusTableData> applyStatusPatch(
+    String myWordId,
+    int? isLearned,
+    int? isBookmarked,
+    int? hasNote,
+    String editAt,
+  ) {
+    return _wordStatusDao.applyStatusPatch(
+        myWordId, isLearned, isBookmarked, hasNote, editAt);
+  }
+
+  @override
+  Future<void> applyRemoteFields(
+    String myWordId, {
+    int? isLearned,
+    int? isBookmarked,
+    int? hasNote,
+    required String editAt,
+  }) {
+    return _wordStatusDao.applyRemoteFields(
+      myWordId,
+      isLearned: isLearned,
+      isBookmarked: isBookmarked,
+      hasNote: hasNote,
+      editAt: editAt,
+    );
+  }
+
+  @override
+  Future<T> runInTransaction<T>(Future<T> Function() action) =>
+      _wordStatusDao.transaction(action);
 }

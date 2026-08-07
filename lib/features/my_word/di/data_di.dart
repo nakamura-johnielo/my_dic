@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/app/bootstrap/sync_composition.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
 import 'package:my_dic/core/infrastructure/database/firebase/firebase_provider.dart';
 import 'package:my_dic/features/my_word/domain/i_repository/i_my_word_repository.dart';
@@ -17,6 +18,8 @@ import 'package:my_dic/features/my_word/data/data_source/remote/status/firebase_
 import 'package:my_dic/features/my_word/data/data_source/remote/status/i_my_word_status_remote_data_source.dart';
 import 'package:my_dic/features/my_word/data/repository_impl/my_word_repository.dart';
 import 'package:my_dic/features/my_word/data/repository_impl/my_word_status_repository.dart';
+import 'package:my_dic/features/my_word/data/sync/my_word_sync_handler.dart';
+import 'package:my_dic/features/my_word/data/sync/my_word_status_sync_handler.dart';
 
 // ============================================================================
 // Database & DAO Providers
@@ -77,6 +80,7 @@ final myWordRepositoryProvider = Provider<IMyWordRepository>((ref) {
   return MyWordRepository(
     ref.read(myWordLocalDataSourceProvider),
     ref.read(myWordRemoteDataSourceProvider),
+    ref.read(driftOutboxWriterProvider),
   );
 });
 
@@ -84,5 +88,28 @@ final myWordStatusRepositoryProvider = Provider<IMyWordStatusRepository>((ref) {
   return MyWordStatusRepository(
     ref.read(myWordStatusLocalDataSourceProvider),
     ref.read(myWordStatusRemoteDataSourceProvider),
+    ref.read(driftOutboxWriterProvider),
+  );
+});
+
+// ============================================================================
+// Sync Handler Provider
+// ============================================================================
+
+final myWordSyncHandlerProvider = Provider<MyWordSyncHandler>((ref) {
+  return MyWordSyncHandler(
+    queue: ref.watch(driftSyncQueueProvider),
+    checkpointStore: ref.watch(driftSyncCheckpointStoreProvider),
+    local: ref.read(myWordLocalDataSourceProvider),
+    remote: ref.read(myWordRemoteDataSourceProvider),
+  );
+});
+
+final myWordStatusSyncHandlerProvider = Provider<MyWordStatusSyncHandler>((ref) {
+  return MyWordStatusSyncHandler(
+    queue: ref.watch(driftSyncQueueProvider),
+    checkpointStore: ref.watch(driftSyncCheckpointStoreProvider),
+    local: ref.read(myWordStatusLocalDataSourceProvider),
+    remote: ref.read(myWordStatusRemoteDataSourceProvider),
   );
 });

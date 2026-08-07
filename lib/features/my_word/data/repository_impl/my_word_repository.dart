@@ -1,5 +1,7 @@
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:uuid/uuid.dart';
+import 'package:my_dic/core/shared/enums/sync_dataset.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/errors/unexpected_error.dart';
@@ -15,12 +17,21 @@ import 'package:my_dic/features/my_word/data/data_source/local/i_my_word_local_d
 import 'package:my_dic/features/my_word/data/data_source/remote/myword/i_my_word_remote_data_source.dart';
 import 'package:my_dic/features/my_word/data/data_source/remote/myword/firebase_my_word_dto.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
+import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
+import 'package:my_dic/features/sync/application/port/outbox_writer.dart';
 
 class MyWordRepository implements IMyWordRepository {
   final IMyWordLocalDataSource _localDataSource;
   final IMyWordRemoteDataSource _remoteDataSource;
+  final OutboxWriter _outboxWriter;
+  final Uuid _uuid;
 
-  MyWordRepository(this._localDataSource, this._remoteDataSource);
+  MyWordRepository(
+    this._localDataSource,
+    this._remoteDataSource,
+    this._outboxWriter, {
+    Uuid? uuid,
+  }) : _uuid = uuid ?? const Uuid();
 
   @override
   Future<Result<MyWord>> getById(String id) async {
@@ -107,18 +118,29 @@ class MyWordRepository implements IMyWordRepository {
       // For now, we'll handle the database constraint error
 
       final wordId = MyUUID.generate();
-      await _localDataSource.insertMyWord(wordId, input.headword,
-          input.description, input.dateTime.toIso8601String());
-
-      final myWord = MyWord(
-          wordId: wordId,
+      final editAt = input.dateTime.toIso8601String();
+      await _localDataSource.runInTransaction(() async {
+        final row = await _localDataSource.insertMyWordWithRevision(
+          id: wordId,
           word: input.headword,
           contents: input.description,
-          editAt: input.dateTime);
+          editAt: editAt,
+        );
+        if (input.userId != null) {
+          await _outboxWriter.enqueue(SyncMutation(
+            mutationId: _uuid.v4(),
+            accountId: input.userId!,
+            dataset: SyncDataset.myWords,
+            entityId: wordId,
+            operation: SyncMutationOperation.upsert,
+            payload: {'word': row.word, 'contents': row.contents},
+            fieldMask: const ['word', 'contents'],
+            localRevision: row.localRevision,
+          ));
+        }
+        return row;
+      });
 
-      if (input.userId == null) return Result.success(wordId);
-      await _remoteDataSource.updateMyWord(input.userId!,
-          MyWordDTO.fromAppEntity(myWord, dateTime: input.dateTime));
       return Result.success(wordId);
     } catch (e, s) {
       // Check if it's a unique constraint violation
@@ -141,16 +163,29 @@ class MyWordRepository implements IMyWordRepository {
   @override
   Future<Result<void>> deleteWord(DeleteMyWordRepositoryInputData input) async {
     try {
-      final affectedRows =
-          await _localDataSource.deleteMyword(input.id, input.dateTime);
-      if (affectedRows == 0) {
+      final tombstoned = await _localDataSource.runInTransaction(() async {
+        final row =
+            await _localDataSource.tombstoneMyWord(input.id, input.dateTime);
+        if (row != null && input.userId != null) {
+          await _outboxWriter.enqueue(SyncMutation(
+            mutationId: _uuid.v4(),
+            accountId: input.userId!,
+            dataset: SyncDataset.myWords,
+            entityId: input.id,
+            operation: SyncMutationOperation.delete,
+            payload: {'deletedAt': input.dateTime},
+            fieldMask: const ['deletedAt'],
+            localRevision: row.localRevision,
+          ));
+        }
+        return row;
+      });
+
+      if (tombstoned == null) {
         return Result.failure(NotFoundError(
           message: '削除する単語が見つかりません',
         ));
       }
-      if (input.userId == null) return const Result.success(null);
-      await _remoteDataSource.deleteMyWord(input.userId!, input.id);
-
       return const Result.success(null);
     } catch (e, s) {
       return Result.failure(DatabaseError(
@@ -164,22 +199,34 @@ class MyWordRepository implements IMyWordRepository {
   @override
   Future<Result<void>> updateWord(UpdateMyWordRepositoryInputData input) async {
     try {
-      final affectedRows = await _localDataSource.updateMyWord(input.myWordId,
-          input.headword, input.description, input.editAt.toIso8601String());
+      final editAt = input.editAt.toIso8601String();
+      final updated = await _localDataSource.runInTransaction(() async {
+        final row = await _localDataSource.updateMyWordWithRevision(
+          id: input.myWordId,
+          word: input.headword,
+          contents: input.description,
+          editAt: editAt,
+        );
+        if (row != null && input.userId != null) {
+          await _outboxWriter.enqueue(SyncMutation(
+            mutationId: _uuid.v4(),
+            accountId: input.userId!,
+            dataset: SyncDataset.myWords,
+            entityId: input.myWordId,
+            operation: SyncMutationOperation.patch,
+            payload: {'word': row.word, 'contents': row.contents},
+            fieldMask: const ['word', 'contents'],
+            localRevision: row.localRevision,
+          ));
+        }
+        return row;
+      });
 
-      if (affectedRows == 0) {
+      if (updated == null) {
         return Result.failure(NotFoundError(
           message: '更新する単語が見つかりません',
         ));
       }
-      if (input.userId == null) return const Result.success(null);
-      final myWord = MyWord(
-          wordId: input.myWordId,
-          word: input.headword,
-          contents: input.description,
-          editAt: input.editAt);
-      await _remoteDataSource.updateMyWord(
-          input.userId!, MyWordDTO.fromAppEntity(myWord));
       return const Result.success(null);
     } catch (e, s) {
       return Result.failure(DatabaseError(

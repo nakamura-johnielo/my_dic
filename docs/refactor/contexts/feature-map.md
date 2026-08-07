@@ -71,19 +71,20 @@
 | --- | --- | --- |
 | `domain/entity/my_word.dart`、`my_word_status.dart` | MyWordとMyWordStatus entity | Flutter importあり。domain純化対象 |
 | `domain/i_repository/**` | MyWord/MyWordStatus repository port | local/remote/watch/sync APIを含む旧port |
-| `domain/usecase/my_word/create/**` | MyWord登録と登録ハンドリング | local作成後にremote直書きが残る |
-| `domain/usecase/my_word/update/**` | MyWord更新 | Local-first 6でoutbox化対象 |
-| `domain/usecase/my_word/delete/**` | MyWord削除 | tombstone化対象 |
+| `domain/usecase/my_word/create/**` | MyWord登録と登録ハンドリング | local transaction+outbox化済み（Local-first 6完了）。直接remote呼び出しは除去、配送は`MyWordSyncHandler`のみ |
+| `domain/usecase/my_word/update/**` | MyWord更新 | local transaction+outbox化済み（Local-first 6完了）。直接remote呼び出しは除去、配送は`MyWordSyncHandler`のみ |
+| `domain/usecase/my_word/delete/**` | MyWord削除 | tombstone化済み（Local-first 6完了）。`deleted_at`論理削除+outbox delete mutation |
 | `domain/usecase/my_word/load_my_word/**` | MyWord一覧取得 | local read |
 | `domain/usecase/my_word/watch/**` | MyWord watch | local stream |
-| `domain/usecase/my_word/sync_my_word/**` | 旧MyWord sync | `sync_my_word_interactor copy.dart`が残る。Phase 3統合候補 |
-| `domain/usecase/my_word_status/**` | status update/watch/sync | Local-first 6対象 |
-| `data/data_source/local/**` | MyWord/MyWordStatus Drift table/DAO/data source | v6 account scope列あり。現Repositoryは`legacy_unowned`使用箇所あり |
-| `data/data_source/remote/myword/**` | Firebase MyWord DAO/data source/DTO | sync remote adapter化対象 |
-| `data/data_source/remote/status/**` | Firebase MyWordStatus DAO/data source/DTO | sync remote adapter化対象 |
-| `data/repository_impl/my_word_repository.dart` | MyWord local/remote repository | local更新後remote直書き。Local-first 6の中心対象 |
-| `data/repository_impl/my_word_status_repository.dart` | MyWordStatus local/remote repository | local sync method未実装/空stream箇所あり。Local-first 6で補完 |
-| `di/**` | data/usecase/viewmodel provider | provider集中。sync usecaseもここで組む |
+| `domain/usecase/my_word/sync_my_word/**` | 旧MyWord sync | `sync_my_word_interactor copy.dart`が残るが`syncServiceProvider`から除去済み（実行経路から外れた残骸）。Local-first 8で削除予定 |
+| `domain/usecase/my_word_status/**` | status update/watch/sync | outbox化済み（Local-first 6完了）。旧`SyncMyWordStatusUsecase`は実行経路から除去済みの残骸 |
+| `data/data_source/local/**` | MyWord/MyWordStatus Drift table/DAO/data source | v6 account scope列あり。read系は`legacy_unowned`のまま（read側account scopingはLocal-first 7へ先送り）。tombstone/revision/remote-apply用メソッドをLocal-first 6で追加 |
+| `data/data_source/remote/myword/**` | Firebase MyWord DAO/data source/DTO | `patchMyWord`（field mask merge write）と`deletedAt`tombstone fieldを追加済み（Local-first 6完了） |
+| `data/data_source/remote/status/**` | Firebase MyWordStatus DAO/data source/DTO | `patchStatus`（field mask merge write）を追加済み（Local-first 6完了） |
+| `data/repository_impl/my_word_repository.dart` | MyWord local/remote repository | `registerWord`/`updateWord`/`deleteWord`はDrift transaction+outbox化・直接remote呼び出し除去済み（Local-first 6完了）。旧sync向け`createLocalMyWord`/`updateLocalMyWord`はシグネチャ未変更 |
+| `data/repository_impl/my_word_status_repository.dart` | MyWordStatus local/remote repository | `updateStatus`はDrift transaction+outbox化・直接remote呼び出し除去済み（Local-first 6完了）。旧sync向け`updateLocalStatus`等はシグネチャ未変更 |
+| `data/sync/my_word_sync_handler.dart`、`data/sync/my_word_status_sync_handler.dart` | MyWord/MyWordStatus dataset sync handler | 新規（Local-first 6完了）。`syncDatasetHandlerRegistryProvider`に登録済み、`DatasetPlan`でMyWordStatusはMyWordに依存 |
+| `di/**` | data/usecase/viewmodel provider | provider集中。旧sync usecase providerは未参照のまま残置（Local-first 8で削除予定） |
 | `presentation/ui_model/**` | MyWord list/status command event/state | UI state |
 | `presentation/view_model/**` | list VM、item VM、command、status command | Viewからusecaseを呼ぶ層 |
 | `presentation/view/**` | list、card、modal、create modal | 大型modalあり。Phase 3分割候補 |

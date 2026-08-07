@@ -131,4 +131,36 @@ class FirebaseMyWordDao {
         .doc(myWordId);
     await docRef.delete();
   }
+
+  /// Merge-writes only [fieldMask] keys plus bookkeeping timestamps, so that
+  /// fields not covered by the sync outbox mutation are left untouched.
+  /// `deletedAt` values arrive as ISO-8601 strings and are converted to a
+  /// Firestore `Timestamp` tombstone marker.
+  Future<void> patch(
+    String userId,
+    String myWordId,
+    Map<String, Object?> fields,
+    List<String> fieldMask, {
+    required bool isNew,
+  }) async {
+    final docRef = _db
+        .collection(UserDTO.collectionName)
+        .doc(userId)
+        .collection(MyWordDTO.collectionName)
+        .doc(myWordId);
+    final data = <String, dynamic>{MyWordDTO.fieldMyWordId: myWordId};
+    for (final field in fieldMask) {
+      final value = fields[field];
+      if (field == MyWordDTO.fieldDeletedAt && value is String) {
+        data[field] = Timestamp.fromDate(DateTime.parse(value));
+      } else {
+        data[field] = value;
+      }
+    }
+    data[MyWordDTO.fieldUpdatedAt] = FieldValue.serverTimestamp();
+    if (isNew) {
+      data[MyWordDTO.fieldCreatedAt] = FieldValue.serverTimestamp();
+    }
+    await docRef.set(data, SetOptions(merge: true));
+  }
 }

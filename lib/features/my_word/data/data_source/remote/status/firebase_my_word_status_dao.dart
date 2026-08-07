@@ -135,4 +135,31 @@ class FirebaseMyWordStatusDao {
         .doc(myWordId);
     await docRef.delete();
   }
+
+  /// Merge-writes only [fieldMask] keys plus bookkeeping timestamps, so that
+  /// fields not covered by the sync outbox mutation are left untouched. Bool
+  /// payload values are converted to the DTO's 0/1 int convention.
+  Future<void> patch(
+    String userId,
+    String myWordId,
+    Map<String, Object?> fields,
+    List<String> fieldMask, {
+    required bool isNew,
+  }) async {
+    final docRef = _db
+        .collection(UserDTO.collectionName)
+        .doc(userId)
+        .collection(MyWordStatusDTO.collectionName)
+        .doc(myWordId);
+    final data = <String, dynamic>{MyWordStatusDTO.fieldMyWordId: myWordId};
+    for (final field in fieldMask) {
+      final value = fields[field];
+      data[field] = value is bool ? (value ? 1 : 0) : value;
+    }
+    data[MyWordStatusDTO.fieldUpdatedAt] = FieldValue.serverTimestamp();
+    if (isNew) {
+      data[MyWordStatusDTO.fieldCreatedAt] = FieldValue.serverTimestamp();
+    }
+    await docRef.set(data, SetOptions(merge: true));
+  }
 }
