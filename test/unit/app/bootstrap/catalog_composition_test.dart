@@ -13,6 +13,10 @@ import 'package:my_dic/core/domain/i_repository/i_jpn_esp_dictionary_repository.
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/legacy/legacy_catalog_reader_adapter.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/legacy/legacy_conjugation_reader_adapter.dart';
+import 'package:my_dic/features/catalog/internal/infrastructure/legacy/quiz_candidate/legacy_quiz_candidate_source_adapter.dart';
+import 'package:my_dic/features/quiz/application/candidate_search/quiz_candidate_page.dart';
+import 'package:my_dic/features/quiz/application/candidate_search/quiz_candidate_query.dart';
+import 'package:my_dic/features/quiz/application/candidate_search/quiz_candidate_source.dart';
 
 void main() {
   test('resolves Catalog readers from overridden legacy repositories', () {
@@ -34,6 +38,26 @@ void main() {
       container.read(conjugationReaderProvider),
       isA<LegacyConjugationReaderAdapter>(),
     );
+  });
+
+  test('resolves the Quiz candidate source from the legacy Catalog graph', () {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+
+    expect(
+      container.read(quizCandidateSourceProvider),
+      isA<LegacyQuizCandidateSourceAdapter>(),
+    );
+  });
+
+  test('allows Quiz candidate source to be replaced with a fake', () {
+    final source = _QuizCandidateSource();
+    final container = ProviderContainer(
+      overrides: [quizCandidateSourceProvider.overrideWithValue(source)],
+    );
+    addTearDown(container.dispose);
+
+    expect(container.read(quizCandidateSourceProvider), same(source));
   });
 }
 
@@ -76,4 +100,10 @@ final class _ConjugationRepository implements IConjugacionsRepository {
   @override
   Future<Result<bool>> hasConjByWordId(int wordId) async =>
       const Result.success(false);
+}
+
+final class _QuizCandidateSource implements QuizCandidateSource {
+  @override
+  Future<Result<QuizCandidatePage>> search(QuizCandidateQuery query) async =>
+      throw UnimplementedError();
 }

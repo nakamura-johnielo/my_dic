@@ -66,41 +66,6 @@ class DriftSearchQueryRepository implements ISearchQueryRepository {
     }
   }
 
-  @override
-  Future<Result<SearchResultPage>> searchQuiz(SearchQuery query) async {
-    try {
-      final issues = <QueryIssue>[];
-      final primary = await _dao.fetchQuizItems(query);
-      final ids = primary.map((item) => item.wordId).toList(growable: false);
-      final enrichment =
-          await _loadEnrichment(SearchDirection.espJpn, ids, issues);
-      final items = primary
-          .map(
-            (item) => ConjugationSearchItem(
-              wordId: item.wordId,
-              headword: item.headword,
-              matches: item.matches,
-              meaningText: enrichment.meanings[item.wordId],
-              rankingNo: enrichment.rankings[item.wordId],
-              starCount: enrichment.stars[item.wordId],
-            ),
-          )
-          .toList(growable: false);
-      return Result.success(SearchResultPage(
-        items: const [],
-        conjugationSuggestions: items,
-        hasNext: items.length == query.size,
-        issues: issues,
-      ));
-    } catch (error, stackTrace) {
-      return Result.failure(DatabaseError(
-        message: 'Unable to search quiz conjugations.',
-        originalError: error,
-        stackTrace: stackTrace,
-      ));
-    }
-  }
-
   Future<_SearchEnrichment> _loadEnrichment(
     SearchDirection direction,
     List<int> wordIds,

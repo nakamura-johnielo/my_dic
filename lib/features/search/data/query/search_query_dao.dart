@@ -85,29 +85,6 @@ class SearchQueryDao {
         )
         .toList(growable: false);
   }
-
-  /// Paged conjugation lookup used by Quiz, represented by Search query data.
-  Future<List<ConjugationSearchItem>> fetchQuizItems(SearchQuery query) async {
-    if (query.direction != SearchDirection.espJpn) return const [];
-    final rows = await _conjugations.getQuizConjugacionByWordWithPage(
-      query.text,
-      query.size,
-      query.page,
-    );
-    return rows
-        .map(ConjugacionConverter.toSearchResult)
-        .map(
-          (item) => ConjugationSearchItem(
-            wordId: item.wordId,
-            headword: item.word,
-            matches: item.matches,
-            meaningText: null,
-            rankingNo: null,
-            starCount: null,
-          ),
-        )
-        .toList(growable: false);
-  }
 }
 
 class SearchPrimaryRow {

@@ -99,10 +99,6 @@ class _SearchWordUseCaseFake implements ISearchWordUseCase {
     queries.add(query);
     return responses.removeAt(0);
   }
-
-  @override
-  Future<Result<SearchResultPage>> executeQuiz(SearchQuery query) =>
-      throw UnimplementedError();
 }
 
 class _JudgeSearchWordUseCaseFake implements IJudgeSearchWordUseCase {

@@ -1,5 +1,5 @@
 import 'package:my_dic/core/presentation/state/query_state.dart';
-import 'package:my_dic/features/search/application/query/conjugation_search_item.dart';
+import 'package:my_dic/features/quiz/application/candidate_search/quiz_candidate.dart';
 
 class QuizSearchState {
   const QuizSearchState(
@@ -19,7 +19,7 @@ class QuizSearchResults {
     this.items = const [],
     required this.hasNext,
   });
-  final List<ConjugationSearchItem> items;
+  final List<QuizCandidate> items;
   final bool hasNext;
   bool get isEmpty => items.isEmpty;
 

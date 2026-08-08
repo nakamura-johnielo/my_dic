@@ -13,7 +13,7 @@ import 'package:my_dic/core/shared/enums/ui/word_status_type.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/features/quiz/presentation/ui_model/quiz_search_model.dart';
 import 'package:my_dic/features/quiz/presentation/view_model/quiz_search_view_model.dart';
-import 'package:my_dic/features/search/application/query/conjugation_search_item.dart';
+import 'package:my_dic/features/quiz/application/candidate_search/quiz_candidate.dart';
 
 class QuizSearchFragment extends ConsumerStatefulWidget {
   const QuizSearchFragment({super.key});
@@ -34,13 +34,15 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
       .read(quizSearchViewModelProvider.notifier)
       .loadSearchResults(_size, nextPage);
 
-  void _tap(ConjugationSearchItem word) {
+  void _tap(QuizCandidate candidate) {
+    final route = QuizGameRoute(
+      wordId: candidate.word.wordId,
+      word: candidate.headword,
+    );
     context.pushNamed(
       quizGameRouteNameFor(ref.read(entryPointProvider)),
-      pathParameters: QuizGameRoute(wordId: word.wordId, word: word.headword)
-          .pathParameters,
-      queryParameters: QuizGameRoute(wordId: word.wordId, word: word.headword)
-          .queryParameters,
+      pathParameters: route.pathParameters,
+      queryParameters: route.queryParameters,
     );
   }
 
@@ -91,21 +93,22 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
       controller: _scroll,
       itemCount: data.items.length,
       itemBuilder: (context, index) {
-        final word = data.items[index];
+        final candidate = data.items[index];
         return Padding(
             padding: const EdgeInsets.only(bottom: 11),
             child: CardView(
                 wordStatusType: WordStatusType.espJpnWord,
-                goToQuiz: () => _tap(word),
+                goToQuiz: () => _tap(candidate),
                 query: query,
-                wordId: word.wordId,
-                ranking: word.rankingNo,
+                wordId: candidate.word.wordId,
+                ranking: candidate.rankingNo,
                 rankingON: true,
-                word: word.headword,
-                meaning: word.meaningText ?? '',
+                starCount: candidate.starCount,
+                word: candidate.headword,
+                meaning: candidate.meaningText ?? '',
                 isBookmarked: false,
                 isLearned: false,
-                onTap: () => _tap(word)));
+                onTap: () => _tap(candidate)));
       },
       onLoadMore: _load);
 }

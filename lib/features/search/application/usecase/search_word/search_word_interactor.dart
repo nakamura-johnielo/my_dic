@@ -18,14 +18,4 @@ class SearchWordInteractor implements ISearchWordUseCase {
     }
     return _repository.search(query);
   }
-
-  @override
-  Future<Result<SearchResultPage>> executeQuiz(SearchQuery query) {
-    if (query.text.trim().isEmpty) {
-      return Future.value(Result<SearchResultPage>.failure(
-        ValidationError(message: 'A search word is required.'),
-      ));
-    }
-    return _repository.searchQuiz(query);
-  }
 }

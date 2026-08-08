@@ -1,14 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/features/quiz/application/candidate_search/quiz_candidate_query.dart';
+import 'package:my_dic/features/quiz/application/candidate_search/quiz_candidate_source.dart';
 import 'package:my_dic/features/quiz/presentation/ui_model/quiz_search_model.dart';
-import 'package:my_dic/features/search/application/query/search_direction.dart';
-import 'package:my_dic/features/search/application/query/search_query.dart';
-import 'package:my_dic/features/search/application/usecase/search_word/i_search_word_use_case.dart';
 
 class QuizSearchViewModel extends StateNotifier<QuizSearchState> {
-  QuizSearchViewModel(this._search) : super(const QuizSearchState());
-  final ISearchWordUseCase _search;
+  QuizSearchViewModel(this._source) : super(const QuizSearchState());
+  final QuizCandidateSource _source;
   int _generation = 0;
   void updateQuery(String query) {
     final value = query.trim();
@@ -31,19 +30,17 @@ class QuizSearchViewModel extends StateNotifier<QuizSearchState> {
     final generation = ++_generation;
     final previous = state.results.dataOrNull;
     state = state.copyWith(results: QueryState.loading(previousData: previous));
-    final result = await _search.executeQuiz(SearchQuery(
+    final result = await _source.search(QuizCandidateQuery(
       text: query,
-      direction: SearchDirection.espJpn,
       page: page,
       size: size,
-      includeConjugationSuggestions: false,
     ));
     if (!mounted || generation != _generation || query != state.query) {
       return false;
     }
     return result.when(success: (output) {
       final next = QuizSearchResults(
-        items: output.conjugationSuggestions,
+        items: output.candidates,
         hasNext: output.hasNext,
       );
       final value = previous?.merge(next, append: page > 0) ?? next;
