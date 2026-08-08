@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:my_dic/app/routing/contracts/route_parse_result.dart';
 import 'package:my_dic/app/routing/contracts/word_detail_route.dart';
 import 'package:my_dic/app/routing/invalid_route_page.dart';
+import 'package:my_dic/features/catalog/port/catalog_id.dart';
 import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
 
 GoRoute wordDetailRoute(String name, {String? parentPath}) => GoRoute(
@@ -15,6 +16,7 @@ GoRoute wordDetailRoute(String name, {String? parentPath}) => GoRoute(
         final result = WordDetailRoute.parse(
           pathParameters: state.pathParameters,
           queryParameters: state.uri.queryParameters,
+          parseLegacyType: _catalogIdFromLegacyType,
         );
         return switch (result) {
           RouteParseSuccess(value: final route) =>
@@ -24,3 +26,9 @@ GoRoute wordDetailRoute(String name, {String? parentPath}) => GoRoute(
         };
       },
     );
+
+CatalogId? _catalogIdFromLegacyType(String type) => switch (type) {
+      'espJpn' => CatalogId.espJpnMain,
+      'jpnEsp' => CatalogId.jpnEspMain,
+      _ => null,
+    };

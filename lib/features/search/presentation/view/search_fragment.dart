@@ -10,7 +10,8 @@ import 'package:my_dic/core/presentation/components/infinityscroll.dart';
 import 'package:my_dic/core/presentation/error/app_error_message.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/shared/enums/ui/word_status_type.dart';
-import 'package:my_dic/core/shared/enums/word/word_type.dart';
+import 'package:my_dic/features/catalog/port/catalog_id.dart';
+import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/features/search/di/view_model_di.dart';
 import 'package:my_dic/features/search/presentation/components/card/card_view.dart';
 import 'package:my_dic/features/search/application/query/conjugation_search_item.dart';
@@ -116,9 +117,10 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                     isLearned: false,
                     wordStatusType: WordStatusType.jpnEspWord,
                     onTap: () => _toWordDetail(WordDetailRoute(
-                        wordId: word.wordId,
-                        wordType: WordType.jpnEsp,
-                        hasConj: false))));
+                            word: CatalogWordRef(
+                          catalogId: CatalogId.jpnEspMain,
+                          wordId: word.wordId,
+                        )))));
           },
           onLoadMore: _load);
     }
@@ -158,9 +160,10 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
           isBookmarked: false,
           isLearned: false,
           onTap: () => _toWordDetail(WordDetailRoute(
-              wordId: item.wordId,
-              wordType: WordType.espJpn,
-              hasConj: item.hasConjugation))));
+                  word: CatalogWordRef(
+                catalogId: CatalogId.espJpnMain,
+                wordId: item.wordId,
+              )))));
 
   Widget _conjugationCard(String query, ConjugationSearchItem item) => Padding(
         padding: const EdgeInsets.only(bottom: 11),
@@ -179,9 +182,10 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
           isBookmarked: false,
           isLearned: false,
           onTap: () => _toWordDetail(WordDetailRoute(
-            wordId: item.wordId,
-            wordType: WordType.espJpn,
-            hasConj: true,
+            word: CatalogWordRef(
+              catalogId: CatalogId.espJpnMain,
+              wordId: item.wordId,
+            ),
           )),
         ),
       );

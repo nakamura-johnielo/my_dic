@@ -5,7 +5,7 @@ import 'package:my_dic/core/presentation/error/app_error_message.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/core/shared/consts/ui/ui2.dart';
-import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
+import 'package:my_dic/features/catalog/port/model/catalog_conjugation.dart';
 import 'package:my_dic/features/word_page/application/query/word_detail_view_data.dart';
 import 'package:my_dic/features/word_page/presentation/components/conjugacion_card.dart';
 
@@ -29,14 +29,14 @@ class ConjugacionFragment extends ConsumerWidget {
         PADDING_X_DISPLAY,
         UIConsts.scrollBottomPadding,
       ),
-      children: conjugations.conjugacions.entries.map((entry) {
+      children: conjugations.conjugations.entries.map((entry) {
         final moodTense = entry.key;
         final conjugation = entry.value;
-        if (moodTense == MoodTense.participlePresent ||
-            moodTense == MoodTense.participlePast) {
+        if (moodTense == CatalogMoodTense.participlePresent ||
+            moodTense == CatalogMoodTense.participlePast) {
           return ParticipleCard(
             moodTense: moodTense,
-            conjugacion: conjugation.yo,
+            conjugacion: conjugation[CatalogSubject.yo] ?? '',
           );
         }
         return ConjugacionCard(

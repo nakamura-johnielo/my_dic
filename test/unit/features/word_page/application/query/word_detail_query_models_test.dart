@@ -2,81 +2,41 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/application/query/query_issue.dart';
-import 'package:my_dic/core/domain/entity/dictionary/esj_dictionary.dart';
-import 'package:my_dic/core/domain/entity/dictionary/sub/example/impl/esp_jpn_example.dart';
-import 'package:my_dic/core/domain/entity/dictionary/sub/idiom/impl/idiom.dart';
-import 'package:my_dic/core/domain/entity/dictionary/sub/supplement.dart';
-import 'package:my_dic/core/domain/entity/jpn_esp/example/jpn_esp_example.dart';
-import 'package:my_dic/core/domain/entity/jpn_esp/jpn_esp_dictionary.dart';
-import 'package:my_dic/core/shared/enums/word/word_type.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/features/catalog/port/catalog_id.dart';
+import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
+import 'package:my_dic/features/catalog/port/model/esp_jpn_entry.dart';
+import 'package:my_dic/features/catalog/port/model/jpn_esp_entry.dart';
 import 'package:my_dic/features/word_page/application/query/query.dart';
 
 void main() {
-  group('WordDetailQuery', () {
-    test('retains all request dimensions', () {
-      const query = WordDetailQuery(
-        wordId: 42,
-        wordType: WordType.espJpn,
-        hasConjugation: true,
-      );
+  const word = CatalogWordRef(catalogId: CatalogId.espJpnMain, wordId: 42);
 
-      expect(query.wordId, 42);
-      expect(query.wordType, WordType.espJpn);
-      expect(query.hasConjugation, isTrue);
-    });
+  test('WordDetailQuery retains the catalog-owned word identity', () {
+    const query = WordDetailQuery(word: word);
+    expect(query.word, word);
   });
 
   group('WordDetailViewData', () {
-    test('preserves full nested EspJpn catalog content', () {
-      const example = EspJpnExample(
-        exampleId: 2,
-        japanese: '話す',
-        espanol: 'hablar',
-      );
-      const idiom =
-          Idiom(idiomId: 3, idiom: 'hablar claro', description: '率直に話す');
-      const supplement = Supplement(supplementId: 4, supplement: '補足');
-      const dictionary = EspJpnDictionary(
-        dictionaryId: 1,
-        word: 'hablar',
-        content: '<p>完全な本文</p>',
-        examples: [example],
-        idioms: [idiom],
-        supplements: [supplement],
-      );
+    test('preserves immutable EspJpn Catalog entries', () {
+      final entry = EspJpnEntry(dictionaryId: 1, word: 'hablar');
+      final data = EspJpnWordDetailViewData(word: word, entries: [entry]);
 
-      final data = EspJpnWordDetailViewData(dictionaries: [dictionary]);
-
-      expect(data.dictionaries.single, same(dictionary));
-      expect(data.dictionaries.single.content, '<p>完全な本文</p>');
-      expect(data.dictionaries.single.examples, [example]);
-      expect(data.dictionaries.single.idioms, [idiom]);
-      expect(data.dictionaries.single.supplements, [supplement]);
-      expect(() => data.dictionaries.add(dictionary), throwsUnsupportedError);
+      expect(data.word, word);
+      expect(data.entries.single, same(entry));
+      expect(() => data.entries.add(entry), throwsUnsupportedError);
     });
 
-    test('preserves full nested JpnEsp catalog content', () {
-      const example = JpnEspExampleWith(
-        exampleId: 2,
-        japanese: '話す',
-        espanol: 'hablar',
-        espanolHtml: '<b>hablar</b>',
-      );
-      const dictionary = JpnEspDictionary(
-        id: 1,
-        wordId: 9,
-        word: '話す',
-        content: '<p>完全な本文</p>',
-        examples: [example],
-      );
+    test('preserves immutable JpnEsp Catalog entries', () {
+      const jpnWord =
+          CatalogWordRef(catalogId: CatalogId.jpnEspMain, wordId: 9);
+      final entry = JpnEspEntry(dictionaryId: 1, wordId: 9, word: '日本語');
+      final data = JpnEspWordDetailViewData(word: jpnWord, entries: [entry]);
 
-      final data = JpnEspWordDetailViewData(dictionaries: [dictionary]);
-
-      expect(data.dictionaries.single, same(dictionary));
-      expect(data.dictionaries.single.content, '<p>完全な本文</p>');
-      expect(data.dictionaries.single.examples, [example]);
+      expect(data.word, jpnWord);
+      expect(data.entries.single, same(entry));
+      expect(() => data.entries.add(entry), throwsUnsupportedError);
     });
   });
 
@@ -85,7 +45,7 @@ void main() {
       source: 'conjugation',
       error: BusinessRuleError(message: 'conjugation unavailable'),
     );
-    final viewData = JpnEspWordDetailViewData(dictionaries: const []);
+    final viewData = JpnEspWordDetailViewData(word: word, entries: const []);
     final result = WordDetailQueryResult(viewData: viewData, issue: issue);
 
     expect(result.viewData, same(viewData));
@@ -93,17 +53,11 @@ void main() {
   });
 
   test('ILoadWordDetailQuery expresses a typed Result boundary', () async {
-    final loader = _Loader();
-    final result = await loader.execute(const WordDetailQuery(
-      wordId: 1,
-      wordType: WordType.jpnEsp,
-      hasConjugation: false,
-    ));
-
+    final result = await _Loader().execute(const WordDetailQuery(word: word));
     expect(result, isA<Success<WordDetailQueryResult>>());
   });
 
-  test('query models do not import Flutter or Drift', () {
+  test('query models do not import Flutter, Drift, or legacy repositories', () {
     final directory = Directory('lib/features/word_page/application/query');
     final source = directory
         .listSync(recursive: true)
@@ -114,6 +68,7 @@ void main() {
 
     expect(source, isNot(contains('package:flutter/')));
     expect(source, isNot(contains('package:drift/')));
+    expect(source, isNot(contains('core/domain/i_repository/')));
   });
 }
 
@@ -121,6 +76,6 @@ class _Loader implements ILoadWordDetailQuery {
   @override
   Future<Result<WordDetailQueryResult>> execute(WordDetailQuery query) async =>
       Result.success(WordDetailQueryResult(
-        viewData: JpnEspWordDetailViewData(dictionaries: const []),
+        viewData: JpnEspWordDetailViewData(word: query.word, entries: const []),
       ));
 }

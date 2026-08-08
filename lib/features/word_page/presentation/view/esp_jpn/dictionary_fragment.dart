@@ -4,7 +4,7 @@ import 'package:my_dic/core/presentation/error/app_error_message.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/core/shared/consts/ui/ui2.dart';
-import 'package:my_dic/core/domain/entity/dictionary/esj_dictionary.dart';
+import 'package:my_dic/features/catalog/port/model/esp_jpn_entry.dart';
 import 'package:my_dic/features/word_page/application/query/word_detail_view_data.dart';
 import 'package:my_dic/features/word_page/presentation/view/html_style_kotobank.dart';
 
@@ -16,8 +16,7 @@ class EspJpnDictionaryFragment extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dictionaries = switch (detail.dataOrNull) {
-      EspJpnWordDetailViewData(dictionaries: final dictionaries) =>
-        dictionaries,
+      EspJpnWordDetailViewData(entries: final entries) => entries,
       _ => null,
     };
     if (dictionaries == null) return _DictionaryReadState(state: detail);
@@ -75,15 +74,16 @@ class _DictionaryReadState extends StatelessWidget {
 
 class DicSection extends StatelessWidget {
   const DicSection({super.key, required this.dictionary});
-  final EspJpnDictionary dictionary;
+  final EspJpnEntry dictionary;
 
   @override
   Widget build(BuildContext context) => Column(
         children: [
           Html(
-              data: '<p class="hw">${dictionary.headword}</p>',
+              data:
+                  '<p class="hw">${dictionary.headword ?? dictionary.word}</p>',
               style: htmlStyles),
-          Html(data: dictionary.content, style: htmlStyles),
+          Html(data: dictionary.content ?? '', style: htmlStyles),
         ],
       );
 }

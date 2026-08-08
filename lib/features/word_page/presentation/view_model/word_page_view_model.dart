@@ -30,9 +30,7 @@ class WordPageViewModel extends StateNotifier<WordPageState> {
         ));
 
     final result = await _loadWordDetailQuery.execute(WordDetailQuery(
-      wordId: key.wordId,
-      wordType: key.wordType,
-      hasConjugation: key.hasConj,
+      word: key.word,
     ));
     if (!_isCurrent(generation)) return;
 
@@ -64,10 +62,8 @@ class WordPageViewModel extends StateNotifier<WordPageState> {
   }
 
   bool _isEmpty(WordDetailViewData data) => switch (data) {
-        EspJpnWordDetailViewData(dictionaries: final dictionaries) =>
-          dictionaries.isEmpty,
-        JpnEspWordDetailViewData(dictionaries: final dictionaries) =>
-          dictionaries.isEmpty,
+        EspJpnWordDetailViewData(entries: final entries) => entries.isEmpty,
+        JpnEspWordDetailViewData(entries: final entries) => entries.isEmpty,
       };
 
   bool _isCurrent(int generation) => mounted && generation == _generation;

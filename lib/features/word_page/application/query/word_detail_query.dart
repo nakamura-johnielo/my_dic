@@ -1,14 +1,8 @@
-import 'package:my_dic/core/shared/enums/word/word_type.dart';
+import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 
 /// Identifies the dictionary content needed for a word-detail page.
 class WordDetailQuery {
-  const WordDetailQuery({
-    required this.wordId,
-    required this.wordType,
-    required this.hasConjugation,
-  });
+  const WordDetailQuery({required this.word});
 
-  final int wordId;
-  final WordType wordType;
-  final bool hasConjugation;
+  final CatalogWordRef word;
 }

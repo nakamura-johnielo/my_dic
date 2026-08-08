@@ -1,10 +1,10 @@
 import 'package:my_dic/core/application/query/query_issue.dart';
-import 'package:my_dic/core/domain/i_repository/i_conjugation_repository.dart';
-import 'package:my_dic/core/domain/i_repository/i_esj_dictionary_repository.dart';
-import 'package:my_dic/core/domain/i_repository/i_jpn_esp_dictionary_repository.dart';
-import 'package:my_dic/core/shared/enums/word/word_type.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/features/catalog/port/catalog_id.dart';
+import 'package:my_dic/features/catalog/port/catalog_reader.dart';
+import 'package:my_dic/features/catalog/port/conjugation_reader.dart';
+import 'package:my_dic/features/catalog/port/model/catalog_entry_detail.dart';
 import 'package:my_dic/features/word_page/application/query/i_load_word_detail_query.dart';
 import 'package:my_dic/features/word_page/application/query/word_detail_query.dart';
 import 'package:my_dic/features/word_page/application/query/word_detail_query_result.dart';
@@ -13,80 +13,85 @@ import 'package:my_dic/features/word_page/application/query/word_detail_view_dat
 /// Aggregates the catalog reads needed by a word-detail page.
 class LoadWordDetailQuery implements ILoadWordDetailQuery {
   LoadWordDetailQuery(
-    this._esjDictionaryRepository,
-    this._jpnEspDictionaryRepository,
-    this._conjugacionsRepository,
+    this._catalogReader,
+    this._conjugationReader,
   );
 
-  final IEsjDictionaryRepository _esjDictionaryRepository;
-  final IJpnEspDictionaryRepository _jpnEspDictionaryRepository;
-  final IConjugacionsRepository _conjugacionsRepository;
+  final CatalogReader _catalogReader;
+  final ConjugationReader _conjugationReader;
 
   @override
-  Future<Result<WordDetailQueryResult>> execute(WordDetailQuery query) =>
-      switch (query.wordType) {
-        WordType.espJpn => _loadEspJpn(query),
-        WordType.jpnEsp => _loadJpnEsp(query),
-        WordType.espEng || WordType.engEsp => Future.value(
-            Result.failure(BusinessRuleError(
-              message: 'Unsupported word detail direction: ${query.wordType}',
-            )),
-          ),
-      };
+  Future<Result<WordDetailQueryResult>> execute(WordDetailQuery query) async {
+    final detailResult = await _catalogReader.getEntryDetail(query.word);
+    if (detailResult case Failure(error: final error)) {
+      return Result.failure(error);
+    }
 
-  Future<Result<WordDetailQueryResult>> _loadJpnEsp(
-    WordDetailQuery query,
-  ) async {
-    final result = await _jpnEspDictionaryRepository.getDictionaryByWordId(
-      query.wordId,
-    );
-    return result.when(
-      success: (dictionaries) => Result.success(
-        WordDetailQueryResult(
-          viewData: JpnEspWordDetailViewData(dictionaries: dictionaries),
-        ),
-      ),
-      failure: Result.failure,
-    );
+    final detail = detailResult.dataOrNull!;
+    if (detail.word != query.word) return Result.failure(_identityError(query));
+
+    return switch (detail) {
+      EspJpnEntryDetail() => _loadEspJpn(query, detail),
+      JpnEspEntryDetail() => _loadJpnEsp(query, detail),
+    };
   }
 
   Future<Result<WordDetailQueryResult>> _loadEspJpn(
     WordDetailQuery query,
+    EspJpnEntryDetail detail,
   ) async {
-    final dictionaryResult =
-        await _esjDictionaryRepository.getDictionaryByWordId(
-      query.wordId,
-    );
-    if (dictionaryResult case Failure(error: final error)) {
-      return Result.failure(error);
-    }
-
-    final dictionaries = dictionaryResult.dataOrNull!;
-    if (!query.hasConjugation) {
-      return Result.success(
-        WordDetailQueryResult(
-          viewData: EspJpnWordDetailViewData(dictionaries: dictionaries),
-        ),
-      );
+    if (query.word.catalogId != CatalogId.espJpnMain) {
+      return Result.failure(_variantError(query));
     }
 
     final conjugationResult =
-        await _conjugacionsRepository.getConjugacionByWordId(query.wordId);
+        await _conjugationReader.getConjugation(query.word);
     return conjugationResult.when(
       success: (conjugation) => Result.success(
         WordDetailQueryResult(
           viewData: EspJpnWordDetailViewData(
-            dictionaries: dictionaries,
+            word: query.word,
+            entries: detail.entries,
             conjugation: conjugation,
           ),
         ),
       ),
       failure: (error) => Result.success(
         WordDetailQueryResult(
-          viewData: EspJpnWordDetailViewData(dictionaries: dictionaries),
+          viewData: EspJpnWordDetailViewData(
+            word: query.word,
+            entries: detail.entries,
+          ),
           issue: QueryIssue(source: 'conjugation', error: error),
         ),
       ),
     );
   }
+
+  Future<Result<WordDetailQueryResult>> _loadJpnEsp(
+    WordDetailQuery query,
+    JpnEspEntryDetail detail,
+  ) async {
+    if (query.word.catalogId != CatalogId.jpnEspMain) {
+      return Result.failure(_variantError(query));
+    }
+    return Result.success(
+      WordDetailQueryResult(
+        viewData: JpnEspWordDetailViewData(
+          word: query.word,
+          entries: detail.entries,
+        ),
+      ),
+    );
+  }
+
+  BusinessRuleError _identityError(WordDetailQuery query) => BusinessRuleError(
+        message: 'Catalog detail identity does not match requested word: '
+            '${query.word}',
+      );
+
+  BusinessRuleError _variantError(WordDetailQuery query) => BusinessRuleError(
+        message: 'Catalog detail variant does not match requested catalog: '
+            '${query.word.catalogId}',
+      );
 }

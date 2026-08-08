@@ -1,54 +1,62 @@
 import 'package:my_dic/app/routing/contracts/route_parse_result.dart';
-import 'package:my_dic/core/shared/enums/word/word_type.dart';
+import 'package:my_dic/features/catalog/port/catalog_id.dart';
+import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 
 /// URL-serializable contract for the word detail screen.
 ///
 /// This deliberately contains only plain data and has no Flutter dependency.
-class WordDetailRoute {
-  const WordDetailRoute({
-    required this.wordId,
-    required this.wordType,
-    required this.hasConj,
-  });
+final class WordDetailRoute {
+  const WordDetailRoute({required this.word});
 
   static const path = 'word/:wordId';
-  static const _wordTypeParameter = 'type';
-  static const _hasConjParameter = 'hasConj';
+  static const _catalogParameter = 'catalog';
+  static const _legacyTypeParameter = 'type';
 
-  final int wordId;
-  final WordType wordType;
-  final bool hasConj;
+  final CatalogWordRef word;
 
-  Map<String, String> get pathParameters => {'wordId': '$wordId'};
+  Map<String, String> get pathParameters => {'wordId': '${word.wordId}'};
 
   Map<String, String> get queryParameters => {
-        _wordTypeParameter: wordType.name,
-        _hasConjParameter: '$hasConj',
+        _catalogParameter: word.catalogId.wireValue,
       };
 
   static RouteParseResult<WordDetailRoute> parse({
     required Map<String, String> pathParameters,
     required Map<String, String> queryParameters,
+    CatalogId? Function(String type)? parseLegacyType,
   }) {
     final wordId = int.tryParse(pathParameters['wordId'] ?? '');
-    final wordTypeName = queryParameters[_wordTypeParameter];
-    final hasConjName = queryParameters[_hasConjParameter];
-    final wordType = WordType.values.where((type) => type.name == wordTypeName);
 
     if (wordId == null || wordId <= 0) {
       return const RouteParseFailure('wordId must be a positive integer.');
     }
-    if (wordType.length != 1) {
-      return const RouteParseFailure('type is missing or invalid.');
+
+    final catalogValue = queryParameters[_catalogParameter];
+    final catalogId =
+        catalogValue == null ? null : CatalogId.tryParse(catalogValue);
+    if (catalogValue != null && catalogId == null) {
+      return const RouteParseFailure('catalog is invalid.');
     }
-    if (hasConjName != 'true' && hasConjName != 'false') {
-      return const RouteParseFailure('hasConj is missing or invalid.');
+
+    final legacyType = queryParameters[_legacyTypeParameter];
+    final legacyCatalogId =
+        legacyType == null ? null : parseLegacyType?.call(legacyType);
+    if (legacyType != null && legacyCatalogId == null) {
+      return const RouteParseFailure('type is invalid.');
+    }
+    if (catalogId != null &&
+        legacyCatalogId != null &&
+        catalogId != legacyCatalogId) {
+      return const RouteParseFailure('catalog and type conflict.');
+    }
+
+    final resolvedCatalogId = catalogId ?? legacyCatalogId;
+    if (resolvedCatalogId == null) {
+      return const RouteParseFailure('catalog is missing.');
     }
 
     return RouteParseSuccess(WordDetailRoute(
-      wordId: wordId,
-      wordType: wordType.single,
-      hasConj: hasConjName == 'true',
+      word: CatalogWordRef(catalogId: resolvedCatalogId, wordId: wordId),
     ));
   }
 }

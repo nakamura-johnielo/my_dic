@@ -1,132 +1,150 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/core/domain/entity/dictionary/esj_dictionary.dart';
-import 'package:my_dic/core/domain/entity/jpn_esp/jpn_esp_dictionary.dart';
-import 'package:my_dic/core/domain/entity/verb/conjugacion/conjugacion_search_result_item.dart';
-import 'package:my_dic/core/domain/entity/verb/conjugacion/result_conjugacions.dart';
-import 'package:my_dic/core/domain/entity/verb/conjugacions.dart';
-import 'package:my_dic/core/domain/i_repository/i_conjugation_repository.dart';
-import 'package:my_dic/core/domain/i_repository/i_esj_dictionary_repository.dart';
-import 'package:my_dic/core/domain/i_repository/i_jpn_esp_dictionary_repository.dart';
-import 'package:my_dic/core/shared/enums/word/word_type.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/features/catalog/port/catalog_id.dart';
+import 'package:my_dic/features/catalog/port/catalog_reader.dart';
+import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
+import 'package:my_dic/features/catalog/port/conjugation_reader.dart';
+import 'package:my_dic/features/catalog/port/model/catalog_conjugation.dart';
+import 'package:my_dic/features/catalog/port/model/catalog_entry_detail.dart';
+import 'package:my_dic/features/catalog/port/model/esp_jpn_entry.dart';
+import 'package:my_dic/features/catalog/port/model/jpn_esp_entry.dart';
 import 'package:my_dic/features/word_page/application/query/load_word_detail_query.dart';
 import 'package:my_dic/features/word_page/application/query/word_detail_query.dart';
 import 'package:my_dic/features/word_page/application/query/word_detail_view_data.dart';
 
 void main() {
-  const espQuery = WordDetailQuery(
-    wordId: 1,
-    wordType: WordType.espJpn,
-    hasConjugation: true,
-  );
+  const espWord = CatalogWordRef(catalogId: CatalogId.espJpnMain, wordId: 1);
+  const jpnWord = CatalogWordRef(catalogId: CatalogId.jpnEspMain, wordId: 3);
 
-  test('returns full EspJpn catalog content and optional conjugation',
-      () async {
-    const dictionary = EspJpnDictionary(
-      dictionaryId: 1,
-      word: 'hablar',
-      content: '<p>full content</p>',
+  test('maps EspJpn detail and fetches its optional conjugation', () async {
+    final entry = EspJpnEntry(dictionaryId: 1, word: 'hablar');
+    final conjugation = CatalogConjugation(
+      word: espWord,
+      conjugations: const {},
+      participles:
+          const CatalogParticiples(present: 'hablando', past: 'hablado'),
     );
-    final query = _query(
-      esp: Result.success([dictionary]),
-      conjugation: Result.success(null),
-    );
+    final reader = _CatalogReader(Result.success(
+      EspJpnEntryDetail(word: espWord, entries: [entry]),
+    ));
+    final conjugationReader = _ConjugationReader(Result.success(conjugation));
 
-    final result = await query.execute(espQuery);
+    final result = await _query(reader, conjugationReader).execute(
+      const WordDetailQuery(word: espWord),
+    );
     final data = result.dataOrNull!.viewData as EspJpnWordDetailViewData;
 
-    expect(data.dictionaries.single, same(dictionary));
-    expect(data.dictionaries.single.content, '<p>full content</p>');
+    expect(data.word, espWord);
+    expect(data.entries.single, same(entry));
+    expect(data.conjugation, same(conjugation));
+    expect(conjugationReader.requests, [espWord]);
+  });
+
+  test('keeps EspJpn detail when conjugation is absent', () async {
+    final result = await _query(
+      _CatalogReader(
+          Result.success(EspJpnEntryDetail(word: espWord, entries: []))),
+      _ConjugationReader(Result.success(null)),
+    ).execute(const WordDetailQuery(word: espWord));
+
+    final data = result.dataOrNull!.viewData as EspJpnWordDetailViewData;
     expect(data.conjugation, isNull);
+    expect(result.dataOrNull!.issue, isNull);
   });
 
-  test('returns JpnEsp catalog content for its direction', () async {
-    const dictionary = JpnEspDictionary(id: 2, wordId: 3, word: '話す');
-    final result = await _query(jpn: Result.success([dictionary])).execute(
-      const WordDetailQuery(
-        wordId: 3,
-        wordType: WordType.jpnEsp,
-        hasConjugation: false,
-      ),
-    );
-
-    final data = result.dataOrNull!.viewData as JpnEspWordDetailViewData;
-    expect(data.dictionaries.single, same(dictionary));
-  });
-
-  test('propagates primary dictionary failure', () async {
-    final error = BusinessRuleError(message: 'dictionary failed');
-    final result = await _query(esp: Result.failure(error)).execute(espQuery);
-
-    expect(result.errorOrNull, same(error));
-  });
-
-  test('retains dictionary data and reports conjugation failure as issue',
+  test('keeps EspJpn detail and records conjugation failure as an issue',
       () async {
     final error = BusinessRuleError(message: 'conjugation failed');
     final result = await _query(
-      esp: Result.success(
-          const [EspJpnDictionary(dictionaryId: 1, word: 'hablar')]),
-      conjugation: Result.failure(error),
-    ).execute(espQuery);
+      _CatalogReader(
+          Result.success(EspJpnEntryDetail(word: espWord, entries: []))),
+      _ConjugationReader(Result.failure(error)),
+    ).execute(const WordDetailQuery(word: espWord));
 
     expect(result.dataOrNull!.viewData, isA<EspJpnWordDetailViewData>());
     expect(result.dataOrNull!.issue?.source, 'conjugation');
     expect(result.dataOrNull!.issue?.error, same(error));
   });
+
+  test('maps JpnEsp detail without invoking the conjugation reader', () async {
+    final entry = JpnEspEntry(dictionaryId: 2, wordId: 3, word: '日本語');
+    final conjugationReader = _ConjugationReader(Result.success(null));
+    final result = await _query(
+      _CatalogReader(
+          Result.success(JpnEspEntryDetail(word: jpnWord, entries: [entry]))),
+      conjugationReader,
+    ).execute(const WordDetailQuery(word: jpnWord));
+
+    final data = result.dataOrNull!.viewData as JpnEspWordDetailViewData;
+    expect(data.word, jpnWord);
+    expect(data.entries.single, same(entry));
+    expect(conjugationReader.requests, isEmpty);
+  });
+
+  test('propagates primary catalog failure', () async {
+    final error = BusinessRuleError(message: 'dictionary failed');
+    final result = await _query(
+      _CatalogReader(Result.failure(error)),
+      _ConjugationReader(Result.success(null)),
+    ).execute(const WordDetailQuery(word: espWord));
+
+    expect(result.errorOrNull, same(error));
+  });
+
+  test('fails when CatalogReader returns a different word identity', () async {
+    const otherWord =
+        CatalogWordRef(catalogId: CatalogId.espJpnMain, wordId: 2);
+    final result = await _query(
+      _CatalogReader(
+          Result.success(EspJpnEntryDetail(word: otherWord, entries: []))),
+      _ConjugationReader(Result.success(null)),
+    ).execute(const WordDetailQuery(word: espWord));
+
+    expect(result.errorOrNull, isA<BusinessRuleError>());
+  });
+
+  test('fails when CatalogReader returns a detail variant for another catalog',
+      () async {
+    final result = await _query(
+      _CatalogReader(
+          Result.success(EspJpnEntryDetail(word: jpnWord, entries: []))),
+      _ConjugationReader(Result.success(null)),
+    ).execute(const WordDetailQuery(word: jpnWord));
+
+    expect(result.errorOrNull, isA<BusinessRuleError>());
+  });
 }
 
-LoadWordDetailQuery _query({
-  Result<List<EspJpnDictionary>>? esp,
-  Result<List<JpnEspDictionary>>? jpn,
-  Result<EspConjugacions?>? conjugation,
-}) =>
-    LoadWordDetailQuery(
-      _EspRepository(esp ?? Result.success(const [])),
-      _JpnRepository(jpn ?? Result.success(const [])),
-      _ConjugationRepository(conjugation ?? Result.success(null)),
-    );
+LoadWordDetailQuery _query(
+  CatalogReader catalogReader,
+  ConjugationReader conjugationReader,
+) =>
+    LoadWordDetailQuery(catalogReader, conjugationReader);
 
-class _EspRepository implements IEsjDictionaryRepository {
-  _EspRepository(this.result);
-  final Result<List<EspJpnDictionary>> result;
+class _CatalogReader implements CatalogReader {
+  _CatalogReader(this.result);
+  final Result<CatalogEntryDetail> result;
+
   @override
-  Future<Result<List<EspJpnDictionary>>> getDictionaryByWordId(int id) async =>
+  Future<Result<CatalogEntryDetail>> getEntryDetail(
+          CatalogWordRef word) async =>
       result;
 }
 
-class _JpnRepository implements IJpnEspDictionaryRepository {
-  _JpnRepository(this.result);
-  final Result<List<JpnEspDictionary>> result;
-  @override
-  Future<Result<List<JpnEspDictionary>>> getDictionaryByWordId(
-          int wordId) async =>
-      result;
-}
+class _ConjugationReader implements ConjugationReader {
+  _ConjugationReader(this.result);
+  final Result<CatalogConjugation?> result;
+  final requests = <CatalogWordRef>[];
 
-class _ConjugationRepository implements IConjugacionsRepository {
-  _ConjugationRepository(this.result);
-  final Result<EspConjugacions?> result;
   @override
-  Future<Result<EspConjugacions?>> getConjugacionByWordId(int id) async =>
-      result;
+  Future<Result<CatalogConjugation?>> getConjugation(
+      CatalogWordRef word) async {
+    requests.add(word);
+    return result;
+  }
+
   @override
-  Future<Result<List<SearchResultConjugacions>>> getConjugacionByWordWithPage(
-    String word,
-    int size,
-    int currentPage,
-  ) =>
-      throw UnimplementedError();
-  @override
-  Future<Result<List<ConjugacionSearchResultItem>>>
-      getQuizConjugacionByWordWithPage(
-    String word,
-    int size,
-    int currentPage,
-  ) =>
-          throw UnimplementedError();
-  @override
-  Future<Result<bool>> hasConjByWordId(int wordId) =>
+  Future<Result<bool>> hasConjugation(CatalogWordRef word) =>
       throw UnimplementedError();
 }

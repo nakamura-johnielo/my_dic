@@ -9,7 +9,8 @@ import 'package:my_dic/features/word_status/domain/dictionary_direction.dart';
 import 'package:my_dic/app/presentation/word_status_buttons.dart';
 import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
 import 'package:my_dic/core/shared/enums/conjugacion/subject.dart';
-import 'package:my_dic/core/shared/enums/word/word_type.dart';
+import 'package:my_dic/features/catalog/port/catalog_id.dart';
+import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacion/tense_conjugacion.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacions.dart';
 import 'package:my_dic/features/quiz/di/provider_di.dart';
@@ -132,20 +133,20 @@ class _QuizGameFragmentState extends ConsumerState<QuizGameFragment> {
                         spacing: 20,
                         children: [
                           TextButton(
-                            onPressed: () => context.pushNamed(
-                              wordDetailRouteNameFor(
-                                  ref.read(entryPointProvider)),
-                              pathParameters: WordDetailRoute(
-                                wordId: input.wordId,
-                                wordType: WordType.espJpn,
-                                hasConj: true,
-                              ).pathParameters,
-                              queryParameters: WordDetailRoute(
-                                wordId: input.wordId,
-                                wordType: WordType.espJpn,
-                                hasConj: true,
-                              ).queryParameters,
-                            ),
+                            onPressed: () {
+                              final route = WordDetailRoute(
+                                word: CatalogWordRef(
+                                  catalogId: CatalogId.espJpnMain,
+                                  wordId: input.wordId,
+                                ),
+                              );
+                              context.pushNamed(
+                                wordDetailRouteNameFor(
+                                    ref.read(entryPointProvider)),
+                                pathParameters: route.pathParameters,
+                                queryParameters: route.queryParameters,
+                              );
+                            },
                             child: Text("> 辞書確認"),
                           ),
                           DictionaryStatusButtons(

@@ -2,11 +2,12 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/application/query/query_issue.dart';
-import 'package:my_dic/core/domain/entity/dictionary/esj_dictionary.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
-import 'package:my_dic/core/shared/enums/word/word_type.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/features/catalog/port/catalog_id.dart';
+import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
+import 'package:my_dic/features/catalog/port/model/esp_jpn_entry.dart';
 import 'package:my_dic/features/word_page/application/query/i_load_word_detail_query.dart';
 import 'package:my_dic/features/word_page/application/query/word_detail_query.dart';
 import 'package:my_dic/features/word_page/application/query/word_detail_query_result.dart';
@@ -15,11 +16,7 @@ import 'package:my_dic/features/word_page/presentation/ui_model/word_page_load_k
 import 'package:my_dic/features/word_page/presentation/view_model/word_page_view_model.dart';
 
 void main() {
-  const espKey = WordPageLoadKey(
-    wordId: 7,
-    wordType: WordType.espJpn,
-    hasConj: true,
-  );
+  const espKey = WordPageLoadKey(_espWord);
 
   test('loads one aggregate query exactly once', () async {
     final loader = _Loader(Result.success(_espResult()));
@@ -35,14 +32,15 @@ void main() {
   test('maps an empty projection to QueryEmpty', () async {
     final model = WordPageViewModel(_Loader(Result.success(
       WordDetailQueryResult(
-        viewData: JpnEspWordDetailViewData(dictionaries: const []),
+        viewData: JpnEspWordDetailViewData(
+          word: CatalogWordRef(catalogId: CatalogId.jpnEspMain, wordId: 3),
+          entries: const [],
+        ),
       ),
     )));
 
     await model.initialize(const WordPageLoadKey(
-      wordId: 3,
-      wordType: WordType.jpnEsp,
-      hasConj: false,
+      CatalogWordRef(catalogId: CatalogId.jpnEspMain, wordId: 3),
     ));
 
     expect(model.state.detail, isA<QueryEmpty<WordDetailViewData>>());
@@ -90,8 +88,14 @@ void main() {
   });
 }
 
-const _espDictionary = EspJpnDictionary(dictionaryId: 1, word: 'hablar');
-final _espData = EspJpnWordDetailViewData(dictionaries: [_espDictionary]);
+const _espWord = CatalogWordRef(
+  catalogId: CatalogId.espJpnMain,
+  wordId: 7,
+);
+final _espData = EspJpnWordDetailViewData(
+  word: _espWord,
+  entries: [EspJpnEntry(dictionaryId: 1, word: 'hablar')],
+);
 
 WordDetailQueryResult _espResult() => WordDetailQueryResult(viewData: _espData);
 

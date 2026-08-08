@@ -8,7 +8,8 @@ import 'package:my_dic/core/di/router/router.dart';
 import 'package:my_dic/core/presentation/custom_floating_button_location.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/features/ranking/presentation/view/ranking_filter_modal.dart';
-import 'package:my_dic/core/shared/enums/word/word_type.dart';
+import 'package:my_dic/features/catalog/port/catalog_id.dart';
+import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/features/ranking/presentation/effect_provider.dart';
 import 'package:my_dic/features/ranking/presentation/view/ranking_card.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
@@ -107,9 +108,10 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
                   margin: margin,
                   onTap: () {
                     final route = WordDetailRoute(
-                      wordId: ranking.wordId,
-                      wordType: WordType.espJpn,
-                      hasConj: ranking.hasConjugation,
+                      word: CatalogWordRef(
+                        catalogId: CatalogId.espJpnMain,
+                        wordId: ranking.wordId,
+                      ),
                     );
                     context.pushNamed(
                       wordDetailRouteNameFor(ref.read(entryPointProvider)),

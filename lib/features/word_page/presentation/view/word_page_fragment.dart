@@ -5,7 +5,6 @@ import 'package:my_dic/core/presentation/custom_floating_button_location.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/features/word_status/domain/dictionary_direction.dart';
 import 'package:my_dic/app/presentation/word_status_buttons.dart';
-import 'package:my_dic/core/shared/enums/word/word_type.dart';
 import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
 import 'package:my_dic/app/routing/contracts/word_detail_route.dart';
 import 'package:my_dic/app/routing/route_name_resolver.dart';
@@ -17,6 +16,7 @@ import 'package:my_dic/features/word_page/presentation/view/esp_jpn/conjugacion_
 import 'package:my_dic/features/word_page/presentation/view/esp_jpn/dictionary_fragment.dart';
 import 'package:my_dic/features/word_page/presentation/view/jpn_esp/jpn_esp_dictionary_fragment.dart';
 import 'package:my_dic/features/word_page/application/query/word_detail_view_data.dart';
+import 'package:my_dic/features/catalog/port/catalog_id.dart';
 
 //input data DS
 //TODO QuizCardState enumを使用してしまってる
@@ -66,11 +66,7 @@ class WordPageFragment extends ConsumerWidget {
 
   WordDetailRoute get input => route;
 
-  WordPageLoadKey get loadKey => WordPageLoadKey(
-        wordId: input.wordId,
-        wordType: input.wordType,
-        hasConj: input.hasConj,
-      );
+  WordPageLoadKey get loadKey => WordPageLoadKey(input.word);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -88,46 +84,42 @@ class WordPageFragment extends ConsumerWidget {
       case JpnEspWordDetailViewData():
         tabs['Dictionary'] = JpnEspDictionaryFragment(detail: detail);
         statusButton = DictionaryStatusButtons(
-          wordId: input.wordId,
-          direction: DictionaryDirection.jpnEsp,
+          wordId: input.word.wordId,
+          direction: _statusDirection(input.word.catalogId),
         );
-      case EspJpnWordDetailViewData():
+      case EspJpnWordDetailViewData(conjugation: final conjugation):
         statusButton = DictionaryStatusButtons(
-          wordId: input.wordId,
-          direction: DictionaryDirection.espJpn,
+          wordId: input.word.wordId,
+          direction: _statusDirection(input.word.catalogId),
         );
         tabs['Dictionary'] = EspJpnDictionaryFragment(detail: detail);
-        if (input.hasConj) {
+        if (conjugation != null) {
           tabs['Conjugacion'] = ConjugacionFragment(detail: detail);
           floatingButton = quizFloatingButton(context, ref, pageState);
         }
       case null:
-        if (input.wordType == WordType.jpnEsp) {
+        if (input.word.catalogId == CatalogId.jpnEspMain) {
           tabs['Dictionary'] = JpnEspDictionaryFragment(detail: detail);
           statusButton = DictionaryStatusButtons(
-            wordId: input.wordId,
-            direction: DictionaryDirection.jpnEsp,
+            wordId: input.word.wordId,
+            direction: _statusDirection(input.word.catalogId),
           );
-        } else if (input.wordType == WordType.espJpn) {
+        } else {
           tabs['Dictionary'] = EspJpnDictionaryFragment(detail: detail);
           statusButton = DictionaryStatusButtons(
-            wordId: input.wordId,
-            direction: DictionaryDirection.espJpn,
+            wordId: input.word.wordId,
+            direction: _statusDirection(input.word.catalogId),
           );
-          if (input.hasConj) {
-            tabs['Conjugacion'] = ConjugacionFragment(detail: detail);
-            floatingButton = quizFloatingButton(context, ref, pageState);
-          }
         }
     }
 
     //TODO 名前とページwidgetつける
 
     final builderInput = WordPageFragmentBuilderInput(
-        wordId: input.wordId,
+        wordId: input.word.wordId,
         tabs: tabs,
         floatingButton: floatingButton,
-        statusButton: statusButton ?? SizedBox.shrink());
+        statusButton: statusButton);
 
     return _WordPageFragmentBuilder(input: builderInput);
   }
@@ -139,16 +131,22 @@ class WordPageFragment extends ConsumerWidget {
   ) {
     final viewData = pageState.detail.dataOrNull;
     final quizWord = switch (viewData) {
-      EspJpnWordDetailViewData(dictionaries: final dictionaries)
-          when dictionaries.isNotEmpty =>
-        dictionaries.first.word,
+      EspJpnWordDetailViewData(
+        entries: final entries,
+        conjugation: final conjugation,
+      )
+          when conjugation != null && entries.isNotEmpty =>
+        entries.first.word,
       _ => null,
     };
     return FloatingActionButton(
       onPressed: quizWord == null
           ? null
           : () {
-              final route = QuizGameRoute(wordId: input.wordId, word: quizWord);
+              final route = QuizGameRoute(
+                wordId: input.word.wordId,
+                word: quizWord,
+              );
               context.pushNamed(
                 quizGameRouteNameFor(ref.read(entryPointProvider)),
                 pathParameters: route.pathParameters,
@@ -158,6 +156,12 @@ class WordPageFragment extends ConsumerWidget {
       child: const Icon(Icons.handshake_rounded),
     );
   }
+
+  DictionaryDirection _statusDirection(CatalogId catalogId) =>
+      switch (catalogId) {
+        CatalogId.espJpnMain => DictionaryDirection.espJpn,
+        CatalogId.jpnEspMain => DictionaryDirection.jpnEsp,
+      };
 }
 
 class _WordPageFragmentBuilder extends StatelessWidget {
