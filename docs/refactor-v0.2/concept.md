@@ -393,7 +393,7 @@ WordDetailRoute(
 
 ディレクトリ移動から始めるべきではありません。
 
-1. Catalog、WordStatus、MyWordのownerをADRに記録
+1. Catalog、WordStatus、MyWordのownerを[ADR 0001](../architecture/decisions/0001-catalog-word-status-my-word-ownership.md)に記録。Accepted ADRをownershipの規範的なsource of truthとする
 2. `CatalogId` と `CatalogWordRef` を定義
 3. Catalogの公開portを作り、既存Repositoryへのadapterを実装
 4. Quiz→Search依存をCatalog/Quiz-owned portへ変更
