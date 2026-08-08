@@ -4,9 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:my_dic/core/presentation/components/button/my_icon_button.dart';
 import 'package:my_dic/features/word_status/domain/dictionary_direction.dart';
 import 'package:my_dic/app/presentation/word_status_buttons.dart';
-import 'package:my_dic/features/quiz/consts/card_state.dart';
 import 'package:my_dic/features/ranking/application/query/ranking_list_item.dart';
-import 'package:my_dic/app/presentation/quiz_view_models.dart';
 import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
 import 'package:my_dic/app/routing/route_name_resolver.dart';
 import 'package:my_dic/core/di/router/router.dart';
@@ -94,10 +92,6 @@ class RankingCard extends ConsumerWidget {
                 defaultIcon: Icons.handshake_rounded,
                 hoveredIconColor: const Color.fromARGB(255, 119, 119, 119),
                 onTap: () {
-                  //TODO Quiz 初期化をquiz内で行う
-                  ref.read(quizGameViewModelProvider.notifier).initialize();
-                  ref.read(quizCardStateProvider.notifier).state =
-                      QuizCardState.question;
                   final route = QuizGameRoute(
                       wordId: ranking.wordId, word: ranking.lemma);
                   context.pushNamed(

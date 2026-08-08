@@ -5,8 +5,6 @@ import 'package:my_dic/core/presentation/custom_floating_button_location.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/features/word_status/domain/dictionary_direction.dart';
 import 'package:my_dic/app/presentation/word_status_buttons.dart';
-import 'package:my_dic/features/quiz/consts/card_state.dart';
-import 'package:my_dic/app/presentation/quiz_view_models.dart';
 import 'package:my_dic/core/shared/enums/word/word_type.dart';
 import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
 import 'package:my_dic/app/routing/contracts/word_detail_route.dart';
@@ -150,8 +148,6 @@ class WordPageFragment extends ConsumerWidget {
       onPressed: quizWord == null
           ? null
           : () {
-              ref.read(quizCardStateProvider.notifier).state =
-                  QuizCardState.question;
               final route = QuizGameRoute(wordId: input.wordId, word: quizWord);
               context.pushNamed(
                 quizGameRouteNameFor(ref.read(entryPointProvider)),

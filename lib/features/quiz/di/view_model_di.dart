@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/features/quiz/consts/card_state.dart';
 import 'package:my_dic/core/di/usecase/usecase_di.dart';
 import 'package:my_dic/core/domain/entity/verb/conjugacions.dart';
 import 'package:my_dic/features/quiz/di/usecase_di.dart';
@@ -8,9 +7,6 @@ import 'package:my_dic/features/quiz/presentation/ui_model/quiz_search_model.dar
 import 'package:my_dic/features/quiz/presentation/view_model/quiz_game_viewmodel.dart';
 import 'package:my_dic/features/quiz/presentation/view_model/quiz_search_view_model.dart';
 import 'package:my_dic/features/search/di/usecase_di.dart';
-
-final quizCardStateProvider =
-    StateProvider<QuizCardState>((ref) => QuizCardState.question);
 
 final quizConjugacionsProvider =
     FutureProvider.autoDispose.family<EspConjugacions?, int>(

@@ -21,14 +21,30 @@ import 'package:my_dic/core/presentation/error/app_error_message.dart';
 import 'package:my_dic/core/shared/errors/app_error.dart';
 
 // ConsumerStatefulWidgetに変更
-class QuizGameFragment extends ConsumerWidget {
+class QuizGameFragment extends ConsumerStatefulWidget {
   const QuizGameFragment({super.key, required this.route});
   final QuizGameRoute route;
 
   QuizGameRoute get input => route;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<QuizGameFragment> createState() => _QuizGameFragmentState();
+}
+
+class _QuizGameFragmentState extends ConsumerState<QuizGameFragment> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ref.read(quizGameViewModelProvider.notifier).initialize();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final input = widget.input;
     final quizGameNotifier = ref.read(quizGameViewModelProvider.notifier);
     final quizGame = ref.watch(quizGameViewModelProvider);
 

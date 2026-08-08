@@ -52,13 +52,12 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
   }
 
   void _tap(ConjugationSearchItem word) {
-    ref.read(quizGameViewModelProvider.notifier).initialize();
     context.pushNamed(
       quizGameRouteNameFor(ref.read(entryPointProvider)),
-      pathParameters:
-          QuizGameRoute(wordId: word.wordId, word: word.headword).pathParameters,
-      queryParameters:
-          QuizGameRoute(wordId: word.wordId, word: word.headword).queryParameters,
+      pathParameters: QuizGameRoute(wordId: word.wordId, word: word.headword)
+          .pathParameters,
+      queryParameters: QuizGameRoute(wordId: word.wordId, word: word.headword)
+          .queryParameters,
     );
   }
 
