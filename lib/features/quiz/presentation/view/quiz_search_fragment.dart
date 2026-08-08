@@ -30,26 +30,9 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
     _scroll = InfinityScrollController();
   }
 
-  Future<bool> _load(int nextPage) async {
-    final before = ref
-            .read(quizSearchViewModelProvider)
-            .results
-            .dataOrNull
-            ?.items
-            .length ??
-        0;
-    await ref
-        .read(quizSearchViewModelProvider.notifier)
-        .loadSearchResults(_size, nextPage - 1);
-    return (ref
-                .read(quizSearchViewModelProvider)
-                .results
-                .dataOrNull
-                ?.items
-                .length ??
-            0) >
-        before;
-  }
+  Future<bool> _load(int nextPage) => ref
+      .read(quizSearchViewModelProvider.notifier)
+      .loadSearchResults(_size, nextPage);
 
   void _tap(ConjugationSearchItem word) {
     context.pushNamed(
@@ -90,7 +73,7 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
         QueryEmpty() => const Center(child: Text('No matching words found.')),
         QueryFailure(previousData: null, error: final error) => _failure(
             AppErrorMessage.from(error).text,
-            () => notifier.loadSearchResults(_size, -1)),
+            () => notifier.loadSearchResults(_size, 0)),
         QueryData(value: final data) ||
         QueryLoading(previousData: final data?) ||
         QueryFailure(previousData: final data?, error: _) =>
@@ -103,7 +86,8 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
       ]));
   Widget _list(String query, QuizSearchResults data) => InfinityScrollListView(
       padding: const EdgeInsets.symmetric(horizontal: 10),
-      initialPage: 0,
+      initialPage: 1,
+      initialHasMore: data.hasNext,
       controller: _scroll,
       itemCount: data.items.length,
       itemBuilder: (context, index) {

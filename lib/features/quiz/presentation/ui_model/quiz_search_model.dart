@@ -17,8 +17,10 @@ class QuizSearchState {
 class QuizSearchResults {
   const QuizSearchResults({
     this.items = const [],
+    required this.hasNext,
   });
   final List<ConjugationSearchItem> items;
+  final bool hasNext;
   bool get isEmpty => items.isEmpty;
 
   QuizSearchResults merge(QuizSearchResults next, {required bool append}) =>
@@ -26,5 +28,6 @@ class QuizSearchResults {
           ? next
           : QuizSearchResults(
               items: [...items, ...next.items],
+              hasNext: next.hasNext,
             );
 }

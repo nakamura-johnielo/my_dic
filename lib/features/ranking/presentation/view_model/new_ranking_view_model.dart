@@ -23,12 +23,10 @@ class RankingViewModel extends StateNotifier<RankingState> {
 
   static const int _pageSize = 100;
 
-  Future<bool> retry() => loadNextPage(state.currentPageRange[1] + 1);
+  Future<bool> retry() => loadNextPage(state.currentPage + 1);
 
-  //TODO currentPage List<int> -> int
-  Future<bool> loadNextPage(int nextPage) async {
-    AppLogger.print("loadnext on VM, pageRange: ${state.currentPageRange}");
-    AppLogger.print("loadnext on VM, nextpage: $nextPage");
+  Future<bool> loadNextPage(int page) async {
+    AppLogger.print("loadnext on VM, page: $page");
 
     final previous = state.rankings.dataOrNull;
     state = state.copyWith(
@@ -37,13 +35,11 @@ class RankingViewModel extends StateNotifier<RankingState> {
     try {
       const pageSize = _pageSize;
       final input = LoadRankingsInputData(
-          state.partOfSpeechFilters,
-          state.featureTagFilters,
-          [state.currentPageRange[0], nextPage - 1],
-          pageSize,
-          true,
-          //TODO pagenationFilter
-          state.pagenationFilter);
+        state.partOfSpeechFilters,
+        state.featureTagFilters,
+        page,
+        pageSize,
+      );
 
       final result = await _loadRankingsUseCase.execute(input);
 
@@ -58,7 +54,7 @@ class RankingViewModel extends StateNotifier<RankingState> {
             rankings: value.items.isEmpty
                 ? QueryState.empty()
                 : QueryState.data(value),
-            currentPageRange: [state.currentPageRange[0], nextPage],
+            currentPage: page,
             hasNext: output.hasNext,
           );
 
@@ -82,15 +78,6 @@ class RankingViewModel extends StateNotifier<RankingState> {
       );
       return false;
     }
-  }
-
-  void setPageRange(List<int> pageRange) {
-    state = state.copyWith(currentPageRange: pageRange);
-  }
-
-  void setNextPage(int nextPage) {
-    state =
-        state.copyWith(currentPageRange: [state.currentPageRange[0], nextPage]);
   }
 
   void addExcludeFilter(DisplayEnumMixin data) {
@@ -130,7 +117,7 @@ class RankingViewModel extends StateNotifier<RankingState> {
     } else if (data is FeatureTag) {
       newState = _updateFeatureTagFilter(data, value);
     }
-    _resetPage(newState);
+    _resetPage(newState, resetPaginationFilter: true);
   }
 
   RankingState _updatePartOfSpeechFilter(PartOfSpeech filter, int value) {
@@ -153,16 +140,19 @@ class RankingViewModel extends StateNotifier<RankingState> {
     );
   }
 
-  void _resetPage(RankingState? currentState) {
+  void _resetPage(RankingState? currentState,
+      {bool resetPaginationFilter = false}) {
     if (currentState == null) {
       state = state.copyWith(
-        currentPageRange: [-1, -1],
+        currentPage: -1,
+        paginationFilter: resetPaginationFilter ? 0 : null,
         rankings: const QueryState.initial(),
       );
       return;
     }
     state = currentState.copyWith(
-      currentPageRange: [-1, -1],
+      currentPage: -1,
+      paginationFilter: resetPaginationFilter ? 0 : null,
       rankings: const QueryState.initial(),
     );
   }

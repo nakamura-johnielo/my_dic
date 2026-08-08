@@ -20,7 +20,7 @@ class RankingResults {
 class RankingState {
   const RankingState({
     this.rankings = const QueryState.initial(),
-    this.currentPageRange = const [-1, -1],
+    this.currentPage = -1,
     this.hasNext = true,
     this.featureTagFilters = const {},
     this.partOfSpeechFilters = const {},
@@ -28,7 +28,10 @@ class RankingState {
   });
 
   final QueryState<RankingResults> rankings;
-  final List<int> currentPageRange; // [min,max]
+
+  /// The last successfully loaded, zero-based page. `-1` means no page has
+  /// completed loading for the current filters yet.
+  final int currentPage;
   final bool hasNext;
   final Map<FeatureTag, int> featureTagFilters;
   final Map<PartOfSpeech, int> partOfSpeechFilters;
@@ -39,7 +42,7 @@ class RankingState {
 
   RankingState copyWith({
     QueryState<RankingResults>? rankings,
-    List<int>? currentPageRange,
+    int? currentPage,
     bool? hasNext,
     Map<FeatureTag, int>? featureTagFilters,
     Map<PartOfSpeech, int>? partOfSpeechFilters,
@@ -47,7 +50,7 @@ class RankingState {
   }) =>
       RankingState(
         rankings: rankings ?? this.rankings,
-        currentPageRange: currentPageRange ?? this.currentPageRange,
+        currentPage: currentPage ?? this.currentPage,
         hasNext: hasNext ?? this.hasNext,
         featureTagFilters: featureTagFilters ?? this.featureTagFilters,
         partOfSpeechFilters: partOfSpeechFilters ?? this.partOfSpeechFilters,

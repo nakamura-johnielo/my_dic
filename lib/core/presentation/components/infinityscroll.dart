@@ -23,6 +23,7 @@ class InfinityScrollListView extends StatefulWidget {
     required this.onLoadMore,
     this.controller,
     this.initialPage = 0,
+    this.initialHasMore = true,
     this.autoLoadFirstPage = false,
     this.loadMoreThreshold = 0.8,
     this.scrollController,
@@ -49,6 +50,9 @@ class InfinityScrollListView extends StatefulWidget {
 
   /// 最初にロードするページ番号（0 など）
   final int initialPage;
+
+  /// Whether more pages are available before this list requests its first page.
+  final bool initialHasMore;
 
   /// initState 後に 1ページ目を自動ロードするか
   final bool autoLoadFirstPage;
@@ -77,6 +81,7 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
     AppLogger.print("InfinityScrollListView initState");
 
     _nextPage = widget.initialPage;
+    _hasMore = widget.initialHasMore;
 
     _scrollController = widget.scrollController ?? ScrollController();
     _scrollController.addListener(_onScroll);
@@ -98,6 +103,14 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
   @override
   void didUpdateWidget(covariant InfinityScrollListView oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.initialHasMore != widget.initialHasMore) {
+      _hasMore = widget.initialHasMore;
+    }
+
+    if (oldWidget.initialPage != widget.initialPage && !_isLoading) {
+      _nextPage = widget.initialPage;
+    }
 
     if (oldWidget.controller != widget.controller) {
       oldWidget.controller?._reset = null;
@@ -138,7 +151,7 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
 
     setState(() {
       _isLoading = false;
-      _hasMore = true;
+      _hasMore = widget.initialHasMore;
       _nextPage = widget.initialPage;
     });
 

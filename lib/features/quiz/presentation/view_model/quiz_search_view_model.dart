@@ -24,33 +24,41 @@ class QuizSearchViewModel extends StateNotifier<QuizSearchState> {
         query: state.query, results: const QueryState.initial());
   }
 
-  Future<void> loadSearchResults(int size, int currentPage) async {
+  /// Loads a zero-based page of quiz search results.
+  Future<bool> loadSearchResults(int size, int page) async {
     final query = state.query;
-    if (query.isEmpty || state.results.isLoading) return;
+    if (query.isEmpty || state.results.isLoading) return false;
     final generation = ++_generation;
     final previous = state.results.dataOrNull;
     state = state.copyWith(results: QueryState.loading(previousData: previous));
     final result = await _search.executeQuiz(SearchQuery(
       text: query,
       direction: SearchDirection.espJpn,
-      page: currentPage + 1,
+      page: page,
       size: size,
       includeConjugationSuggestions: false,
     ));
-    if (!mounted || generation != _generation || query != state.query) return;
-    result.when(
-        success: (output) {
-          final next = QuizSearchResults(items: output.conjugationSuggestions);
-          final value = previous?.merge(next, append: currentPage >= 0) ?? next;
-          final warnings = output.issues
-              .map((w) => QueryWarning(source: w.source, error: w.error))
-              .toList();
-          state = state.copyWith(
-              results: value.isEmpty
-                  ? QueryState.empty(warnings: warnings)
-                  : QueryState.data(value, warnings: warnings));
-        },
-        failure: (error) => state = state.copyWith(
-            results: QueryState.failure(error, previousData: previous)));
+    if (!mounted || generation != _generation || query != state.query) {
+      return false;
+    }
+    return result.when(success: (output) {
+      final next = QuizSearchResults(
+        items: output.conjugationSuggestions,
+        hasNext: output.hasNext,
+      );
+      final value = previous?.merge(next, append: page > 0) ?? next;
+      final warnings = output.issues
+          .map((w) => QueryWarning(source: w.source, error: w.error))
+          .toList();
+      state = state.copyWith(
+          results: value.isEmpty
+              ? QueryState.empty(warnings: warnings)
+              : QueryState.data(value, warnings: warnings));
+      return output.hasNext;
+    }, failure: (error) {
+      state = state.copyWith(
+          results: QueryState.failure(error, previousData: previous));
+      return false;
+    });
   }
 }

@@ -25,10 +25,8 @@ void main() {
       await interactor.execute(LoadRankingsInputData(
         {PartOfSpeech.noun: 1, PartOfSpeech.verb: -1},
         {FeatureTag.isLearned: 1, FeatureTag.hasNote: -1},
-        const [-1, -1],
-        20,
-        true,
         0,
+        20,
       ));
 
       expect(repository.lastQuery?.page, 0);
@@ -48,10 +46,8 @@ void main() {
       await interactor.execute(LoadRankingsInputData(
         const {},
         const {},
-        const [-1, -1],
-        20,
-        true,
         0,
+        20,
       ));
 
       expect(repository.lastQuery?.accountId, guestAccountScope);
@@ -67,10 +63,8 @@ void main() {
       final result = await interactor.execute(LoadRankingsInputData(
         const {},
         const {},
-        const [-1, -1],
-        20,
-        true,
         0,
+        20,
       ));
 
       expect(result.isFailure, isTrue);

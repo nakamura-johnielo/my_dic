@@ -2,9 +2,11 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/core/shared/enums/feature_tag.dart';
+import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
 import 'package:my_dic/features/ranking/application/query/ranking_query.dart';
 import 'package:my_dic/features/ranking/data/data_source/local/ranking_dao.dart';
 import 'package:my_dic/features/ranking/data/query/drift_ranking_query_repository.dart';
+import 'package:my_dic/features/ranking/data/query/ranking_query_row.dart';
 
 void main() {
   late DatabaseProvider database;
@@ -40,8 +42,7 @@ void main() {
         excludedFeatureTags: {FeatureTag.isLearned},
       ));
 
-      expect(
-          accountAIncluded.dataOrNull?.items.map((item) => item.wordId),
+      expect(accountAIncluded.dataOrNull?.items.map((item) => item.wordId),
           [1, 1]);
       expect(
           accountBIncluded.dataOrNull?.items.map((item) => item.wordId), [2]);
@@ -73,7 +74,156 @@ void main() {
       expect(filters, {FeatureTag.multiLemma});
       expect(result.dataOrNull?.items.map((item) => item.wordId), [1, 2, 3]);
     });
+
+    test(
+        'paginates across invalid rows using valid rows for page size and hasNext',
+        () async {
+      await database.customStatement('DELETE FROM rankings');
+      await database.customStatement('''
+        INSERT INTO rankings
+          (ranking_id, ranking_no, word, word_origin, word_id)
+        VALUES
+          (101, 187, 'word 187', 'word 187', 1),
+          (102, 188, 'word 188', 'word 188', 2),
+          (103, 189, NULL, 'invalid word', 3),
+          (104, 190, 'invalid lemma', NULL, 3),
+          (105, 191, 'invalid id', 'invalid id', NULL),
+          (106, 192, 'word 192', 'word 192', 1),
+          (107, 193, 'word 193', 'word 193', 2),
+          (108, 194, 'word 194', 'word 194', 3)
+      ''');
+
+      final firstPage = await repository.fetchPage(RankingQuery(
+        page: 0,
+        size: 2,
+        accountId: 'account-a',
+      ));
+      final secondPage = await repository.fetchPage(RankingQuery(
+        page: 1,
+        size: 2,
+        accountId: 'account-a',
+      ));
+      final finalPage = await repository.fetchPage(RankingQuery(
+        page: 2,
+        size: 2,
+        accountId: 'account-a',
+      ));
+
+      expect(firstPage.isSuccess, isTrue);
+      expect(firstPage.dataOrNull?.items.map((item) => item.rank), [187, 188]);
+      expect(firstPage.dataOrNull?.hasNext, isTrue);
+      expect(secondPage.isSuccess, isTrue);
+      expect(secondPage.dataOrNull?.items.map((item) => item.rank), [192, 193]);
+      expect(secondPage.dataOrNull?.hasNext, isTrue);
+      expect(finalPage.isSuccess, isTrue);
+      expect(finalPage.dataOrNull?.items.map((item) => item.rank), [194]);
+      expect(finalPage.dataOrNull?.hasNext, isFalse);
+    });
+
+    test('combines invalid-row exclusion with part-of-speech filters',
+        () async {
+      await database.customStatement('DELETE FROM rankings');
+      await database.customStatement('DELETE FROM part_of_speech_lists');
+      await database.customStatement('''
+        INSERT INTO rankings
+          (ranking_id, ranking_no, word, word_origin, word_id)
+        VALUES
+          (201, 1, 'first noun', 'first noun', 1),
+          (202, 2, NULL, 'invalid noun', 1),
+          (203, 3, 'not a noun', 'not a noun', 2),
+          (204, 4, 'second noun', 'second noun', 1)
+      ''');
+      await database.customStatement(
+        'INSERT INTO part_of_speech_lists '
+        '(part_of_speech_id, word_id, part_of_speech) VALUES (?, ?, ?)',
+        [1, 1, PartOfSpeech.noun.display],
+      );
+
+      final firstPage = await repository.fetchPage(RankingQuery(
+        page: 0,
+        size: 1,
+        accountId: 'account-a',
+        includedPartOfSpeech: {PartOfSpeech.noun},
+      ));
+      final secondPage = await repository.fetchPage(RankingQuery(
+        page: 1,
+        size: 1,
+        accountId: 'account-a',
+        includedPartOfSpeech: {PartOfSpeech.noun},
+      ));
+
+      expect(firstPage.dataOrNull?.items.single.rankedWord, 'first noun');
+      expect(firstPage.dataOrNull?.hasNext, isTrue);
+      expect(secondPage.dataOrNull?.items.single.rankedWord, 'second noun');
+      expect(secondPage.dataOrNull?.hasNext, isFalse);
+    });
+
+    test('defensively skips nullable projection rows without failing the page',
+        () async {
+      final defensiveRepository = DriftRankingQueryRepository(
+        _StubRankingDao(database, const [
+          RankingQueryRow(
+            rank: 1,
+            rankedWord: null,
+            lemma: 'invalid',
+            wordId: 1,
+            hasConjugation: false,
+          ),
+          RankingQueryRow(
+            rank: 2,
+            rankedWord: 'valid',
+            lemma: 'valid',
+            wordId: 2,
+            hasConjugation: false,
+          ),
+        ]),
+      );
+
+      final result = await defensiveRepository.fetchPage(RankingQuery(
+        page: 0,
+        size: 10,
+        accountId: 'account-a',
+      ));
+
+      expect(result.isSuccess, isTrue);
+      expect(
+          result.dataOrNull?.items.map((item) => item.rankedWord), ['valid']);
+      expect(result.dataOrNull?.hasNext, isFalse);
+    });
+
+    test('still reports database query exceptions as failures', () async {
+      final failingRepository =
+          DriftRankingQueryRepository(_ThrowingRankingDao(database));
+
+      final result = await failingRepository.fetchPage(RankingQuery(
+        page: 0,
+        size: 10,
+        accountId: 'account-a',
+      ));
+
+      expect(result.isFailure, isTrue);
+      expect(result.errorOrNull?.originalError, isA<StateError>());
+    });
   });
+}
+
+class _StubRankingDao extends RankingDao {
+  _StubRankingDao(super.database, this.rows);
+
+  final List<RankingQueryRow> rows;
+
+  @override
+  Future<List<RankingQueryRow>> fetchRankingQueryPage(
+          RankingQuery query) async =>
+      rows;
+}
+
+class _ThrowingRankingDao extends RankingDao {
+  _ThrowingRankingDao(super.database);
+
+  @override
+  Future<List<RankingQueryRow>> fetchRankingQueryPage(RankingQuery query) =>
+      Future.error(StateError('query failed'));
 }
 
 Future<void> _seed(DatabaseProvider database) async {

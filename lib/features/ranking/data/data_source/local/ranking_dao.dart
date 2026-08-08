@@ -22,7 +22,12 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
     RankingQuery query,
   ) async {
     final variables = <Variable>[];
-    final predicates = <String>[];
+    final predicates = <String>[
+      'r.ranking_no IS NOT NULL',
+      'r.word IS NOT NULL',
+      'r.word_origin IS NOT NULL',
+      'r.word_id IS NOT NULL',
+    ];
 
     String placeholders(Iterable<String> values) {
       final marks = <String>[];
@@ -77,7 +82,7 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
             MIN(r.word_origin) AS word_origin, r.word_id AS word_id'''
         : '''r.ranking_no AS ranking_no, r.word AS word,
             r.word_origin AS word_origin, r.word_id AS word_id''';
-    final where = predicates.isEmpty ? '' : 'WHERE ${predicates.join(' AND ')}';
+    final where = 'WHERE ${predicates.join(' AND ')}';
     variables
       ..add(Variable.withInt(query.size + 1))
       ..add(Variable.withInt(query.size * query.page));

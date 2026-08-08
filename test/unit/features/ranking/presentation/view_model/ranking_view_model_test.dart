@@ -110,17 +110,17 @@ void main() {
         expect(state.featureTagFilters[FeatureTag.isBookmarked], 0);
       });
 
-      test('filter changes reset currentPageRange to [-1, -1]', () {
+      test('filter changes reset currentPage to -1', () async {
         // Arrange
         final viewModel = container.read(rankingViewModelProvider.notifier);
-        viewModel.setPageRange([0, 2]);
+        await viewModel.loadNextPage(2);
 
         // Act
         viewModel.addFilter(PartOfSpeech.noun);
 
         // Assert
         final state = container.read(rankingViewModelProvider);
-        expect(state.currentPageRange, [-1, -1]);
+        expect(state.currentPage, -1);
       });
 
       test('filter changes clear items list', () async {
@@ -168,7 +168,7 @@ void main() {
         expect(state.items[0].rankedWord, 'ser');
       });
 
-      test('loadNextPage updates currentPageRange', () async {
+      test('loadNextPage updates currentPage', () async {
         // Arrange
         final viewModel = container.read(rankingViewModelProvider.notifier);
 
@@ -177,7 +177,7 @@ void main() {
 
         // Assert
         final state = container.read(rankingViewModelProvider);
-        expect(state.currentPageRange, [-1, 0]);
+        expect(state.currentPage, 0);
       });
 
       test('loadNextPage with multiple pages accumulates items', () async {
@@ -214,31 +214,6 @@ void main() {
         expect(state.items, hasLength(100));
         expect(state.items.last.rank, 100);
       });
-
-      test('setPageRange updates currentPageRange', () {
-        // Arrange
-        final viewModel = container.read(rankingViewModelProvider.notifier);
-
-        // Act
-        viewModel.setPageRange([0, 2]);
-
-        // Assert
-        final state = container.read(rankingViewModelProvider);
-        expect(state.currentPageRange, [0, 2]);
-      });
-
-      test('setNextPage updates only max value of currentPageRange', () {
-        // Arrange
-        final viewModel = container.read(rankingViewModelProvider.notifier);
-        viewModel.setPageRange([0, 1]);
-
-        // Act
-        viewModel.setNextPage(3);
-
-        // Assert
-        final state = container.read(rankingViewModelProvider);
-        expect(state.currentPageRange, [0, 3]);
-      });
     });
 
     group('Error handling', () {
@@ -259,7 +234,7 @@ void main() {
       test('loadNextPage preserves state on failure', () async {
         // Arrange
         final viewModel = container.read(rankingViewModelProvider.notifier);
-        viewModel.setPageRange([0, 1]);
+        await viewModel.loadNextPage(1);
         fakeLoadRankingsUseCase.setResult(
           Result.failure(DatabaseError(message: 'Failed to load')),
         );
@@ -269,8 +244,8 @@ void main() {
 
         // Assert
         final state = container.read(rankingViewModelProvider);
-        expect(state.currentPageRange, [0, 1]);
-        expect(state.items, isEmpty);
+        expect(state.currentPage, 1);
+        expect(state.items, hasLength(3));
       });
     });
 
@@ -287,7 +262,7 @@ void main() {
         // Assert
         final state = container.read(rankingViewModelProvider);
         expect(state.items, isEmpty);
-        expect(state.currentPageRange, [-1, -1]);
+        expect(state.currentPage, -1);
         expect(state.partOfSpeechFilters, isEmpty);
         expect(state.featureTagFilters, isEmpty);
       });
@@ -318,10 +293,10 @@ void main() {
         expect(state.partOfSpeechFilters[PartOfSpeech.verb], -1);
       });
 
-      test('locatePage updates pagenationFilter and resets page', () {
+      test('locatePage updates pagenationFilter and resets page', () async {
         // Arrange
         final viewModel = container.read(rankingViewModelProvider.notifier);
-        viewModel.setPageRange([0, 2]);
+        await viewModel.loadNextPage(2);
 
         // Act
         viewModel.locatePage(5);
@@ -329,7 +304,7 @@ void main() {
         // Assert
         final state = container.read(rankingViewModelProvider);
         expect(state.pagenationFilter, 5);
-        expect(state.currentPageRange, [-1, -1]);
+        expect(state.currentPage, -1);
         expect(state.items, isEmpty);
       });
     });

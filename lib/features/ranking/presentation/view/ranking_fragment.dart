@@ -26,9 +26,6 @@ class RankingFragment extends ConsumerStatefulWidget {
 }
 
 class _RankingFragmentState extends ConsumerState<RankingFragment> {
-  int _previousItemLength = 0;
-  final int _initialPage = 0;
-
   late final InfinityScrollController _infinityScrollController;
   late final VoidCallback _resetPageCallback; // = _resetPage;
 
@@ -40,37 +37,13 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
   }
 
   Future<bool> loadNextPage(int nextPage) async {
-    final viewModel = ref.read(rankingViewModelProvider.notifier);
-
-    _setCurrentItemLength();
-    viewModel.setNextPage(nextPage - 1);
-
-    await viewModel.loadNextPage(nextPage);
-
-    final canFetch = _canFetch();
-
-    return canFetch;
+    return ref.read(rankingViewModelProvider.notifier).loadNextPage(nextPage);
   }
 
   void _resetPage() {
     //TODO filter適応時にreset走らせる
     //TODO　infilistview内のnextpage変更できないからfilter更新時にリセットする
     _infinityScrollController.reset();
-
-    setState(() {
-      _previousItemLength = 0;
-    });
-  }
-
-  void _setCurrentItemLength() {
-    final viewModel = ref.read(rankingViewModelProvider);
-    _previousItemLength = viewModel.items.length;
-  }
-
-  bool _canFetch() {
-    final viewModel = ref.read(rankingViewModelProvider);
-    final currentItemLength = viewModel.items.length;
-    return currentItemLength > _previousItemLength;
   }
 
   @override
@@ -121,7 +94,8 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
           Expanded(
             child: InfinityScrollListView(
               autoLoadFirstPage: true,
-              initialPage: _initialPage,
+              initialPage: screen.pagenationFilter,
+              initialHasMore: screen.hasNext,
               controller: _infinityScrollController,
               onLoadMore: loadNextPage,
               itemCount: data?.items.length ?? 0,

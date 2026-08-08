@@ -1,4 +1,5 @@
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
+import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/ranking/application/query/i_ranking_query_repository.dart';
 import 'package:my_dic/features/ranking/application/query/ranking_list_item.dart';
@@ -16,27 +17,37 @@ class DriftRankingQueryRepository implements IRankingQueryRepository {
   Future<Result<RankingPage>> fetchPage(RankingQuery query) async {
     try {
       final rows = await _dao.fetchRankingQueryPage(query);
+      // The DAO filters invalid rows before pagination. Keeping the look-ahead
+      // calculation on its returned page also preserves offset semantics if a
+      // future projection change unexpectedly lets an invalid row through.
       final hasNext = rows.length > query.size;
       final visibleRows = hasNext ? rows.take(query.size) : rows;
+      final validRows = visibleRows
+          .where((row) =>
+              row.rank != null &&
+              row.rankedWord != null &&
+              row.lemma != null &&
+              row.wordId != null)
+          .toList(growable: false);
+      final skippedCount = visibleRows.length - validRows.length;
+      if (skippedCount > 0) {
+        AppLogger.event(
+          'ranking_invalid_rows_skipped',
+          context: {
+            'skippedCount': skippedCount,
+            'page': query.page,
+            'pageSize': query.size,
+          },
+        );
+      }
+
       final items = <RankingListItem>[];
-      for (final row in visibleRows) {
-        final rank = row.rank;
-        final rankedWord = row.rankedWord;
-        final lemma = row.lemma;
-        final wordId = row.wordId;
-        if (rank == null ||
-            rankedWord == null ||
-            lemma == null ||
-            wordId == null) {
-          return Result.failure(DatabaseError(
-            message: 'Ranking projection contains a required null value.',
-          ));
-        }
+      for (final row in validRows) {
         items.add(RankingListItem(
-          rank: rank,
-          rankedWord: rankedWord,
-          lemma: lemma,
-          wordId: wordId,
+          rank: row.rank!,
+          rankedWord: row.rankedWord!,
+          lemma: row.lemma!,
+          wordId: row.wordId!,
           hasConjugation: row.hasConjugation,
         ));
       }

@@ -31,10 +31,8 @@ class LoadRankingsInteractor implements ILoadRankingsUseCase {
       if (entry.value == -1) featureTagExcludeFilters.add(entry.key);
     }
 
-    final nextPage = input.currentPage[1] + 1 + input.pagenation;
-    final requiredPage = input.isNext ? nextPage : input.currentPage[0];
     return _repository.fetchPage(RankingQuery(
-      page: requiredPage,
+      page: input.page,
       size: input.size,
       accountId: _currentSession.accountIdOrNull ?? guestAccountScope,
       includedPartOfSpeech: partOfSpeechFilters,

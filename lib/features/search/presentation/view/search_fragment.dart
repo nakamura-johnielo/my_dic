@@ -36,16 +36,10 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
   }
 
   Future<bool> _load(int nextPage) async {
-    final before = _count(ref.read(searchViewModelProvider).results.dataOrNull);
-    await ref
+    return ref
         .read(searchViewModelProvider.notifier)
-        .loadSearchResults(_size, nextPage - 1);
-    return _count(ref.read(searchViewModelProvider).results.dataOrNull) >
-        before;
+        .loadSearchResults(_size, nextPage);
   }
-
-  int _count(SearchResults? data) =>
-      data == null ? 0 : data.items.length + data.conjugationSuggestions.length;
 
   void _toWordDetail(WordDetailRoute route) => context.pushNamed(
         wordDetailRouteNameFor(ref.read(entryPointProvider)),
@@ -91,7 +85,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
               child: Column(mainAxisSize: MainAxisSize.min, children: [
             Text(AppErrorMessage.from(error).text),
             TextButton(
-                onPressed: () => notifier.loadSearchResults(_size, -1),
+                onPressed: () => notifier.loadSearchResults(_size, 0),
                 child: const Text('Retry'))
           ])),
         QueryData(value: final data) ||
@@ -103,7 +97,9 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
     if (data.direction == SearchDirection.jpnEsp) {
       return InfinityScrollListView(
           padding: const EdgeInsets.symmetric(horizontal: 10),
-          initialPage: 0,
+          // The first page is loaded explicitly when the query changes.
+          initialPage: 1,
+          initialHasMore: data.hasNext,
           controller: _scroll,
           itemCount: data.items.length,
           itemBuilder: (context, index) {
@@ -130,7 +126,9 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
         data.conjugationSuggestions.take(_conjCount).toList(growable: false);
     return InfinityScrollListView(
         padding: const EdgeInsets.symmetric(horizontal: 10),
-        initialPage: 0,
+        // The first page is loaded explicitly when the query changes.
+        initialPage: 1,
+        initialHasMore: data.hasNext,
         controller: _scroll,
         itemCount: conjunctions.length + data.items.length,
         itemBuilder: (context, index) {

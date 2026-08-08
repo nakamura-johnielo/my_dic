@@ -32,10 +32,9 @@ class SearchViewModel extends StateNotifier<SearchState> {
         SearchState(query: state.query, results: const QueryState.initial());
   }
 
-  Future<void> loadSearchResults(int size, int currentPage) async {
+  Future<bool> loadSearchResults(int size, int page) async {
     final query = state.query;
-    if (query.isEmpty || state.results.isLoading) return;
-    final page = currentPage + 1;
+    if (query.isEmpty || state.results.isLoading) return false;
     final generation = ++_generation;
     final previous = state.results.dataOrNull;
     state = state.copyWith(results: QueryState.loading(previousData: previous));
@@ -47,22 +46,28 @@ class SearchViewModel extends StateNotifier<SearchState> {
       size: size,
       includeConjugationSuggestions: direction == SearchDirection.espJpn,
     ));
-    if (!_isCurrent(generation, query)) return;
-    result.when(
-      success: (output) => _publish(
-        SearchResults(
-          items: output.items,
-          conjugationSuggestions: output.conjugationSuggestions,
-          hasNext: output.hasNext,
-        ),
-        previous,
-        page > 0,
-        warnings: output.issues
-            .map((issue) =>
-                QueryWarning(source: issue.source, error: issue.error))
-            .toList(growable: false),
-      ),
-      failure: (error) => _fail(error, previous),
+    if (!_isCurrent(generation, query)) return false;
+    return result.when(
+      success: (output) {
+        _publish(
+          SearchResults(
+            items: output.items,
+            conjugationSuggestions: output.conjugationSuggestions,
+            hasNext: output.hasNext,
+          ),
+          previous,
+          page > 0,
+          warnings: output.issues
+              .map((issue) =>
+                  QueryWarning(source: issue.source, error: issue.error))
+              .toList(growable: false),
+        );
+        return output.hasNext;
+      },
+      failure: (error) {
+        _fail(error, previous);
+        return false;
+      },
     );
   }
 

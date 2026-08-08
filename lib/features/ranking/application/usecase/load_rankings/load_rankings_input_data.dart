@@ -2,19 +2,16 @@ import 'package:my_dic/core/shared/enums/feature_tag.dart';
 import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
 
 class LoadRankingsInputData {
-  final List<int> currentPage;
-  final int pagenation;
+  /// The zero-based page requested by the presentation layer.
+  final int page;
   final int size;
   final Map<PartOfSpeech, int> partOfSpeechFilters;
   final Map<FeatureTag, int> featureTagFilters;
-  final bool isNext;
 
   const LoadRankingsInputData(
     this.partOfSpeechFilters,
     this.featureTagFilters,
-    this.currentPage,
+    this.page,
     this.size,
-    this.isNext,
-    this.pagenation,
   );
 }
