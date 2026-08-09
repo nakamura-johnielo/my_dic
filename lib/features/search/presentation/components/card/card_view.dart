@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:my_dic/features/search/application/query/search_conjugation_match_key.dart';
 import 'package:my_dic/features/search/presentation/ui_model/search_conjugation_labels.dart';
-import 'package:my_dic/core/shared/enums/ui/word_status_type.dart';
-import 'package:my_dic/features/word_status/domain/dictionary_direction.dart';
 import 'package:my_dic/app/presentation/word_status_buttons.dart';
+import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/features/search/presentation/components/card/reverse_curve.dart';
 
 class CardView extends StatefulWidget {
@@ -28,7 +27,7 @@ class CardView extends StatefulWidget {
   final String query;
   final Map<SearchConjugationMatchKey, String>? conjugacions;
 
-  final WordStatusType wordStatusType;
+  final CatalogWordRef? statusWord;
 
   const CardView({
     super.key,
@@ -49,7 +48,7 @@ class CardView extends StatefulWidget {
     required this.query,
     this.conjugacions,
     this.goToQuiz,
-    required this.wordStatusType,
+    required this.statusWord,
   });
 
   @override
@@ -88,20 +87,10 @@ class _CardViewState extends State<CardView> {
   }
 
   Widget _buildStatusButtons() {
-    switch (widget.wordStatusType) {
-      case WordStatusType.myWord:
-        return const SizedBox.shrink();
-      case WordStatusType.espJpnWord:
-        return DictionaryStatusButtons(
-          wordId: widget.wordId,
-          direction: DictionaryDirection.espJpn,
-        );
-      case WordStatusType.jpnEspWord:
-        return DictionaryStatusButtons(
-          wordId: widget.wordId,
-          direction: DictionaryDirection.jpnEsp,
-        );
-    }
+    final word = widget.statusWord;
+    return word == null
+        ? const SizedBox.shrink()
+        : DictionaryStatusButtons(word: word);
   }
 
   @override

@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/core/presentation/components/button/my_icon_button.dart';
-import 'package:my_dic/features/word_status/domain/dictionary_direction.dart';
 import 'package:my_dic/app/presentation/word_status_buttons.dart';
+import 'package:my_dic/features/catalog/port/catalog_id.dart';
+import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/features/ranking/application/query/ranking_list_item.dart';
 import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
 import 'package:my_dic/app/routing/route_name_resolver.dart';
@@ -105,8 +106,10 @@ class RankingCard extends ConsumerWidget {
             if (ranking.hasConjugation) SizedBox(width: 3),
 
             DictionaryStatusButtons(
-              wordId: ranking.wordId,
-              direction: DictionaryDirection.espJpn,
+              word: CatalogWordRef(
+                catalogId: CatalogId.espJpnMain,
+                wordId: ranking.wordId,
+              ),
             ),
           ]),
         ),

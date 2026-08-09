@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/core/presentation/custom_floating_button_location.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
-import 'package:my_dic/features/word_status/domain/dictionary_direction.dart';
 import 'package:my_dic/app/presentation/word_status_buttons.dart';
 import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
 import 'package:my_dic/app/routing/contracts/word_detail_route.dart';
@@ -83,15 +82,9 @@ class WordPageFragment extends ConsumerWidget {
     switch (viewData) {
       case JpnEspWordDetailViewData():
         tabs['Dictionary'] = JpnEspDictionaryFragment(detail: detail);
-        statusButton = DictionaryStatusButtons(
-          wordId: input.word.wordId,
-          direction: _statusDirection(input.word.catalogId),
-        );
+        statusButton = DictionaryStatusButtons(word: input.word);
       case EspJpnWordDetailViewData(conjugation: final conjugation):
-        statusButton = DictionaryStatusButtons(
-          wordId: input.word.wordId,
-          direction: _statusDirection(input.word.catalogId),
-        );
+        statusButton = DictionaryStatusButtons(word: input.word);
         tabs['Dictionary'] = EspJpnDictionaryFragment(detail: detail);
         if (conjugation != null) {
           tabs['Conjugacion'] = ConjugacionFragment(detail: detail);
@@ -100,16 +93,10 @@ class WordPageFragment extends ConsumerWidget {
       case null:
         if (input.word.catalogId == CatalogId.jpnEspMain) {
           tabs['Dictionary'] = JpnEspDictionaryFragment(detail: detail);
-          statusButton = DictionaryStatusButtons(
-            wordId: input.word.wordId,
-            direction: _statusDirection(input.word.catalogId),
-          );
+          statusButton = DictionaryStatusButtons(word: input.word);
         } else {
           tabs['Dictionary'] = EspJpnDictionaryFragment(detail: detail);
-          statusButton = DictionaryStatusButtons(
-            wordId: input.word.wordId,
-            direction: _statusDirection(input.word.catalogId),
-          );
+          statusButton = DictionaryStatusButtons(word: input.word);
         }
     }
 
@@ -156,12 +143,6 @@ class WordPageFragment extends ConsumerWidget {
       child: const Icon(Icons.handshake_rounded),
     );
   }
-
-  DictionaryDirection _statusDirection(CatalogId catalogId) =>
-      switch (catalogId) {
-        CatalogId.espJpnMain => DictionaryDirection.espJpn,
-        CatalogId.jpnEspMain => DictionaryDirection.jpnEsp,
-      };
 }
 
 class _WordPageFragmentBuilder extends StatelessWidget {

@@ -9,7 +9,6 @@ import 'package:my_dic/core/presentation/components/auto_focus_text_field.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
 import 'package:my_dic/core/presentation/error/app_error_message.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
-import 'package:my_dic/core/shared/enums/ui/word_status_type.dart';
 import 'package:my_dic/features/catalog/port/catalog_id.dart';
 import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/features/search/di/view_model_di.dart';
@@ -115,7 +114,10 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                     meaning: word.meaningText ?? '',
                     isBookmarked: false,
                     isLearned: false,
-                    wordStatusType: WordStatusType.jpnEspWord,
+                    statusWord: CatalogWordRef(
+                      catalogId: CatalogId.jpnEspMain,
+                      wordId: word.wordId,
+                    ),
                     onTap: () => _toWordDetail(WordDetailRoute(
                             word: CatalogWordRef(
                           catalogId: CatalogId.jpnEspMain,
@@ -145,7 +147,10 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
   Widget _espCard(String query, SearchResultItem item) => Padding(
       padding: const EdgeInsets.only(bottom: 11),
       child: CardView(
-          wordStatusType: WordStatusType.espJpnWord,
+          statusWord: CatalogWordRef(
+            catalogId: CatalogId.espJpnMain,
+            wordId: item.wordId,
+          ),
           goToQuiz: item.hasConjugation
               ? () => _toQuiz(
                   QuizGameRoute(wordId: item.wordId, word: item.headword))
@@ -168,7 +173,10 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
   Widget _conjugationCard(String query, ConjugationSearchItem item) => Padding(
         padding: const EdgeInsets.only(bottom: 11),
         child: CardView(
-          wordStatusType: WordStatusType.espJpnWord,
+          statusWord: CatalogWordRef(
+            catalogId: CatalogId.espJpnMain,
+            wordId: item.wordId,
+          ),
           goToQuiz: () =>
               _toQuiz(QuizGameRoute(wordId: item.wordId, word: item.headword)),
           query: query,

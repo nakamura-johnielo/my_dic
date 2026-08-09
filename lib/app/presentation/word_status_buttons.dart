@@ -1,35 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/features/esp_jpn_word_status/di/di.dart';
-import 'package:my_dic/features/jpn_esp_word_status/di/di.dart';
 import 'package:my_dic/features/my_word/di/view_model_di.dart' as my_word_di;
 import 'package:my_dic/features/my_word/presentation/view_model/my_word_status_view_model.dart';
-import 'package:my_dic/features/word_status/domain/dictionary_direction.dart';
+import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
+import 'package:my_dic/features/word_status/presentation/word_status_providers.dart';
 import 'package:my_dic/features/word_status/presentation/status_button.dart'
     as status_ui;
 
 /// App-level composition for status controls used across presentation features.
 ///
-/// This is deliberately outside individual features: it chooses the
-/// dataset-specific view model while the shared UI remains feature-owned.
+/// This is deliberately outside individual features: it composes the
+/// catalog-aware view model while the shared UI remains feature-owned.
 class DictionaryStatusButtons extends ConsumerWidget {
   const DictionaryStatusButtons({
     super.key,
-    required this.wordId,
-    required this.direction,
+    required this.word,
   });
 
-  final int wordId;
-  final DictionaryDirection direction;
+  final CatalogWordRef word;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final viewModel = switch (direction) {
-      DictionaryDirection.espJpn =>
-        ref.watch(espJpnWordStatusViewModelProvider(wordId)),
-      DictionaryDirection.jpnEsp =>
-        ref.watch(jpnEspWordStatusViewModelProvider(wordId)),
-    };
+    final viewModel = ref.watch(dictionaryStatusButtonsViewModelProvider(word));
     return status_ui.DictionaryStatusButtons(viewModel: viewModel);
   }
 }

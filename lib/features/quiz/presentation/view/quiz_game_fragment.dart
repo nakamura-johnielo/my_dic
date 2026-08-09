@@ -5,7 +5,6 @@ import 'package:my_dic/app/routing/route_name_resolver.dart';
 import 'package:my_dic/core/di/router/router.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/features/quiz/presentation/components/quiz_card.dart';
-import 'package:my_dic/features/word_status/domain/dictionary_direction.dart';
 import 'package:my_dic/app/presentation/word_status_buttons.dart';
 import 'package:my_dic/features/catalog/port/catalog_id.dart';
 import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
@@ -147,8 +146,10 @@ class _QuizGameFragmentState extends ConsumerState<QuizGameFragment> {
                             child: Text("> 辞書確認"),
                           ),
                           DictionaryStatusButtons(
-                            wordId: input.wordId,
-                            direction: DictionaryDirection.espJpn,
+                            word: CatalogWordRef(
+                              catalogId: CatalogId.espJpnMain,
+                              wordId: input.wordId,
+                            ),
                           ),
                         ],
                       ),

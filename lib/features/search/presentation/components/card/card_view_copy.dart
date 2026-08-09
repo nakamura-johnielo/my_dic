@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:my_dic/features/search/application/query/search_conjugation_match_key.dart';
 import 'package:my_dic/features/search/presentation/ui_model/search_conjugation_labels.dart';
-import 'package:my_dic/features/word_status/domain/dictionary_direction.dart';
 import 'package:my_dic/app/presentation/word_status_buttons.dart';
+import 'package:my_dic/features/catalog/port/catalog_id.dart';
+import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/features/search/presentation/components/card/reverse_curve.dart';
 
 class CardView extends StatelessWidget {
@@ -125,8 +126,10 @@ class CardView extends StatelessWidget {
                               maxWidth: double.infinity,
                               maxHeight: double.infinity,
                               child: DictionaryStatusButtons(
-                                wordId: wordId,
-                                direction: DictionaryDirection.espJpn,
+                                word: CatalogWordRef(
+                                  catalogId: CatalogId.espJpnMain,
+                                  wordId: wordId,
+                                ),
                               )),
                         )
                       ],

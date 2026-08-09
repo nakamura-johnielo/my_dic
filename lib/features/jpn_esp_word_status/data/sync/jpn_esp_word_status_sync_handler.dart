@@ -163,16 +163,15 @@ class JpnEspWordStatusSyncHandler implements DatasetSyncHandler {
       await _local.runInTransaction(() async {
         for (final dto in remoteItems) {
           _executionGuard.ensureCanContinue(context);
-          final entity = dto.toDomain();
-          final entityId = entity.wordId.toString();
+          final entityId = dto.wordId.toString();
           final skip = pendingFieldsByEntity[entityId] ?? const {};
           await _local.applyRemoteFields(
-            entity.wordId,
-            isLearned: skip.contains('isLearned') ? null : entity.isLearned,
+            dto.wordId,
+            isLearned: skip.contains('isLearned') ? null : dto.isLearned == 1,
             isBookmarked:
-                skip.contains('isBookmarked') ? null : entity.isBookmarked,
-            hasNote: skip.contains('hasNote') ? null : entity.hasNote,
-            editAt: entity.editAt.toIso8601String(),
+                skip.contains('isBookmarked') ? null : dto.isBookmarked == 1,
+            hasNote: skip.contains('hasNote') ? null : dto.hasNote == 1,
+            editAt: dto.updatedAt.toIso8601String(),
             accountId: context.accountId,
             remoteRevision: dto.remoteRevision.toString(),
             lastMutationId: dto.lastMutationId,
@@ -180,9 +179,9 @@ class JpnEspWordStatusSyncHandler implements DatasetSyncHandler {
           _executionGuard.ensureCanContinue(context);
           pulledCount++;
           final candidate = SyncCursor(
-            seconds: entity.editAt.millisecondsSinceEpoch ~/ 1000,
+            seconds: dto.updatedAt.millisecondsSinceEpoch ~/ 1000,
             nanoseconds:
-                (entity.editAt.microsecondsSinceEpoch % 1000000) * 1000,
+                (dto.updatedAt.microsecondsSinceEpoch % 1000000) * 1000,
             documentId: entityId,
           );
           if (newCursor == null || candidate.compareTo(newCursor!) > 0) {

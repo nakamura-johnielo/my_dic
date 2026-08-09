@@ -3,16 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/app/presentation/dictionary_status_view_models.dart';
 import 'package:my_dic/app/routing/contracts/word_detail_route.dart';
-import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/catalog/port/catalog_id.dart';
 import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_conjugation.dart';
 import 'package:my_dic/features/catalog/port/model/esp_jpn_entry.dart';
-import 'package:my_dic/features/esp_jpn_word_status/application/update_status_usecase.dart';
-import 'package:my_dic/features/esp_jpn_word_status/di/di.dart';
 import 'package:my_dic/features/word_page/application/query/i_load_word_detail_query.dart';
 import 'package:my_dic/features/word_page/application/query/word_detail_query.dart';
 import 'package:my_dic/features/word_page/application/query/word_detail_query_result.dart';
@@ -21,6 +17,8 @@ import 'package:my_dic/features/word_page/di/view_model_di.dart';
 import 'package:my_dic/features/word_page/presentation/ui_model/word_page_load_key.dart';
 import 'package:my_dic/features/word_page/presentation/view/word_page_fragment.dart';
 import 'package:my_dic/features/word_page/presentation/view_model/word_page_view_model.dart';
+import 'package:my_dic/features/word_status/presentation/word_status_providers.dart';
+import 'package:my_dic/features/word_status/presentation/status_button.dart';
 
 void main() {
   const word = CatalogWordRef(
@@ -35,14 +33,10 @@ void main() {
     final viewModel = WordPageViewModel(loader);
     final loading = viewModel.initialize(key);
 
-    final statusViewModel = EspJpnWordStatusViewModel(
-      WordStatusState(status: QueryState.empty()),
-      EspJpnWordStatusCommand(1, _NoopUpdateStatusUseCase()),
-    );
     final container = ProviderContainer(overrides: [
       wordPageViewModelProvider(key).overrideWith((ref) => viewModel),
-      espJpnWordStatusViewModelProvider(1)
-          .overrideWith((ref) => statusViewModel),
+      dictionaryStatusButtonsViewModelProvider(word)
+          .overrideWith((ref) => const _NoopWordStatusViewModel()),
     ]);
     addTearDown(container.dispose);
 
@@ -108,8 +102,30 @@ class _DeferredLoader implements ILoadWordDetailQuery {
       _result.future;
 }
 
-class _NoopUpdateStatusUseCase implements IUpdateStatusUseCase {
+class _NoopWordStatusViewModel implements WordStatusViewModel {
+  const _NoopWordStatusViewModel();
+
   @override
-  Future<Result<void>> execute(UpdateStatusInputData input) async =>
-      const Result.success(null);
+  bool get hasNote => false;
+
+  @override
+  bool get isBookmarked => false;
+
+  @override
+  bool get isLearned => false;
+
+  @override
+  bool get isLoading => false;
+
+  @override
+  String? get readError => null;
+
+  @override
+  Future<void> toggleBookmark() async {}
+
+  @override
+  Future<void> toggleHasNote() async {}
+
+  @override
+  Future<void> toggleLearned() async {}
 }

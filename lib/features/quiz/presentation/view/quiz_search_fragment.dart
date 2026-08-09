@@ -9,7 +9,6 @@ import 'package:my_dic/core/presentation/components/auto_focus_text_field.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
 import 'package:my_dic/core/presentation/error/app_error_message.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
-import 'package:my_dic/core/shared/enums/ui/word_status_type.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/features/quiz/presentation/ui_model/quiz_search_model.dart';
 import 'package:my_dic/features/quiz/presentation/view_model/quiz_search_view_model.dart';
@@ -97,7 +96,7 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
         return Padding(
             padding: const EdgeInsets.only(bottom: 11),
             child: CardView(
-                wordStatusType: WordStatusType.espJpnWord,
+                statusWord: candidate.word,
                 goToQuiz: () => _tap(candidate),
                 query: query,
                 wordId: candidate.word.wordId,

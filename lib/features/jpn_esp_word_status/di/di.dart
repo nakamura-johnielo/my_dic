@@ -1,38 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/app/bootstrap/firebase_providers.dart';
 import 'package:my_dic/app/bootstrap/sync_composition.dart';
-import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
 import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/i_local_jpn_esp_word_status_data_source.dart';
 import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/jpn_esp_drift_word_status_data_source.dart';
-import 'package:my_dic/app/presentation/dictionary_status_view_models.dart';
-import 'package:my_dic/features/jpn_esp_word_status/data/jpn_esp_word_status_repository.dart';
-import 'package:my_dic/features/jpn_esp_word_status/domain/i_jpn_esp_word_status_repository.dart';
-import 'package:my_dic/features/jpn_esp_word_status/domain/jpn_esp_word_status.dart';
-import 'package:my_dic/features/jpn_esp_word_status/application/update_jpn_esp_status_usecase.dart';
-import 'package:my_dic/features/jpn_esp_word_status/application/watch_jpn_esp_word_status_usecase.dart';
 import 'package:my_dic/features/jpn_esp_word_status/data/sync/jpn_esp_word_status_sync_handler.dart';
 import 'package:my_dic/features/jpn_esp_word_status/data/sync/remote/firebase_jpn_esp_word_status_data_source.dart';
 import 'package:my_dic/features/jpn_esp_word_status/data/sync/remote/firebase_jpn_esp_word_status_dao.dart';
 import 'package:my_dic/features/jpn_esp_word_status/data/sync/remote/i_jpn_esp_word_status_remote_data_source.dart';
-
-//==========Usecase=====================
-
-final watchJpnEspWordStatusUsecaseProvider =
-    Provider<IWatchJpnEspWordStatusUsecase>((ref) {
-  return WatchJpnEspWordStatusInteractor(
-    ref.read(jpnEspWordStatusRepositoryProvider),
-    ref.watch(currentSessionProvider),
-  );
-});
-
-final updateJpnEspStatusUseCaseProvider =
-    Provider<IUpdateJpnEspStatusUseCase>((ref) {
-  return UpdateJpnEspStatusInteractor(
-    ref.read(jpnEspWordStatusRepositoryProvider),
-    ref.watch(currentSessionProvider),
-  );
-});
 
 // ===============Firebase DAO====================
 final firebaseJpnEspWordStatusDaoProvider =
@@ -53,13 +28,6 @@ final jpnEspRemoteWordStatusDataSourceProvider =
       ref.read(firebaseJpnEspWordStatusDaoProvider));
 });
 
-// ===============repository====================
-final jpnEspWordStatusRepositoryProvider =
-    Provider<IJpnEspWordStatusRepository>((ref) {
-  final local = ref.read(jpnEspLocalWordStatusDataSourceProvider);
-  return JpnEspWordStatusRepository(local, ref.read(driftOutboxWriterProvider));
-});
-
 // ===============sync handler====================
 final jpnEspWordStatusSyncHandlerProvider =
     Provider<JpnEspWordStatusSyncHandler>((ref) {
@@ -70,41 +38,4 @@ final jpnEspWordStatusSyncHandlerProvider =
     local: ref.read(jpnEspLocalWordStatusDataSourceProvider),
     remote: ref.read(jpnEspRemoteWordStatusDataSourceProvider),
   );
-});
-
-//=====viewmodel=============
-
-final jpnEspWordStatusCommandProvider = StateNotifierProvider.family
-    .autoDispose<JpnEspWordStatusCommand, WordStatusCommandEvent?, int>(
-  (ref, wordId) {
-    final updateUsecase = ref.read(updateJpnEspStatusUseCaseProvider);
-    return JpnEspWordStatusCommand(
-      wordId,
-      updateUsecase,
-    );
-  },
-);
-
-//===========streamer===================
-final _jpnEspWordStatusStreamProvider =
-    StreamProvider.autoDispose.family<JpnEspWordStatus, int>((ref, int wordId) {
-  final usecase = ref.watch(watchJpnEspWordStatusUsecaseProvider);
-  return usecase.execute(wordId);
-});
-
-//~~~~~~~~UI~~~~~~~~~~~~~~~~
-final jpnEspWordStatusUiStateProvider =
-    Provider.autoDispose.family<JpnEspWordStatusState, int>((ref, int wordId) {
-  final statusAsync = ref.watch(_jpnEspWordStatusStreamProvider(wordId));
-
-  return JpnEspWordStatusState.fromAsync(statusAsync);
-});
-
-//~~~~~~~~ViewModel~~~~~~~~~~~~~~~~
-final jpnEspWordStatusViewModelProvider =
-    Provider.autoDispose.family<JpnEspWordStatusViewModel, int>((ref, wordId) {
-  final uiState = ref.watch(jpnEspWordStatusUiStateProvider(wordId));
-  final command = ref.read(jpnEspWordStatusCommandProvider(wordId).notifier);
-
-  return JpnEspWordStatusViewModel(uiState, command);
 });

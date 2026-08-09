@@ -2,10 +2,10 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/app/presentation/dictionary_status_view_models.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
-import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
+import 'package:my_dic/features/catalog/port/catalog_id.dart';
+import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/ranking/application/query/ranking_list_item.dart';
@@ -18,8 +18,8 @@ import 'package:my_dic/features/ranking/di/view_model_di.dart';
 import 'package:my_dic/features/ranking/data/data_source/local/ranking_dao.dart';
 import 'package:my_dic/features/ranking/data/query/drift_ranking_query_repository.dart';
 import 'package:my_dic/features/ranking/presentation/view/ranking_fragment.dart';
-import 'package:my_dic/features/esp_jpn_word_status/application/update_status_usecase.dart';
-import 'package:my_dic/features/esp_jpn_word_status/di/di.dart';
+import 'package:my_dic/features/word_status/presentation/word_status_providers.dart';
+import 'package:my_dic/features/word_status/presentation/status_button.dart';
 
 import '../../../../../helpers/fake_ranking_usecases.dart';
 
@@ -36,7 +36,7 @@ void main() {
       loadRankingsUseCaseProvider.overrideWithValue(loadUseCase),
       updateRankingFilterUseCaseProvider
           .overrideWithValue(FakeUpdateRankingFilterUseCase()),
-      espJpnWordStatusViewModelProvider(1).overrideWith(
+      dictionaryStatusButtonsViewModelProvider(_statusWord).overrideWith(
         (ref) => _statusViewModel,
       ),
     ]);
@@ -92,7 +92,7 @@ void main() {
       loadRankingsUseCaseProvider.overrideWithValue(loadUseCase),
       updateRankingFilterUseCaseProvider
           .overrideWithValue(FakeUpdateRankingFilterUseCase()),
-      espJpnWordStatusViewModelProvider(1).overrideWith(
+      dictionaryStatusButtonsViewModelProvider(_statusWord).overrideWith(
         (ref) => _statusViewModel,
       ),
     ]);
@@ -128,7 +128,7 @@ void main() {
       loadRankingsUseCaseProvider.overrideWithValue(loadUseCase),
       updateRankingFilterUseCaseProvider
           .overrideWithValue(FakeUpdateRankingFilterUseCase()),
-      espJpnWordStatusViewModelProvider(1).overrideWith(
+      dictionaryStatusButtonsViewModelProvider(_statusWord).overrideWith(
         (ref) => _statusViewModel,
       ),
     ]);
@@ -254,13 +254,37 @@ Future<void> _seedRankingRowsWithInvalidEntryAfter188(
   ''');
 }
 
-final _statusViewModel = EspJpnWordStatusViewModel(
-  WordStatusState(status: QueryState.empty()),
-  EspJpnWordStatusCommand(1, _NoopUpdateStatusUseCase()),
+const _statusWord = CatalogWordRef(
+  catalogId: CatalogId.espJpnMain,
+  wordId: 1,
 );
 
-class _NoopUpdateStatusUseCase implements IUpdateStatusUseCase {
+const _statusViewModel = _NoopWordStatusViewModel();
+
+class _NoopWordStatusViewModel implements WordStatusViewModel {
+  const _NoopWordStatusViewModel();
+
   @override
-  Future<Result<void>> execute(UpdateStatusInputData input) async =>
-      const Result.success(null);
+  bool get hasNote => false;
+
+  @override
+  bool get isBookmarked => false;
+
+  @override
+  bool get isLearned => false;
+
+  @override
+  bool get isLoading => false;
+
+  @override
+  String? get readError => null;
+
+  @override
+  Future<void> toggleBookmark() async {}
+
+  @override
+  Future<void> toggleHasNote() async {}
+
+  @override
+  Future<void> toggleLearned() async {}
 }
