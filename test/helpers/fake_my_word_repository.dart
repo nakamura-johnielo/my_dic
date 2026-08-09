@@ -43,13 +43,11 @@ class FakeMyWordRepository implements IMyWordRepository {
             wordId: '1',
             word: 'hola',
             contents: 'こんにちは',
-            isBookmarked: true,
           ),
           MyWord(
             wordId: '2',
             word: 'gracias',
             contents: 'ありがとう',
-            isLearned: true,
           ),
         ];
 

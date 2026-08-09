@@ -9,8 +9,6 @@ import 'package:my_dic/core/presentation/components/auto_focus_text_field.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
 import 'package:my_dic/core/presentation/error/app_error_message.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
-import 'package:my_dic/features/catalog/port/catalog_id.dart';
-import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/features/search/di/view_model_di.dart';
 import 'package:my_dic/features/search/presentation/components/card/card_view.dart';
 import 'package:my_dic/features/search/application/query/conjugation_search_item.dart';
@@ -112,17 +110,9 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                     rankingON: false,
                     word: word.headword,
                     meaning: word.meaningText ?? '',
-                    isBookmarked: false,
-                    isLearned: false,
-                    statusWord: CatalogWordRef(
-                      catalogId: CatalogId.jpnEspMain,
-                      wordId: word.wordId,
-                    ),
-                    onTap: () => _toWordDetail(WordDetailRoute(
-                            word: CatalogWordRef(
-                          catalogId: CatalogId.jpnEspMain,
-                          wordId: word.wordId,
-                        )))));
+                    statusWord: word.word,
+                    onTap: () =>
+                        _toWordDetail(WordDetailRoute(word: word.word))));
           },
           onLoadMore: _load);
     }
@@ -147,10 +137,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
   Widget _espCard(String query, SearchResultItem item) => Padding(
       padding: const EdgeInsets.only(bottom: 11),
       child: CardView(
-          statusWord: CatalogWordRef(
-            catalogId: CatalogId.espJpnMain,
-            wordId: item.wordId,
-          ),
+          statusWord: item.word,
           goToQuiz: item.hasConjugation
               ? () => _toQuiz(
                   QuizGameRoute(wordId: item.wordId, word: item.headword))
@@ -162,21 +149,12 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
           word: item.headword,
           starCount: item.starCount,
           meaning: item.meaningText ?? '',
-          isBookmarked: false,
-          isLearned: false,
-          onTap: () => _toWordDetail(WordDetailRoute(
-                  word: CatalogWordRef(
-                catalogId: CatalogId.espJpnMain,
-                wordId: item.wordId,
-              )))));
+          onTap: () => _toWordDetail(WordDetailRoute(word: item.word))));
 
   Widget _conjugationCard(String query, ConjugationSearchItem item) => Padding(
         padding: const EdgeInsets.only(bottom: 11),
         child: CardView(
-          statusWord: CatalogWordRef(
-            catalogId: CatalogId.espJpnMain,
-            wordId: item.wordId,
-          ),
+          statusWord: item.word,
           goToQuiz: () =>
               _toQuiz(QuizGameRoute(wordId: item.wordId, word: item.headword)),
           query: query,
@@ -187,13 +165,8 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
           conjugacions: item.matches,
           starCount: item.starCount,
           meaning: item.meaningText ?? '',
-          isBookmarked: false,
-          isLearned: false,
           onTap: () => _toWordDetail(WordDetailRoute(
-            word: CatalogWordRef(
-              catalogId: CatalogId.espJpnMain,
-              wordId: item.wordId,
-            ),
+            word: item.word,
           )),
         ),
       );

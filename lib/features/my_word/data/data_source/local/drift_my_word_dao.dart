@@ -5,6 +5,14 @@ import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart
 import 'package:my_dic/core/shared/consts/account_scope.dart';
 part '../../../../../__generated/features/my_word/data/data_source/local/drift_my_word_dao.g.dart';
 
+/// Raw, read-only result of the account-scoped MyWord/status projection.
+class MyWordItemRow {
+  const MyWordItemRow({required this.word, required this.status});
+
+  final MyWordTableData word;
+  final MyWordStatusTableData? status;
+}
+
 @DriftAccessor(tables: [MyWords, MyWordStatus])
 class MyWordDao extends DatabaseAccessor<DatabaseProvider>
     with _$MyWordDaoMixin {
@@ -243,6 +251,33 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
               tbl.deletedAt.isNull()))
         .watchSingleOrNull()
         .distinct();
+  }
+
+  /// Watches one non-deleted MyWord together with only the status belonging
+  /// to the same account. A missing (or tombstoned) status is deliberately
+  /// returned as null for the read adapter to normalize without a write.
+  Stream<MyWordItemRow?> watchMyWordItemRow(String id, String accountId) {
+    final query = select(myWords).join([
+      leftOuterJoin(
+        myWordStatus,
+        myWordStatus.myWordId.equalsExp(myWords.myWordId) &
+            myWordStatus.accountId.equalsExp(myWords.accountId),
+      ),
+    ])
+      ..where(
+        myWords.myWordId.equals(id) &
+            myWords.accountId.equals(accountId) &
+            myWords.deletedAt.isNull(),
+      );
+
+    return query.watch().map((rows) {
+      if (rows.isEmpty) return null;
+      final row = rows.single;
+      return MyWordItemRow(
+        word: row.readTable(myWords),
+        status: row.readTableOrNull(myWordStatus),
+      );
+    });
   }
 
   /// Persists the remote transaction acknowledgement only when no later

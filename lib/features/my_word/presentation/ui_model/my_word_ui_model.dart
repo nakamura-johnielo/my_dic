@@ -1,6 +1,36 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
+import 'package:my_dic/features/my_word/application/query/my_word_item_projection.dart';
 import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
+
+/// Read-only presentation data for a card or modal.
+class MyWordItemUiModel {
+  const MyWordItemUiModel({
+    required this.wordId,
+    required this.word,
+    required this.contents,
+    required this.editAt,
+    required this.isLearned,
+    required this.isBookmarked,
+  });
+
+  factory MyWordItemUiModel.fromProjection(MyWordItemProjection projection) =>
+      MyWordItemUiModel(
+        wordId: projection.word.wordId,
+        word: projection.word.word,
+        contents: projection.word.contents,
+        editAt: projection.word.editAt,
+        isLearned: projection.status.isLearned,
+        isBookmarked: projection.status.isBookmarked,
+      );
+
+  final String wordId;
+  final String word;
+  final String contents;
+  final DateTime editAt;
+  final bool isLearned;
+  final bool isBookmarked;
+}
 
 class MyWordUiState {
   final String wordId;

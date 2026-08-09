@@ -112,6 +112,25 @@ void main() {
       expect(asGuest.isSuccess, isTrue);
       expect(asGuest.dataOrNull!.word, 'perro');
     });
+
+    test('maps persisted write fields without status data', () async {
+      final registered = await repository.registerWord(
+        RegisterMyWordRepositoryInputData(
+          'casa',
+          'house',
+          DateTime.utc(2026, 8, 6),
+          'account-a',
+        ),
+      );
+
+      final word = await repository.getById(
+        registered.dataOrNull!,
+        accountId: 'account-a',
+      );
+
+      expect(word.dataOrNull!.word, 'casa');
+      expect(word.dataOrNull!.contents, 'house');
+    });
   });
 
   group('MyWordStatus local row account scoping', () {

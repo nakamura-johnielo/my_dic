@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/features/catalog/internal/domain/conjugation/esp_conjugations.dart';
 import 'package:my_dic/features/catalog/internal/domain/conjugation/participles.dart';
 import 'package:my_dic/features/catalog/internal/domain/conjugation/tense_conjugation.dart';
@@ -9,6 +10,7 @@ import 'package:my_dic/features/catalog/internal/domain/example/esp_jpn_example.
 import 'package:my_dic/features/catalog/internal/domain/example/jpn_esp_example.dart';
 import 'package:my_dic/features/catalog/internal/domain/idiom/idiom.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/mapper/catalog_entity_mapper.dart';
+import 'package:my_dic/features/catalog/internal/infrastructure/drift/mapper/catalog_drift_mapper.dart';
 import 'package:my_dic/features/catalog/port/catalog_id.dart';
 import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_conjugation.dart';
@@ -55,6 +57,16 @@ void main() {
     expect(empty.examples, isEmpty);
     expect(empty.idioms, isEmpty);
     expect(empty.supplements, isEmpty);
+  });
+
+  test('maps a Jpn-Esp catalog row to its dictionary identity and headword',
+      () {
+    final word = CatalogDriftMapper.jpnEspWord(
+      const JpnEspWordTableData(wordId: 19, word: '家'),
+    );
+
+    expect(word.id, 19);
+    expect(word.word, '家');
   });
 
   test('maps every JpnEsp field and normalizes null examples', () {

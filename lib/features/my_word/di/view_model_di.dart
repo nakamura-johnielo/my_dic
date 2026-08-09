@@ -1,16 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/app/session/session_providers.dart';
+import 'package:my_dic/core/shared/consts/account_scope.dart';
+import 'package:my_dic/features/my_word/application/query/my_word_item_projection.dart';
+import 'package:my_dic/features/my_word/di/data_di.dart';
 import 'package:my_dic/features/my_word/di/usecase_di.dart';
-import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
-import 'package:my_dic/features/my_word/domain/entity/my_word_status.dart';
 import 'package:my_dic/features/my_word/presentation/ui_model/my_word_event.dart';
 import 'package:my_dic/features/my_word/presentation/ui_model/my_word_status_command_event.dart';
 import 'package:my_dic/features/my_word/presentation/ui_model/my_word_ui_model.dart';
 import 'package:my_dic/features/my_word/presentation/view_model/my_word_command.dart';
 import 'package:my_dic/features/my_word/presentation/view_model/my_word_status_command.dart';
 import 'package:my_dic/features/my_word/presentation/view_model/my_word_view_model.dart';
-import 'package:my_dic/features/my_word/presentation/ui_model/my_word_status_state.dart';
-import 'package:my_dic/features/my_word/presentation/view_model/my_word_item_view_model.dart';
-import 'package:my_dic/features/my_word/presentation/view_model/my_word_status_view_model.dart';
 
 final myWordFragmentViewModelProvider =
     StateNotifierProvider<MyWordFragmentViewModel, MyWordFragmentState>((ref) {
@@ -20,36 +19,27 @@ final myWordFragmentViewModelProvider =
   );
 });
 
-// stream
-final _myWordStatusStreamProvider =
-    StreamProvider.family.autoDispose<MyWordStatus, String>(
+/// Read-only combined word/status projection for a card. Commands remain on
+/// their existing providers so the two write aggregates stay independent.
+final myWordItemProjectionStreamProvider =
+    StreamProvider.family.autoDispose<MyWordItemProjection?, String>(
   (ref, wordId) {
-    final watchUsecase = ref.watch(watchMyWordStatusUseCaseProvider);
-    return watchUsecase.execute(wordId);
+    final accountId =
+        ref.watch(currentSessionProvider).accountIdOrNull ?? guestAccountScope;
+    return ref
+        .watch(myWordItemQueryRepositoryProvider)
+        .watchItem(wordId, accountId: accountId);
   },
 );
 
-final _myWordStreamProviderNEW =
-    StreamProvider.family.autoDispose<MyWord, String>(
-  (ref, wordId) {
-    final watchUsecase = ref.watch(watchMyWordUseCaseProvider);
-    return watchUsecase.execute(wordId);
-  },
-);
-
-// QUERY uistate
-final myWordStatusUiStateProvider = Provider.autoDispose
-    .family<MyWordStatusState, String>((ref, String wordId) {
-  final statusAsync = ref.watch(_myWordStatusStreamProvider(wordId));
-
-  return MyWordStatusState.fromAsync(statusAsync);
-});
-
-final myWordUiStateProvider =
-    Provider.autoDispose.family<MyWordUiState, String>((ref, String wordId) {
-  final statusAsync = ref.watch(_myWordStreamProviderNEW(wordId));
-
-  return MyWordUiState.fromAsync(statusAsync);
+/// Presentation-only data derived from the one card read projection.
+final myWordItemUiModelProvider = Provider.autoDispose
+    .family<AsyncValue<MyWordItemUiModel?>, String>((ref, wordId) {
+  return ref.watch(myWordItemProjectionStreamProvider(wordId)).whenData(
+        (projection) => projection == null
+            ? null
+            : MyWordItemUiModel.fromProjection(projection),
+      );
 });
 
 // command
@@ -76,21 +66,4 @@ final myWordCommandProvider = StateNotifierProvider.family
 final myWordRegistrationCommandProvider = StateNotifierProvider.autoDispose<
     MyWordRegistrationCommand, MyWordCommandState>((ref) {
   return MyWordRegistrationCommand(ref.read(registerMyWordUseCaseProvider));
-});
-
-// ViewModel (query + command wrapper)
-final myWordStatusViewModelProvider =
-    Provider.autoDispose.family<MyWordStatusViewModel, String>((ref, wordId) {
-  final uiState = ref.watch(myWordStatusUiStateProvider(wordId));
-  final command = ref.read(myWordStatusCommandProvider(wordId).notifier);
-
-  return MyWordStatusViewModel(uiState, command);
-});
-
-final myWordItemViewModelProvider =
-    Provider.autoDispose.family<MyWordItemViewModel, String>((ref, wordId) {
-  final uiState = ref.watch(myWordUiStateProvider(wordId));
-  final command = ref.read(myWordCommandProvider(wordId).notifier);
-
-  return MyWordItemViewModel(uiState, command);
 });

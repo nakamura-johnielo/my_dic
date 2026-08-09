@@ -54,6 +54,18 @@ void main() {
       );
     });
 
+    test('rejects MyWord because Ranking has no MyWord read projection', () {
+      expect(
+        () => RankingQuery(
+          page: 0,
+          size: 1,
+          accountId: 'account-1',
+          includedFeatureTags: {FeatureTag.myWord},
+        ),
+        throwsArgumentError,
+      );
+    });
+
     test('RankingPage defensively copies items', () {
       final source = [_item];
       final page = RankingPage(items: source, hasNext: true);
@@ -84,6 +96,28 @@ void main() {
       expect(imports, isNot(contains("package:flutter/")));
       expect(imports, isNot(contains('package:flutter_riverpod/')));
       expect(imports, isNot(contains('package:drift/')));
+    });
+
+    test('ranking keeps status as a live UI projection, not a page snapshot',
+        () {
+      final rankingFiles = Directory('lib/features/ranking')
+          .listSync(recursive: true)
+          .whereType<File>()
+          .where((file) => file.path.endsWith('.dart'))
+          .map((file) => file.readAsStringSync())
+          .join('\n');
+      final listItem = File(
+        'lib/features/ranking/application/query/ranking_list_item.dart',
+      ).readAsStringSync();
+
+      expect(listItem, isNot(contains('isLearned')));
+      expect(listItem, isNot(contains('isBookmarked')));
+      expect(listItem, isNot(contains('hasNote')));
+      expect(rankingFiles, isNot(contains('features/word_status/internal')));
+      expect(rankingFiles, isNot(contains('WordStatusDao')));
+      expect(rankingFiles, isNot(contains('WordStatusLocalStore')));
+      expect(rankingFiles, isNot(contains('WordStatusDatasetAdapter')));
+      expect(rankingFiles, isNot(contains('SyncDataset')));
     });
   });
 }

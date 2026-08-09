@@ -24,6 +24,14 @@ class RankingQuery {
     if (accountId.isEmpty) {
       throw ArgumentError.value(accountId, 'accountId', 'must not be empty');
     }
+    if (includedFeatureTags.contains(FeatureTag.myWord) ||
+        excludedFeatureTags.contains(FeatureTag.myWord)) {
+      throw ArgumentError.value(
+        FeatureTag.myWord,
+        'featureTags',
+        'myWord is not a supported ranking filter.',
+      );
+    }
   }
 
   /// Zero-based page index.

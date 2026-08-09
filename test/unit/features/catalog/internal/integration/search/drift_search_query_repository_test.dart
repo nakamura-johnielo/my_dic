@@ -66,6 +66,8 @@ void main() {
 
       final page = result.dataOrNull!;
       expect(page.items.map((item) => item.wordId), [2, 1]);
+      expect(page.items.map((item) => item.direction),
+          [SearchDirection.espJpn, SearchDirection.espJpn]);
       expect(page.items.first.hasConjugation, isTrue);
       expect(page.items.first.meaningText, 'to speak');
       expect(page.items.first.rankingNo, 20);
@@ -133,6 +135,8 @@ void main() {
           .dataOrNull!;
 
       expect(page.items.map((item) => item.wordId), [4, 8]);
+      expect(page.items.map((item) => item.direction),
+          [SearchDirection.jpnEsp, SearchDirection.jpnEsp]);
       expect(
           page.items.map((item) => item.meaningText), ['hablar', 'historia']);
       expect(page.items.every((item) => item.rankingNo == null), isTrue);

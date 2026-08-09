@@ -20,6 +20,8 @@ import 'package:my_dic/features/my_word/data/repository_impl/my_word_repository.
 import 'package:my_dic/features/my_word/data/repository_impl/my_word_status_repository.dart';
 import 'package:my_dic/features/my_word/data/sync/my_word_sync_handler.dart';
 import 'package:my_dic/features/my_word/data/sync/my_word_status_sync_handler.dart';
+import 'package:my_dic/features/my_word/application/query/i_my_word_item_query_repository.dart';
+import 'package:my_dic/features/my_word/data/query/drift_my_word_item_query_repository.dart';
 
 // ============================================================================
 // Database & DAO Providers
@@ -30,6 +32,11 @@ final myWordStatusDaoProvider = Provider<MyWordStatusDao>((ref) {
 
 final myWordDaoProvider = Provider<MyWordDao>((ref) {
   return MyWordDao(ref.read(databaseProvider));
+});
+
+final myWordItemQueryRepositoryProvider =
+    Provider<IMyWordItemQueryRepository>((ref) {
+  return DriftMyWordItemQueryRepository(ref.read(myWordDaoProvider));
 });
 
 final myWordLocalDataSourceProvider = Provider<IMyWordLocalDataSource>((ref) {

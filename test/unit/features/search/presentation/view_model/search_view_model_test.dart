@@ -6,6 +6,8 @@ import 'package:my_dic/features/search/application/query/search_direction.dart';
 import 'package:my_dic/features/search/application/query/search_query.dart';
 import 'package:my_dic/features/search/application/query/search_result_item.dart';
 import 'package:my_dic/features/search/application/query/search_result_page.dart';
+import 'package:my_dic/features/catalog/port/catalog_id.dart';
+import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/features/search/application/usecase/search_word/i_search_word_use_case.dart';
 import 'package:my_dic/features/search/domain/usecase/judge_search_word/i_judge_search_word_use_case.dart';
 import 'package:my_dic/features/search/domain/usecase/judge_search_word/judge_search_word_input_data.dart';
@@ -77,6 +79,10 @@ SearchResultPage _page(String word, {required bool hasNext}) =>
       items: [
         SearchResultItem(
           wordId: 1,
+          word: const CatalogWordRef(
+            catalogId: CatalogId.espJpnMain,
+            wordId: 1,
+          ),
           headword: word,
           direction: SearchDirection.espJpn,
           hasConjugation: false,

@@ -225,8 +225,6 @@ class MyWordRepository implements IMyWordRepository {
         wordId: data.myWordId,
         word: data.word,
         contents: data.contents ?? '',
-        isLearned: false,
-        isBookmarked: false,
         editAt: DateTime.parse(data.editAt).toUtc(),
       );
 }

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/features/my_word/di/view_model_di.dart' as my_word_di;
-import 'package:my_dic/features/my_word/presentation/view_model/my_word_status_view_model.dart';
+import 'package:my_dic/features/my_word/presentation/ui_model/my_word_ui_model.dart';
+import 'package:my_dic/features/my_word/presentation/view_model/my_word_status_command.dart';
 import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/features/word_status/presentation/word_status_providers.dart';
 import 'package:my_dic/features/word_status/presentation/status_button.dart'
@@ -35,38 +36,41 @@ class MyWordStatusButtons extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return status_ui.MyWordStatusButtons(
       viewModel: _MyWordStatusViewModel(
-        ref.watch(my_word_di.myWordStatusViewModelProvider(wordId)),
+        item: ref.watch(my_word_di.myWordItemUiModelProvider(wordId)),
+        command:
+            ref.read(my_word_di.myWordStatusCommandProvider(wordId).notifier),
       ),
     );
   }
 }
 
 class _MyWordStatusViewModel implements status_ui.WordStatusViewModel {
-  const _MyWordStatusViewModel(this._delegate);
+  const _MyWordStatusViewModel({required this.item, required this.command});
 
-  final MyWordStatusViewModel _delegate;
+  final AsyncValue<MyWordItemUiModel?> item;
+  final MyWordStatusCommand command;
 
   @override
   bool get hasNote => false;
 
   @override
-  bool get isLoading => _delegate.isLoading;
+  bool get isLoading => item.isLoading;
 
   @override
-  String? get readError => _delegate.readError;
+  String? get readError => item.whenOrNull(error: (error, _) => '$error');
 
   @override
-  bool get isBookmarked => _delegate.isBookmarked;
+  bool get isBookmarked => item.valueOrNull?.isBookmarked ?? false;
 
   @override
-  bool get isLearned => _delegate.isLearned;
+  bool get isLearned => item.valueOrNull?.isLearned ?? false;
 
   @override
-  Future<void> toggleBookmark() async => _delegate.toggleBookmark();
+  Future<void> toggleBookmark() => command.toggleBookmark(isBookmarked);
 
   @override
   Future<void> toggleHasNote() async {}
 
   @override
-  Future<void> toggleLearned() async => _delegate.toggleLearned();
+  Future<void> toggleLearned() => command.toggleLearned(isLearned);
 }

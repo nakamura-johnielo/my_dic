@@ -140,38 +140,37 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
                 itemBuilder: (context, index) {
                   final id = data.ids[index];
 
-                  final myWordVm = ref.watch(myWordItemViewModelProvider(id));
-                  final statusVm = ref.watch(myWordStatusViewModelProvider(id));
+                  final itemAsync = ref.watch(myWordItemUiModelProvider(id));
 
-                  // 最新のステータスで MyWord を更新
-
-                  final clickListeners = {
-                    WordCardViewButton.bookmark: () {
-                      statusVm.toggleBookmark();
+                  return itemAsync.when(
+                    loading: () => const SizedBox(height: 1),
+                    error: (_, __) => const SizedBox(height: 1),
+                    data: (item) {
+                      if (item == null) return const SizedBox(height: 1);
+                      final clickListeners = {
+                        WordCardViewButton.bookmark: () => ref
+                            .read(myWordStatusCommandProvider(id).notifier)
+                            .toggleBookmark(item.isBookmarked),
+                        WordCardViewButton.learned: () => ref
+                            .read(myWordStatusCommandProvider(id).notifier)
+                            .toggleLearned(item.isLearned),
+                      };
+                      return Padding(
+                        key: ValueKey('MyWordCard-${item.wordId}'),
+                        padding: const EdgeInsets.only(bottom: 7.0),
+                        child: MyWordCard(
+                          onTap: () => openDetailModal(
+                            context,
+                            clickListeners,
+                            index,
+                            item,
+                            onChanged: _reloadMyWords,
+                          ),
+                          item: item,
+                          clickListeners: clickListeners,
+                        ),
+                      );
                     },
-                    WordCardViewButton.learned: () {
-                      statusVm.toggleLearned();
-                    },
-                  };
-
-                  return Padding(
-                    key: ValueKey(
-                        "MyWordCard-${myWordVm.wordId}"), // パフォーマンス最適化のためKeyを付与
-                    padding: const EdgeInsets.only(bottom: 7.0),
-                    child: MyWordCard(
-                      onTap: () {
-                        openDetailModal(
-                          context,
-                          clickListeners,
-                          index,
-                          myWordVm.word,
-                          onChanged: _reloadMyWords,
-                        );
-                      },
-                      myWord: myWordVm.word,
-                      wordStatus: statusVm.state,
-                      clickListeners: clickListeners,
-                    ),
                   );
                 },
               )),
@@ -188,7 +187,7 @@ void openDetailModal(
   BuildContext context,
   Map<WordCardViewButton, void Function()> clickListeners,
   int index,
-  MyWordUiState myword, {
+  MyWordItemUiModel item, {
   VoidCallback? onChanged,
 }) {
   showDialog<void>(
@@ -207,7 +206,7 @@ void openDetailModal(
             child: Material(
               type: MaterialType.transparency,
               child: MyWordCardModal(
-                myWord: myword,
+                item: item,
                 clickListeners: clickListeners,
                 index: index,
                 onChanged: onChanged,

@@ -13,8 +13,6 @@ class CardView extends StatefulWidget {
   final String word;
   final String meaning;
   final int? ranking;
-  final bool isBookmarked;
-  final bool isLearned;
   final double quizBtnMargin;
   final Color? bgColor;
 
@@ -27,7 +25,7 @@ class CardView extends StatefulWidget {
   final String query;
   final Map<SearchConjugationMatchKey, String>? conjugacions;
 
-  final CatalogWordRef? statusWord;
+  final CatalogWordRef statusWord;
 
   const CardView({
     super.key,
@@ -36,8 +34,6 @@ class CardView extends StatefulWidget {
     required this.word,
     required this.meaning,
     this.ranking,
-    required this.isBookmarked,
-    required this.isLearned,
     this.quizBtnMargin = 5.0,
     this.bgColor,
     this.mainRadius = 16,
@@ -86,12 +82,8 @@ class _CardViewState extends State<CardView> {
     });
   }
 
-  Widget _buildStatusButtons() {
-    final word = widget.statusWord;
-    return word == null
-        ? const SizedBox.shrink()
-        : DictionaryStatusButtons(word: word);
-  }
+  Widget _buildStatusButtons() =>
+      DictionaryStatusButtons(word: widget.statusWord);
 
   @override
   Widget build(BuildContext context) {

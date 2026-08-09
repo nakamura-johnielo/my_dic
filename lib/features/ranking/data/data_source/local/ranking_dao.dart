@@ -10,6 +10,12 @@ import 'package:my_dic/features/ranking/data/query/ranking_query_row.dart';
 
 part '../../../../../__generated/features/ranking/data/data_source/local/ranking_dao.g.dart';
 
+/// Ranking-owned, read-only cross-feature projection adapter.
+///
+/// Ranking needs status predicates before `LIMIT` and `OFFSET`, so this
+/// adapter reads the shared catalog and WordStatus table declarations directly
+/// with SQL `EXISTS` predicates. It deliberately exposes no status write API
+/// and must not depend on WordStatus internal, DAO, local-store, or sync types.
 @DriftAccessor(
   tables: [Rankings, PartOfSpeechLists, EspJpnWordStatus, EspConjugations],
 )
@@ -54,10 +60,10 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
     }
 
     final includedStatusTags = query.includedFeatureTags
-        .where((tag) => tag != FeatureTag.multiLemma)
+        .where((tag) => tag.isRankingStatusTag)
         .toList(growable: false);
     final excludedStatusTags = query.excludedFeatureTags
-        .where((tag) => tag != FeatureTag.multiLemma)
+        .where((tag) => tag.isRankingStatusTag)
         .toList(growable: false);
     if (includedStatusTags.isNotEmpty) {
       predicates.add(_statusExistsPredicate(
@@ -129,7 +135,9 @@ String _statusExistsPredicate({
       FeatureTag.isLearned => 'is_learned',
       FeatureTag.isBookmarked => 'is_bookmarked',
       FeatureTag.hasNote => 'has_note',
-      FeatureTag.myWord => 'my_word',
+      // `myWord` is intentionally not a ranking status tag. It has no
+      // dictionary WordStatus column or defined ranking read projection.
+      FeatureTag.myWord => throw ArgumentError.value(tag),
       FeatureTag.multiLemma => throw ArgumentError.value(tag),
     };
     conditions.add('s.$column = ?');
@@ -140,4 +148,14 @@ String _statusExistsPredicate({
     WHERE s.word_id = r.word_id AND s.account_id = ?
       AND (${conditions.join(' OR ')})
   )''';
+}
+
+extension on FeatureTag {
+  bool get isRankingStatusTag => switch (this) {
+        FeatureTag.isLearned ||
+        FeatureTag.isBookmarked ||
+        FeatureTag.hasNote =>
+          true,
+        FeatureTag.multiLemma || FeatureTag.myWord => false,
+      };
 }

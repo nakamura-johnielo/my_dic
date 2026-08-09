@@ -43,6 +43,7 @@ class DriftSearchQueryRepository implements ISearchQueryRepository {
           .map(
             (item) => SearchResultItem(
               wordId: item.wordId,
+              word: item.word,
               headword: item.headword,
               direction: item.direction,
               hasConjugation: item.hasConjugation,
@@ -117,6 +118,7 @@ class DriftSearchQueryRepository implements ISearchQueryRepository {
         .map(
           (item) => ConjugationSearchItem(
             wordId: item.wordId,
+            word: item.word,
             headword: item.headword,
             matches: item.matches,
             meaningText: enrichment.meanings[item.wordId],

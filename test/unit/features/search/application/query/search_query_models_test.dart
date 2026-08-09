@@ -5,10 +5,14 @@ import 'package:my_dic/core/application/query/query_issue.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/features/search/application/query/search_query_models.dart';
 import 'package:my_dic/features/search/application/query/search_conjugation_match_key.dart';
+import 'package:my_dic/features/search/application/query/search_catalog_word_ref.dart';
+import 'package:my_dic/features/catalog/port/catalog_id.dart';
+import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 
 void main() {
   const item = SearchResultItem(
     wordId: 1,
+    word: CatalogWordRef(catalogId: CatalogId.espJpnMain, wordId: 1),
     headword: 'hablar',
     direction: SearchDirection.espJpn,
     hasConjugation: true,
@@ -60,6 +64,10 @@ void main() {
       final suggestions = <ConjugationSearchItem>[
         ConjugationSearchItem(
           wordId: 1,
+          word: const CatalogWordRef(
+            catalogId: CatalogId.espJpnMain,
+            wordId: 1,
+          ),
           headword: 'hablar',
           matches: const {
             SearchConjugationMatchKey.indicativePresentYo: 'hablo',
@@ -98,6 +106,10 @@ void main() {
       };
       final item = ConjugationSearchItem(
         wordId: 1,
+        word: const CatalogWordRef(
+          catalogId: CatalogId.espJpnMain,
+          wordId: 1,
+        ),
         headword: 'hablar',
         matches: matches,
         meaningText: '話す',
@@ -136,6 +148,20 @@ void main() {
           reason: '${source.path} must remain a plain Dart application model.',
         );
       }
+    });
+
+    test('the same numeric ID maps to distinct catalog identities by direction',
+        () {
+      const wordId = 42;
+
+      expect(
+          SearchDirection.espJpn.wordRef(wordId),
+          const CatalogWordRef(
+              catalogId: CatalogId.espJpnMain, wordId: wordId));
+      expect(
+          SearchDirection.jpnEsp.wordRef(wordId),
+          const CatalogWordRef(
+              catalogId: CatalogId.jpnEspMain, wordId: wordId));
     });
   });
 }

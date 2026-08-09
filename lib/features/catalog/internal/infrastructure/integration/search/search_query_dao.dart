@@ -2,10 +2,12 @@ import 'package:my_dic/features/catalog/internal/infrastructure/drift/datasource
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/datasource/esp_jpn/esp_jpn_word_data_source.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/datasource/jpn_esp/jpn_esp_word_data_source.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/mapper/catalog_drift_mapper.dart';
+import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/features/catalog/internal/domain/conjugation/search_result_conjugations.dart';
 import 'package:my_dic/features/search/application/query/conjugation_search_item.dart';
 import 'package:my_dic/features/search/application/query/search_conjugation_match_key.dart';
 import 'package:my_dic/features/search/application/query/search_direction.dart';
+import 'package:my_dic/features/search/application/query/search_catalog_word_ref.dart';
 import 'package:my_dic/features/search/application/query/search_query.dart';
 
 /// Catalog-owned adapter for the primary Search projection queries.
@@ -32,6 +34,7 @@ class SearchQueryDao {
             .map(
               (word) => SearchPrimaryRow(
                 wordId: word.wordId,
+                word: query.direction.wordRef(word.wordId),
                 headword: word.word,
                 direction: SearchDirection.espJpn,
                 hasConjugation: word.hasVerb(),
@@ -49,6 +52,7 @@ class SearchQueryDao {
             .map(
               (word) => SearchPrimaryRow(
                 wordId: word.id,
+                word: query.direction.wordRef(word.id),
                 headword: word.word,
                 direction: SearchDirection.jpnEsp,
                 hasConjugation: false,
@@ -76,6 +80,7 @@ class SearchQueryDao {
         .map(
           (item) => ConjugationSearchItem(
             wordId: item.wordId,
+            word: SearchDirection.espJpn.wordRef(item.wordId),
             headword: item.word,
             matches: {
               for (final match in item.matches.entries)
@@ -105,12 +110,14 @@ SearchConjugationMatchKey _toSearchMatchKey(CatalogConjugationMatch match) {
 class SearchPrimaryRow {
   const SearchPrimaryRow({
     required this.wordId,
+    required this.word,
     required this.headword,
     required this.direction,
     required this.hasConjugation,
   });
 
   final int wordId;
+  final CatalogWordRef word;
   final String headword;
   final SearchDirection direction;
   final bool hasConjugation;

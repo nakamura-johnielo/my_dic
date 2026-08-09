@@ -10,6 +10,15 @@ import 'package:my_dic/features/ranking/presentation/ui_model/ranking_part_of_sp
 class RankingFilterModal extends ConsumerWidget {
   const RankingFilterModal({super.key});
 
+  // MyWord has no dictionary WordStatus projection, so it is deliberately not
+  // a Ranking filter. Adding such a filter requires a separate product model.
+  static const _featureTags = [
+    FeatureTag.isLearned,
+    FeatureTag.hasNote,
+    FeatureTag.isBookmarked,
+    FeatureTag.multiLemma,
+  ];
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final viewModel = ref.watch(rankingViewModelProvider);
@@ -55,7 +64,7 @@ class RankingFilterModal extends ConsumerWidget {
                     FilterSection(
                       label: "タグ",
                       filters: viewModel.featureTagFilters,
-                      chipsEnum: FeatureTag.values,
+                      chipsEnum: _featureTags,
                       addFilter: rankingNotifier.addFilter,
                       deleteFilter: rankingNotifier.removeFilter,
                     ),
@@ -75,7 +84,7 @@ class RankingFilterModal extends ConsumerWidget {
                     FilterExclusionSection(
                       label: "タグ除外",
                       filters: viewModel.featureTagFilters,
-                      chipsEnum: FeatureTag.values,
+                      chipsEnum: _featureTags,
                       addFilter: rankingNotifier.addExcludeFilter,
                       deleteFilter: rankingNotifier.removeFilter,
                     ),

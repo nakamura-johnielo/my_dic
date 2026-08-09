@@ -6,7 +6,6 @@ import 'package:my_dic/core/presentation/state/ui_effect.dart';
 import 'package:my_dic/core/shared/enums/my_icons.dart';
 import 'package:my_dic/core/shared/enums/ui/word_card_view_click_listener.dart';
 import 'package:my_dic/features/my_word/di/view_model_di.dart';
-import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
 import 'package:my_dic/features/my_word/presentation/ui_model/my_word_ui_model.dart';
 import 'package:my_dic/features/my_word/presentation/ui_model/my_word_event.dart';
 
@@ -23,14 +22,14 @@ const Map<String, IconData> _learnedIcon = {
 class MyWordCardModal extends ConsumerStatefulWidget {
   const MyWordCardModal(
       {super.key,
-      required this.myWord,
+      required this.item,
       required this.index,
       this.onTap,
       this.onChanged,
       this.margin = const EdgeInsets.symmetric(vertical: 1, horizontal: 16),
       required this.clickListeners});
 
-  final MyWordUiState myWord;
+  final MyWordItemUiModel item;
   final int index;
   final VoidCallback? onTap;
   final VoidCallback? onChanged;
@@ -56,15 +55,15 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
   @override
   void initState() {
     super.initState();
-    myHeaderWord = widget.myWord.word;
-    myDescription = widget.myWord.contents;
+    myHeaderWord = widget.item.word;
+    myDescription = widget.item.contents;
 
     onTap = widget.onTap;
     margin = widget.margin;
     headwordTextFieldController = TextEditingController();
     descriptionTextFieldController = TextEditingController();
     _commandSubscription = ref.listenManual(
-      myWordCommandProvider(widget.myWord.wordId),
+      myWordCommandProvider(widget.item.wordId),
       (_, next) => _handleEffect(next),
     );
   }
@@ -90,7 +89,7 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
     final envelope = next.pendingEffect;
     if (envelope == null || !mounted) return;
     final command =
-        ref.read(myWordCommandProvider(widget.myWord.wordId).notifier);
+        ref.read(myWordCommandProvider(widget.item.wordId).notifier);
     if (envelope.effect is UiCloseDialogEffect &&
         next.command.operation == 'delete') {
       widget.onChanged?.call();
@@ -112,7 +111,7 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
 
   @override
   Widget build(BuildContext context) {
-    final commandState = ref.watch(myWordCommandProvider(widget.myWord.wordId));
+    final commandState = ref.watch(myWordCommandProvider(widget.item.wordId));
 
     Color descriptionColor = Theme.of(context).colorScheme.onSurfaceVariant;
     Color headwordColor = Theme.of(context).colorScheme.onSurface;
@@ -197,18 +196,17 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
 
                     // SizedBox(width: 15),
                     //TODO 一旦status更新ナシ
-                    /* ButtonSection(
+                    ButtonSection(
                         //
                         clickListeners: widget.clickListeners,
                         isFlags: {
-                          WordCardViewButton.learned: widget.myWord.isLearned,
-                          WordCardViewButton.bookmark:
-                              widget.myWord.isBookmarked
+                          WordCardViewButton.learned: widget.item.isLearned,
+                          WordCardViewButton.bookmark: widget.item.isBookmarked
                         },
                         iconSizes: {
                           WordCardViewButton.learned: 22,
                           WordCardViewButton.bookmark: 24
-                        }), */
+                        }),
                   ]),
               SizedBox(
                 height: 30,
@@ -238,7 +236,7 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
                       onTap: commandState.command.isSubmitting
                           ? null
                           : () => ref
-                              .read(myWordCommandProvider(widget.myWord.wordId)
+                              .read(myWordCommandProvider(widget.item.wordId)
                                   .notifier)
                               .deleteWord(),
                     ),
@@ -254,7 +252,7 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
                                 ? null
                                 : () => ref
                                     .read(myWordCommandProvider(
-                                            widget.myWord.wordId)
+                                            widget.item.wordId)
                                         .notifier)
                                     .updateWord(
                                       headword:
@@ -298,112 +296,6 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
 }
 
 //スマホ用
-class MyWordCardModal4 extends StatelessWidget {
-  //
-  const MyWordCardModal4(
-      {super.key,
-      required this.myWord,
-      this.onTap,
-      this.margin = const EdgeInsets.symmetric(vertical: 1, horizontal: 16),
-      required this.clickListeners});
-
-  final MyWord myWord;
-  final VoidCallback? onTap;
-  final EdgeInsetsGeometry? margin;
-  final Map<WordCardViewButton, VoidCallback> clickListeners;
-
-  static const Color hinshiColor = Color.fromARGB(255, 40, 40, 40);
-  static const Color wordColor = Colors.black;
-  static const Color headwordColor = Colors.black;
-  static const Color meaningColor = Colors.black;
-
-  static const Map<String, IconData> bookmarkIcon = {
-    "true": Icons.bookmark_rounded,
-    "false": Icons.bookmark_border_rounded,
-    "added": Icons.bookmark_added_rounded
-  };
-  static const Map<String, IconData> learnedIcon = {
-    "true": Icons.check_circle_rounded,
-    "false": Icons.check_circle_outline_rounded
-  };
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Card(
-        margin: margin,
-        color: const Color.fromARGB(255, 234, 234, 234),
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 11),
-          child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Column(
-                    spacing: 0,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      //word.
-                      Text(
-                        myWord.word,
-                        style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: headwordColor),
-                        textAlign: TextAlign.left,
-                      ),
-
-                      //description
-                      Container(
-                        //width: 160,
-                        padding: const EdgeInsets.only(left: 4),
-                        child: Text(
-                          myWord.contents,
-                          style: TextStyle(fontSize: 15, color: wordColor),
-                          textAlign: TextAlign.left,
-                        ),
-                      ),
-
-                      //edit
-                      MyIconButton(
-                        iconSize: 24,
-                        defaultIcon: MyIcons.edit.icon,
-                        hoveredIcon: MyIcons.edit.icon,
-                        hoveredIconColor:
-                            const Color.fromARGB(255, 119, 119, 119),
-                        onTap: () {
-                          clickListeners[WordCardViewButton.learned]!();
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-
-                // SizedBox(width: 15),
-                ButtonSection(
-                    //
-                    clickListeners: clickListeners,
-                    isFlags: {
-                      WordCardViewButton.learned: myWord.isLearned,
-                      WordCardViewButton.bookmark: myWord.isBookmarked
-                    },
-                    iconSizes: {
-                      WordCardViewButton.learned: 22,
-                      WordCardViewButton.bookmark: 24
-                    }),
-              ]),
-        ),
-      ),
-    );
-  }
-}
-
 class ButtonSection extends StatelessWidget {
   const ButtonSection({
     super.key,

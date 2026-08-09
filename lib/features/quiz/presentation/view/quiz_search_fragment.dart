@@ -105,8 +105,6 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
                 starCount: candidate.starCount,
                 word: candidate.headword,
                 meaning: candidate.meaningText ?? '',
-                isBookmarked: false,
-                isLearned: false,
                 onTap: () => _tap(candidate)));
       },
       onLoadMore: _load);

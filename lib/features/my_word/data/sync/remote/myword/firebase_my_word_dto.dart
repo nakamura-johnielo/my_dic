@@ -81,8 +81,6 @@ class MyWordDTO {
       wordId: myWordId,
       word: word,
       contents: contents,
-      isLearned: false,
-      isBookmarked: false,
       editAt: updatedAt,
     );
   }

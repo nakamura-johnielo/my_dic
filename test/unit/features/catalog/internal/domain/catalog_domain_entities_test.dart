@@ -5,6 +5,7 @@ import 'package:my_dic/features/catalog/internal/domain/conjugation/tense_conjug
 import 'package:my_dic/features/catalog/internal/domain/dictionary_entry/esp_jpn_dictionary.dart';
 import 'package:my_dic/features/catalog/internal/domain/example/esp_jpn_example.dart';
 import 'package:my_dic/features/catalog/internal/domain/word/esp_jpn_word.dart';
+import 'package:my_dic/features/catalog/internal/domain/word/jpn_esp_word.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_conjugation.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
 
@@ -18,6 +19,14 @@ void main() {
 
     expect(word.hasVerb(), isTrue);
     expect(word.copyWith(word: 'comer').partOfSpeech, same(word.partOfSpeech));
+  });
+
+  test('Jpn-Esp word carries only Catalog identity and headword', () {
+    const word = JpnEspWord(id: 19, word: '家');
+
+    final updated = word.copyWith(id: 20);
+    expect(updated.id, 20);
+    expect(updated.word, '家');
   });
 
   test('dictionary copy preserves nullable collections and their ordering', () {

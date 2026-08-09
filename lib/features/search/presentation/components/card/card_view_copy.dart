@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:my_dic/features/search/application/query/search_conjugation_match_key.dart';
 import 'package:my_dic/features/search/presentation/ui_model/search_conjugation_labels.dart';
 import 'package:my_dic/app/presentation/word_status_buttons.dart';
-import 'package:my_dic/features/catalog/port/catalog_id.dart';
 import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/features/search/presentation/components/card/reverse_curve.dart';
 
@@ -14,8 +13,6 @@ class CardView extends StatelessWidget {
   final String word;
   final String meaning;
   final int? ranking;
-  final bool isBookmarked;
-  final bool isLearned;
   final double quizBtnMargin;
   final Color? bgColor;
 
@@ -27,6 +24,7 @@ class CardView extends StatelessWidget {
 
   final String query;
   final Map<SearchConjugationMatchKey, String>? conjugacions;
+  final CatalogWordRef statusWord;
 
   const CardView({
     super.key,
@@ -35,8 +33,6 @@ class CardView extends StatelessWidget {
     required this.word,
     required this.meaning,
     this.ranking,
-    required this.isBookmarked,
-    required this.isLearned,
     this.quizBtnMargin = 5.0,
     this.bgColor,
     this.mainRadius = 16,
@@ -47,6 +43,7 @@ class CardView extends StatelessWidget {
     required this.query,
     this.conjugacions,
     this.goToQuiz,
+    required this.statusWord,
   });
 
   final double ml = 16;
@@ -125,12 +122,7 @@ class CardView extends StatelessWidget {
                               alignment: Alignment.centerRight,
                               maxWidth: double.infinity,
                               maxHeight: double.infinity,
-                              child: DictionaryStatusButtons(
-                                word: CatalogWordRef(
-                                  catalogId: CatalogId.espJpnMain,
-                                  wordId: wordId,
-                                ),
-                              )),
+                              child: DictionaryStatusButtons(word: statusWord)),
                         )
                       ],
                     ),

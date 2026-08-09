@@ -37,8 +37,12 @@ final class CatalogDriftMapper {
   static List<EspJpnWord> espJpnWords(List<EspJpnWordTableData> rows) =>
       rows.map(espJpnWord).toList();
 
-  static JpnEspWord jpnEspWord(JpnEspWordTableData row) =>
-      JpnEspWord(id: row.wordId, word: row.word);
+  static JpnEspWord jpnEspWord(JpnEspWordTableData row) {
+    return JpnEspWord(
+      id: row.wordId,
+      word: row.word,
+    );
+  }
 
   static List<JpnEspWord> jpnEspWords(List<JpnEspWordTableData> rows) =>
       rows.map(jpnEspWord).toList();

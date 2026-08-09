@@ -75,6 +75,69 @@ void main() {
       expect(result.dataOrNull?.items.map((item) => item.wordId), [1, 2, 3]);
     });
 
+    test('binds each supported status tag as an OR condition for its account',
+        () async {
+      await database.customStatement('''
+        INSERT INTO word_status
+          (word_id, is_bookmarked, has_note, edit_at, account_id, local_revision)
+        VALUES
+          (2, 1, 0, 'now', 'account-a', 0),
+          (3, 0, 1, 'now', 'account-a', 0)
+      ''');
+
+      final result = await repository.fetchPage(RankingQuery(
+        page: 0,
+        size: 10,
+        accountId: 'account-a',
+        includedFeatureTags: {
+          FeatureTag.isLearned,
+          FeatureTag.isBookmarked,
+          FeatureTag.hasNote,
+        },
+      ));
+
+      expect(result.dataOrNull?.items.map((item) => item.wordId), [1, 2, 3, 1]);
+    });
+
+    test('applies status filters before offset across multiple pages',
+        () async {
+      await database.customStatement('DELETE FROM rankings');
+      await database.customStatement('DELETE FROM word_status');
+      await database.customStatement('''
+        INSERT INTO rankings (ranking_id, ranking_no, word, word_origin, word_id)
+        VALUES
+          (1, 1, 'one', 'one', 1),
+          (2, 2, 'two', 'two', 2),
+          (3, 3, 'three', 'three', 3),
+          (4, 4, 'four', 'four', 4),
+          (5, 5, 'five', 'five', 5)
+      ''');
+      await database.customStatement('''
+        INSERT INTO word_status
+          (word_id, is_learned, edit_at, account_id, local_revision)
+        VALUES
+          (2, 1, 'now', 'account-a', 0),
+          (4, 1, 'now', 'account-a', 0),
+          (5, 1, 'now', 'account-a', 0)
+      ''');
+
+      Future<List<int>?> fetchPage(int page) async =>
+          (await repository.fetchPage(RankingQuery(
+            page: page,
+            size: 1,
+            accountId: 'account-a',
+            includedFeatureTags: {FeatureTag.isLearned},
+          )))
+              .dataOrNull
+              ?.items
+              .map((item) => item.rank)
+              .toList();
+
+      expect(await fetchPage(0), [2]);
+      expect(await fetchPage(1), [4]);
+      expect(await fetchPage(2), [5]);
+    });
+
     test(
         'paginates across invalid rows using valid rows for page size and hasNext',
         () async {
