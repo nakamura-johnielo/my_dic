@@ -7,12 +7,9 @@ import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/features/quiz/presentation/components/quiz_card.dart';
 import 'package:my_dic/features/word_status/domain/dictionary_direction.dart';
 import 'package:my_dic/app/presentation/word_status_buttons.dart';
-import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
-import 'package:my_dic/core/shared/enums/conjugacion/subject.dart';
 import 'package:my_dic/features/catalog/port/catalog_id.dart';
 import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
-import 'package:my_dic/core/domain/entity/verb/conjugacion/tense_conjugacion.dart';
-import 'package:my_dic/core/domain/entity/verb/conjugacions.dart';
+import 'package:my_dic/features/quiz/application/conjugation/quiz_conjugation.dart';
 import 'package:my_dic/features/quiz/di/provider_di.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
@@ -232,25 +229,9 @@ String _quizErrorText(Object? error) => error is AppError
     : 'Unable to load the quiz. Please try again.';
 
 //TODO usecase化
-String displayConjugacion(EspConjugacions conjugaciones, Subject currentSubject,
-    MoodTense currentTense) {
-  TenseConjugacion? conj = conjugaciones.conjugacions[currentTense];
-  if (conj == null) {
-    return 'N/A';
-  }
-
-  switch (currentSubject) {
-    case Subject.yo:
-      return conj.yo;
-    case Subject.tu:
-      return conj.tu;
-    case Subject.el:
-      return conj.el;
-    case Subject.nosotros:
-      return conj.nosotros;
-    case Subject.vosotros:
-      return conj.vosotros;
-    case Subject.ellos:
-      return conj.ellos;
-  }
-}
+String displayConjugacion(
+  QuizConjugation conjugaciones,
+  QuizSubject currentSubject,
+  QuizMoodTense currentTense,
+) =>
+    conjugaciones.form(currentTense, currentSubject) ?? 'N/A';

@@ -2,7 +2,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/core/shared/enums/feature_tag.dart';
-import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
+import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
 import 'package:my_dic/features/ranking/application/query/ranking_query.dart';
 import 'package:my_dic/features/ranking/data/data_source/local/ranking_dao.dart';
 import 'package:my_dic/features/ranking/data/query/drift_ranking_query_repository.dart';
@@ -136,20 +136,20 @@ void main() {
       await database.customStatement(
         'INSERT INTO part_of_speech_lists '
         '(part_of_speech_id, word_id, part_of_speech) VALUES (?, ?, ?)',
-        [1, 1, PartOfSpeech.noun.display],
+        [1, 1, CatalogPartOfSpeech.noun.wireValue],
       );
 
       final firstPage = await repository.fetchPage(RankingQuery(
         page: 0,
         size: 1,
         accountId: 'account-a',
-        includedPartOfSpeech: {PartOfSpeech.noun},
+        includedPartOfSpeech: {CatalogPartOfSpeech.noun},
       ));
       final secondPage = await repository.fetchPage(RankingQuery(
         page: 1,
         size: 1,
         accountId: 'account-a',
-        includedPartOfSpeech: {PartOfSpeech.noun},
+        includedPartOfSpeech: {CatalogPartOfSpeech.noun},
       ));
 
       expect(firstPage.dataOrNull?.items.single.rankedWord, 'first noun');

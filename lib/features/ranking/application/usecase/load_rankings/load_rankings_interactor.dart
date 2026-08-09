@@ -1,7 +1,7 @@
 import 'package:my_dic/app/session/current_session.dart';
 import 'package:my_dic/core/shared/consts/account_scope.dart';
 import 'package:my_dic/core/shared/enums/feature_tag.dart';
-import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
+import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/ranking/application/usecase/load_rankings/i_load_rankings_use_case.dart';
 import 'package:my_dic/features/ranking/application/usecase/load_rankings/load_rankings_input_data.dart';
@@ -17,8 +17,8 @@ class LoadRankingsInteractor implements ILoadRankingsUseCase {
 
   @override
   Future<Result<RankingPage>> execute(LoadRankingsInputData input) {
-    final partOfSpeechFilters = <PartOfSpeech>{};
-    final partOfSpeechExcludeFilters = <PartOfSpeech>{};
+    final partOfSpeechFilters = <CatalogPartOfSpeech>{};
+    final partOfSpeechExcludeFilters = <CatalogPartOfSpeech>{};
     for (final entry in input.partOfSpeechFilters.entries) {
       if (entry.value == 1) partOfSpeechFilters.add(entry.key);
       if (entry.value == -1) partOfSpeechExcludeFilters.add(entry.key);

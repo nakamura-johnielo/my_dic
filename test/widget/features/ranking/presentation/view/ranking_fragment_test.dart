@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/app/presentation/dictionary_status_view_models.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
-import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
+import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/ranking/application/query/ranking_list_item.dart';
@@ -63,11 +63,13 @@ void main() {
 
     container
         .read(rankingViewModelProvider.notifier)
-        .addFilter(PartOfSpeech.noun);
+        .addFilter(CatalogPartOfSpeech.noun);
     await tester.pumpAndSettle();
 
     expect(loadUseCase.inputs.map((input) => input.page), [0, 1, 0]);
-    expect(loadUseCase.inputs.last.partOfSpeechFilters[PartOfSpeech.noun], 1);
+    expect(
+        loadUseCase.inputs.last.partOfSpeechFilters[CatalogPartOfSpeech.noun],
+        1);
   });
 
   testWidgets(

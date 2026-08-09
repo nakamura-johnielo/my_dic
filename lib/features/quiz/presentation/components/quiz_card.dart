@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/features/quiz/consts/card_state.dart';
-import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
-import 'package:my_dic/core/shared/enums/conjugacion/subject.dart';
+import 'package:my_dic/features/quiz/application/conjugation/quiz_conjugation.dart';
 import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 
 class QuizCard extends ConsumerWidget {
-  final MoodTense moodTense;
+  final QuizMoodTense moodTense;
   final String conjugacion;
-  final Subject subject;
+  final QuizSubject subject;
   final Function onSwipe;
   final String englishSub;
   final Function onToggle;
@@ -59,9 +58,9 @@ bool isOnAnswer(QuizCardState state) {
 }
 
 class ConjCard extends ConsumerWidget {
-  final MoodTense moodTense;
+  final QuizMoodTense moodTense;
   final String conjugacion;
-  final Subject subject;
+  final QuizSubject subject;
   final String englishSub;
   const ConjCard(
       {super.key,
@@ -87,10 +86,10 @@ class ConjCard extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            if (moodTense == MoodTense.participlePast ||
-                moodTense == MoodTense.participlePresent)
+            if (moodTense == QuizMoodTense.participlePast ||
+                moodTense == QuizMoodTense.participlePresent)
               Text(
-                moodTense.jap,
+                moodTense.japaneseLabel,
                 style: TextStyle(fontSize: 14),
               )
             else
@@ -108,10 +107,10 @@ class ConjCard extends ConsumerWidget {
               spacing: 26,
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (moodTense != MoodTense.participlePast &&
-                    moodTense != MoodTense.participlePresent)
+                if (moodTense != QuizMoodTense.participlePast &&
+                    moodTense != QuizMoodTense.participlePresent)
                   Text(
-                    subject.displayEsp,
+                    subject.displaySpanish,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 Container(
@@ -144,9 +143,9 @@ class ConjCard extends ConsumerWidget {
 }
 
 class ParticipleCard extends ConsumerWidget {
-  final MoodTense moodTense;
+  final QuizMoodTense moodTense;
   final String conjugacion;
-  final Subject subject;
+  final QuizSubject subject;
   const ParticipleCard(
       {super.key,
       required this.moodTense,
@@ -173,7 +172,7 @@ class ParticipleCard extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Text(
-              moodTense.jap,
+              moodTense.japaneseLabel,
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
             ),
             Row(

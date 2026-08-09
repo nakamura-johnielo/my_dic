@@ -1,11 +1,11 @@
-import 'package:my_dic/core/shared/enums/conjugacion/enum_mood_tense_subject.dart';
+import 'package:my_dic/features/search/application/query/search_conjugation_match_key.dart';
 
 /// A conjugation suggestion returned alongside a dictionary search page.
 class ConjugationSearchItem {
   ConjugationSearchItem({
     required this.wordId,
     required this.headword,
-    required Map<MoodTenseSubject, String> matches,
+    required Map<SearchConjugationMatchKey, String> matches,
     required this.meaningText,
     required this.rankingNo,
     required this.starCount,
@@ -13,7 +13,7 @@ class ConjugationSearchItem {
 
   final int wordId;
   final String headword;
-  final Map<MoodTenseSubject, String> matches;
+  final Map<SearchConjugationMatchKey, String> matches;
 
   /// Full plain-text meaning for the suggested verb.
   final String? meaningText;

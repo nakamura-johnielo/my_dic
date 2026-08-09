@@ -1,18 +1,31 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/core/application/usecase/fetch_conjugation/fetch_conjugation_input_data.dart';
-import 'package:my_dic/core/application/usecase/fetch_conjugation/i_fetch_conjugation_use_case.dart';
-import 'package:my_dic/core/domain/entity/verb/conjugacions.dart';
+import 'package:my_dic/app/bootstrap/catalog_composition.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/features/catalog/port/catalog_id.dart';
+import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
+import 'package:my_dic/features/catalog/port/conjugation_reader.dart';
+import 'package:my_dic/features/catalog/port/model/catalog_conjugation.dart';
 import 'package:my_dic/features/quiz/application/fetch_english_conj/i_fetch_english_conj_usecase.dart';
 import 'package:my_dic/features/quiz/consts/card_state.dart';
+import 'package:my_dic/features/quiz/di/usecase_di.dart';
+import 'package:my_dic/features/quiz/di/view_model_di.dart';
 import 'package:my_dic/features/quiz/presentation/view_model/quiz_game_viewmodel.dart';
 
-class _FakeFetchEspConjugationUseCase implements IFetchEspConjugationUseCase {
+class _FakeConjugationReader implements ConjugationReader {
+  CatalogWordRef? requestedWord;
+
   @override
-  Future<Result<EspConjugacions?>> execute(
-    FetchConjugationInputData input,
-  ) async =>
-      const Result.success(null);
+  Future<Result<CatalogConjugation?>> getConjugation(
+    CatalogWordRef word,
+  ) async {
+    requestedWord = word;
+    return const Result.success(null);
+  }
+
+  @override
+  Future<Result<bool>> hasConjugation(CatalogWordRef word) async =>
+      const Result.success(false);
 }
 
 class _FakeFetchEnglishConjUseCase implements IFetchEnglishConjUseCase {
@@ -23,7 +36,7 @@ class _FakeFetchEnglishConjUseCase implements IFetchEnglishConjUseCase {
 
 void main() {
   QuizGameViewModel createViewModel() => QuizGameViewModel(
-        _FakeFetchEspConjugationUseCase(),
+        _FakeConjugationReader(),
         _FakeFetchEnglishConjUseCase(),
       );
 
@@ -38,5 +51,24 @@ void main() {
     expect(viewModel.state.currentIndex, 0);
     expect(viewModel.state.hasCurrentQuestion, isTrue);
     expect(viewModel.state.quizCardState, QuizCardState.question);
+  });
+
+  test('DI converts the raw Quiz route ID to the Esp-Jpn Catalog identity',
+      () async {
+    final reader = _FakeConjugationReader();
+    final container = ProviderContainer(overrides: [
+      conjugationReaderProvider.overrideWithValue(reader),
+      fetchEnglishConjUseCaseProvider.overrideWithValue(
+        _FakeFetchEnglishConjUseCase(),
+      ),
+    ]);
+    addTearDown(container.dispose);
+
+    await container.read(quizConjugacionsProvider(41).future);
+
+    expect(
+      reader.requestedWord,
+      const CatalogWordRef(catalogId: CatalogId.espJpnMain, wordId: 41),
+    );
   });
 }

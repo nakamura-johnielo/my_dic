@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/application/query/query_issue.dart';
-import 'package:my_dic/core/shared/enums/conjugacion/enum_mood_tense_subject.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/features/search/application/query/search_query_models.dart';
+import 'package:my_dic/features/search/application/query/search_conjugation_match_key.dart';
 
 void main() {
   const item = SearchResultItem(
@@ -61,7 +61,9 @@ void main() {
         ConjugationSearchItem(
           wordId: 1,
           headword: 'hablar',
-          matches: const {MoodTenseSubject.indicativePresentYo: 'hablo'},
+          matches: const {
+            SearchConjugationMatchKey.indicativePresentYo: 'hablo',
+          },
           meaningText: '話す',
           rankingNo: 12,
           starCount: 3,
@@ -91,8 +93,8 @@ void main() {
     });
 
     test('conjugation item defensively copies matches', () {
-      final matches = <MoodTenseSubject, String>{
-        MoodTenseSubject.indicativePresentYo: 'hablo',
+      final matches = <SearchConjugationMatchKey, String>{
+        SearchConjugationMatchKey.indicativePresentYo: 'hablo',
       };
       final item = ConjugationSearchItem(
         wordId: 1,
@@ -102,11 +104,15 @@ void main() {
         rankingNo: null,
         starCount: null,
       );
-      matches[MoodTenseSubject.indicativePresentYo] = 'changed';
+      matches[SearchConjugationMatchKey.indicativePresentYo] = 'changed';
 
-      expect(item.matches[MoodTenseSubject.indicativePresentYo], 'hablo');
       expect(
-        () => item.matches[MoodTenseSubject.indicativePresentYo] = 'other',
+        item.matches[SearchConjugationMatchKey.indicativePresentYo],
+        'hablo',
+      );
+      expect(
+        () => item.matches[SearchConjugationMatchKey.indicativePresentYo] =
+            'other',
         throwsUnsupportedError,
       );
     });

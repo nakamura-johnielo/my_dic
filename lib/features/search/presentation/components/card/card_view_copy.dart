@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:my_dic/core/shared/enums/conjugacion/enum_mood_tense_subject.dart';
-import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
+import 'package:my_dic/features/search/application/query/search_conjugation_match_key.dart';
+import 'package:my_dic/features/search/presentation/ui_model/search_conjugation_labels.dart';
 import 'package:my_dic/features/word_status/domain/dictionary_direction.dart';
 import 'package:my_dic/app/presentation/word_status_buttons.dart';
 import 'package:my_dic/features/search/presentation/components/card/reverse_curve.dart';
@@ -25,7 +25,7 @@ class CardView extends StatelessWidget {
   final Color? disableColor;
 
   final String query;
-  final Map<MoodTenseSubject, String>? conjugacions;
+  final Map<SearchConjugationMatchKey, String>? conjugacions;
 
   const CardView({
     super.key,
@@ -313,7 +313,7 @@ class ConjSections extends StatelessWidget {
       this.conjFontSize,
       this.metaColor,
       this.conjColor});
-  final Map<MoodTenseSubject, String> conjugacions;
+  final Map<SearchConjugationMatchKey, String> conjugacions;
   final String query;
 
   final double? metaFontSize;
@@ -358,7 +358,7 @@ class ConjMiniSection extends StatelessWidget {
       this.conjFontSize,
       this.metaColor,
       this.conjColor});
-  final MoodTenseSubject moodTenseSubject;
+  final SearchConjugationMatchKey moodTenseSubject;
   final String conjugacion;
   final double? metaFontSize;
   final double? conjFontSize;
@@ -368,11 +368,11 @@ class ConjMiniSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String title =
-        "${moodTenseSubject.moodTense.shorten}${moodTenseSubject.subject.name}:";
+        "${moodTenseSubject.moodTense.shortLabel}${moodTenseSubject.subject.name}:";
 
-    if (moodTenseSubject.moodTense == MoodTense.participlePast ||
-        moodTenseSubject.moodTense == MoodTense.participlePresent) {
-      title = "${moodTenseSubject.moodTense.shorten}:";
+    if (moodTenseSubject.moodTense == SearchMoodTense.participlePast ||
+        moodTenseSubject.moodTense == SearchMoodTense.participlePresent) {
+      title = "${moodTenseSubject.moodTense.shortLabel}:";
     }
 
     return Row(spacing: 3, children: [

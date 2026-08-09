@@ -35,8 +35,7 @@ void main() {
         .join('\n');
 
     for (final forbidden in [
-      'core/domain/entity/',
-      'core/domain/i_repository/',
+      'core/domain/',
       'features/search',
       'features/word_page',
       'features/quiz',

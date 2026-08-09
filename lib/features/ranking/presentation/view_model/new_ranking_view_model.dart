@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/enums/feature_tag.dart';
-import 'package:my_dic/core/shared/enums/i_enum.dart';
-import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
+import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/ranking/application/usecase/load_rankings/i_load_rankings_use_case.dart';
 import 'package:my_dic/features/ranking/application/usecase/load_rankings/load_rankings_input_data.dart';
@@ -80,19 +79,19 @@ class RankingViewModel extends StateNotifier<RankingState> {
     }
   }
 
-  void addExcludeFilter(DisplayEnumMixin data) {
+  void addExcludeFilter(Object data) {
     //page=[-1,-1];をセット
     final input = UpdateRankingFilterInputData(data, -1);
     _updateFilter(input);
   }
 
-  void addFilter(DisplayEnumMixin data) {
+  void addFilter(Object data) {
     //page=[-1,-1];をセット
     final input = UpdateRankingFilterInputData(data, 1);
     _updateFilter(input);
   }
 
-  void removeFilter(DisplayEnumMixin data) {
+  void removeFilter(Object data) {
     //page=[-1,-1];をセット
     final input = UpdateRankingFilterInputData(data, 0);
     _updateFilter(input);
@@ -107,12 +106,12 @@ class RankingViewModel extends StateNotifier<RankingState> {
 
   void _updateFilter(UpdateRankingFilterInputData input) {
     final res = _updateRankingFilterUseCase.execute(input);
-    DisplayEnumMixin data = res.data;
+    final data = res.data;
     int value = res.value;
 
     //filtertype: 0: delete, 1: add, -1: exclude
     RankingState? newState;
-    if (data is PartOfSpeech) {
+    if (data is CatalogPartOfSpeech) {
       newState = _updatePartOfSpeechFilter(data, value);
     } else if (data is FeatureTag) {
       newState = _updateFeatureTagFilter(data, value);
@@ -120,9 +119,11 @@ class RankingViewModel extends StateNotifier<RankingState> {
     _resetPage(newState, resetPaginationFilter: true);
   }
 
-  RankingState _updatePartOfSpeechFilter(PartOfSpeech filter, int value) {
-    final newData = Map<PartOfSpeech, int>.from(state.partOfSpeechFilters)
-      ..[filter] = value;
+  RankingState _updatePartOfSpeechFilter(
+      CatalogPartOfSpeech filter, int value) {
+    final newData =
+        Map<CatalogPartOfSpeech, int>.from(state.partOfSpeechFilters)
+          ..[filter] = value;
     AppLogger.print('updated POS filter: $newData');
     return state.copyWith(
       partOfSpeechFilters: newData,
@@ -167,7 +168,7 @@ class RankingViewModel extends StateNotifier<RankingState> {
     _updateFilter(UpdateRankingFilterInputData(tag, value));
   }
 
-  void setPartOfSpeechFilter(PartOfSpeech pos, int value) {
+  void setPartOfSpeechFilter(CatalogPartOfSpeech pos, int value) {
     _updateFilter(UpdateRankingFilterInputData(pos, value));
   }
 }

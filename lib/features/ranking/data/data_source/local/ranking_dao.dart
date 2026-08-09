@@ -42,14 +42,14 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
       predicates.add('''EXISTS (
         SELECT 1 FROM part_of_speech_lists pos
         WHERE pos.word_id = r.word_id AND pos.part_of_speech IN
-          (${placeholders(query.includedPartOfSpeech.map((value) => value.display))})
+          (${placeholders(query.includedPartOfSpeech.map((value) => value.wireValue))})
       )''');
     }
     if (query.excludedPartOfSpeech.isNotEmpty) {
       predicates.add('''NOT EXISTS (
         SELECT 1 FROM part_of_speech_lists pos
         WHERE pos.word_id = r.word_id AND pos.part_of_speech IN
-          (${placeholders(query.excludedPartOfSpeech.map((value) => value.display))})
+          (${placeholders(query.excludedPartOfSpeech.map((value) => value.wireValue))})
       )''');
     }
 
@@ -97,7 +97,12 @@ class RankingDao extends DatabaseAccessor<DatabaseProvider>
         ORDER BY ranking_no LIMIT ? OFFSET ?
       ''',
       variables: variables,
-      readsFrom: {rankings, partOfSpeechLists, espJpnWordStatus, espConjugations},
+      readsFrom: {
+        rankings,
+        partOfSpeechLists,
+        espJpnWordStatus,
+        espConjugations
+      },
     ).get();
     return rows
         .map((row) => RankingQueryRow(

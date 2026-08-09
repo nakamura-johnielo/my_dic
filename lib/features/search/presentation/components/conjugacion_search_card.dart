@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:my_dic/core/shared/enums/conjugacion/enum_mood_tense_subject.dart';
-import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
+import 'package:my_dic/features/search/application/query/search_conjugation_match_key.dart';
+import 'package:my_dic/features/search/presentation/ui_model/search_conjugation_labels.dart';
 
 class ConjugacionSearchCard extends StatelessWidget {
   const ConjugacionSearchCard(
@@ -12,7 +12,7 @@ class ConjugacionSearchCard extends StatelessWidget {
 
   final String word;
   final String query;
-  final Map<MoodTenseSubject, String> conjugacions;
+  final Map<SearchConjugationMatchKey, String> conjugacions;
   final VoidCallback? onTap;
 
   @override
@@ -64,7 +64,7 @@ class ConjugacionSearchCard extends StatelessWidget {
 class ConjSections extends StatelessWidget {
   const ConjSections(
       {super.key, required this.conjugacions, required this.query});
-  final Map<MoodTenseSubject, String> conjugacions;
+  final Map<SearchConjugationMatchKey, String> conjugacions;
   final String query;
 
   @override
@@ -94,17 +94,17 @@ class ConjSections extends StatelessWidget {
 class ConjMiniSection extends StatelessWidget {
   const ConjMiniSection(
       {super.key, required this.moodTenseSubject, required this.conjugacion});
-  final MoodTenseSubject moodTenseSubject;
+  final SearchConjugationMatchKey moodTenseSubject;
   final String conjugacion;
 
   @override
   Widget build(BuildContext context) {
     final Color color = Theme.of(context).colorScheme.onSurfaceVariant;
     String title =
-        "${moodTenseSubject.moodTense.shorten}${moodTenseSubject.subject.name}:";
-    if (moodTenseSubject.moodTense == MoodTense.participlePast ||
-        moodTenseSubject.moodTense == MoodTense.participlePresent) {
-      title = "${moodTenseSubject.moodTense.shorten}:";
+        "${moodTenseSubject.moodTense.shortLabel}${moodTenseSubject.subject.name}:";
+    if (moodTenseSubject.moodTense == SearchMoodTense.participlePast ||
+        moodTenseSubject.moodTense == SearchMoodTense.participlePresent) {
+      title = "${moodTenseSubject.moodTense.shortLabel}:";
     }
 
     return Row(spacing: 3, children: [

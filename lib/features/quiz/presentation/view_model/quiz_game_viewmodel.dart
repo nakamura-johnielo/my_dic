@@ -1,11 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/quiz/consts/card_state.dart';
-import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
-import 'package:my_dic/core/shared/enums/conjugacion/subject.dart';
-import 'package:my_dic/core/domain/entity/verb/conjugacions.dart';
-import 'package:my_dic/core/application/usecase/fetch_conjugation/fetch_conjugation_input_data.dart';
-import 'package:my_dic/core/application/usecase/fetch_conjugation/i_fetch_conjugation_use_case.dart';
+import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
+import 'package:my_dic/features/catalog/port/conjugation_reader.dart';
+import 'package:my_dic/features/quiz/application/conjugation/catalog_quiz_conjugation_mapper.dart';
+import 'package:my_dic/features/quiz/application/conjugation/quiz_conjugation.dart';
 import 'package:my_dic/features/quiz/application/fetch_english_conj/i_fetch_english_conj_usecase.dart';
 import 'package:my_dic/features/quiz/presentation/ui_model/quiz_game_model.dart';
 import 'package:logging/logging.dart';
@@ -15,12 +14,11 @@ import 'package:my_dic/core/shared/utils/logger.dart';
 class QuizGameViewModel extends StateNotifier<QuizGameState> {
   // ✅ 内部状態（private）
   late QuizInternalState _internalState;
-  final IFetchEspConjugationUseCase _fetchConjugationInteractor;
+  final ConjugationReader _conjugationReader;
   final IFetchEnglishConjUseCase _fetchEnglishConjInteractor;
   final _logger = Logger('QuizGameViewModel');
 
-  QuizGameViewModel(
-      this._fetchConjugationInteractor, this._fetchEnglishConjInteractor)
+  QuizGameViewModel(this._conjugationReader, this._fetchEnglishConjInteractor)
       : super(QuizGameState.initial()) {
     _internalState = QuizInternalState.initial();
     _updatePublicState();
@@ -58,13 +56,13 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
     );
   }
 
-  Future<EspConjugacions?> getConjugaciones(int wordId) async {
-    final FetchConjugationInputData input = FetchConjugationInputData(wordId);
-
-    final res = await _fetchConjugationInteractor.execute(input);
+  Future<QuizConjugation?> getConjugaciones(CatalogWordRef word) async {
+    final res = await _conjugationReader.getConjugation(word);
 
     return res.when(
-        success: (data) => data,
+        success: (data) => data == null
+            ? null
+            : CatalogQuizConjugationMapper.fromCatalog(data),
         failure: (failure) {
           AppLogger.print("活用形の取得に失敗しました: $failure");
           return null;
@@ -77,43 +75,40 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
       Map<String, String> englishConj) {
     final moodTense = state.currentTense;
     final subject = state.currentSubject;
-    String sub = englishSubMap[moodTense.toString()] ?? '@ #';
+    String sub = englishSubMap[moodTense.guideKey] ?? '@ #';
     AppLogger.print("sub: $sub");
 
-    EnglishSubject englishSubject = subject.equiEnglish;
+    QuizEnglishSubject englishSubject = subject.englishEquivalent;
     sub = sub.replaceAll("@", englishSubject.name);
     AppLogger.print("sub: $sub");
 
-    EnglishMoodTense englishMoodTense = moodTense.equiEnglish;
+    QuizEnglishMoodTense englishMoodTense = moodTense.englishEquivalent;
     //@が主語
     // #が動詞
 
     // beがaru場合==============
-    if (englishConj[EnglishMoodTense.indicativePresent.toString()] == "be") {
+    if (englishConj[QuizEnglishMoodTense.indicativePresent.wireKey] == "be") {
       //Map<String, Map<String, String>> beConj = json;
-      if (moodTense == MoodTense.indicativeImperfect ||
-          moodTense == MoodTense.indicativeFuture ||
-          moodTense == MoodTense.indicativeConditional ||
-          moodTense == MoodTense.imperative) {
+      if (moodTense == QuizMoodTense.indicativeImperfect ||
+          moodTense == QuizMoodTense.indicativeFuture ||
+          moodTense == QuizMoodTense.indicativeConditional ||
+          moodTense == QuizMoodTense.imperative) {
         return sub.replaceAll("#", "be");
       }
-      final beForm =
-          beConj[englishMoodTense.toString()]?[englishSubject.toString()];
+      final beForm = beConj[englishMoodTense.wireKey]?[englishSubject.wireKey];
       return sub.replaceAll("#", beForm ?? "be");
     }
     final present =
-        englishConj[EnglishMoodTense.indicativePresent.toString()] ?? '';
+        englishConj[QuizEnglishMoodTense.indicativePresent.wireKey] ?? '';
     if (present.contains("be ")) {
-      if (moodTense == MoodTense.indicativeImperfect ||
-          moodTense == MoodTense.indicativeFuture ||
-          moodTense == MoodTense.indicativeConditional ||
-          moodTense == MoodTense.imperative) {
+      if (moodTense == QuizMoodTense.indicativeImperfect ||
+          moodTense == QuizMoodTense.indicativeFuture ||
+          moodTense == QuizMoodTense.indicativeConditional ||
+          moodTense == QuizMoodTense.imperative) {
         return sub.replaceAll("#", present);
       }
-      final text = present.replaceFirst(
-          "be",
-          beConj[englishMoodTense.toString()]?[englishSubject.toString()] ??
-              'be');
+      final text = present.replaceFirst("be",
+          beConj[englishMoodTense.wireKey]?[englishSubject.wireKey] ?? 'be');
       sub = sub.replaceAll(
         "#",
         text,
@@ -123,11 +118,11 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
     }
 
     // beがない場合==============
-    if (englishSubject == EnglishSubject.he &&
-        englishMoodTense == EnglishMoodTense.indicativePresent) {
-      englishMoodTense = EnglishMoodTense.indicativePresent3rd;
+    if (englishSubject == QuizEnglishSubject.he &&
+        englishMoodTense == QuizEnglishMoodTense.indicativePresent) {
+      englishMoodTense = QuizEnglishMoodTense.indicativePresent3rd;
     }
-    sub = sub.replaceAll("#", englishConj[englishMoodTense.toString()] ?? '');
+    sub = sub.replaceAll("#", englishConj[englishMoodTense.wireKey] ?? '');
 
     return sub;
   }
@@ -202,14 +197,14 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
     final key = _internalState.doneKeyOrder[index];
     final parts = key.split('-');
 
-    final tense = MoodTense.values.firstWhere(
+    final tense = QuizMoodTense.values.firstWhere(
       (e) => e.toString() == parts[0],
-      orElse: () => MoodTense.indicativePresent,
+      orElse: () => QuizMoodTense.indicativePresent,
     );
 
-    final subject = Subject.values.firstWhere(
+    final subject = QuizSubject.values.firstWhere(
       (e) => e.toString() == parts[1],
-      orElse: () => Subject.yo,
+      orElse: () => QuizSubject.yo,
     );
 
     state = state.copyWith(

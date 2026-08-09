@@ -1,15 +1,14 @@
 import 'dart:math';
 import 'package:my_dic/features/quiz/consts/card_state.dart';
-import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
-import 'package:my_dic/core/shared/enums/conjugacion/subject.dart';
+import 'package:my_dic/features/quiz/application/conjugation/quiz_conjugation.dart';
 
 /// 外部に公開する Quiz の状態（読み取り専用）
 class QuizGameState {
   //TODO word,wordIdも入れる？？？
 
   final int currentIndex;
-  final MoodTense currentTense;
-  final Subject currentSubject;
+  final QuizMoodTense currentTense;
+  final QuizSubject currentSubject;
   final int allLength;
   final QuizCardState quizCardState;
 
@@ -26,8 +25,8 @@ class QuizGameState {
 
   QuizGameState copyWith({
     int? currentIndex,
-    MoodTense? currentTense,
-    Subject? currentSubject,
+    QuizMoodTense? currentTense,
+    QuizSubject? currentSubject,
     int? allLength,
     QuizCardState? quizCardState,
   }) {
@@ -44,8 +43,8 @@ class QuizGameState {
   factory QuizGameState.initial() {
     return QuizGameState(
       currentIndex: -1,
-      currentTense: MoodTense.indicativePresent,
-      currentSubject: Subject.yo,
+      currentTense: QuizMoodTense.indicativePresent,
+      currentSubject: QuizSubject.yo,
       allLength: 0,
       quizCardState: QuizCardState.question,
     );
@@ -56,16 +55,16 @@ class QuizGameState {
 class QuizInternalState {
   final Random _random = Random();
 
-  final List<Subject> activeSubjects;
-  final List<MoodTense> activeMoodTenses;
+  final List<QuizSubject> activeSubjects;
+  final List<QuizMoodTense> activeMoodTenses;
   final List<String> doneKeyOrder;
   final Set<String> nonExistKeys;
   final Set<String> waitingKeys;
   final Set<String> activeKeys;
 
   QuizInternalState({
-    List<Subject>? activeSubjects,
-    List<MoodTense>? activeMoodTenses,
+    List<QuizSubject>? activeSubjects,
+    List<QuizMoodTense>? activeMoodTenses,
     List<String>? doneKeyOrder,
     Set<String>? nonExistKeys,
     Set<String>? waitingKeys,
@@ -78,8 +77,8 @@ class QuizInternalState {
         activeKeys = activeKeys ?? {};
 
   QuizInternalState copyWith({
-    List<Subject>? activeSubjects,
-    List<MoodTense>? activeMoodTenses,
+    List<QuizSubject>? activeSubjects,
+    List<QuizMoodTense>? activeMoodTenses,
     List<String>? doneKeyOrder,
     Set<String>? nonExistKeys,
     Set<String>? waitingKeys,
@@ -117,30 +116,30 @@ class QuizInternalState {
 
   /// 存在しないキーを設定
   void updateNonExistKeys() {
-    final int subLength = Subject.values.length;
+    final int subLength = QuizSubject.values.length;
 
     // 現在分詞: yo以外削除
-    if (activeMoodTenses.contains(MoodTense.participlePresent)) {
+    if (activeMoodTenses.contains(QuizMoodTense.participlePresent)) {
       for (int i = 1; i < subLength; i++) {
         nonExistKeys.add(
-          '${MoodTense.participlePresent}-${Subject.values[i]}',
+          '${QuizMoodTense.participlePresent}-${QuizSubject.values[i]}',
         );
       }
     }
 
     // 過去分詞: yo以外削除
-    if (activeMoodTenses.contains(MoodTense.participlePast)) {
+    if (activeMoodTenses.contains(QuizMoodTense.participlePast)) {
       for (int i = 1; i < subLength; i++) {
         nonExistKeys.add(
-          '${MoodTense.participlePast.toString()}-${Subject.values[i].toString()}',
+          '${QuizMoodTense.participlePast}-${QuizSubject.values[i]}',
         );
       }
     }
 
     // 命令形: yoのみ削除
-    if (activeMoodTenses.contains(MoodTense.imperative)) {
+    if (activeMoodTenses.contains(QuizMoodTense.imperative)) {
       nonExistKeys.add(
-        '${MoodTense.imperative.toString()}-${Subject.yo.toString()}',
+        '${QuizMoodTense.imperative}-${QuizSubject.yo}',
       );
     }
   }
@@ -154,8 +153,8 @@ class QuizInternalState {
   /// 初期状態を作成
   factory QuizInternalState.initial() {
     final state = QuizInternalState(
-      activeSubjects: List.from(Subject.values),
-      activeMoodTenses: List.from(MoodTense.values),
+      activeSubjects: List.from(QuizSubject.values),
+      activeMoodTenses: List.from(QuizMoodTense.values),
     );
     state.updateNonExistKeys();
     state.updateActiveKeys();

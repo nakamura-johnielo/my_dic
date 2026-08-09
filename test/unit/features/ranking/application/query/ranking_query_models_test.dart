@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/shared/enums/feature_tag.dart';
-import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
+import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/ranking/application/query/i_ranking_query_repository.dart';
 import 'package:my_dic/features/ranking/application/query/ranking_list_item.dart';
@@ -12,8 +12,8 @@ import 'package:my_dic/features/ranking/application/query/ranking_query.dart';
 void main() {
   group('Ranking query models', () {
     test('RankingQuery defensively copies every filter set', () {
-      final includedPartOfSpeech = {PartOfSpeech.noun};
-      final excludedPartOfSpeech = {PartOfSpeech.verb};
+      final includedPartOfSpeech = {CatalogPartOfSpeech.noun};
+      final excludedPartOfSpeech = {CatalogPartOfSpeech.verb};
       final includedFeatureTags = {FeatureTag.isLearned};
       final excludedFeatureTags = {FeatureTag.hasNote};
 
@@ -26,16 +26,16 @@ void main() {
         includedFeatureTags: includedFeatureTags,
         excludedFeatureTags: excludedFeatureTags,
       );
-      includedPartOfSpeech.add(PartOfSpeech.adjective);
+      includedPartOfSpeech.add(CatalogPartOfSpeech.adjective);
       excludedPartOfSpeech.clear();
       includedFeatureTags.add(FeatureTag.hasNote);
       excludedFeatureTags.clear();
 
-      expect(query.includedPartOfSpeech, {PartOfSpeech.noun});
-      expect(query.excludedPartOfSpeech, {PartOfSpeech.verb});
+      expect(query.includedPartOfSpeech, {CatalogPartOfSpeech.noun});
+      expect(query.excludedPartOfSpeech, {CatalogPartOfSpeech.verb});
       expect(query.includedFeatureTags, {FeatureTag.isLearned});
       expect(query.excludedFeatureTags, {FeatureTag.hasNote});
-      expect(() => query.includedPartOfSpeech.add(PartOfSpeech.adverb),
+      expect(() => query.includedPartOfSpeech.add(CatalogPartOfSpeech.adverb),
           throwsUnsupportedError);
     });
 

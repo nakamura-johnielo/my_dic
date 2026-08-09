@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/shared/enums/feature_tag.dart';
-import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
+import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/ranking/di/view_model_di.dart';
@@ -41,11 +41,11 @@ void main() {
         final viewModel = container.read(rankingViewModelProvider.notifier);
 
         // Act
-        viewModel.addFilter(PartOfSpeech.noun);
+        viewModel.addFilter(CatalogPartOfSpeech.noun);
 
         // Assert
         final state = container.read(rankingViewModelProvider);
-        expect(state.partOfSpeechFilters[PartOfSpeech.noun], 1);
+        expect(state.partOfSpeechFilters[CatalogPartOfSpeech.noun], 1);
       });
 
       test('addExcludeFilter updates partOfSpeech filter value to -1', () {
@@ -53,24 +53,24 @@ void main() {
         final viewModel = container.read(rankingViewModelProvider.notifier);
 
         // Act
-        viewModel.addExcludeFilter(PartOfSpeech.verb);
+        viewModel.addExcludeFilter(CatalogPartOfSpeech.verb);
 
         // Assert
         final state = container.read(rankingViewModelProvider);
-        expect(state.partOfSpeechFilters[PartOfSpeech.verb], -1);
+        expect(state.partOfSpeechFilters[CatalogPartOfSpeech.verb], -1);
       });
 
       test('removeFilter updates partOfSpeech filter value to 0', () {
         // Arrange
         final viewModel = container.read(rankingViewModelProvider.notifier);
-        viewModel.addFilter(PartOfSpeech.adjective);
+        viewModel.addFilter(CatalogPartOfSpeech.adjective);
 
         // Act
-        viewModel.removeFilter(PartOfSpeech.adjective);
+        viewModel.removeFilter(CatalogPartOfSpeech.adjective);
 
         // Assert
         final state = container.read(rankingViewModelProvider);
-        expect(state.partOfSpeechFilters[PartOfSpeech.adjective], 0);
+        expect(state.partOfSpeechFilters[CatalogPartOfSpeech.adjective], 0);
       });
 
       test('addFilter updates featureTag filter value to 1', () {
@@ -116,7 +116,7 @@ void main() {
         await viewModel.loadNextPage(2);
 
         // Act
-        viewModel.addFilter(PartOfSpeech.noun);
+        viewModel.addFilter(CatalogPartOfSpeech.noun);
 
         // Assert
         final state = container.read(rankingViewModelProvider);
@@ -130,7 +130,7 @@ void main() {
         expect(container.read(rankingViewModelProvider).items, isNotEmpty);
 
         // Act
-        viewModel.addFilter(PartOfSpeech.verb);
+        viewModel.addFilter(CatalogPartOfSpeech.verb);
 
         // Assert
         final state = container.read(rankingViewModelProvider);
@@ -142,14 +142,14 @@ void main() {
         final viewModel = container.read(rankingViewModelProvider.notifier);
 
         // Act
-        viewModel.addFilter(PartOfSpeech.noun);
-        viewModel.addExcludeFilter(PartOfSpeech.verb);
+        viewModel.addFilter(CatalogPartOfSpeech.noun);
+        viewModel.addExcludeFilter(CatalogPartOfSpeech.verb);
         viewModel.addFilter(FeatureTag.isLearned);
 
         // Assert
         final state = container.read(rankingViewModelProvider);
-        expect(state.partOfSpeechFilters[PartOfSpeech.noun], 1);
-        expect(state.partOfSpeechFilters[PartOfSpeech.verb], -1);
+        expect(state.partOfSpeechFilters[CatalogPartOfSpeech.noun], 1);
+        expect(state.partOfSpeechFilters[CatalogPartOfSpeech.verb], -1);
         expect(state.featureTagFilters[FeatureTag.isLearned], 1);
       });
     });
@@ -254,7 +254,7 @@ void main() {
         // Arrange
         final viewModel = container.read(rankingViewModelProvider.notifier);
         await viewModel.loadNextPage(0);
-        viewModel.addFilter(PartOfSpeech.noun);
+        viewModel.addFilter(CatalogPartOfSpeech.noun);
 
         // Act
         viewModel.resetAndReload();
@@ -286,11 +286,11 @@ void main() {
         final viewModel = container.read(rankingViewModelProvider.notifier);
 
         // Act
-        viewModel.setPartOfSpeechFilter(PartOfSpeech.verb, -1);
+        viewModel.setPartOfSpeechFilter(CatalogPartOfSpeech.verb, -1);
 
         // Assert
         final state = container.read(rankingViewModelProvider);
-        expect(state.partOfSpeechFilters[PartOfSpeech.verb], -1);
+        expect(state.partOfSpeechFilters[CatalogPartOfSpeech.verb], -1);
       });
 
       test('locatePage updates pagenationFilter and resets page', () async {

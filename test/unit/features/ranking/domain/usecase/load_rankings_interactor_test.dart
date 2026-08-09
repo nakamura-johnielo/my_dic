@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/shared/consts/account_scope.dart';
 import 'package:my_dic/core/shared/enums/feature_tag.dart';
-import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
+import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/ranking/application/query/i_ranking_query_repository.dart';
@@ -23,7 +23,7 @@ void main() {
       );
 
       await interactor.execute(LoadRankingsInputData(
-        {PartOfSpeech.noun: 1, PartOfSpeech.verb: -1},
+        {CatalogPartOfSpeech.noun: 1, CatalogPartOfSpeech.verb: -1},
         {FeatureTag.isLearned: 1, FeatureTag.hasNote: -1},
         0,
         20,
@@ -32,8 +32,10 @@ void main() {
       expect(repository.lastQuery?.page, 0);
       expect(repository.lastQuery?.size, 20);
       expect(repository.lastQuery?.accountId, 'account-a');
-      expect(repository.lastQuery?.includedPartOfSpeech, {PartOfSpeech.noun});
-      expect(repository.lastQuery?.excludedPartOfSpeech, {PartOfSpeech.verb});
+      expect(repository.lastQuery?.includedPartOfSpeech,
+          {CatalogPartOfSpeech.noun});
+      expect(repository.lastQuery?.excludedPartOfSpeech,
+          {CatalogPartOfSpeech.verb});
       expect(repository.lastQuery?.includedFeatureTags, {FeatureTag.isLearned});
       expect(repository.lastQuery?.excludedFeatureTags, {FeatureTag.hasNote});
     });

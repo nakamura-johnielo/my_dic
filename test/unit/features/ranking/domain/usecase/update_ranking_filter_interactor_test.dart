@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/shared/enums/feature_tag.dart';
-import 'package:my_dic/core/shared/enums/i_enum.dart';
-import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
+import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
 import 'package:my_dic/features/ranking/application/usecase/update_ranking_filter/update_ranking_filter_input_data.dart';
 import 'package:my_dic/features/ranking/application/usecase/update_ranking_filter/update_ranking_filter_interactor.dart';
 
@@ -16,91 +15,94 @@ void main() {
     group('Filter value passthrough', () {
       test('returns filter value 1 for include', () {
         // Arrange
-        final input = UpdateRankingFilterInputData(PartOfSpeech.noun, 1);
+        final input = UpdateRankingFilterInputData(CatalogPartOfSpeech.noun, 1);
 
         // Act
         final output = interactor.execute(input);
 
         // Assert
         expect(output.value, 1);
-        expect(output.data, PartOfSpeech.noun);
+        expect(output.data, CatalogPartOfSpeech.noun);
       });
 
       test('returns filter value -1 for exclude', () {
         // Arrange
-        final input = UpdateRankingFilterInputData(PartOfSpeech.verb, -1);
+        final input =
+            UpdateRankingFilterInputData(CatalogPartOfSpeech.verb, -1);
 
         // Act
         final output = interactor.execute(input);
 
         // Assert
         expect(output.value, -1);
-        expect(output.data, PartOfSpeech.verb);
+        expect(output.data, CatalogPartOfSpeech.verb);
       });
 
       test('returns filter value 0 for none', () {
         // Arrange
-        final input = UpdateRankingFilterInputData(PartOfSpeech.adjective, 0);
+        final input =
+            UpdateRankingFilterInputData(CatalogPartOfSpeech.adjective, 0);
 
         // Act
         final output = interactor.execute(input);
 
         // Assert
         expect(output.value, 0);
-        expect(output.data, PartOfSpeech.adjective);
+        expect(output.data, CatalogPartOfSpeech.adjective);
       });
     });
 
-    group('PartOfSpeech handling', () {
+    group('CatalogPartOfSpeech handling', () {
       test('handles noun with include filter', () {
         // Arrange
-        final input = UpdateRankingFilterInputData(PartOfSpeech.noun, 1);
+        final input = UpdateRankingFilterInputData(CatalogPartOfSpeech.noun, 1);
 
         // Act
         final output = interactor.execute(input);
 
         // Assert
-        expect(output.data, PartOfSpeech.noun);
+        expect(output.data, CatalogPartOfSpeech.noun);
         expect(output.value, 1);
       });
 
       test('handles verb with exclude filter', () {
         // Arrange
-        final input = UpdateRankingFilterInputData(PartOfSpeech.verb, -1);
+        final input =
+            UpdateRankingFilterInputData(CatalogPartOfSpeech.verb, -1);
 
         // Act
         final output = interactor.execute(input);
 
         // Assert
-        expect(output.data, PartOfSpeech.verb);
+        expect(output.data, CatalogPartOfSpeech.verb);
         expect(output.value, -1);
       });
 
       test('handles adjective with none filter', () {
         // Arrange
-        final input = UpdateRankingFilterInputData(PartOfSpeech.adjective, 0);
+        final input =
+            UpdateRankingFilterInputData(CatalogPartOfSpeech.adjective, 0);
 
         // Act
         final output = interactor.execute(input);
 
         // Assert
-        expect(output.data, PartOfSpeech.adjective);
+        expect(output.data, CatalogPartOfSpeech.adjective);
         expect(output.value, 0);
       });
 
       test('handles multiple part of speech types', () {
         // Arrange
         final posTypes = [
-          PartOfSpeech.noun,
-          PartOfSpeech.verb,
-          PartOfSpeech.adjective,
-          PartOfSpeech.adverb,
-          PartOfSpeech.preposition,
+          CatalogPartOfSpeech.noun,
+          CatalogPartOfSpeech.verb,
+          CatalogPartOfSpeech.adjective,
+          CatalogPartOfSpeech.adverb,
+          CatalogPartOfSpeech.preposition,
         ];
 
         for (final pos in posTypes) {
-          final input =
-              UpdateRankingFilterInputData(pos as DisplayEnumMixin, 1);
+          final input = UpdateRankingFilterInputData(pos, 1);
 
           // Act
           final output = interactor.execute(input);
@@ -159,8 +161,7 @@ void main() {
         ];
 
         for (final tag in tags) {
-          final input =
-              UpdateRankingFilterInputData(tag as DisplayEnumMixin, -1);
+          final input = UpdateRankingFilterInputData(tag, -1);
 
           // Act
           final output = interactor.execute(input);
@@ -175,7 +176,7 @@ void main() {
     group('Output data structure', () {
       test('preserves input data in output', () {
         // Arrange
-        final input = UpdateRankingFilterInputData(PartOfSpeech.noun, 1);
+        final input = UpdateRankingFilterInputData(CatalogPartOfSpeech.noun, 1);
 
         // Act
         final output = interactor.execute(input);
@@ -187,9 +188,9 @@ void main() {
 
       test('creates correct output structure for different filter types', () {
         // Arrange
-        final testCases = <(DisplayEnumMixin, int)>[
-          (PartOfSpeech.noun, 1),
-          (PartOfSpeech.verb, -1),
+        final testCases = <(Object, int)>[
+          (CatalogPartOfSpeech.noun, 1),
+          (CatalogPartOfSpeech.verb, -1),
           (FeatureTag.isLearned, 0),
           (FeatureTag.hasNote, 1),
         ];

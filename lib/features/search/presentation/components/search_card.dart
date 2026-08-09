@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
+import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
 
 class SearchCard extends StatelessWidget {
   const SearchCard(
       {super.key, required this.word, required this.partOfSpeech, this.onTap});
 
   final String word;
-  final List<PartOfSpeech> partOfSpeech;
+  final List<CatalogPartOfSpeech> partOfSpeech;
   final VoidCallback? onTap;
 
   @override
@@ -43,7 +43,7 @@ class SearchCard extends StatelessWidget {
                 ),
                 SizedBox(width: 15),
                 Text(
-                  partOfSpeech.map((p) => p.display).join(','),
+                  partOfSpeech.map((p) => p.wireValue).join(','),
                   style: TextStyle(fontSize: 12, color: hinshiColor),
                   textAlign: TextAlign.left,
                 ),

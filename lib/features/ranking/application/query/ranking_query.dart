@@ -1,5 +1,5 @@
 import 'package:my_dic/core/shared/enums/feature_tag.dart';
-import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
+import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
 
 /// Immutable input for one account-scoped ranking page query.
 class RankingQuery {
@@ -7,8 +7,8 @@ class RankingQuery {
     required this.page,
     required this.size,
     required this.accountId,
-    Set<PartOfSpeech> includedPartOfSpeech = const {},
-    Set<PartOfSpeech> excludedPartOfSpeech = const {},
+    Set<CatalogPartOfSpeech> includedPartOfSpeech = const {},
+    Set<CatalogPartOfSpeech> excludedPartOfSpeech = const {},
     Set<FeatureTag> includedFeatureTags = const {},
     Set<FeatureTag> excludedFeatureTags = const {},
   })  : includedPartOfSpeech = Set.unmodifiable(includedPartOfSpeech),
@@ -30,8 +30,8 @@ class RankingQuery {
   final int page;
   final int size;
   final String accountId;
-  final Set<PartOfSpeech> includedPartOfSpeech;
-  final Set<PartOfSpeech> excludedPartOfSpeech;
+  final Set<CatalogPartOfSpeech> includedPartOfSpeech;
+  final Set<CatalogPartOfSpeech> excludedPartOfSpeech;
   final Set<FeatureTag> includedFeatureTags;
   final Set<FeatureTag> excludedFeatureTags;
 }

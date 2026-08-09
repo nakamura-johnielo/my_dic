@@ -68,7 +68,7 @@ void main() {
 
     expect(source, isNot(contains('package:flutter/')));
     expect(source, isNot(contains('package:drift/')));
-    expect(source, isNot(contains('core/domain/i_repository/')));
+    expect(source, isNot(contains('core/domain/')));
   });
 }
 

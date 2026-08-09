@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/enums/feature_tag.dart';
-import 'package:my_dic/core/shared/enums/word/part_of_speech.dart';
+import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
 
 import 'package:my_dic/core/shared/enums/i_enum.dart';
 import 'package:my_dic/features/ranking/di/view_model_di.dart';
+import 'package:my_dic/features/ranking/presentation/ui_model/ranking_part_of_speech_labels.dart';
 
 class RankingFilterModal extends ConsumerWidget {
   const RankingFilterModal({super.key});
@@ -44,7 +45,7 @@ class RankingFilterModal extends ConsumerWidget {
                     FilterSection(
                       label: "品詞",
                       filters: viewModel.partOfSpeechFilters,
-                      chipsEnum: PartOfSpeech.values,
+                      chipsEnum: CatalogPartOfSpeech.values,
                       addFilter: rankingNotifier.addFilter,
                       deleteFilter: rankingNotifier.removeFilter,
                     ),
@@ -64,7 +65,7 @@ class RankingFilterModal extends ConsumerWidget {
                     FilterExclusionSection(
                       label: "品詞除外",
                       filters: viewModel.partOfSpeechFilters,
-                      chipsEnum: PartOfSpeech.values,
+                      chipsEnum: CatalogPartOfSpeech.values,
                       addFilter: rankingNotifier.addExcludeFilter,
                       deleteFilter: rankingNotifier.removeFilter,
                     ),
@@ -100,8 +101,7 @@ class RankingFilterModal extends ConsumerWidget {
   }
 }
 
-class FilterSection<ChipsEnum extends DisplayEnumMixin>
-    extends StatelessWidget {
+class FilterSection<ChipsEnum extends Object> extends StatelessWidget {
   const FilterSection({
     super.key,
     required this.label,
@@ -113,8 +113,8 @@ class FilterSection<ChipsEnum extends DisplayEnumMixin>
   final String label;
   final List<ChipsEnum> chipsEnum; //Enum
   final Map<ChipsEnum, int> filters;
-  final Function(DisplayEnumMixin) addFilter;
-  final Function(DisplayEnumMixin) deleteFilter;
+  final Function(Object) addFilter;
+  final Function(Object) deleteFilter;
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +134,7 @@ class FilterSection<ChipsEnum extends DisplayEnumMixin>
           children: chipsEnum.map((ChipsEnum chip) {
             //TODO ここだけ違う.ダブり表示ありを検索することはない
             return FilterChip(
-              label: Text(chip.display),
+              label: Text(_filterLabel(chip)),
               selected: filters[chip] == 1,
               onSelected: (bool selected) {
                 if (selected) {
@@ -151,8 +151,7 @@ class FilterSection<ChipsEnum extends DisplayEnumMixin>
   }
 }
 
-class FilterExclusionSection<ChipsEnum extends DisplayEnumMixin>
-    extends StatelessWidget {
+class FilterExclusionSection<ChipsEnum extends Object> extends StatelessWidget {
   const FilterExclusionSection({
     super.key,
     required this.label,
@@ -164,8 +163,8 @@ class FilterExclusionSection<ChipsEnum extends DisplayEnumMixin>
   final String label;
   final List<ChipsEnum> chipsEnum; //Enum
   final Map<ChipsEnum, int> filters;
-  final Function(DisplayEnumMixin) addFilter;
-  final Function(DisplayEnumMixin) deleteFilter;
+  final Function(Object) addFilter;
+  final Function(Object) deleteFilter;
 
   @override
   Widget build(BuildContext context) {
@@ -192,7 +191,7 @@ class FilterExclusionSection<ChipsEnum extends DisplayEnumMixin>
               );
             }
             return FilterChip(
-              label: Text(chip.display),
+              label: Text(_filterLabel(chip)),
               selected: filters[chip] == -1,
               onSelected: (bool selected) {
                 if (selected) {
@@ -208,6 +207,12 @@ class FilterExclusionSection<ChipsEnum extends DisplayEnumMixin>
     );
   }
 }
+
+String _filterLabel(Object value) => switch (value) {
+      CatalogPartOfSpeech partOfSpeech => partOfSpeech.displayLabel,
+      DisplayEnumMixin displayEnum => displayEnum.display,
+      _ => value.toString(),
+    };
 
 class PagenationFilterSection extends StatelessWidget {
   const PagenationFilterSection(

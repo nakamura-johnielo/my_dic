@@ -8,11 +8,11 @@ import 'package:my_dic/core/infrastructure/database/drift/_NATIVE/native_databas
 import 'package:my_dic/core/infrastructure/database/drift/_WEB/web_executor.dart'
     if (dart.library.io) 'package:my_dic/core/infrastructure/database/drift/_WEB/web_executor_stub.dart';
 import 'package:my_dic/core/infrastructure/database/drift/daos/es_en_conjugacion_dao.dart';
-import 'package:my_dic/core/infrastructure/database/drift/daos/jpn_esp/jpn_esp_word_dao.dart';
+import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/jpn_esp/jpn_esp_word_dao.dart';
 import 'package:my_dic/features/my_word/data/data_source/local/drift_my_word_dao.dart';
-import 'package:my_dic/core/infrastructure/database/drift/daos/esp_jpn/part_of_speech_list_dao.dart';
+import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/esp_jpn/part_of_speech_list_dao.dart';
 import 'package:my_dic/features/ranking/data/data_source/local/ranking_dao.dart';
-import 'package:my_dic/core/infrastructure/database/drift/daos/esp_jpn/esp_jpn_word_dao.dart';
+import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/esp_jpn/esp_jpn_word_dao.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/conjugations.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/dictionaries.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/es_en_conjugacions.dart';
