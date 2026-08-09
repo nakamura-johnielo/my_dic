@@ -1,5 +1,5 @@
 import 'package:uuid/uuid.dart';
-import 'package:my_dic/core/infrastructure/datasource/word_status/i_local_word_status_data_source.dart';
+import 'package:my_dic/features/word_status/internal/infrastructure/esp_jpn/drift/esp_jpn_word_status_local_data_source.dart';
 import 'package:my_dic/core/shared/consts/account_scope.dart';
 import 'package:my_dic/core/shared/enums/sync_dataset.dart';
 import 'package:my_dic/core/shared/errors/app_error.dart';
@@ -19,7 +19,7 @@ final class EspJpnDictionaryWordStatusAdapter
       {Uuid? uuid})
       : _uuid = uuid ?? const Uuid();
 
-  final ILocalWordStatusDataSource _local;
+  final EspJpnWordStatusLocalDataSource _local;
   final OutboxWriter _outboxWriter;
   final Uuid _uuid;
 

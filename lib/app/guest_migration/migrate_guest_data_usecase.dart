@@ -1,9 +1,6 @@
 import 'package:uuid/uuid.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
-import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/i_local_jpn_esp_word_status_data_source.dart';
-import 'package:my_dic/core/infrastructure/datasource/word_status/i_local_word_status_data_source.dart';
 import 'package:my_dic/core/shared/consts/account_scope.dart';
-import 'package:my_dic/core/shared/consts/dates.dart';
 import 'package:my_dic/core/shared/enums/sync_dataset.dart';
 import 'package:my_dic/features/my_word/data/data_source/local/i_my_word_local_data_source.dart';
 import 'package:my_dic/features/my_word/data/data_source/local/i_my_word_status_local_data_source.dart';
@@ -11,6 +8,7 @@ import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
 import 'package:my_dic/features/sync/application/port/outbox_writer.dart';
 import 'package:my_dic/features/sync/application/port/session_fence.dart';
 import 'package:my_dic/features/user/data/data_source/local/i_user_profile_local_data_source.dart';
+import 'package:my_dic/features/word_status/application/port/word_status_guest_migration.dart';
 
 /// Moves every guest-scoped local row to a signed-in account, atomically.
 ///
@@ -31,8 +29,7 @@ import 'package:my_dic/features/user/data/data_source/local/i_user_profile_local
 class MigrateGuestDataUseCase {
   MigrateGuestDataUseCase({
     required DatabaseProvider database,
-    required ILocalWordStatusDataSource espJpnWordStatus,
-    required ILocalJpnEspWordStatusDataSource jpnEspWordStatus,
+    required WordStatusGuestMigration wordStatus,
     required IMyWordLocalDataSource myWord,
     required IMyWordStatusLocalDataSource myWordStatus,
     required IUserProfileLocalDataSource userProfile,
@@ -41,8 +38,7 @@ class MigrateGuestDataUseCase {
     Uuid? uuid,
     DateTime Function()? clock,
   })  : _database = database,
-        _espJpnWordStatus = espJpnWordStatus,
-        _jpnEspWordStatus = jpnEspWordStatus,
+        _wordStatus = wordStatus,
         _myWord = myWord,
         _myWordStatus = myWordStatus,
         _userProfile = userProfile,
@@ -52,8 +48,7 @@ class MigrateGuestDataUseCase {
         _clock = clock ?? DateTime.now;
 
   final DatabaseProvider _database;
-  final ILocalWordStatusDataSource _espJpnWordStatus;
-  final ILocalJpnEspWordStatusDataSource _jpnEspWordStatus;
+  final WordStatusGuestMigration _wordStatus;
   final IMyWordLocalDataSource _myWord;
   final IMyWordStatusLocalDataSource _myWordStatus;
   final IUserProfileLocalDataSource _userProfile;
@@ -67,8 +62,11 @@ class MigrateGuestDataUseCase {
     final migrationId = _uuid.v4();
     await _database.transaction(() async {
       _ensureCurrent(accountId, sessionEpoch);
-      await _migrateEspJpnWordStatus(accountId, migrationId);
-      await _migrateJpnEspWordStatus(accountId, migrationId);
+      await _wordStatus.migrateGuestRows(
+        accountId: accountId,
+        migrationId: migrationId,
+        clock: _clock,
+      );
       await _migrateMyWords(accountId, migrationId);
       await _migrateMyWordStatuses(accountId, migrationId);
       await _migrateUserProfile(accountId, migrationId);
@@ -126,86 +124,6 @@ class MigrateGuestDataUseCase {
     // There is no delete mutation: a guest scope has no remote account.
     // Removing this local source row is transactional with the account write.
     await _userProfile.deleteProfile(guestAccountScope);
-  }
-
-  Future<void> _migrateEspJpnWordStatus(
-      String accountId, String migrationId) async {
-    final guestRows = await _espJpnWordStatus.getWordStatusAfter(
-        MyDateTime.sentinel, guestAccountScope);
-    final editAt = _clock().toIso8601String();
-    for (final guestRow in guestRows) {
-      final accountRow =
-          await _espJpnWordStatus.getWordStatusById(guestRow.wordId, accountId);
-      final isLearned = guestRow.isLearned == 1 || accountRow?.isLearned == 1;
-      final isBookmarked =
-          guestRow.isBookmarked == 1 || accountRow?.isBookmarked == 1;
-      final hasNote = guestRow.hasNote == 1 || accountRow?.hasNote == 1;
-      final updated = await _espJpnWordStatus.updateWordStatus(
-        guestRow.wordId,
-        isLearned,
-        isBookmarked,
-        hasNote,
-        editAt,
-        accountId,
-      );
-      await _espJpnWordStatus.deleteRow(guestRow.wordId, guestAccountScope);
-      await _outboxWriter.enqueue(SyncMutation(
-        mutationId: _mutationId(migrationId, SyncDataset.espJpnWordStatus,
-            guestRow.wordId.toString()),
-        accountId: accountId,
-        dataset: SyncDataset.espJpnWordStatus,
-        entityId: guestRow.wordId.toString(),
-        operation: SyncMutationOperation.patch,
-        payload: {
-          'isLearned': isLearned,
-          'isBookmarked': isBookmarked,
-          'hasNote': hasNote,
-        },
-        fieldMask: const ['isLearned', 'isBookmarked', 'hasNote'],
-        localRevision: updated.localRevision,
-        clientUpdatedAt: DateTime.parse(editAt).toUtc(),
-      ));
-    }
-  }
-
-  Future<void> _migrateJpnEspWordStatus(
-      String accountId, String migrationId) async {
-    final guestRows = await _jpnEspWordStatus.getWordStatusAfter(
-        MyDateTime.sentinel, guestAccountScope);
-    final editAt = _clock().toIso8601String();
-    for (final guestRow in guestRows) {
-      final accountRow =
-          await _jpnEspWordStatus.getWordStatusById(guestRow.wordId, accountId);
-      final isLearned = guestRow.isLearned == 1 || accountRow?.isLearned == 1;
-      final isBookmarked =
-          guestRow.isBookmarked == 1 || accountRow?.isBookmarked == 1;
-      final hasNote = guestRow.hasNote == 1 || accountRow?.hasNote == 1;
-      final updated = await _jpnEspWordStatus.updateWordStatus(
-        guestRow.wordId,
-        isLearned,
-        isBookmarked,
-        hasNote,
-        editAt,
-        accountId,
-      );
-      await _jpnEspWordStatus.deleteRow(guestRow.wordId, guestAccountScope);
-      await _outboxWriter.enqueue(SyncMutation(
-        mutationId: _mutationId(migrationId, SyncDataset.jpnEspWordStatus,
-            guestRow.wordId.toString()),
-        accountId: accountId,
-        dataset: SyncDataset.jpnEspWordStatus,
-        entityId: guestRow.wordId.toString(),
-        operation: SyncMutationOperation.patch,
-        payload: {
-          'isLearned': isLearned,
-          'isBookmarked': isBookmarked,
-          'hasNote': hasNote,
-        },
-        fieldMask: const ['isLearned', 'isBookmarked', 'hasNote'],
-        localRevision: updated.localRevision,
-        clientUpdatedAt: DateTime.parse(editAt).toUtc(),
-      ));
-    }
   }
 
   Future<void> _migrateMyWords(String accountId, String migrationId) async {

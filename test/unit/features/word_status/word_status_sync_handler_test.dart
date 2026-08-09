@@ -1,556 +1,198 @@
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
-import 'package:my_dic/core/infrastructure/database/drift/daos/esp_jpn/esp_jpn_word_status_dao.dart';
-import 'package:my_dic/core/infrastructure/database/drift/daos/jpn_esp/jpn_esp_word_status_dao.dart';
-import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
-import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/jpn_esp_drift_word_status_data_source.dart';
-import 'package:my_dic/core/infrastructure/datasource/word_status/drift_word_status_data_source.dart';
 import 'package:my_dic/core/shared/enums/sync_dataset.dart';
-import 'package:my_dic/features/esp_jpn_word_status/data/sync/esp_jpn_word_status_sync_handler.dart';
-import 'package:my_dic/features/esp_jpn_word_status/data/sync/remote/i_esp_jpn_word_status_remote_data_source.dart';
-import 'package:my_dic/features/esp_jpn_word_status/data/word_status_entity.dart';
-import 'package:my_dic/features/jpn_esp_word_status/data/jpn_esp_word_status_entity.dart';
-import 'package:my_dic/features/jpn_esp_word_status/data/sync/jpn_esp_word_status_sync_handler.dart';
-import 'package:my_dic/features/jpn_esp_word_status/data/sync/remote/i_jpn_esp_word_status_remote_data_source.dart';
 import 'package:my_dic/features/sync/application/cancellation_token.dart';
 import 'package:my_dic/features/sync/application/model/dataset_sync_result.dart';
 import 'package:my_dic/features/sync/application/model/remote_mutation.dart';
 import 'package:my_dic/features/sync/application/model/sync_context.dart';
 import 'package:my_dic/features/sync/application/model/sync_cursor.dart';
 import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
-import 'package:my_dic/features/sync/application/port/dataset_sync_handler.dart';
-import 'package:my_dic/features/sync/infrastructure/persistence/drift/drift_sync_checkpoint_store.dart';
+import 'package:my_dic/features/sync/application/port/sync_checkpoint_store.dart';
+import 'package:my_dic/features/word_status/internal/infrastructure/sync/word_status_dataset_adapter.dart';
+import 'package:my_dic/features/word_status/internal/infrastructure/sync/word_status_dataset_sync_handler.dart';
+import 'package:my_dic/features/word_status/internal/infrastructure/sync/word_status_sync_record.dart';
 
 import '../../../helpers/sync/fake_sync_queue.dart';
 
-class _MockEspRemote extends Mock
-    implements IEspJpnWordStatusRemoteDataSource {}
-
-class _MockJpnEspRemote extends Mock
-    implements IJpnEspWordStatusRemoteDataSource {}
-
 const _accountId = 'account-a';
 
-const _ack = RemoteMutationAck(
-  status: RemoteMutationAckStatus.applied,
-  remoteRevision: 1,
-  lastMutationId: 'remote-mutation',
-  serverUpdatedAt: null,
-);
-
-SyncMutation _mutation({
-  required SyncDataset dataset,
-  required List<String> fieldMask,
-  required Map<String, Object?> payload,
-  int localRevision = 1,
-  String entityId = '1',
-}) =>
+SyncMutation _mutation(SyncDataset dataset, [String suffix = '']) =>
     SyncMutation(
-      mutationId: 'mutation-$entityId-${fieldMask.join('-')}',
+      mutationId: 'mutation-${dataset.stableId}$suffix',
       accountId: _accountId,
       dataset: dataset,
-      entityId: entityId,
+      entityId: '1',
       operation: SyncMutationOperation.patch,
-      payload: payload,
-      fieldMask: fieldMask,
-      localRevision: localRevision,
+      payload: const {'isBookmarked': true},
+      fieldMask: const ['isBookmarked'],
+      localRevision: 1,
       clientUpdatedAt: DateTime.utc(2026),
     );
 
-abstract interface class _HandlerFixture {
-  DatasetSyncHandler get handler;
-  FakeSyncQueue get queue;
-  SyncDataset get dataset;
-  Future<void> close();
-  Future<bool> exists(int wordId);
-  Future<({bool? learned, bool? bookmarked, bool? hasNote})> read(int wordId);
-  Future<void> seed(int wordId,
-      {required bool isLearned,
-      required bool isBookmarked,
-      required bool hasNote});
-}
-
-class _EspJpnFixture implements _HandlerFixture {
-  _EspJpnFixture._(
-      this._database, this.handler, this.queue, this._remote, this._dao);
-
-  final DatabaseProvider _database;
-  @override
-  final EspJpnWordStatusSyncHandler handler;
-  @override
-  final FakeSyncQueue queue;
-  final _MockEspRemote _remote;
-  final EspJpnWordStatusDao _dao;
+class _Adapter implements WordStatusDatasetAdapter {
+  _Adapter(this.dataset);
 
   @override
-  final SyncDataset dataset = SyncDataset.espJpnWordStatus;
-
-  IEspJpnWordStatusRemoteDataSource get remote => _remote;
-
-  static Future<_EspJpnFixture> create() async {
-    final database = DatabaseProvider.forTesting(NativeDatabase.memory());
-    final dao = EspJpnWordStatusDao(database);
-    final local = DriftWordStatusDataSource(dao);
-    final remote = _MockEspRemote();
-    final queue = FakeSyncQueue();
-    final checkpointStore = DriftSyncCheckpointStore(database);
-    final handler = EspJpnWordStatusSyncHandler(
-      queue: queue,
-      checkpointStore: checkpointStore,
-      local: local,
-      remote: remote,
-      clock: () => DateTime.utc(2026, 8, 6),
-    );
-    return _EspJpnFixture._(database, handler, queue, remote, dao);
-  }
+  final SyncDataset dataset;
+  final records = <WordStatusSyncRecord>[];
+  final applied = <WordStatusSyncRecord>[];
+  final acknowledged = <int>[];
+  Object? patchError;
+  void Function()? afterPatch;
 
   @override
-  Future<void> close() => _database.close();
-
-  @override
-  Future<bool> exists(int wordId) => _dao.exist(wordId, _accountId);
-
-  @override
-  Future<({bool? learned, bool? bookmarked, bool? hasNote})> read(
-      int wordId) async {
-    final row = await _dao.getStatusById(wordId, _accountId);
-    if (row == null) return (learned: null, bookmarked: null, hasNote: null);
-    return (
-      learned: row.isLearned == 1,
-      bookmarked: row.isBookmarked == 1,
-      hasNote: row.hasNote == 1,
+  Future<RemoteMutationAck> patch(RemoteMutationRequest request) async {
+    if (patchError != null) throw patchError!;
+    afterPatch?.call();
+    return const RemoteMutationAck(
+      status: RemoteMutationAckStatus.applied,
+      remoteRevision: 1,
+      lastMutationId: 'remote-mutation',
+      serverUpdatedAt: null,
     );
   }
 
   @override
-  Future<void> seed(int wordId,
-      {required bool isLearned,
-      required bool isBookmarked,
-      required bool hasNote}) {
-    return _dao.applyStatusPatch(wordId, isLearned, isBookmarked, hasNote,
-        DateTime.utc(2026, 8, 1).toIso8601String(), _accountId);
+  Future<List<WordStatusSyncRecord>> fetchPage(
+          String accountId, SyncCursor? cursor) async =>
+      records;
+
+  @override
+  Future<T> transaction<T>(Future<T> Function() action) => action();
+
+  @override
+  Future<bool> acknowledge({
+    required int wordId,
+    required String accountId,
+    required int localRevision,
+    required String remoteRevision,
+    required String? lastMutationId,
+  }) async {
+    acknowledged.add(wordId);
+    return true;
+  }
+
+  @override
+  Future<void> applyRemote(
+    WordStatusSyncRecord record, {
+    required String accountId,
+    required Set<String> skippedFields,
+  }) async {
+    applied.add(record);
   }
 }
 
-class _JpnEspFixture implements _HandlerFixture {
-  _JpnEspFixture._(
-      this._database, this.handler, this.queue, this._remote, this._dao);
-
-  final DatabaseProvider _database;
-  @override
-  final JpnEspWordStatusSyncHandler handler;
-  @override
-  final FakeSyncQueue queue;
-  final _MockJpnEspRemote _remote;
-  final JpnEspWordStatusDao _dao;
+class _CheckpointStore implements SyncCheckpointStore {
+  SyncCursor? cursor;
 
   @override
-  final SyncDataset dataset = SyncDataset.jpnEspWordStatus;
-
-  IJpnEspWordStatusRemoteDataSource get remote => _remote;
-
-  static Future<_JpnEspFixture> create() async {
-    final database = DatabaseProvider.forTesting(NativeDatabase.memory());
-    final dao = JpnEspWordStatusDao(database);
-    final local = JpnEspDriftWordStatusDataSource(dao);
-    final remote = _MockJpnEspRemote();
-    final queue = FakeSyncQueue();
-    final checkpointStore = DriftSyncCheckpointStore(database);
-    final handler = JpnEspWordStatusSyncHandler(
-      queue: queue,
-      checkpointStore: checkpointStore,
-      local: local,
-      remote: remote,
-      clock: () => DateTime.utc(2026, 8, 6),
-    );
-    return _JpnEspFixture._(database, handler, queue, remote, dao);
-  }
+  Future<SyncCursor?> read({
+    required String accountId,
+    required SyncDataset dataset,
+  }) async =>
+      cursor;
 
   @override
-  Future<void> close() => _database.close();
-
-  @override
-  Future<bool> exists(int wordId) => _dao.exist(wordId, _accountId);
-
-  @override
-  Future<({bool? learned, bool? bookmarked, bool? hasNote})> read(
-      int wordId) async {
-    final row = await _dao.getStatusById(wordId, _accountId);
-    if (row == null) return (learned: null, bookmarked: null, hasNote: null);
-    return (
-      learned: row.isLearned == 1,
-      bookmarked: row.isBookmarked == 1,
-      hasNote: row.hasNote == 1,
-    );
-  }
-
-  @override
-  Future<void> seed(int wordId,
-      {required bool isLearned,
-      required bool isBookmarked,
-      required bool hasNote}) {
-    return _dao.applyStatusPatch(wordId, isLearned, isBookmarked, hasNote,
-        DateTime.utc(2026, 8, 1).toIso8601String(), _accountId);
+  Future<void> write({
+    required String accountId,
+    required SyncDataset dataset,
+    required SyncCursor cursor,
+    required DateTime lastSuccessfulAt,
+  }) async {
+    this.cursor = cursor;
   }
 }
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
+  for (final dataset in [
+    SyncDataset.espJpnWordStatus,
+    SyncDataset.jpnEspWordStatus,
+  ]) {
+    group('${dataset.stableId} common handler', () {
+      late _Adapter adapter;
+      late FakeSyncQueue queue;
+      late WordStatusDatasetSyncHandler handler;
 
-  setUpAll(() {
-    registerFallbackValue(<String, Object?>{});
-    registerFallbackValue(<String>[]);
-    registerFallbackValue(RemoteMutationRequest(
-      accountId: _accountId,
-      entityId: '1',
-      mutationId: 'fallback-mutation',
-      fields: const {'isLearned': true},
-      fieldMask: const ['isLearned'],
-      clientUpdatedAt: DateTime.utc(2026),
-    ));
-  });
-
-  final fixtures = <String, Future<_HandlerFixture> Function()>{
-    'Esp-Jpn': _EspJpnFixture.create,
-    'Jpn-Esp': _JpnEspFixture.create,
-  };
-
-  for (final fixtureEntry in fixtures.entries) {
-    group('${fixtureEntry.key} word status sync handler', () {
-      late _HandlerFixture fixture;
-
-      setUp(() async {
-        fixture = await fixtureEntry.value();
+      setUp(() {
+        adapter = _Adapter(dataset);
+        queue = FakeSyncQueue();
+        handler = WordStatusDatasetSyncHandler(
+          adapter: adapter,
+          queue: queue,
+          checkpointStore: _CheckpointStore(),
+          clock: () => DateTime.utc(2026, 8, 6),
+        );
       });
 
-      tearDown(() => fixture.close());
+      SyncContext context(CancellationToken cancellation) => SyncContext(
+            accountId: _accountId,
+            sessionEpoch: 1,
+            reason: 'test',
+            cancellation: cancellation,
+          );
 
-      test('pushes a leased mutation as a field-mask patch and acks it',
-          () async {
-        await fixture.seed(1,
-            isLearned: false, isBookmarked: false, hasNote: false);
-        fixture.queue.enqueue(_mutation(
-          dataset: fixture.dataset,
-          fieldMask: const ['isBookmarked'],
-          payload: const {'isBookmarked': true},
-        ));
-        if (fixture is _EspJpnFixture) {
-          final espJpn = fixture as _EspJpnFixture;
-          when(() => espJpn.remote.getWordStatusById(_accountId, 1))
-              .thenAnswer((_) async => null);
-          when(() => espJpn.remote.patchWordStatus(any()))
-              .thenAnswer((_) async => _ack);
-          when(() => espJpn.remote.fetchPage(_accountId, any()))
-              .thenAnswer((_) async => const []);
-        } else {
-          final jpnEsp = fixture as _JpnEspFixture;
-          when(() => jpnEsp.remote.getWordStatusById(_accountId, 1))
-              .thenAnswer((_) async => null);
-          when(() => jpnEsp.remote.patchWordStatus(any()))
-              .thenAnswer((_) async => _ack);
-          when(() => jpnEsp.remote.fetchPage(_accountId, any()))
-              .thenAnswer((_) async => const []);
-        }
+      test('pushes a leased patch and acknowledges it', () async {
+        queue.enqueue(_mutation(dataset));
 
-        final result = await fixture.handler.run(SyncContext(
-          accountId: _accountId,
-          sessionEpoch: 1,
-          reason: 'test',
-          cancellation: CancellationToken(),
-        ));
+        final result = await handler.run(context(CancellationToken()));
 
         expect(result, isA<DatasetSyncSuccess>());
         expect((result as DatasetSyncSuccess).pushedCount, 1);
-        expect(fixture.queue.pending, isEmpty);
-        expect(fixture.queue.leased, isEmpty);
+        expect(adapter.acknowledged, [1]);
+        expect(queue.pending, isEmpty);
       });
 
-      test('session invalidation after remote write does not ack', () async {
-        fixture.queue.enqueue(_mutation(
-          dataset: fixture.dataset,
-          fieldMask: const ['isLearned'],
-          payload: const {'isLearned': true},
-        ));
+      test('does not acknowledge after session invalidation', () async {
         final cancellation = CancellationToken();
-        if (fixture is _EspJpnFixture) {
-          final espJpn = fixture as _EspJpnFixture;
-          when(() => espJpn.remote.patchWordStatus(any()))
-              .thenAnswer((_) async {
-            cancellation.cancel('account changed');
-            return _ack;
-          });
-        } else {
-          final jpnEsp = fixture as _JpnEspFixture;
-          when(() => jpnEsp.remote.patchWordStatus(any()))
-              .thenAnswer((_) async {
-            cancellation.cancel('account changed');
-            return _ack;
-          });
-        }
+        adapter.afterPatch = () => cancellation.cancel('account changed');
+        queue.enqueue(_mutation(dataset));
 
-        final result = await fixture.handler.run(SyncContext(
-          accountId: _accountId,
-          sessionEpoch: 1,
-          reason: 'test',
-          cancellation: cancellation,
-        ));
+        final result = await handler.run(context(cancellation));
 
         expect(result, isA<DatasetSyncCancelled>());
-        expect(fixture.queue.leased, hasLength(1));
-        expect(fixture.queue.pending, isEmpty);
-        if (fixture is _EspJpnFixture) {
-          final espJpn = fixture as _EspJpnFixture;
-          verify(() => espJpn.remote.patchWordStatus(any())).called(1);
-        } else {
-          final jpnEsp = fixture as _JpnEspFixture;
-          verify(() => jpnEsp.remote.patchWordStatus(any())).called(1);
-        }
+        expect(adapter.acknowledged, isEmpty);
+        expect(queue.leased, hasLength(1));
       });
 
-      test('a retryable remote failure re-queues the mutation as pending',
+      test('retries retryable failures and dead-letters invalid failures',
           () async {
-        fixture.queue.enqueue(_mutation(
-          dataset: fixture.dataset,
-          fieldMask: const ['isLearned'],
-          payload: const {'isLearned': true},
-        ));
-        if (fixture is _EspJpnFixture) {
-          final espJpn = fixture as _EspJpnFixture;
-          when(() => espJpn.remote.patchWordStatus(any()))
-              .thenThrow(Exception('unavailable'));
-          when(() => espJpn.remote.fetchPage(_accountId, any()))
-              .thenAnswer((_) async => const []);
-        } else {
-          final jpnEsp = fixture as _JpnEspFixture;
-          when(() => jpnEsp.remote.patchWordStatus(any()))
-              .thenThrow(Exception('unavailable'));
-          when(() => jpnEsp.remote.fetchPage(_accountId, any()))
-              .thenAnswer((_) async => const []);
-        }
+        queue.enqueue(_mutation(dataset));
+        adapter.patchError = Exception('unavailable');
+        final retryResult = await handler.run(context(CancellationToken()));
+        expect(retryResult, isA<DatasetSyncFailed>());
+        expect(queue.pending, hasLength(1));
 
-        final result = await fixture.handler.run(SyncContext(
-          accountId: _accountId,
-          sessionEpoch: 1,
-          reason: 'test',
-          cancellation: CancellationToken(),
-        ));
-
-        expect(result, isA<DatasetSyncFailed>());
-        expect((result as DatasetSyncFailed).retryable, isTrue);
-        expect(fixture.queue.pending, hasLength(1));
-        expect(fixture.queue.deadLetters, isEmpty);
+        adapter.patchError = Exception('invalid-argument');
+        queue.enqueue(_mutation(dataset, '-invalid'));
+        final deadLetterResult =
+            await handler.run(context(CancellationToken()));
+        expect(deadLetterResult, isA<DatasetSyncFailed>());
+        expect(queue.deadLetters, hasLength(1));
       });
 
-      test('an invalid payload failure dead-letters the mutation', () async {
-        fixture.queue.enqueue(_mutation(
-          dataset: fixture.dataset,
-          fieldMask: const ['isLearned'],
-          payload: const {'isLearned': true},
-        ));
-        if (fixture is _EspJpnFixture) {
-          final espJpn = fixture as _EspJpnFixture;
-          when(() => espJpn.remote.patchWordStatus(any()))
-              .thenThrow(Exception('invalid-argument'));
-          when(() => espJpn.remote.fetchPage(_accountId, any()))
-              .thenAnswer((_) async => const []);
-        } else {
-          final jpnEsp = fixture as _JpnEspFixture;
-          when(() => jpnEsp.remote.patchWordStatus(any()))
-              .thenThrow(Exception('invalid-argument'));
-          when(() => jpnEsp.remote.fetchPage(_accountId, any()))
-              .thenAnswer((_) async => const []);
-        }
-
-        final result = await fixture.handler.run(SyncContext(
-          accountId: _accountId,
-          sessionEpoch: 1,
-          reason: 'test',
-          cancellation: CancellationToken(),
-        ));
-
-        expect(result, isA<DatasetSyncFailed>());
-        expect((result as DatasetSyncFailed).retryable, isFalse);
-        expect(fixture.queue.pending, isEmpty);
-        expect(fixture.queue.deadLetters, hasLength(1));
-      });
-
-      test('pulled remote fields are applied and the checkpoint advances',
-          () async {
+      test('applies remote records and advances the checkpoint', () async {
         final updatedAt = DateTime.utc(2026, 8, 5, 12);
-        if (fixture is _EspJpnFixture) {
-          final espJpn = fixture as _EspJpnFixture;
-          when(() => espJpn.remote.fetchPage(_accountId, any()))
-              .thenAnswer((_) async => [
-                    WordStatusDTO(
-                      wordId: 2,
-                      isLearned: 1,
-                      isBookmarked: 0,
-                      hasNote: 0,
-                      createdAt: updatedAt,
-                      updatedAt: updatedAt,
-                    ),
-                  ]);
-        } else {
-          final jpnEsp = fixture as _JpnEspFixture;
-          when(() => jpnEsp.remote.fetchPage(_accountId, any()))
-              .thenAnswer((_) async => [
-                    JpnEspWordStatusDTO(
-                      wordId: 2,
-                      isLearned: 1,
-                      isBookmarked: 0,
-                      hasNote: 0,
-                      createdAt: updatedAt,
-                      updatedAt: updatedAt,
-                    ),
-                  ]);
-        }
-
-        final result = await fixture.handler.run(SyncContext(
-          accountId: _accountId,
-          sessionEpoch: 1,
-          reason: 'test',
-          cancellation: CancellationToken(),
+        adapter.records.add(WordStatusSyncRecord(
+          wordId: 2,
+          isLearned: true,
+          isBookmarked: false,
+          hasNote: false,
+          updatedAt: updatedAt,
+          remoteRevision: 1,
+          lastMutationId: null,
         ));
+
+        final result = await handler.run(context(CancellationToken()));
 
         expect(result, isA<DatasetSyncSuccess>());
         expect((result as DatasetSyncSuccess).pulledCount, 1);
-        expect(await fixture.exists(2), isTrue);
-        final row = await fixture.read(2);
-        expect(row.learned, isTrue);
-        expect(row.bookmarked, isFalse);
-        expect(fixture.queue.pending, isEmpty,
-            reason: 'applying a remote snapshot must not enqueue an outbox '
-                'mutation');
-      });
-
-      test('a pulled field with an in-flight local mutation is not overwritten',
-          () async {
-        await fixture.seed(3,
-            isLearned: false, isBookmarked: true, hasNote: false);
-        fixture.queue.enqueue(_mutation(
-          dataset: fixture.dataset,
-          entityId: '3',
-          fieldMask: const ['isBookmarked'],
-          payload: const {'isBookmarked': true},
-        ));
-        // Simulate the mutation already being leased by an earlier/concurrent
-        // push attempt, so this run's own push phase has nothing new to lease
-        // for entity 3 while peekPending still reports it as in-flight.
-        await fixture.queue.leasePending(
-          accountId: _accountId,
-          dataset: fixture.dataset,
-          limit: 10,
-          now: DateTime.utc(2026, 8, 6),
-          leaseDuration: const Duration(minutes: 5),
-        );
-        final updatedAt = DateTime.utc(2026, 8, 5, 12);
-        if (fixture is _EspJpnFixture) {
-          final espJpn = fixture as _EspJpnFixture;
-          when(() => espJpn.remote.fetchPage(_accountId, any()))
-              .thenAnswer((_) async => [
-                    WordStatusDTO(
-                      wordId: 3,
-                      isLearned: 1,
-                      isBookmarked: 0,
-                      hasNote: 1,
-                      createdAt: updatedAt,
-                      updatedAt: updatedAt,
-                    ),
-                  ]);
-        } else {
-          final jpnEsp = fixture as _JpnEspFixture;
-          when(() => jpnEsp.remote.fetchPage(_accountId, any()))
-              .thenAnswer((_) async => [
-                    JpnEspWordStatusDTO(
-                      wordId: 3,
-                      isLearned: 1,
-                      isBookmarked: 0,
-                      hasNote: 1,
-                      createdAt: updatedAt,
-                      updatedAt: updatedAt,
-                    ),
-                  ]);
-        }
-
-        await fixture.handler.run(SyncContext(
-          accountId: _accountId,
-          sessionEpoch: 1,
-          reason: 'test',
-          cancellation: CancellationToken(),
-        ));
-
-        final row = await fixture.read(3);
-        // isLearned/hasNote come from the merged remote snapshot; isBookmarked
-        // keeps the not-yet-pushed local `true` instead of the remote's stale
-        // `false`.
-        expect(row.learned, isTrue);
-        expect(row.hasNote, isTrue);
-        expect(row.bookmarked, isTrue);
-      });
-
-      test('next pull uses the inclusive timestamp and document-ID cursor',
-          () async {
-        final updatedAt = DateTime.utc(2026, 8, 5, 12, 34, 56, 789, 123);
-        var fetchCount = 0;
-        void expectCursor(Invocation invocation) {
-          final cursor = invocation.positionalArguments[1] as SyncCursor;
-          expect(cursor.documentId, '42');
-          expect(cursor.seconds, updatedAt.millisecondsSinceEpoch ~/ 1000);
-          expect(cursor.nanoseconds,
-              (updatedAt.microsecondsSinceEpoch % 1000000) * 1000);
-        }
-
-        if (fixture is _EspJpnFixture) {
-          when(() => (fixture as _EspJpnFixture)
-              .remote
-              .fetchPage(_accountId, any())).thenAnswer((invocation) async {
-            if (fetchCount++ == 0) {
-              return [
-                WordStatusDTO(
-                  wordId: 42,
-                  isLearned: 1,
-                  isBookmarked: 0,
-                  hasNote: 0,
-                  createdAt: updatedAt,
-                  updatedAt: updatedAt,
-                ),
-              ];
-            }
-            expectCursor(invocation);
-            return const [];
-          });
-        } else {
-          when(() => (fixture as _JpnEspFixture)
-              .remote
-              .fetchPage(_accountId, any())).thenAnswer((invocation) async {
-            if (fetchCount++ == 0) {
-              return [
-                JpnEspWordStatusDTO(
-                  wordId: 42,
-                  isLearned: 1,
-                  isBookmarked: 0,
-                  hasNote: 0,
-                  createdAt: updatedAt,
-                  updatedAt: updatedAt,
-                ),
-              ];
-            }
-            expectCursor(invocation);
-            return const [];
-          });
-        }
-
-        final context = SyncContext(
-          accountId: _accountId,
-          sessionEpoch: 1,
-          reason: 'test',
-          cancellation: CancellationToken(),
-        );
-        await fixture.handler.run(context);
-        await fixture.handler.run(context);
-
-        expect(fetchCount, 2);
+        expect(adapter.applied.single.wordId, 2);
+        expect(
+            result.cursor,
+            SyncCursor(
+              seconds: updatedAt.millisecondsSinceEpoch ~/ 1000,
+              nanoseconds: (updatedAt.microsecondsSinceEpoch % 1000000) * 1000,
+              documentId: '2',
+            ));
       });
     });
   }

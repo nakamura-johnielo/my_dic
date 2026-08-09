@@ -1,11 +1,10 @@
 import 'package:drift/drift.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/jpn-esp/jpn_esp_word.dart';
-import 'package:my_dic/core/infrastructure/database/drift/tables/jpn-esp/jpn_esp_word_status.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 
 part '../../../../../../../__generated/features/catalog/internal/infrastructure/drift/dao/jpn_esp/jpn_esp_word_dao.g.dart';
 
-@DriftAccessor(tables: [JpnEspWords, JpnEspWordStatus])
+@DriftAccessor(tables: [JpnEspWords])
 class JpnEspWordDao extends DatabaseAccessor<DatabaseProvider>
     with _$JpnEspWordDaoMixin {
   JpnEspWordDao(super.database);

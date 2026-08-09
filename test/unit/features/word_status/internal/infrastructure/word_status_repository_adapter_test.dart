@@ -1,12 +1,7 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:my_dic/core/infrastructure/database/drift/daos/esp_jpn/esp_jpn_word_status_dao.dart';
-import 'package:my_dic/core/infrastructure/database/drift/daos/jpn_esp/jpn_esp_word_status_dao.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
-import 'package:my_dic/core/infrastructure/datasource/jpn_esp_word_status/jpn_esp_drift_word_status_data_source.dart';
-import 'package:my_dic/core/infrastructure/datasource/word_status/drift_word_status_data_source.dart';
-import 'package:my_dic/core/infrastructure/datasource/word_status/i_local_word_status_data_source.dart';
 import 'package:my_dic/core/shared/consts/account_scope.dart';
 import 'package:my_dic/core/shared/enums/sync_dataset.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
@@ -18,12 +13,17 @@ import 'package:my_dic/features/sync/application/port/outbox_writer.dart';
 import 'package:my_dic/features/sync/infrastructure/persistence/drift/drift_outbox_writer.dart';
 import 'package:my_dic/features/word_status/domain/word_status.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/esp_jpn/esp_jpn_dictionary_word_status_adapter.dart';
+import 'package:my_dic/features/word_status/internal/infrastructure/esp_jpn/drift/esp_jpn_word_status_dao.dart';
+import 'package:my_dic/features/word_status/internal/infrastructure/esp_jpn/drift/esp_jpn_word_status_local_data_source.dart';
+import 'package:my_dic/features/word_status/internal/infrastructure/esp_jpn/drift/esp_jpn_word_status_local_store.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/jpn_esp/jpn_esp_dictionary_word_status_adapter.dart';
+import 'package:my_dic/features/word_status/internal/infrastructure/jpn_esp/drift/jpn_esp_word_status_dao.dart';
+import 'package:my_dic/features/word_status/internal/infrastructure/jpn_esp/drift/jpn_esp_word_status_local_store.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/word_status_repository_adapter.dart';
 
 class _Adapter extends Mock implements DictionaryWordStatusAdapter {}
 
-class _EspJpnLocal extends Mock implements ILocalWordStatusDataSource {}
+class _EspJpnLocal extends Mock implements EspJpnWordStatusLocalDataSource {}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -61,11 +61,11 @@ void main() {
       final outbox = DriftOutboxWriter(database);
       repository = WordStatusRepositoryAdapter([
         EspJpnDictionaryWordStatusAdapter(
-          DriftWordStatusDataSource(EspJpnWordStatusDao(database)),
+          EspJpnWordStatusLocalStore(EspJpnWordStatusDao(database)),
           outbox,
         ),
         JpnEspDictionaryWordStatusAdapter(
-          JpnEspDriftWordStatusDataSource(JpnEspWordStatusDao(database)),
+          JpnEspWordStatusLocalStore(JpnEspWordStatusDao(database)),
           outbox,
         ),
       ]);

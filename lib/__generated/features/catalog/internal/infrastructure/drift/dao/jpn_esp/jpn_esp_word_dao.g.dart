@@ -5,6 +5,4 @@ part of '../../../../../../../../features/catalog/internal/infrastructure/drift/
 // ignore_for_file: type=lint
 mixin _$JpnEspWordDaoMixin on DatabaseAccessor<DatabaseProvider> {
   $JpnEspWordsTable get jpnEspWords => attachedDatabase.jpnEspWords;
-  $JpnEspWordStatusTable get jpnEspWordStatus =>
-      attachedDatabase.jpnEspWordStatus;
 }

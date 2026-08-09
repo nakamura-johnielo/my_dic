@@ -9,10 +9,8 @@ import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/esp_jp
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/jpn_esp/jpn_esp_dictionary_dao.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/jpn_esp/jpn_esp_example_dao.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/jpn_esp/jpn_esp_word_dao.dart';
-import 'package:my_dic/core/infrastructure/database/drift/daos/jpn_esp/jpn_esp_word_status_dao.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/esp_jpn/supplement_dao.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/esp_jpn/esp_jpn_word_dao.dart';
-import 'package:my_dic/core/infrastructure/database/drift/daos/esp_jpn/esp_jpn_word_status_dao.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/esp_jpn/part_of_speech_list_dao.dart';
@@ -67,15 +65,6 @@ final jpnEspDictionaryDaoProvider = Provider<JpnEspDictionaryDao>((ref) {
   return JpnEspDictionaryDao(ref.read(databaseProvider));
 });
 
-final jpnEspWordStatusDaoProvider = Provider<JpnEspWordStatusDao>((ref) {
-  return JpnEspWordStatusDao(ref.read(databaseProvider));
-});
-
 final esEnConjugacionDaoProvider = Provider<EsEnConjugacionDao>((ref) {
   return EsEnConjugacionDao(ref.read(databaseProvider));
-});
-
-//=======wordstatus===============--
-final localWordStatusDaoProvider = Provider<EspJpnWordStatusDao>((ref) {
-  return EspJpnWordStatusDao(ref.read(databaseProvider));
 });
