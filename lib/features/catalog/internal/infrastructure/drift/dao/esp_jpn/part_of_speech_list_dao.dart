@@ -22,12 +22,4 @@ class PartOfSpeechListDao extends DatabaseAccessor<DatabaseProvider>
         .getSingleOrNull();
   }
 
-  Future<void> insertPartOfSpeechList(Insertable<PartOfSpeechList> tableName) =>
-      into(partOfSpeechLists).insert(tableName);
-
-  Future<void> updatePartOfSpeechList(Insertable<PartOfSpeechList> tableName) =>
-      update(partOfSpeechLists).replace(tableName);
-
-  Future<void> deletePartOfSpeechList(Insertable<PartOfSpeechList> tableName) =>
-      delete(partOfSpeechLists).delete(tableName);
 }

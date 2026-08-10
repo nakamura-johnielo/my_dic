@@ -1,0 +1,25 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/app/bootstrap/session_composition.dart';
+import 'package:my_dic/app/session/app_session.dart';
+import 'package:my_dic/app/session/session_providers.dart';
+import 'package:my_dic/features/user_profile/port/presentation_entry.dart';
+
+UserProfilePresentationSession userProfilePresentationSession(Ref ref) {
+  final session = ref.watch(appSessionProvider);
+  final scope = ref.watch(sessionScopeKeyProvider);
+  return switch (session) {
+    AppSessionReady(:final identity, :final profile)
+        when scope != null && scope.accountScope == identity.accountId =>
+      UserProfilePresentationSession(
+        scope: scope,
+        profile: profile,
+        accountId: identity.accountId,
+        email: identity.email,
+      ),
+    AppSessionLoadingProfile() =>
+      const UserProfilePresentationSession(scope: null, isLoading: true),
+    AppSessionFailure(:final error) =>
+      UserProfilePresentationSession(scope: null, error: error),
+    _ => const UserProfilePresentationSession(scope: null),
+  };
+}

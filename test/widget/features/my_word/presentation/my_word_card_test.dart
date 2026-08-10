@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/shared/enums/ui/word_card_view_click_listener.dart';
-import 'package:my_dic/features/my_word/presentation/ui_model/my_word_ui_model.dart';
-import 'package:my_dic/features/my_word/presentation/view/my_word_card.dart';
+import 'package:my_dic/features/my_word/internal/presentation/ui_model/my_word_ui_model.dart';
+import 'package:my_dic/features/my_word/internal/presentation/view/my_word_card.dart';
 
 void main() {
   testWidgets('routes each status button through its supplied command callback',

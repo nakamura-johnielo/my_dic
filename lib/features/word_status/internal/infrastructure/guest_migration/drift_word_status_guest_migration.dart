@@ -1,8 +1,8 @@
 import 'package:my_dic/core/shared/consts/account_scope.dart';
-import 'package:my_dic/core/shared/enums/sync_dataset.dart';
-import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
-import 'package:my_dic/features/sync/application/port/outbox_writer.dart';
-import 'package:my_dic/features/word_status/application/port/word_status_guest_migration.dart';
+import 'package:my_dic/features/sync/port/sync_dataset.dart';
+import 'package:my_dic/features/sync/port/model/sync_mutation.dart';
+import 'package:my_dic/features/sync/port/outbox_writer.dart';
+import 'package:my_dic/features/word_status/port/guest_migration.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/esp_jpn/drift/esp_jpn_word_status_local_data_source.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/jpn_esp/drift/jpn_esp_word_status_local_data_source.dart';
 

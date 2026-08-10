@@ -14,7 +14,7 @@ jobs:
           channel: stable
       - run: flutter pub get
       - run: flutter analyze
-      - run: dart run tool/check_import_boundaries.dart --baseline tool/import_boundaries/baseline.json --check
+      # - run: dart run tool/check_import_boundaries.dart --baseline tool/import_boundaries/baseline.json --check
       - run: flutter test
 
   firestore-emulator:

@@ -233,16 +233,6 @@ Search/QuizはCatalog raw port設計と `catalog_composition.dart` を共有す�
 
 後続handoffを固定する。A-SYNCはcoordinator eventをSync portの `SessionFence` へ適合させ、`syncSessionFenceProvider` のinternal importを除くが、epochを発行・incrementしない。A-SESSIONはauth lifecycle producerを最終workflowへ移すだけで、coordinatorのinstance、transition規則、epoch系列を置換しない。
 
-Tests:
-
-- existing MyWord/Ranking/WordStatus account scope tests
-- guest→A→B→signed-out
-- signing-in/signing-out/profile-loading等のintermediate phaseでold entry/dataが即時detachされ、guest/account query 0
-- A logout→同じA reloginでepochが変わる
-- 同じstable ready accountのprofile rebuildや同じstable signed-out event反復ではepochを増やさず、entry/page0を再生成しない
-- presentation key、Sync fence、guest migration contextのaccount/epochが同じeventで完全一致し、各transitionで一度だけ発行される
-- ProviderContainer内にepoch counter/coordinator instanceが一つだけで、A-SYNC/A-SESSION handoff後も系列が連続する
-- feature use caseが明示されたscope以外へread/writeしない
 
 完了条件:
 
@@ -280,14 +270,6 @@ WordStatusの次4ファイルは既に正しいowner internal infrastructureに�
 
 DAOが `UserDTO.collectionName` 等の他feature internal定数を参照する場合は、wire pathをownerのpure Sync/Firebase contractへ写し、値を変えずcross-feature internal importを除く。
 
-Tests:
-
-- path/collection/document/field manifest
-- DateTime↔Timestamp、revision、MyWords tombstone
-- pure executor request mappingと全5 DAOのfield mask/identity mapping
-- P0のDart Firestore emulator characterizationを新app executorへ向け、`applied` / `duplicate` / `superseded`、revision初期値/increment、新規時だけ`createdAt`、server `updatedAt`、`schemaVersion == 1`、merge、commit後readbackを同じ期待値で通す
-- 現行どおり `baseRemoteRevision` が判定に使われないこと
-- Firebase allow/deny fixture
 
 このpackageの局所完了条件:
 
@@ -327,15 +309,6 @@ owner feature handlerから `RetryPolicy`、`ExponentialBackoff`、`SyncErrorCla
 - `app/bootstrap/sync_composition.dart` と `sync_infrastructure_providers.dart` からfeature/Sync internal importを除く。
 - `app/guest_migration/**` を `app/workflows/guest_migration/**` へ、foreground/manual/lifecycle triggerを `app/workflows/sync_trigger/**` へ移す。
 
-Tests:
-
-- existing Sync engine/scheduler/handler/outbox/checkpoint tests
-- stableId/remote mutation contract
-- retryable `SyncReport` が `SyncRunOutcome.retryScheduled`、non-retryableがfailure、session cancellationがcancelledへ一度だけ写像されるcontract
-- duplicate dataset registry
-- public compositionから全handlerを一度だけ解決
-- session fence/login/account-switch
-
 完了条件:
 
 - Sync internal→個別feature 0。
@@ -352,12 +325,6 @@ Tests:
 - P0で既に削除済みのcore auth lifecycle allowlistを復活させず、debt snapshotに出た10 importをcode移動で0にする。
 - router/UI facing `AppSession` はapp ownershipを維持する。
 - Auth/UserProfileのpure portを必要最小限先行し、app workflowがfeature internalへ依存しないようにする。
-
-Tests:
-
-- auth lifecycle部分をAuth VM testからapp workflow owner testへ移す
-- initializing/signed-out/unverified/loading-profile/ready/failure
-- login/logout/account-switchとsync trigger exactly once
 
 完了条件:
 
@@ -453,13 +420,6 @@ Phase完了条件:
 5. WordDetail conjugationからSearch provider購読を除き、optional `WordDetailPresentationInput.highlight` またはlocal stateへ置換。
 6. caller 0後にfacade 3件を削除する。
 
-Tests:
-
-- core shellがfeature import 0
-- Search/Quiz wrapper
-- status entryの構造/wiringと移動前後widget characterization。effectが未consumeの既知defect自体をgreen期待にせず、B-STATUSのred reproduction ownerへ引き渡す
-- WordDetail testがSearch provider override不要
-
 完了条件:
 
 - feature→`app/presentation` 0、WordDetail→Search 0、facade 3件参照0。
@@ -475,14 +435,6 @@ Tests:
 4. callerを全切替する: Search 2、Quiz Search、Ranking、WordDetail、router、tests。source featureはdestination route型を構築せず、`CatalogWordRef` + optional hint等のneutral callback payloadだけをappへ渡し、appがrouteへ変換する。
 5. feature presentationの `route_name_resolver.dart`、`entryPointProvider`、GoRouter importをnavigation callbackへ置換する。WordDetail→QuizとQuiz→WordDetailの相互route port importを作らない。
 6. app旧route contract shimを参照0後削除する。
-
-Tests:
-
-- WordDetail legacy `type`/`hasConj` matrix
-- Quiz canonical/legacy/unknown/non-positive/JpnEsp/optional hint
-- display hint不一致がidentityを変えない
-- callback navigation widget test
-- source presentationが他feature route port/GoRouter/router providerをimportしないchecker fixtureと、app callback payload→destination route mapping test
 
 完了条件:
 
@@ -510,14 +462,6 @@ Tests:
 5. bootstrapはpure feature composition factoryだけを使う。P0 DB decisionで証明したexact例外以外のinternal importを除く。
 6. guest migration/session/sync triggerはapp workflows、engineはSync featureに維持。
 7. 全caller切替後 `lib/router/` を削除する。
-
-Tests:
-
-- named route/path snapshot
-- legacy deep link、invalid route
-- session/profile redirect matrix
-- 各branch presentation entry
-- public compositionから必要portを一度だけ解決、dispose時resource close
 
 完了条件:
 

@@ -11,6 +11,10 @@ Run locally:
 dart run tool/check_import_boundaries.dart --baseline tool/import_boundaries/baseline.json --check
 ```
 
+```powershell
+dart run tool/check_feature_dependencies.dart 
+```
+
 The baseline contains each pre-existing violation together with its rule ID,
 source, target, introduction date, owner, and tracking issue. CI fails when a
 violation is added or a baseline entry disappears. Update it deliberately:

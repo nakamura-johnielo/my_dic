@@ -1,16 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:my_dic/app/bootstrap/firebase_remote_mutation_transaction.dart';
-import 'package:my_dic/features/sync/application/model/remote_mutation.dart';
-import 'package:my_dic/features/sync/application/model/sync_cursor.dart';
-import 'package:my_dic/features/user/data/dto/user_dto.dart';
+import 'package:my_dic/features/sync/port/model/remote_mutation.dart';
+import 'package:my_dic/features/sync/port/remote_mutation_executor.dart';
+import 'package:my_dic/features/sync/port/model/sync_cursor.dart';
+import 'package:my_dic/features/user_profile/port/user_dto.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/jpn_esp/firebase/jpn_esp_word_status_dto.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/jpn_esp/firebase/jpn_esp_word_status_mapper.dart';
 
 /// Firestore persistence for the Jpn-Esp word-status dataset.
 final class FirebaseJpnEspWordStatusDao {
-  FirebaseJpnEspWordStatusDao(this._firestore);
+  FirebaseJpnEspWordStatusDao(this._firestore, this._remoteMutations);
 
   final FirebaseFirestore _firestore;
+  final RemoteMutationExecutor _remoteMutations;
 
   Future<JpnEspWordStatusDto?> getWordStatus(
     String accountId,
@@ -22,16 +23,9 @@ final class FirebaseJpnEspWordStatusDao {
   }
 
   Future<RemoteMutationAck> patch(RemoteMutationRequest request) {
-    return RemoteMutationTransaction.apply(
-      firestore: _firestore,
-      reference: _collection(request.accountId).doc(request.entityId),
+    return _remoteMutations.execute(
+      target: RemoteMutationTarget.jpnEspWordStatus,
       request: request,
-      identityFields: {
-        JpnEspWordStatusDto.fieldWordId: int.parse(request.entityId),
-      },
-      encodeField: (field, value) => {
-        field: value is bool ? (value ? 1 : 0) : value,
-      },
     );
   }
 

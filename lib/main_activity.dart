@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_dic/core/di/router/router.dart';
+import 'package:my_dic/app/routing/navigation_state.dart';
 import 'package:my_dic/app/presentation/sync/manual_sync_action.dart';
 import 'package:my_dic/core/presentation/components/nav_bar/item.dart';
 import 'package:my_dic/core/presentation/components/nav_bar/studay_bottom_bar.dart';
 import 'package:my_dic/core/shared/enums/entry_point.dart';
 import 'package:my_dic/core/shared/consts/ui/tab.dart';
-import 'package:my_dic/router/route_names.dart';
+import 'package:my_dic/app/routing/route_names.dart';
 
 import 'package:my_dic/core/shared/utils/logger.dart';
 

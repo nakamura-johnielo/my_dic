@@ -1,6 +1,6 @@
 import 'package:my_dic/core/shared/errors/app_error.dart';
-import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
-import 'package:my_dic/features/user/domain/entity/user.dart';
+import 'package:my_dic/features/auth/port/app_auth.dart';
+import 'package:my_dic/features/user_profile/port/user_profile.dart';
 
 /// Router/UI-facing session state derived from `AuthLifecycleState`.
 ///

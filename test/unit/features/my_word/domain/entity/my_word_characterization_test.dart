@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
+import 'package:my_dic/features/my_word/internal/domain/entity/my_word.dart';
 
 void main() {
   test('MyWord copyWith preserves and replaces its write fields', () {

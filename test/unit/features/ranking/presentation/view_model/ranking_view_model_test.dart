@@ -4,12 +4,18 @@ import 'package:my_dic/core/shared/enums/feature_tag.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/ranking/di/view_model_di.dart';
+import 'package:my_dic/core/session/session_scope_key.dart';
+import 'package:my_dic/features/ranking/di/view_model_di.dart' as ranking_di;
 import 'package:my_dic/features/ranking/application/query/ranking_list_item.dart';
 import 'package:my_dic/features/ranking/application/query/ranking_page.dart';
 import 'package:my_dic/features/ranking/di/usecase_di.dart';
 
 import '../../../../../helpers/fake_ranking_usecases.dart';
+
+/// This suite intentionally exercises one concrete family entry. Other tests
+/// below assert that a changed epoch selects a distinct entry.
+const _scope = SessionScopeKey(accountScope: 'account-a', epoch: 1);
+final rankingViewModelProvider = ranking_di.rankingViewModelProvider(_scope);
 
 void main() {
   group('RankingViewModel', () {
@@ -33,6 +39,23 @@ void main() {
 
     tearDown(() {
       container.dispose();
+    });
+
+    test('guest, account, and relogin epochs select distinct provider entries',
+        () {
+      const guest = SessionScopeKey(accountScope: 'legacy_unowned', epoch: 1);
+      const account = SessionScopeKey(accountScope: 'account-a', epoch: 2);
+      const relogin = SessionScopeKey(accountScope: 'account-a', epoch: 3);
+
+      final guestNotifier =
+          container.read(ranking_di.rankingViewModelProvider(guest).notifier);
+      final accountNotifier =
+          container.read(ranking_di.rankingViewModelProvider(account).notifier);
+      final reloginNotifier =
+          container.read(ranking_di.rankingViewModelProvider(relogin).notifier);
+
+      expect(guestNotifier, isNot(same(accountNotifier)));
+      expect(accountNotifier, isNot(same(reloginNotifier)));
     });
 
     group('Filter state management', () {

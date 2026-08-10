@@ -6,14 +6,12 @@ import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/shared/value_objects/field_update.dart';
 import 'package:my_dic/features/catalog/port/catalog_id.dart';
 import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
-import 'package:my_dic/features/word_status/application/fetch_word_status.dart';
-import 'package:my_dic/features/word_status/application/model/update_word_status_command.dart';
-import 'package:my_dic/features/word_status/application/port/word_status_repository.dart';
-import 'package:my_dic/features/word_status/application/update_word_status.dart';
-import 'package:my_dic/features/word_status/application/watch_word_status.dart';
-import 'package:my_dic/features/word_status/domain/word_status.dart';
-
-import '../../../../helpers/fake_current_session.dart';
+import 'package:my_dic/features/word_status/internal/application/fetch_word_status.dart';
+import 'package:my_dic/features/word_status/internal/application/update_word_status.dart';
+import 'package:my_dic/features/word_status/internal/application/watch_word_status.dart';
+import 'package:my_dic/features/word_status/port/commands.dart';
+import 'package:my_dic/features/word_status/port/repository.dart';
+import 'package:my_dic/features/word_status/port/word_status.dart';
 
 class _MockRepository extends Mock implements WordStatusRepository {}
 
@@ -43,8 +41,8 @@ void main() {
       when(() => repository.get(word, accountId: guestAccountScope))
           .thenAnswer((_) async => const Result.success(null));
 
-      final result =
-          await FetchWordStatus(repository, FakeCurrentSession()).execute(word);
+      final result = await FetchWordStatus(repository)
+          .execute(word, accountScope: guestAccountScope);
 
       final fetched = result.dataOrNull!;
       expect(fetched.word, word);
@@ -60,10 +58,8 @@ void main() {
       when(() => repository.get(word, accountId: 'account-a'))
           .thenAnswer((_) async => Result.success(status()));
 
-      await FetchWordStatus(
-        repository,
-        FakeCurrentSession(accountIdOrNull: 'account-a'),
-      ).execute(word);
+      await FetchWordStatus(repository)
+          .execute(word, accountScope: 'account-a');
 
       verify(() => repository.get(word, accountId: 'account-a')).called(1);
     });
@@ -76,8 +72,8 @@ void main() {
       when(() => repository.watch(word, accountId: guestAccountScope))
           .thenAnswer((_) => Stream.value(expected));
 
-      final actual = await WatchWordStatus(repository, FakeCurrentSession())
-          .execute(word)
+      final actual = await WatchWordStatus(repository)
+          .execute(word, accountScope: guestAccountScope)
           .single;
 
       expect(actual, same(expected));
@@ -89,10 +85,9 @@ void main() {
       when(() => repository.watch(word, accountId: 'account-b'))
           .thenAnswer((_) => Stream.value(status()));
 
-      await WatchWordStatus(
-        repository,
-        FakeCurrentSession(accountIdOrNull: 'account-b'),
-      ).execute(word).single;
+      await WatchWordStatus(repository)
+          .execute(word, accountScope: 'account-b')
+          .single;
 
       verify(() => repository.watch(word, accountId: 'account-b')).called(1);
     });
@@ -102,8 +97,10 @@ void main() {
     test('does not call the repository for an unchanged command', () async {
       final repository = _MockRepository();
 
-      final result = await UpdateWordStatus(repository, FakeCurrentSession())
-          .execute(const UpdateWordStatusCommand(word: word));
+      final result = await UpdateWordStatus(repository).execute(
+        const UpdateWordStatusCommand(word: word),
+        accountId: null,
+      );
 
       expect(result.isSuccess, isTrue);
       verifyNever(() => repository.update(
@@ -131,12 +128,13 @@ void main() {
 
       await UpdateWordStatus(
         repository,
-        FakeCurrentSession(accountIdOrNull: 'account-c'),
         clock: () => localTime,
-      ).execute(const UpdateWordStatusCommand(
-        word: word,
-        isBookmarked: FieldUpdate.set(false),
-      ));
+      ).execute(
+          const UpdateWordStatusCommand(
+            word: word,
+            isBookmarked: FieldUpdate.set(false),
+          ),
+          accountId: 'account-c');
 
       final invocation = verify(() => repository.update(
             word,
@@ -161,11 +159,12 @@ void main() {
             accountId: any(named: 'accountId'),
           )).thenAnswer((_) async => Result.success(status()));
 
-      await UpdateWordStatus(repository, FakeCurrentSession()).execute(
+      await UpdateWordStatus(repository).execute(
         const UpdateWordStatusCommand(
           word: word,
           hasNote: FieldUpdate.set(true),
         ),
+        accountId: null,
       );
 
       verify(() => repository.update(
@@ -190,11 +189,12 @@ void main() {
             accountId: any(named: 'accountId'),
           )).thenAnswer((_) async => Result.failure(error));
 
-      final result = await UpdateWordStatus(repository, FakeCurrentSession())
-          .execute(const UpdateWordStatusCommand(
-        word: word,
-        isLearned: FieldUpdate.set(true),
-      ));
+      final result = await UpdateWordStatus(repository).execute(
+          const UpdateWordStatusCommand(
+            word: word,
+            isLearned: FieldUpdate.set(true),
+          ),
+          accountId: null);
 
       expect(result.errorOrNull, same(error));
     });

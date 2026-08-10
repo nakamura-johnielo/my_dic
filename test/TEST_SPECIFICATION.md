@@ -280,7 +280,7 @@ final useCase = SignInInteractor(repo);
 2. **追加ViewModelテスト** (★★★★☆)
    - MyWordViewModel
    - RankingViewModel
-   - WordPageViewModel
+   - WordDetailViewModel
 
 3. **Integration Tests** (★★★☆☆)
    - 認証フロー全体

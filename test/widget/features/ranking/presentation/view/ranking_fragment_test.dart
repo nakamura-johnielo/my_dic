@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
+import 'package:my_dic/app/bootstrap/session_composition.dart';
+import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
 import 'package:my_dic/features/catalog/port/catalog_id.dart';
 import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
@@ -18,12 +20,13 @@ import 'package:my_dic/features/ranking/di/view_model_di.dart';
 import 'package:my_dic/features/ranking/data/data_source/local/ranking_dao.dart';
 import 'package:my_dic/features/ranking/data/query/drift_ranking_query_repository.dart';
 import 'package:my_dic/features/ranking/presentation/view/ranking_fragment.dart';
-import 'package:my_dic/features/word_status/presentation/word_status_providers.dart';
+import 'package:my_dic/features/word_status/port/presentation_entry.dart';
 import 'package:my_dic/features/word_status/presentation/status_button.dart';
 
 import '../../../../../helpers/fake_ranking_usecases.dart';
 
 void main() {
+  const sessionScope = SessionScopeKey(accountScope: 'test-account', epoch: 1);
   testWidgets(
       'requests pages in order, stops at the final page, and resets to page 0 after a filter change',
       (tester) async {
@@ -36,7 +39,10 @@ void main() {
       loadRankingsUseCaseProvider.overrideWithValue(loadUseCase),
       updateRankingFilterUseCaseProvider
           .overrideWithValue(FakeUpdateRankingFilterUseCase()),
-      dictionaryStatusButtonsViewModelProvider(_statusWord).overrideWith(
+      sessionScopeKeyProvider.overrideWithValue(sessionScope),
+      dictionaryStatusButtonsViewModelProvider(
+        const WordStatusEntryKey(scope: sessionScope, word: _statusWord),
+      ).overrideWith(
         (ref) => _statusViewModel,
       ),
     ]);
@@ -55,14 +61,15 @@ void main() {
     await _scrollToNextPage(tester);
 
     expect(loadUseCase.inputs.map((input) => input.page), [0, 1]);
-    expect(container.read(rankingViewModelProvider).items, hasLength(200));
+    expect(container.read(rankingViewModelProvider(sessionScope)).items,
+        hasLength(200));
 
     await _scrollToNextPage(tester);
 
     expect(loadUseCase.inputs.map((input) => input.page), [0, 1]);
 
     container
-        .read(rankingViewModelProvider.notifier)
+        .read(rankingViewModelProvider(sessionScope).notifier)
         .addFilter(CatalogPartOfSpeech.noun);
     await tester.pumpAndSettle();
 
@@ -92,7 +99,10 @@ void main() {
       loadRankingsUseCaseProvider.overrideWithValue(loadUseCase),
       updateRankingFilterUseCaseProvider
           .overrideWithValue(FakeUpdateRankingFilterUseCase()),
-      dictionaryStatusButtonsViewModelProvider(_statusWord).overrideWith(
+      sessionScopeKeyProvider.overrideWithValue(sessionScope),
+      dictionaryStatusButtonsViewModelProvider(
+        const WordStatusEntryKey(scope: sessionScope, word: _statusWord),
+      ).overrideWith(
         (ref) => _statusViewModel,
       ),
     ]);
@@ -111,7 +121,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(loadUseCase.inputs.map((input) => input.page), [0, 1, 1]);
-    expect(container.read(rankingViewModelProvider).items, hasLength(200));
+    expect(container.read(rankingViewModelProvider(sessionScope)).items,
+        hasLength(200));
   });
 
   testWidgets(
@@ -128,7 +139,10 @@ void main() {
       loadRankingsUseCaseProvider.overrideWithValue(loadUseCase),
       updateRankingFilterUseCaseProvider
           .overrideWithValue(FakeUpdateRankingFilterUseCase()),
-      dictionaryStatusButtonsViewModelProvider(_statusWord).overrideWith(
+      sessionScopeKeyProvider.overrideWithValue(sessionScope),
+      dictionaryStatusButtonsViewModelProvider(
+        const WordStatusEntryKey(scope: sessionScope, word: _statusWord),
+      ).overrideWith(
         (ref) => _statusViewModel,
       ),
     ]);
@@ -148,7 +162,8 @@ void main() {
     // Remaining at the load threshold lets the list immediately consume the
     // short final page after page 1.
     expect(loadUseCase.requestedPages, [0, 1, 2]);
-    expect(container.read(rankingViewModelProvider).items, hasLength(205));
+    expect(container.read(rankingViewModelProvider(sessionScope)).items,
+        hasLength(205));
     expect(find.text('188'), findsWidgets);
     expect(find.text('Retry'), findsNothing);
     expect(find.text('word_192'), findsNWidgets(2));

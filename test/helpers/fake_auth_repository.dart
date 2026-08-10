@@ -4,8 +4,8 @@
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
-import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
+import 'package:my_dic/features/auth/internal/domain/repository/i_auth_repository.dart';
+import 'package:my_dic/features/auth/port/app_auth.dart';
 
 import 'test_helpers.dart';
 

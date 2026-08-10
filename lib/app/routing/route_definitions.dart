@@ -1,0 +1,101 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:my_dic/app/routing/invalid_route_page.dart';
+import 'package:my_dic/app/routing/navigation_callbacks.dart';
+import 'package:my_dic/app/routing/route_names.dart';
+import 'package:my_dic/core/result/route_parse_result.dart';
+import 'package:my_dic/features/catalog/port/catalog_id.dart';
+import 'package:my_dic/features/quiz/port/presentation_entry.dart';
+import 'package:my_dic/features/quiz/port/presentation_input.dart';
+import 'package:my_dic/features/quiz/port/route.dart';
+import 'package:my_dic/features/ranking/port/presentation_entry.dart';
+import 'package:my_dic/features/word_detail/port/presentation_entry.dart';
+import 'package:my_dic/features/word_detail/port/presentation_input.dart';
+import 'package:my_dic/features/word_detail/port/route.dart';
+
+final dashboardRoute = GoRoute(
+  path: RoutePaths.dashboard,
+  name: RouteNames.dashboard,
+  pageBuilder: (context, state) => NoTransitionPage(
+    key: state.pageKey, child: const Center(child: Text('DASHBOARD'))),
+);
+
+final rankingRoute = GoRoute(
+  path: RoutePaths.ranking,
+  name: RouteNames.ranking,
+  pageBuilder: (context, state) => MaterialPage(child: _ranking(context)),
+  routes: [GoRoute(
+    path: RoutePaths.rankCollection,
+    name: RouteNames.rankCollection,
+    pageBuilder: (context, state) => const MaterialPage(child: Placeholder()),
+    routes: [GoRoute(
+      path: RoutePaths.rankSection,
+      name: RouteNames.rankSection,
+      pageBuilder: (context, state) => MaterialPage(child: _ranking(context)),
+    )],
+  )],
+);
+
+Widget _ranking(BuildContext context) => RankingFragment(
+  onOpenWordDetail: (word) => openWordDetail(context,
+    routeName: '${RouteNames.ranking}-${RouteNames.wordDetail}', word: word),
+  onOpenQuiz: (word, hint) => openQuizGame(context,
+    routeName: '${RouteNames.ranking}-${RouteNames.flashCard}', word: word,
+    displayHint: hint),
+);
+
+final quizRoute = GoRoute(
+  path: RoutePaths.quiz,
+  name: RouteNames.quiz,
+  pageBuilder: (context, state) => MaterialPage(child: _quizSearch(context)),
+  routes: [GoRoute(
+    path: RoutePaths.quizSearch,
+    name: RouteNames.quizSearch,
+    pageBuilder: (context, state) => NoTransitionPage(
+      key: state.pageKey, child: _quizSearch(context)),
+  )],
+);
+
+Widget _quizSearch(BuildContext context) => QuizSearchFragment(
+  onOpenQuiz: (word, hint) => openQuizGame(context,
+    routeName: '${RouteNames.quiz}-${RouteNames.flashCard}', word: word,
+    displayHint: hint),
+);
+
+GoRoute flashCardRoute(String name, {String? parentPath, required String wordDetailRouteName}) => GoRoute(
+  path: parentPath == null ? QuizGameRoute.path : '$parentPath/${QuizGameRoute.path}',
+  name: name,
+  pageBuilder: (context, state) {
+    final result = QuizGameRoute.parse(pathParameters: state.pathParameters,
+      queryParameters: state.uri.queryParameters);
+    return switch (result) {
+      RouteParseSuccess(value: final route) => MaterialPage(child: QuizGameFragment(
+        input: QuizGamePresentationInput(word: route.word, displayHint: route.displayHint),
+        onOpenWordDetail: (word) => openWordDetail(context,
+          routeName: wordDetailRouteName, word: word))),
+      RouteParseFailure(message: final message) => MaterialPage(child: InvalidRoutePage(message: message)),
+    };
+  },
+);
+
+GoRoute wordDetailRoute(String name, {String? parentPath, required String quizGameRouteName}) => GoRoute(
+  path: parentPath == null ? WordDetailRoute.path : '$parentPath/${WordDetailRoute.path}',
+  name: name,
+  pageBuilder: (context, state) {
+    final result = WordDetailRoute.parse(pathParameters: state.pathParameters,
+      queryParameters: state.uri.queryParameters, parseLegacyType: _catalogIdFromLegacyType);
+    return switch (result) {
+      RouteParseSuccess(value: final route) => MaterialPage(child: WordDetailFragment(
+        input: WordDetailPresentationInput(word: route.word),
+        onOpenQuiz: (word, hint) => openQuizGame(context,
+          routeName: quizGameRouteName, word: word, displayHint: hint))),
+      RouteParseFailure(message: final message) => MaterialPage(child: InvalidRoutePage(message: message)),
+    };
+  },
+);
+
+CatalogId? _catalogIdFromLegacyType(String type) => switch (type) {
+  'espJpn' => CatalogId.espJpnMain,
+  'jpnEsp' => CatalogId.jpnEspMain,
+  _ => null,
+};

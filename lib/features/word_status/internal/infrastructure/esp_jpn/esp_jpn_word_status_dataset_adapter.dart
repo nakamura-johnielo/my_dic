@@ -1,12 +1,12 @@
-import 'package:my_dic/core/shared/enums/sync_dataset.dart';
-import 'package:my_dic/features/sync/application/model/remote_mutation.dart';
-import 'package:my_dic/features/sync/application/model/sync_cursor.dart';
+import 'package:my_dic/features/sync/port/model/remote_mutation.dart';
+import 'package:my_dic/features/sync/port/model/sync_cursor.dart';
+import 'package:my_dic/features/sync/port/sync_dataset.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/esp_jpn/drift/esp_jpn_word_status_local_data_source.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/esp_jpn/firebase/firebase_esp_jpn_word_status_remote_store.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/sync/word_status_dataset_adapter.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/sync/word_status_sync_record.dart';
 
-final class EspJpnWordStatusDatasetAdapter implements WordStatusDatasetAdapter {
+final class EspJpnWordStatusDatasetAdapter extends WordStatusDatasetAdapter {
   EspJpnWordStatusDatasetAdapter(
       {required EspJpnWordStatusLocalDataSource local,
       required FirebaseEspJpnWordStatusRemoteStore remote})
@@ -17,10 +17,10 @@ final class EspJpnWordStatusDatasetAdapter implements WordStatusDatasetAdapter {
   @override
   SyncDataset get dataset => SyncDataset.espJpnWordStatus;
   @override
-  Future<RemoteMutationAck> patch(RemoteMutationRequest request) =>
+  Future<RemoteMutationAck> push(RemoteMutationRequest request) =>
       _remote.patchWordStatus(request);
   @override
-  Future<List<WordStatusSyncRecord>> fetchPage(
+  Future<List<WordStatusSyncRecord>> fetchWordStatusPage(
           String accountId, SyncCursor? cursor) async =>
       (await _remote.fetchPage(accountId, cursor))
           .map((dto) => WordStatusSyncRecord(
@@ -36,7 +36,7 @@ final class EspJpnWordStatusDatasetAdapter implements WordStatusDatasetAdapter {
   Future<T> transaction<T>(Future<T> Function() action) =>
       _local.runInTransaction(action);
   @override
-  Future<bool> acknowledge(
+  Future<bool> acknowledgeWordStatus(
           {required int wordId,
           required String accountId,
           required int localRevision,
@@ -49,7 +49,7 @@ final class EspJpnWordStatusDatasetAdapter implements WordStatusDatasetAdapter {
           remoteRevision: remoteRevision,
           lastMutationId: lastMutationId);
   @override
-  Future<void> applyRemote(WordStatusSyncRecord record,
+  Future<void> applyWordStatusRemote(WordStatusSyncRecord record,
           {required String accountId, required Set<String> skippedFields}) =>
       _local.applyRemoteFields(record.wordId,
           isLearned:

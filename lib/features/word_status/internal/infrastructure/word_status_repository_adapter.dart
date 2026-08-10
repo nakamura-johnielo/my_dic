@@ -2,8 +2,8 @@ import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/shared/value_objects/field_update.dart';
 import 'package:my_dic/features/catalog/port/catalog_id.dart';
 import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
-import 'package:my_dic/features/word_status/application/port/word_status_repository.dart';
-import 'package:my_dic/features/word_status/domain/word_status.dart';
+import 'package:my_dic/features/word_status/port/repository.dart';
+import 'package:my_dic/features/word_status/port/word_status.dart';
 
 /// The persistence boundary for one physical dictionary status dataset.
 ///

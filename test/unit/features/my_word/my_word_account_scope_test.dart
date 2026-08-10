@@ -6,27 +6,25 @@ import 'package:my_dic/core/shared/consts/account_scope.dart';
 import 'package:my_dic/core/shared/enums/sync_dataset.dart';
 import 'package:my_dic/core/shared/value_objects/field_update.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/my_word/data/data_source/local/drift_my_word_dao.dart';
-import 'package:my_dic/features/my_word/data/data_source/local/drift_my_word_status_dao.dart';
-import 'package:my_dic/features/my_word/data/data_source/local/my_word_drift_data_source.dart';
-import 'package:my_dic/features/my_word/data/data_source/local/my_word_status_drift_data_source.dart';
-import 'package:my_dic/features/my_word/data/repository_impl/my_word_repository.dart';
-import 'package:my_dic/features/my_word/data/repository_impl/my_word_status_repository.dart';
-import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
-import 'package:my_dic/features/my_word/domain/entity/my_word_status.dart';
-import 'package:my_dic/features/my_word/domain/i_repository/i_my_word_repository.dart';
-import 'package:my_dic/features/my_word/domain/i_repository/i_my_word_status_repository.dart';
-import 'package:my_dic/features/my_word/application/usecase/my_word/load_my_word/load_my_word_input_data.dart';
-import 'package:my_dic/features/my_word/application/usecase/my_word/load_my_word/load_my_word_interactor.dart';
-import 'package:my_dic/features/my_word/domain/model/my_word/load_my_word_repository_input_data.dart';
-import 'package:my_dic/features/my_word/application/usecase/my_word/watch/watch_my_word_interactor.dart';
-import 'package:my_dic/features/my_word/domain/model/my_word/register_my_word_repository_input_data.dart';
-import 'package:my_dic/features/my_word/domain/model/my_word_status/update_my_word_status_repository_input_data.dart';
-import 'package:my_dic/features/my_word/application/usecase/my_word_status/watch_my_word_status/watch_my_word_status_interactor.dart';
-import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
-import 'package:my_dic/features/sync/application/port/outbox_writer.dart';
-
-import '../../../helpers/fake_current_session.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/drift_my_word_dao.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/drift_my_word_status_dao.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/my_word_drift_data_source.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/my_word_status_drift_data_source.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/data/repository_impl/my_word_repository.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/data/repository_impl/my_word_status_repository.dart';
+import 'package:my_dic/features/my_word/internal/domain/entity/my_word.dart';
+import 'package:my_dic/features/my_word/internal/domain/entity/my_word_status.dart';
+import 'package:my_dic/features/my_word/internal/domain/i_repository/i_my_word_repository.dart';
+import 'package:my_dic/features/my_word/internal/domain/i_repository/i_my_word_status_repository.dart';
+import 'package:my_dic/features/my_word/internal/application/usecase/my_word/load_my_word/load_my_word_input_data.dart';
+import 'package:my_dic/features/my_word/internal/application/usecase/my_word/load_my_word/load_my_word_interactor.dart';
+import 'package:my_dic/features/my_word/internal/domain/model/my_word/load_my_word_repository_input_data.dart';
+import 'package:my_dic/features/my_word/internal/application/usecase/my_word/watch/watch_my_word_interactor.dart';
+import 'package:my_dic/features/my_word/internal/domain/model/my_word/register_my_word_repository_input_data.dart';
+import 'package:my_dic/features/my_word/internal/domain/model/my_word_status/update_my_word_status_repository_input_data.dart';
+import 'package:my_dic/features/my_word/internal/application/usecase/my_word_status/watch_my_word_status/watch_my_word_status_interactor.dart';
+import 'package:my_dic/features/sync/port/model/sync_mutation.dart';
+import 'package:my_dic/features/sync/port/outbox_writer.dart';
 
 class _MockOutboxWriter extends Mock implements OutboxWriter {}
 
@@ -195,73 +193,67 @@ void main() {
     });
   });
 
-  group('Load/Watch interactors resolve accountId from CurrentSession', () {
-    test('LoadMyWordInteractor uses the guest scope when signed out', () async {
+  group('Load/Watch interactors require explicit account scope', () {
+    test('LoadMyWordInteractor uses the explicit guest scope', () async {
       final repository = _MockMyWordRepository();
       when(() => repository.getIdsFilteredByPage(any(),
               accountId: any(named: 'accountId')))
           .thenAnswer((_) async => const Result.success(['w1']));
 
-      final interactor = LoadMyWordInteractor(repository, FakeCurrentSession());
-      await interactor.executeIds(LoadMyWordInputData(10, 0));
+      final interactor = LoadMyWordInteractor(repository);
+      await interactor
+          .executeIds(LoadMyWordInputData(10, 0, guestAccountScope));
 
       verify(() => repository.getIdsFilteredByPage(any(),
           accountId: guestAccountScope)).called(1);
     });
 
-    test('LoadMyWordInteractor uses the real accountId when signed in',
-        () async {
+    test('LoadMyWordInteractor uses the explicit account scope', () async {
       final repository = _MockMyWordRepository();
       when(() => repository.getIdsFilteredByPage(any(),
               accountId: any(named: 'accountId')))
           .thenAnswer((_) async => const Result.success(['w1']));
 
-      final session = FakeCurrentSession(accountIdOrNull: 'account-a');
-      final interactor = LoadMyWordInteractor(repository, session);
-      await interactor.executeIds(LoadMyWordInputData(10, 0));
+      final interactor = LoadMyWordInteractor(repository);
+      await interactor.executeIds(LoadMyWordInputData(10, 0, 'account-a'));
 
       verify(() =>
               repository.getIdsFilteredByPage(any(), accountId: 'account-a'))
           .called(1);
     });
 
-    test('WatchMyWordInteractor resolves CurrentSession accountId scope',
-        () async {
+    test('WatchMyWordInteractor uses its explicit account scope', () async {
       final repository = _MockMyWordRepository();
       when(() =>
               repository.watchMyWord(any(), accountId: any(named: 'accountId')))
           .thenAnswer((_) =>
               Stream.value(MyWord(wordId: 'w1', word: 'hola', contents: '')));
 
-      final signedIn = WatchMyWordInteractor(
-          repository, FakeCurrentSession(accountIdOrNull: 'account-c'));
-      signedIn.execute('w1');
+      final signedIn = WatchMyWordInteractor(repository);
+      signedIn.execute('w1', 'account-c');
       verify(() => repository.watchMyWord('w1', accountId: 'account-c'))
           .called(1);
 
-      final guest = WatchMyWordInteractor(repository, FakeCurrentSession());
-      guest.execute('w1');
+      final guest = WatchMyWordInteractor(repository);
+      guest.execute('w1', guestAccountScope);
       verify(() => repository.watchMyWord('w1', accountId: guestAccountScope))
           .called(1);
     });
 
-    test(
-        'WatchMyWordStatusInteractor resolves CurrentSession accountId '
-        'scope', () async {
+    test('WatchMyWordStatusInteractor uses its explicit account scope',
+        () async {
       final repository = _MockMyWordStatusRepository();
       when(() =>
               repository.watchStatus(any(), accountId: any(named: 'accountId')))
           .thenAnswer((_) => Stream.value(MyWordStatus(wordId: 'w1')));
 
-      final signedIn = WatchMyWordStatusInteractor(
-          repository, FakeCurrentSession(accountIdOrNull: 'account-c'));
-      signedIn.execute('w1');
+      final signedIn = WatchMyWordStatusInteractor(repository);
+      signedIn.execute('w1', 'account-c');
       verify(() => repository.watchStatus('w1', accountId: 'account-c'))
           .called(1);
 
-      final guest =
-          WatchMyWordStatusInteractor(repository, FakeCurrentSession());
-      guest.execute('w1');
+      final guest = WatchMyWordStatusInteractor(repository);
+      guest.execute('w1', guestAccountScope);
       verify(() => repository.watchStatus('w1', accountId: guestAccountScope))
           .called(1);
     });

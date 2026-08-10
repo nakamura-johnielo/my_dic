@@ -1,22 +1,24 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/app/bootstrap/sync_composition.dart';
+import 'package:my_dic/app/bootstrap/session_composition.dart';
 import 'package:my_dic/app/presentation/sync/manual_sync_ui_state.dart';
 import 'package:my_dic/app/session/app_session.dart';
 import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/core/presentation/state/ui_effect.dart';
-import 'package:my_dic/features/sync/application/cancellation_token.dart';
-import 'package:my_dic/features/sync/application/in_memory_session_fence.dart';
-import 'package:my_dic/features/sync/application/model/sync_context.dart';
-import 'package:my_dic/features/sync/application/report/sync_reason_codes.dart';
-import 'package:my_dic/features/sync/application/report/sync_report_interpreter.dart';
-import 'package:my_dic/features/sync/application/report/sync_report_summary.dart';
-import 'package:my_dic/features/sync/application/sync_scheduler.dart';
+import 'package:my_dic/core/session/session_scope_key.dart';
+import 'package:my_dic/features/sync/port/cancellation_token.dart';
+import 'package:my_dic/features/sync/port/model/sync_context.dart';
+import 'package:my_dic/features/sync/port/session_fence.dart';
+import 'package:my_dic/features/sync/port/sync_run_outcome.dart';
+import 'package:my_dic/features/sync/port/sync_runner.dart';
+import 'package:my_dic/features/sync/port/sync_reason_codes.dart';
 
 final manualSyncControllerProvider =
     StateNotifierProvider<ManualSyncController, ManualSyncUiState>((ref) {
   final controller = ManualSyncController(
-    scheduler: ref.read(syncSchedulerProvider),
+    scheduler: ref.read(syncRunnerProvider),
     sessionFence: ref.read(syncSessionFenceProvider),
+    currentScope: () => ref.read(sessionScopeKeyProvider),
     initialSession: ref.read(appSessionProvider),
   );
   ref.listen<AppSession>(appSessionProvider, (_, next) {
@@ -30,19 +32,19 @@ final manualSyncControllerProvider =
 class ManualSyncController extends StateNotifier<ManualSyncUiState>
     implements UiEffectConsumer {
   ManualSyncController({
-    required SyncScheduler scheduler,
-    required InMemorySessionFence sessionFence,
+    required SyncRunner scheduler,
+    required SessionFence sessionFence,
+    required SessionScopeKey? Function() currentScope,
     required AppSession initialSession,
-    SyncReportInterpreter interpreter = const SyncReportInterpreter(),
   })  : _scheduler = scheduler,
         _sessionFence = sessionFence,
-        _interpreter = interpreter,
+        _currentScope = currentScope,
         _readyAccountId = initialSession.accountIdOrNull,
         super(const ManualSyncUiState());
 
-  final SyncScheduler _scheduler;
-  final InMemorySessionFence _sessionFence;
-  final SyncReportInterpreter _interpreter;
+  final SyncRunner _scheduler;
+  final SessionFence _sessionFence;
+  final SessionScopeKey? Function() _currentScope;
   String? _readyAccountId;
   CancellationToken? _cancellation;
   int _generation = 0;
@@ -76,15 +78,16 @@ class ManualSyncController extends StateNotifier<ManualSyncUiState>
 
     final accountId = session.accountIdOrNull;
     if (accountId == null || accountId != _readyAccountId) return;
-    final epoch = _sessionFence.epochFor(accountId);
-    if (epoch == null) return;
+    final scope = _currentScope();
+    if (scope == null || scope.accountScope != accountId) return;
+    final epoch = scope.epoch;
 
     final generation = _generation;
     final cancellation = CancellationToken();
     _cancellation = cancellation;
     state = const ManualSyncUiState(isSyncing: true);
     try {
-      final report = await _scheduler.foreground(SyncContext(
+      final outcome = await _scheduler.foreground(SyncContext(
         accountId: accountId,
         sessionEpoch: epoch,
         reason: SyncReasonCodes.manual,
@@ -92,11 +95,9 @@ class ManualSyncController extends StateNotifier<ManualSyncUiState>
       ));
       if (!_isCurrentRequest(accountId, epoch, generation)) return;
 
-      final summary = SyncReportSummary.fromReport(report);
-      final outcome = _interpreter.interpret(report);
-      if (outcome != SyncReportOutcome.cancelled) {
+      if (outcome != SyncRunOutcome.cancelled) {
         state = ManualSyncUiState(
-          pendingEffect: _notice(_messageFor(outcome, summary)),
+          pendingEffect: _notice(_messageFor(outcome)),
         );
       } else {
         state = const ManualSyncUiState();
@@ -129,21 +130,12 @@ class ManualSyncController extends StateNotifier<ManualSyncUiState>
         effect: UiNoticeEffect(message),
       );
 
-  String _messageFor(SyncReportOutcome outcome, SyncReportSummary summary) =>
+  String _messageFor(SyncRunOutcome outcome) =>
       switch (outcome) {
-        SyncReportOutcome.alreadyRunning => 'Sync is already running.',
-        SyncReportOutcome.authenticationRequired =>
-          'Please sign in again before syncing.',
-        SyncReportOutcome.needsAttention => 'Sync needs attention.',
-        SyncReportOutcome.offlineDeferred =>
-          'You are offline. Sync will retry when possible.',
-        SyncReportOutcome.retryScheduled => 'Sync will retry automatically.',
-        SyncReportOutcome.partialSuccess => 'Sync completed with warnings.',
-        SyncReportOutcome.succeeded =>
-          summary.pushedCount + summary.pulledCount > 0
-              ? 'Sync complete.'
-              : 'Everything is up to date.',
-        SyncReportOutcome.cancelled => '',
+        SyncRunOutcome.retryScheduled => 'Sync will retry automatically.',
+        SyncRunOutcome.failure => 'Sync needs attention.',
+        SyncRunOutcome.success => 'Sync complete.',
+        SyncRunOutcome.cancelled => '',
       };
 
   @override

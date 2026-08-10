@@ -7,12 +7,6 @@ import 'package:my_dic/core/infrastructure/database/drift/_NATIVE/native_databas
     if (dart.library.html) 'package:my_dic/core/infrastructure/database/drift/_NATIVE/native_database_helper_web.dart';
 import 'package:my_dic/core/infrastructure/database/drift/_WEB/web_executor.dart'
     if (dart.library.io) 'package:my_dic/core/infrastructure/database/drift/_WEB/web_executor_stub.dart';
-import 'package:my_dic/core/infrastructure/database/drift/daos/es_en_conjugacion_dao.dart';
-import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/jpn_esp/jpn_esp_word_dao.dart';
-import 'package:my_dic/features/my_word/data/data_source/local/drift_my_word_dao.dart';
-import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/esp_jpn/part_of_speech_list_dao.dart';
-import 'package:my_dic/features/ranking/data/data_source/local/ranking_dao.dart';
-import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/esp_jpn/esp_jpn_word_dao.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/conjugations.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/dictionaries.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/es_en_conjugacions.dart';
@@ -22,10 +16,10 @@ import 'package:my_dic/core/infrastructure/database/drift/tables/jpn-esp/jpn_esp
 import 'package:my_dic/core/infrastructure/database/drift/tables/jpn-esp/jpn_esp_examples.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/jpn-esp/jpn_esp_word.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/jpn-esp/jpn_esp_word_status.dart';
-import 'package:my_dic/features/my_word/data/data_source/local/my_word_status.dart';
-import 'package:my_dic/features/my_word/data/data_source/local/my_words.dart';
+import 'package:my_dic/core/infrastructure/database/drift/tables/my_word_status.dart';
+import 'package:my_dic/core/infrastructure/database/drift/tables/my_words.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/part_of_speech_lists.dart';
-import 'package:my_dic/features/ranking/data/data_source/local/rankings_entity.dart';
+import 'package:my_dic/core/infrastructure/database/drift/tables/rankings.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/supplements.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/word_status.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/words.dart';
@@ -73,13 +67,6 @@ part '../../../../__generated/core/infrastructure/database/drift/database_provid
   SyncOutbox,
   SyncCheckpoints,
   UserProfiles,
-], daos: [
-  EspJpnWordDao,
-  RankingDao,
-  PartOfSpeechListDao,
-  MyWordDao,
-  JpnEspWordDao,
-  EsEnConjugacionDao,
 ])
 class DatabaseProvider extends _$DatabaseProvider {
   /// A database instance is owned by the Riverpod provider that creates it.

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
-import 'package:my_dic/features/auth/application/usecase/signin.dart';
+import 'package:my_dic/features/auth/internal/application/usecase/signin.dart';
 
 import '../../../../../helpers/fake_auth_repository.dart';
 

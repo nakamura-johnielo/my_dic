@@ -4,10 +4,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/shared/enums/feature_tag.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/ranking/application/query/i_ranking_query_repository.dart';
-import 'package:my_dic/features/ranking/application/query/ranking_list_item.dart';
-import 'package:my_dic/features/ranking/application/query/ranking_page.dart';
-import 'package:my_dic/features/ranking/application/query/ranking_query.dart';
+import 'package:my_dic/features/ranking/port/model/ranking_list_item.dart';
+import 'package:my_dic/features/ranking/port/model/ranking_page.dart';
+import 'package:my_dic/features/ranking/port/model/ranking_query.dart';
+import 'package:my_dic/features/ranking/port/ranking_query_repository.dart';
 
 void main() {
   group('Ranking query models', () {
@@ -85,7 +85,7 @@ void main() {
     });
 
     test('query source files do not import framework or Drift packages', () {
-      final directory = Directory('lib/features/ranking/application/query');
+      final directory = Directory('lib/features/ranking/port');
       final imports = directory
           .listSync()
           .whereType<File>()
@@ -107,7 +107,7 @@ void main() {
           .map((file) => file.readAsStringSync())
           .join('\n');
       final listItem = File(
-        'lib/features/ranking/application/query/ranking_list_item.dart',
+        'lib/features/ranking/port/model/ranking_list_item.dart',
       ).readAsStringSync();
 
       expect(listItem, isNot(contains('isLearned')));
@@ -123,6 +123,7 @@ void main() {
 }
 
 const _item = RankingListItem(
+  rankingId: 1,
   rank: 1,
   rankedWord: 'ser',
   lemma: 'ser',

@@ -14,15 +14,6 @@ class EspJpnWordDao extends DatabaseAccessor<DatabaseProvider>
         .getSingleOrNull();
   }
 
-  Future<void> insertWord(Insertable<EspJpnWordTableData> tableName) =>
-      into(espJpnWords).insert(tableName);
-
-  Future<void> updateWord(Insertable<EspJpnWordTableData> tableName) =>
-      update(espJpnWords).replace(tableName);
-
-  Future<void> deleteWord(Insertable<EspJpnWordTableData> tableName) =>
-      delete(espJpnWords).delete(tableName);
-
   Future<List<EspJpnWordTableData>> getWordsByWord(String searchWord) async {
     return (select(espJpnWords)..where((tbl) => tbl.word.like('$searchWord%')))
         .get();

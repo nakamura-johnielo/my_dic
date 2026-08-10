@@ -37,7 +37,7 @@ void main() {
     for (final forbidden in [
       'core/domain/',
       'features/search',
-      'features/word_page',
+      'features/word_detail',
       'features/quiz',
       'features/ranking',
       'features/word_status',

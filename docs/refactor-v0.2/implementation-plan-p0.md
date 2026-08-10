@@ -319,7 +319,7 @@ network不要の mapper/contract testで次を固定する。
 
 Firestore emulator rules testは維持するが、Dart mapper contractの代用にはしない。
 
-さらにhelper置換前に、Dart production `RemoteMutationTransaction.apply` を直接通すFirestore emulator characterizationを追加し、置換後も同じtestを新executorへ向ける。次をすべて固定する。
+helper置換前のFirestore emulator characterizationは、置換後にDart production `FirebaseRemoteMutationExecutor` を通す同じ契約testへ向ける。次をすべて固定する。
 
 - 同じ `lastMutationId` は `duplicate`、既存 `clientUpdatedAt` 以後でないmutationは `superseded`、それ以外は `applied`。
 - revisionは欠落/不正時0から開始し、applied時だけ1増える。duplicate/supersededでは増えない。

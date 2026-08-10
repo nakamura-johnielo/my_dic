@@ -8,7 +8,7 @@ import 'package:my_dic/app/presentation/sync/manual_sync_action.dart';
 import 'package:my_dic/app/session/app_session.dart';
 import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/core/shared/enums/sync_dataset.dart';
-import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
+import 'package:my_dic/features/auth/port/app_auth.dart';
 import 'package:my_dic/features/sync/application/dataset_handler_registry.dart';
 import 'package:my_dic/features/sync/application/in_memory_session_fence.dart';
 import 'package:my_dic/features/sync/application/model/dataset_sync_result.dart';
@@ -18,7 +18,7 @@ import 'package:my_dic/features/sync/application/port/dataset_sync_handler.dart'
 import 'package:my_dic/features/sync/application/single_flight_coordinator.dart';
 import 'package:my_dic/features/sync/application/sync_engine.dart';
 import 'package:my_dic/features/sync/application/sync_scheduler.dart';
-import 'package:my_dic/features/user/domain/entity/user.dart';
+import 'package:my_dic/features/user_profile/domain/entity/user.dart';
 
 class _Handler implements DatasetSyncHandler {
   _Handler({required this.result, this.block = false});

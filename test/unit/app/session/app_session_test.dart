@@ -5,15 +5,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/app/session/app_session.dart';
 import 'package:my_dic/app/session/current_session.dart';
 import 'package:my_dic/app/session/session_providers.dart';
-import 'package:my_dic/core/application/auth_lifecycle/auth_lifecycle_controller.dart';
-import 'package:my_dic/core/application/auth_lifecycle/auth_lifecycle_provider.dart';
+import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_controller.dart';
+import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_provider.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart'
     as db;
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/user/di/data_di.dart';
-import 'package:my_dic/features/user/domain/entity/user.dart';
-import 'package:my_dic/features/user/application/usecase/user_usecases.dart';
+import 'package:my_dic/features/user_profile/di/data_di.dart';
+import 'package:my_dic/features/user_profile/domain/entity/user.dart';
+import 'package:my_dic/features/user_profile/application/usecase/user_usecases.dart';
 
 import '../../../helpers/fake_auth_usecases.dart';
 import '../../../helpers/fake_user_usecases.dart';

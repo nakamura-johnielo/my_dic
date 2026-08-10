@@ -3,11 +3,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/app/app.dart';
 import 'package:my_dic/app/bootstrap/app_dependencies.dart';
-import 'package:my_dic/app/bootstrap/lifecycle_effects.dart';
+import 'package:my_dic/app/workflows/sync_trigger/application_lifecycle_effects.dart';
+import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_presentation_entry.dart';
+import 'package:my_dic/app/workflows/session_lifecycle/user_profile_presentation_entry.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
 import 'package:my_dic/core/infrastructure/database/shared_preferences/shared_preferences.dart';
+import 'package:my_dic/app/bootstrap/session_composition.dart';
 import 'package:my_dic/app/bootstrap/firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:my_dic/features/auth/port/presentation_entry.dart';
+import 'package:my_dic/features/user_profile/port/presentation_entry.dart';
+import 'package:my_dic/features/word_status/port/presentation_entry.dart';
+import 'package:my_dic/app/bootstrap/word_status_composition.dart';
+import 'package:my_dic/app/bootstrap/catalog_composition.dart';
+import 'package:my_dic/app/integration/catalog_search/catalog_search_providers.dart';
+import 'package:my_dic/app/integration/catalog_quiz/catalog_quiz_providers.dart';
+import 'package:my_dic/features/catalog/port/presentation_dependencies.dart';
+import 'package:my_dic/features/search/port/presentation_dependencies.dart';
+import 'package:my_dic/features/quiz/port/presentation_dependencies.dart';
+import 'package:my_dic/app/bootstrap/firebase_providers.dart';
+import 'package:my_dic/app/bootstrap/sync_infrastructure_providers.dart';
+import 'package:my_dic/features/user_profile/port/composition.dart';
+import 'package:my_dic/features/my_word/port/composition.dart';
 
 class AppBootstrap extends StatefulWidget {
   const AppBootstrap({super.key, this.bootstrapper, this.appBuilder});
@@ -44,6 +61,43 @@ class _AppBootstrapState extends State<AppBootstrap> {
           overrides: [
             sharedPreferencesProvider
                 .overrideWithValue(snapshot.data!.sharedPreferences),
+            sessionScopeKeyProvider.overrideWith(resolveSessionScopeKey),
+            catalogReaderDependencyProvider.overrideWith(
+              (ref) => ref.watch(catalogReaderProvider),
+            ),
+            conjugationReaderDependencyProvider.overrideWith(
+              (ref) => ref.watch(conjugationReaderProvider),
+            ),
+            searchReaderDependencyProvider.overrideWith(
+              (ref) => ref.watch(searchReaderProvider),
+            ),
+            quizCandidateSourceDependencyProvider.overrideWith(
+              (ref) => ref.watch(quizCandidateSourceProvider),
+            ),
+            userProfileRemoteMutationExecutorDependencyProvider.overrideWith(
+              (ref) => ref.watch(remoteMutationExecutorProvider),
+            ),
+            userProfileOutboxWriterDependencyProvider.overrideWith(
+              (ref) => ref.watch(driftOutboxWriterProvider),
+            ),
+            myWordRemoteMutationExecutorDependencyProvider.overrideWith(
+              (ref) => ref.watch(remoteMutationExecutorProvider),
+            ),
+            myWordOutboxWriterDependencyProvider.overrideWith(
+              (ref) => ref.watch(driftOutboxWriterProvider),
+            ),
+            authPresentationStateProvider.overrideWith(
+              authLifecyclePresentationState,
+            ),
+            authPresentationActionsProvider.overrideWith(
+              authLifecyclePresentationActions,
+            ),
+            userProfilePresentationSessionProvider.overrideWith(
+              userProfilePresentationSession,
+            ),
+            wordStatusRepositoryDependencyProvider.overrideWith(
+              (ref) => ref.watch(wordStatusRepositoryProvider),
+            ),
           ],
           child: AppReadinessGate(
             appBuilder: widget.appBuilder ?? () => const MyApp(),

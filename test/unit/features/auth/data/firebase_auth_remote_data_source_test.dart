@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:my_dic/features/auth/data/data_source/remote/firebase_auth_dao.dart';
-import 'package:my_dic/features/auth/data/data_source/remote/firebase_auth_remote_data_source.dart';
-import 'package:my_dic/features/auth/data/dto/auth_dto.dart';
+import 'package:my_dic/features/auth/internal/application/auth_dto.dart';
+import 'package:my_dic/features/auth/internal/infrastructure/firebase/firebase_auth_dao.dart';
+import 'package:my_dic/features/auth/internal/infrastructure/firebase/firebase_auth_remote_data_source.dart';
 
 class _MockFirebaseAuthDao extends Mock implements FirebaseAuthDao {}
 

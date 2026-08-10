@@ -20,12 +20,4 @@ class EspJpnIdiomDao extends DatabaseAccessor<DatabaseProvider>
         .get();
   }
 
-  Future<void> insertIdiom(Insertable<EspJpnIdiomTableData> tableName) =>
-      into(espJpnIdioms).insert(tableName);
-
-  Future<void> updateIdiom(Insertable<EspJpnIdiomTableData> tableName) =>
-      update(espJpnIdioms).replace(tableName);
-
-  Future<void> deleteIdiom(Insertable<EspJpnIdiomTableData> tableName) =>
-      delete(espJpnIdioms).delete(tableName);
 }

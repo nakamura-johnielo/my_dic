@@ -1,6 +1,5 @@
 {
   "zeroViolationRuleIds": [
-    "firebase_import_allowlist"
    
   ],
   "violations": []

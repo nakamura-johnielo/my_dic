@@ -21,12 +21,4 @@ class EspJpnExampleDao extends DatabaseAccessor<DatabaseProvider>
         .get();
   }
 
-  Future<void> insertExample(Insertable<EspJpnExampleTableData> tableName) =>
-      into(espJpnExamples).insert(tableName);
-
-  Future<void> updateExample(Insertable<EspJpnExampleTableData> tableName) =>
-      update(espJpnExamples).replace(tableName);
-
-  Future<void> deleteExample(Insertable<EspJpnExampleTableData> tableName) =>
-      delete(espJpnExamples).delete(tableName);
 }

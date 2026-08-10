@@ -1,5 +1,5 @@
 import 'package:my_dic/core/shared/enums/entry_point.dart';
-import 'package:my_dic/router/route_names.dart';
+import 'package:my_dic/app/routing/route_names.dart';
 
 /// Resolves the route names nested below each application entry point.
 ///

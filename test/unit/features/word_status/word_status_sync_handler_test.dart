@@ -1,12 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/core/shared/enums/sync_dataset.dart';
-import 'package:my_dic/features/sync/application/cancellation_token.dart';
-import 'package:my_dic/features/sync/application/model/dataset_sync_result.dart';
-import 'package:my_dic/features/sync/application/model/remote_mutation.dart';
-import 'package:my_dic/features/sync/application/model/sync_context.dart';
-import 'package:my_dic/features/sync/application/model/sync_cursor.dart';
-import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
-import 'package:my_dic/features/sync/application/port/sync_checkpoint_store.dart';
+import 'package:my_dic/features/sync/internal/application/sync_handler_runtime_adapter.dart';
+import 'package:my_dic/features/sync/port/cancellation_token.dart';
+import 'package:my_dic/features/sync/port/model/dataset_sync_result.dart';
+import 'package:my_dic/features/sync/port/model/remote_mutation.dart';
+import 'package:my_dic/features/sync/port/model/sync_context.dart';
+import 'package:my_dic/features/sync/port/model/sync_cursor.dart';
+import 'package:my_dic/features/sync/port/model/sync_mutation.dart';
+import 'package:my_dic/features/sync/port/session_fence.dart';
+import 'package:my_dic/features/sync/port/sync_checkpoint_store.dart';
+import 'package:my_dic/features/sync/port/sync_dataset.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/sync/word_status_dataset_adapter.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/sync/word_status_dataset_sync_handler.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/sync/word_status_sync_record.dart';
@@ -40,7 +42,7 @@ class _Adapter implements WordStatusDatasetAdapter {
   void Function()? afterPatch;
 
   @override
-  Future<RemoteMutationAck> patch(RemoteMutationRequest request) async {
+  Future<RemoteMutationAck> push(RemoteMutationRequest request) async {
     if (patchError != null) throw patchError!;
     afterPatch?.call();
     return const RemoteMutationAck(
@@ -52,7 +54,7 @@ class _Adapter implements WordStatusDatasetAdapter {
   }
 
   @override
-  Future<List<WordStatusSyncRecord>> fetchPage(
+  Future<List<WordStatusSyncRecord>> fetchWordStatusPage(
           String accountId, SyncCursor? cursor) async =>
       records;
 
@@ -60,7 +62,7 @@ class _Adapter implements WordStatusDatasetAdapter {
   Future<T> transaction<T>(Future<T> Function() action) => action();
 
   @override
-  Future<bool> acknowledge({
+  Future<bool> acknowledgeWordStatus({
     required int wordId,
     required String accountId,
     required int localRevision,
@@ -72,7 +74,7 @@ class _Adapter implements WordStatusDatasetAdapter {
   }
 
   @override
-  Future<void> applyRemote(
+  Future<void> applyWordStatusRemote(
     WordStatusSyncRecord record, {
     required String accountId,
     required Set<String> skippedFields,
@@ -102,6 +104,11 @@ class _CheckpointStore implements SyncCheckpointStore {
   }
 }
 
+final class _SessionFence implements SessionFence {
+  @override
+  bool isCurrent({required String accountId, required int sessionEpoch}) => true;
+}
+
 void main() {
   for (final dataset in [
     SyncDataset.espJpnWordStatus,
@@ -117,9 +124,12 @@ void main() {
         queue = FakeSyncQueue();
         handler = WordStatusDatasetSyncHandler(
           adapter: adapter,
-          queue: queue,
-          checkpointStore: _CheckpointStore(),
-          clock: () => DateTime.utc(2026, 8, 6),
+          runtime: SyncHandlerRuntimeAdapter(
+            queue: queue,
+            checkpoints: _CheckpointStore(),
+            sessionFence: _SessionFence(),
+            clock: () => DateTime.utc(2026, 8, 6),
+          ),
         );
       });
 

@@ -10185,16 +10185,6 @@ abstract class _$DatabaseProvider extends GeneratedDatabase {
   late final $SyncCheckpointsTable syncCheckpoints =
       $SyncCheckpointsTable(this);
   late final $UserProfilesTable userProfiles = $UserProfilesTable(this);
-  late final EspJpnWordDao espJpnWordDao =
-      EspJpnWordDao(this as DatabaseProvider);
-  late final RankingDao rankingDao = RankingDao(this as DatabaseProvider);
-  late final PartOfSpeechListDao partOfSpeechListDao =
-      PartOfSpeechListDao(this as DatabaseProvider);
-  late final MyWordDao myWordDao = MyWordDao(this as DatabaseProvider);
-  late final JpnEspWordDao jpnEspWordDao =
-      JpnEspWordDao(this as DatabaseProvider);
-  late final EsEnConjugacionDao esEnConjugacionDao =
-      EsEnConjugacionDao(this as DatabaseProvider);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();

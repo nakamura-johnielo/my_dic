@@ -1,16 +1,16 @@
 import 'package:uuid/uuid.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/jpn_esp/drift/jpn_esp_word_status_local_data_source.dart';
 import 'package:my_dic/core/shared/consts/account_scope.dart';
-import 'package:my_dic/core/shared/enums/sync_dataset.dart';
+import 'package:my_dic/features/sync/port/sync_dataset.dart';
 import 'package:my_dic/core/shared/errors/app_error.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/shared/value_objects/field_update.dart';
 import 'package:my_dic/features/catalog/port/catalog_id.dart';
 import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
-import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
-import 'package:my_dic/features/sync/application/port/outbox_writer.dart';
-import 'package:my_dic/features/word_status/domain/word_status.dart';
+import 'package:my_dic/features/sync/port/model/sync_mutation.dart';
+import 'package:my_dic/features/sync/port/outbox_writer.dart';
+import 'package:my_dic/features/word_status/port/word_status.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/word_status_repository_adapter.dart';
 
 final class JpnEspDictionaryWordStatusAdapter

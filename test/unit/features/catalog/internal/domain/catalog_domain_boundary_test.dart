@@ -20,7 +20,7 @@ void main() {
       'core/shared/enums/',
       'features/search/',
       'features/quiz/',
-      'features/word_page/',
+      'features/word_detail/',
       'features/ranking/',
       'features/word_status/',
     ]) {

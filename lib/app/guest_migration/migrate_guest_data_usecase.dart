@@ -1,14 +1,13 @@
+import 'package:my_dic/features/my_word/port/guest_migration.dart';
 import 'package:uuid/uuid.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/core/shared/consts/account_scope.dart';
-import 'package:my_dic/core/shared/enums/sync_dataset.dart';
-import 'package:my_dic/features/my_word/data/data_source/local/i_my_word_local_data_source.dart';
-import 'package:my_dic/features/my_word/data/data_source/local/i_my_word_status_local_data_source.dart';
-import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
-import 'package:my_dic/features/sync/application/port/outbox_writer.dart';
-import 'package:my_dic/features/sync/application/port/session_fence.dart';
-import 'package:my_dic/features/user/data/data_source/local/i_user_profile_local_data_source.dart';
-import 'package:my_dic/features/word_status/application/port/word_status_guest_migration.dart';
+import 'package:my_dic/features/sync/port/model/sync_mutation.dart';
+import 'package:my_dic/features/sync/port/outbox_writer.dart';
+import 'package:my_dic/features/sync/port/session_fence.dart';
+import 'package:my_dic/features/sync/port/sync_dataset.dart';
+import 'package:my_dic/features/user_profile/port/guest_migration.dart';
+import 'package:my_dic/features/word_status/port/guest_migration.dart';
 
 /// Moves every guest-scoped local row to a signed-in account, atomically.
 ///
@@ -32,7 +31,7 @@ class MigrateGuestDataUseCase {
     required WordStatusGuestMigration wordStatus,
     required IMyWordLocalDataSource myWord,
     required IMyWordStatusLocalDataSource myWordStatus,
-    required IUserProfileLocalDataSource userProfile,
+    required UserProfileGuestMigrationPort userProfile,
     required OutboxWriter outboxWriter,
     required SessionFence sessionFence,
     Uuid? uuid,
@@ -51,7 +50,7 @@ class MigrateGuestDataUseCase {
   final WordStatusGuestMigration _wordStatus;
   final IMyWordLocalDataSource _myWord;
   final IMyWordStatusLocalDataSource _myWordStatus;
-  final IUserProfileLocalDataSource _userProfile;
+  final UserProfileGuestMigrationPort _userProfile;
   final OutboxWriter _outboxWriter;
   final SessionFence _sessionFence;
   final Uuid _uuid;
@@ -95,35 +94,12 @@ class MigrateGuestDataUseCase {
   /// retained. The guest row is removed in the same transaction as its
   /// outbox mutation, making retries safe after a successful import.
   Future<void> _migrateUserProfile(String accountId, String migrationId) async {
-    final guest = await _userProfile.getProfile(guestAccountScope);
-    if (guest == null) return;
-
-    final guestUsername = await _userProfile.getUsername(guestAccountScope);
-    final accountUsername = await _userProfile.getUsername(accountId);
-    if (accountUsername == null && guestUsername != null) {
-      final migrated = await _userProfile.upsertProfileFields(
-        accountId,
-        {'username': guestUsername},
-      );
-      await _outboxWriter.enqueue(SyncMutation(
-        // One migration ID scopes all rows imported during this approval.
-        // The dataset/entity suffix keeps each outbox primary key unique.
-        mutationId:
-            _mutationId(migrationId, SyncDataset.userProfile, accountId),
-        accountId: accountId,
-        dataset: SyncDataset.userProfile,
-        entityId: accountId,
-        operation: SyncMutationOperation.upsert,
-        payload: {'username': guestUsername},
-        fieldMask: const ['username'],
-        localRevision: migrated.localRevision,
-        clientUpdatedAt: _clock().toUtc(),
-      ));
-    }
-
-    // There is no delete mutation: a guest scope has no remote account.
-    // Removing this local source row is transactional with the account write.
-    await _userProfile.deleteProfile(guestAccountScope);
+    await _userProfile.migrateGuestProfile(
+      accountId: accountId,
+      migrationId: migrationId,
+      outboxWriter: _outboxWriter,
+      clock: _clock,
+    );
   }
 
   Future<void> _migrateMyWords(String accountId, String migrationId) async {

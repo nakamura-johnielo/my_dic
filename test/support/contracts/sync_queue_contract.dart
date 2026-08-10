@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/core/shared/enums/sync_dataset.dart';
-import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
-import 'package:my_dic/features/sync/application/port/sync_queue.dart';
+import 'package:my_dic/features/sync/port/model/sync_mutation.dart';
+import 'package:my_dic/features/sync/port/sync_dataset.dart';
+import 'package:my_dic/features/sync/port/sync_queue.dart';
 
 abstract interface class SyncQueueHarness {
   SyncQueue get queue;

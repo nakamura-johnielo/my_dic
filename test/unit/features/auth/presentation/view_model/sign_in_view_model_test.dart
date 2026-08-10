@@ -4,8 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/presentation/state/ui_effect.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/auth/application/usecase/auth_usecases.dart';
-import 'package:my_dic/features/auth/presentation/view_model/sign_in_view_model.dart';
+import 'package:my_dic/features/auth/internal/application/usecase/auth_usecases.dart';
+import 'package:my_dic/features/auth/internal/presentation/view_model/sign_in_view_model.dart';
 
 void main() {
   test('reset password succeeds and the notice is consumed once', () async {

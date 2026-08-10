@@ -22,15 +22,4 @@ class EspJpnSupplementDao extends DatabaseAccessor<DatabaseProvider>
         .get();
   }
 
-  Future<void> insertSupplement(
-          Insertable<EspJpnSupplementTableData> tableName) =>
-      into(espJpnSupplements).insert(tableName);
-
-  Future<void> updateSupplement(
-          Insertable<EspJpnSupplementTableData> tableName) =>
-      update(espJpnSupplements).replace(tableName);
-
-  Future<void> deleteSupplement(
-          Insertable<EspJpnSupplementTableData> tableName) =>
-      delete(espJpnSupplements).delete(tableName);
 }

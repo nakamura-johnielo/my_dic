@@ -2,17 +2,20 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
-import 'package:my_dic/core/shared/enums/sync_dataset.dart';
-import 'package:my_dic/features/my_word/data/data_source/local/drift_my_word_dao.dart';
-import 'package:my_dic/features/my_word/data/data_source/local/my_word_drift_data_source.dart';
-import 'package:my_dic/features/my_word/data/sync/remote/myword/firebase_my_word_dto.dart';
-import 'package:my_dic/features/my_word/data/sync/remote/myword/i_my_word_remote_data_source.dart';
-import 'package:my_dic/features/my_word/data/sync/my_word_sync_handler.dart';
-import 'package:my_dic/features/sync/application/cancellation_token.dart';
-import 'package:my_dic/features/sync/application/model/dataset_sync_result.dart';
-import 'package:my_dic/features/sync/application/model/remote_mutation.dart';
-import 'package:my_dic/features/sync/application/model/sync_context.dart';
-import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
+import 'package:my_dic/features/sync/port/sync_dataset.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/drift_my_word_dao.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/my_word_drift_data_source.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/my_word/firebase/firebase_my_word_dto.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/my_word/firebase/i_my_word_remote_data_source.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/sync/my_word_dataset_sync_adapter.dart';
+import 'package:my_dic/features/sync/internal/application/in_memory_session_fence.dart';
+import 'package:my_dic/features/sync/internal/application/sync_handler_runtime_adapter.dart';
+import 'package:my_dic/features/sync/port/cancellation_token.dart';
+import 'package:my_dic/features/sync/port/dataset_sync_handler.dart';
+import 'package:my_dic/features/sync/port/model/dataset_sync_result.dart';
+import 'package:my_dic/features/sync/port/model/remote_mutation.dart';
+import 'package:my_dic/features/sync/port/model/sync_context.dart';
+import 'package:my_dic/features/sync/port/model/sync_mutation.dart';
 import 'package:my_dic/features/sync/infrastructure/persistence/drift/drift_sync_checkpoint_store.dart';
 
 import '../../../helpers/sync/fake_sync_queue.dart';
@@ -68,7 +71,7 @@ void main() {
   late MyWordDriftDataSource local;
   late _MockRemote remote;
   late FakeSyncQueue queue;
-  late MyWordSyncHandler handler;
+  late DatasetSyncHandler handler;
 
   setUp(() async {
     database = DatabaseProvider.forTesting(NativeDatabase.memory());
@@ -77,12 +80,9 @@ void main() {
     remote = _MockRemote();
     queue = FakeSyncQueue();
     final checkpointStore = DriftSyncCheckpointStore(database);
-    handler = MyWordSyncHandler(
-      queue: queue,
-      checkpointStore: checkpointStore,
-      local: local,
-      remote: remote,
-      clock: () => DateTime.utc(2026, 8, 6),
+    handler = AdapterDatasetSyncHandler(
+      adapter: MyWordDatasetSyncAdapter(local: local, remote: remote),
+      runtime: SyncHandlerRuntimeAdapter(queue: queue, checkpoints: checkpointStore, sessionFence: InMemorySessionFence(), clock: () => DateTime.utc(2026, 8, 6)),
     );
   });
 

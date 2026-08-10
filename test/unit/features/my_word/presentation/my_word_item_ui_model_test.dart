@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/features/my_word/application/query/my_word_item_projection.dart';
-import 'package:my_dic/features/my_word/domain/entity/my_word.dart';
-import 'package:my_dic/features/my_word/domain/entity/my_word_status.dart';
-import 'package:my_dic/features/my_word/presentation/ui_model/my_word_ui_model.dart';
+import 'package:my_dic/features/my_word/internal/application/query/my_word_item_projection.dart';
+import 'package:my_dic/features/my_word/internal/domain/entity/my_word.dart';
+import 'package:my_dic/features/my_word/internal/domain/entity/my_word_status.dart';
+import 'package:my_dic/features/my_word/internal/presentation/ui_model/my_word_ui_model.dart';
 
 void main() {
   test('maps all card status from the read projection', () {

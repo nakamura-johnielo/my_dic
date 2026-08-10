@@ -1,14 +1,14 @@
 // Helper extensions for creating fake UseCases for testing.
 
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/auth/domain/entity/app_auth.dart';
-import 'package:my_dic/features/auth/application/usecase/auth_usecases.dart';
-import 'package:my_dic/features/auth/application/usecase/i_sign_in_use_case.dart';
+import 'package:my_dic/features/auth/port/app_auth.dart';
+import 'package:my_dic/features/auth/port/auth_commands.dart';
+import 'package:my_dic/features/auth/port/auth_readers.dart';
 
 import 'test_helpers.dart';
 
 /// Fake SignInInteractor for testing
-class FakeSignInInteractor implements ISignInUseCase {
+class FakeSignInInteractor implements SignInPort {
   final Result<AppAuth>? _executeResult;
 
   int callCount = 0;
@@ -19,17 +19,18 @@ class FakeSignInInteractor implements ISignInUseCase {
       : _executeResult = executeResult;
 
   @override
-  Future<Result<AppAuth>> execute(String email, String password) async {
+  Future<Result<AppAuth>> signIn(String email, String password) async {
     callCount++;
     lastEmail = email;
     lastPassword = password;
 
     return _executeResult ?? Result.success(createTestAuth());
   }
+
 }
 
 /// Fake SignUpInteractor for testing
-class FakeSignUpInteractor implements ISignUpUseCase {
+class FakeSignUpInteractor implements SignUpPort {
   final Result<AppAuth>? _executeResult;
 
   int callCount = 0;
@@ -38,14 +39,15 @@ class FakeSignUpInteractor implements ISignUpUseCase {
       : _executeResult = executeResult;
 
   @override
-  Future<Result<AppAuth>> execute(String email, String password) async {
+  Future<Result<AppAuth>> signUp(String email, String password) async {
     callCount++;
     return _executeResult ?? Result.success(createTestAuth(isVerified: false));
   }
+
 }
 
 /// Fake VerifyEmailInteractor for testing
-class FakeVerifyEmailInteractor implements IVerifyEmailUseCase {
+class FakeVerifyEmailInteractor implements SendVerificationEmailPort {
   final Result<void>? _executeResult;
 
   int callCount = 0;
@@ -54,14 +56,15 @@ class FakeVerifyEmailInteractor implements IVerifyEmailUseCase {
       : _executeResult = executeResult;
 
   @override
-  Future<Result<void>> execute() async {
+  Future<Result<void>> sendVerificationEmail() async {
     callCount++;
     return _executeResult ?? const Result.success(null);
   }
+
 }
 
 /// Fake SignOutInteractor for testing
-class FakeSignOutInteractor implements ISignOutUseCase {
+class FakeSignOutInteractor implements SignOutPort {
   final Result<void>? _executeResult;
 
   int callCount = 0;
@@ -70,13 +73,14 @@ class FakeSignOutInteractor implements ISignOutUseCase {
       : _executeResult = executeResult;
 
   @override
-  Future<Result<void>> execute() async {
+  Future<Result<void>> signOut() async {
     callCount++;
     return _executeResult ?? const Result.success(null);
   }
+
 }
 
-class FakeReloadCurrentAuthInteractor implements IReloadCurrentAuthUseCase {
+class FakeReloadCurrentAuthInteractor implements ReloadCurrentAuthPort {
   Result<AppAuth> executeResult;
   int callCount = 0;
 
@@ -84,8 +88,9 @@ class FakeReloadCurrentAuthInteractor implements IReloadCurrentAuthUseCase {
       : executeResult = executeResult ?? Result.success(createTestAuth());
 
   @override
-  Future<Result<AppAuth>> execute() async {
+  Future<Result<AppAuth>> reloadCurrentAuth() async {
     callCount++;
     return executeResult;
   }
+
 }

@@ -7,12 +7,10 @@ import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/shared/value_objects/field_update.dart';
 import 'package:my_dic/features/catalog/port/catalog_id.dart';
 import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
-import 'package:my_dic/features/word_status/application/port/word_status_repository.dart';
-import 'package:my_dic/features/word_status/application/update_word_status.dart';
-import 'package:my_dic/features/word_status/domain/word_status.dart';
+import 'package:my_dic/features/word_status/internal/application/update_word_status.dart';
+import 'package:my_dic/features/word_status/port/repository.dart';
+import 'package:my_dic/features/word_status/port/word_status.dart';
 import 'package:my_dic/features/word_status/presentation/dictionary_word_status_view_model.dart';
-
-import '../../../../helpers/fake_current_session.dart';
 
 class _MockRepository extends Mock implements WordStatusRepository {}
 
@@ -66,7 +64,8 @@ void main() {
           )).thenAnswer((_) async => Result.success(status));
       final command = WordStatusCommand(
         word,
-        UpdateWordStatus(repository, FakeCurrentSession()),
+        UpdateWordStatus(repository),
+        accountId: null,
       );
 
       await command.toggleBookmark(false);
@@ -100,7 +99,8 @@ void main() {
               (_) async => Result.failure(DatabaseError(message: 'nope')));
       final command = WordStatusCommand(
         word,
-        UpdateWordStatus(repository, FakeCurrentSession()),
+        UpdateWordStatus(repository),
+        accountId: null,
       );
 
       await command.toggleLearned(false);

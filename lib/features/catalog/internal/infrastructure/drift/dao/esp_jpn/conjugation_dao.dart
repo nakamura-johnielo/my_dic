@@ -234,17 +234,6 @@ class ConjugationDao extends DatabaseAccessor<DatabaseProvider>
     }).toList();
   }
 
-  Future<void> insertConjugation(
-          Insertable<EspConjugationTableData> tableName) =>
-      into(espConjugations).insert(tableName);
-
-  Future<void> updateConjugation(
-          Insertable<EspConjugationTableData> tableName) =>
-      update(espConjugations).replace(tableName);
-
-  Future<void> deleteConjugation(
-          Insertable<EspConjugationTableData> tableName) =>
-      delete(espConjugations).delete(tableName);
 }
 
 String getAllQuery(String query) {

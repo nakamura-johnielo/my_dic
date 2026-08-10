@@ -6,12 +6,12 @@ import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/catalog/port/catalog_id.dart';
 import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
-import 'package:my_dic/features/quiz/application/candidate_search/quiz_candidate.dart';
-import 'package:my_dic/features/quiz/application/candidate_search/quiz_candidate_issue.dart';
-import 'package:my_dic/features/quiz/application/candidate_search/quiz_candidate_page.dart';
-import 'package:my_dic/features/quiz/application/candidate_search/quiz_candidate_query.dart';
-import 'package:my_dic/features/quiz/application/candidate_search/quiz_candidate_source.dart';
-import 'package:my_dic/features/quiz/presentation/view_model/quiz_search_view_model.dart';
+import 'package:my_dic/features/quiz/port/candidate_source.dart';
+import 'package:my_dic/features/quiz/port/model/quiz_candidate.dart';
+import 'package:my_dic/features/quiz/port/model/quiz_candidate_issue.dart';
+import 'package:my_dic/features/quiz/port/model/quiz_candidate_page.dart';
+import 'package:my_dic/features/quiz/port/model/quiz_candidate_query.dart';
+import 'package:my_dic/features/quiz/internal/presentation/view_model/quiz_search_view_model.dart';
 
 void main() {
   group('QuizSearchViewModel', () {

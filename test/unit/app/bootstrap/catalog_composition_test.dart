@@ -1,20 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/app/bootstrap/catalog_composition.dart';
+import 'package:my_dic/app/integration/catalog_quiz/catalog_quiz_providers.dart';
+import 'package:my_dic/app/integration/catalog_search/catalog_search_providers.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/drift_catalog_reader.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/drift_conjugation_reader.dart';
-import 'package:my_dic/features/catalog/internal/infrastructure/integration/search/drift_search_query_repository.dart';
-import 'package:my_dic/features/catalog/internal/infrastructure/integration/quiz_candidate/drift_quiz_candidate_source.dart';
-import 'package:my_dic/features/quiz/application/candidate_search/quiz_candidate_page.dart';
-import 'package:my_dic/features/quiz/application/candidate_search/quiz_candidate_query.dart';
-import 'package:my_dic/features/quiz/application/candidate_search/quiz_candidate_source.dart';
-import 'package:my_dic/features/search/application/query/i_search_query_repository.dart';
-import 'package:my_dic/features/search/application/query/search_query.dart';
-import 'package:my_dic/features/search/application/query/search_result_page.dart';
+import 'package:my_dic/features/quiz/port/candidate_source.dart';
+import 'package:my_dic/features/quiz/port/model/quiz_candidate_page.dart';
+import 'package:my_dic/features/quiz/port/model/quiz_candidate_query.dart';
+import 'package:my_dic/features/search/port/model/search_query.dart';
+import 'package:my_dic/features/search/port/model/search_result_page.dart';
+import 'package:my_dic/features/search/port/reader.dart';
 
 void main() {
-  test('resolves Catalog readers from the Catalog-owned Drift graph', () {
+  test('resolves Catalog readers through the public Catalog composition', () {
     final container = ProviderContainer();
     addTearDown(container.dispose);
 
@@ -31,30 +31,28 @@ void main() {
 
     expect(
       container.read(quizCandidateSourceProvider),
-      isA<DriftQuizCandidateSource>(),
+      isA<QuizCandidateSource>(),
     );
   });
 
-  test('resolves Search repository through the Catalog integration adapter',
-      () {
+  test('resolves Search reader through the Catalog integration adapter', () {
     final container = ProviderContainer();
     addTearDown(container.dispose);
 
     expect(
-      container.read(searchQueryRepositoryProvider),
-      isA<DriftSearchQueryRepository>(),
+      container.read(searchReaderProvider),
+      isA<SearchReader>(),
     );
   });
 
-  test('allows Search repository to be replaced at the composition boundary',
-      () {
-    final repository = _SearchQueryRepository();
+  test('allows Search reader to be replaced at the composition boundary', () {
+    final repository = _SearchReader();
     final container = ProviderContainer(
-      overrides: [searchQueryRepositoryProvider.overrideWithValue(repository)],
+      overrides: [searchReaderProvider.overrideWithValue(repository)],
     );
     addTearDown(container.dispose);
 
-    expect(container.read(searchQueryRepositoryProvider), same(repository));
+    expect(container.read(searchReaderProvider), same(repository));
   });
 
   test('allows Quiz candidate source to be replaced with a fake', () {
@@ -74,7 +72,7 @@ final class _QuizCandidateSource implements QuizCandidateSource {
       throw UnimplementedError();
 }
 
-final class _SearchQueryRepository implements ISearchQueryRepository {
+final class _SearchReader implements SearchReader {
   @override
   Future<Result<SearchResultPage>> search(SearchQuery query) async =>
       throw UnimplementedError();

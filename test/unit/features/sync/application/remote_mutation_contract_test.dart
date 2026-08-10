@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/features/sync/application/model/remote_mutation.dart';
+import 'package:my_dic/features/sync/port/model/remote_mutation.dart';
 
 void main() {
   test('normalizes client time and freezes the field-mask payload', () {

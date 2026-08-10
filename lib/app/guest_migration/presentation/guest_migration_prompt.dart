@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/app/bootstrap/guest_migration_composition.dart';
+import 'package:my_dic/app/bootstrap/session_composition.dart';
 import 'package:my_dic/app/bootstrap/sync_composition.dart';
 import 'package:my_dic/app/guest_migration/presentation/guest_data_migration_dialog.dart';
 import 'package:my_dic/app/session/app_session.dart';
 import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
-import 'package:my_dic/features/sync/application/cancellation_token.dart';
-import 'package:my_dic/features/sync/application/model/sync_context.dart';
-import 'package:my_dic/features/sync/application/report/sync_reason_codes.dart';
-import 'package:my_dic/router/router.dart';
+import 'package:my_dic/features/sync/port/cancellation_token.dart';
+import 'package:my_dic/features/sync/port/model/sync_context.dart';
+import 'package:my_dic/app/routing/router.dart';
 
 /// Invisible widget that watches for a newly-ready session and, if any
 /// guest-scoped local data is found, asks the user whether to migrate it
@@ -32,7 +32,10 @@ class _GuestMigrationPromptState extends ConsumerState<GuestMigrationPrompt> {
     // supports the initial ready session as well as later sign-ins.
     ref.listenManual<AppSession>(appSessionProvider, (previous, next) {
       if (next is AppSessionReady) {
-        _maybePrompt(next.identity.accountId);
+        final scope = ref.read(sessionScopeKeyProvider);
+        if (scope != null && scope.accountScope == next.identity.accountId) {
+          _maybePrompt(scope.accountScope, scope.epoch);
+        }
       }
     }, fireImmediately: true);
   }
@@ -42,13 +45,11 @@ class _GuestMigrationPromptState extends ConsumerState<GuestMigrationPrompt> {
     return const SizedBox.shrink();
   }
 
-  Future<void> _maybePrompt(String accountId) async {
+  Future<void> _maybePrompt(String accountId, int sessionEpoch) async {
     if (_checking) return;
     _checking = true;
     try {
       final fence = ref.read(syncSessionFenceProvider);
-      final sessionEpoch = fence.epochFor(accountId);
-      if (sessionEpoch == null) return;
       final summary = await ref.read(detectGuestDataUseCaseProvider).execute();
       if (!mounted ||
           summary.isEmpty ||
@@ -77,7 +78,7 @@ class _GuestMigrationPromptState extends ConsumerState<GuestMigrationPrompt> {
         await ref
             .read(migrateGuestDataUseCaseProvider)
             .execute(accountId, sessionEpoch);
-        await _triggerForegroundSyncAfterMigration(accountId);
+        await _triggerForegroundSyncAfterMigration(accountId, sessionEpoch);
       }
     } catch (_) {
       AppLogger.print('Guest data migration prompt did not complete.');
@@ -86,14 +87,13 @@ class _GuestMigrationPromptState extends ConsumerState<GuestMigrationPrompt> {
     }
   }
 
-  Future<void> _triggerForegroundSyncAfterMigration(String accountId) async {
-    final epoch = ref.read(syncSessionFenceProvider).epochFor(accountId);
-    if (epoch == null) return;
+  Future<void> _triggerForegroundSyncAfterMigration(
+      String accountId, int epoch) async {
     try {
-      await ref.read(syncSchedulerProvider).foreground(SyncContext(
+      await ref.read(syncRunnerProvider).foreground(SyncContext(
             accountId: accountId,
             sessionEpoch: epoch,
-            reason: SyncReasonCodes.postGuestMigration,
+            reason: 'post_guest_migration',
             cancellation: CancellationToken(),
           ));
     } catch (_) {

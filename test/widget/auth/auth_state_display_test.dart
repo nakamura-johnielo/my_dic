@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/core/application/auth_lifecycle/auth_lifecycle_controller.dart';
-import 'package:my_dic/core/application/auth_lifecycle/auth_lifecycle_provider.dart';
+import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_controller.dart';
+import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_provider.dart';
+import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_presentation_entry.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/auth/presentation/view/sign_up.dart';
+import 'package:my_dic/features/auth/internal/presentation/view/sign_up.dart';
+import 'package:my_dic/features/auth/port/presentation_entry.dart';
 
 import '../../helpers/fake_auth_usecases.dart';
 import '../../helpers/fake_user_usecases.dart';
@@ -64,6 +66,12 @@ Widget _app(AuthLifecycleController controller) {
   return ProviderScope(
     overrides: [
       authLifecycleProvider.overrideWith((ref) => controller),
+      authPresentationStateProvider.overrideWith(
+        authLifecyclePresentationState,
+      ),
+      authPresentationActionsProvider.overrideWith(
+        authLifecyclePresentationActions,
+      ),
     ],
     child: const MaterialApp(home: EmailPasswordPage()),
   );

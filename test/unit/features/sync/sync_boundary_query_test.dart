@@ -5,11 +5,11 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('checkpoint queries retain their inclusive boundary', () {
     const remoteDaoPaths = [
-      'lib/features/my_word/data/sync/remote/myword/firebase_my_word_dao.dart',
-      'lib/features/my_word/data/sync/remote/status/firebase_my_word_status_dao.dart',
+      'lib/features/my_word/internal/infrastructure/my_word/firebase/firebase_my_word_dao.dart',
+      'lib/features/my_word/internal/infrastructure/my_word_status/firebase/firebase_my_word_status_dao.dart',
     ];
     const localDaoPaths = [
-      'lib/features/my_word/data/data_source/local/drift_my_word_dao.dart',
+      'lib/features/my_word/internal/infrastructure/data/data_source/local/drift_my_word_dao.dart',
       'lib/features/word_status/internal/infrastructure/esp_jpn/drift/esp_jpn_word_status_dao.dart',
     ];
 

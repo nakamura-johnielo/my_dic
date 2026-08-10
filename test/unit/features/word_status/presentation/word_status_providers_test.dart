@@ -1,21 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/app/bootstrap/word_status_composition.dart';
-import 'package:my_dic/app/session/current_session.dart';
-import 'package:my_dic/app/session/session_providers.dart';
+import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/shared/value_objects/field_update.dart';
 import 'package:my_dic/features/catalog/port/catalog_id.dart';
 import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
-import 'package:my_dic/features/word_status/application/port/word_status_repository.dart';
-import 'package:my_dic/features/word_status/domain/word_status.dart';
-import 'package:my_dic/features/word_status/presentation/word_status_providers.dart';
-
-import '../../../../helpers/fake_current_session.dart';
-
-final _testCurrentSessionProvider = StateProvider<CurrentSession>(
-  (ref) => FakeCurrentSession(accountIdOrNull: 'first-account'),
-);
+import 'package:my_dic/features/word_status/port/repository.dart';
+import 'package:my_dic/features/word_status/port/word_status.dart';
+import 'package:my_dic/features/word_status/port/presentation_entry.dart';
 
 void main() {
   const espWord = CatalogWordRef(
@@ -27,20 +20,28 @@ void main() {
     wordId: 42,
   );
 
-  test('watch provider restarts with the updated account session', () async {
+  const firstScope = SessionScopeKey(accountScope: 'first-account', epoch: 1);
+  const secondScope = SessionScopeKey(accountScope: 'second-account', epoch: 2);
+
+  test('watch provider rekeys when the session scope changes', () async {
     final repository = _RecordingRepository();
     final container = _container(repository);
     addTearDown(container.dispose);
-    final subscription =
-        container.listen(watchWordStatusProvider(espWord), (_, __) {});
+    final subscription = container.listen(
+        watchWordStatusProvider(
+          const WordStatusEntryKey(scope: firstScope, word: espWord),
+        ),
+        (_, __) {});
     addTearDown(subscription.close);
 
-    await container.read(watchWordStatusProvider(espWord).future);
+    await container.read(watchWordStatusProvider(
+      const WordStatusEntryKey(scope: firstScope, word: espWord),
+    ).future);
     expect(repository.accountIds, ['first-account']);
 
-    container.read(_testCurrentSessionProvider.notifier).state =
-        FakeCurrentSession(accountIdOrNull: 'second-account');
-    await container.read(watchWordStatusProvider(espWord).future);
+    await container.read(watchWordStatusProvider(
+      const WordStatusEntryKey(scope: secondScope, word: espWord),
+    ).future);
 
     expect(repository.accountIds, ['first-account', 'second-account']);
   });
@@ -51,8 +52,12 @@ void main() {
     final container = _container(repository);
     addTearDown(container.dispose);
 
-    final esp = await container.read(watchWordStatusProvider(espWord).future);
-    final jpn = await container.read(watchWordStatusProvider(jpnWord).future);
+    final esp = await container.read(watchWordStatusProvider(
+      const WordStatusEntryKey(scope: firstScope, word: espWord),
+    ).future);
+    final jpn = await container.read(watchWordStatusProvider(
+      const WordStatusEntryKey(scope: firstScope, word: jpnWord),
+    ).future);
 
     expect(esp.word, espWord);
     expect(jpn.word, jpnWord);
@@ -63,9 +68,6 @@ void main() {
 ProviderContainer _container(_RecordingRepository repository) {
   return ProviderContainer(overrides: [
     wordStatusRepositoryProvider.overrideWithValue(repository),
-    currentSessionProvider.overrideWith(
-      (ref) => ref.watch(_testCurrentSessionProvider),
-    ),
   ]);
 }
 
