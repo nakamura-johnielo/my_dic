@@ -10,16 +10,16 @@ import 'package:my_dic/features/catalog/port/catalog_id.dart';
 import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/ranking/application/query/ranking_list_item.dart';
-import 'package:my_dic/features/ranking/application/query/ranking_page.dart';
-import 'package:my_dic/features/ranking/application/query/ranking_query.dart';
-import 'package:my_dic/features/ranking/application/usecase/load_rankings/i_load_rankings_use_case.dart';
-import 'package:my_dic/features/ranking/application/usecase/load_rankings/load_rankings_input_data.dart';
-import 'package:my_dic/features/ranking/di/usecase_di.dart';
-import 'package:my_dic/features/ranking/di/view_model_di.dart';
-import 'package:my_dic/features/ranking/data/data_source/local/ranking_dao.dart';
-import 'package:my_dic/features/ranking/data/query/drift_ranking_query_repository.dart';
-import 'package:my_dic/features/ranking/presentation/view/ranking_fragment.dart';
+import 'package:my_dic/features/ranking/port/model/ranking_list_item.dart';
+import 'package:my_dic/features/ranking/port/model/ranking_page.dart';
+import 'package:my_dic/features/ranking/port/model/ranking_query.dart';
+import 'package:my_dic/features/ranking/internal/application/usecase/load_rankings/i_load_rankings_use_case.dart';
+import 'package:my_dic/features/ranking/port/model/load_rankings_input_data.dart';
+import 'package:my_dic/features/ranking/internal/composition/usecase_di.dart';
+import 'package:my_dic/features/ranking/internal/composition/view_model_di.dart';
+import 'package:my_dic/features/ranking/internal/infrastructure/drift/ranking_dao.dart';
+import 'package:my_dic/features/ranking/internal/infrastructure/drift/drift_ranking_query_repository.dart';
+import 'package:my_dic/features/ranking/internal/presentation/view/ranking_fragment.dart';
 import 'package:my_dic/features/word_status/port/presentation_entry.dart';
 import 'package:my_dic/features/word_status/presentation/status_button.dart';
 
@@ -51,7 +51,9 @@ void main() {
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
-        child: const MaterialApp(home: RankingFragment()),
+        child: MaterialApp(
+          home: RankingFragment(onOpenWordDetail: (_) {}, onOpenQuiz: (_, __) {}),
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -110,7 +112,9 @@ void main() {
 
     await tester.pumpWidget(UncontrolledProviderScope(
       container: container,
-      child: const MaterialApp(home: RankingFragment()),
+      child: MaterialApp(
+        home: RankingFragment(onOpenWordDetail: (_) {}, onOpenQuiz: (_, __) {}),
+      ),
     ));
     await tester.pumpAndSettle();
 
@@ -150,7 +154,9 @@ void main() {
 
     await tester.pumpWidget(UncontrolledProviderScope(
       container: container,
-      child: const MaterialApp(home: RankingFragment()),
+      child: MaterialApp(
+        home: RankingFragment(onOpenWordDetail: (_) {}, onOpenQuiz: (_, __) {}),
+      ),
     ));
     await tester.pumpAndSettle();
 
@@ -189,6 +195,7 @@ List<RankingListItem> _itemsForPage(int page) => List.generate(
       (index) {
         final id = page * 100 + index + 1;
         return RankingListItem(
+          rankingId: id,
           rank: id,
           rankedWord: 'word_$id',
           lemma: 'word_$id',

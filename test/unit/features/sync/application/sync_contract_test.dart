@@ -1,13 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/core/shared/enums/sync_dataset.dart';
-import 'package:my_dic/features/sync/application/dataset_handler_registry.dart';
-import 'package:my_dic/features/sync/application/model/dataset_sync_result.dart';
-import 'package:my_dic/features/sync/application/model/sync_cursor.dart';
-import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
-import 'package:my_dic/features/sync/application/model/sync_report.dart';
-import 'package:my_dic/features/sync/application/model/sync_context.dart';
-import 'package:my_dic/features/sync/application/port/dataset_sync_handler.dart';
-import 'package:my_dic/features/sync/application/report/sync_reason_codes.dart';
+import 'package:my_dic/features/sync/port/sync_dataset.dart';
+import 'package:my_dic/features/sync/internal/application/dataset_handler_registry.dart';
+import 'package:my_dic/features/sync/port/model/dataset_sync_result.dart';
+import 'package:my_dic/features/sync/port/model/sync_cursor.dart';
+import 'package:my_dic/features/sync/port/model/sync_mutation.dart';
+import 'package:my_dic/features/sync/port/model/sync_report.dart';
+import 'package:my_dic/features/sync/port/model/sync_context.dart';
+import 'package:my_dic/features/sync/port/dataset_sync_handler.dart';
+import 'package:my_dic/features/sync/port/sync_reason_codes.dart';
 
 class _Handler implements DatasetSyncHandler {
   _Handler(this.dataset);

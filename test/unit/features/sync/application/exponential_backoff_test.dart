@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/features/sync/application/policy/exponential_backoff.dart';
+import 'package:my_dic/features/sync/internal/application/policy/exponential_backoff.dart';
 
 class _FixedRandom implements Random {
   const _FixedRandom(this.value);

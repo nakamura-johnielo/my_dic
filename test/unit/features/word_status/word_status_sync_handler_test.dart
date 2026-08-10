@@ -30,7 +30,7 @@ SyncMutation _mutation(SyncDataset dataset, [String suffix = '']) =>
       clientUpdatedAt: DateTime.utc(2026),
     );
 
-class _Adapter implements WordStatusDatasetAdapter {
+class _Adapter extends WordStatusDatasetAdapter {
   _Adapter(this.dataset);
 
   @override
@@ -106,7 +106,8 @@ class _CheckpointStore implements SyncCheckpointStore {
 
 final class _SessionFence implements SessionFence {
   @override
-  bool isCurrent({required String accountId, required int sessionEpoch}) => true;
+  bool isCurrent({required String accountId, required int sessionEpoch}) =>
+      true;
 }
 
 void main() {

@@ -10,32 +10,32 @@ class LoadMyWordInteractor implements ILoadMyWordUseCase {
   final IMyWordRepository _driftLoadMyWordRepository;
   LoadMyWordInteractor(this._driftLoadMyWordRepository);
 
-  @override //TODO 使ってぁE��ぁE
+  @override
   Future<Result<List<MyWord>>> execute(LoadMyWordInputData input) async {
-    // Validation
     final validationError = _validateInput(input);
     if (validationError != null) {
       return Result.failure(validationError);
     }
 
-    int offset = input.requiredPage * input.size;
-    LoadMyWordRepositoryInputData repositoryInput =
-        LoadMyWordRepositoryInputData(input.size, offset);
+    final offset = input.requiredPage * input.size;
+    final repositoryInput = LoadMyWordRepositoryInputData(input.size, offset);
 
-    return await _driftLoadMyWordRepository.getFilteredByPage(repositoryInput,
-        accountId: input.accountScope);
+    return _driftLoadMyWordRepository.getFilteredByPage(
+      repositoryInput,
+      accountId: input.accountScope,
+    );
   }
 
   ValidationError? _validateInput(LoadMyWordInputData input) {
     if (input.requiredPage < 0) {
       return ValidationError(
-        message: "'ペジ番号は0以上であるがありま",
+        message: 'ページ番号は0以上である必要があります',
       );
     }
 
     if (input.size <= 0) {
       return ValidationError(
-        message: "'ペがありまぁ",
+        message: 'ページサイズは1以上である必要があります',
       );
     }
 
@@ -44,17 +44,17 @@ class LoadMyWordInteractor implements ILoadMyWordUseCase {
 
   @override
   Future<Result<List<String>>> executeIds(LoadMyWordInputData input) async {
-    // Validation
     final validationError = _validateInput(input);
     if (validationError != null) {
       return Result.failure(validationError);
     }
 
-    int offset = input.requiredPage * input.size;
-    LoadMyWordRepositoryInputData repositoryInput =
-        LoadMyWordRepositoryInputData(input.size, offset);
+    final offset = input.requiredPage * input.size;
+    final repositoryInput = LoadMyWordRepositoryInputData(input.size, offset);
 
-    return await _driftLoadMyWordRepository
-        .getIdsFilteredByPage(repositoryInput, accountId: input.accountScope);
+    return _driftLoadMyWordRepository.getIdsFilteredByPage(
+      repositoryInput,
+      accountId: input.accountScope,
+    );
   }
 }

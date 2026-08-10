@@ -34,10 +34,22 @@ class SearchResults {
   SearchResults merge(SearchResults next, {required bool append}) => !append
       ? next
       : SearchResults(
-          items: [...items, ...next.items],
-          conjugationSuggestions: next.conjugationSuggestions.isEmpty
-              ? conjugationSuggestions
-              : next.conjugationSuggestions,
+          items: _dedupeItems([...items, ...next.items]),
+          conjugationSuggestions: _dedupeConjugations([
+            ...conjugationSuggestions,
+            ...next.conjugationSuggestions,
+          ]),
           hasNext: next.hasNext,
         );
+
+  static List<SearchResultItem> _dedupeItems(List<SearchResultItem> values) {
+    final seen = <Object>{};
+    return values.where((item) => seen.add(item.word)).toList(growable: false);
+  }
+
+  static List<ConjugationSearchItem> _dedupeConjugations(
+      List<ConjugationSearchItem> values) {
+    final seen = <Object>{};
+    return values.where((item) => seen.add(item.word)).toList(growable: false);
+  }
 }

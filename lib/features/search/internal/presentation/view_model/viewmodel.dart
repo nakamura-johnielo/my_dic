@@ -3,72 +3,150 @@ import 'package:logging/logging.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/shared/errors/app_error.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/features/search/internal/presentation/ui_model/search_ui_model.dart';
 import 'package:my_dic/features/search/port/model/search_direction.dart';
 import 'package:my_dic/features/search/port/model/search_query.dart';
 import 'package:my_dic/features/search/port/reader.dart';
-import 'package:my_dic/features/search/internal/presentation/ui_model/search_ui_model.dart';
 
+/// Owns result-set identity, request attempts, and the page to retry.
+///
+/// [InfinityScrollController] deliberately only drives pagination.  It never
+/// owns a query, an error, or a failed page identity.
 class SearchViewModel extends StateNotifier<SearchState> {
   SearchViewModel(this._search) : super(const SearchState());
+
   final SearchReader _search;
   final _logger = Logger('SearchViewModel');
   int _generation = 0;
+  final _attempts = <_SearchPageIdentity, int>{};
+  final _inFlight = <_SearchPageIdentity, Future<bool>>{};
+  final _activeTokens = <_SearchPageIdentity, _SearchRequestToken>{};
+  _SearchPageIdentity? _failedPage;
 
   void updateQuery(String query) {
     final value = query.trim();
     _generation++;
+    _failedPage = null;
     state = SearchState(
-        query: value,
-        results: value.isEmpty ? const QueryState.initial() : state.results);
+      query: value,
+      // A new result set must not render the previous query while loading.
+      results: value.isEmpty
+          ? const QueryState.initial()
+          : const QueryState.loading(),
+    );
   }
 
   void clearResults() {
     _generation++;
+    _failedPage = null;
     state =
         SearchState(query: state.query, results: const QueryState.initial());
   }
 
-  Future<bool> loadSearchResults(int size, int page) async {
+  Future<bool> loadSearchResults(int size, int page) {
     final query = state.query;
-    if (query.isEmpty || state.results.isLoading) return false;
-    final generation = ++_generation;
+    if (query.isEmpty) return Future.value(false);
+    final direction = _directionFor(query);
+    final failed = _failedPage;
+    final identity = failed != null &&
+            failed.generation == _generation &&
+            failed.query == query &&
+            failed.size == size
+        ? failed
+        : _SearchPageIdentity(
+            generation: _generation,
+            query: query,
+            direction: direction,
+            page: page,
+            size: size,
+          );
+    final pending = _inFlight[identity];
+    if (pending != null) return pending;
+    // One active request per result-set generation. A query change intentionally
+    // starts a new generation, so its page 0 is not blocked by a stale request.
+    if (_activeTokens.values.any((token) => token.generation == _generation)) {
+      return Future.value(false);
+    }
+
+    final request = _load(identity);
+    _inFlight[identity] = request;
+    return request;
+  }
+
+  /// Retries exactly the most recently failed page, if it still belongs to
+  /// the current result set. This is intentionally VM-owned business state.
+  Future<bool> retryFailed() {
+    final failed = _failedPage;
+    if (failed == null ||
+        failed.generation != _generation ||
+        failed.query != state.query) {
+      return Future.value(false);
+    }
+    return loadSearchResults(failed.size, failed.page);
+  }
+
+  Future<bool> _load(_SearchPageIdentity identity) async {
+    final token = _SearchRequestToken(
+      generation: identity.generation,
+      page: identity,
+      attempt: (_attempts[identity] ?? 0) + 1,
+    );
+    _attempts[identity] = token.attempt;
+    _activeTokens[identity] = token;
     final previous = state.results.dataOrNull;
     state = state.copyWith(results: QueryState.loading(previousData: previous));
-    final direction = _directionFor(query);
-    final result = await _search.search(SearchQuery(
-      text: query,
-      direction: direction,
-      page: page,
-      size: size,
-      includeConjugationSuggestions: direction == SearchDirection.espJpn,
-    ));
-    if (!_isCurrent(generation, query)) return false;
-    return result.when(
-      success: (output) {
-        _publish(
-          SearchResults(
+
+    try {
+      final result = await _search.search(SearchQuery(
+        text: identity.query,
+        direction: identity.direction,
+        page: identity.page,
+        size: identity.size,
+        includeConjugationSuggestions:
+            identity.direction == SearchDirection.espJpn,
+      ));
+      if (!_isCurrent(token)) return false;
+      return result.when(
+        success: (output) {
+          _failedPage = null;
+          final next = SearchResults(
             items: output.items,
             conjugationSuggestions: output.conjugationSuggestions,
             hasNext: output.hasNext,
-          ),
-          previous,
-          page > 0,
-          warnings: output.issues
-              .map((issue) =>
-                  QueryWarning(source: issue.source, error: issue.error))
-              .toList(growable: false),
-        );
-        return output.hasNext;
-      },
-      failure: (error) {
-        _fail(error, previous);
-        return false;
-      },
-    );
+          );
+          // Capture the current value after await. This retains a completed
+          // page when another valid page completed while this request waited.
+          final current = state.results.dataOrNull;
+          _publish(
+            next,
+            current,
+            identity.page > 0,
+            warnings: output.issues
+                .map((issue) =>
+                    QueryWarning(source: issue.source, error: issue.error))
+                .toList(growable: false),
+          );
+          return output.hasNext;
+        },
+        failure: (error) {
+          _failedPage = identity;
+          _fail(error, state.results.dataOrNull);
+          return false;
+        },
+      );
+    } finally {
+      if (_activeTokens[identity] == token) _activeTokens.remove(identity);
+      // The map entry is still this request unless a later attempt replaced it.
+      _inFlight.remove(identity);
+    }
   }
 
-  bool _isCurrent(int generation, String query) =>
-      mounted && generation == _generation && query == state.query;
+  bool _isCurrent(_SearchRequestToken token) =>
+      mounted &&
+      token.generation == _generation &&
+      token.page.query == state.query &&
+      _activeTokens[token.page] == token;
+
   SearchDirection _directionFor(String query) {
     try {
       return RegExp(r'[a-zA-Záéíóúñü]').hasMatch(query)
@@ -79,10 +157,12 @@ class SearchViewModel extends StateNotifier<SearchState> {
       return SearchDirection.espJpn;
     }
   }
+
   void _fail(AppError error, SearchResults? previous) {
     if (mounted) {
       state = state.copyWith(
-          results: QueryState.failure(error, previousData: previous));
+        results: QueryState.failure(error, previousData: previous),
+      );
     }
   }
 
@@ -90,8 +170,59 @@ class SearchViewModel extends StateNotifier<SearchState> {
       {List<QueryWarning> warnings = const []}) {
     final value = previous?.merge(next, append: append) ?? next;
     state = state.copyWith(
-        results: value.isEmpty
-            ? QueryState.empty(warnings: warnings)
-            : QueryState.data(value, warnings: warnings));
+      results: value.isEmpty
+          ? QueryState.empty(warnings: warnings)
+          : QueryState.data(value, warnings: warnings),
+    );
   }
+}
+
+class _SearchPageIdentity {
+  const _SearchPageIdentity({
+    required this.generation,
+    required this.query,
+    required this.direction,
+    required this.page,
+    required this.size,
+  });
+
+  final int generation;
+  final String query;
+  final SearchDirection direction;
+  final int page;
+  final int size;
+
+  @override
+  bool operator ==(Object other) =>
+      other is _SearchPageIdentity &&
+      generation == other.generation &&
+      query == other.query &&
+      direction == other.direction &&
+      page == other.page &&
+      size == other.size;
+
+  @override
+  int get hashCode => Object.hash(generation, query, direction, page, size);
+}
+
+class _SearchRequestToken {
+  const _SearchRequestToken({
+    required this.generation,
+    required this.page,
+    required this.attempt,
+  });
+
+  final int generation;
+  final _SearchPageIdentity page;
+  final int attempt;
+
+  @override
+  bool operator ==(Object other) =>
+      other is _SearchRequestToken &&
+      generation == other.generation &&
+      page == other.page &&
+      attempt == other.attempt;
+
+  @override
+  int get hashCode => Object.hash(generation, page, attempt);
 }

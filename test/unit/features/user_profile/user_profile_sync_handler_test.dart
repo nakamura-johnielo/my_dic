@@ -70,6 +70,7 @@ void main() {
   late _MockRemote remote;
   late FakeSyncQueue queue;
   late DatasetSyncHandler handler;
+  late InMemorySessionFence fence;
 
   setUp(() {
     database = DatabaseProvider.forTesting(NativeDatabase.memory());
@@ -77,8 +78,15 @@ void main() {
     local = UserProfileDriftDataSource(dao);
     remote = _MockRemote();
     queue = FakeSyncQueue();
+    fence = InMemorySessionFence()..setCurrent(_accountId, 1);
     final checkpointStore = DriftSyncCheckpointStore(database);
-    handler = AdapterDatasetSyncHandler(adapter: UserProfileDatasetSyncAdapter(local: local, remote: remote), runtime: SyncHandlerRuntimeAdapter(queue: queue, checkpoints: checkpointStore, sessionFence: InMemorySessionFence(), clock: () => DateTime.utc(2026, 8, 6)));
+    handler = AdapterDatasetSyncHandler(
+        adapter: UserProfileDatasetSyncAdapter(local: local, remote: remote),
+        runtime: SyncHandlerRuntimeAdapter(
+            queue: queue,
+            checkpoints: checkpointStore,
+            sessionFence: fence,
+            clock: () => DateTime.utc(2026, 8, 6)));
   });
 
   tearDown(() => database.close());

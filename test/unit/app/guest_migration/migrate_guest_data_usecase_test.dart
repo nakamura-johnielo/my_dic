@@ -4,16 +4,17 @@ import 'package:mocktail/mocktail.dart';
 import 'package:my_dic/app/guest_migration/migrate_guest_data_usecase.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/core/shared/consts/account_scope.dart';
-import 'package:my_dic/core/shared/enums/sync_dataset.dart';
+import 'package:my_dic/features/sync/port/sync_dataset.dart';
 import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/drift_my_word_dao.dart';
 import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/drift_my_word_status_dao.dart';
 import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/my_word_drift_data_source.dart';
 import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/my_word_status_drift_data_source.dart';
-import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
-import 'package:my_dic/features/sync/application/in_memory_session_fence.dart';
-import 'package:my_dic/features/sync/application/port/outbox_writer.dart';
-import 'package:my_dic/features/user_profile/data/data_source/local/drift_user_profile_dao.dart';
-import 'package:my_dic/features/user_profile/data/data_source/local/user_profile_drift_data_source.dart';
+import 'package:my_dic/features/sync/port/model/sync_mutation.dart';
+import 'package:my_dic/features/sync/internal/application/in_memory_session_fence.dart';
+import 'package:my_dic/features/sync/port/outbox_writer.dart';
+import 'package:my_dic/features/user_profile/internal/infrastructure/local/drift_user_profile_dao.dart';
+import 'package:my_dic/features/user_profile/internal/infrastructure/local/user_profile_drift_data_source.dart';
+import 'package:my_dic/features/user_profile/internal/infrastructure/user_profile_guest_migration_adapter.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/esp_jpn/drift/esp_jpn_word_status_local_data_source.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/guest_migration/drift_word_status_guest_migration.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/jpn_esp/drift/jpn_esp_word_status_local_data_source.dart';
@@ -36,6 +37,7 @@ void main() {
     final myWord = MyWordDriftDataSource(MyWordDao(database));
     final myWordStatus = MyWordStatusDriftDataSource(MyWordStatusDao(database));
     final userProfile = UserProfileDriftDataSource(UserProfileDao(database));
+    final userProfilePort = UserProfileGuestMigrationAdapter(userProfile);
     final espJpn = _EspJpnStatus();
     final jpnEsp = _JpnEspStatus();
     final outbox = _OutboxWriter();
@@ -71,7 +73,7 @@ void main() {
       ),
       myWord: myWord,
       myWordStatus: myWordStatus,
-      userProfile: userProfile,
+      userProfile: userProfilePort,
       outboxWriter: outbox,
       sessionFence: fence,
       clock: () => DateTime.utc(2026, 8, 7),
@@ -101,6 +103,7 @@ void main() {
     final myWord = MyWordDriftDataSource(MyWordDao(database));
     final myWordStatus = MyWordStatusDriftDataSource(MyWordStatusDao(database));
     final userProfile = UserProfileDriftDataSource(UserProfileDao(database));
+    final userProfilePort = UserProfileGuestMigrationAdapter(userProfile);
     final espJpn = _EspJpnStatus();
     final jpnEsp = _JpnEspStatus();
     final outbox = _OutboxWriter();
@@ -122,7 +125,7 @@ void main() {
       ),
       myWord: myWord,
       myWordStatus: myWordStatus,
-      userProfile: userProfile,
+      userProfile: userProfilePort,
       outboxWriter: outbox,
       sessionFence: fence,
     );
@@ -149,6 +152,7 @@ void main() {
     final myWord = MyWordDriftDataSource(MyWordDao(database));
     final myWordStatus = MyWordStatusDriftDataSource(MyWordStatusDao(database));
     final userProfile = UserProfileDriftDataSource(UserProfileDao(database));
+    final userProfilePort = UserProfileGuestMigrationAdapter(userProfile);
     final espJpn = _EspJpnStatus();
     final jpnEsp = _JpnEspStatus();
     final outbox = _OutboxWriter();
@@ -172,7 +176,7 @@ void main() {
       ),
       myWord: myWord,
       myWordStatus: myWordStatus,
-      userProfile: userProfile,
+      userProfile: userProfilePort,
       outboxWriter: outbox,
       sessionFence: fence,
     );
@@ -186,7 +190,8 @@ void main() {
     expect(await userProfile.getProfile('account-a'), isNull);
   });
 
-  test('merges both WordStatus directions and queues direction-specific patches',
+  test(
+      'merges both WordStatus directions and queues direction-specific patches',
       () async {
     final espJpn = _EspJpnStatus();
     final jpnEsp = _JpnEspStatus();
@@ -250,7 +255,8 @@ void main() {
         .thenAnswer((_) async => [guestJpn]);
     when(() => jpnEsp.getWordStatusById(9, 'account-a'))
         .thenAnswer((_) async => null);
-    when(() => jpnEsp.updateWordStatus(9, false, true, false, any(), 'account-a'))
+    when(() =>
+            jpnEsp.updateWordStatus(9, false, true, false, any(), 'account-a'))
         .thenAnswer((_) async => updatedJpn);
     when(() => jpnEsp.deleteRow(9, guestAccountScope)).thenAnswer((_) async {});
     when(() => outbox.enqueue(any())).thenAnswer((_) async {});
@@ -267,7 +273,8 @@ void main() {
 
     verify(() => espJpn.deleteRow(7, guestAccountScope)).called(1);
     verify(() => jpnEsp.deleteRow(9, guestAccountScope)).called(1);
-    final mutations = verify(() => outbox.enqueue(captureAny())).captured
+    final mutations = verify(() => outbox.enqueue(captureAny()))
+        .captured
         .cast<SyncMutation>();
     expect(mutations.map((mutation) => mutation.dataset), [
       SyncDataset.espJpnWordStatus,

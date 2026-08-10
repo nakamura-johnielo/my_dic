@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/features/sync/application/policy/sync_error_classifier.dart';
-import 'package:my_dic/features/sync/application/report/sync_reason_codes.dart';
+import 'package:my_dic/features/sync/internal/application/policy/sync_error_classifier.dart';
+import 'package:my_dic/features/sync/port/sync_reason_codes.dart';
 
 void main() {
   const classifier = SyncErrorClassifier();

@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/app/routing/contracts/quiz_game_route.dart';
-import 'package:my_dic/app/routing/contracts/route_parse_result.dart';
-import 'package:my_dic/app/routing/contracts/word_detail_route.dart';
+import 'package:my_dic/core/result/route_parse_result.dart';
+import 'package:my_dic/features/quiz/port/route.dart';
+import 'package:my_dic/features/word_detail/port/route.dart';
 import 'package:my_dic/features/catalog/port/catalog_id.dart';
 import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 
@@ -22,7 +22,8 @@ void main() {
       expect(route.queryParameters, const {'catalog': 'esp-jpn-main'});
     });
 
-    test('accepts matching catalog and legacy type during the support window', () {
+    test('accepts matching catalog and legacy type during the support window',
+        () {
       final result = WordDetailRoute.parse(
         pathParameters: const {'wordId': '42'},
         queryParameters: const {
@@ -43,18 +44,22 @@ void main() {
       expect(result, isA<RouteParseFailure<WordDetailRoute>>());
     });
 
-    test('parses a legacy type URL and ignores hasConj', () {
-      final result = WordDetailRoute.parse(
-        pathParameters: const {'wordId': '42'},
-        queryParameters: const {'type': 'espJpn', 'hasConj': 'not-a-bool'},
-        parseLegacyType: _legacyCatalogId,
-      );
+    test('parses legacy type URLs and ignores every hasConj value', () {
+      for (final hasConj in ['true', 'false', 'garbage']) {
+        final result = WordDetailRoute.parse(
+          pathParameters: const {'wordId': '42'},
+          queryParameters: {'type': 'espJpn', 'hasConj': hasConj},
+          parseLegacyType: _legacyCatalogId,
+        );
 
-      expect(result, isA<RouteParseSuccess<WordDetailRoute>>());
-      expect(
-        (result as RouteParseSuccess<WordDetailRoute>).value.word,
-        const CatalogWordRef(catalogId: CatalogId.espJpnMain, wordId: 42),
-      );
+        expect(result, isA<RouteParseSuccess<WordDetailRoute>>(),
+            reason: hasConj);
+        expect(
+          (result as RouteParseSuccess<WordDetailRoute>).value.word,
+          const CatalogWordRef(catalogId: CatalogId.espJpnMain, wordId: 42),
+          reason: hasConj,
+        );
+      }
     });
 
     test('rejects unknown catalog, unsupported legacy type, and conflicts', () {
@@ -87,14 +92,18 @@ void main() {
   });
 
   test('QuizGameRoute serializes and parses a refresh-safe URL payload', () {
-    const route = QuizGameRoute(wordId: 42, word: 'hablar');
+    const route = QuizGameRoute(
+      word: CatalogWordRef(catalogId: CatalogId.espJpnMain, wordId: 42),
+      displayHint: 'hablar',
+    );
     final result = QuizGameRoute.parse(
       pathParameters: route.pathParameters,
       queryParameters: route.queryParameters,
     );
 
     expect(result, isA<RouteParseSuccess<QuizGameRoute>>());
-    expect((result as RouteParseSuccess<QuizGameRoute>).value.word, 'hablar');
+    expect((result as RouteParseSuccess<QuizGameRoute>).value.displayHint,
+        'hablar');
   });
 }
 

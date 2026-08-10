@@ -1,22 +1,2 @@
-import 'package:my_dic/core/presentation/state/command_state.dart';
-import 'package:my_dic/core/presentation/state/ui_effect.dart';
-
-class MyWordStatusCommandState {
-  const MyWordStatusCommandState({
-    this.command = const CommandState.idle(),
-    this.pendingEffect,
-  });
-
-  final CommandState command;
-  final UiEffectEnvelope<UiEffect>? pendingEffect;
-
-  MyWordStatusCommandState copyWith({
-    CommandState? command,
-    UiEffectEnvelope<UiEffect>? pendingEffect,
-    bool clearEffect = false,
-  }) =>
-      MyWordStatusCommandState(
-        command: command ?? this.command,
-        pendingEffect: clearEffect ? null : pendingEffect ?? this.pendingEffect,
-      );
-}
+export 'package:my_dic/features/my_word/internal/presentation/status/my_word_status_command.dart'
+    show MyWordStatusCommandState;

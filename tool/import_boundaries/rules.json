@@ -42,11 +42,16 @@
         "cloud_firestore"
       ],
       "allowedSourcePaths": [
-        "lib/features/auth/data/**",
-        "lib/app/bootstrap/**",
-        "lib/features/*/data/sync/remote/**",
+        "lib/app/integration/sync/firebase_remote_mutation_executor.dart",
+        "lib/app/bootstrap/bootstrap.dart",
+        "lib/app/bootstrap/firebase_options.dart",
+        "lib/app/bootstrap/firebase_providers.dart",
+        "lib/features/auth/internal/infrastructure/firebase/**",
+        "lib/features/*/internal/infrastructure/**/firebase/**",
+        "lib/features/*/internal/infrastructure/firebase/**",
         "test/integration/**",
-        "integration_test/**"
+        "integration_test/**",
+        "test/unit/app/bootstrap/word_status_sync_composition_test.dart"
       ]
     },
     {

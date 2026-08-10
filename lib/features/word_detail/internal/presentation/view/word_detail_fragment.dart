@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/custom_floating_button_location.dart';
+import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/features/word_status/port/presentation_entry.dart';
 import 'package:my_dic/features/word_detail/internal/di/view_model_di.dart';
@@ -20,7 +21,7 @@ class WordDetailFragmentBuilderInput {
   final int wordId;
   final Map<String, Widget> tabs;
   final FloatingActionButton? floatingButton;
-  final Widget statusButton;
+  final Widget? statusButton;
   WordDetailFragmentBuilderInput(
       {required this.wordId,
       required this.tabs,
@@ -32,7 +33,7 @@ class TabWordDetailInput {
   final int wordId;
   final Map<String, Widget> tabs;
   final FloatingActionButton? floatingButton;
-  final Widget statusButton;
+  final Widget? statusButton;
   TabWordDetailInput(
       {required this.wordId,
       required this.tabs,
@@ -44,7 +45,7 @@ class SingleWordDetailInput {
   final int wordId;
   final Widget body;
   final FloatingActionButton? floatingButton;
-  final Widget statusButton;
+  final Widget? statusButton;
   SingleWordDetailInput(
       {required this.wordId,
       required this.body,
@@ -77,7 +78,11 @@ class WordDetailFragment extends ConsumerWidget {
     final pageState = ref.watch(wordDetailViewModelProvider(loadKey));
 
     final detail = pageState.detail;
-    final viewData = detail.dataOrNull;
+    // Status mutations are only meaningful for a confirmed, non-empty
+    // primary result.  Do not mount their provider for loading, failure,
+    // empty, or stale-data renderer states.
+    final viewData =
+        detail is QueryData<WordDetailViewData> ? detail.dataOrNull : null;
 
     switch (viewData) {
       case JpnEspWordDetailViewData():
@@ -96,10 +101,8 @@ class WordDetailFragment extends ConsumerWidget {
       case null:
         if (input.word.catalogId == CatalogId.jpnEspMain) {
           tabs['Dictionary'] = JpnEspDictionaryFragment(detail: detail);
-          statusButton = DictionaryStatusButtonsEntry(word: input.word);
         } else {
           tabs['Dictionary'] = EspJpnDictionaryFragment(detail: detail);
-          statusButton = DictionaryStatusButtonsEntry(word: input.word);
         }
     }
 
@@ -222,10 +225,8 @@ class _TabWordDetailState extends ConsumerState<_TabWordDetail>
       appBar: AppBar(
         title: Text('Word Page'),
         actions: [
-          widget.input.statusButton,
-          SizedBox(
-            width: 14,
-          )
+          if (widget.input.statusButton case final statusButton?) statusButton,
+          if (widget.input.statusButton != null) const SizedBox(width: 14),
         ],
         bottom: TabBar(
           controller: _tabController,
@@ -260,10 +261,8 @@ class _SingleWordDetail extends StatelessWidget {
       appBar: AppBar(
         title: Text('Word Page'),
         actions: [
-          input.statusButton,
-          SizedBox(
-            width: 14,
-          )
+          if (input.statusButton case final statusButton?) statusButton,
+          if (input.statusButton != null) const SizedBox(width: 14),
         ],
       ),
       body: input.body,

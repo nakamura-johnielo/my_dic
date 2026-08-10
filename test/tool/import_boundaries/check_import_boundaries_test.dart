@@ -103,11 +103,15 @@ void main() {
 
     test('allows Firebase imports only at explicit infrastructure boundaries',
         () async {
-      await write(root, 'lib/features/auth/data/auth.dart',
+      await write(
+          root,
+          'lib/features/auth/internal/infrastructure/firebase/auth.dart',
           sdkImport('firebase_auth/firebase_auth.dart'));
-      await write(root, 'lib/app/bootstrap/firebase.dart',
+      await write(root, 'lib/app/bootstrap/firebase_providers.dart',
           sdkImport('firebase_core/firebase_core.dart'));
-      await write(root, 'lib/features/catalog/data/sync/remote/adapter.dart',
+      await write(
+          root,
+          'lib/features/catalog/internal/infrastructure/sync/firebase/adapter.dart',
           sdkImport('cloud_firestore/cloud_firestore.dart'));
       await write(root, 'integration_test/firebase_emulator_test.dart',
           sdkImport('cloud_firestore/cloud_firestore.dart'));

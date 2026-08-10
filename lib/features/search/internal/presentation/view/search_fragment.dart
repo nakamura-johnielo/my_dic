@@ -74,19 +74,61 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
         QueryInitial() => const Center(child: Text('Enter a search term.')),
         QueryLoading(previousData: null) =>
           const Center(child: CircularProgressIndicator()),
-        QueryEmpty() => const Center(child: Text('No matching words found.')),
+        QueryEmpty() => _empty(screen, notifier),
         QueryFailure(previousData: null, error: final error) => Center(
               child: Column(mainAxisSize: MainAxisSize.min, children: [
             Text(AppErrorMessage.from(error).text),
             TextButton(
-                onPressed: () => notifier.loadSearchResults(_size, 0),
-                child: const Text('Retry'))
+                onPressed: notifier.retryFailed, child: const Text('Retry'))
           ])),
         QueryData(value: final data) ||
         QueryLoading(previousData: final data?) ||
         QueryFailure(previousData: final data?, error: _) =>
-          _list(screen.query, data, notifier),
+          _withFeedback(screen, _list(screen.query, data, notifier)),
       };
+
+  Widget _empty(SearchState screen, SearchViewModel notifier) => Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          for (final warning in screen.results.warnings)
+            _warning(warning, onRetry: () => _reload(notifier, screen.query)),
+          const Text('No matching words found.'),
+        ],
+      );
+
+  Widget _withFeedback(SearchState screen, Widget list) => Column(
+        children: [
+          for (final warning in screen.results.warnings)
+            _warning(warning,
+                onRetry: () => _reload(
+                    ref.read(searchViewModelProvider.notifier), screen.query)),
+          if (screen.results
+              case QueryFailure(error: final error, previousData: final _?))
+            MaterialBanner(
+              content: Text(AppErrorMessage.from(error).text),
+              actions: [
+                TextButton(
+                  onPressed: _scroll.retryCurrentPage,
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          Expanded(child: list),
+        ],
+      );
+
+  Widget _warning(QueryWarning warning, {required VoidCallback onRetry}) =>
+      MaterialBanner(
+        content: Text(AppErrorMessage.from(warning.error).text),
+        actions: [TextButton(onPressed: onRetry, child: const Text('Retry'))],
+      );
+
+  void _reload(SearchViewModel notifier, String query) {
+    notifier.updateQuery(query);
+    _scroll.reset();
+    _load(0);
+  }
+
   Widget _list(String query, SearchResults data, SearchViewModel notifier) {
     if (data.direction == SearchDirection.jpnEsp) {
       return InfinityScrollListView(
@@ -107,8 +149,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                     word: word.headword,
                     meaning: word.meaningText ?? '',
                     status: const SizedBox.shrink(),
-                    onTap: () =>
-                        _toWordDetail(word.word)));
+                    onTap: () => _toWordDetail(word.word)));
           },
           onLoadMore: _load);
     }
@@ -147,10 +188,9 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
 
   Widget _conjugationCard(String query, ConjugationSearchItem item) => Padding(
         padding: const EdgeInsets.only(bottom: 11),
-      child: SearchResultCard(
+        child: SearchResultCard(
           status: const SizedBox.shrink(),
-          onQuizTap: () =>
-              _toQuiz(item.word, item.headword),
+          onQuizTap: () => _toQuiz(item.word, item.headword),
           query: query,
           wordId: item.wordId,
           ranking: item.rankingNo,

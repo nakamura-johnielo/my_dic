@@ -1,49 +1,94 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_dic/core/presentation/state/ui_effect.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/features/my_word/internal/di/view_model_di.dart';
 import 'package:my_dic/features/my_word/internal/presentation/ui_model/my_word_ui_model.dart';
 import 'package:my_dic/features/my_word/internal/presentation/view_model/my_word_status_command.dart';
-import 'package:my_dic/features/word_status/port/presentation_entry.dart' as status;
+import 'package:my_dic/features/word_status/port/presentation_entry.dart'
+    as status;
 
 /// Final MyWord status presentation entry; state and commands remain in MyWord.
 class MyWordStatusButtonsEntry extends ConsumerWidget {
-  const MyWordStatusButtonsEntry({super.key, required this.scope, required this.wordId});
+  const MyWordStatusButtonsEntry(
+      {super.key, required this.scope, required this.wordId});
   final SessionScopeKey? scope;
   final String wordId;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (scope == null) return const status.MyWordStatusButtons(viewModel: _DetachedMyWordStatusViewModel());
+    if (scope == null)
+      return const status.MyWordStatusButtons(
+          viewModel: _DetachedMyWordStatusViewModel());
     final key = (scope: scope!, wordId: wordId);
-    return status.MyWordStatusButtons(viewModel: _MyWordStatusViewModel(
-      item: ref.watch(myWordItemUiModelProvider(key)),
-      command: ref.read(myWordStatusCommandProvider(key).notifier),
-    ));
+    ref.listen(myWordStatusCommandProvider(key), (previous, next) {
+      final envelope = next.pendingEffect;
+      if (envelope == null || previous?.pendingEffect?.id == envelope.id)
+        return;
+      ref
+          .read(myWordStatusCommandProvider(key).notifier)
+          .consumeEffect(envelope.id);
+      if (envelope.effect case UiNoticeEffect(:final message)) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted)
+            ScaffoldMessenger.maybeOf(context)
+                ?.showSnackBar(SnackBar(content: Text(message)));
+        });
+      }
+    });
+    final commandState = ref.watch(myWordStatusCommandProvider(key));
+    return status.MyWordStatusButtons(
+      viewModel: _MyWordStatusViewModel(
+        item: ref.watch(myWordItemUiModelProvider(key)),
+        command: ref.read(myWordStatusCommandProvider(key).notifier),
+        commandState: commandState,
+      ),
+    );
   }
 }
 
-class _MyWordStatusViewModel implements status.WordStatusViewModel {
-  const _MyWordStatusViewModel({required this.item, required this.command});
+class _MyWordStatusViewModel
+    implements status.WordStatusViewModel, status.WordStatusCommandProgress {
+  const _MyWordStatusViewModel(
+      {required this.item, required this.command, required this.commandState});
   final AsyncValue<MyWordItemUiModel?> item;
   final MyWordStatusCommand command;
-  @override bool get hasNote => false;
-  @override bool get isLoading => item.isLoading;
-  @override String? get readError => item.whenOrNull(error: (error, _) => '$error');
-  @override bool get isBookmarked => item.valueOrNull?.isBookmarked ?? false;
-  @override bool get isLearned => item.valueOrNull?.isLearned ?? false;
-  @override Future<void> toggleBookmark() => command.toggleBookmark(isBookmarked);
-  @override Future<void> toggleHasNote() async {}
-  @override Future<void> toggleLearned() => command.toggleLearned(isLearned);
+  final MyWordStatusCommandState commandState;
+  @override
+  bool get hasNote => false;
+  @override
+  bool get isLoading => item.isLoading;
+  @override
+  bool get isSubmitting => commandState.isSubmitting;
+  @override
+  String? get readError => item.whenOrNull(error: (error, _) => '$error');
+  @override
+  bool get isBookmarked => item.valueOrNull?.isBookmarked ?? false;
+  @override
+  bool get isLearned => item.valueOrNull?.isLearned ?? false;
+  @override
+  Future<void> toggleBookmark() => command.toggleBookmark(isBookmarked);
+  @override
+  Future<void> toggleHasNote() async {}
+  @override
+  Future<void> toggleLearned() => command.toggleLearned(isLearned);
 }
 
 class _DetachedMyWordStatusViewModel implements status.WordStatusViewModel {
   const _DetachedMyWordStatusViewModel();
-  @override bool get hasNote => false;
-  @override bool get isBookmarked => false;
-  @override bool get isLearned => false;
-  @override bool get isLoading => true;
-  @override String? get readError => null;
-  @override Future<void> toggleBookmark() async {}
-  @override Future<void> toggleHasNote() async {}
-  @override Future<void> toggleLearned() async {}
+  @override
+  bool get hasNote => false;
+  @override
+  bool get isBookmarked => false;
+  @override
+  bool get isLearned => false;
+  @override
+  bool get isLoading => true;
+  @override
+  String? get readError => null;
+  @override
+  Future<void> toggleBookmark() async {}
+  @override
+  Future<void> toggleHasNote() async {}
+  @override
+  Future<void> toggleLearned() async {}
 }

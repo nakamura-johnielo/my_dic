@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/app/bootstrap/word_status_composition.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/shared/value_objects/field_update.dart';
@@ -9,6 +8,7 @@ import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/features/word_status/port/repository.dart';
 import 'package:my_dic/features/word_status/port/word_status.dart';
 import 'package:my_dic/features/word_status/port/presentation_entry.dart';
+import 'package:my_dic/features/word_status/internal/presentation/dictionary_status/word_status_providers.dart';
 
 void main() {
   const espWord = CatalogWordRef(
@@ -67,7 +67,7 @@ void main() {
 
 ProviderContainer _container(_RecordingRepository repository) {
   return ProviderContainer(overrides: [
-    wordStatusRepositoryProvider.overrideWithValue(repository),
+    wordStatusRepositoryDependencyProvider.overrideWithValue(repository),
   ]);
 }
 

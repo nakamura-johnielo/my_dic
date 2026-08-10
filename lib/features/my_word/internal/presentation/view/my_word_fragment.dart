@@ -40,10 +40,7 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
 
     _setCurrentItemLength();
 
-    await viewModel.loadNext(
-      _size,
-      nextPage - 1,
-    );
+    await viewModel.loadPage(size: _size, page: nextPage);
 
     final canFetch = _canFetch();
 
@@ -109,8 +106,9 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
 
   Widget _content(MyWordFragmentState screen, SessionScopeKey scope) =>
       switch (screen.words) {
-        QueryInitial() =>
-          const Center(child: Text('My Word will load shortly.')),
+        // The list must be mounted even before data exists: its one owner
+        // performs the automatic zero-based first-page request.
+        QueryInitial() => _list(const MyWordListResults([]), screen, scope),
         QueryLoading(previousData: null) =>
           const Center(child: CircularProgressIndicator()),
         QueryEmpty() => const Center(child: Text('No saved words yet.')),
@@ -123,83 +121,91 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
         QueryData(value: final data) ||
         QueryLoading(previousData: final data?) ||
         QueryFailure(previousData: final data?, error: _) =>
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              for (final warning in screen.words.warnings)
-                MaterialBanner(
-                  content: Text(AppErrorMessage.from(warning.error).text),
-                  actions: [
-                    TextButton(onPressed: _retry, child: const Text('Retry')),
-                  ],
-                ),
-              if (screen.words
-                  case QueryFailure(error: final error, previousData: _))
-                MaterialBanner(
-                  content: Text(AppErrorMessage.from(error).text),
-                  actions: [
-                    TextButton(onPressed: _retry, child: const Text('Retry'))
-                  ],
-                ),
-              Expanded(
-                  child: InfinityScrollListView(
-                padding: const EdgeInsets.only(
-                  bottom: UIConsts.bottomBarCompleteHeight * 2, // FAB 用の余白
-                ),
-                initialPage: _initialPage,
-                controller: _infinityScrollController,
-                autoLoadFirstPage: true,
-                onLoadMore: loadNextPage,
-                itemCount: data.ids.length,
-                itemBuilder: (context, index) {
-                  final id = data.ids[index];
+          _list(data, screen, scope),
+      };
 
-                  final itemAsync = ref.watch(
-                      myWordItemUiModelProvider((scope: scope, wordId: id)));
+  Widget _list(MyWordListResults data, MyWordFragmentState screen,
+          SessionScopeKey scope) =>
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final warning in screen.words.warnings)
+            MaterialBanner(
+              content: Text(AppErrorMessage.from(warning.error).text),
+              actions: [
+                TextButton(onPressed: _retry, child: const Text('Retry')),
+              ],
+            ),
+          if (screen.words
+              case QueryFailure(error: final error, previousData: _))
+            MaterialBanner(
+              content: Text(AppErrorMessage.from(error).text),
+              actions: [
+                TextButton(onPressed: _retry, child: const Text('Retry'))
+              ],
+            ),
+          Expanded(
+              child: InfinityScrollListView(
+            // A session scope/epoch is a distinct result set. Remount the
+            // scroll owner so it cannot retain page/hasMore from the old
+            // account while the re-keyed VM loads page zero.
+            key: ValueKey(scope),
+            padding: const EdgeInsets.only(
+              bottom: UIConsts.bottomBarCompleteHeight * 2, // FAB 用の余白
+            ),
+            initialPage: _initialPage,
+            controller: _infinityScrollController,
+            autoLoadFirstPage: true,
+            onLoadMore: loadNextPage,
+            itemCount: data.ids.length,
+            itemBuilder: (context, index) {
+              final id = data.ids[index];
 
-                  return itemAsync.when(
-                    loading: () => const SizedBox(height: 1),
-                    error: (_, __) => const SizedBox(height: 1),
-                    data: (item) {
-                      if (item == null) return const SizedBox(height: 1);
-                      final clickListeners = {
-                        WordCardViewButton.bookmark: () => ref
-                            .read(myWordStatusCommandProvider(
-                                (scope: scope, wordId: id)).notifier)
-                            .toggleBookmark(item.isBookmarked),
-                        WordCardViewButton.learned: () => ref
-                            .read(myWordStatusCommandProvider(
-                                (scope: scope, wordId: id)).notifier)
-                            .toggleLearned(item.isLearned),
-                      };
-                      return Padding(
-                        key: ValueKey('MyWordCard-${item.wordId}'),
-                        padding: const EdgeInsets.only(bottom: 7.0),
-                        child: MyWordCard(
-                          onTap: () => openDetailModal(
-                            context,
-                            clickListeners,
-                            index,
-                            item,
-                            scope: scope,
-                            onChanged: _reloadMyWords,
-                          ),
-                          item: item,
-                          clickListeners: clickListeners,
-                        ),
-                      );
-                    },
+              final itemAsync = ref
+                  .watch(myWordItemUiModelProvider((scope: scope, wordId: id)));
+
+              return itemAsync.when(
+                loading: () => const SizedBox(height: 1),
+                error: (_, __) => const SizedBox(height: 1),
+                data: (item) {
+                  if (item == null) return const SizedBox(height: 1);
+                  final clickListeners = {
+                    WordCardViewButton.bookmark: () => ref
+                        .read(myWordStatusCommandProvider(
+                            (scope: scope, wordId: id)).notifier)
+                        .toggleBookmark(item.isBookmarked),
+                    WordCardViewButton.learned: () => ref
+                        .read(myWordStatusCommandProvider(
+                            (scope: scope, wordId: id)).notifier)
+                        .toggleLearned(item.isLearned),
+                  };
+                  return Padding(
+                    key: ValueKey('MyWordCard-${item.wordId}'),
+                    padding: const EdgeInsets.only(bottom: 7.0),
+                    child: MyWordCard(
+                      onTap: () => openDetailModal(
+                        context,
+                        clickListeners,
+                        index,
+                        item,
+                        scope: scope,
+                        onChanged: _reloadMyWords,
+                      ),
+                      item: item,
+                      clickListeners: clickListeners,
+                    ),
                   );
                 },
-              )),
-            ],
-          ),
-      };
+              );
+            },
+          )),
+        ],
+      );
 
   void _retry() {
     final scope = ref.read(sessionScopeKeyProvider);
     if (scope != null) {
-      ref.read(myWordFragmentViewModelProvider(scope).notifier).retry(_size);
+      ref.read(myWordFragmentViewModelProvider(scope).notifier).retryFailed();
     }
   }
 }

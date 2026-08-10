@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
-import 'package:my_dic/features/sync/application/port/sync_queue.dart';
+import 'package:my_dic/features/sync/port/model/sync_mutation.dart';
+import 'package:my_dic/features/sync/port/sync_queue.dart';
 import '../../../helpers/sync/fake_sync_queue.dart';
 import '../../../support/contracts/sync_queue_contract.dart';
 

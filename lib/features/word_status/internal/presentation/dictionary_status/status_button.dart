@@ -14,6 +14,12 @@ abstract interface class WordStatusViewModel {
   Future<void> toggleHasNote();
 }
 
+/// Optional capability: legacy callers only need the status values, while
+/// Gate B command owners can expose their aggregate single-flight state.
+abstract interface class WordStatusCommandProgress {
+  bool get isSubmitting;
+}
+
 class DictionaryStatusButtons extends StatelessWidget {
   const DictionaryStatusButtons({super.key, required this.viewModel});
   final WordStatusViewModel viewModel;
@@ -61,7 +67,9 @@ class _StatusButtons extends StatelessWidget {
                 ? Icons.check_circle_rounded
                 : Icons.check_circle_outline_rounded,
             hoveredIconColor: const Color.fromARGB(255, 119, 119, 119),
-            onTap: () => unawaited(viewModel.toggleLearned()),
+            onTap: _isSubmitting
+                ? null
+                : () => unawaited(viewModel.toggleLearned()),
           ),
           const SizedBox(width: 3),
           MyIconButton(
@@ -73,8 +81,14 @@ class _StatusButtons extends StatelessWidget {
                 ? Icons.bookmark_rounded
                 : Icons.bookmark_border_rounded,
             hoveredIconColor: const Color.fromARGB(255, 119, 119, 119),
-            onTap: () => unawaited(viewModel.toggleBookmark()),
+            onTap: _isSubmitting
+                ? null
+                : () => unawaited(viewModel.toggleBookmark()),
           ),
         ],
       );
+
+  bool get _isSubmitting =>
+      viewModel is WordStatusCommandProgress &&
+      (viewModel as WordStatusCommandProgress).isSubmitting;
 }

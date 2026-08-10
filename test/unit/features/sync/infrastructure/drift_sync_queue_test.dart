@@ -4,12 +4,12 @@ import 'package:drift/drift.dart' hide isNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
-import 'package:my_dic/core/shared/enums/sync_dataset.dart';
-import 'package:my_dic/features/sync/application/model/sync_mutation.dart';
-import 'package:my_dic/features/sync/infrastructure/persistence/drift/drift_outbox_writer.dart';
-import 'package:my_dic/features/sync/infrastructure/persistence/drift/drift_sync_queue.dart';
-import 'package:my_dic/features/sync/infrastructure/persistence/drift/drift_sync_checkpoint_store.dart';
-import 'package:my_dic/features/sync/application/model/sync_cursor.dart';
+import 'package:my_dic/features/sync/port/sync_dataset.dart';
+import 'package:my_dic/features/sync/port/model/sync_mutation.dart';
+import 'package:my_dic/features/sync/internal/infrastructure/persistence/drift/drift_outbox_writer.dart';
+import 'package:my_dic/features/sync/internal/infrastructure/persistence/drift/drift_sync_queue.dart';
+import 'package:my_dic/features/sync/internal/infrastructure/persistence/drift/drift_sync_checkpoint_store.dart';
+import 'package:my_dic/features/sync/port/model/sync_cursor.dart';
 
 SyncMutation mutation(
         {required String id,

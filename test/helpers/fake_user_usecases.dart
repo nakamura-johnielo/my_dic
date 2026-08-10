@@ -1,8 +1,8 @@
 // Fake implementations of user use cases for testing.
 
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/user_profile/domain/entity/user.dart';
-import 'package:my_dic/features/user_profile/application/usecase/user_usecases.dart';
+import 'package:my_dic/features/user_profile/port/user_profile.dart';
+import 'package:my_dic/features/user_profile/internal/application/usecase/user_usecases.dart';
 
 /// Fake GetUserInteractor for testing
 class FakeGetUserInteractor implements IGetUserUseCase {
@@ -63,6 +63,7 @@ class FakeEnsureUserExistsInteractor implements IEnsureUserExistsUseCase {
   }
 
   @override
-  Future<Result<AppUser>> ensureUserProfile(String accountId, {String? email}) =>
+  Future<Result<AppUser>> ensureUserProfile(String accountId,
+          {String? email}) =>
       execute(accountId, email: email);
 }

@@ -76,8 +76,10 @@ class MyWordUiState {
 class MyWordListResults {
   const MyWordListResults(this.ids);
   final List<String> ids;
-  MyWordListResults append(Iterable<String> next) =>
-      MyWordListResults([...ids, ...next]);
+  MyWordListResults append(Iterable<String> next) {
+    final seen = <String>{...ids};
+    return MyWordListResults([...ids, ...next.where(seen.add)]);
+  }
 }
 
 /// Pagination metadata is independent from the list query lifecycle.

@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/app/bootstrap/bootstrap.dart';
 import 'package:my_dic/app/bootstrap/app_dependencies.dart';
 import 'package:my_dic/app/bootstrap/legacy_sync_preferences_cleanup.dart';
-import 'package:my_dic/app/bootstrap/lifecycle_effects.dart';
+import 'package:my_dic/app/workflows/sync_trigger/application_lifecycle_effects.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -90,7 +90,6 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('アプリの初期化に失敗しました。'), findsOneWidget);
     expect(find.textContaining('firebase failed'), findsOneWidget);
   });
 

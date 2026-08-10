@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
+import 'package:my_dic/core/presentation/state/command_state.dart';
+import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/shared/value_objects/field_update.dart';
@@ -10,7 +12,8 @@ import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/features/word_status/internal/application/update_word_status.dart';
 import 'package:my_dic/features/word_status/port/repository.dart';
 import 'package:my_dic/features/word_status/port/word_status.dart';
-import 'package:my_dic/features/word_status/presentation/dictionary_word_status_view_model.dart';
+import 'package:my_dic/features/word_status/internal/presentation/dictionary_status/dictionary_word_status_command.dart';
+import 'package:my_dic/features/word_status/internal/presentation/dictionary_status/dictionary_word_status_view_model.dart';
 
 class _MockRepository extends Mock implements WordStatusRepository {}
 
@@ -62,22 +65,22 @@ void main() {
             updatedAt: any(named: 'updatedAt'),
             accountId: any(named: 'accountId'),
           )).thenAnswer((_) async => Result.success(status));
-      final command = WordStatusCommand(
+      final command = DictionaryWordStatusCommand(
         word,
         UpdateWordStatus(repository),
-        accountId: null,
+        const SessionScopeKey(accountScope: 'guest', epoch: 1),
       );
 
       await command.toggleBookmark(false);
 
-      expect(command.state, isA<ToggleBookmarkedSucceeded>());
+      expect(command.state.command, isA<CommandSucceeded>());
       final captured = verify(() => repository.update(
             word,
             isLearned: captureAny(named: 'isLearned'),
             isBookmarked: captureAny(named: 'isBookmarked'),
             hasNote: captureAny(named: 'hasNote'),
             updatedAt: any(named: 'updatedAt'),
-            accountId: null,
+            accountId: 'guest',
           )).captured;
       expect(captured[0], isA<Unchanged<bool>>());
       expect(captured[1],
@@ -97,15 +100,15 @@ void main() {
               ))
           .thenAnswer(
               (_) async => Result.failure(DatabaseError(message: 'nope')));
-      final command = WordStatusCommand(
+      final command = DictionaryWordStatusCommand(
         word,
         UpdateWordStatus(repository),
-        accountId: null,
+        const SessionScopeKey(accountScope: 'guest', epoch: 1),
       );
 
       await command.toggleLearned(false);
 
-      expect(command.state, isA<ToggleLearnedFailed>());
+      expect(command.state.command, isA<CommandFailed>());
     });
   });
 }

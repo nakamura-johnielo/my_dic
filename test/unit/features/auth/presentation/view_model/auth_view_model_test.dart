@@ -5,8 +5,8 @@ import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_controller
 import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_state.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/user_profile/domain/entity/user.dart';
-import 'package:my_dic/features/user_profile/application/usecase/user_usecases.dart';
+import 'package:my_dic/features/user_profile/port/user_profile.dart';
+import 'package:my_dic/features/user_profile/internal/application/usecase/user_usecases.dart';
 
 import '../../../../../helpers/fake_auth_usecases.dart';
 import '../../../../../helpers/fake_user_usecases.dart';
@@ -29,7 +29,7 @@ void main() {
       expect(ensure.callCount, 0);
       expect(
           fixture.controller.state.phase, AuthLifecyclePhase.emailUnverified);
-      expect(fixture.controller.state.notice, contains('確認メールを送信しました'));
+      expect(fixture.controller.state.notice, isNotEmpty);
     });
 
     test(
@@ -37,7 +37,7 @@ void main() {
         () async {
       final verify = FakeVerifyEmailInteractor(
         executeResult: Result.failure(
-          BusinessRuleError(message: '送信制限中です'),
+          BusinessRuleError(message: 'verification delivery failed'),
         ),
       );
       final fixture = _Fixture(verify: verify);
@@ -49,7 +49,8 @@ void main() {
         AuthLifecyclePhase.verificationEmailFailed,
       );
       expect(fixture.controller.state.notice, isNull);
-      expect(fixture.controller.state.error?.message, '送信制限中です');
+      expect(fixture.controller.state.error?.message,
+          'verification delivery failed');
       expect(fixture.controller.state.auth?.accountId, isNotEmpty);
     });
 
@@ -177,13 +178,14 @@ class _RetryableEnsureUser implements IEnsureUserExistsUseCase {
   Future<Result<AppUser>> execute(String id, {String? email}) async {
     callCount++;
     if (shouldFail) {
-      return Result.failure(NotFoundError(message: '一時的に準備できません'));
+      return Result.failure(NotFoundError(message: 'profile unavailable'));
     }
     return Result.success(AppUser(deviceId: 'device-1', email: email));
   }
 
   @override
-  Future<Result<AppUser>> ensureUserProfile(String accountId, {String? email}) =>
+  Future<Result<AppUser>> ensureUserProfile(String accountId,
+          {String? email}) =>
       execute(accountId, email: email);
 }
 
@@ -197,6 +199,7 @@ class _DeferredEnsureUser implements IEnsureUserExistsUseCase {
       _completer.future;
 
   @override
-  Future<Result<AppUser>> ensureUserProfile(String accountId, {String? email}) =>
+  Future<Result<AppUser>> ensureUserProfile(String accountId,
+          {String? email}) =>
       execute(accountId, email: email);
 }

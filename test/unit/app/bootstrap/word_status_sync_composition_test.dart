@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
@@ -13,7 +14,10 @@ import 'package:my_dic/features/word_status/port/composition.dart';
 void main() {
   test('creates distinct handlers from the public WordStatus factories', () {
     final runtime = _Runtime();
-    final read = _readDependency;
+    final database = DatabaseProvider.forTesting(NativeDatabase.memory());
+    addTearDown(database.close);
+    final WordStatusSyncDependencyReader read =
+        <T>(Object dependency) => _readDependency<T>(dependency, database);
 
     final esp = createEspJpnWordStatusDatasetSyncHandler(
       read,
@@ -29,21 +33,24 @@ void main() {
   });
 }
 
-T _readDependency<T>(Object dependency) => switch (dependency) {
-  WordStatusSyncDependency.database => _DatabaseProvider() as T,
-  WordStatusSyncDependency.firestore => _Firestore() as T,
-  WordStatusSyncDependency.remoteMutationExecutor => _RemoteMutations() as T,
-  _ => throw ArgumentError.value(dependency, 'dependency'),
-};
+T _readDependency<T>(Object dependency, DatabaseProvider database) =>
+    switch (dependency) {
+      WordStatusSyncDependency.database => database as T,
+      WordStatusSyncDependency.firestore => _Firestore() as T,
+      WordStatusSyncDependency.remoteMutationExecutor =>
+        _RemoteMutations() as T,
+      _ => throw ArgumentError.value(dependency, 'dependency'),
+    };
 
 final class _Runtime implements SyncHandlerRuntime {
   @override
   Future<DatasetSyncResult> run(
     SyncContext context,
     DatasetSyncAdapter adapter,
-  ) async => const DatasetSyncResult.cancelled('test');
+  ) async =>
+      const DatasetSyncResult.cancelled('test');
 }
 
-final class _DatabaseProvider extends Mock implements DatabaseProvider {}
 final class _Firestore extends Mock implements FirebaseFirestore {}
+
 final class _RemoteMutations extends Mock implements RemoteMutationExecutor {}

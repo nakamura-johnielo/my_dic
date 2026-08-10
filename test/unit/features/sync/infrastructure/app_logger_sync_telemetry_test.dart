@@ -1,12 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/core/shared/enums/sync_dataset.dart';
-import 'package:my_dic/features/sync/application/model/dataset_sync_result.dart';
-import 'package:my_dic/features/sync/application/model/sync_cursor.dart';
-import 'package:my_dic/features/sync/application/model/sync_report.dart';
-import 'package:my_dic/features/sync/application/report/sync_reason_codes.dart';
-import 'package:my_dic/features/sync/infrastructure/telemetry/app_logger_sync_telemetry.dart';
+import 'package:my_dic/features/sync/port/sync_dataset.dart';
+import 'package:my_dic/features/sync/port/model/dataset_sync_result.dart';
+import 'package:my_dic/features/sync/port/model/sync_cursor.dart';
+import 'package:my_dic/features/sync/port/model/sync_report.dart';
+import 'package:my_dic/features/sync/port/sync_reason_codes.dart';
+import 'package:my_dic/features/sync/internal/infrastructure/telemetry/app_logger_sync_telemetry.dart';
 
 void main() {
   test('serializes only the allowlisted completed-cycle fields', () {

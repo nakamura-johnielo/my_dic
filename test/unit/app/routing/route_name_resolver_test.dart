@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/app/routing/route_name_resolver.dart';
 import 'package:my_dic/core/shared/enums/entry_point.dart';
-import 'package:my_dic/router/route_names.dart';
+import 'package:my_dic/app/routing/route_names.dart';
 
 void main() {
   group('route name resolvers', () {

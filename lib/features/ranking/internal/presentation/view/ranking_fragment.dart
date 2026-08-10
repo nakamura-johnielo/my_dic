@@ -49,6 +49,12 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
         .loadNextPage(nextPage);
   }
 
+  Future<void> _retryFailedPage() async {
+    final scope = ref.read(sessionScopeKeyProvider);
+    if (scope == null) return;
+    await ref.read(rankingViewModelProvider(scope).notifier).retry();
+  }
+
   void _resetPage() {
     //TODO filter適応時にreset走らせる
     //TODO　infilistview内のnextpage変更できないからfilter更新時にリセットする
@@ -75,7 +81,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
             height: 12,
           ),
           Header(margin: margin),
-          Expanded(child: _content(viewModel, margin)),
+          Expanded(child: _content(viewModel, margin, scope)),
         ],
       ),
       floatingActionButton: const FilterButton(
@@ -87,7 +93,11 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
     );
   }
 
-  Widget _content(RankingState screen, EdgeInsetsGeometry margin) {
+  Widget _content(
+    RankingState screen,
+    EdgeInsetsGeometry margin,
+    Object scopeKey,
+  ) {
     final data = screen.rankings.dataOrNull;
     return Stack(
       children: [
@@ -95,16 +105,17 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
           for (final warning in screen.rankings.warnings)
             _RetryWarning(
               message: AppErrorMessage.from(warning.error).text,
-              onRetry: _infinityScrollController.retry,
+              onRetry: _retryFailedPage,
             ),
           if (screen.rankings
               case QueryFailure(error: final error, previousData: final _?))
             _RetryWarning(
               message: AppErrorMessage.from(error).text,
-              onRetry: _infinityScrollController.retry,
+              onRetry: _retryFailedPage,
             ),
           Expanded(
             child: InfinityScrollListView(
+              key: ValueKey(scopeKey),
               autoLoadFirstPage: true,
               initialPage: screen.pagenationFilter,
               initialHasMore: screen.hasNext,
@@ -145,7 +156,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               Text(AppErrorMessage.from(error).text),
               TextButton(
-                onPressed: _infinityScrollController.retry,
+                onPressed: _retryFailedPage,
                 child: const Text('Retry'),
               ),
             ]),

@@ -29,7 +29,7 @@ void main() {
     test('uses the Quiz candidate contract and merges later pages', () async {
       source.responses.addAll([
         Result.success(_page('hablar', hasNext: true)),
-        Result.success(_page('hablamos', hasNext: false)),
+        Result.success(_page('hablamos', hasNext: false, wordId: 8)),
       ]);
 
       expect(await viewModel.loadSearchResults(30, 0), isTrue);
@@ -49,7 +49,7 @@ void main() {
       source.responses.addAll([
         Result.success(_page('hablar', hasNext: true)),
         Result.failure(DatabaseError(message: 'temporary failure')),
-        Result.success(_page('hablamos', hasNext: false)),
+        Result.success(_page('hablamos', hasNext: false, wordId: 8)),
       ]);
 
       await viewModel.loadSearchResults(30, 0);
@@ -98,15 +98,16 @@ void main() {
   });
 }
 
-QuizCandidatePage _page(String headword, {required bool hasNext}) =>
+QuizCandidatePage _page(String headword,
+        {required bool hasNext, int wordId = 7}) =>
     QuizCandidatePage(
-      candidates: [_candidate(headword)],
+      candidates: [_candidate(headword, wordId)],
       hasNext: hasNext,
       issues: const [],
     );
 
-QuizCandidate _candidate(String headword) => QuizCandidate(
-      word: const CatalogWordRef(catalogId: CatalogId.espJpnMain, wordId: 7),
+QuizCandidate _candidate(String headword, [int wordId = 7]) => QuizCandidate(
+      word: CatalogWordRef(catalogId: CatalogId.espJpnMain, wordId: wordId),
       headword: headword,
       meaningText: 'to speak',
       rankingNo: 3,

@@ -7,13 +7,12 @@ import 'package:my_dic/app/session/current_session.dart';
 import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_controller.dart';
 import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_provider.dart';
-import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart'
-    as db;
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/user_profile/di/data_di.dart';
-import 'package:my_dic/features/user_profile/domain/entity/user.dart';
-import 'package:my_dic/features/user_profile/application/usecase/user_usecases.dart';
+import 'package:my_dic/features/user_profile/port/composition.dart';
+import 'package:my_dic/features/user_profile/port/live_user_profile.dart';
+import 'package:my_dic/features/user_profile/port/user_profile.dart';
+import 'package:my_dic/features/user_profile/internal/application/usecase/user_usecases.dart';
 
 import '../../../helpers/fake_auth_usecases.dart';
 import '../../../helpers/fake_user_usecases.dart';
@@ -119,7 +118,7 @@ void main() {
     });
 
     test('ready profile follows the account-scoped Drift stream', () async {
-      final profiles = StreamController<db.UserProfile?>();
+      final profiles = StreamController<AppUser?>();
       addTearDown(profiles.close);
       final container = _makeContainer(
         ensure: FakeEnsureUserExistsInteractor(
@@ -144,14 +143,14 @@ void main() {
       expect(
           container.read(appSessionProvider), isA<AppSessionLoadingProfile>());
 
-      profiles.add(_profile(auth.accountId, 'Local Edit'));
+      profiles.add(_profile('Local Edit'));
       await _settleProfile();
       var session = container.read(appSessionProvider) as AppSessionReady;
       expect(session.profile.username, 'Local Edit');
       expect(session.profile.deviceId, 'device-1');
       expect(session.identity.email, auth.email);
 
-      profiles.add(_profile(auth.accountId, 'Pulled Edit'));
+      profiles.add(_profile('Pulled Edit'));
       await _settleProfile();
       session = container.read(appSessionProvider) as AppSessionReady;
       expect(session.profile.username, 'Pulled Edit');
@@ -159,7 +158,7 @@ void main() {
 
     test('profile stream failure becomes an account-scoped session failure',
         () async {
-      final profiles = StreamController<db.UserProfile?>();
+      final profiles = StreamController<AppUser?>();
       addTearDown(profiles.close);
       final container = _makeContainer(
         ensure: FakeEnsureUserExistsInteractor(
@@ -198,7 +197,7 @@ void main() {
 
 ProviderContainer _makeContainer({
   IEnsureUserExistsUseCase? ensure,
-  Stream<db.UserProfile?>? profileStream,
+  Stream<AppUser?>? profileStream,
 }) {
   final container = ProviderContainer(
     overrides: [
@@ -212,23 +211,26 @@ ProviderContainer _makeContainer({
           ensureUserExists: ensure ?? FakeEnsureUserExistsInteractor(),
         );
       }),
-      watchedUserProfileProvider.overrideWith(
-        (ref, accountId) =>
-            profileStream ?? Stream.value(_profile(accountId, 'Test User')),
+      liveUserProfilePortProvider.overrideWithValue(
+        _LiveProfilePort(
+          profileStream ?? Stream.value(_profile('Test User')),
+        ),
       ),
     ],
   );
   return container;
 }
 
-db.UserProfile _profile(String accountId, String username) => db.UserProfile(
-      accountId: accountId,
-      payload: '{"username":"$username"}',
-      localRevision: 1,
-      remoteRevision: null,
-      deletedAt: null,
-      lastMutationId: null,
-    );
+AppUser _profile(String username) => AppUser(username: username);
+
+class _LiveProfilePort implements LiveUserProfilePort {
+  const _LiveProfilePort(this._profiles);
+
+  final Stream<AppUser?> _profiles;
+
+  @override
+  Stream<AppUser?> watchProfile(String accountId) => _profiles;
+}
 
 Future<void> _settleProfile() =>
     Future<void>.delayed(const Duration(milliseconds: 10));

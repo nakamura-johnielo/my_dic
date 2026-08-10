@@ -12,8 +12,15 @@ class RankingResults {
 
   final List<RankingListItem> items;
 
-  RankingResults append(Iterable<RankingListItem> next) =>
-      RankingResults([...items, ...next]);
+  /// A word may have multiple ranking rows; `rankingId` is the stable row key.
+  RankingResults append(Iterable<RankingListItem> next) {
+    final ids = items.map((item) => item.rankingId).toSet();
+    return RankingResults([
+      ...items,
+      for (final item in next)
+        if (ids.add(item.rankingId)) item,
+    ]);
+  }
 }
 
 @immutable
@@ -52,8 +59,15 @@ class RankingState {
         rankings: rankings ?? this.rankings,
         currentPage: currentPage ?? this.currentPage,
         hasNext: hasNext ?? this.hasNext,
-        featureTagFilters: featureTagFilters ?? this.featureTagFilters,
-        partOfSpeechFilters: partOfSpeechFilters ?? this.partOfSpeechFilters,
+        // Keeping the existing maps is important for state-only updates. It
+        // prevents observers from treating a loading/data transition as a
+        // filter update merely because the map identity changed.
+        featureTagFilters: featureTagFilters == null
+            ? this.featureTagFilters
+            : Map.unmodifiable(featureTagFilters),
+        partOfSpeechFilters: partOfSpeechFilters == null
+            ? this.partOfSpeechFilters
+            : Map.unmodifiable(partOfSpeechFilters),
         pagenationFilter: paginationFilter ?? pagenationFilter,
       );
 }

@@ -12,7 +12,10 @@ class InfinityScrollController {
   void reset() => _reset?.call();
 
   /// Retries the current page without resetting pagination.
-  void retry() => _retry?.call();
+  void retryCurrentPage() => _retry?.call();
+
+  /// Backwards-compatible alias for [retryCurrentPage].
+  void retry() => retryCurrentPage();
 }
 
 class InfinityScrollListView extends StatefulWidget {
@@ -74,6 +77,10 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
 
   /// 次に要求するページ
   late int _nextPage;
+
+  int _generation = 0;
+  int _requestSequence = 0;
+  _LoadToken? _activeLoadToken;
 
   @override
   void initState() {
@@ -150,6 +157,8 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
     _resetScrollPosition();
 
     setState(() {
+      _generation++;
+      _activeLoadToken = null;
       _isLoading = false;
       _hasMore = widget.initialHasMore;
       _nextPage = widget.initialPage;
@@ -190,18 +199,27 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
   Future<void> _loadMore() async {
     if (!mounted || _isLoading || !_hasMore) return;
 
-    setState(() => _isLoading = true);
+    final token = _LoadToken(_generation, ++_requestSequence);
+    setState(() {
+      _activeLoadToken = token;
+      _isLoading = true;
+    });
 
     try {
       final page = _nextPage;
       final hasMore = await widget.onLoadMore(page);
 
       AppLogger.print("in infi _nextPage BEFORE : $_nextPage");
-      if (!mounted) return;
+      if (!mounted ||
+          token != _activeLoadToken ||
+          token.generation != _generation) {
+        return;
+      }
 
       setState(() {
         _hasMore = hasMore;
         _isLoading = false;
+        _activeLoadToken = null;
         if (hasMore) {
           _nextPage = page + 1;
         }
@@ -209,8 +227,15 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
       });
     } catch (e) {
       AppLogger.print("InfinityScrollListView loadMore error: $e");
-      if (!mounted) return;
-      setState(() => _isLoading = false);
+      if (!mounted ||
+          token != _activeLoadToken ||
+          token.generation != _generation) {
+        return;
+      }
+      setState(() {
+        _activeLoadToken = null;
+        _isLoading = false;
+      });
     }
   }
 
@@ -224,4 +249,11 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
       itemBuilder: (context, index) => widget.itemBuilder(context, index),
     );
   }
+}
+
+class _LoadToken {
+  const _LoadToken(this.generation, this.sequence);
+
+  final int generation;
+  final int sequence;
 }

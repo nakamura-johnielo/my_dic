@@ -29,6 +29,8 @@ class QuizGameFragment extends ConsumerStatefulWidget {
 }
 
 class _QuizGameFragmentState extends ConsumerState<QuizGameFragment> {
+  bool _retrying = false;
+
   @override
   void initState() {
     super.initState();
@@ -46,9 +48,25 @@ class _QuizGameFragmentState extends ConsumerState<QuizGameFragment> {
     final quizGame = ref.watch(quizGameViewModelProvider);
 
     //　VVVVVVVVVVV活用の英訳の共有部のデータ読み込みVVVVVVVVV
-    final gameAsync = ref.watch(quizGameLoadProvider(QuizGameQuery(
-      input.word,
-    )));
+    final query = QuizGameQuery(input.word);
+    final gameAsync = ref.watch(quizGameLoadProvider(query));
+
+    // Keep the retry lane occupied until its invalidated provider settles.
+    // This is also the mounted fence for a route that disappears while its
+    // request is in flight.
+    if (_retrying && !gameAsync.isLoading) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _retrying) setState(() => _retrying = false);
+      });
+    }
+
+    void retry() {
+      // The query is the route identity.  Keeping a single local retry lane
+      // prevents two taps from invalidating the same provider twice.
+      if (_retrying) return;
+      _retrying = true;
+      ref.invalidate(quizGameLoadProvider(query));
+    }
 
     void onSwipe(String dir) {
       quizGameNotifier.inicializeQuizCardStatus();
@@ -74,8 +92,12 @@ class _QuizGameFragmentState extends ConsumerState<QuizGameFragment> {
 
         if (result is QuizGameLoadFailure) {
           return Scaffold(
-          appBar: AppBar(title: Text('Quiz Game - ${input.displayHint ?? ''}')),
-            body: Center(child: Text(_quizErrorText(result.error))),
+            appBar:
+                AppBar(title: Text('Quiz Game - ${input.displayHint ?? ''}')),
+            body: _QuizLoadFailure(
+              message: _quizErrorText(result.error),
+              onRetry: _retrying ? null : retry,
+            ),
           );
         }
         final game = (result as QuizGameReady).game;
@@ -177,7 +199,10 @@ class _QuizGameFragmentState extends ConsumerState<QuizGameFragment> {
           appBar: AppBar(
             title: Text('Quiz Game - ${input.displayHint ?? ''}'),
           ),
-          body: Center(child: Text(_quizErrorText(error))),
+          body: _QuizLoadFailure(
+            message: _quizErrorText(error),
+            onRetry: _retrying ? null : retry,
+          ),
         );
       },
       loading: () {
@@ -190,6 +215,29 @@ class _QuizGameFragmentState extends ConsumerState<QuizGameFragment> {
       },
     );
   }
+}
+
+class _QuizLoadFailure extends StatelessWidget {
+  const _QuizLoadFailure({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback? onRetry;
+
+  @override
+  Widget build(BuildContext context) => Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(message),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              key: const Key('quiz-game-retry'),
+              onPressed: onRetry,
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      );
 }
 
 String _quizErrorText(Object? error) => error is AppError

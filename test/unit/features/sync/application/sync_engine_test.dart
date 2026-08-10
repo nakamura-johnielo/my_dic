@@ -1,17 +1,17 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'dart:async';
-import 'package:my_dic/core/shared/enums/sync_dataset.dart';
-import 'package:my_dic/features/sync/application/cancellation_token.dart';
-import 'package:my_dic/features/sync/application/dataset_handler_registry.dart';
-import 'package:my_dic/features/sync/application/model/dataset_sync_result.dart';
-import 'package:my_dic/features/sync/application/model/sync_context.dart';
-import 'package:my_dic/features/sync/application/port/dataset_sync_handler.dart';
-import 'package:my_dic/features/sync/application/port/session_fence.dart';
-import 'package:my_dic/features/sync/application/policy/dataset_plan.dart';
-import 'package:my_dic/features/sync/application/report/sync_reason_codes.dart';
-import 'package:my_dic/features/sync/application/single_flight_coordinator.dart';
-import 'package:my_dic/features/sync/application/in_memory_session_fence.dart';
-import 'package:my_dic/features/sync/application/sync_engine.dart';
+import 'package:my_dic/features/sync/port/sync_dataset.dart';
+import 'package:my_dic/features/sync/port/cancellation_token.dart';
+import 'package:my_dic/features/sync/internal/application/dataset_handler_registry.dart';
+import 'package:my_dic/features/sync/port/model/dataset_sync_result.dart';
+import 'package:my_dic/features/sync/port/model/sync_context.dart';
+import 'package:my_dic/features/sync/port/dataset_sync_handler.dart';
+import 'package:my_dic/features/sync/port/session_fence.dart';
+import 'package:my_dic/features/sync/internal/application/policy/dataset_plan.dart';
+import 'package:my_dic/features/sync/port/sync_reason_codes.dart';
+import 'package:my_dic/features/sync/internal/application/single_flight_coordinator.dart';
+import 'package:my_dic/features/sync/internal/application/in_memory_session_fence.dart';
+import 'package:my_dic/features/sync/internal/application/sync_engine.dart';
 
 class _Fence implements SessionFence {
   @override

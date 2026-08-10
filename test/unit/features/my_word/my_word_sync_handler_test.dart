@@ -16,7 +16,7 @@ import 'package:my_dic/features/sync/port/model/dataset_sync_result.dart';
 import 'package:my_dic/features/sync/port/model/remote_mutation.dart';
 import 'package:my_dic/features/sync/port/model/sync_context.dart';
 import 'package:my_dic/features/sync/port/model/sync_mutation.dart';
-import 'package:my_dic/features/sync/infrastructure/persistence/drift/drift_sync_checkpoint_store.dart';
+import 'package:my_dic/features/sync/internal/infrastructure/persistence/drift/drift_sync_checkpoint_store.dart';
 
 import '../../../helpers/sync/fake_sync_queue.dart';
 
@@ -72,6 +72,7 @@ void main() {
   late _MockRemote remote;
   late FakeSyncQueue queue;
   late DatasetSyncHandler handler;
+  late InMemorySessionFence fence;
 
   setUp(() async {
     database = DatabaseProvider.forTesting(NativeDatabase.memory());
@@ -79,10 +80,15 @@ void main() {
     local = MyWordDriftDataSource(dao);
     remote = _MockRemote();
     queue = FakeSyncQueue();
+    fence = InMemorySessionFence()..setCurrent(_accountId, 1);
     final checkpointStore = DriftSyncCheckpointStore(database);
     handler = AdapterDatasetSyncHandler(
       adapter: MyWordDatasetSyncAdapter(local: local, remote: remote),
-      runtime: SyncHandlerRuntimeAdapter(queue: queue, checkpoints: checkpointStore, sessionFence: InMemorySessionFence(), clock: () => DateTime.utc(2026, 8, 6)),
+      runtime: SyncHandlerRuntimeAdapter(
+          queue: queue,
+          checkpoints: checkpointStore,
+          sessionFence: fence,
+          clock: () => DateTime.utc(2026, 8, 6)),
     );
   });
 

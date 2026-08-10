@@ -1,22 +1,24 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logging/logging.dart';
+import 'package:my_dic/core/presentation/state/query_state.dart';
+import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/core/shared/enums/feature_tag.dart';
-import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
+import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
 import 'package:my_dic/features/ranking/internal/application/usecase/load_rankings/i_load_rankings_use_case.dart';
 import 'package:my_dic/features/ranking/internal/application/usecase/update_ranking_filter/i_update_ranking_filter_use_case.dart';
 import 'package:my_dic/features/ranking/internal/presentation/ui_model/ranking_ui_model.dart';
+import 'package:my_dic/features/ranking/internal/presentation/view_model/ranking_page_identity.dart';
 import 'package:my_dic/features/ranking/port/model/load_rankings_input_data.dart';
 import 'package:my_dic/features/ranking/port/model/update_ranking_filter_input_data.dart';
-import 'package:logging/logging.dart';
-import 'package:my_dic/core/shared/utils/logger.dart';
-import 'package:my_dic/core/presentation/state/query_state.dart';
-import 'package:my_dic/core/shared/errors/unexpected_error.dart';
-import 'package:my_dic/core/session/session_scope_key.dart';
 
 class RankingViewModel extends StateNotifier<RankingState> {
   RankingViewModel(
-      this._loadRankingsUseCase, this._updateRankingFilterUseCase, this._scope)
-      : super(const RankingState());
+    this._loadRankingsUseCase,
+    this._updateRankingFilterUseCase,
+    this._scope,
+  ) : super(const RankingState());
 
   final ILoadRankingsUseCase _loadRankingsUseCase;
   final IUpdateRankingFilterUseCase _updateRankingFilterUseCase;
@@ -24,155 +26,172 @@ class RankingViewModel extends StateNotifier<RankingState> {
   final _logger = Logger('RankingViewModelV2');
 
   static const int _pageSize = 100;
+  int _generation = 0;
+  int _attempt = 0;
+  RankingRequestToken? _activeRequest;
+  RankingPageIdentity? _failedPage;
 
-  Future<bool> retry() => loadNextPage(state.currentPage + 1);
+  /// Retry is owned by the VM because the controller has no business identity.
+  Future<bool> retry() {
+    final failedPage = _failedPage;
+    if (failedPage == null) return Future.value(false);
+    return _load(failedPage);
+  }
 
-  Future<bool> loadNextPage(int page) async {
-    AppLogger.print("loadnext on VM, page: $page");
+  Future<bool> loadNextPage(int page) => _load(_identityFor(page));
 
-    final previous = state.rankings.dataOrNull;
-    state = state.copyWith(
-      rankings: QueryState.loading(previousData: previous),
+  Future<bool> _load(RankingPageIdentity identity) async {
+    if (!mounted || identity.sessionKey != _scope) return false;
+    if (identity.page > 0 && !state.hasNext) return false;
+    if (_activeRequest?.pageIdentity == identity) return false;
+
+    final token = RankingRequestToken(
+      generation: _generation,
+      pageIdentity: identity,
+      attempt: ++_attempt,
     );
-    try {
-      const pageSize = _pageSize;
-      final input = LoadRankingsInputData(
-        state.partOfSpeechFilters,
-        state.featureTagFilters,
-        page,
-        pageSize,
-        _scope.accountScope,
-      );
+    _activeRequest = token;
+    final previous = state.rankings.dataOrNull;
+    state =
+        state.copyWith(rankings: QueryState.loading(previousData: previous));
 
-      final result = await _loadRankingsUseCase.execute(input);
+    try {
+      final result = await _loadRankingsUseCase.execute(LoadRankingsInputData(
+        identity.normalizedFilter.partOfSpeech,
+        identity.normalizedFilter.featureTags,
+        identity.page,
+        identity.size,
+        _scope.accountScope,
+      ));
+      if (!_isCurrent(token)) return false;
 
       return result.when(
         success: (output) {
-          AppLogger.print(
-              "==================- ranking items: ${output.items.length}");
-
-          final value =
-              (previous ?? const RankingResults([])).append(output.items);
+          final current = state.rankings.dataOrNull;
+          final results = identity.page == 0
+              ? RankingResults(output.items)
+              : (current ?? const RankingResults([])).append(output.items);
           state = state.copyWith(
-            rankings: value.items.isEmpty
+            rankings: results.items.isEmpty
                 ? QueryState.empty()
-                : QueryState.data(value),
-            currentPage: page,
+                : QueryState.data(results),
+            currentPage: identity.page,
             hasNext: output.hasNext,
           );
-
+          _failedPage = null;
+          _clearActive(token);
           return output.hasNext;
         },
         failure: (error) {
-          AppLogger.print("==================- ranking items:FAILURE");
-          _logger.warning('ランキングの読み込みに失敗しました', error);
+          _logger.warning('Failed to load ranking page.', error);
           state = state.copyWith(
-            rankings: QueryState.failure(error, previousData: previous),
+            rankings: QueryState.failure(
+              error,
+              previousData: state.rankings.dataOrNull ?? previous,
+            ),
           );
+          _failedPage = identity;
+          _clearActive(token);
           return false;
         },
       );
     } catch (error) {
+      if (!_isCurrent(token)) return false;
       state = state.copyWith(
         rankings: QueryState.failure(
           UnexpectedError(message: error.toString()),
-          previousData: previous,
+          previousData: state.rankings.dataOrNull ?? previous,
         ),
       );
+      _failedPage = identity;
+      _clearActive(token);
       return false;
     }
   }
 
-  void addExcludeFilter(Object data) {
-    //page=[-1,-1];をセット
-    final input = UpdateRankingFilterInputData(data, -1);
-    _updateFilter(input);
-  }
+  void addExcludeFilter(Object data) =>
+      _updateFilter(UpdateRankingFilterInputData(data, -1));
 
-  void addFilter(Object data) {
-    //page=[-1,-1];をセット
-    final input = UpdateRankingFilterInputData(data, 1);
-    _updateFilter(input);
-  }
+  void addFilter(Object data) =>
+      _updateFilter(UpdateRankingFilterInputData(data, 1));
 
-  void removeFilter(Object data) {
-    //page=[-1,-1];をセット
-    final input = UpdateRankingFilterInputData(data, 0);
-    _updateFilter(input);
-  }
+  void removeFilter(Object data) =>
+      _updateFilter(UpdateRankingFilterInputData(data, 0));
 
-  void locatePage(int page) {
-    //pagenationのページ番号
-    _resetPage(state.copyWith(paginationFilter: page));
-  }
-
-  ///==========private method==================================
+  void locatePage(int page) =>
+      _resetPage(state.copyWith(paginationFilter: page));
 
   void _updateFilter(UpdateRankingFilterInputData input) {
-    final res = _updateRankingFilterUseCase.execute(input);
-    final data = res.data;
-    int value = res.value;
-
-    //filtertype: 0: delete, 1: add, -1: exclude
-    RankingState? newState;
+    final result = _updateRankingFilterUseCase.execute(input);
+    final data = result.data;
+    final value = result.value;
+    RankingState? next;
     if (data is CatalogPartOfSpeech) {
-      newState = _updatePartOfSpeechFilter(data, value);
+      next = state.copyWith(
+        partOfSpeechFilters: Map<CatalogPartOfSpeech, int>.from(
+          state.partOfSpeechFilters,
+        )..[data] = value,
+        hasNext: true,
+      );
     } else if (data is FeatureTag) {
-      newState = _updateFeatureTagFilter(data, value);
+      next = state.copyWith(
+        featureTagFilters: Map<FeatureTag, int>.from(state.featureTagFilters)
+          ..[data] = value,
+        hasNext: true,
+      );
     }
-    _resetPage(newState, resetPaginationFilter: true);
-  }
-
-  RankingState _updatePartOfSpeechFilter(
-      CatalogPartOfSpeech filter, int value) {
-    final newData =
-        Map<CatalogPartOfSpeech, int>.from(state.partOfSpeechFilters)
-          ..[filter] = value;
-    AppLogger.print('updated POS filter: $newData');
-    return state.copyWith(
-      partOfSpeechFilters: newData,
-      hasNext: true,
-    );
-  }
-
-  RankingState _updateFeatureTagFilter(FeatureTag filter, int value) {
-    final newData = Map<FeatureTag, int>.from(state.featureTagFilters)
-      ..[filter] = value;
-
-    return state.copyWith(
-      featureTagFilters: newData,
-      hasNext: true,
-    );
+    _resetPage(next, resetPaginationFilter: true);
   }
 
   void _resetPage(RankingState? currentState,
       {bool resetPaginationFilter = false}) {
-    if (currentState == null) {
-      state = state.copyWith(
-        currentPage: -1,
-        paginationFilter: resetPaginationFilter ? 0 : null,
-        rankings: const QueryState.initial(),
-      );
-      return;
-    }
-    state = currentState.copyWith(
+    _invalidateRequests();
+    final source = currentState ?? state;
+    state = source.copyWith(
       currentPage: -1,
+      hasNext: true,
       paginationFilter: resetPaginationFilter ? 0 : null,
       rankings: const QueryState.initial(),
     );
   }
 
-  ///============================================
   void resetAndReload({int initialPage = 0}) {
+    _invalidateRequests();
     state = const RankingState();
-    // UI側で InfinityScrollController.reset() を呼び、必要なら loadNextPage(initialPage) を叩く
   }
 
-  void setFeatureTagFilter(FeatureTag tag, int value) {
-    _updateFilter(UpdateRankingFilterInputData(tag, value));
+  void setFeatureTagFilter(FeatureTag tag, int value) =>
+      _updateFilter(UpdateRankingFilterInputData(tag, value));
+
+  void setPartOfSpeechFilter(CatalogPartOfSpeech pos, int value) =>
+      _updateFilter(UpdateRankingFilterInputData(pos, value));
+
+  RankingPageIdentity _identityFor(int page) => RankingPageIdentity(
+        sessionKey: _scope,
+        normalizedFilter: RankingNormalizedFilter(
+          partOfSpeech: state.partOfSpeechFilters,
+          featureTags: state.featureTagFilters,
+        ),
+        page: page,
+        size: _pageSize,
+      );
+
+  bool _isCurrent(RankingRequestToken token) =>
+      mounted && _generation == token.generation && _activeRequest == token;
+
+  void _clearActive(RankingRequestToken token) {
+    if (_activeRequest == token) _activeRequest = null;
   }
 
-  void setPartOfSpeechFilter(CatalogPartOfSpeech pos, int value) {
-    _updateFilter(UpdateRankingFilterInputData(pos, value));
+  void _invalidateRequests() {
+    _generation++;
+    _activeRequest = null;
+    _failedPage = null;
+  }
+
+  @override
+  void dispose() {
+    _invalidateRequests();
+    super.dispose();
   }
 }

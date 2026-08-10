@@ -3,6 +3,7 @@
 /// This is deliberately a source label, not an error classification. Gate B
 /// owns the user-visible semantics and recovery policy for these failures.
 enum QuizGameLoadSource {
+  primaryCatalog,
   catalogConjugation,
   englishConjugation,
   englishGuide,

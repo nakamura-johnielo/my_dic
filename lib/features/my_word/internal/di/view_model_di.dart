@@ -4,7 +4,6 @@ import 'package:my_dic/features/my_word/internal/application/query/my_word_item_
 import 'package:my_dic/features/my_word/internal/di/data_di.dart';
 import 'package:my_dic/features/my_word/internal/di/usecase_di.dart';
 import 'package:my_dic/features/my_word/internal/presentation/ui_model/my_word_event.dart';
-import 'package:my_dic/features/my_word/internal/presentation/ui_model/my_word_status_command_event.dart';
 import 'package:my_dic/features/my_word/internal/presentation/ui_model/my_word_ui_model.dart';
 import 'package:my_dic/features/my_word/internal/presentation/view_model/my_word_command.dart';
 import 'package:my_dic/features/my_word/internal/presentation/view_model/my_word_status_command.dart';

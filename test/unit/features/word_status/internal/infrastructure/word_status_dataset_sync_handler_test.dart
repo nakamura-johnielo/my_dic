@@ -30,7 +30,7 @@ class _CheckpointStore implements SyncCheckpointStore {
   }
 }
 
-class _Adapter implements WordStatusDatasetAdapter {
+class _Adapter extends WordStatusDatasetAdapter {
   _Adapter(this.dataset, this.records);
   @override
   final SyncDataset dataset;
@@ -71,7 +71,8 @@ class _Adapter implements WordStatusDatasetAdapter {
 
 final class _SessionFence implements SessionFence {
   @override
-  bool isCurrent({required String accountId, required int sessionEpoch}) => true;
+  bool isCurrent({required String accountId, required int sessionEpoch}) =>
+      true;
 }
 
 void main() {

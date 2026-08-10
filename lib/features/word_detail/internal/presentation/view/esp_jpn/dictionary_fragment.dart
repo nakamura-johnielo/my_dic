@@ -19,8 +19,21 @@ class EspJpnDictionaryFragment extends StatelessWidget {
       EspJpnWordDetailViewData(entries: final entries) => entries,
       _ => null,
     };
-    if (dictionaries == null) return _DictionaryReadState(state: detail);
-    if (dictionaries.isEmpty) return _DictionaryReadState(state: detail);
+    if (dictionaries == null || dictionaries.isEmpty) {
+      return Column(
+        children: [
+          if (detail.hasWarnings)
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Text(
+                AppErrorMessage.from(detail.warnings.first.error).text,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ),
+          Expanded(child: _DictionaryReadState(state: detail)),
+        ],
+      );
+    }
 
     return SingleChildScrollView(
       child: Container(

@@ -4,24 +4,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/app/presentation/sync/manual_sync_controller.dart';
 import 'package:my_dic/app/session/app_session.dart';
 import 'package:my_dic/core/presentation/state/ui_effect.dart';
-import 'package:my_dic/core/shared/enums/sync_dataset.dart';
+import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/features/auth/port/app_auth.dart';
-import 'package:my_dic/features/sync/application/dataset_handler_registry.dart';
-import 'package:my_dic/features/sync/application/in_memory_session_fence.dart';
-import 'package:my_dic/features/sync/application/model/dataset_sync_result.dart';
-import 'package:my_dic/features/sync/application/model/sync_context.dart';
-import 'package:my_dic/features/sync/application/policy/dataset_plan.dart';
-import 'package:my_dic/features/sync/application/port/dataset_sync_handler.dart';
-import 'package:my_dic/features/sync/application/single_flight_coordinator.dart';
-import 'package:my_dic/features/sync/application/sync_engine.dart';
-import 'package:my_dic/features/sync/application/sync_scheduler.dart';
-import 'package:my_dic/features/user_profile/domain/entity/user.dart';
+import 'package:my_dic/features/sync/internal/application/in_memory_session_fence.dart';
+import 'package:my_dic/features/sync/port/model/sync_context.dart';
+import 'package:my_dic/features/sync/port/sync_run_outcome.dart';
+import 'package:my_dic/features/sync/port/sync_runner.dart';
+import 'package:my_dic/features/user_profile/port/user_profile.dart';
 
-class _Handler implements DatasetSyncHandler {
+class _Handler implements SyncRunner {
   _Handler({this.waitForRelease = false});
-
-  @override
-  SyncDataset get dataset => SyncDataset.myWords;
 
   final bool waitForRelease;
   final started = Completer<void>();
@@ -30,13 +22,18 @@ class _Handler implements DatasetSyncHandler {
   int calls = 0;
 
   @override
-  Future<DatasetSyncResult> run(SyncContext context) async {
+  Future<SyncRunOutcome> foreground(SyncContext context) async {
     calls++;
     receivedContext = context;
     started.complete();
     if (waitForRelease) await release.future;
-    return const DatasetSyncResult.success(pushedCount: 1, pulledCount: 0);
+    return SyncRunOutcome.success;
   }
+
+  @override
+  void cancelRetryForAccount(String accountId) {}
+  @override
+  void dispose() {}
 }
 
 AppSessionReady _ready(String accountId) => AppSessionReady(
@@ -49,15 +46,12 @@ ManualSyncController _controller(
   InMemorySessionFence fence,
   AppSession initialSession,
 ) {
-  final engine = SyncEngine(
-    handlers: DatasetHandlerRegistry([handler]),
-    datasetPlan: const DatasetPlan([SyncDataset.myWords]),
-    sessionFence: fence,
-    singleFlightCoordinator: SingleFlightCoordinator(),
-  );
   return ManualSyncController(
-    scheduler: SyncScheduler(engine),
+    scheduler: handler,
     sessionFence: fence,
+    currentScope: () => SessionScopeKey(
+        accountScope: initialSession.accountIdOrNull!,
+        epoch: fence.epochFor(initialSession.accountIdOrNull!)!),
     initialSession: initialSession,
   );
 }

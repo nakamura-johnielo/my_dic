@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('sync application contract has no Firebase, Drift, or Flutter imports',
       () {
-    final files = Directory('lib/features/sync/application')
+    final files = Directory('lib/features/sync/internal/application')
         .listSync(recursive: true)
         .whereType<File>()
         .where((file) => file.path.endsWith('.dart'));

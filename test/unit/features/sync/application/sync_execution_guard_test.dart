@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/features/sync/application/cancellation_token.dart';
-import 'package:my_dic/features/sync/application/in_memory_session_fence.dart';
-import 'package:my_dic/features/sync/application/model/sync_context.dart';
-import 'package:my_dic/features/sync/application/report/sync_reason_codes.dart';
-import 'package:my_dic/features/sync/application/sync_execution_guard.dart';
+import 'package:my_dic/features/sync/port/cancellation_token.dart';
+import 'package:my_dic/features/sync/internal/application/in_memory_session_fence.dart';
+import 'package:my_dic/features/sync/port/model/sync_context.dart';
+import 'package:my_dic/features/sync/port/sync_reason_codes.dart';
+import 'package:my_dic/features/sync/internal/application/sync_execution_guard.dart';
 
 void main() {
   SyncContext context(CancellationToken token) => SyncContext(

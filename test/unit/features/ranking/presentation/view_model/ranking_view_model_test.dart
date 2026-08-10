@@ -5,10 +5,11 @@ import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
-import 'package:my_dic/features/ranking/di/view_model_di.dart' as ranking_di;
-import 'package:my_dic/features/ranking/application/query/ranking_list_item.dart';
-import 'package:my_dic/features/ranking/application/query/ranking_page.dart';
-import 'package:my_dic/features/ranking/di/usecase_di.dart';
+import 'package:my_dic/features/ranking/internal/composition/view_model_di.dart'
+    as ranking_di;
+import 'package:my_dic/features/ranking/port/model/ranking_list_item.dart';
+import 'package:my_dic/features/ranking/port/model/ranking_page.dart';
+import 'package:my_dic/features/ranking/internal/composition/usecase_di.dart';
 
 import '../../../../../helpers/fake_ranking_usecases.dart';
 
@@ -206,13 +207,17 @@ void main() {
       test('loadNextPage with multiple pages accumulates items', () async {
         // Arrange
         final viewModel = container.read(rankingViewModelProvider.notifier);
-        fakeLoadRankingsUseCase
-            .setResult(Result.success(_createTestRankings(prefix: 'page1_')));
+        fakeLoadRankingsUseCase.setResult(Result.success(_createTestRankings(
+          prefix: 'page1_',
+          hasNext: true,
+        )));
 
         // Act
         await viewModel.loadNextPage(0);
-        fakeLoadRankingsUseCase
-            .setResult(Result.success(_createTestRankings(prefix: 'page2_')));
+        fakeLoadRankingsUseCase.setResult(Result.success(_createTestRankings(
+          prefix: 'page2_',
+          rankingIdOffset: 100,
+        )));
         await viewModel.loadNextPage(1);
 
         // Assert
@@ -334,8 +339,14 @@ void main() {
   });
 }
 
-RankingPage _createTestRankings({String prefix = ''}) => RankingPage(items: [
+RankingPage _createTestRankings({
+  String prefix = '',
+  int rankingIdOffset = 0,
+  bool hasNext = false,
+}) =>
+    RankingPage(items: [
       RankingListItem(
+        rankingId: rankingIdOffset + 1,
         rank: 1,
         rankedWord: '${prefix}ser',
         lemma: '${prefix}ser',
@@ -343,6 +354,7 @@ RankingPage _createTestRankings({String prefix = ''}) => RankingPage(items: [
         hasConjugation: true,
       ),
       RankingListItem(
+        rankingId: rankingIdOffset + 2,
         rank: 2,
         rankedWord: '${prefix}estar',
         lemma: '${prefix}estar',
@@ -350,19 +362,21 @@ RankingPage _createTestRankings({String prefix = ''}) => RankingPage(items: [
         hasConjugation: true,
       ),
       RankingListItem(
+        rankingId: rankingIdOffset + 3,
         rank: 3,
         rankedWord: '${prefix}casa',
         lemma: '${prefix}casa',
         wordId: 3,
         hasConjugation: false,
       ),
-    ], hasNext: false);
+    ], hasNext: hasNext);
 
 RankingPage _createRankingPage(int length, {required bool hasNext}) =>
     RankingPage(
         items: List.generate(
           length,
           (index) => RankingListItem(
+            rankingId: index + 1,
             rank: index + 1,
             rankedWord: 'word_$index',
             lemma: 'word_$index',

@@ -33,9 +33,14 @@ void main() {
           .listSync(recursive: true)
           .whereType<File>(),
       File('lib/features/catalog/port/raw_search_reader.dart'),
-    ].where((file) => file.path.endsWith('.dart'));
+    ]
+        .where((file) => file.path.endsWith('.dart'))
+        // Presentation dependency providers are an explicit framework seam,
+        // not a data-port contract.
+        .where((file) => !file.path.endsWith('presentation_dependencies.dart'));
     final forbidden = RegExp(
-      r'''import\s+['"]package:(?:flutter|flutter_riverpod|drift)/''',
+      r'''^\s*(?:import|export|part)\s+['"]package:(?:flutter|flutter_riverpod|drift)/''',
+      multiLine: true,
     );
 
     for (final file in files) {
