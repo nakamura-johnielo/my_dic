@@ -8,8 +8,8 @@ import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_entry_detail.dart';
 
 /// Catalog's public detail reader backed by the Catalog-owned repository graph.
-final class DriftCatalogReader implements CatalogReader {
-  const DriftCatalogReader({
+final class DriftCatalogReaderPort implements CatalogReaderPort {
+  const DriftCatalogReaderPort({
     required IEsjDictionaryRepository espJpnRepository,
     required IJpnEspDictionaryRepository jpnEspRepository,
   })  : _espJpnRepository = espJpnRepository,

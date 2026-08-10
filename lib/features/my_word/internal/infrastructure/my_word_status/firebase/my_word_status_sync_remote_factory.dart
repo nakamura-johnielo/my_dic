@@ -8,7 +8,7 @@ import 'package:my_dic/features/sync/port/remote_mutation_executor.dart';
 /// Builds the Firebase-backed MyWordStatus remote adapter inside its canonical
 /// Firebase infrastructure boundary.
 FirebaseMyWordStatusDataSource
-createInternalFirebaseMyWordStatusRemoteDataSource(SyncDependencyReader read) =>
+createInternalFirebaseMyWordStatusRemoteDataSource(SyncDependencyReaderPort read) =>
     FirebaseMyWordStatusDataSource(
       FirebaseMyWordStatusDao(
         read<FirebaseFirestore>(MyWordSyncDependency.firestore),

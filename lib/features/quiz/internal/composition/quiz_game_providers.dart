@@ -9,8 +9,8 @@ import 'package:my_dic/features/quiz/port/model/quiz_game_query.dart';
 
 final loadQuizGameProvider =
     Provider<LoadQuizGame>((ref) => LoadQuizGameCompatibilityAdapter(
-          catalogReader: ref.read(catalogReaderDependencyProvider),
-          conjugationReader: ref.read(conjugationReaderDependencyProvider),
+          catalogReaderPort: ref.read(catalogReaderPortDependencyProvider),
+          conjugationReaderPort: ref.read(conjugationReaderPortDependencyProvider),
           englishConjugationRepository:
               ref.read(esEnConjugacionRepositoryProvider),
           assets: QuizGameAssets(),

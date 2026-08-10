@@ -10,11 +10,11 @@ final catalogCompositionProvider = Provider<CatalogComposition>((ref) {
 });
 
 /// App-facing provider retained for existing Catalog reader consumers.
-final catalogReaderProvider = Provider<CatalogReader>(
-  (ref) => ref.read(catalogCompositionProvider).catalogReader,
+final catalogReaderPortProvider = Provider<CatalogReaderPort>(
+  (ref) => ref.read(catalogCompositionProvider).catalogReaderPort,
 );
 
 /// App-facing provider retained for existing conjugation reader consumers.
-final conjugationReaderProvider = Provider<ConjugationReader>(
-  (ref) => ref.read(catalogCompositionProvider).conjugationReader,
+final conjugationReaderPortProvider = Provider<ConjugationReaderPort>(
+  (ref) => ref.read(catalogCompositionProvider).conjugationReaderPort,
 );

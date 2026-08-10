@@ -23,8 +23,8 @@ void main() {
       (tester) async {
     await tester.pumpWidget(ProviderScope(
       overrides: [
-        catalogReaderDependencyProvider.overrideWithValue(_Catalog()),
-        conjugationReaderDependencyProvider.overrideWithValue(_Conjugation()),
+        catalogReaderPortDependencyProvider.overrideWithValue(_Catalog()),
+        conjugationReaderPortDependencyProvider.overrideWithValue(_Conjugation()),
       ],
       child: MaterialApp(
         home: WordDetailFragment(
@@ -43,7 +43,7 @@ void main() {
   });
 }
 
-final class _Catalog implements CatalogReader {
+final class _Catalog implements CatalogReaderPort {
   @override
   Future<Result<CatalogEntryDetail>> getEntryDetail(
           CatalogWordRef word) async =>
@@ -53,7 +53,7 @@ final class _Catalog implements CatalogReader {
       ));
 }
 
-final class _Conjugation implements ConjugationReader {
+final class _Conjugation implements ConjugationReaderPort {
   @override
   Future<Result<CatalogConjugation?>> getConjugation(
           CatalogWordRef word) async =>

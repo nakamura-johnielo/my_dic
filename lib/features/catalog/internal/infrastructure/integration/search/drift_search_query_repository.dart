@@ -12,8 +12,8 @@ import 'package:my_dic/features/catalog/port/raw_search_reader.dart';
 ///
 /// This boundary exposes only Catalog value objects; consumer paging, display,
 /// and partial-failure policy stay outside Catalog.
-final class DriftCatalogRawSearchReader implements CatalogRawSearchReader {
-  DriftCatalogRawSearchReader(
+final class DriftCatalogRawSearchReaderPort implements CatalogRawSearchReaderPort {
+  DriftCatalogRawSearchReaderPort(
     this._dao,
     this._espJpnDictionary,
     this._jpnEspDictionary,

@@ -59,7 +59,7 @@ void main() {
   });
 }
 
-final class _Catalog implements CatalogRawQuizCandidateReader {
+final class _Catalog implements CatalogRawQuizCandidateReaderPort {
   _Catalog({
     this.hits = const [],
     this.meanings = const {},

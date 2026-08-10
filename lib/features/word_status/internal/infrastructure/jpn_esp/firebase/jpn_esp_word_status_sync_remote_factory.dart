@@ -8,7 +8,7 @@ import 'package:my_dic/features/word_status/port/composition.dart';
 /// Builds the Firebase-backed JpnEsp status remote store in canonical Firebase
 /// infrastructure, keeping feature composition SDK-free.
 FirebaseJpnEspWordStatusRemoteStore
-createInternalFirebaseJpnEspWordStatusRemoteStore(SyncDependencyReader read) =>
+createInternalFirebaseJpnEspWordStatusRemoteStore(SyncDependencyReaderPort read) =>
     FirebaseJpnEspWordStatusRemoteStore(
       FirebaseJpnEspWordStatusDao(
         read<FirebaseFirestore>(WordStatusSyncDependency.firestore),

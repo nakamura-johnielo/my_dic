@@ -13,8 +13,8 @@ import 'package:my_dic/features/search/port/model/search_result_item.dart';
 import 'package:my_dic/features/search/port/reader.dart';
 
 /// Search policy: paging, suggestion eligibility and enrichment failure policy.
-final class InternalSearchReader implements SearchReader {
-  InternalSearchReader(this._gateway);
+final class InternalSearchReaderPort implements SearchReaderPort {
+  InternalSearchReaderPort(this._gateway);
   final SearchCatalogGateway _gateway;
 
   @override

@@ -11,7 +11,7 @@ import 'package:my_dic/features/quiz/port/model/quiz_candidate_query.dart';
 /// Quiz-owned policy over Catalog's raw candidate capability.
 final class CatalogRawQuizCandidateSource implements QuizCandidateSource {
   CatalogRawQuizCandidateSource(this._catalog);
-  final CatalogRawQuizCandidateReader _catalog;
+  final CatalogRawQuizCandidateReaderPort _catalog;
 
   @override
   Future<Result<QuizCandidatePage>> search(QuizCandidateQuery query) async {

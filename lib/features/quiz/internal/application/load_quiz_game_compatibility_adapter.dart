@@ -17,17 +17,17 @@ import 'package:my_dic/features/quiz/port/model/quiz_game_query.dart';
 /// policy belongs to B4; this adapter only preserves the source boundary.
 final class LoadQuizGameCompatibilityAdapter implements LoadQuizGame {
   LoadQuizGameCompatibilityAdapter({
-    required CatalogReader catalogReader,
-    required ConjugationReader conjugationReader,
+    required CatalogReaderPort catalogReaderPort,
+    required ConjugationReaderPort conjugationReaderPort,
     required IEsEnConjugacionRepository englishConjugationRepository,
     required QuizGameAssets assets,
-  })  : _catalogReader = catalogReader,
-        _conjugationReader = conjugationReader,
+  })  : _catalogReaderPort = catalogReaderPort,
+        _conjugationReaderPort = conjugationReaderPort,
         _englishConjugationRepository = englishConjugationRepository,
         _assets = assets;
 
-  final CatalogReader _catalogReader;
-  final ConjugationReader _conjugationReader;
+  final CatalogReaderPort _catalogReaderPort;
+  final ConjugationReaderPort _conjugationReaderPort;
   final IEsEnConjugacionRepository _englishConjugationRepository;
   final QuizGameAssets _assets;
 
@@ -103,7 +103,7 @@ final class LoadQuizGameCompatibilityAdapter implements LoadQuizGame {
 
   Future<Object> _catalogDetail(QuizGameQuery query) async {
     try {
-      return await _catalogReader.getEntryDetail(query.word);
+      return await _catalogReaderPort.getEntryDetail(query.word);
     } on Object catch (error) {
       return QuizGameLoadResult.failure(
         source: QuizGameLoadSource.primaryCatalog,
@@ -114,7 +114,7 @@ final class LoadQuizGameCompatibilityAdapter implements LoadQuizGame {
 
   Future<Object> _conjugation(QuizGameQuery query) async {
     try {
-      return await _conjugationReader.getConjugation(query.word);
+      return await _conjugationReaderPort.getConjugation(query.word);
     } on Object catch (error) {
       return QuizGameLoadResult.failure(
         source: QuizGameLoadSource.catalogConjugation,

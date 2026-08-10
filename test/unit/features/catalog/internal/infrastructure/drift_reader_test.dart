@@ -25,7 +25,7 @@ void main() {
     final jpn = _JpnRepository(Result.success(
       const [JpnEspDictionary(id: 2, wordId: 43, word: '話す')],
     ));
-    final reader = DriftCatalogReader(
+    final reader = DriftCatalogReaderPort(
       espJpnRepository: esp,
       jpnEspRepository: jpn,
     );
@@ -50,7 +50,7 @@ void main() {
       message: 'stable repository failure',
       originalError: cause,
     );
-    final reader = DriftCatalogReader(
+    final reader = DriftCatalogReaderPort(
       espJpnRepository: _EspRepository(Result.failure(error)),
       jpnEspRepository: _JpnRepository(const Result.success([])),
     );
@@ -66,7 +66,7 @@ void main() {
 
   test('preserves dictionary not-found as the identical error', () async {
     final error = NotFoundError(message: 'stable not-found');
-    final reader = DriftCatalogReader(
+    final reader = DriftCatalogReaderPort(
       espJpnRepository: _EspRepository(Result.failure(error)),
       jpnEspRepository: _JpnRepository(const Result.success([])),
     );
@@ -85,7 +85,7 @@ void main() {
       conjugation: Result.failure(error),
       hasConjugation: const Result.success(true),
     );
-    final reader = DriftConjugationReader(repository);
+    final reader = DriftConjugationReaderPort(repository);
     const word = CatalogWordRef(catalogId: CatalogId.espJpnMain, wordId: 58);
 
     expect((await reader.getConjugation(word)).errorOrNull, same(error));
@@ -93,7 +93,7 @@ void main() {
     expect(repository.conjugationIds, [58]);
     expect(repository.hasIds, [58]);
 
-    final notFound = DriftConjugationReader(_ConjugationRepository(
+    final notFound = DriftConjugationReaderPort(_ConjugationRepository(
       conjugation: const Result.success(null),
       hasConjugation: const Result.success(false),
     ));
@@ -105,7 +105,7 @@ void main() {
       conjugation: const Result.success(null),
       hasConjugation: const Result.success(false),
     );
-    final reader = DriftConjugationReader(repository);
+    final reader = DriftConjugationReaderPort(repository);
     const word = CatalogWordRef(catalogId: CatalogId.jpnEspMain, wordId: 64);
 
     final conjugation = await reader.getConjugation(word);

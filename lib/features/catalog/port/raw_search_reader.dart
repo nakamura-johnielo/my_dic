@@ -45,7 +45,7 @@ final class CatalogConjugationRawHit {
 }
 
 /// Catalog-owned raw reads required by Search and other consumers.
-abstract interface class CatalogRawSearchReader {
+abstract interface class CatalogRawSearchReaderPort {
   Future<List<CatalogPrimaryRawHit>> searchPrimary(CatalogRawSearchQuery query);
 
   Future<List<CatalogConjugationRawHit>> searchConjugations(

@@ -33,7 +33,7 @@ void main() {
 
       await tester.pumpWidget(ProviderScope(
         overrides: [
-          catalogReaderDependencyProvider.overrideWith((ref) {
+          catalogReaderPortDependencyProvider.overrideWith((ref) {
             catalogReads++;
             throw StateError('invalid routes must not build WordDetail');
           }),

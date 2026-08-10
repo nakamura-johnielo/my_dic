@@ -15,7 +15,7 @@ void main() {
       await write(root, 'lib/app/bootstrap.dart',
           directive('features/catalog/port/reader.dart'));
       await write(
-          root, 'lib/features/catalog/port/reader.dart', 'class Reader {}');
+          root, 'lib/features/catalog/port/reader.dart', 'class ReaderPort {}');
 
       expect(await check(root), isEmpty);
     });

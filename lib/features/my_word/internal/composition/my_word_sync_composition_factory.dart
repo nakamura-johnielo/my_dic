@@ -12,6 +12,6 @@ import 'package:my_dic/features/sync/port/composition_contract.dart';
 import 'package:my_dic/features/sync/port/dataset_sync_handler.dart';
 import 'package:my_dic/features/sync/port/sync_handler_runtime.dart';
 
-DatasetSyncHandler createInternalMyWordDatasetSyncHandler(SyncDependencyReader read, {required SyncHandlerRuntime runtime}) => AdapterDatasetSyncHandler(adapter: MyWordDatasetSyncAdapter(local: MyWordDriftDataSource(MyWordDao(read<DatabaseProvider>(MyWordSyncDependency.database))), remote: createInternalFirebaseMyWordRemoteDataSource(read)), runtime: runtime);
+DatasetSyncHandler createInternalMyWordDatasetSyncHandler(SyncDependencyReaderPort read, {required SyncHandlerRuntime runtime}) => AdapterDatasetSyncHandler(adapter: MyWordDatasetSyncAdapter(local: MyWordDriftDataSource(MyWordDao(read<DatabaseProvider>(MyWordSyncDependency.database))), remote: createInternalFirebaseMyWordRemoteDataSource(read)), runtime: runtime);
 
-DatasetSyncHandler createInternalMyWordStatusDatasetSyncHandler(SyncDependencyReader read, {required SyncHandlerRuntime runtime}) => AdapterDatasetSyncHandler(adapter: MyWordStatusDatasetSyncAdapter(local: MyWordStatusDriftDataSource(MyWordStatusDao(read<DatabaseProvider>(MyWordSyncDependency.database))), remote: createInternalFirebaseMyWordStatusRemoteDataSource(read)), runtime: runtime);
+DatasetSyncHandler createInternalMyWordStatusDatasetSyncHandler(SyncDependencyReaderPort read, {required SyncHandlerRuntime runtime}) => AdapterDatasetSyncHandler(adapter: MyWordStatusDatasetSyncAdapter(local: MyWordStatusDriftDataSource(MyWordStatusDao(read<DatabaseProvider>(MyWordSyncDependency.database))), remote: createInternalFirebaseMyWordStatusRemoteDataSource(read)), runtime: runtime);

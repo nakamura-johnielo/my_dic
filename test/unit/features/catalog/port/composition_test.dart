@@ -11,26 +11,26 @@ import 'package:my_dic/features/catalog/port/raw_search_reader.dart';
 
 void main() {
   test('composition is a pure holder for Catalog public capabilities', () {
-    final reader = _CatalogReader();
-    final conjugations = _ConjugationReader();
-    final rawSearch = _RawSearchReader();
-    final rawQuiz = _RawQuizReader();
+    final reader = _CatalogReaderPort();
+    final conjugations = _ConjugationReaderPort();
+    final rawSearch = _RawSearchReaderPort();
+    final rawQuiz = _RawQuizReaderPort();
 
     final composition = CatalogComposition(
-      catalogReader: reader,
-      conjugationReader: conjugations,
-      rawSearchReader: rawSearch,
-      rawQuizCandidateReader: rawQuiz,
+      catalogReaderPort: reader,
+      conjugationReaderPort: conjugations,
+      rawSearchReaderPort: rawSearch,
+      rawQuizCandidateReaderPort: rawQuiz,
     );
 
-    expect(composition.catalogReader, same(reader));
-    expect(composition.conjugationReader, same(conjugations));
-    expect(composition.rawSearchReader, same(rawSearch));
-    expect(composition.rawQuizCandidateReader, same(rawQuiz));
+    expect(composition.catalogReaderPort, same(reader));
+    expect(composition.conjugationReaderPort, same(conjugations));
+    expect(composition.rawSearchReaderPort, same(rawSearch));
+    expect(composition.rawQuizCandidateReaderPort, same(rawQuiz));
   });
 }
 
-final class _RawSearchReader implements CatalogRawSearchReader {
+final class _RawSearchReaderPort implements CatalogRawSearchReaderPort {
   @override
   Future<Map<CatalogWordRef, String>> getHeadwords(
           Iterable<CatalogWordRef> words) =>
@@ -53,7 +53,7 @@ final class _RawSearchReader implements CatalogRawSearchReader {
       throw UnimplementedError();
 }
 
-final class _RawQuizReader implements CatalogRawQuizCandidateReader {
+final class _RawQuizReaderPort implements CatalogRawQuizCandidateReaderPort {
   @override
   Future<Map<CatalogWordRef, String>> getQuizCandidateHeadwords(
           Iterable<CatalogWordRef> words) =>
@@ -72,13 +72,13 @@ final class _RawQuizReader implements CatalogRawQuizCandidateReader {
       throw UnimplementedError();
 }
 
-final class _CatalogReader implements CatalogReader {
+final class _CatalogReaderPort implements CatalogReaderPort {
   @override
   Future<Result<CatalogEntryDetail>> getEntryDetail(CatalogWordRef word) =>
       throw UnimplementedError();
 }
 
-final class _ConjugationReader implements ConjugationReader {
+final class _ConjugationReaderPort implements ConjugationReaderPort {
   @override
   Future<Result<CatalogConjugation?>> getConjugation(CatalogWordRef word) =>
       throw UnimplementedError();

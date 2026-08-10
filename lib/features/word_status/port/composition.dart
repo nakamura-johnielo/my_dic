@@ -15,7 +15,7 @@ import 'package:my_dic/features/word_status/port/guest_migration.dart';
 import 'package:my_dic/features/word_status/port/repository.dart';
 
 /// Framework-neutral dependency bridge supplied by app composition.
-typedef WordStatusSyncDependencyReader = T Function<T>(Object dependency);
+typedef WordStatusSyncDependencyReaderPort = T Function<T>(Object dependency);
 
 /// Dependencies requested by the WordStatus sync factories.
 enum WordStatusSyncDependency {
@@ -64,12 +64,12 @@ WordStatusPorts createWordStatusPorts({
 
 /// Creates the Esp-Jpn WordStatus handler from an app dependency reader.
 DatasetSyncHandler createEspJpnWordStatusDatasetSyncHandler(
-  WordStatusSyncDependencyReader read, {
+  WordStatusSyncDependencyReaderPort read, {
   required SyncHandlerRuntime runtime,
 }) => createInternalEspJpnWordStatusDatasetSyncHandler(read, runtime: runtime);
 
 /// Creates the Jpn-Esp WordStatus handler from an app dependency reader.
 DatasetSyncHandler createJpnEspWordStatusDatasetSyncHandler(
-  WordStatusSyncDependencyReader read, {
+  WordStatusSyncDependencyReaderPort read, {
   required SyncHandlerRuntime runtime,
 }) => createInternalJpnEspWordStatusDatasetSyncHandler(read, runtime: runtime);

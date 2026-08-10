@@ -11,7 +11,7 @@ void main() {
 
   test('owns paging, page-zero suggestions, snippets and stars', () async {
     final gateway = _Gateway(primary: const [SearchPrimaryRawHit(word: word, headword: 'hablar<sup>(**)</sup>', hasConjugation: true)], suggestions: [SearchConjugationRawHit(word: word, headword: 'hablar', matches: const {'indicative_present_yo': 'hablo'})]);
-    final result = await InternalSearchReader(gateway).search(const SearchQuery(text: 'hab', direction: SearchDirection.espJpn, page: 0, size: 1, includeConjugationSuggestions: true));
+    final result = await InternalSearchReaderPort(gateway).search(const SearchQuery(text: 'hab', direction: SearchDirection.espJpn, page: 0, size: 1, includeConjugationSuggestions: true));
     expect(result.isSuccess, isTrue, reason: result.errorOrNull?.toString());
     final page = result.dataOrNull!;
     expect(page.hasNext, isTrue);
@@ -23,13 +23,13 @@ void main() {
 
   test('does not request suggestions outside the first Esp-Jpn page', () async {
     final gateway = _Gateway();
-    await InternalSearchReader(gateway).search(const SearchQuery(text: 'hab', direction: SearchDirection.espJpn, page: 1, size: 20, includeConjugationSuggestions: true));
+    await InternalSearchReaderPort(gateway).search(const SearchQuery(text: 'hab', direction: SearchDirection.espJpn, page: 1, size: 20, includeConjugationSuggestions: true));
     expect(gateway.suggestionCalls, 0);
   });
 
   test('keeps primary data and reports a partial enrichment failure', () async {
     final gateway = _Gateway(primary: const [SearchPrimaryRawHit(word: word, headword: 'hablar', hasConjugation: true)], failMeanings: true);
-    final result = await InternalSearchReader(gateway).search(const SearchQuery(text: 'hab', direction: SearchDirection.espJpn, page: 0, size: 20, includeConjugationSuggestions: false));
+    final result = await InternalSearchReaderPort(gateway).search(const SearchQuery(text: 'hab', direction: SearchDirection.espJpn, page: 0, size: 20, includeConjugationSuggestions: false));
     expect(result.isSuccess, isTrue, reason: result.errorOrNull?.toString());
     final page = result.dataOrNull!;
     expect(page.items, hasLength(1));

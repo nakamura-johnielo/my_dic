@@ -22,15 +22,15 @@ T _readSyncDependency<T>(Ref ref, Object dependency) {
 }
 
 final driftSyncQueueProvider = Provider<SyncQueue>((ref) {
-  return createSyncQueue(_syncReader(ref));
+  return createSyncQueue(_syncReaderPort(ref));
 });
 
 final driftSyncCheckpointStoreProvider = Provider<SyncCheckpointStore>(
-  (ref) => createSyncCheckpointStore(_syncReader(ref)),
+  (ref) => createSyncCheckpointStore(_syncReaderPort(ref)),
 );
 
 final driftOutboxWriterProvider = Provider<OutboxWriter>(
-  (ref) => createOutboxWriter(_syncReader(ref)),
+  (ref) => createOutboxWriter(_syncReaderPort(ref)),
 );
 
 final syncSessionFenceProvider = Provider<SessionFenceAdapter>(
@@ -38,10 +38,10 @@ final syncSessionFenceProvider = Provider<SessionFenceAdapter>(
 );
 
 final syncHandlerRuntimeProvider = Provider<SyncHandlerRuntime>(
-  (ref) => createSyncHandlerRuntime(_syncReader(ref)),
+  (ref) => createSyncHandlerRuntime(_syncReaderPort(ref)),
 );
 
-SyncDependencyReader _syncReader(Ref ref) {
+SyncDependencyReaderPort _syncReaderPort(Ref ref) {
   T read<T>(Object dependency) => _readSyncDependency<T>(ref, dependency);
   return read;
 }

@@ -8,19 +8,19 @@ import 'package:my_dic/features/catalog/port/raw_search_reader.dart';
 /// The application supplies this bridge from its DI runtime. Catalog's public
 /// contract intentionally does not expose runtime, provider, or database
 /// types.
-typedef CatalogDependencyReader = T Function<T>(Object dependency);
+typedef CatalogDependencyReaderPort = T Function<T>(Object dependency);
 
 /// The public Catalog read capabilities assembled for an application scope.
 final class CatalogComposition {
   const CatalogComposition({
-    required this.catalogReader,
-    required this.conjugationReader,
-    required this.rawSearchReader,
-    required this.rawQuizCandidateReader,
+    required this.catalogReaderPort,
+    required this.conjugationReaderPort,
+    required this.rawSearchReaderPort,
+    required this.rawQuizCandidateReaderPort,
   });
 
-  final CatalogReader catalogReader;
-  final ConjugationReader conjugationReader;
-  final CatalogRawSearchReader rawSearchReader;
-  final CatalogRawQuizCandidateReader rawQuizCandidateReader;
+  final CatalogReaderPort catalogReaderPort;
+  final ConjugationReaderPort conjugationReaderPort;
+  final CatalogRawSearchReaderPort rawSearchReaderPort;
+  final CatalogRawQuizCandidateReaderPort rawQuizCandidateReaderPort;
 }

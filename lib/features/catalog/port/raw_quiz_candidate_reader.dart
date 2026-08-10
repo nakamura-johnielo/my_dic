@@ -23,7 +23,7 @@ final class CatalogRawQuizCandidateHit {
 }
 
 /// Raw Catalog capability consumed by Quiz candidate policy.
-abstract interface class CatalogRawQuizCandidateReader {
+abstract interface class CatalogRawQuizCandidateReaderPort {
   Future<List<CatalogRawQuizCandidateHit>> searchQuizCandidates(
     CatalogRawQuizCandidateQuery query,
   );

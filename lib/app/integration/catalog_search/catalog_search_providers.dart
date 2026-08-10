@@ -10,7 +10,7 @@ import 'package:my_dic/features/search/port/reader.dart';
 /// App-owned, value-only adapter from Catalog raw reads to Search's gateway.
 final class CatalogSearchGateway implements SearchCatalogGateway {
   CatalogSearchGateway(this._catalog);
-  final CatalogRawSearchReader _catalog;
+  final CatalogRawSearchReaderPort _catalog;
 
   @override
   Future<List<SearchPrimaryRawHit>> searchPrimary(SearchRawQuery query) async =>
@@ -30,5 +30,5 @@ final class CatalogSearchGateway implements SearchCatalogGateway {
   Future<Map<CatalogWordRef, int>> getRankingMetadata(Iterable<CatalogWordRef> words) => _catalog.getRankingMetadata(words);
 }
 
-final searchReaderProvider = Provider<SearchReader>((ref) =>
-    createSearchComposition(CatalogSearchGateway(ref.read(catalogCompositionProvider).rawSearchReader)));
+final searchReaderPortProvider = Provider<SearchReaderPort>((ref) =>
+    createSearchComposition(CatalogSearchGateway(ref.read(catalogCompositionProvider).rawSearchReaderPort)));

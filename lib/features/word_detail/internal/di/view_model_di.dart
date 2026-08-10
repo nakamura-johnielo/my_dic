@@ -10,8 +10,8 @@ import 'package:my_dic/features/word_detail/internal/presentation/view_model/wor
 final wordDetailViewModelProvider = StateNotifierProvider.autoDispose
     .family<WordDetailViewModel, WordDetailState, WordDetailLoadKey>((ref, key) {
   final viewModel = WordDetailViewModel(LoadWordDetailQuery(
-    ref.read(catalogReaderDependencyProvider),
-    ref.read(conjugationReaderDependencyProvider),
+    ref.read(catalogReaderPortDependencyProvider),
+    ref.read(conjugationReaderPortDependencyProvider),
   ));
   unawaited(viewModel.initialize(key));
   return viewModel;

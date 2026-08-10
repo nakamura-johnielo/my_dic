@@ -53,6 +53,6 @@ final liveUserProfileProvider =
 enum UserProfileSyncDependency { database, firestore, remoteMutationExecutor }
 
 DatasetSyncHandler createUserProfileDatasetSyncHandler(
-  SyncDependencyReader read, {
+  SyncDependencyReaderPort read, {
   required SyncHandlerRuntime runtime,
 }) => createInternalUserProfileDatasetSyncHandler(read, runtime: runtime);

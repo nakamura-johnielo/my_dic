@@ -12,17 +12,17 @@ import 'package:my_dic/features/catalog/port/model/catalog_entry_detail.dart';
 void main() {
   test('readers accept only CatalogWordRef and return typed Catalog results',
       () async {
-    final catalogReader = _CatalogReader();
-    final conjugationReader = _ConjugationReader();
+    final catalogReaderPort = _CatalogReaderPort();
+    final conjugationReaderPort = _ConjugationReaderPort();
     const word = CatalogWordRef(catalogId: CatalogId.espJpnMain, wordId: 1);
 
-    expect(await catalogReader.getEntryDetail(word),
+    expect(await catalogReaderPort.getEntryDetail(word),
         isA<Success<CatalogEntryDetail>>());
     expect(
-      await conjugationReader.getConjugation(word),
+      await conjugationReaderPort.getConjugation(word),
       isA<Success<CatalogConjugation?>>(),
     );
-    expect(await conjugationReader.hasConjugation(word), isA<Success<bool>>());
+    expect(await conjugationReaderPort.hasConjugation(word), isA<Success<bool>>());
   });
 
   test('public Catalog port is independent of legacy and presentation layers',
@@ -59,14 +59,14 @@ void main() {
   });
 }
 
-final class _CatalogReader implements CatalogReader {
+final class _CatalogReaderPort implements CatalogReaderPort {
   @override
   Future<Result<CatalogEntryDetail>> getEntryDetail(
           CatalogWordRef word) async =>
       Result.success(EspJpnEntryDetail(word: word, entries: const []));
 }
 
-final class _ConjugationReader implements ConjugationReader {
+final class _ConjugationReaderPort implements ConjugationReaderPort {
   @override
   Future<Result<CatalogConjugation?>> getConjugation(
           CatalogWordRef word) async =>

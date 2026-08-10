@@ -4,10 +4,10 @@ import 'catalog_reader.dart';
 import 'conjugation_reader.dart';
 
 /// App routing/composition supplies Catalog capabilities to feature UI.
-final catalogReaderDependencyProvider = Provider<CatalogReader>(
-  (_) => throw StateError('CatalogReader dependency was not supplied.'),
+final catalogReaderPortDependencyProvider = Provider<CatalogReaderPort>(
+  (_) => throw StateError('CatalogReaderPort dependency was not supplied.'),
 );
 
-final conjugationReaderDependencyProvider = Provider<ConjugationReader>(
-  (_) => throw StateError('ConjugationReader dependency was not supplied.'),
+final conjugationReaderPortDependencyProvider = Provider<ConjugationReaderPort>(
+  (_) => throw StateError('ConjugationReaderPort dependency was not supplied.'),
 );

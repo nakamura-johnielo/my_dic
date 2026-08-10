@@ -21,11 +21,11 @@ final myWordRemoteMutationExecutorDependencyProvider =
         'RemoteMutationExecutor dependency was not supplied.'));
 
 DatasetSyncHandler createMyWordDatasetSyncHandler(
-  SyncDependencyReader read,
+  SyncDependencyReaderPort read,
   SyncHandlerRuntime runtime,
 ) => createInternalMyWordDatasetSyncHandler(read, runtime: runtime);
 
 DatasetSyncHandler createMyWordStatusDatasetSyncHandler(
-  SyncDependencyReader read,
+  SyncDependencyReaderPort read,
   SyncHandlerRuntime runtime,
 ) => createInternalMyWordStatusDatasetSyncHandler(read, runtime: runtime);

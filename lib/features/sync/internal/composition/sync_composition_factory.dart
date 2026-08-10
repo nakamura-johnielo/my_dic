@@ -26,7 +26,7 @@ import 'package:my_dic/features/sync/port/sync_run_outcome.dart';
 final class SyncCompositionFactory {
   const SyncCompositionFactory._();
 
-  static SyncHandlerRuntime createRuntime(SyncDependencyReader read) {
+  static SyncHandlerRuntime createRuntime(SyncDependencyReaderPort read) {
     final database = read<DatabaseProvider>(SyncCompositionDependencies.database);
     final fence = read<SessionFence>(SyncCompositionDependencies.sessionFence);
     return SyncHandlerRuntimeAdapter(
@@ -36,17 +36,17 @@ final class SyncCompositionFactory {
     );
   }
 
-  static SyncQueue createQueue(SyncDependencyReader read) =>
+  static SyncQueue createQueue(SyncDependencyReaderPort read) =>
       DriftSyncQueue(read<DatabaseProvider>(SyncCompositionDependencies.database));
 
-  static SyncCheckpointStore createCheckpointStore(SyncDependencyReader read) =>
+  static SyncCheckpointStore createCheckpointStore(SyncDependencyReaderPort read) =>
       DriftSyncCheckpointStore(read<DatabaseProvider>(SyncCompositionDependencies.database));
 
-  static OutboxWriter createOutboxWriter(SyncDependencyReader read) =>
+  static OutboxWriter createOutboxWriter(SyncDependencyReaderPort read) =>
       DriftOutboxWriter(read<DatabaseProvider>(SyncCompositionDependencies.database));
 
   static SyncRunner createRunner(
-    SyncDependencyReader read,
+    SyncDependencyReaderPort read,
     Iterable<DatasetSyncHandler> handlers,
   ) {
     final database = read<DatabaseProvider>(SyncCompositionDependencies.database);

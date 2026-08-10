@@ -10,9 +10,9 @@ import 'package:my_dic/features/catalog/port/raw_quiz_candidate_reader.dart';
 ///
 /// Consumer paging and all failure/display policy remain outside this Catalog
 /// adapter.
-final class DriftCatalogRawQuizCandidateReader
-    implements CatalogRawQuizCandidateReader {
-  DriftCatalogRawQuizCandidateReader(
+final class DriftCatalogRawQuizCandidateReaderPort
+    implements CatalogRawQuizCandidateReaderPort {
+  DriftCatalogRawQuizCandidateReaderPort(
     this._conjugations,
     this._dictionary,
     this._rankingLookup,

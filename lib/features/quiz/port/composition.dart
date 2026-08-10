@@ -10,5 +10,5 @@ export 'model/quiz_game_query.dart';
 
 /// Builds Quiz policy from provider-neutral Catalog raw capabilities.
 QuizCandidateSource createQuizCandidateSource(
-        CatalogRawQuizCandidateReader catalog) =>
+        CatalogRawQuizCandidateReaderPort catalog) =>
     CatalogRawQuizCandidateSource(catalog);

@@ -18,10 +18,10 @@ void main() {
     final container = ProviderContainer();
     addTearDown(container.dispose);
 
-    expect(container.read(catalogReaderProvider), isA<DriftCatalogReader>());
+    expect(container.read(catalogReaderPortProvider), isA<DriftCatalogReaderPort>());
     expect(
-      container.read(conjugationReaderProvider),
-      isA<DriftConjugationReader>(),
+      container.read(conjugationReaderPortProvider),
+      isA<DriftConjugationReaderPort>(),
     );
   });
 
@@ -40,19 +40,19 @@ void main() {
     addTearDown(container.dispose);
 
     expect(
-      container.read(searchReaderProvider),
-      isA<SearchReader>(),
+      container.read(searchReaderPortProvider),
+      isA<SearchReaderPort>(),
     );
   });
 
   test('allows Search reader to be replaced at the composition boundary', () {
-    final repository = _SearchReader();
+    final repository = _SearchReaderPort();
     final container = ProviderContainer(
-      overrides: [searchReaderProvider.overrideWithValue(repository)],
+      overrides: [searchReaderPortProvider.overrideWithValue(repository)],
     );
     addTearDown(container.dispose);
 
-    expect(container.read(searchReaderProvider), same(repository));
+    expect(container.read(searchReaderPortProvider), same(repository));
   });
 
   test('allows Quiz candidate source to be replaced with a fake', () {
@@ -72,7 +72,7 @@ final class _QuizCandidateSource implements QuizCandidateSource {
       throw UnimplementedError();
 }
 
-final class _SearchReader implements SearchReader {
+final class _SearchReaderPort implements SearchReaderPort {
   @override
   Future<Result<SearchResultPage>> search(SearchQuery query) async =>
       throw UnimplementedError();

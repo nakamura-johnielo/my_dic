@@ -54,12 +54,12 @@ void main() {
   });
 }
 
-DriftCatalogRawQuizCandidateReader _reader(
+DriftCatalogRawQuizCandidateReaderPort _reader(
   _Conjugations conjugations, {
   _Dictionary? dictionary,
   CatalogRankingLookup? ranking,
 }) =>
-    DriftCatalogRawQuizCandidateReader(
+    DriftCatalogRawQuizCandidateReaderPort(
       conjugations,
       dictionary ?? _Dictionary(),
       ranking ?? _Ranking(const {}),

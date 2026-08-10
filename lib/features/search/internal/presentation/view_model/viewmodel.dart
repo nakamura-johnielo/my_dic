@@ -15,7 +15,7 @@ import 'package:my_dic/features/search/port/reader.dart';
 class SearchViewModel extends StateNotifier<SearchState> {
   SearchViewModel(this._search) : super(const SearchState());
 
-  final SearchReader _search;
+  final SearchReaderPort _search;
   final _logger = Logger('SearchViewModel');
   int _generation = 0;
   final _attempts = <_SearchPageIdentity, int>{};

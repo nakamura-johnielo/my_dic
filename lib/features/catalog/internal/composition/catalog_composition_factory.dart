@@ -18,7 +18,7 @@ import 'package:my_dic/core/di/data/data_di.dart';
 
 /// Catalog-owned assembly of the Drift implementation graph.
 CatalogComposition createInternalCatalogComposition(
-  CatalogDependencyReader read,
+  CatalogDependencyReaderPort read,
 ) {
   final espJpnDictionary = EsjDriftDictionaryDataSource(
     read(dictionaryDaoProvider),
@@ -32,7 +32,7 @@ CatalogComposition createInternalCatalogComposition(
   );
   final conjugations = ConjugacionDriftDataSource(read(conjugationDaoProvider));
   final database = read(databaseProvider);
-  final rawSearchReader = DriftCatalogRawSearchReader(
+  final rawSearchReaderPort = DriftCatalogRawSearchReaderPort(
     CatalogRawSearchDao(
       DriftEspJpnWordDataSource(read(wordDaoProvider)),
       JpnEspDriftWordDataSource(read(jpnEspWordDaoProvider)),
@@ -43,21 +43,21 @@ CatalogComposition createInternalCatalogComposition(
     conjugations,
     DriftCatalogRankingLookup(database),
   );
-  final rawQuizCandidateReader = DriftCatalogRawQuizCandidateReader(
+  final rawQuizCandidateReaderPort = DriftCatalogRawQuizCandidateReaderPort(
     conjugations,
     espJpnDictionary,
     DriftCatalogRankingLookup(database),
   );
 
   return CatalogComposition(
-    catalogReader: DriftCatalogReader(
+    catalogReaderPort: DriftCatalogReaderPort(
       espJpnRepository: EsjDictionaryRepository(espJpnDictionary),
       jpnEspRepository: JpnEspDictionaryRepository(jpnEspDictionary),
     ),
-    conjugationReader: DriftConjugationReader(
+    conjugationReaderPort: DriftConjugationReaderPort(
       DriftConjugationRepository(conjugations),
     ),
-    rawSearchReader: rawSearchReader,
-    rawQuizCandidateReader: rawQuizCandidateReader,
+    rawSearchReaderPort: rawSearchReaderPort,
+    rawQuizCandidateReaderPort: rawQuizCandidateReaderPort,
   );
 }

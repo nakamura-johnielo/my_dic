@@ -23,8 +23,8 @@ void main() {
     Result<CatalogConjugation?>? conjugation,
   }) =>
       LoadQuizGameCompatibilityAdapter(
-        catalogReader: _Catalog(detail ?? Result.success(_detail)),
-        conjugationReader:
+        catalogReaderPort: _Catalog(detail ?? Result.success(_detail)),
+        conjugationReaderPort:
             _Conjugation(conjugation ?? const Result.success(null)),
         englishConjugationRepository: _English(),
         assets: QuizGameAssets(),
@@ -73,7 +73,7 @@ void main() {
 
 final _detail = EspJpnEntryDetail(word: _word, entries: const []);
 
-final class _Catalog implements CatalogReader {
+final class _Catalog implements CatalogReaderPort {
   const _Catalog(this.result);
   final Result<CatalogEntryDetail> result;
   @override
@@ -82,7 +82,7 @@ final class _Catalog implements CatalogReader {
       result;
 }
 
-final class _Conjugation implements ConjugationReader {
+final class _Conjugation implements ConjugationReaderPort {
   const _Conjugation(this.result);
   final Result<CatalogConjugation?> result;
   @override

@@ -8,8 +8,8 @@ import 'package:my_dic/features/catalog/port/conjugation_reader.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_conjugation.dart';
 
 /// Catalog's public conjugation reader backed by its Drift repository graph.
-final class DriftConjugationReader implements ConjugationReader {
-  const DriftConjugationReader(this._repository);
+final class DriftConjugationReaderPort implements ConjugationReaderPort {
+  const DriftConjugationReaderPort(this._repository);
 
   final IConjugacionsRepository _repository;
 

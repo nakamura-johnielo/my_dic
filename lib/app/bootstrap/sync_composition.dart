@@ -17,23 +17,23 @@ final syncDatasetHandlersProvider = Provider<List<DatasetSyncHandler>>((ref) {
   final runtime = ref.watch(syncHandlerRuntimeProvider);
   return [
     word_status.createEspJpnWordStatusDatasetSyncHandler(
-      _featureReader(ref),
+      _featureReaderPort(ref),
       runtime: runtime,
     ),
     word_status.createJpnEspWordStatusDatasetSyncHandler(
-      _featureReader(ref),
+      _featureReaderPort(ref),
       runtime: runtime,
     ),
     my_word.createMyWordDatasetSyncHandler(
-      _featureReader(ref),
+      _featureReaderPort(ref),
       runtime,
     ),
     my_word.createMyWordStatusDatasetSyncHandler(
-      _featureReader(ref),
+      _featureReaderPort(ref),
       runtime,
     ),
     user.createUserProfileDatasetSyncHandler(
-      _featureReader(ref),
+      _featureReaderPort(ref),
       runtime: runtime,
     ),
   ];
@@ -42,7 +42,7 @@ final syncDatasetHandlersProvider = Provider<List<DatasetSyncHandler>>((ref) {
 /// The only Sync entry point consumed by app workflows.
 final syncRunnerProvider = Provider<SyncRunner>((ref) {
   final runner = createSyncRunner(
-    _syncReader(ref),
+    _syncReaderPort(ref),
     ref.watch(syncDatasetHandlersProvider),
   );
   ref.onDispose(runner.dispose);
@@ -59,12 +59,12 @@ T _readSyncDependency<T>(Ref ref, Object dependency) {
   throw ArgumentError.value(dependency, 'dependency');
 }
 
-SyncDependencyReader _syncReader(Ref ref) {
+SyncDependencyReaderPort _syncReaderPort(Ref ref) {
   T read<T>(Object dependency) => _readSyncDependency<T>(ref, dependency);
   return read;
 }
 
-SyncDependencyReader _featureReader(Ref ref) {
+SyncDependencyReaderPort _featureReaderPort(Ref ref) {
   T read<T>(Object dependency) => _readFeatureDependency<T>(ref, dependency);
   return read;
 }
