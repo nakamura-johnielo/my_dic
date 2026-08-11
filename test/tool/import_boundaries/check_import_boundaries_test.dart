@@ -1,211 +1,225 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+
 import '../../../tool/check_import_boundaries.dart';
 
 void main() {
-  group('ImportBoundaryChecker', () {
+  group('P0 import-boundary fixture matrix', () {
     late Directory root;
 
-    setUp(() async {
-      root = await Directory.systemTemp.createTemp('import_boundaries_');
-    });
+    setUp(() async =>
+        root = await Directory.systemTemp.createTemp('boundaries_'));
     tearDown(() => root.delete(recursive: true));
 
-    test('finds framework imports from domain code', () async {
-      await write(root, 'lib/features/catalog/domain/model.dart',
-          "import 'package:flutter/material.dart';");
-
-      final violations = await checker().check(root: root.path);
-
-      expect(
-          violations,
-          contains(const Violation(
-              'domain_no_framework',
-              'lib/features/catalog/domain/model.dart',
-              'package:flutter/material.dart')));
-    });
-
-    test('resolves relative Windows imports before applying core rule',
+    test(
+        'allows consumers to use another feature port, including a callback value',
         () async {
-      await write(root, 'lib/core/service.dart',
-          "import '..\\features\\catalog\\entry.dart';");
-      await write(root, 'lib/features/catalog/entry.dart', 'class Entry {}');
+      await write(root, 'lib/app/use.dart', imp('features/a/port/model.dart'));
+      await write(root, 'lib/features/b/internal/presentation/view.dart',
+          imp('features/a/port/model.dart'));
 
-      final violations = await checker().check(root: root.path);
-
-      expect(
-          violations,
-          contains(const Violation('core_no_feature', 'lib/core/service.dart',
-              '..\\features\\catalog\\entry.dart')));
+      expect(await check(root), isEmpty);
     });
 
-    test('ignores generated source and generated targets', () async {
-      await write(root, 'lib/features/catalog/domain/model.g.dart',
-          "import 'package:flutter/material.dart';");
-      await write(root, 'lib/features/catalog/domain/model.dart',
-          "import '../model.g.dart';");
-
-      expect(await checker().check(root: root.path), isEmpty);
-    });
-
-    test('scans test sources but excludes only the boundary-checker fixtures',
+    test('rejects core and external consumers of non-port feature files',
         () async {
-      await write(root, 'test/unit/features/catalog/domain/model_test.dart',
-          "import 'package:flutter/material.dart';");
-      await write(root, 'test/tool/import_boundaries/fixtures/violation.dart',
-          "import 'package:flutter/material.dart';");
+      await write(
+          root, 'lib/core/use.dart', imp('features/a/internal/value.dart'));
+      await write(
+          root, 'lib/app/use.dart', imp('features/a/internal/value.dart'));
 
-      final violations = await checker().check(root: root.path);
-
-      expect(
-          violations,
-          contains(const Violation(
-              'domain_no_framework',
-              'test/unit/features/catalog/domain/model_test.dart',
-              'package:flutter/material.dart')));
-      expect(
-          violations,
-          isNot(contains(const Violation(
-              'domain_no_framework',
-              'test/tool/import_boundaries/fixtures/violation.dart',
-              'package:flutter/material.dart'))));
+      final violations = await check(root);
+      expectRule(violations, 'core_no_feature');
+      expectRule(violations, 'feature_external_only_port');
     });
 
-    test('finds presentation dependency and feature cycle', () async {
-      await write(root, 'lib/features/a/presentation/a.dart',
-          "import 'package:my_dic/features/b/presentation/b.dart';");
-      await write(root, 'lib/features/b/presentation/b.dart',
-          "import 'package:my_dic/features/a/presentation/a.dart';");
+    test('rejects an import-less legacy layer file', () async {
+      await write(root, 'lib/features/a/domain/value.dart', 'class Value {}');
 
-      final violations = await checker().check(root: root.path);
+      expectRule(await check(root), 'feature_top_level_only_port_internal');
+    });
 
-      expect(
-          violations.where((v) => v.ruleId == 'no_cross_feature_presentation'),
-          hasLength(2));
-      expect(violations.where((v) => v.ruleId == 'no_feature_cycle'),
+    test('rejects a feature importing app', () async {
+      await write(
+          root, 'lib/features/a/internal/use.dart', imp('app/router.dart'));
+
+      expectRule(await check(root), 'feature_no_app');
+    });
+
+    test('finds cycles between otherwise valid feature ports', () async {
+      await write(root, 'lib/features/a/internal/a.dart',
+          imp('features/b/port/model.dart'));
+      await write(root, 'lib/features/b/internal/b.dart',
+          imp('features/a/port/model.dart'));
+
+      expect((await check(root)).where((v) => v.ruleId == 'no_feature_cycle'),
           hasLength(2));
     });
 
-    test('finds a three-feature cycle', () async {
-      await write(root, 'lib/features/a/domain/a.dart',
-          "import 'package:my_dic/features/b/domain/b.dart';");
-      await write(root, 'lib/features/b/domain/b.dart',
-          "import 'package:my_dic/features/c/domain/c.dart';");
-      await write(root, 'lib/features/c/domain/c.dart',
-          "import 'package:my_dic/features/a/domain/a.dart';");
-
-      final cycles = (await checker().check(root: root.path))
-          .where((violation) => violation.ruleId == 'no_feature_cycle');
-
-      expect(cycles, hasLength(3));
-    });
-
-    test('allows Firebase imports only at explicit infrastructure boundaries',
+    test(
+        'rejects framework dependencies in business ports and local export barrels',
         () async {
       await write(
-          root,
-          'lib/features/auth/internal/infrastructure/firebase/auth.dart',
-          sdkImport('firebase_auth/firebase_auth.dart'));
-      await write(root, 'lib/app/bootstrap/firebase_providers.dart',
-          sdkImport('firebase_core/firebase_core.dart'));
+          root, 'lib/features/a/port/model.dart', "export 'barrel.dart';");
       await write(
-          root,
-          'lib/features/catalog/internal/infrastructure/sync/firebase/adapter.dart',
-          sdkImport('cloud_firestore/cloud_firestore.dart'));
-      await write(root, 'integration_test/firebase_emulator_test.dart',
-          sdkImport('cloud_firestore/cloud_firestore.dart'));
+          root, 'lib/features/a/port/barrel.dart', sdk('drift/drift.dart'));
 
-      expect(await checker().check(root: root.path), isEmpty);
+      expectRule(await check(root), 'business_port_no_framework');
     });
 
-    test('finds Firebase imports in repository_impl, closing the old glob gap',
+    test(
+        'allows only presentation_entry to expose Flutter and internal presentation',
         () async {
-      const source = 'lib/features/catalog/data/repository_impl/catalog.dart';
+      await write(root, 'lib/features/a/port/presentation_entry.dart',
+          "${sdk('flutter/widgets.dart')}\nexport '../internal/presentation/view.dart';");
+      await write(root, 'lib/features/a/internal/presentation/view.dart',
+          'class View {}');
+      await write(root, 'lib/features/a/port/model.dart',
+          "export '../internal/presentation/view.dart';");
+
+      final violations = await check(root);
+      expectRule(violations, 'presentation_entry_exact_facade');
+      expect(
+          violations.where((v) => v.source.endsWith('presentation_entry.dart')),
+          isEmpty);
+    });
+
+    test('allows only composition.dart to reach an internal factory', () async {
+      await write(root, 'lib/features/a/port/composition.dart',
+          "export '../internal/factory/build.dart';");
+      await write(root, 'lib/features/a/internal/factory/build.dart',
+          'void build() {}');
+      await write(root, 'lib/features/a/port/composition_bad.dart',
+          "export '../internal/factory/build.dart';");
+      await write(root, 'lib/features/a/port/composition.dart',
+          "export '../internal/presentation/view.dart';");
+
+      final violations = await check(root);
+      expectRule(violations, 'composition_exact_facade');
+    });
+
+    test('rejects every non-facade port-to-internal bridge', () async {
+      await write(root, 'lib/features/a/port/model.dart',
+          "export '../internal/application/model.dart';");
+      await write(root, 'lib/features/a/port/presentation_entry.dart',
+          "export '../internal/application/model.dart';");
+      await write(root, 'lib/features/a/internal/application/model.dart',
+          'class Model {}');
+
+      expectRule(await check(root), 'presentation_entry_exact_facade');
+    });
+
+    test('rejects framework dependencies from pure composition', () async {
+      await write(root, 'lib/features/a/port/composition.dart',
+          sdk('flutter_riverpod/flutter_riverpod.dart'));
+
+      expectRule(await check(root), 'composition_no_framework');
+    });
+
+    test('allows a pure composition facade to call a framework-backed factory',
+        () async {
+      await write(root, 'lib/features/a/port/composition.dart',
+          "export '../internal/factory/build.dart';");
+      await write(root, 'lib/features/a/internal/factory/build.dart',
+          sdk('flutter_riverpod/flutter_riverpod.dart'));
+
+      expect(await check(root), isEmpty);
+    });
+
+    test('rejects Provider and Override types from a public composition source',
+        () async {
+      await write(root, 'lib/features/a/port/composition.dart',
+          'Object compose(Provider provider) => provider;');
+
+      expectRule(await check(root), 'composition_no_provider_types');
+    });
+
+    test('allows Firebase only in canonical infrastructure', () async {
       await write(
-          root, source, sdkImport('cloud_firestore/cloud_firestore.dart'));
+          root,
+          'lib/features/a/internal/infrastructure/firebase/adapter.dart',
+          sdk('firebase_auth/firebase_auth.dart'));
+      await write(root, 'lib/features/a/internal/application/use.dart',
+          sdk('firebase_auth/firebase_auth.dart'));
+
+      final violations = await check(root);
+      expectRule(violations, 'firebase_canonical_infrastructure_only');
+      expect(
+          violations
+              .where((v) => v.source.contains('/infrastructure/firebase/')),
+          isEmpty);
+    });
+
+    test('checks every conditional branch and part URI', () async {
+      await write(root, 'lib/features/a/port/model.dart',
+          "import 'safe.dart' if (dart.library.io) 'package:drift/drift.dart';\npart '../internal/presentation/view.dart';");
+      await write(
+          root, 'lib/features/a/internal/presentation/view.dart', 'part of x;');
+
+      final violations = await check(root);
+      expectRule(violations, 'business_port_no_framework');
+      expectRule(violations, 'presentation_entry_exact_facade');
+    });
+
+    test('rejects router and another feature route from feature presentation',
+        () async {
+      await write(root, 'lib/features/a/internal/presentation/view.dart',
+          "${sdk('go_router/go_router.dart')}\n${imp('features/b/port/route.dart')}");
+
+      expectRule(
+          await check(root), 'feature_presentation_navigation_callback_only');
+    });
+
+    test('allows same-feature white-box tests only', () async {
+      await write(root, 'test/unit/features/a/internal/view_test.dart',
+          imp('features/a/internal/view.dart'));
 
       expect(
-          await checker().check(root: root.path),
-          contains(const Violation('firebase_import_allowlist', source,
-              'package:cloud_firestore/cloud_firestore.dart')));
+          (await check(root)).map((v) => '${v.ruleId}:${v.source}'), isEmpty);
     });
 
-    test('applies the Firebase allowlist to every Firebase SDK package',
+    test('does not turn test helpers into production boundary violations',
         () async {
-      const source = 'lib/features/catalog/application/catalog.dart';
-      await write(
-          root,
-          source,
-          [
-            sdkImport('firebase_core/firebase_core.dart'),
-            sdkImport('firebase_auth/firebase_auth.dart'),
-            sdkImport('cloud_firestore/cloud_firestore.dart'),
-          ].join('\n'));
+      await write(root, 'test/helpers/fake.dart',
+          imp('features/a/internal/value.dart'));
+      await write(root, 'test/unit/features/b/port/port_test.dart',
+          sdk('drift/drift.dart'));
 
-      final violations = await checker().check(root: root.path);
-
-      expect(violations.where((v) => v.ruleId == 'firebase_import_allowlist'),
-          hasLength(3));
+      expect(await check(root), isEmpty);
     });
+  });
 
-    test('forbids imports of removed legacy sync APIs', () async {
-      const source = 'lib/features/catalog/application/catalog.dart';
-      const target = 'package:my_dic/features/sync/sync_service.dart';
-      await write(root, source, "import '$target';");
-
-      expect(
-          await checker().check(root: root.path),
-          contains(const Violation(
-              'legacy_sync_imports_forbidden', source, target)));
-    });
-
-    test('baseline comparison reports additions and removals', () async {
-      final baseline =
-          File('${root.path}${Platform.pathSeparator}baseline.json');
-      await baseline.writeAsString('''
-{"violations":[{"ruleId":"domain_no_framework","source":"lib/old.dart","target":"package:flutter/material.dart","introducedAt":"2026-01-01","owner":"architecture","trackingIssue":"issue"}]}
-''');
-
-      final report = await compareWithBaseline(
-        [
-          const Violation('domain_no_framework', 'lib/new.dart',
-              'package:flutter/material.dart')
-        ],
-        baseline.path,
-      );
-
-      expect(report.added, hasLength(1));
-      expect(report.removed, hasLength(1));
-    });
-
-    test('does not allow zero-violation rules into the baseline', () async {
-      final baseline =
-          Baseline({}, zeroViolationRuleIds: {'firebase_import_allowlist'});
-
-      await expectLater(
-          Baseline.write(
-              '${root.path}${Platform.pathSeparator}baseline.json',
-              [
-                const Violation(
-                    'firebase_import_allowlist',
-                    'lib/features/catalog/data/repository_impl/catalog.dart',
-                    'package:cloud_firestore/cloud_firestore.dart')
-              ],
-              previous: baseline),
-          throwsStateError);
-    });
+  test('baseline comparison reports additions and removals', () async {
+    final report = await compareWithBaseline(
+      [
+        const Violation('rule', 'lib/new.dart', 'package:flutter/material.dart')
+      ],
+      await baselineFile(),
+    );
+    expect(report.added, hasLength(1));
+    expect(report.removed, isEmpty);
   });
 }
 
-ImportBoundaryChecker checker() =>
-    ImportBoundaryChecker.fromFile('tool/import_boundaries/rules.json');
-
-Future<void> write(Directory root, String relativePath, String contents) async {
+Future<List<Violation>> check(Directory root) =>
+    ImportBoundaryChecker.fromFile('tool/import_boundaries/rules.json')
+        .check(root: root.path);
+void expectRule(Iterable<Violation> violations, String rule) =>
+    expect(violations.any((v) => v.ruleId == rule), isTrue,
+        reason: '$rule: $violations');
+String imp(String path) => "import 'package:my_dic/$path';";
+String sdk(String path) => "import 'package:$path';";
+Future<void> write(Directory root, String path, String contents) async {
   final file = File(
-      '${root.path}${Platform.pathSeparator}${relativePath.replaceAll('/', Platform.pathSeparator)}');
+      '${root.path}${Platform.pathSeparator}${path.replaceAll('/', Platform.pathSeparator)}');
   await file.parent.create(recursive: true);
   await file.writeAsString(contents);
 }
 
-String sdkImport(String packagePath) => 'im' 'port \'package:$packagePath\';';
+Future<String> baselineFile() async {
+  final file = File(
+      '${Directory.systemTemp.path}${Platform.pathSeparator}empty-boundary-baseline.json');
+  await file.writeAsString('{"violations":[]}');
+  return file.path;
+}

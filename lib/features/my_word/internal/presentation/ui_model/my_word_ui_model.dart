@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
-import 'package:my_dic/features/my_word/internal/application/query/my_word_item_projection.dart';
+import 'package:my_dic/features/my_word/internal/application/model/my_word_item_projection.dart';
 import 'package:my_dic/features/my_word/internal/domain/entity/my_word.dart';
 
 /// Read-only presentation data for a card or modal.

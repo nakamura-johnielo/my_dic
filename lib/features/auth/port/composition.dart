@@ -1,5 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/features/auth/internal/di/usecase_di.dart';
+import 'package:my_dic/features/auth/internal/composition/auth_lifecycle_ports_factory.dart';
 
 import 'auth_commands.dart';
 import 'auth_readers.dart';
@@ -23,14 +22,9 @@ final class AuthLifecyclePorts {
   final SendVerificationEmailPort sendVerificationEmail;
 }
 
-/// Public composition entry for app-owned lifecycle orchestration.
-final authLifecyclePortsProvider = Provider<AuthLifecyclePorts>((ref) {
-  return AuthLifecyclePorts(
-    observeAuthState: ref.watch(observeAuthStateUseCaseProvider),
-    reloadCurrentAuth: ref.watch(reloadCurrentAuthUseCaseProvider),
-    signIn: ref.watch(signInInteractorProvider),
-    signUp: ref.watch(signUpInteractorProvider),
-    signOut: ref.watch(signOutInteractorProvider),
-    sendVerificationEmail: ref.watch(verificateInteractorProvider),
-  );
-});
+/// Creates Auth's production lifecycle capabilities.
+///
+/// Framework and SDK construction remains inside the owner implementation;
+/// this public signature is deliberately plain Dart.
+AuthLifecyclePorts createAuthLifecyclePorts() =>
+    createInternalAuthLifecyclePorts();

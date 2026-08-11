@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/quiz/internal/presentation/ui_model/quiz_search_model.dart';
+import 'package:my_dic/features/quiz/internal/presentation/ui_model/quiz_search_models.dart';
 import 'package:my_dic/features/quiz/port/candidate_source.dart';
 import 'package:my_dic/features/quiz/port/model/quiz_candidate_query.dart';
 

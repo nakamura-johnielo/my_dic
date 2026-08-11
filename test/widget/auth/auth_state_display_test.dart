@@ -2,11 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_controller.dart';
-import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_provider.dart';
-import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_presentation_entry.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/auth/internal/presentation/view/sign_up.dart';
 import 'package:my_dic/features/auth/port/presentation_entry.dart';
 
 import '../../helpers/fake_auth_usecases.dart';
@@ -64,17 +61,40 @@ void main() {
 
 Widget _app(AuthLifecycleController controller) {
   return ProviderScope(
-    overrides: [
-      authLifecycleProvider.overrideWith((ref) => controller),
-      authPresentationStateProvider.overrideWith(
-        authLifecyclePresentationState,
+    child: MaterialApp(
+      home: AuthPresentationPage(
+        state: AuthPresentationState(
+          phase: AuthPresentationPhase.values[controller.state.phase.index],
+          auth: controller.state.auth,
+          error: controller.state.error,
+          notice: controller.state.notice,
+        ),
+        actions: _Actions(controller),
       ),
-      authPresentationActionsProvider.overrideWith(
-        authLifecyclePresentationActions,
-      ),
-    ],
-    child: const MaterialApp(home: EmailPasswordPage()),
+    ),
   );
+}
+
+final class _Actions implements AuthPresentationActions {
+  const _Actions(this._controller);
+  final AuthLifecycleController _controller;
+
+  @override
+  Future<void> checkEmailVerification() => _controller.checkEmailVerification();
+  @override
+  Future<void> resendVerificationEmail() =>
+      _controller.resendVerificationEmail();
+  @override
+  Future<void> retryProfileProvisioning() =>
+      _controller.retryProfileProvisioning();
+  @override
+  Future<void> signIn(String email, String password) =>
+      _controller.signIn(email, password);
+  @override
+  Future<void> signOut() => _controller.signOut();
+  @override
+  Future<void> signUp(String email, String password) =>
+      _controller.signUp(email, password);
 }
 
 AuthLifecycleController _controller({FakeVerifyEmailInteractor? verify}) {

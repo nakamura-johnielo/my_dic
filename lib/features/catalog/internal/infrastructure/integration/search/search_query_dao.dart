@@ -8,6 +8,7 @@ import 'package:my_dic/features/catalog/internal/domain/conjugation/search_resul
 import 'package:my_dic/features/catalog/port/model/catalog_conjugation.dart';
 import 'package:my_dic/features/catalog/port/raw_search_reader.dart';
 
+// TODO refactor repository的立ち位置
 /// Catalog-owned Drift queries behind the raw Search reader.
 final class CatalogRawSearchDao {
   CatalogRawSearchDao(this._espJpnWords, this._jpnEspWords, this._conjugations);

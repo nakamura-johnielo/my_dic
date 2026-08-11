@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/features/auth/port/composition.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/features/auth/port/app_auth.dart';
 import 'auth_lifecycle_provider.dart';
@@ -18,18 +17,24 @@ final authLifecycleEffectProvider = Provider<void>((ref) {
     await next.when(
       data: (auth) async {
         try {
-          await ref.read(authLifecycleProvider.notifier).handleAuthStateChange(auth);
+          await ref
+              .read(authLifecycleProvider.notifier)
+              .handleAuthStateChange(auth);
         } catch (error, stackTrace) {
           AppLogger.event('auth.lifecycle.effect_failed',
               context: {'errorType': error.runtimeType.toString()});
-          ref.read(authLifecycleProvider.notifier).reportUnexpected(error, stackTrace);
+          ref
+              .read(authLifecycleProvider.notifier)
+              .reportUnexpected(error, stackTrace);
         }
       },
       loading: () async {},
       error: (error, stackTrace) async {
         AppLogger.event('auth.stream.failed',
             context: {'errorType': error.runtimeType.toString()});
-        ref.read(authLifecycleProvider.notifier).reportUnexpected(error, stackTrace);
+        ref
+            .read(authLifecycleProvider.notifier)
+            .reportUnexpected(error, stackTrace);
       },
     );
   });

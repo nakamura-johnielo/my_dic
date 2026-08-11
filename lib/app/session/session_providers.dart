@@ -5,6 +5,7 @@ import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_provider.dart';
 import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_state.dart';
 import 'package:my_dic/features/user_profile/port/composition.dart';
+import 'package:my_dic/app/workflows/session_lifecycle/user_profile_composition.dart';
 
 /// The single Router/UI-facing session state, derived from
 /// `authLifecycleProvider`. Nothing else should be treated as the entry
@@ -14,8 +15,9 @@ final appSessionProvider = Provider<AppSession>((ref) {
   final baseSession = _toAppSession(lifecycle);
   if (baseSession is! AppSessionReady) return baseSession;
 
-  final liveProfile =
-      ref.watch(liveUserProfileProvider(baseSession.identity.accountId));
+  final liveProfile = ref.watch(_liveUserProfileProvider(
+    baseSession.identity.accountId,
+  ));
   return liveProfile.when(
     loading: () => AppSessionLoadingProfile(baseSession.identity),
     error: (error, stackTrace) => AppSessionFailure(
@@ -44,6 +46,12 @@ final currentSessionProvider = Provider<CurrentSession>((ref) {
   final session = ref.watch(appSessionProvider);
   return _AppSessionCurrentSession(session);
 });
+
+final _liveUserProfileProvider = StreamProvider.autoDispose.family(
+    (ref, String accountId) => ref
+        .watch(userProfilePortsProvider)
+        .liveUserProfile
+        .watchProfile(accountId));
 
 AppSession _toAppSession(AuthLifecycleState state) {
   final auth = state.auth;

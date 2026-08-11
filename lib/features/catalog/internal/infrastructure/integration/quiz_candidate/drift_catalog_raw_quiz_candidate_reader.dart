@@ -6,6 +6,7 @@ import 'package:my_dic/features/catalog/port/catalog_id.dart';
 import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/features/catalog/port/raw_quiz_candidate_reader.dart';
 
+// TODO refactor readerport
 /// Drift-backed implementation of Catalog's raw Quiz candidate capability.
 ///
 /// Consumer paging and all failure/display policy remain outside this Catalog

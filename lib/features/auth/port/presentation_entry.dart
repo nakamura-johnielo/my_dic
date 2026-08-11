@@ -1,7 +1,6 @@
-export 'package:my_dic/features/auth/internal/presentation/view/sign_up.dart';
-
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/material.dart';
 import 'package:my_dic/core/shared/errors/app_error.dart';
+import 'package:my_dic/features/auth/internal/presentation/view/sign_up.dart';
 import 'app_auth.dart';
 
 /// Feature-facing projection of the app-owned authentication workflow.
@@ -43,12 +42,21 @@ abstract interface class AuthPresentationActions {
   Future<void> signOut();
 }
 
-/// The app composition root must provide this entry. Features never import
-/// the app workflow that implements it.
-final authPresentationStateProvider = Provider<AuthPresentationState>((ref) {
-  throw UnsupportedError('Auth presentation entry is not installed.');
-});
+/// Controlled Flutter entry for Auth's email/password screen.
+///
+/// The app owns state observation and supplies the current projection plus
+/// actions. No provider or override is part of this public surface.
+class AuthPresentationPage extends StatelessWidget {
+  const AuthPresentationPage({
+    super.key,
+    required this.state,
+    required this.actions,
+  });
 
-final authPresentationActionsProvider = Provider<AuthPresentationActions>((ref) {
-  throw UnsupportedError('Auth presentation entry is not installed.');
-});
+  final AuthPresentationState state;
+  final AuthPresentationActions actions;
+
+  @override
+  Widget build(BuildContext context) =>
+      EmailPasswordPage(state: state, actions: actions);
+}

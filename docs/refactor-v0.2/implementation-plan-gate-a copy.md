@@ -331,7 +331,7 @@ Tests:
 
 - existing Sync engine/scheduler/handler/outbox/checkpoint tests
 - stableId/remote mutation contract
-- retryable `SyncReport` が `SyncRunOutcome.retryScheduled`、non-retryableがfailure、session cancellationがcancelledへ一度だけ写像されるcontract
+- retryable `SyncReport` が `SyncRunOutcome.retryScheduled`、non-retryableが`nonRetryableFailure`、session cancellationがcancelledへ一度だけ写像されるcontract
 - duplicate dataset registry
 - public compositionから全handlerを一度だけ解決
 - session fence/login/account-switch

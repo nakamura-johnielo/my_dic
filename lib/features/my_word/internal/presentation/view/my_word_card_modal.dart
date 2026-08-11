@@ -5,7 +5,7 @@ import 'package:my_dic/core/presentation/components/button/my_icon_button.dart';
 import 'package:my_dic/core/presentation/state/ui_effect.dart';
 import 'package:my_dic/core/shared/enums/my_icons.dart';
 import 'package:my_dic/core/shared/enums/ui/word_card_view_click_listener.dart';
-import 'package:my_dic/features/my_word/internal/di/view_model_di.dart';
+import 'package:my_dic/features/my_word/internal/composition/view_model_di.dart';
 import 'package:my_dic/features/my_word/internal/presentation/ui_model/my_word_ui_model.dart';
 import 'package:my_dic/features/my_word/internal/presentation/ui_model/my_word_event.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';

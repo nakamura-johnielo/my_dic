@@ -1,6 +1,6 @@
 import 'package:my_dic/features/auth/internal/infrastructure/firebase/firebase_auth_dao.dart';
 import 'package:my_dic/features/auth/internal/infrastructure/firebase/i_auth_remote_data_source.dart';
-import 'package:my_dic/features/auth/internal/application/auth_dto.dart';
+import 'package:my_dic/features/auth/internal/application/model/auth_dto.dart';
 
 class FirebaseAuthRemoteDataSource implements IAuthRemoteDataSource {
   final FirebaseAuthDao _dao;

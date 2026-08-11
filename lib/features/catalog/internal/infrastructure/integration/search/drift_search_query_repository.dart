@@ -8,11 +8,13 @@ import 'package:my_dic/features/catalog/port/catalog_id.dart';
 import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/features/catalog/port/raw_search_reader.dart';
 
+// TODO refactor readerport
 /// Drift-backed implementation of Catalog's raw Search capability.
 ///
 /// This boundary exposes only Catalog value objects; consumer paging, display,
 /// and partial-failure policy stay outside Catalog.
-final class DriftCatalogRawSearchReaderPort implements CatalogRawSearchReaderPort {
+final class DriftCatalogRawSearchReaderPort
+    implements CatalogRawSearchReaderPort {
   DriftCatalogRawSearchReaderPort(
     this._dao,
     this._espJpnDictionary,

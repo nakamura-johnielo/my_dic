@@ -2,7 +2,7 @@ import 'package:my_dic/core/shared/enums/conjugacion/mood_tense.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/quiz/internal/game/data/data_source/local/i_es_en_conjugacion_local_data_source.dart';
-import 'package:my_dic/features/quiz/internal/game/domain/repository/i_es_en_conjugacion_repository.dart';
+import 'package:my_dic/features/quiz/internal/game/domain/i_repository/i_es_en_conjugacion_repository.dart';
 
 class EsEnConjugacionRepository implements IEsEnConjugacionRepository {
   final IEsEnConjugacionLocalDataSource _dataSource;

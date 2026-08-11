@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/features/quiz/internal/composition/quiz_dao_providers.dart';
+import 'package:my_dic/features/quiz/internal/composition/infra_di.dart';
 import 'package:my_dic/features/quiz/internal/game/data/data_source/local/quiz_json_dao.dart';
 import 'package:my_dic/features/quiz/internal/game/data/data_source/local/i_quiz_local_data_source.dart';
 import 'package:my_dic/features/quiz/internal/game/data/data_source/local/quiz_local_data_source.dart';
@@ -7,8 +7,8 @@ import 'package:my_dic/features/quiz/internal/game/data/repository_impl/drift_es
 import 'package:my_dic/features/quiz/internal/game/data/repository_impl/json_quiz_repository_impl.dart';
 import 'package:my_dic/features/quiz/internal/game/data/data_source/local/i_es_en_conjugacion_local_data_source.dart';
 import 'package:my_dic/features/quiz/internal/game/data/data_source/local/es_en_conjugacion_drift_data_source.dart';
-import 'package:my_dic/features/quiz/internal/game/domain/repository/i_english_conj_sub_repository.dart';
-import 'package:my_dic/features/quiz/internal/game/domain/repository/i_es_en_conjugacion_repository.dart';
+import 'package:my_dic/features/quiz/internal/game/domain/i_repository/i_english_conj_sub_repository.dart';
+import 'package:my_dic/features/quiz/internal/game/domain/i_repository/i_es_en_conjugacion_repository.dart';
 
 final quizJsonDaoProvider = Provider<QuizJsonDao>((ref) {
   return QuizJsonDao();

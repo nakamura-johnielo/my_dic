@@ -7,11 +7,14 @@ import 'package:my_dic/app/session/current_session.dart';
 import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_controller.dart';
 import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_provider.dart';
+import 'package:my_dic/app/workflows/session_lifecycle/user_profile_composition.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/user_profile/port/composition.dart';
+import 'package:my_dic/features/user_profile/port/guest_migration.dart';
 import 'package:my_dic/features/user_profile/port/live_user_profile.dart';
 import 'package:my_dic/features/user_profile/port/user_profile.dart';
+import 'package:my_dic/features/sync/port/outbox_writer.dart';
 import 'package:my_dic/features/user_profile/internal/application/usecase/user_usecases.dart';
 
 import '../../../helpers/fake_auth_usecases.dart';
@@ -211,9 +214,14 @@ ProviderContainer _makeContainer({
           ensureUserExists: ensure ?? FakeEnsureUserExistsInteractor(),
         );
       }),
-      liveUserProfilePortProvider.overrideWithValue(
-        _LiveProfilePort(
-          profileStream ?? Stream.value(_profile('Test User')),
+      userProfilePortsProvider.overrideWithValue(
+        UserProfilePorts(
+          ensureUserProfile: ensure ?? FakeEnsureUserExistsInteractor(),
+          liveUserProfile: _LiveProfilePort(
+            profileStream ?? Stream.value(_profile('Test User')),
+          ),
+          guestMigration: _NoopGuestMigrationPort(),
+          updateUserProfile: FakeUpdateUserInteractor(),
         ),
       ),
     ],
@@ -230,6 +238,19 @@ class _LiveProfilePort implements LiveUserProfilePort {
 
   @override
   Stream<AppUser?> watchProfile(String accountId) => _profiles;
+}
+
+class _NoopGuestMigrationPort implements UserProfileGuestMigrationPort {
+  @override
+  Future<bool> hasGuestProfile() async => false;
+
+  @override
+  Future<void> migrateGuestProfile({
+    required String accountId,
+    required String migrationId,
+    required OutboxWriter outboxWriter,
+    required DateTime Function() clock,
+  }) async {}
 }
 
 Future<void> _settleProfile() =>

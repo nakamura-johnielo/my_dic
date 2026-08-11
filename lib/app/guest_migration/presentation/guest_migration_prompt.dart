@@ -153,7 +153,7 @@ class _GuestMigrationPromptState extends ConsumerState<GuestMigrationPrompt> {
         return;
       case SyncRunOutcome.retryScheduled:
         _notice('Migration completed. Sync will retry automatically.');
-      case SyncRunOutcome.failure:
+      case SyncRunOutcome.nonRetryableFailure:
         _notice('Migration completed, but sync needs attention.',
             onRetry: () => _postMigrationSync(scope, generation));
       case SyncRunOutcome.cancelled:

@@ -17,85 +17,147 @@ final dashboardRoute = GoRoute(
   path: RoutePaths.dashboard,
   name: RouteNames.dashboard,
   pageBuilder: (context, state) => NoTransitionPage(
-    key: state.pageKey, child: const Center(child: Text('DASHBOARD'))),
+      key: state.pageKey, child: const Center(child: Text('DASHBOARD'))),
 );
 
 final rankingRoute = GoRoute(
   path: RoutePaths.ranking,
   name: RouteNames.ranking,
   pageBuilder: (context, state) => MaterialPage(child: _ranking(context)),
-  routes: [GoRoute(
-    path: RoutePaths.rankCollection,
-    name: RouteNames.rankCollection,
-    pageBuilder: (context, state) => const MaterialPage(child: Placeholder()),
-    routes: [GoRoute(
-      path: RoutePaths.rankSection,
-      name: RouteNames.rankSection,
-      pageBuilder: (context, state) => MaterialPage(child: _ranking(context)),
-    )],
-  )],
+  routes: [
+    GoRoute(
+      path: RoutePaths.rankCollection,
+      name: RouteNames.rankCollection,
+      pageBuilder: (context, state) => const MaterialPage(child: Placeholder()),
+      routes: [
+        GoRoute(
+          path: RoutePaths.rankSection,
+          name: RouteNames.rankSection,
+          pageBuilder: (context, state) =>
+              MaterialPage(child: _ranking(context)),
+        )
+      ],
+    )
+  ],
 );
 
 Widget _ranking(BuildContext context) => RankingFragment(
-  onOpenWordDetail: (word) => openWordDetail(context,
-    routeName: '${RouteNames.ranking}-${RouteNames.wordDetail}', word: word),
-  onOpenQuiz: (word, hint) => openQuizGame(context,
-    routeName: '${RouteNames.ranking}-${RouteNames.flashCard}', word: word,
-    displayHint: hint),
-);
+      onOpenWordDetail: (word) => openWordDetail(context,
+          routeName: '${RouteNames.ranking}-${RouteNames.wordDetail}',
+          word: word),
+      onOpenQuiz: (word, hint) => openQuizGame(context,
+          routeName: '${RouteNames.ranking}-${RouteNames.flashCard}',
+          word: word,
+          displayHint: hint),
+    );
 
 final quizRoute = GoRoute(
   path: RoutePaths.quiz,
   name: RouteNames.quiz,
   pageBuilder: (context, state) => MaterialPage(child: _quizSearch(context)),
-  routes: [GoRoute(
-    path: RoutePaths.quizSearch,
-    name: RouteNames.quizSearch,
-    pageBuilder: (context, state) => NoTransitionPage(
-      key: state.pageKey, child: _quizSearch(context)),
-  )],
+  routes: [
+    GoRoute(
+      path: RoutePaths.quizSearch,
+      name: RouteNames.quizSearch,
+      pageBuilder: (context, state) =>
+          NoTransitionPage(key: state.pageKey, child: _quizSearch(context)),
+    )
+  ],
 );
 
 Widget _quizSearch(BuildContext context) => QuizSearchFragment(
-  onOpenQuiz: (word, hint) => openQuizGame(context,
-    routeName: '${RouteNames.quiz}-${RouteNames.flashCard}', word: word,
-    displayHint: hint),
-);
+      onOpenQuiz: (word, hint) => openQuizGame(context,
+          routeName: '${RouteNames.quiz}-${RouteNames.flashCard}',
+          word: word,
+          displayHint: hint),
+    );
 
-GoRoute flashCardRoute(String name, {String? parentPath, required String wordDetailRouteName}) => GoRoute(
-  path: parentPath == null ? QuizGameRoute.path : '$parentPath/${QuizGameRoute.path}',
-  name: name,
-  pageBuilder: (context, state) {
-    final result = QuizGameRoute.parse(pathParameters: state.pathParameters,
-      queryParameters: state.uri.queryParameters);
-    return switch (result) {
-      RouteParseSuccess(value: final route) => MaterialPage(child: QuizGameFragment(
-        input: QuizGamePresentationInput(word: route.word, displayHint: route.displayHint),
-        onOpenWordDetail: (word) => openWordDetail(context,
-          routeName: wordDetailRouteName, word: word))),
-      RouteParseFailure(message: final message) => MaterialPage(child: InvalidRoutePage(message: message)),
-    };
-  },
-);
+/// Registers both the canonical Quiz URL and its legacy Esp-Jpn alias.
+///
+/// The canonical route is named because in-app navigation must always emit the
+/// canonical path.  The legacy route is deliberately unnamed and exists only
+/// for deep-link/refresh compatibility.
+List<GoRoute> flashCardRoutes(String name,
+        {String? parentPath, required String wordDetailRouteName}) =>
+    [
+      flashCardRoute(name,
+          parentPath: parentPath, wordDetailRouteName: wordDetailRouteName),
+      legacyFlashCardRoute(
+          parentPath: parentPath, wordDetailRouteName: wordDetailRouteName),
+    ];
 
-GoRoute wordDetailRoute(String name, {String? parentPath, required String quizGameRouteName}) => GoRoute(
-  path: parentPath == null ? WordDetailRoute.path : '$parentPath/${WordDetailRoute.path}',
-  name: name,
-  pageBuilder: (context, state) {
-    final result = WordDetailRoute.parse(pathParameters: state.pathParameters,
-      queryParameters: state.uri.queryParameters, parseLegacyType: _catalogIdFromLegacyType);
-    return switch (result) {
-      RouteParseSuccess(value: final route) => MaterialPage(child: WordDetailFragment(
-        input: WordDetailPresentationInput(word: route.word),
-        onOpenQuiz: (word, hint) => openQuizGame(context,
-          routeName: quizGameRouteName, word: word, displayHint: hint))),
-      RouteParseFailure(message: final message) => MaterialPage(child: InvalidRoutePage(message: message)),
-    };
-  },
-);
+GoRoute flashCardRoute(String name,
+        {String? parentPath, required String wordDetailRouteName}) =>
+    _flashCardRoute(
+      path: parentPath == null
+          ? QuizGameRoute.path
+          : '$parentPath/${QuizGameRoute.path}',
+      name: name,
+      wordDetailRouteName: wordDetailRouteName,
+    );
+
+GoRoute legacyFlashCardRoute(
+        {String? parentPath, required String wordDetailRouteName}) =>
+    _flashCardRoute(
+      path: parentPath == null
+          ? QuizGameRoute.legacyPath
+          : '$parentPath/${QuizGameRoute.legacyPath}',
+      wordDetailRouteName: wordDetailRouteName,
+    );
+
+GoRoute _flashCardRoute({
+  required String path,
+  String? name,
+  required String wordDetailRouteName,
+}) =>
+    GoRoute(
+      path: path,
+      name: name,
+      pageBuilder: (context, state) {
+        final result = QuizGameRoute.parse(
+            pathParameters: state.pathParameters,
+            queryParameters: state.uri.queryParameters);
+        return switch (result) {
+          RouteParseSuccess(value: final route) => MaterialPage(
+              child: QuizGameFragment(
+                  input: QuizGamePresentationInput(
+                      word: route.word, displayHint: route.displayHint),
+                  onOpenWordDetail: (word) => openWordDetail(context,
+                      routeName: wordDetailRouteName, word: word))),
+          RouteParseFailure(message: final message) =>
+            MaterialPage(child: InvalidRoutePage(message: message)),
+        };
+      },
+    );
+
+GoRoute wordDetailRoute(String name,
+        {String? parentPath, required String quizGameRouteName}) =>
+    GoRoute(
+      path: parentPath == null
+          ? WordDetailRoute.path
+          : '$parentPath/${WordDetailRoute.path}',
+      name: name,
+      pageBuilder: (context, state) {
+        final result = WordDetailRoute.parse(
+            pathParameters: state.pathParameters,
+            queryParameters: state.uri.queryParameters,
+            parseLegacyType: _catalogIdFromLegacyType);
+        return switch (result) {
+          RouteParseSuccess(value: final route) => MaterialPage(
+              child: WordDetailFragment(
+                  input: WordDetailPresentationInput(word: route.word),
+                  onOpenQuiz: (word, hint) => openQuizGame(context,
+                      routeName: quizGameRouteName,
+                      word: word,
+                      displayHint: hint))),
+          RouteParseFailure(message: final message) =>
+            MaterialPage(child: InvalidRoutePage(message: message)),
+        };
+      },
+    );
 
 CatalogId? _catalogIdFromLegacyType(String type) => switch (type) {
-  'espJpn' => CatalogId.espJpnMain,
-  'jpnEsp' => CatalogId.jpnEspMain,
-  _ => null,
-};
+      'espJpn' => CatalogId.espJpnMain,
+      'jpnEsp' => CatalogId.jpnEspMain,
+      _ => null,
+    };

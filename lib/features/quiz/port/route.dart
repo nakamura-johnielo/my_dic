@@ -9,17 +9,25 @@ import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 final class QuizGameRoute {
   const QuizGameRoute({required this.word, this.displayHint});
 
-  static const path = 'quiz-game/:wordId';
+  /// Canonical, refresh-safe Quiz URL.
+  static const path = 'quiz-game/:catalog/:wordId';
+
+  /// Previous URL accepted during the compatibility window.  Its dataset is
+  /// unambiguously the original Esp-Jpn catalog.
+  static const legacyPath = 'quiz-game/:wordId';
+
   static const _catalogParameter = 'catalog';
   static const _displayHintParameter = 'word';
 
   final CatalogWordRef word;
   final String? displayHint;
 
-  Map<String, String> get pathParameters => {'wordId': '${word.wordId}'};
+  Map<String, String> get pathParameters => {
+        _catalogParameter: word.catalogId.wireValue,
+        'wordId': '${word.wordId}',
+      };
 
   Map<String, String> get queryParameters => {
-        _catalogParameter: word.catalogId.wireValue,
         if (displayHint case final hint? when hint.isNotEmpty)
           _displayHintParameter: hint,
       };
@@ -32,9 +40,16 @@ final class QuizGameRoute {
     if (wordId == null || wordId <= 0) {
       return const RouteParseFailure('wordId must be a positive integer.');
     }
-    final catalogId = CatalogId.tryParse(queryParameters[_catalogParameter] ?? '');
+    final catalog = pathParameters[_catalogParameter];
+    final catalogId = switch (catalog) {
+      null => CatalogId.espJpnMain,
+      _ => CatalogId.tryParse(catalog),
+    };
     if (catalogId == null) {
-      return const RouteParseFailure('catalog is missing or invalid.');
+      return const RouteParseFailure('catalog is invalid.');
+    }
+    if (catalogId == CatalogId.jpnEspMain) {
+      return const RouteParseFailure('jpn-esp-main is not supported for Quiz.');
     }
     return RouteParseSuccess(QuizGameRoute(
       word: CatalogWordRef(catalogId: catalogId, wordId: wordId),

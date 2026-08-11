@@ -1,7 +1,7 @@
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/quiz/internal/game/data/data_source/local/i_quiz_local_data_source.dart';
-import 'package:my_dic/features/quiz/internal/game/domain/repository/i_english_conj_sub_repository.dart';
+import 'package:my_dic/features/quiz/internal/game/domain/i_repository/i_english_conj_sub_repository.dart';
 
 class QuizRepositoryImpl implements IEnglishConjSubRepository {
   final IQuizLocalDataSource localDataSource;

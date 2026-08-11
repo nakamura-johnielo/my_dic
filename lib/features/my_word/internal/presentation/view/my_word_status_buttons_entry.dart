@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/state/ui_effect.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
-import 'package:my_dic/features/my_word/internal/di/view_model_di.dart';
+import 'package:my_dic/features/my_word/internal/composition/view_model_di.dart';
 import 'package:my_dic/features/my_word/internal/presentation/ui_model/my_word_ui_model.dart';
 import 'package:my_dic/features/my_word/internal/presentation/view_model/my_word_status_command.dart';
 import 'package:my_dic/features/word_status/port/presentation_entry.dart'

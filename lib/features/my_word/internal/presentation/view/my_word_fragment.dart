@@ -6,7 +6,7 @@ import 'package:my_dic/features/my_word/internal/presentation/ui_model/my_word_u
 import 'package:my_dic/features/my_word/internal/presentation/view/my_word_card.dart';
 import 'package:my_dic/features/my_word/internal/presentation/view/my_word_card_modal.dart';
 import 'package:my_dic/core/shared/enums/ui/word_card_view_click_listener.dart';
-import 'package:my_dic/features/my_word/internal/di/view_model_di.dart';
+import 'package:my_dic/features/my_word/internal/composition/view_model_di.dart';
 import 'package:my_dic/features/my_word/internal/presentation/view/create_word_modal.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
 import 'package:my_dic/core/presentation/error/app_error_message.dart';

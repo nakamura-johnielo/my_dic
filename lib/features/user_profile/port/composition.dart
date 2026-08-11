@@ -1,53 +1,50 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/features/sync/port/composition_contract.dart';
 import 'package:my_dic/features/sync/port/dataset_sync_handler.dart';
 import 'package:my_dic/features/sync/port/sync_handler_runtime.dart';
-import 'package:my_dic/features/sync/port/outbox_writer.dart';
-import 'package:my_dic/features/sync/port/remote_mutation_executor.dart';
-import 'package:my_dic/features/user_profile/internal/infrastructure/firebase/user_profile_sync_composition_factory.dart';
-import 'package:my_dic/features/user_profile/internal/di/data_di.dart';
-import 'package:my_dic/features/user_profile/internal/di/ensure_user_exists_di.dart';
-import 'package:my_dic/features/user_profile/internal/infrastructure/live_user_profile_adapter.dart';
-import 'package:my_dic/features/user_profile/internal/infrastructure/user_profile_guest_migration_adapter.dart';
+import 'package:my_dic/features/user_profile/internal/composition/user_profile_ports_factory.dart';
+import 'package:my_dic/features/user_profile/internal/composition/user_profile_sync_factory.dart';
 import 'auth_lifecycle.dart';
 import 'guest_migration.dart';
 import 'live_user_profile.dart';
+import 'user_profile.dart';
 
-/// App composition supplies SDK-owning mutation and persistence services.
-final userProfileRemoteMutationExecutorDependencyProvider =
-    Provider<RemoteMutationExecutor>((_) => throw StateError(
-        'RemoteMutationExecutor dependency was not supplied.'));
-final userProfileOutboxWriterDependencyProvider = Provider<OutboxWriter>(
-  (_) => throw StateError('OutboxWriter dependency was not supplied.'),
+/// Opaque app capabilities requested by UserProfile's owner factory.
+enum UserProfileDependency {
+  database,
+  sharedPreferences,
+  remoteMutationExecutor,
+  outboxWriter,
+}
+
+typedef UserProfileDependencyReader = T Function<T>(
+  UserProfileDependency dependency,
 );
 
-
-/// Public dependency bundle for app-owned session lifecycle orchestration.
+/// Lifecycle subset used by the app's authentication workflow.
 final class UserLifecyclePorts {
   const UserLifecyclePorts({required this.ensureUserProfile});
 
   final EnsureUserProfilePort ensureUserProfile;
 }
 
-/// Public assembly entry for the app session workflow. The implementation
-/// graph remains feature-internal; callers consume only [UserLifecyclePorts].
-final userLifecyclePortsProvider = Provider<UserLifecyclePorts>((ref) =>
-    UserLifecyclePorts(
-      ensureUserProfile: ref.watch(ensureUserExistsInteractorProvider),
-    ));
+/// The complete set of UserProfile capabilities consumed by app workflows.
+final class UserProfilePorts {
+  const UserProfilePorts({
+    required this.ensureUserProfile,
+    required this.liveUserProfile,
+    required this.guestMigration,
+    required this.updateUserProfile,
+  });
 
-final userProfileGuestMigrationPortProvider =
-    Provider<UserProfileGuestMigrationPort>((ref) =>
-        UserProfileGuestMigrationAdapter(
-          ref.watch(userProfileLocalDataSourceProvider),
-        ));
+  final EnsureUserProfilePort ensureUserProfile;
+  final LiveUserProfilePort liveUserProfile;
+  final UserProfileGuestMigrationPort guestMigration;
+  final UpdateUserProfilePort updateUserProfile;
+}
 
-final liveUserProfilePortProvider = Provider<LiveUserProfilePort>((ref) =>
-    LiveUserProfileAdapter(ref.watch(userProfileLocalDataSourceProvider)));
-
-final liveUserProfileProvider =
-    StreamProvider.autoDispose.family((ref, String accountId) =>
-        ref.watch(liveUserProfilePortProvider).watchProfile(accountId));
+/// Creates UserProfile's production capabilities from app-owned services.
+UserProfilePorts createUserProfilePorts(UserProfileDependencyReader read) =>
+    createInternalUserProfilePorts(read);
 
 /// Opaque dependencies requested by the UserProfile sync contribution.
 enum UserProfileSyncDependency { database, firestore, remoteMutationExecutor }
@@ -55,4 +52,5 @@ enum UserProfileSyncDependency { database, firestore, remoteMutationExecutor }
 DatasetSyncHandler createUserProfileDatasetSyncHandler(
   SyncDependencyReaderPort read, {
   required SyncHandlerRuntime runtime,
-}) => createInternalUserProfileDatasetSyncHandler(read, runtime: runtime);
+}) =>
+    createInternalUserProfileDatasetSyncHandlerFacade(read, runtime: runtime);

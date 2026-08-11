@@ -1,5 +1,5 @@
 import 'package:my_dic/features/my_word/internal/application/query/i_my_word_item_query_repository.dart';
-import 'package:my_dic/features/my_word/internal/application/query/my_word_item_projection.dart';
+import 'package:my_dic/features/my_word/internal/application/model/my_word_item_projection.dart';
 import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/drift_my_word_dao.dart';
 import 'package:my_dic/features/my_word/internal/domain/entity/my_word.dart';
 import 'package:my_dic/features/my_word/internal/domain/entity/my_word_status.dart';

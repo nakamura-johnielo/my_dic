@@ -9,5 +9,8 @@
     "**/android/**": true,
     "**/build/**": true,
     "**/windows/**": true
+  },
+    "[dart]": {
+    "editor.formatOnSave": true
   }
 }

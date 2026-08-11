@@ -123,3 +123,31 @@ This is distinct from the fresh-seed 12-minute heartbeat timeout, but it leaves
 the same Web migration/reopen baseline unverified. The test source is analyzer
 clean; diagnosing the browser/Wasm startup hang requires a Chrome test
 environment with observable runner output.
+
+## P0 DB contract oracle additions
+
+The native contract oracle is now split by the P0-owned paths below. These are
+read-only assertions; no test generates or overwrites a schema expectation.
+
+- `test/support/database/schema_snapshot.dart` normalizes `sqlite_master`
+  create SQL and captures `PRAGMA table_info` and `foreign_key_list` data.
+- `fresh_schema_contract_test.dart` fixes the fresh v7 19-table set, emitted
+  Drift table names, the three explicit sync-outbox indexes, composite account
+  primary-key ordering, ownership CHECK, defaults, and a cascade foreign key.
+- `migration_compatibility_test.dart` opens v1, v2/v3-as-v1-schema aliases,
+  v4, v5, and v6 fixtures through `DatabaseProvider`, verifies retained
+  sentinel values, outbox attempt/lease/client-update migration, and v7
+  reopen. Existing more detailed migration tests remain in place.
+- `database_path_resolver.dart` is the pure release/debug directory policy;
+  `getAppDir()` is its production wrapper. Its unit test fixes both exact
+  branches using the host path context.
+
+Native verification completed successfully on this revision:
+
+```powershell
+flutter test test/unit/core/infrastructure/database/drift/fresh_schema_contract_test.dart test/unit/core/infrastructure/database/drift/migration_compatibility_test.dart test/unit/core/infrastructure/database/drift/database_path_resolver_test.dart
+```
+
+Result: 10 tests passed. This does not change the preceding Web limitation:
+the Chrome/Wasm fresh and legacy IndexedDB oracle remains unverified because
+the runner does not reach test output in this environment.

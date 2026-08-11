@@ -4,7 +4,7 @@ import 'package:my_dic/core/shared/enums/feature_tag.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
 
 import 'package:my_dic/core/shared/enums/i_enum.dart';
-import 'package:my_dic/features/ranking/internal/composition/view_model_di.dart';
+import 'package:my_dic/features/ranking/internal/presentation/provider/view_model_di.dart';
 import 'package:my_dic/features/ranking/internal/presentation/ui_model/ranking_part_of_speech_labels.dart';
 import 'package:my_dic/core/session/session_scope_provider.dart';
 

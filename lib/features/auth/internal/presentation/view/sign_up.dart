@@ -2,12 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/error/app_error_message.dart';
 import 'package:my_dic/core/presentation/state/ui_effect.dart';
-import 'package:my_dic/features/auth/internal/di/view_model_di.dart';
+import 'package:my_dic/features/auth/internal/presentation/provider/view_model_di.dart';
 import 'package:my_dic/features/auth/internal/presentation/ui_model/sign_in_model.dart';
 import 'package:my_dic/features/auth/port/presentation_entry.dart';
 
 class EmailPasswordPage extends ConsumerStatefulWidget {
-  const EmailPasswordPage({super.key});
+  const EmailPasswordPage({
+    super.key,
+    required this.state,
+    required this.actions,
+  });
+
+  final AuthPresentationState state;
+  final AuthPresentationActions actions;
 
   @override
   ConsumerState<EmailPasswordPage> createState() => _EmailPasswordPageState();
@@ -47,8 +54,8 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    final lifecycle = ref.watch(authPresentationStateProvider);
-    final controller = ref.read(authPresentationActionsProvider);
+    final lifecycle = widget.state;
+    final controller = widget.actions;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Email / Password Auth')),
@@ -65,7 +72,8 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
             AuthPresentationPhase.signingIn => const _CenteredProgress(
                 label: 'ログインしています…',
               ),
-            AuthPresentationPhase.provisioningProfile => const _CenteredProgress(
+            AuthPresentationPhase.provisioningProfile =>
+              const _CenteredProgress(
                 label: 'プロフィールを準備しています…',
               ),
             AuthPresentationPhase.signingOut => const _CenteredProgress(

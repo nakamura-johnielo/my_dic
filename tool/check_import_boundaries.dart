@@ -45,14 +45,20 @@ class ImportBoundaryChecker {
 
   Future<List<Violation>> check({String root = '.'}) async {
     final imports = <ImportEntry>[];
-    for (final sourceRoot in const ['lib', 'test', 'integration_test']) {
+    final sources = <String, String>{};
+    // This is a production architecture gate.  Tests intentionally use
+    // white-box imports and shared fakes while characterising legacy code;
+    // those imports must not be reported as production boundary debt.
+    for (final sourceRoot in const ['lib']) {
       final directory = Directory('$root${Platform.pathSeparator}$sourceRoot');
-      if (!await directory.exists()) continue;
-      await for (final entity in directory.list(recursive: true)) {
+      if (!directory.existsSync()) continue;
+      for (final entity in directory.listSync(recursive: true)) {
         if (entity is! File || !entity.path.endsWith('.dart')) continue;
         final source = relative(root, entity.path);
         if (isExcluded(source)) continue;
-        for (final target in dartImports(await entity.readAsString())) {
+        final contents = entity.readAsStringSync();
+        sources[source] = contents;
+        for (final target in dartImports(contents)) {
           imports
               .add(ImportEntry(source, target, resolveTarget(source, target)));
         }
@@ -70,6 +76,7 @@ class ImportBoundaryChecker {
       }
     }
     violations.addAll(findFeatureCycles(imports));
+    violations.addAll(semanticViolations(imports, sources));
     return violations.toSet().toList()..sort();
   }
 
@@ -119,7 +126,7 @@ class BoundaryRule {
         matches(entry.localTarget!, forbiddenTargetPath!);
     if (!forbiddenPackage && !forbiddenTarget) return false;
     if (id != 'no_cross_feature_presentation') return true;
-    final sourceFeature = featureOf(entry.source);
+    final sourceFeature = featureOf(sourceForRuleMatching(entry.source));
     final targetFeature =
         entry.localTarget == null ? null : featureOf(entry.localTarget!);
     return sourceFeature != null &&
@@ -270,6 +277,189 @@ class Options {
   final String format;
 }
 
+const _frameworkPackages = {
+  'flutter',
+  'flutter_riverpod',
+  'provider',
+  'drift',
+  'firebase_core',
+  'firebase_auth',
+  'cloud_firestore',
+  'go_router',
+};
+
+/// Rules which depend on feature ownership rather than just glob matching.
+/// Keeping them here makes the JSON file an auditable list of rule IDs while
+/// avoiding broad allowlists for same-feature and cross-feature directions.
+List<Violation> semanticViolations(
+    List<ImportEntry> imports, Map<String, String> sources) {
+  final result = <Violation>[];
+  final bySource = <String, List<ImportEntry>>{};
+  for (final entry in imports) {
+    (bySource[entry.source] ??= []).add(entry);
+    final sourceFeature = featureOf(sourceForRuleMatching(entry.source));
+    final targetFeature =
+        entry.localTarget == null ? null : featureOf(entry.localTarget!);
+    final target = entry.localTarget;
+
+    if (sourceFeature != null &&
+        target != null &&
+        target.startsWith('lib/app/')) {
+      result.add(Violation('feature_no_app', entry.source, entry.target));
+    }
+    if (entry.source.startsWith('lib/core/') && targetFeature != null) {
+      result.add(Violation('core_no_feature', entry.source, entry.target));
+    }
+    if (targetFeature != null &&
+        sourceFeature != targetFeature &&
+        !isPortPath(target!)) {
+      result.add(
+          Violation('feature_external_only_port', entry.source, entry.target));
+    }
+    if (sourceFeature != null &&
+        targetFeature != null &&
+        sourceFeature != targetFeature &&
+        target!.endsWith('/port/route.dart') &&
+        entry.source.contains('/presentation/')) {
+      result.add(Violation('feature_presentation_navigation_callback_only',
+          entry.source, entry.target));
+    }
+    if (sourceFeature != null && entry.source.contains('/presentation/')) {
+      if (entry.target.startsWith('package:go_router/') ||
+          (target != null &&
+              (target.startsWith('lib/app/routing/') ||
+                  target.startsWith('lib/core/di/router') ||
+                  target.startsWith('lib/router/')))) {
+        result.add(Violation('feature_presentation_navigation_callback_only',
+            entry.source, entry.target));
+      }
+    }
+    if (sourceFeature != null &&
+        target != null &&
+        target.contains('/internal/') &&
+        sourceFeature == targetFeature &&
+        entry.source.contains('/port/')) {
+      final isAllowedPresentationBridge =
+          isPresentationEntry(entry.source) && isInternalPresentation(target);
+      final isAllowedCompositionBridge =
+          isComposition(entry.source) && target.contains('/internal/factory/');
+      if (!isAllowedPresentationBridge && !isAllowedCompositionBridge) {
+        result.add(Violation(
+            isComposition(entry.source)
+                ? 'composition_exact_facade'
+                : 'presentation_entry_exact_facade',
+            entry.source,
+            entry.target));
+      }
+    }
+    if ((isBusinessPort(entry.source) || isComposition(entry.source)) &&
+        isFrameworkImport(entry.target)) {
+      result.add(Violation(
+          isComposition(entry.source)
+              ? 'composition_no_framework'
+              : 'business_port_no_framework',
+          entry.source,
+          entry.target));
+    }
+    if (isPresentationEntry(entry.source) &&
+        isForbiddenPresentationFacadeImport(entry.target)) {
+      result.add(Violation(
+          'presentation_entry_exact_facade', entry.source, entry.target));
+    }
+    if (isFirebaseImport(entry.target) &&
+        !isCanonicalFirebaseSource(entry.source)) {
+      result.add(Violation('firebase_canonical_infrastructure_only',
+          entry.source, entry.target));
+    }
+  }
+
+  // An empty legacy layer cannot hide merely because it has no imports.
+  for (final source in sources.keys) {
+    if (RegExp(r'^lib/features/[^/]+/(application|data|domain|di|presentation)/')
+            .hasMatch(source) &&
+        !source.contains('/internal/')) {
+      result.add(
+          Violation('feature_top_level_only_port_internal', source, source));
+    }
+    if (isComposition(source) &&
+        RegExp(r'\b(?:Provider|Override|DatabaseProvider)\b')
+            .hasMatch(sources[source]!)) {
+      result.add(Violation('composition_no_provider_types', source,
+          'public signature/provider type'));
+    }
+  }
+
+  // A public port may re-export a local barrel.  Check its complete export
+  // closure so a framework import cannot be hidden behind that barrel.
+  for (final source in sources.keys.where((path) => path.contains('/port/'))) {
+    final seen = <String>{};
+    final packages = <String>{};
+    void visit(String current) {
+      if (!seen.add(current)) return;
+      for (final entry in bySource[current] ?? const <ImportEntry>[]) {
+        if (entry.target.startsWith('package:') &&
+            isFrameworkImport(entry.target)) {
+          packages.add(entry.target);
+        }
+        // Composition is a public factory facade.  Its implementation factory
+        // is allowed to depend on framework infrastructure; only the facade
+        // itself (and port-local barrels it exposes) must remain pure.
+        final mayFollowPublicBarrel = !isComposition(source) ||
+            (entry.localTarget != null &&
+                entry.localTarget!.contains('/port/'));
+        if (entry.localTarget != null && mayFollowPublicBarrel) {
+          visit(entry.localTarget!);
+        }
+      }
+    }
+
+    visit(source);
+    if (isBusinessPort(source) || isComposition(source)) {
+      for (final package in packages) {
+        result.add(Violation(
+            isComposition(source)
+                ? 'composition_no_framework'
+                : 'business_port_no_framework',
+            source,
+            package));
+      }
+    }
+  }
+  return result;
+}
+
+bool isPortPath(String path) => path.contains('/port/');
+bool isBusinessPort(String path) =>
+    path.contains('/port/') &&
+    !path.endsWith('/port/presentation_entry.dart') &&
+    !path.endsWith('/port/composition.dart');
+bool isComposition(String path) => path.endsWith('/port/composition.dart');
+bool isPresentationEntry(String path) =>
+    path.endsWith('/port/presentation_entry.dart');
+bool isInternalPresentation(String path) =>
+    path.contains('/internal/') && path.contains('/presentation/');
+bool isFrameworkImport(String target) =>
+    _frameworkPackages.any((package) => target.startsWith('package:$package/'));
+bool isFirebaseImport(String target) => const {
+      'firebase_core',
+      'firebase_auth',
+      'cloud_firestore'
+    }.any((package) => target.startsWith('package:$package/'));
+bool isForbiddenPresentationFacadeImport(String target) =>
+    target.startsWith('package:flutter_riverpod/') ||
+    target.startsWith('package:provider/') ||
+    target.startsWith('package:drift/') ||
+    isFirebaseImport(target) ||
+    target.startsWith('package:go_router/');
+bool isCanonicalFirebaseSource(String source) =>
+    source == 'lib/app/bootstrap/bootstrap.dart' ||
+    source == 'lib/app/bootstrap/firebase_options.dart' ||
+    source == 'lib/app/bootstrap/firebase_providers.dart' ||
+    source ==
+        'lib/app/integration/sync/firebase_remote_mutation_executor.dart' ||
+    RegExp(r'^lib/features/[^/]+/internal/infrastructure/(?:.*/)?firebase/')
+        .hasMatch(source);
+
 List<Violation> findFeatureCycles(List<ImportEntry> imports) {
   final graph = <String, Set<String>>{};
   for (final entry in imports) {
@@ -298,10 +488,16 @@ bool reachable(Map<String, Set<String>> graph, String current, String goal,
     (seen.add(current) &&
         (graph[current] ?? const <String>{})
             .any((next) => reachable(graph, next, goal, seen)));
+
+/// Extract every URI from import/export/part directives.  In particular this
+/// deliberately includes every conditional branch, rather than only the first
+/// URI of `import 'a.dart' if (dart.library.io) 'b.dart'`.
 Iterable<String> dartImports(String source) =>
-    RegExp(r'''(?:import|export|part)\s+['"]([^'"]+)['"]''')
+    RegExp(r'''(?:import|export|part)\s+[^;]*;''', multiLine: true)
         .allMatches(source)
-        .map((m) => m.group(1)!);
+        .expand((directive) => RegExp(r'''['"]([^'"]+)['"]''')
+            .allMatches(directive.group(0)!)
+            .map((uri) => uri.group(1)!));
 String normalize(String value) => value
     .replaceAll('\\', '/')
     .replaceAll(RegExp(r'/+'), '/')

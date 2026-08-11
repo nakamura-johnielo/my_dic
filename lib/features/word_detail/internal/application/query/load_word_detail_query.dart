@@ -1,4 +1,4 @@
-import 'package:my_dic/core/application/query/query_issue.dart';
+import 'package:my_dic/core/application/model/query_issue.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/catalog/port/catalog_id.dart';

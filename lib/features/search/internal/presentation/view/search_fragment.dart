@@ -4,7 +4,7 @@ import 'package:my_dic/core/presentation/components/auto_focus_text_field.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
 import 'package:my_dic/core/presentation/error/app_error_message.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
-import 'package:my_dic/features/search/internal/di/view_model_di.dart';
+import 'package:my_dic/features/search/internal/presentation/provider/view_model_di.dart';
 import 'package:my_dic/features/search/internal/presentation/components/search_result_card.dart';
 import 'package:my_dic/features/search/port/model/conjugation_search_item.dart';
 import 'package:my_dic/features/search/port/model/search_direction.dart';

@@ -4,7 +4,7 @@ import 'package:my_dic/core/presentation/custom_floating_button_location.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/features/word_status/port/presentation_entry.dart';
-import 'package:my_dic/features/word_detail/internal/di/view_model_di.dart';
+import 'package:my_dic/features/word_detail/internal/presentation/provider/view_model_di.dart';
 import 'package:my_dic/features/word_detail/internal/presentation/ui_model/jpn_esp_state.dart';
 import 'package:my_dic/features/word_detail/internal/presentation/ui_model/word_detail_load_key.dart';
 import 'package:my_dic/features/word_detail/internal/presentation/view/esp_jpn/conjugacion_fragment.dart';

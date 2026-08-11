@@ -8,8 +8,9 @@ void main() {
       'lib/features/my_word/internal/infrastructure/my_word/firebase/firebase_my_word_dao.dart',
       'lib/features/my_word/internal/infrastructure/my_word_status/firebase/firebase_my_word_status_dao.dart',
     ];
+    const myWordAdapterPath =
+        'lib/features/my_word/internal/infrastructure/sync/my_word_dataset_sync_adapter.dart';
     const localDaoPaths = [
-      'lib/features/my_word/internal/infrastructure/data/data_source/local/drift_my_word_dao.dart',
       'lib/features/word_status/internal/infrastructure/esp_jpn/drift/esp_jpn_word_status_dao.dart',
     ];
 
@@ -26,6 +27,17 @@ void main() {
       expect(source.contains('isBiggerOrEqualValue'), isTrue,
           reason: '$path must retry records exactly at the checkpoint.');
     }
+
+    // MyWord has no local checkpoint query. Its adapter converts the durable
+    // cursor into the timestamp consumed by the Firebase DAO above.
+    final myWordAdapter = File(myWordAdapterPath).readAsStringSync();
+    expect(myWordAdapter,
+        contains('cursor == null ? MyDateTime.sentinel : _toDateTime(cursor)'));
+    expect(
+        myWordAdapter, contains('_remote.getMyWordsAfter(accountId, since)'));
+    expect(myWordAdapter,
+        contains('cursor.seconds * 1000000 + cursor.nanoseconds ~/ 1000'));
+    expect(myWordAdapter, contains('isUtc: true'));
   });
 
   test('word-status remote stores use an inclusive document-ID cursor', () {

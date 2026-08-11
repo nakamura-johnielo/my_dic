@@ -14,15 +14,21 @@ abstract interface class ICreateNewUserUseCase {
   Future<Result<AppUser>> execute(AppUser appUser, String accountId);
 }
 
-abstract interface class IUpdateUserUseCase {
+abstract interface class IUpdateUserUseCase implements UpdateUserProfilePort {
   Future<Result<void>> execute(AppUser user, String accountId);
+
+  @override
+  Future<Result<void>> updateUser(AppUser user, String accountId) =>
+      execute(user, accountId);
 }
 
-abstract interface class IEnsureUserExistsUseCase implements EnsureUserProfilePort {
+abstract interface class IEnsureUserExistsUseCase
+    implements EnsureUserProfilePort {
   Future<Result<AppUser>> execute(String id, {String? email});
 
   @override
-  Future<Result<AppUser>> ensureUserProfile(String accountId, {String? email}) =>
+  Future<Result<AppUser>> ensureUserProfile(String accountId,
+          {String? email}) =>
       execute(accountId, email: email);
 }
 
@@ -91,6 +97,10 @@ class UpdateUserInteractor implements IUpdateUserUseCase {
   @override
   Future<Result<void>> execute(AppUser user, String accountId) =>
       _repository.updateUser(user, accountId);
+
+  @override
+  Future<Result<void>> updateUser(AppUser user, String accountId) =>
+      execute(user, accountId);
 }
 
 /// Lifecycle profile provisioning. The authenticated identity is supplied by
@@ -104,6 +114,7 @@ class EnsureUserExistsInteractor implements IEnsureUserExistsUseCase {
       _provisioner.ensureUserProfile(accountId: id, email: email);
 
   @override
-  Future<Result<AppUser>> ensureUserProfile(String accountId, {String? email}) =>
+  Future<Result<AppUser>> ensureUserProfile(String accountId,
+          {String? email}) =>
       execute(accountId, email: email);
 }

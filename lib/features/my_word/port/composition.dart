@@ -6,8 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/features/sync/port/outbox_writer.dart';
 import 'package:my_dic/features/sync/port/remote_mutation_executor.dart';
 
-export 'package:my_dic/features/my_word/internal/di/data_di.dart'
-    show myWordLocalDataSourceProvider, myWordStatusLocalDataSourceProvider,
+// TODO refactor
+export 'package:my_dic/features/my_word/internal/composition/infra_di.dart'
+    show
+        myWordLocalDataSourceProvider,
+        myWordStatusLocalDataSourceProvider,
         myWordGuestMigrationPortProvider;
 
 /// Pure feature composition for MyWord's two dataset contributions.
@@ -23,9 +26,11 @@ final myWordRemoteMutationExecutorDependencyProvider =
 DatasetSyncHandler createMyWordDatasetSyncHandler(
   SyncDependencyReaderPort read,
   SyncHandlerRuntime runtime,
-) => createInternalMyWordDatasetSyncHandler(read, runtime: runtime);
+) =>
+    createInternalMyWordDatasetSyncHandler(read, runtime: runtime);
 
 DatasetSyncHandler createMyWordStatusDatasetSyncHandler(
   SyncDependencyReaderPort read,
   SyncHandlerRuntime runtime,
-) => createInternalMyWordStatusDatasetSyncHandler(read, runtime: runtime);
+) =>
+    createInternalMyWordStatusDatasetSyncHandler(read, runtime: runtime);

@@ -219,7 +219,7 @@ testのwhite-box例外は `test/**/features/<feature>/internal/**` から同じ 
 
 | fixture | 期待 |
 |---|---|
-| app/other feature → `feature/port/model.dart` | allow |
+| app/other feature → `feature/port/model/**` | allow |
 | core → `feature/port/**` を含む全feature target | deny |
 | app/core/other feature → `feature/internal/**` | deny |
 | importがない `feature/application|data|domain|di|presentation/**.dart` | deny |

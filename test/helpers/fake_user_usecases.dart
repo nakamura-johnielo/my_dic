@@ -39,6 +39,10 @@ class FakeUpdateUserInteractor implements IUpdateUserUseCase {
 
     return _executeResult ?? const Result.success(null);
   }
+
+  @override
+  Future<Result<void>> updateUser(AppUser user, String accountId) =>
+      execute(user, accountId);
 }
 
 /// Fake EnsureUserExistsInteractor for testing

@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:my_dic/core/shared/enums/auth/provider_type.dart';
-import 'package:my_dic/features/auth/internal/application/auth_dto.dart';
+import 'package:my_dic/features/auth/internal/application/model/auth_dto.dart';
 
 /// Converts Firebase SDK values into the SDK-free Auth DTO.
 final class FirebaseAuthMapper {

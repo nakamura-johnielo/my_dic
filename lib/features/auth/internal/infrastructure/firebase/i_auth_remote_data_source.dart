@@ -1,4 +1,4 @@
-import 'package:my_dic/features/auth/internal/application/auth_dto.dart';
+import 'package:my_dic/features/auth/internal/application/model/auth_dto.dart';
 
 abstract class IAuthRemoteDataSource {
   Stream<AuthDTO?> observeAuthState();

@@ -74,7 +74,7 @@ final class WordStatusCommand extends StateNotifier<WordStatusCommandEvent?> {
       : super(null);
 
   final CatalogWordRef _word;
-  final UpdateWordStatus _useCase;
+  final UpdateWordStatusInteractor _useCase;
   final String? accountId;
 
   Future<void> toggleBookmark(bool current) => _update(

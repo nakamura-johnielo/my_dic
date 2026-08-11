@@ -6,18 +6,19 @@ import 'package:my_dic/core/presentation/state/ui_effect.dart';
 import 'package:my_dic/core/shared/errors/app_error.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
-import 'package:my_dic/features/user_profile/internal/application/usecase/user_usecases.dart';
 import 'package:my_dic/features/user_profile/port/user_profile.dart';
 import 'package:my_dic/features/user_profile/internal/presentation/model/user_profile_ui_model.dart';
 
 class UserProfileViewModel extends StateNotifier<UserProfileUIState>
     implements UiEffectConsumer {
-  UserProfileViewModel(this._scope, this._updateUserUseCase)
+  UserProfileViewModel(this._scope, this._updateUser)
       : super(const UserProfileUIState());
 
   final SessionScopeKey _scope;
-  final IUpdateUserUseCase _updateUserUseCase;
+  final UpdateUserProfilePort _updateUser;
   int _effectSequence = 0;
+
+  SessionScopeKey get scope => _scope;
 
   @override
   UiEffectEnvelope<UiEffect>? get pendingEffect => state.pendingEffect;
@@ -40,7 +41,7 @@ class UserProfileViewModel extends StateNotifier<UserProfileUIState>
   }) =>
       _run(
         operation: 'save',
-        action: () => _updateUserUseCase.execute(
+        action: () => _updateUser.updateUser(
           currentProfile.copyWith(
             deviceId: deviceId,
             email: email,

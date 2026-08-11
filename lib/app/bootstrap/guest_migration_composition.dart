@@ -7,6 +7,7 @@ import 'package:my_dic/app/guest_migration/migrate_guest_data_usecase.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
 import 'package:my_dic/features/my_word/port/composition.dart';
 import 'package:my_dic/features/user_profile/port/composition.dart';
+import 'package:my_dic/app/workflows/session_lifecycle/user_profile_composition.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/features/sync/port/model/sync_context.dart';
 import 'package:my_dic/features/sync/port/sync_run_outcome.dart';
@@ -20,7 +21,7 @@ final detectGuestDataUseCaseProvider = Provider<DetectGuestDataUseCase>((ref) {
     wordStatus: ref.watch(wordStatusGuestMigrationProvider),
     myWord: ref.watch(myWordLocalDataSourceProvider),
     myWordStatus: ref.watch(myWordStatusLocalDataSourceProvider),
-    userProfile: ref.watch(userProfileGuestMigrationPortProvider),
+    userProfile: ref.watch(userProfilePortsProvider).guestMigration,
   );
 });
 
@@ -31,7 +32,7 @@ final migrateGuestDataUseCaseProvider =
     wordStatus: ref.watch(wordStatusGuestMigrationProvider),
     myWord: ref.watch(myWordLocalDataSourceProvider),
     myWordStatus: ref.watch(myWordStatusLocalDataSourceProvider),
-    userProfile: ref.watch(userProfileGuestMigrationPortProvider),
+    userProfile: ref.watch(userProfilePortsProvider).guestMigration,
     outboxWriter: ref.watch(driftOutboxWriterProvider),
     sessionFence: ref.watch(syncSessionFenceProvider),
   );

@@ -73,6 +73,10 @@ class _UpdateUserUseCase implements IUpdateUserUseCase {
     return deferred ? _completer.future : Future.value(_result);
   }
 
+  @override
+  Future<Result<void>> updateUser(AppUser user, String accountId) =>
+      execute(user, accountId);
+
   void complete() => _completer.complete(_result);
 }
 

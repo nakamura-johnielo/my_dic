@@ -23,7 +23,7 @@ final class SyncWorkflowRunner implements SyncRunner {
       SyncReportOutcome.cancelled => SyncRunOutcome.cancelled,
       SyncReportOutcome.alreadyRunning ||
       SyncReportOutcome.authenticationRequired ||
-      SyncReportOutcome.needsAttention => SyncRunOutcome.failure,
+      SyncReportOutcome.needsAttention => SyncRunOutcome.nonRetryableFailure,
     };
   }
 

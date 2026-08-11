@@ -8,6 +8,7 @@ import 'package:my_dic/features/quiz/port/model/quiz_candidate_issue.dart';
 import 'package:my_dic/features/quiz/port/model/quiz_candidate_page.dart';
 import 'package:my_dic/features/quiz/port/model/quiz_candidate_query.dart';
 
+// TODO refactor??
 /// Quiz-owned policy over Catalog's raw candidate capability.
 final class CatalogRawQuizCandidateSource implements QuizCandidateSource {
   CatalogRawQuizCandidateSource(this._catalog);

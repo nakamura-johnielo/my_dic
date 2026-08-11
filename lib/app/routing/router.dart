@@ -6,25 +6,26 @@ import 'package:my_dic/app/routing/route_definitions.dart';
 import 'package:my_dic/app/routing/route_names.dart';
 import 'package:my_dic/app/session/app_session.dart';
 import 'package:my_dic/app/session/session_providers.dart';
+import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_presentation_entry.dart';
+import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_provider.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
-import 'package:my_dic/features/auth/port/presentation_entry.dart';
 import 'package:my_dic/features/my_word/port/presentation_entry.dart';
 import 'package:my_dic/features/search/port/presentation_entry.dart';
-import 'package:my_dic/features/user_profile/port/presentation_entry.dart';
+import 'package:my_dic/app/workflows/session_lifecycle/user_profile_presentation_entry.dart';
 import 'package:my_dic/main_activity.dart';
 
 final rootNavigatorKeyProvider = Provider<GlobalKey<NavigatorState>>(
-  (_) => GlobalKey<NavigatorState>(debugLabel: 'root'));
+    (_) => GlobalKey<NavigatorState>(debugLabel: 'root'));
 final searchNavigatorKeyProvider = Provider<GlobalKey<NavigatorState>>(
-  (_) => GlobalKey<NavigatorState>(debugLabel: 'search'));
+    (_) => GlobalKey<NavigatorState>(debugLabel: 'search'));
 final myWordNavigatorKeyProvider = Provider<GlobalKey<NavigatorState>>(
-  (_) => GlobalKey<NavigatorState>(debugLabel: 'myword'));
+    (_) => GlobalKey<NavigatorState>(debugLabel: 'myword'));
 final studyDashboardNavigatorKeyProvider = Provider<GlobalKey<NavigatorState>>(
-  (_) => GlobalKey<NavigatorState>(debugLabel: 'studyDashboard'));
+    (_) => GlobalKey<NavigatorState>(debugLabel: 'studyDashboard'));
 final studyRankingNavigatorKeyProvider = Provider<GlobalKey<NavigatorState>>(
-  (_) => GlobalKey<NavigatorState>(debugLabel: 'studyRanking'));
+    (_) => GlobalKey<NavigatorState>(debugLabel: 'studyRanking'));
 final studyQuizNavigatorKeyProvider = Provider<GlobalKey<NavigatorState>>(
-  (_) => GlobalKey<NavigatorState>(debugLabel: 'studyQuiz'));
+    (_) => GlobalKey<NavigatorState>(debugLabel: 'studyQuiz'));
 
 class AuthChangeNotifier extends ChangeNotifier {
   AuthChangeNotifier(Ref ref) {
@@ -60,57 +61,103 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       StatefulShellRoute.indexedStack(
         parentNavigatorKey: root,
-        builder: (context, state, shell) => MainActivity(navigationShell: shell),
+        builder: (context, state, shell) =>
+            MainActivity(navigationShell: shell),
         branches: [
-          StatefulShellBranch(navigatorKey: myWord, routes: [GoRoute(
-            path: '/${RoutePaths.myWord}', name: RouteNames.myWord,
-            pageBuilder: (context, state) => NoTransitionPage(key: state.pageKey,
-              child: MyWordFragment()),
-          )]),
-          StatefulShellBranch(navigatorKey: search, routes: [GoRoute(
-            path: '/${RoutePaths.search}', name: RouteNames.search,
-            pageBuilder: (context, state) => NoTransitionPage(key: state.pageKey,
-              child: SearchFragment(
-                onOpenWordDetail: (word) => openWordDetail(context,
-                  routeName: '${RouteNames.search}-${RouteNames.wordDetail}', word: word),
-                onOpenQuiz: (word, hint) => openQuizGame(context,
-                  routeName: '${RouteNames.search}-${RouteNames.flashCard}', word: word,
-                  displayHint: hint))),
-            routes: [
-              flashCardRoute('${RouteNames.search}-${RouteNames.flashCard}',
-                wordDetailRouteName: '${RouteNames.search}-${RouteNames.wordDetail}'),
-              wordDetailRoute('${RouteNames.search}-${RouteNames.wordDetail}',
-                quizGameRouteName: '${RouteNames.search}-${RouteNames.flashCard}'),
-            ],
-          )]),
-          StatefulShellBranch(navigatorKey: dashboard, routes: [dashboardRoute]),
+          StatefulShellBranch(navigatorKey: myWord, routes: [
+            GoRoute(
+              path: '/${RoutePaths.myWord}',
+              name: RouteNames.myWord,
+              pageBuilder: (context, state) =>
+                  NoTransitionPage(key: state.pageKey, child: MyWordFragment()),
+            )
+          ]),
+          StatefulShellBranch(navigatorKey: search, routes: [
+            GoRoute(
+              path: '/${RoutePaths.search}',
+              name: RouteNames.search,
+              pageBuilder: (context, state) => NoTransitionPage(
+                  key: state.pageKey,
+                  child: SearchFragment(
+                      onOpenWordDetail: (word) => openWordDetail(context,
+                          routeName:
+                              '${RouteNames.search}-${RouteNames.wordDetail}',
+                          word: word),
+                      onOpenQuiz: (word, hint) => openQuizGame(context,
+                          routeName:
+                              '${RouteNames.search}-${RouteNames.flashCard}',
+                          word: word,
+                          displayHint: hint))),
+              routes: [
+                ...flashCardRoutes(
+                    '${RouteNames.search}-${RouteNames.flashCard}',
+                    wordDetailRouteName:
+                        '${RouteNames.search}-${RouteNames.wordDetail}'),
+                wordDetailRoute('${RouteNames.search}-${RouteNames.wordDetail}',
+                    quizGameRouteName:
+                        '${RouteNames.search}-${RouteNames.flashCard}'),
+              ],
+            )
+          ]),
+          StatefulShellBranch(
+              navigatorKey: dashboard, routes: [dashboardRoute]),
           StatefulShellBranch(navigatorKey: quiz, routes: [
             quizRoute,
-            wordDetailRoute('${RouteNames.quiz}-${RouteNames.wordDetail}', parentPath: RoutePaths.quiz,
-              quizGameRouteName: '${RouteNames.quiz}-${RouteNames.flashCard}'),
-            flashCardRoute('${RouteNames.quiz}-${RouteNames.flashCard}', parentPath: RoutePaths.quiz,
-              wordDetailRouteName: '${RouteNames.quiz}-${RouteNames.wordDetail}'),
+            wordDetailRoute('${RouteNames.quiz}-${RouteNames.wordDetail}',
+                parentPath: RoutePaths.quiz,
+                quizGameRouteName:
+                    '${RouteNames.quiz}-${RouteNames.flashCard}'),
+            ...flashCardRoutes('${RouteNames.quiz}-${RouteNames.flashCard}',
+                parentPath: RoutePaths.quiz,
+                wordDetailRouteName:
+                    '${RouteNames.quiz}-${RouteNames.wordDetail}'),
           ]),
           StatefulShellBranch(navigatorKey: ranking, routes: [
             rankingRoute,
-            wordDetailRoute('${RouteNames.ranking}-${RouteNames.wordDetail}', parentPath: RoutePaths.ranking,
-              quizGameRouteName: '${RouteNames.ranking}-${RouteNames.flashCard}'),
-            flashCardRoute('${RouteNames.ranking}-${RouteNames.flashCard}', parentPath: RoutePaths.ranking,
-              wordDetailRouteName: '${RouteNames.ranking}-${RouteNames.wordDetail}'),
+            wordDetailRoute('${RouteNames.ranking}-${RouteNames.wordDetail}',
+                parentPath: RoutePaths.ranking,
+                quizGameRouteName:
+                    '${RouteNames.ranking}-${RouteNames.flashCard}'),
+            ...flashCardRoutes('${RouteNames.ranking}-${RouteNames.flashCard}',
+                parentPath: RoutePaths.ranking,
+                wordDetailRouteName:
+                    '${RouteNames.ranking}-${RouteNames.wordDetail}'),
           ]),
         ],
       ),
-      GoRoute(parentNavigatorKey: root, path: '/${RoutePaths.profile}', name: RouteNames.profile,
-        pageBuilder: (context, state) => NoTransitionPage(key: state.pageKey, child: EmailPasswordPage()),
-        routes: [
-          GoRoute(parentNavigatorKey: root, path: RoutePaths.unauthorized, name: RouteNames.unauthorized,
-            pageBuilder: (context, state) => MaterialPage(child: EmailPasswordPage())),
-          GoRoute(parentNavigatorKey: root, path: RoutePaths.authorized, name: RouteNames.authorized,
-            pageBuilder: (context, state) => MaterialPage(child: ProfilePage(uid: 'uid'))),
-        ]),
+      GoRoute(
+          parentNavigatorKey: root,
+          path: '/${RoutePaths.profile}',
+          name: RouteNames.profile,
+          pageBuilder: (context, state) => NoTransitionPage(
+                key: state.pageKey,
+                child: const AuthLifecyclePresentationPage(),
+              ),
+          routes: [
+            GoRoute(
+                parentNavigatorKey: root,
+                path: RoutePaths.unauthorized,
+                name: RouteNames.unauthorized,
+                pageBuilder: (context, state) => MaterialPage(
+                      child: const AuthLifecyclePresentationPage(),
+                    )),
+            GoRoute(
+                parentNavigatorKey: root,
+                path: RoutePaths.authorized,
+                name: RouteNames.authorized,
+                pageBuilder: (context, state) => MaterialPage(
+                      child: UserProfileLifecyclePresentationPage(
+                        onSignOut: () =>
+                            ref.read(authLifecycleProvider.notifier).signOut(),
+                      ),
+                    )),
+          ]),
     ],
   );
-  ref.onDispose(() { notifier.dispose(); router.dispose(); });
+  ref.onDispose(() {
+    notifier.dispose();
+    router.dispose();
+  });
   AppLogger.print('Application router created.');
   return router;
 });

@@ -4,13 +4,14 @@ import 'package:my_dic/features/catalog/port/conjugation_reader.dart';
 import 'package:my_dic/features/catalog/port/catalog_reader.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_conjugation.dart';
 import 'package:my_dic/features/quiz/internal/infrastructure/assets/quiz_game_assets.dart';
-import 'package:my_dic/features/quiz/internal/game/domain/repository/i_es_en_conjugacion_repository.dart';
+import 'package:my_dic/features/quiz/internal/game/domain/i_repository/i_es_en_conjugacion_repository.dart';
 import 'package:my_dic/features/quiz/port/game_loader.dart';
 import 'package:my_dic/features/quiz/port/model/quiz_game_data.dart';
 import 'package:my_dic/features/quiz/port/model/quiz_game_load_result.dart';
 import 'package:my_dic/features/quiz/port/model/quiz_game_load_source.dart';
 import 'package:my_dic/features/quiz/port/model/quiz_game_query.dart';
 
+// TODO refactor
 /// Aggregate facade over the existing Catalog, Drift and bundled-asset graph.
 ///
 /// It intentionally does not assign user-visible meaning to a failure. That

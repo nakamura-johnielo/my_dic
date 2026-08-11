@@ -1,0 +1,6 @@
+import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/features/my_word/internal/application/usecase/my_word/register_my_word/register_my_word_input_data.dart';
+
+abstract class IRegisterMyWordUseCase {
+  Future<Result<String>> execute(RegisterMyWordInputData input);
+}

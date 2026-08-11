@@ -18,12 +18,18 @@ import 'package:my_dic/features/user_profile/internal/domain/i_repository/i_user
 import 'package:my_dic/features/user_profile/internal/domain/i_repository/i_user_profile_provisioner.dart';
 import 'package:my_dic/features/user_profile/internal/infrastructure/firebase/firebase_dependencies.dart';
 import 'package:my_dic/features/user_profile/port/composition.dart';
+import 'package:my_dic/features/sync/port/outbox_writer.dart';
+import 'package:my_dic/features/sync/port/remote_mutation_executor.dart';
 
-final userDaoProvider =
-    Provider((ref) => UserDao(
-          ref.watch(userProfileFirestoreProvider),
-          ref.watch(userProfileRemoteMutationExecutorDependencyProvider),
-        ));
+final _legacyRemoteMutationExecutorProvider =
+    Provider<RemoteMutationExecutor>((_) => throw StateError('Not composed'));
+final _legacyOutboxWriterProvider =
+    Provider<OutboxWriter>((_) => throw StateError('Not composed'));
+
+final userDaoProvider = Provider((ref) => UserDao(
+      ref.watch(userProfileFirestoreProvider),
+      ref.watch(_legacyRemoteMutationExecutorProvider),
+    ));
 
 final userRemoteDataSourceProvider = Provider<IUserRemoteDataSource>(
     (ref) => FirebaseUserRemoteDataSource(ref.watch(userDaoProvider)));
@@ -53,7 +59,7 @@ final watchedUserProfileProvider = StreamProvider.autoDispose
 final userRepositoryProvider = Provider<IUserRepository>((ref) {
   final local = ref.watch(userLocalDataSourceProvider);
   final profileLocal = ref.watch(userProfileLocalDataSourceProvider);
-  final outboxWriter = ref.watch(userProfileOutboxWriterDependencyProvider);
+  final outboxWriter = ref.watch(_legacyOutboxWriterProvider);
   return UserRepository(local, profileLocal, outboxWriter);
 });
 
@@ -66,4 +72,3 @@ final userProfileProvisionerProvider = Provider<IUserProfileProvisioner>((ref) {
     ref.watch(userProfileLocalDataSourceProvider),
   );
 });
-

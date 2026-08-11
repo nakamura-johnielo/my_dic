@@ -34,6 +34,7 @@ import 'package:path/path.dart';
 import 'dart:async';
 import 'package:my_dic/core/infrastructure/database/drift/_WEB/web_database_seeder.dart'
     if (dart.library.io) 'package:my_dic/core/infrastructure/database/drift/_WEB/web_database_seeder_stub.dart';
+import 'package:my_dic/core/infrastructure/database/drift/database_path_resolver.dart';
 
 part '../../../../__generated/core/infrastructure/database/drift/database_provider.g.dart';
 
@@ -470,10 +471,11 @@ Future<String> getAppDir() async {
     return 'web_indexeddb';
   }
   final documentsDirectory = await getApplicationSupportDirectory();
-  final path = kReleaseMode
-      ? join(documentsDirectory.path, "${APP_NAME}_DB")
-      : join(documentsDirectory.path, "DEBUG", "${APP_NAME}_DB");
-  return path;
+  return resolveDatabaseDirectory(
+    applicationSupportRoot: documentsDirectory.path,
+    isRelease: kReleaseMode,
+    appName: APP_NAME,
+  );
 }
 
 Future<void> deleteDatabaseFile(String dbName) async {

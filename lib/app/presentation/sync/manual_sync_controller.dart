@@ -133,7 +133,7 @@ class ManualSyncController extends StateNotifier<ManualSyncUiState>
   String _messageFor(SyncRunOutcome outcome) =>
       switch (outcome) {
         SyncRunOutcome.retryScheduled => 'Sync will retry automatically.',
-        SyncRunOutcome.failure => 'Sync needs attention.',
+        SyncRunOutcome.nonRetryableFailure => 'Sync needs attention.',
         SyncRunOutcome.success => 'Sync complete.',
         SyncRunOutcome.cancelled => '',
       };

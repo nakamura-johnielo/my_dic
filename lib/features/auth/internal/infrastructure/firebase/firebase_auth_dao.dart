@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:my_dic/features/auth/internal/application/auth_dto.dart';
+import 'package:my_dic/features/auth/internal/application/model/auth_dto.dart';
 import 'package:my_dic/features/auth/internal/infrastructure/firebase/firebase_auth_mapper.dart';
 
 class FirebaseAuthDao {
