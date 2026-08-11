@@ -7,7 +7,7 @@ import 'package:my_dic/app/guest_migration/migrate_guest_data_usecase.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
 import 'package:my_dic/features/my_word/port/composition.dart';
 import 'package:my_dic/features/user_profile/port/composition.dart';
-import 'package:my_dic/app/workflows/session_lifecycle/user_profile_composition.dart';
+import 'package:my_dic/integration/session_lifecycle_workflow/user_profile_composition.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/features/sync/port/model/sync_context.dart';
 import 'package:my_dic/features/sync/port/sync_run_outcome.dart';

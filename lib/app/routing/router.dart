@@ -6,12 +6,12 @@ import 'package:my_dic/app/routing/route_definitions.dart';
 import 'package:my_dic/app/routing/route_names.dart';
 import 'package:my_dic/app/session/app_session.dart';
 import 'package:my_dic/app/session/session_providers.dart';
-import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_presentation_entry.dart';
-import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_provider.dart';
+import 'package:my_dic/integration/session_lifecycle_workflow/auth_lifecycle_presentation_entry.dart';
+import 'package:my_dic/integration/session_lifecycle_workflow/auth_lifecycle_provider.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/features/my_word/port/presentation_entry.dart';
 import 'package:my_dic/features/search/port/presentation_entry.dart';
-import 'package:my_dic/app/workflows/session_lifecycle/user_profile_presentation_entry.dart';
+import 'package:my_dic/integration/session_lifecycle_workflow/user_profile_presentation_entry.dart';
 import 'package:my_dic/main_activity.dart';
 
 final rootNavigatorKeyProvider = Provider<GlobalKey<NavigatorState>>(

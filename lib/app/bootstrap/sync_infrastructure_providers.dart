@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
-import 'package:my_dic/app/workflows/session_lifecycle/session_fence_adapter.dart';
+import 'package:my_dic/integration/session_lifecycle_workflow/session_fence_adapter.dart';
 import 'package:my_dic/features/sync/port/composition.dart';
 import 'package:my_dic/features/sync/port/outbox_writer.dart';
 import 'package:my_dic/features/sync/port/sync_checkpoint_store.dart';

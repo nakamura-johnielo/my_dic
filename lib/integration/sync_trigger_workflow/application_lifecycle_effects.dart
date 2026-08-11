@@ -5,7 +5,7 @@ import 'package:my_dic/app/bootstrap/session_composition.dart';
 import 'package:my_dic/app/bootstrap/sync_composition.dart';
 import 'package:my_dic/app/session/app_session.dart';
 import 'package:my_dic/app/session/session_providers.dart';
-import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_effects.dart';
+import 'package:my_dic/integration/session_lifecycle_workflow/auth_lifecycle_effects.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/features/sync/port/cancellation_token.dart';
 import 'package:my_dic/features/sync/port/model/sync_context.dart';
