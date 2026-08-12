@@ -5,10 +5,11 @@ import 'package:my_dic/core/presentation/components/button/my_icon_button.dart';
 import 'package:my_dic/core/presentation/state/ui_effect.dart';
 import 'package:my_dic/core/shared/enums/my_icons.dart';
 import 'package:my_dic/core/shared/enums/ui/word_card_view_click_listener.dart';
-import 'package:my_dic/features/my_word/internal/composition/view_model_di.dart';
+import 'package:my_dic/features/my_word/internal/presentation/provider/my_word_presentation_providers.dart';
 import 'package:my_dic/features/my_word/internal/presentation/ui_model/my_word_ui_model.dart';
 import 'package:my_dic/features/my_word/internal/presentation/ui_model/my_word_event.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
+import 'package:my_dic/features/my_word/port/composition.dart';
 
 const Map<String, IconData> _bookmarkIcon = {
   "true": Icons.bookmark_rounded,
@@ -25,6 +26,7 @@ class MyWordCardModal extends ConsumerStatefulWidget {
       {super.key,
       required this.item,
       required this.scope,
+      required this.ports,
       required this.index,
       this.onTap,
       this.onChanged,
@@ -33,6 +35,7 @@ class MyWordCardModal extends ConsumerStatefulWidget {
 
   final MyWordItemUiModel item;
   final SessionScopeKey scope;
+  final MyWordPorts ports;
   final int index;
   final VoidCallback? onTap;
   final VoidCallback? onChanged;
@@ -66,7 +69,11 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
     headwordTextFieldController = TextEditingController();
     descriptionTextFieldController = TextEditingController();
     _commandSubscription = ref.listenManual(
-      myWordCommandProvider((scope: widget.scope, wordId: widget.item.wordId)),
+      myWordCommandProvider((
+        scope: widget.scope,
+        ports: widget.ports,
+        wordId: widget.item.wordId
+      )),
       (_, next) => _handleEffect(next),
     );
   }
@@ -91,9 +98,11 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
   void _handleEffect(MyWordCommandState next) {
     final envelope = next.pendingEffect;
     if (envelope == null || !mounted) return;
-    final command = ref.read(
-        myWordCommandProvider((scope: widget.scope, wordId: widget.item.wordId))
-            .notifier);
+    final command = ref.read(myWordCommandProvider((
+      scope: widget.scope,
+      ports: widget.ports,
+      wordId: widget.item.wordId
+    )).notifier);
     if (envelope.effect is UiCloseDialogEffect &&
         next.command.operation == 'delete') {
       widget.onChanged?.call();
@@ -115,8 +124,11 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
 
   @override
   Widget build(BuildContext context) {
-    final commandState = ref.watch(myWordCommandProvider(
-        (scope: widget.scope, wordId: widget.item.wordId)));
+    final commandState = ref.watch(myWordCommandProvider((
+      scope: widget.scope,
+      ports: widget.ports,
+      wordId: widget.item.wordId
+    )));
 
     Color descriptionColor = Theme.of(context).colorScheme.onSurfaceVariant;
     Color headwordColor = Theme.of(context).colorScheme.onSurface;
@@ -243,6 +255,7 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
                           : () => ref
                               .read(myWordCommandProvider((
                                 scope: widget.scope,
+                                ports: widget.ports,
                                 wordId: widget.item.wordId
                               )).notifier)
                               .deleteWord(),
@@ -260,6 +273,7 @@ class _MyWordCardModalState extends ConsumerState<MyWordCardModal> {
                                 : () => ref
                                     .read(myWordCommandProvider((
                                       scope: widget.scope,
+                                      ports: widget.ports,
                                       wordId: widget.item.wordId
                                     )).notifier)
                                     .updateWord(

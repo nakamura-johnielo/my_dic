@@ -10,21 +10,21 @@ import '../internal/composition/sync_composition_factory.dart';
 export 'composition_contract.dart';
 
 /// Creates the dataset runtime without exposing Sync internals to the app.
-SyncHandlerRuntime createSyncHandlerRuntime(SyncDependencyReaderPort read) =>
+ISyncHandlerRuntime createSyncHandlerRuntime(SyncDependencyReaderPort read) =>
     SyncCompositionFactory.createRuntime(read);
 
-SyncQueue createSyncQueue(SyncDependencyReaderPort read) =>
+ISyncQueue createSyncQueue(SyncDependencyReaderPort read) =>
     SyncCompositionFactory.createQueue(read);
 
-SyncCheckpointStore createSyncCheckpointStore(SyncDependencyReaderPort read) =>
+ISyncCheckpointStore createSyncCheckpointStore(SyncDependencyReaderPort read) =>
     SyncCompositionFactory.createCheckpointStore(read);
 
-OutboxWriter createOutboxWriter(SyncDependencyReaderPort read) =>
+IOutboxWriter createOutboxWriter(SyncDependencyReaderPort read) =>
     SyncCompositionFactory.createOutboxWriter(read);
 
 /// Creates the public workflow runner for the registered dataset handlers.
-SyncRunner createSyncRunner(
+ISyncRunner createSyncRunner(
   SyncDependencyReaderPort read,
-  Iterable<DatasetSyncHandler> handlers,
+  Iterable<IDatasetSyncHandler> handlers,
 ) =>
     SyncCompositionFactory.createRunner(read, handlers);

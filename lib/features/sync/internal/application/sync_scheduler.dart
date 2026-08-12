@@ -13,10 +13,10 @@ import 'sync_engine.dart';
 /// Firebase, Drift, listener, or feature-specific behaviour.
 class SyncScheduler {
   SyncScheduler(this._engine,
-      {SyncTelemetry telemetry = const NoopSyncTelemetry(),
-      SyncQueue? queue,
-      SyncRetryWakeup? retryWakeup,
-      SessionFence? sessionFence,
+      {ISyncTelemetry telemetry = const NoopSyncTelemetry(),
+      ISyncQueue? queue,
+      ISyncRetryWakeup? retryWakeup,
+      ISessionFence? sessionFence,
       DateTime Function()? clock})
       : assert((queue == null) == (retryWakeup == null)),
         _telemetry = telemetry,
@@ -25,10 +25,10 @@ class SyncScheduler {
         _sessionFence = sessionFence,
         _clock = clock ?? DateTime.now;
   final SyncEngine _engine;
-  final SyncTelemetry _telemetry;
-  final SyncQueue? _queue;
-  final SyncRetryWakeup? _retryWakeup;
-  final SessionFence? _sessionFence;
+  final ISyncTelemetry _telemetry;
+  final ISyncQueue? _queue;
+  final ISyncRetryWakeup? _retryWakeup;
+  final ISessionFence? _sessionFence;
   final DateTime Function() _clock;
   bool _disposed = false;
 

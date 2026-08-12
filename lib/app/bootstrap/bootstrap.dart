@@ -13,13 +13,10 @@ import 'package:my_dic/features/word_status/port/presentation_entry.dart';
 import 'package:my_dic/app/bootstrap/word_status_composition.dart';
 import 'package:my_dic/app/bootstrap/catalog_composition.dart';
 import 'package:my_dic/integration/catalog_search/catalog_search_providers.dart';
-import 'package:my_dic/integration/catalog_quiz/catalog_quiz_providers.dart';
+import 'package:my_dic/app/bootstrap/quiz_composition.dart';
 import 'package:my_dic/features/catalog/port/presentation_dependencies.dart';
 import 'package:my_dic/features/search/port/presentation_dependencies.dart';
 import 'package:my_dic/features/quiz/port/presentation_dependencies.dart';
-import 'package:my_dic/app/bootstrap/firebase_providers.dart';
-import 'package:my_dic/app/bootstrap/sync_infrastructure_providers.dart';
-import 'package:my_dic/features/my_word/port/composition.dart';
 
 class AppBootstrap extends StatefulWidget {
   const AppBootstrap({super.key, this.bootstrapper, this.appBuilder});
@@ -69,14 +66,8 @@ class _AppBootstrapState extends State<AppBootstrap> {
             searchReaderPortDependencyProvider.overrideWith(
               (ref) => ref.watch(searchReaderPortProvider),
             ),
-            quizCandidateSourceDependencyProvider.overrideWith(
-              (ref) => ref.watch(quizCandidateSourceProvider),
-            ),
-            myWordRemoteMutationExecutorDependencyProvider.overrideWith(
-              (ref) => ref.watch(remoteMutationExecutorProvider),
-            ),
-            myWordOutboxWriterDependencyProvider.overrideWith(
-              (ref) => ref.watch(driftOutboxWriterProvider),
+            quizPortsDependencyProvider.overrideWith(
+              (ref) => ref.watch(quizPortsProvider),
             ),
             wordStatusRepositoryDependencyProvider.overrideWith(
               (ref) => ref.watch(wordStatusRepositoryProvider),

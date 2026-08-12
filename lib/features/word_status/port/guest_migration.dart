@@ -7,7 +7,7 @@ final class WordStatusGuestRowCounts {
 }
 
 /// App workflow capability for migrating guest dictionary-status rows.
-abstract interface class WordStatusGuestMigration {
+abstract interface class IWordStatusGuestMigration {
   Future<WordStatusGuestRowCounts> countGuestRows();
 
   Future<void> migrateGuestRows({

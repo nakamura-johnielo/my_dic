@@ -19,7 +19,7 @@ final class UserProfileGuestMigrationAdapter
   Future<void> migrateGuestProfile({
     required String accountId,
     required String migrationId,
-    required OutboxWriter outboxWriter,
+    required IOutboxWriter outboxWriter,
     required DateTime Function() clock,
   }) async {
     final guest = await _local.getProfile(guestAccountScope);

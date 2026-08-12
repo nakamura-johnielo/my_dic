@@ -8,9 +8,9 @@ import 'package:my_dic/features/user_profile/internal/infrastructure/firebase/us
 import 'package:my_dic/features/user_profile/internal/infrastructure/sync/user_profile_dataset_sync_adapter.dart';
 import 'package:my_dic/features/user_profile/port/composition.dart';
 
-DatasetSyncHandler createInternalUserProfileDatasetSyncHandler(
+IDatasetSyncHandler createInternalUserProfileDatasetSyncHandler(
         SyncDependencyReaderPort read,
-        {required SyncHandlerRuntime runtime}) =>
+        {required ISyncHandlerRuntime runtime}) =>
     AdapterDatasetSyncHandler(
         adapter: UserProfileDatasetSyncAdapter(
             local: UserProfileDriftDataSource(UserProfileDao(

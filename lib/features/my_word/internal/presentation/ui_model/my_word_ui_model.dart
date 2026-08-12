@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
-import 'package:my_dic/features/my_word/internal/application/model/my_word_item_projection.dart';
-import 'package:my_dic/features/my_word/internal/domain/entity/my_word.dart';
+import 'package:my_dic/features/my_word/port/result.dart';
 
 /// Read-only presentation data for a card or modal.
 class MyWordItemUiModel {
@@ -14,12 +13,12 @@ class MyWordItemUiModel {
     required this.isBookmarked,
   });
 
-  factory MyWordItemUiModel.fromProjection(MyWordItemProjection projection) =>
+  factory MyWordItemUiModel.fromItem(MyWordItem projection) =>
       MyWordItemUiModel(
         wordId: projection.word.wordId,
-        word: projection.word.word,
-        contents: projection.word.contents,
-        editAt: projection.word.editAt,
+        word: projection.word.headword,
+        contents: projection.word.description,
+        editAt: projection.word.updatedAt,
         isLearned: projection.status.isLearned,
         isBookmarked: projection.status.isBookmarked,
       );
@@ -54,9 +53,9 @@ class MyWordUiState {
 
   factory MyWordUiState.fromMyWord(MyWord myWord) => MyWordUiState(
       wordId: myWord.wordId,
-      word: myWord.word,
-      contents: myWord.contents,
-      editAt: myWord.editAt);
+      word: myWord.headword,
+      contents: myWord.description,
+      editAt: myWord.updatedAt);
 
   factory MyWordUiState.fromAsync(AsyncValue<MyWord> async) => async.when(
         data: MyWordUiState.fromMyWord,

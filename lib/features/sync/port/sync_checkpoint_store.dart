@@ -1,7 +1,7 @@
 import 'model/sync_cursor.dart';
 import 'sync_dataset.dart';
 
-abstract interface class SyncCheckpointStore {
+abstract interface class ISyncCheckpointStore {
   Future<SyncCursor?> read(
       {required String accountId, required SyncDataset dataset});
   Future<void> write(

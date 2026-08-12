@@ -199,6 +199,11 @@ Trade-off:
 
 ## Follow-up
 
+MyWord's Phase 7--8 follow-up is complete: external business consumers use
+`features/my_word/port/my_word.dart`; bootstrap and routing use the explicit
+composition and presentation-entry technical seams. The import-boundary
+checkers enforce that no external consumer reaches `my_word/internal/**`.
+
 [`concept.md` の移行順](../../refactor-v0.2/concept.md#移行順)に従い、この ADR は次の作業へ入力される。
 
 | 移行順序 | Follow-up |

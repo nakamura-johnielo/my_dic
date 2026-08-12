@@ -13,7 +13,7 @@ FirebaseUserRemoteDataSource createInternalFirebaseUserProfileRemoteDataSource(
     FirebaseUserRemoteDataSource(
       UserDao(
         read<FirebaseFirestore>(UserProfileSyncDependency.firestore),
-        read<RemoteMutationExecutor>(
+        read<IRemoteMutationExecutor>(
           UserProfileSyncDependency.remoteMutationExecutor,
         ),
       ),

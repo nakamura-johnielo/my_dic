@@ -11,7 +11,7 @@ final class FirebaseJpnEspWordStatusDao {
   FirebaseJpnEspWordStatusDao(this._firestore, this._remoteMutations);
 
   final FirebaseFirestore _firestore;
-  final RemoteMutationExecutor _remoteMutations;
+  final IRemoteMutationExecutor _remoteMutations;
 
   Future<JpnEspWordStatusDto?> getWordStatus(
     String accountId,

@@ -4,7 +4,7 @@ import 'package:my_dic/features/sync/port/sync_retry_wakeup.dart';
 
 /// In-process retry wake-up adapter. It intentionally does not implement a
 /// second retry policy: [dueAt] is supplied by the persisted queue.
-class TimerSyncRetryWakeup implements SyncRetryWakeup {
+class TimerSyncRetryWakeup implements ISyncRetryWakeup {
   TimerSyncRetryWakeup({DateTime Function()? clock})
       : _clock = clock ?? DateTime.now;
 

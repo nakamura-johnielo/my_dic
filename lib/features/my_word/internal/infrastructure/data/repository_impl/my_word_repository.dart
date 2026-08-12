@@ -2,10 +2,10 @@ import 'package:my_dic/core/shared/consts/account_scope.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/features/sync/port/sync_dataset.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
-import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/shared/utils/uuid.dart';
 import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/i_my_word_local_data_source.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/mapper/my_word_infrastructure_error_mapper.dart';
 import 'package:my_dic/features/my_word/internal/domain/entity/my_word.dart';
 import 'package:my_dic/features/my_word/internal/domain/i_repository/i_my_word_repository.dart';
 import 'package:my_dic/features/my_word/internal/domain/inputData/my_word/delete_my_word_repository_input_data.dart';
@@ -18,7 +18,7 @@ import 'package:uuid/uuid.dart';
 
 class MyWordRepository implements IMyWordRepository {
   final IMyWordLocalDataSource _localDataSource;
-  final OutboxWriter _outboxWriter;
+  final IOutboxWriter _outboxWriter;
   final Uuid _uuid;
 
   MyWordRepository(
@@ -36,10 +36,10 @@ class MyWordRepository implements IMyWordRepository {
       }
       return Result.success(_toEntity(data));
     } catch (e, s) {
-      return Result.failure(DatabaseError(
+      return Result.failure(MyWordInfrastructureErrorMapper.database(
+        e,
+        s,
         message: 'Failed to load my word.',
-        originalError: e,
-        stackTrace: s,
       ));
     }
   }
@@ -57,10 +57,10 @@ class MyWordRepository implements IMyWordRepository {
       );
       return Result.success((data ?? []).map(_toEntity).toList());
     } catch (e, s) {
-      return Result.failure(DatabaseError(
+      return Result.failure(MyWordInfrastructureErrorMapper.database(
+        e,
+        s,
         message: 'Failed to load my words.',
-        originalError: e,
-        stackTrace: s,
       ));
     }
   }
@@ -78,10 +78,10 @@ class MyWordRepository implements IMyWordRepository {
       );
       return Result.success(data ?? []);
     } catch (e, s) {
-      return Result.failure(DatabaseError(
+      return Result.failure(MyWordInfrastructureErrorMapper.database(
+        e,
+        s,
         message: 'Failed to load my word IDs.',
-        originalError: e,
-        stackTrace: s,
       ));
     }
   }
@@ -125,10 +125,10 @@ class MyWordRepository implements IMyWordRepository {
           stackTrace: s,
         ));
       }
-      return Result.failure(DatabaseError(
+      return Result.failure(MyWordInfrastructureErrorMapper.database(
+        e,
+        s,
         message: 'Failed to register my word.',
-        originalError: e,
-        stackTrace: s,
       ));
     }
   }
@@ -165,10 +165,10 @@ class MyWordRepository implements IMyWordRepository {
       }
       return const Result.success(null);
     } catch (e, s) {
-      return Result.failure(DatabaseError(
+      return Result.failure(MyWordInfrastructureErrorMapper.database(
+        e,
+        s,
         message: 'Failed to update my word.',
-        originalError: e,
-        stackTrace: s,
       ));
     }
   }
@@ -203,10 +203,10 @@ class MyWordRepository implements IMyWordRepository {
       }
       return const Result.success(null);
     } catch (e, s) {
-      return Result.failure(DatabaseError(
+      return Result.failure(MyWordInfrastructureErrorMapper.database(
+        e,
+        s,
         message: 'Failed to delete my word.',
-        originalError: e,
-        stackTrace: s,
       ));
     }
   }

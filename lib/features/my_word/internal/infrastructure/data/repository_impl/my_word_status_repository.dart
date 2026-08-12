@@ -1,10 +1,10 @@
 import 'package:my_dic/core/shared/consts/account_scope.dart';
 import 'package:my_dic/features/sync/port/sync_dataset.dart';
-import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/shared/value_objects/field_update.dart';
 import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/i_my_word_status_local_data_source.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/mapper/my_word_infrastructure_error_mapper.dart';
 import 'package:my_dic/features/my_word/internal/domain/entity/my_word_status.dart';
 import 'package:my_dic/features/my_word/internal/domain/i_repository/i_my_word_status_repository.dart';
 import 'package:my_dic/features/my_word/internal/domain/inputData/my_word_status/update_my_word_status_repository_input_data.dart';
@@ -14,7 +14,7 @@ import 'package:uuid/uuid.dart';
 
 class MyWordStatusRepository implements IMyWordStatusRepository {
   final IMyWordStatusLocalDataSource _localDataSource;
-  final OutboxWriter _outboxWriter;
+  final IOutboxWriter _outboxWriter;
   final Uuid _uuid;
 
   MyWordStatusRepository(
@@ -70,10 +70,10 @@ class MyWordStatusRepository implements IMyWordStatusRepository {
       });
       return const Result.success(null);
     } catch (e, s) {
-      return Result.failure(DatabaseError(
+      return Result.failure(MyWordInfrastructureErrorMapper.database(
+        e,
+        s,
         message: 'Failed to update my word status.',
-        originalError: e,
-        stackTrace: s,
       ));
     }
   }

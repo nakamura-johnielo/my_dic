@@ -6,16 +6,18 @@ import 'package:my_dic/features/my_word/internal/presentation/ui_model/my_word_u
 import 'package:my_dic/features/my_word/internal/presentation/view/my_word_card.dart';
 import 'package:my_dic/features/my_word/internal/presentation/view/my_word_card_modal.dart';
 import 'package:my_dic/core/shared/enums/ui/word_card_view_click_listener.dart';
-import 'package:my_dic/features/my_word/internal/composition/view_model_di.dart';
+import 'package:my_dic/features/my_word/internal/presentation/provider/my_word_presentation_providers.dart';
 import 'package:my_dic/features/my_word/internal/presentation/view/create_word_modal.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
 import 'package:my_dic/core/presentation/error/app_error_message.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
-import 'package:my_dic/core/session/session_scope_provider.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
+import 'package:my_dic/features/my_word/port/composition.dart';
 
 class MyWordFragment extends ConsumerStatefulWidget {
-  const MyWordFragment({super.key});
+  const MyWordFragment({super.key, required this.scope, required this.ports});
+  final SessionScopeKey scope;
+  final MyWordPorts ports;
 
   @override
   ConsumerState<MyWordFragment> createState() => _MyWordFragmentState();
@@ -34,9 +36,10 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
   }
 
   Future<bool> loadNextPage(int nextPage) async {
-    final scope = ref.read(sessionScopeKeyProvider);
-    if (scope == null) return false;
-    final viewModel = ref.read(myWordFragmentViewModelProvider(scope).notifier);
+    final scope = widget.scope;
+    final viewModel = ref.read(
+        myWordFragmentViewModelProvider((scope: scope, ports: widget.ports))
+            .notifier);
 
     _setCurrentItemLength();
 
@@ -56,33 +59,31 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
   }
 
   void _reloadMyWords() {
-    final scope = ref.read(sessionScopeKeyProvider);
-    if (scope != null) {
-      ref.read(myWordFragmentViewModelProvider(scope).notifier).reset();
-    }
+    ref
+        .read(myWordFragmentViewModelProvider(
+            (scope: widget.scope, ports: widget.ports)).notifier)
+        .reset();
     _resetPage();
   }
 
   void _setCurrentItemLength() {
-    final scope = ref.read(sessionScopeKeyProvider);
-    if (scope == null) return;
-    final viewModel = ref.read(myWordFragmentViewModelProvider(scope));
+    final viewModel = ref.read(myWordFragmentViewModelProvider(
+        (scope: widget.scope, ports: widget.ports)));
     _previousItemLength = viewModel.myWordIds.length;
   }
 
   bool _canFetch() {
-    final scope = ref.read(sessionScopeKeyProvider);
-    if (scope == null) return false;
-    final viewModel = ref.read(myWordFragmentViewModelProvider(scope));
+    final viewModel = ref.read(myWordFragmentViewModelProvider(
+        (scope: widget.scope, ports: widget.ports)));
     final currentItemLength = viewModel.myWordIds.length;
     return currentItemLength > _previousItemLength;
   }
 
   @override
   Widget build(BuildContext context) {
-    final scope = ref.watch(sessionScopeKeyProvider);
-    if (scope == null) return const Scaffold(body: SizedBox.shrink());
-    final myWordViewModel = ref.watch(myWordFragmentViewModelProvider(scope));
+    final scope = widget.scope;
+    final myWordViewModel = ref.watch(
+        myWordFragmentViewModelProvider((scope: scope, ports: widget.ports)));
 
     return Scaffold(
       appBar: AppBar(
@@ -97,7 +98,8 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
         ],
       ),
       body: _content(myWordViewModel, scope),
-      floatingActionButton: RegisterButton(onRegistered: _reloadMyWords),
+      floatingActionButton: RegisterButton(
+          scope: scope, ports: widget.ports, onRegistered: _reloadMyWords),
       floatingActionButtonLocation:
           FloatAboveNavBar(UIConsts.bottomBarCompleteHeight),
       floatingActionButtonAnimator: const NoScaleFloatingActionButtonAnimator(),
@@ -161,8 +163,8 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
             itemBuilder: (context, index) {
               final id = data.ids[index];
 
-              final itemAsync = ref
-                  .watch(myWordItemUiModelProvider((scope: scope, wordId: id)));
+              final itemAsync = ref.watch(myWordItemUiModelProvider(
+                  (scope: scope, ports: widget.ports, wordId: id)));
 
               return itemAsync.when(
                 loading: () => const SizedBox(height: 1),
@@ -172,11 +174,13 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
                   final clickListeners = {
                     WordCardViewButton.bookmark: () => ref
                         .read(myWordStatusCommandProvider(
-                            (scope: scope, wordId: id)).notifier)
+                                (scope: scope, ports: widget.ports, wordId: id))
+                            .notifier)
                         .toggleBookmark(item.isBookmarked),
                     WordCardViewButton.learned: () => ref
                         .read(myWordStatusCommandProvider(
-                            (scope: scope, wordId: id)).notifier)
+                                (scope: scope, ports: widget.ports, wordId: id))
+                            .notifier)
                         .toggleLearned(item.isLearned),
                   };
                   return Padding(
@@ -189,6 +193,7 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
                         index,
                         item,
                         scope: scope,
+                        ports: widget.ports,
                         onChanged: _reloadMyWords,
                       ),
                       item: item,
@@ -203,10 +208,10 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
       );
 
   void _retry() {
-    final scope = ref.read(sessionScopeKeyProvider);
-    if (scope != null) {
-      ref.read(myWordFragmentViewModelProvider(scope).notifier).retryFailed();
-    }
+    ref
+        .read(myWordFragmentViewModelProvider(
+            (scope: widget.scope, ports: widget.ports)).notifier)
+        .retryFailed();
   }
 }
 
@@ -216,6 +221,7 @@ void openDetailModal(
   int index,
   MyWordItemUiModel item, {
   required SessionScopeKey scope,
+  required MyWordPorts ports,
   VoidCallback? onChanged,
 }) {
   showDialog<void>(
@@ -236,6 +242,7 @@ void openDetailModal(
               child: MyWordCardModal(
                 item: item,
                 scope: scope,
+                ports: ports,
                 clickListeners: clickListeners,
                 index: index,
                 onChanged: onChanged,
@@ -249,7 +256,10 @@ void openDetailModal(
 }
 
 class RegisterButton extends StatelessWidget {
-  const RegisterButton({super.key, this.onRegistered});
+  const RegisterButton(
+      {super.key, required this.scope, required this.ports, this.onRegistered});
+  final SessionScopeKey scope;
+  final MyWordPorts ports;
 
   final VoidCallback? onRegistered;
 
@@ -270,7 +280,8 @@ class RegisterButton extends StatelessWidget {
                   constraints: const BoxConstraints(maxWidth: 560),
                   child: Material(
                     type: MaterialType.transparency, // Material の祖先を提供
-                    child: WordRegistrationModal(onRegistered: onRegistered),
+                    child: WordRegistrationModal(
+                        scope: scope, ports: ports, onRegistered: onRegistered),
                   ),
                 ),
               ),
@@ -284,7 +295,9 @@ class RegisterButton extends StatelessWidget {
 }
 
 class RegisterButton2 extends StatelessWidget {
-  const RegisterButton2({super.key});
+  const RegisterButton2({super.key, required this.scope, required this.ports});
+  final SessionScopeKey scope;
+  final MyWordPorts ports;
 
   @override
   Widget build(BuildContext context) {
@@ -295,7 +308,7 @@ class RegisterButton2 extends StatelessWidget {
             context: context,
             barrierDismissible: true, // カード外タップで閉じる
             builder: (context) {
-              return WordRegistrationModal();
+              return WordRegistrationModal(scope: scope, ports: ports);
             });
       },
       child: Icon(Icons.add),

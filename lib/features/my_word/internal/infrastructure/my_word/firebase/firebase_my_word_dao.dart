@@ -7,7 +7,7 @@ import 'package:my_dic/features/user_profile/port/user_dto.dart';
 
 class FirebaseMyWordDao {
   final FirebaseFirestore _db;
-  final RemoteMutationExecutor _remoteMutations;
+  final IRemoteMutationExecutor _remoteMutations;
 
   FirebaseMyWordDao(this._db, this._remoteMutations);
 

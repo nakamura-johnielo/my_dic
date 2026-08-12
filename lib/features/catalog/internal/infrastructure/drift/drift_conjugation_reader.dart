@@ -8,7 +8,7 @@ import 'package:my_dic/features/catalog/port/conjugation_reader.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_conjugation.dart';
 import 'package:my_dic/features/catalog/port/reader/catalog_conjugation_reader_port.dart';
 
-/// Catalog's public conjugation reader backed by its Drift repository graph.
+///  Driftリポジトリグラフを基盤とする、Catalogの公開活用形リーダー。
 final class DriftConjugationReaderPort
     implements ConjugationReaderPort, CatalogConjugationReaderPort {
   const DriftConjugationReaderPort(this._repository);

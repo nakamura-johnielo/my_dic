@@ -3,7 +3,7 @@ import 'package:my_dic/core/shared/value_objects/field_update.dart';
 import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/word_status/port/word_status.dart';
 
-abstract interface class WordStatusRepository {
+abstract interface class IWordStatusRepository {
   Future<Result<WordStatus?>> get(
     CatalogWordRef word, {
     required String accountId,

@@ -11,10 +11,10 @@ final _wordStatusPortsProvider =
           outboxWriter: ref.watch(driftOutboxWriterProvider),
         ));
 
-final wordStatusRepositoryProvider = Provider<WordStatusRepository>(
+final wordStatusRepositoryProvider = Provider<IWordStatusRepository>(
   (ref) => ref.watch(_wordStatusPortsProvider).repository,
 );
 
-final wordStatusGuestMigrationProvider = Provider<WordStatusGuestMigration>(
+final wordStatusGuestMigrationProvider = Provider<IWordStatusGuestMigration>(
   (ref) => ref.watch(_wordStatusPortsProvider).guestMigration,
 );

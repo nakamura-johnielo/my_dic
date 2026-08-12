@@ -2,7 +2,7 @@
 ///
 /// The queue remains the source of truth for retry times. Implementations keep
 /// at most one wake-up per account and never persist scheduling state.
-abstract interface class SyncRetryWakeup {
+abstract interface class ISyncRetryWakeup {
   void arm({
     required String accountId,
     required DateTime dueAt,

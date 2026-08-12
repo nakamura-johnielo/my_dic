@@ -9,6 +9,7 @@ import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source
 import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/drift_my_word_status_dao.dart';
 import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/my_word_drift_data_source.dart';
 import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/my_word_status_drift_data_source.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/guest_migration/my_word_guest_migration_adapter.dart';
 import 'package:my_dic/features/sync/port/model/sync_mutation.dart';
 import 'package:my_dic/features/sync/internal/application/in_memory_session_fence.dart';
 import 'package:my_dic/features/sync/port/outbox_writer.dart';
@@ -71,8 +72,7 @@ void main() {
         jpnEsp: jpnEsp,
         outboxWriter: outbox,
       ),
-      myWord: myWord,
-      myWordStatus: myWordStatus,
+      myWord: MyWordGuestMigrationAdapter(myWord, myWordStatus, outbox),
       userProfile: userProfilePort,
       outboxWriter: outbox,
       sessionFence: fence,
@@ -93,6 +93,92 @@ void main() {
 
     clearInteractions(outbox);
     await useCase.execute('account-a', 1);
+    verifyNever(() => outbox.enqueue(any()));
+  });
+
+  test('reports MyWord aggregate guest counts through the public port',
+      () async {
+    final database = DatabaseProvider.forTesting(NativeDatabase.memory());
+    addTearDown(database.close);
+    final myWord = MyWordDriftDataSource(MyWordDao(database));
+    final myWordStatus = MyWordStatusDriftDataSource(MyWordStatusDao(database));
+    final outbox = _OutboxWriter();
+    await myWord.insertMyWordWithRevision(
+      id: 'guest-word',
+      word: 'hola',
+      contents: 'hello',
+      editAt: DateTime.utc(2026, 8, 6).toIso8601String(),
+      accountId: guestAccountScope,
+    );
+    await myWordStatus.applyStatusPatch(
+      'guest-word',
+      1,
+      0,
+      0,
+      DateTime.utc(2026, 8, 6).toIso8601String(),
+      guestAccountScope,
+    );
+
+    final counts = await MyWordGuestMigrationAdapter(
+      myWord,
+      myWordStatus,
+      outbox,
+    ).countGuestRows();
+
+    expect(counts.words, 1);
+    expect(counts.statuses, 1);
+  });
+
+  test('preserves a colliding MyWord and its guest status pair', () async {
+    final database = DatabaseProvider.forTesting(NativeDatabase.memory());
+    addTearDown(database.close);
+    final myWord = MyWordDriftDataSource(MyWordDao(database));
+    final myWordStatus = MyWordStatusDriftDataSource(MyWordStatusDao(database));
+    final userProfile = UserProfileDriftDataSource(UserProfileDao(database));
+    final espJpn = _EspJpnStatus();
+    final jpnEsp = _JpnEspStatus();
+    final outbox = _OutboxWriter();
+    when(() => espJpn.getWordStatusAfter(any(), any()))
+        .thenAnswer((_) async => []);
+    when(() => jpnEsp.getWordStatusAfter(any(), any()))
+        .thenAnswer((_) async => []);
+    when(() => outbox.enqueue(any())).thenAnswer((_) async {});
+    for (final accountId in [guestAccountScope, 'account-a']) {
+      await myWord.insertMyWordWithRevision(
+        id: 'same-id',
+        word: accountId == guestAccountScope ? 'guest' : 'account',
+        contents: 'contents',
+        editAt: DateTime.utc(2026, 8, 6).toIso8601String(),
+        accountId: accountId,
+      );
+    }
+    await myWordStatus.applyStatusPatch(
+      'same-id',
+      1,
+      0,
+      1,
+      DateTime.utc(2026, 8, 6).toIso8601String(),
+      guestAccountScope,
+    );
+
+    await MigrateGuestDataUseCase(
+      database: database,
+      wordStatus: DriftWordStatusGuestMigration(
+        espJpn: espJpn,
+        jpnEsp: jpnEsp,
+        outboxWriter: outbox,
+      ),
+      myWord: MyWordGuestMigrationAdapter(myWord, myWordStatus, outbox),
+      userProfile: UserProfileGuestMigrationAdapter(userProfile),
+      outboxWriter: outbox,
+      sessionFence: InMemorySessionFence()..setCurrent('account-a', 1),
+    ).execute('account-a', 1);
+
+    expect(await myWord.getMyWordById('same-id', guestAccountScope), isNotNull);
+    expect(await myWordStatus.getWordStatus('same-id', guestAccountScope),
+        isNotNull);
+    expect(
+        (await myWord.getMyWordById('same-id', 'account-a'))?.word, 'account');
     verifyNever(() => outbox.enqueue(any()));
   });
 
@@ -123,8 +209,7 @@ void main() {
         jpnEsp: jpnEsp,
         outboxWriter: outbox,
       ),
-      myWord: myWord,
-      myWordStatus: myWordStatus,
+      myWord: MyWordGuestMigrationAdapter(myWord, myWordStatus, outbox),
       userProfile: userProfilePort,
       outboxWriter: outbox,
       sessionFence: fence,
@@ -174,8 +259,7 @@ void main() {
         jpnEsp: jpnEsp,
         outboxWriter: outbox,
       ),
-      myWord: myWord,
-      myWordStatus: myWordStatus,
+      myWord: MyWordGuestMigrationAdapter(myWord, myWordStatus, outbox),
       userProfile: userProfilePort,
       outboxWriter: outbox,
       sessionFence: fence,

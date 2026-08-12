@@ -13,7 +13,7 @@ final class SessionEpochCoordinator {
   SessionEpochCoordinator(this._fence, this._scheduler);
 
   final SessionFenceAdapter _fence;
-  final SyncRunner _scheduler;
+  final ISyncRunner _scheduler;
   int _nextEpoch = 0;
   SessionScopeKey? _active;
   bool _disposed = false;

@@ -6,9 +6,9 @@ import 'model/sync_context.dart';
 ///
 /// The implementation owns retry/backoff/classification/guard and all durable
 /// queue and checkpoint flow. Feature adapters receive no policy objects.
-abstract interface class SyncHandlerRuntime {
+abstract interface class ISyncHandlerRuntime {
   Future<DatasetSyncResult> run(
     SyncContext context,
-    DatasetSyncAdapter adapter,
+    IDatasetSyncAdapter adapter,
   );
 }

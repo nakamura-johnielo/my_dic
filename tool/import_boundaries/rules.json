@@ -24,6 +24,12 @@
     {"id": "integration_catalog_only_facade", "sourcePath": "lib/integration/**"},
     {"id": "catalog_internal_no_search_quiz", "sourcePath": "lib/features/catalog/internal/**"},
     {"id": "catalog_port_framework_only_bridges", "sourcePath": "lib/features/catalog/port/**"},
+    {"id": "my_word_external_no_internal", "sourcePath": "lib/**"},
+    {"id": "my_word_external_only_facade", "sourcePath": "lib/**"},
+    {"id": "quiz_external_no_internal", "sourcePath": "lib/**"},
+    {"id": "quiz_external_only_facade", "sourcePath": "lib/**"},
+    {"id": "integration_quiz_only_facade", "sourcePath": "lib/integration/**"},
+    {"id": "integration_quiz_no_framework_or_drift", "sourcePath": "lib/integration/catalog_quiz/**"},
     {
       "id": "domain_no_framework",
       "sourcePath": "lib/**/domain/**",

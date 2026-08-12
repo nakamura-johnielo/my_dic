@@ -17,7 +17,7 @@ typedef SyncTelemetryEventLogger = void Function(
 /// It never logs the report itself: account identifiers, cursors, payloads,
 /// entity/mutation identifiers, and raw errors are deliberately unavailable to
 /// the emitted map.
-class AppLoggerSyncTelemetry implements SyncTelemetry {
+class AppLoggerSyncTelemetry implements ISyncTelemetry {
   AppLoggerSyncTelemetry({SyncTelemetryEventLogger? eventLogger})
       : _eventLogger = eventLogger ??
             ((name, context) => AppLogger.event(name, context: context));

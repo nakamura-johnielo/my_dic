@@ -4,21 +4,21 @@ import 'sync_dataset.dart';
 import 'dataset_sync_adapter.dart';
 import 'sync_handler_runtime.dart';
 
-abstract interface class DatasetSyncHandler {
+abstract interface class IDatasetSyncHandler {
   SyncDataset get dataset;
   Future<DatasetSyncResult> run(SyncContext context);
 }
 
 /// Standard handler used by app composition for a dataset-owned adapter.
-final class AdapterDatasetSyncHandler implements DatasetSyncHandler {
+final class AdapterDatasetSyncHandler implements IDatasetSyncHandler {
   const AdapterDatasetSyncHandler({
-    required DatasetSyncAdapter adapter,
-    required SyncHandlerRuntime runtime,
+    required IDatasetSyncAdapter adapter,
+    required ISyncHandlerRuntime runtime,
   })  : _adapter = adapter,
         _runtime = runtime;
 
-  final DatasetSyncAdapter _adapter;
-  final SyncHandlerRuntime _runtime;
+  final IDatasetSyncAdapter _adapter;
+  final ISyncHandlerRuntime _runtime;
 
   @override
   SyncDataset get dataset => _adapter.dataset;

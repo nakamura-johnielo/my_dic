@@ -4,14 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
-import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/my_word/internal/application/usecase/my_word/create/register_my_word/i_register_my_word_use_case.dart';
-import 'package:my_dic/features/my_word/internal/application/usecase/my_word/create/register_my_word/register_my_word_input_data.dart';
-import 'package:my_dic/features/my_word/internal/application/usecase/my_word/load_my_word/i_load_my_word_use_case.dart';
-import 'package:my_dic/features/my_word/internal/application/usecase/my_word/load_my_word/load_my_word_input_data.dart';
-import 'package:my_dic/features/my_word/internal/domain/entity/my_word.dart';
 import 'package:my_dic/features/my_word/internal/presentation/ui_model/my_word_ui_model.dart';
 import 'package:my_dic/features/my_word/internal/presentation/view_model/my_word_view_model.dart';
+import 'package:my_dic/features/my_word/port/my_word.dart';
 
 void main() {
   late _DeferredLoadWords loader;
@@ -54,7 +49,7 @@ void main() {
 
     final retry = viewModel.retryFailed();
     expect(loader.inputs, hasLength(2));
-    expect(loader.inputs.last.requiredPage, 1);
+    expect(loader.inputs.last.page, 1);
     loader.complete(1, const Result.success(['retry']));
     await retry;
     expect(viewModel.state.myWordIds, ['retry']);
@@ -76,15 +71,15 @@ void main() {
   });
 }
 
-class _DeferredLoadWords implements ILoadMyWordUseCase {
-  final inputs = <LoadMyWordInputData>[];
+class _DeferredLoadWords implements MyWordReaderPort {
+  final inputs = <LoadMyWordsQuery>[];
   final _requests = <int, List<Completer<Result<List<String>>>>>{};
 
   @override
-  Future<Result<List<String>>> executeIds(LoadMyWordInputData input) {
+  Future<Result<List<String>>> loadIds(LoadMyWordsQuery input) {
     inputs.add(input);
     final completer = Completer<Result<List<String>>>();
-    _requests.putIfAbsent(input.requiredPage, () => []).add(completer);
+    _requests.putIfAbsent(input.page, () => []).add(completer);
     return completer.future;
   }
 
@@ -92,12 +87,20 @@ class _DeferredLoadWords implements ILoadMyWordUseCase {
       _requests[page]!.removeAt(0).complete(value);
 
   @override
-  Future<Result<List<MyWord>>> execute(LoadMyWordInputData input) =>
+  Stream<MyWordItem?> watchItem(WatchMyWordItemQuery query) =>
       throw UnimplementedError();
 }
 
-class _RegisterWords implements IRegisterMyWordUseCase {
+class _RegisterWords implements MyWordCommandPort {
   @override
-  Future<Result<String>> execute(RegisterMyWordInputData input) async =>
+  Future<Result<String>> register(RegisterMyWordCommand input) async =>
       const Result.success('id');
+
+  @override
+  Future<Result<void>> update(UpdateMyWordCommand command) =>
+      throw UnimplementedError();
+
+  @override
+  Future<Result<void>> delete(DeleteMyWordCommand command) =>
+      throw UnimplementedError();
 }

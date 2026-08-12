@@ -13,7 +13,7 @@ FirebaseMyWordStatusDataSource
         FirebaseMyWordStatusDataSource(
           FirebaseMyWordStatusDao(
             read<FirebaseFirestore>(MyWordSyncDependency.firestore),
-            read<RemoteMutationExecutor>(
+            read<IRemoteMutationExecutor>(
               MyWordSyncDependency.remoteMutationExecutor,
             ),
           ),

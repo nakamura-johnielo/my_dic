@@ -3,19 +3,16 @@ import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/my_word/internal/application/usecase/my_word/register_my_word/i_register_my_word_use_case.dart';
-import 'package:my_dic/features/my_word/internal/application/usecase/my_word/register_my_word/register_my_word_input_data.dart';
-import 'package:my_dic/features/my_word/internal/application/usecase/my_word/load_my_word/i_load_my_word_use_case.dart';
-import 'package:my_dic/features/my_word/internal/application/usecase/my_word/load_my_word/load_my_word_input_data.dart';
+import 'package:my_dic/features/my_word/port/command.dart';
+import 'package:my_dic/features/my_word/port/query.dart';
 import 'package:my_dic/features/my_word/internal/presentation/ui_model/my_word_ui_model.dart';
 
 class MyWordFragmentViewModel extends StateNotifier<MyWordFragmentState> {
-  MyWordFragmentViewModel(
-      this._loadMyWordInteractor, this._registerMyWordInteractor, this._scope)
+  MyWordFragmentViewModel(this._reader, this._commands, this._scope)
       : super(const MyWordFragmentState());
 
-  final ILoadMyWordUseCase _loadMyWordInteractor;
-  final IRegisterMyWordUseCase _registerMyWordInteractor;
+  final MyWordReaderPort _reader;
+  final MyWordCommandPort _commands;
   final SessionScopeKey _scope;
   int _generation = 0;
   final _attempts = <MyWordPageIdentity, int>{};
@@ -64,9 +61,10 @@ class MyWordFragmentViewModel extends StateNotifier<MyWordFragmentState> {
     final previous = state.words.dataOrNull;
     state = state.copyWith(words: QueryState.loading(previousData: previous));
     try {
-      final result = await _loadMyWordInteractor.executeIds(
-        LoadMyWordInputData(identity.size, identity.page, _scope.accountScope),
-      );
+      final result = await _reader.loadIds(LoadMyWordsQuery(
+          size: identity.size,
+          page: identity.page,
+          accountScope: _scope.accountScope));
       if (!_isCurrent(token)) return false;
       return result.when(success: (words) {
         // Capture current state after await so a response cannot overwrite a
@@ -110,9 +108,10 @@ class MyWordFragmentViewModel extends StateNotifier<MyWordFragmentState> {
     void Function()? onError,
     void Function()? onInvalid,
   }) async {
-    final result = await _registerMyWordInteractor.execute(
-      RegisterMyWordInputData(headword, description, _scope.accountScope),
-    );
+    final result = await _commands.register(RegisterMyWordCommand(
+        headword: headword,
+        description: description,
+        accountScope: _scope.accountScope));
     result.when(
       success: (_) => onComplete?.call(),
       failure: (error) {

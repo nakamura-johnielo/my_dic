@@ -2,12 +2,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/quiz/internal/presentation/ui_model/quiz_search_models.dart';
-import 'package:my_dic/features/quiz/port/candidate_source.dart';
-import 'package:my_dic/features/quiz/port/model/quiz_candidate_query.dart';
+import 'package:my_dic/features/quiz/port/query/quiz_candidate_query.dart';
+import 'package:my_dic/features/quiz/port/reader/quiz_candidate_reader_port.dart';
 
 class QuizSearchViewModel extends StateNotifier<QuizSearchState> {
   QuizSearchViewModel(this._source) : super(const QuizSearchState());
-  final QuizCandidateSource _source;
+  final QuizCandidateReaderPort _source;
 
   int _resultSetGeneration = 0;
   RequestToken? _activeToken;
@@ -56,7 +56,7 @@ class QuizSearchViewModel extends StateNotifier<QuizSearchState> {
           QuizSearchResults(items: output.candidates, hasNext: output.hasNext);
       final value = previous?.merge(next, append: page > 0) ?? next;
       final warnings = output.issues
-          .map((w) => QueryWarning(source: w.source, error: w.error))
+          .map((w) => QueryWarning(source: w.source.name, error: w.error))
           .toList();
       state = state.copyWith(
           results: value.isEmpty

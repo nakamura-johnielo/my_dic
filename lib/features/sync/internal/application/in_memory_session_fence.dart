@@ -1,7 +1,7 @@
 import 'package:my_dic/features/sync/port/session_fence.dart';
 
 /// Composition roots advance the epoch whenever Auth changes account.
-class InMemorySessionFence implements SessionFence {
+class InMemorySessionFence implements ISessionFence {
   final Map<String, int> _epochs = {};
 
   void setCurrent(String accountId, int epoch) => _epochs[accountId] = epoch;

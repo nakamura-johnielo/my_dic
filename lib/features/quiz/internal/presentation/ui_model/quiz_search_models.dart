@@ -1,5 +1,5 @@
 import 'package:my_dic/core/presentation/state/query_state.dart';
-import 'package:my_dic/features/quiz/port/model/quiz_candidate.dart';
+import 'package:my_dic/features/quiz/port/result/quiz_candidate_page.dart';
 
 class QuizSearchState {
   const QuizSearchState(

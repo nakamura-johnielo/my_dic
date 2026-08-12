@@ -32,8 +32,8 @@ final manualSyncControllerProvider =
 class ManualSyncController extends StateNotifier<ManualSyncUiState>
     implements UiEffectConsumer {
   ManualSyncController({
-    required SyncRunner scheduler,
-    required SessionFence sessionFence,
+    required ISyncRunner scheduler,
+    required ISessionFence sessionFence,
     required SessionScopeKey? Function() currentScope,
     required AppSession initialSession,
   })  : _scheduler = scheduler,
@@ -42,8 +42,8 @@ class ManualSyncController extends StateNotifier<ManualSyncUiState>
         _readyAccountId = initialSession.accountIdOrNull,
         super(const ManualSyncUiState());
 
-  final SyncRunner _scheduler;
-  final SessionFence _sessionFence;
+  final ISyncRunner _scheduler;
+  final ISessionFence _sessionFence;
   final SessionScopeKey? Function() _currentScope;
   String? _readyAccountId;
   CancellationToken? _cancellation;

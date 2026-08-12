@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_dic/features/catalog/port/catalog.dart';
-import 'package:my_dic/features/quiz/port/route.dart';
+import 'package:my_dic/features/quiz/port/quiz.dart';
 import 'package:my_dic/features/word_detail/port/route.dart';
 
 void openWordDetail(

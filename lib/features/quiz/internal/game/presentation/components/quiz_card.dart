@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/features/quiz/internal/consts/card_state.dart';
-import 'package:my_dic/features/quiz/internal/game/application/model/quiz_conjugation.dart';
+import 'package:my_dic/features/quiz/port/model/quiz_conjugation.dart';
+import 'package:my_dic/features/quiz/internal/game/presentation/quiz_display.dart';
 import 'package:my_dic/features/quiz/internal/game/presentation/provider/quiz_game_view_model_provider.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 

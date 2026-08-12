@@ -1,5 +1,5 @@
 import 'model/sync_mutation.dart';
 
-abstract interface class OutboxWriter {
+abstract interface class IOutboxWriter {
   Future<void> enqueue(EnqueueMutation mutation);
 }

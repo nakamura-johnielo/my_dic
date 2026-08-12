@@ -4,7 +4,7 @@ import 'package:my_dic/features/sync/port/session_fence.dart';
 ///
 /// It never creates epochs; it only records the coordinator's current scope
 /// so Sync can reject stale work.
-final class SessionFenceAdapter implements SessionFence {
+final class SessionFenceAdapter implements ISessionFence {
   final Map<String, int> _epochs = {};
 
   void activate(String accountId, int epoch) => _epochs[accountId] = epoch;

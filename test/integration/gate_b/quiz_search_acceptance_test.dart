@@ -6,12 +6,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/catalog/port/catalog.dart';
-import 'package:my_dic/features/quiz/port/candidate_source.dart';
-import 'package:my_dic/features/quiz/port/model/quiz_candidate.dart';
-import 'package:my_dic/features/quiz/port/model/quiz_candidate_page.dart';
-import 'package:my_dic/features/quiz/port/model/quiz_candidate_query.dart';
 import 'package:my_dic/features/quiz/port/presentation_dependencies.dart';
 import 'package:my_dic/features/quiz/port/presentation_entry.dart';
+import 'package:my_dic/features/quiz/port/query/quiz_candidate_query.dart';
+import 'package:my_dic/features/quiz/port/reader/quiz_candidate_reader_port.dart';
+import 'package:my_dic/features/quiz/port/result/quiz_candidate_page.dart';
 
 void main() {
   testWidgets('Gate B: catalog bridge page retry and stale query completion',
@@ -19,7 +18,7 @@ void main() {
     final bridge = _Bridge();
     await tester.pumpWidget(ProviderScope(
       overrides: [
-        quizCandidateSourceDependencyProvider.overrideWithValue(bridge)
+        quizCandidateReaderDependencyProvider.overrideWithValue(bridge)
       ],
       child: MaterialApp(home: QuizSearchFragment(onOpenQuiz: (_, __) {})),
     ));
@@ -76,7 +75,7 @@ QuizCandidatePage _page(
       issues: const [],
     );
 
-final class _Bridge implements QuizCandidateSource {
+final class _Bridge implements QuizCandidateReaderPort {
   final pending = <Completer<Result<QuizCandidatePage>>>[];
   @override
   Future<Result<QuizCandidatePage>> search(QuizCandidateQuery query) {

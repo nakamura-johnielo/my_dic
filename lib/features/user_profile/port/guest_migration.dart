@@ -7,7 +7,7 @@ abstract interface class UserProfileGuestMigrationPort {
   Future<void> migrateGuestProfile({
     required String accountId,
     required String migrationId,
-    required OutboxWriter outboxWriter,
+    required IOutboxWriter outboxWriter,
     required DateTime Function() clock,
   });
 }

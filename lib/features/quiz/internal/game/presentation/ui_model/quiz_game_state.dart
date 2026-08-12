@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:my_dic/features/quiz/internal/consts/card_state.dart';
-import 'package:my_dic/features/quiz/internal/game/application/model/quiz_conjugation.dart';
+import 'package:my_dic/features/quiz/port/model/quiz_conjugation.dart';
 
 /// 外部に公開する Quiz の状態（読み取り専用）
 class QuizGameState {
@@ -57,51 +57,55 @@ class QuizInternalState {
 
   final List<QuizSubject> activeSubjects;
   final List<QuizMoodTense> activeMoodTenses;
-  final List<String> doneKeyOrder;
-  final Set<String> nonExistKeys;
-  final Set<String> waitingKeys;
-  final Set<String> activeKeys;
+  final List<(QuizMoodTense, QuizSubject)> doneKeyOrder;
+  final Set<(QuizMoodTense, QuizSubject)> nonExistKeys;
+  final Set<(QuizMoodTense, QuizSubject)> waitingKeys;
+  final Set<(QuizMoodTense, QuizSubject)> activeKeys;
 
   QuizInternalState({
     List<QuizSubject>? activeSubjects,
     List<QuizMoodTense>? activeMoodTenses,
-    List<String>? doneKeyOrder,
-    Set<String>? nonExistKeys,
-    Set<String>? waitingKeys,
-    Set<String>? activeKeys,
-  })  : activeSubjects = activeSubjects ?? [],
-        activeMoodTenses = activeMoodTenses ?? [],
-        doneKeyOrder = doneKeyOrder ?? [],
-        nonExistKeys = nonExistKeys ?? {},
-        waitingKeys = waitingKeys ?? {},
-        activeKeys = activeKeys ?? {};
+    List<(QuizMoodTense, QuizSubject)>? doneKeyOrder,
+    Set<(QuizMoodTense, QuizSubject)>? nonExistKeys,
+    Set<(QuizMoodTense, QuizSubject)>? waitingKeys,
+    Set<(QuizMoodTense, QuizSubject)>? activeKeys,
+  })  : activeSubjects = activeSubjects ?? <QuizSubject>[],
+        activeMoodTenses = activeMoodTenses ?? <QuizMoodTense>[],
+        doneKeyOrder = doneKeyOrder ?? <(QuizMoodTense, QuizSubject)>[],
+        nonExistKeys = nonExistKeys ?? <(QuizMoodTense, QuizSubject)>{},
+        waitingKeys = waitingKeys ?? <(QuizMoodTense, QuizSubject)>{},
+        activeKeys = activeKeys ?? <(QuizMoodTense, QuizSubject)>{};
 
   QuizInternalState copyWith({
     List<QuizSubject>? activeSubjects,
     List<QuizMoodTense>? activeMoodTenses,
-    List<String>? doneKeyOrder,
-    Set<String>? nonExistKeys,
-    Set<String>? waitingKeys,
-    Set<String>? activeKeys,
+    List<(QuizMoodTense, QuizSubject)>? doneKeyOrder,
+    Set<(QuizMoodTense, QuizSubject)>? nonExistKeys,
+    Set<(QuizMoodTense, QuizSubject)>? waitingKeys,
+    Set<(QuizMoodTense, QuizSubject)>? activeKeys,
   }) {
     return QuizInternalState(
       activeSubjects: activeSubjects ?? List.from(this.activeSubjects),
       activeMoodTenses: activeMoodTenses ?? List.from(this.activeMoodTenses),
-      doneKeyOrder: doneKeyOrder ?? List.from(this.doneKeyOrder),
-      nonExistKeys: nonExistKeys ?? Set.from(this.nonExistKeys),
-      waitingKeys: waitingKeys ?? Set.from(this.waitingKeys),
-      activeKeys: activeKeys ?? Set.from(this.activeKeys),
+      doneKeyOrder: doneKeyOrder ??
+          List<(QuizMoodTense, QuizSubject)>.from(this.doneKeyOrder),
+      nonExistKeys: nonExistKeys ??
+          Set<(QuizMoodTense, QuizSubject)>.from(this.nonExistKeys),
+      waitingKeys: waitingKeys ??
+          Set<(QuizMoodTense, QuizSubject)>.from(this.waitingKeys),
+      activeKeys:
+          activeKeys ?? Set<(QuizMoodTense, QuizSubject)>.from(this.activeKeys),
     );
   }
 
   /// アクティブなキーを生成
   void updateActiveKeys() {
-    final newActiveKeys = <String>{};
-    final newWaitingKeys = <String>{};
+    final newActiveKeys = <(QuizMoodTense, QuizSubject)>{};
+    final newWaitingKeys = <(QuizMoodTense, QuizSubject)>{};
 
     for (var moodTense in activeMoodTenses) {
       for (var subject in activeSubjects) {
-        String key = '$moodTense-$subject';
+        final key = (moodTense, subject);
         if (nonExistKeys.contains(key)) continue;
         newActiveKeys.add(key);
         newWaitingKeys.add(key);
@@ -121,26 +125,21 @@ class QuizInternalState {
     // 現在分詞: yo以外削除
     if (activeMoodTenses.contains(QuizMoodTense.participlePresent)) {
       for (int i = 1; i < subLength; i++) {
-        nonExistKeys.add(
-          '${QuizMoodTense.participlePresent}-${QuizSubject.values[i]}',
-        );
+        nonExistKeys
+            .add((QuizMoodTense.participlePresent, QuizSubject.values[i]));
       }
     }
 
     // 過去分詞: yo以外削除
     if (activeMoodTenses.contains(QuizMoodTense.participlePast)) {
       for (int i = 1; i < subLength; i++) {
-        nonExistKeys.add(
-          '${QuizMoodTense.participlePast}-${QuizSubject.values[i]}',
-        );
+        nonExistKeys.add((QuizMoodTense.participlePast, QuizSubject.values[i]));
       }
     }
 
     // 命令形: yoのみ削除
     if (activeMoodTenses.contains(QuizMoodTense.imperative)) {
-      nonExistKeys.add(
-        '${QuizMoodTense.imperative}-${QuizSubject.yo}',
-      );
+      nonExistKeys.add((QuizMoodTense.imperative, QuizSubject.yo));
     }
   }
 

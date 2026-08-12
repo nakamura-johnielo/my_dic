@@ -313,7 +313,8 @@ List<Violation> semanticViolations(
     }
     if (targetFeature != null &&
         sourceFeature != targetFeature &&
-        !isPortPath(target!)) {
+        !isPortPath(target!) &&
+        !isAllowedQuizBootstrapInfrastructureImport(entry.source, target)) {
       result.add(
           Violation('feature_external_only_port', entry.source, entry.target));
     }
@@ -337,6 +338,47 @@ List<Violation> semanticViolations(
       result.add(Violation(
           'integration_catalog_only_facade', entry.source, entry.target));
     }
+    if (target != null &&
+        isMyWordInternal(target) &&
+        sourceFeature != 'my_word') {
+      result.add(Violation(
+          'my_word_external_no_internal', entry.source, entry.target));
+    }
+    if (target != null &&
+        isMyWordPort(target) &&
+        sourceFeature != 'my_word' &&
+        !isAllowedMyWordExternalPortImport(entry.source, target)) {
+      result.add(Violation(
+          'my_word_external_only_facade', entry.source, entry.target));
+    }
+    if (target != null &&
+        isQuizInternal(target) &&
+        sourceFeature != 'quiz' &&
+        !isAllowedQuizBootstrapInfrastructureImport(entry.source, target)) {
+      result.add(
+          Violation('quiz_external_no_internal', entry.source, entry.target));
+    }
+    if (target != null &&
+        isQuizPort(target) &&
+        sourceFeature != 'quiz' &&
+        !isAllowedQuizExternalPortImport(entry.source, target)) {
+      result.add(
+          Violation('quiz_external_only_facade', entry.source, entry.target));
+    }
+    if (target != null &&
+        entry.source.startsWith('lib/integration/') &&
+        isQuizPath(target) &&
+        target != _quizFacade) {
+      result.add(Violation(
+          'integration_quiz_only_facade', entry.source, entry.target));
+    }
+    if (entry.source.startsWith('lib/integration/catalog_quiz/') &&
+        (entry.target.startsWith('package:flutter/') ||
+            entry.target.startsWith('package:flutter_riverpod/') ||
+            entry.target.startsWith('package:drift/'))) {
+      result.add(Violation('integration_quiz_no_framework_or_drift',
+          entry.source, entry.target));
+    }
     if (entry.source.startsWith('lib/features/catalog/internal/') &&
         (targetFeature == 'search' || targetFeature == 'quiz')) {
       result.add(Violation(
@@ -344,7 +386,7 @@ List<Violation> semanticViolations(
     }
     if (entry.source.startsWith('lib/features/catalog/port/') &&
         isFrameworkImport(entry.target) &&
-        !isAllowedCatalogBridgeFrameworkImport(entry.source, entry.target)) {
+        !isAllowedTechnicalBridgeFrameworkImport(entry.source, entry.target)) {
       result.add(Violation(
           'catalog_port_framework_only_bridges', entry.source, entry.target));
     }
@@ -387,7 +429,7 @@ List<Violation> semanticViolations(
     }
     if ((isBusinessPort(entry.source) || isComposition(entry.source)) &&
         isFrameworkImport(entry.target) &&
-        !isAllowedCatalogBridgeFrameworkImport(entry.source, entry.target)) {
+        !isAllowedTechnicalBridgeFrameworkImport(entry.source, entry.target)) {
       result.add(Violation(
           isComposition(entry.source)
               ? 'composition_no_framework'
@@ -450,7 +492,7 @@ List<Violation> semanticViolations(
     visit(source);
     if (isCatalogPort(source)) {
       for (final package in packages) {
-        if (!isAllowedCatalogBridgeFrameworkImport(source, package)) {
+        if (!isAllowedTechnicalBridgeFrameworkImport(source, package)) {
           result.add(Violation(
               'catalog_port_framework_only_bridges', source, package));
         }
@@ -458,7 +500,7 @@ List<Violation> semanticViolations(
     }
     if (isBusinessPort(source) || isComposition(source)) {
       for (final package in packages) {
-        if (isAllowedCatalogBridgeFrameworkImport(source, package)) continue;
+        if (isAllowedTechnicalBridgeFrameworkImport(source, package)) continue;
         result.add(Violation(
             isComposition(source)
                 ? 'composition_no_framework'
@@ -476,6 +518,15 @@ const _catalogFacade = 'lib/features/catalog/port/catalog.dart';
 const _catalogComposition = 'lib/features/catalog/port/composition.dart';
 const _catalogPresentationDependencies =
     'lib/features/catalog/port/presentation_dependencies.dart';
+const _myWordFacade = 'lib/features/my_word/port/my_word.dart';
+const _myWordComposition = 'lib/features/my_word/port/composition.dart';
+const _myWordPresentationEntry =
+    'lib/features/my_word/port/presentation_entry.dart';
+const _quizFacade = 'lib/features/quiz/port/quiz.dart';
+const _quizComposition = 'lib/features/quiz/port/composition.dart';
+const _quizPresentationDependencies =
+    'lib/features/quiz/port/presentation_dependencies.dart';
+const _quizPresentationEntry = 'lib/features/quiz/port/presentation_entry.dart';
 const _catalogCompositionFactory =
     'lib/features/catalog/internal/composition/catalog_composition_factory.dart';
 bool isCatalogPath(String path) => path.startsWith('lib/features/catalog/');
@@ -483,11 +534,26 @@ bool isCatalogInternal(String path) =>
     path.startsWith('lib/features/catalog/internal/');
 bool isCatalogPort(String path) =>
     path.startsWith('lib/features/catalog/port/');
+bool isMyWordInternal(String path) =>
+    path.startsWith('lib/features/my_word/internal/');
+bool isMyWordPort(String path) => path.startsWith('lib/features/my_word/port/');
+bool isQuizPath(String path) => path.startsWith('lib/features/quiz/');
+bool isQuizInternal(String path) =>
+    path.startsWith('lib/features/quiz/internal/');
+bool isQuizPort(String path) => path.startsWith('lib/features/quiz/port/');
 bool isCatalogFrameworkBridge(String source) =>
     source == _catalogComposition || source == _catalogPresentationDependencies;
 bool isAllowedCatalogBridgeFrameworkImport(String source, String target) =>
     isCatalogFrameworkBridge(source) &&
     target.startsWith('package:flutter_riverpod/');
+bool isQuizFrameworkBridge(String source) =>
+    source == _quizPresentationDependencies;
+bool isAllowedQuizBridgeFrameworkImport(String source, String target) =>
+    isQuizFrameworkBridge(source) &&
+    target.startsWith('package:flutter_riverpod/');
+bool isAllowedTechnicalBridgeFrameworkImport(String source, String target) =>
+    isAllowedCatalogBridgeFrameworkImport(source, target) ||
+    isAllowedQuizBridgeFrameworkImport(source, target);
 bool isCatalogCompositionFactoryBridge(String source, String target) =>
     source == _catalogComposition && target == _catalogCompositionFactory;
 bool isAllowedCatalogExternalPortImport(String source, String target) {
@@ -503,11 +569,36 @@ bool isAllowedCatalogExternalPortImport(String source, String target) {
   return false;
 }
 
+bool isAllowedMyWordExternalPortImport(String source, String target) {
+  if (target == _myWordFacade) return true;
+  if (target == _myWordComposition) {
+    return source.startsWith('lib/app/bootstrap/');
+  }
+  if (target == _myWordPresentationEntry) {
+    return source.startsWith('lib/app/routing/');
+  }
+  return false;
+}
+
+bool isAllowedQuizExternalPortImport(String source, String target) {
+  if (target == _quizFacade) return true;
+  if (target == _quizComposition || target == _quizPresentationDependencies) {
+    return source.startsWith('lib/app/bootstrap/');
+  }
+  return target == _quizPresentationEntry &&
+      source.startsWith('lib/app/routing/');
+}
+
+bool isAllowedQuizBootstrapInfrastructureImport(String source, String target) =>
+    source.startsWith('lib/app/bootstrap/') &&
+    target.startsWith('lib/features/quiz/internal/infrastructure/');
+
 bool isBusinessPort(String path) =>
     path.contains('/port/') &&
     !path.endsWith('/port/presentation_entry.dart') &&
     !path.endsWith('/port/composition.dart') &&
-    path != _catalogPresentationDependencies;
+    path != _catalogPresentationDependencies &&
+    path != _quizPresentationDependencies;
 bool isComposition(String path) => path.endsWith('/port/composition.dart');
 bool isPresentationEntry(String path) =>
     path.endsWith('/port/presentation_entry.dart');
@@ -521,7 +612,8 @@ bool isFirebaseImport(String target) => const {
       'cloud_firestore'
     }.any((package) => target.startsWith('package:$package/'));
 bool isForbiddenPresentationFacadeImport(String target) =>
-    target.startsWith('package:flutter_riverpod/') ||
+    // A presentation entry is the controlled Flutter/Riverpod boundary.
+    // Other provider packages and infrastructure frameworks remain private.
     target.startsWith('package:provider/') ||
     target.startsWith('package:drift/') ||
     isFirebaseImport(target) ||

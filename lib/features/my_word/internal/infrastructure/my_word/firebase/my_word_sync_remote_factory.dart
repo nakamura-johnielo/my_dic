@@ -13,7 +13,7 @@ FirebaseMyWordDataSource createInternalFirebaseMyWordRemoteDataSource(
     FirebaseMyWordDataSource(
       FirebaseMyWordDao(
         read<FirebaseFirestore>(MyWordSyncDependency.firestore),
-        read<RemoteMutationExecutor>(
+        read<IRemoteMutationExecutor>(
             MyWordSyncDependency.remoteMutationExecutor),
       ),
     );

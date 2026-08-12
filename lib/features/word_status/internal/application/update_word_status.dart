@@ -6,7 +6,7 @@ final class UpdateWordStatusInteractor {
   UpdateWordStatusInteractor(this._repository, {DateTime Function()? clock})
       : _clock = clock ?? DateTime.now;
 
-  final WordStatusRepository _repository;
+  final IWordStatusRepository _repository;
   final DateTime Function() _clock;
 
   Future<Result<void>> execute(

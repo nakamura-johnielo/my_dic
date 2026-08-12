@@ -3,16 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/features/quiz/internal/game/presentation/components/quiz_card.dart';
 import 'package:my_dic/features/word_status/port/presentation_entry.dart';
-import 'package:my_dic/features/catalog/port/catalog.dart';
-import 'package:my_dic/features/quiz/internal/game/application/model/quiz_conjugation.dart';
 import 'package:my_dic/features/quiz/internal/game/presentation/provider/quiz_game_view_model_provider.dart';
-import 'package:my_dic/features/quiz/internal/composition/quiz_game_providers.dart';
-import 'package:my_dic/features/quiz/internal/game/application/mapper/catalog_quiz_conjugation_mapper.dart';
-import 'package:my_dic/features/quiz/port/model/quiz_game_load_result.dart';
-import 'package:my_dic/features/quiz/port/model/quiz_game_query.dart';
-import 'package:my_dic/features/quiz/port/presentation_input.dart';
+import 'package:my_dic/features/quiz/port/quiz.dart';
 import 'package:my_dic/core/presentation/error/app_error_message.dart';
-import 'package:my_dic/core/shared/errors/app_error.dart';
 
 // ConsumerStatefulWidgetに変更
 class QuizGameFragment extends ConsumerStatefulWidget {
@@ -79,7 +72,8 @@ class _QuizGameFragmentState extends ConsumerState<QuizGameFragment> {
 
     return gameAsync.when(
       data: (result) {
-        if (result is QuizGameNotFound || result is QuizGameNoConjugation) {
+        if (result is QuizGamePrimaryNotFound ||
+            result is QuizGameNoConjugation) {
           return Scaffold(
             appBar: AppBar(
               title: Text('Quiz Game - ${input.displayHint ?? ''}'),
@@ -101,8 +95,6 @@ class _QuizGameFragmentState extends ConsumerState<QuizGameFragment> {
           );
         }
         final game = (result as QuizGameReady).game;
-        final conjugaciones =
-            CatalogQuizConjugationMapper.fromCatalog(game.conjugation);
         return Scaffold(
           appBar: AppBar(
             title: Text('Quiz Game - ${input.displayHint ?? ''}'),
@@ -164,11 +156,11 @@ class _QuizGameFragmentState extends ConsumerState<QuizGameFragment> {
                     QuizCard(
                         onSwipe: onSwipe,
                         moodTense: quizGame.currentTense,
-                        conjugacion: displayConjugacion(conjugaciones,
+                        conjugacion: displayConjugacion(game.conjugation,
                             quizGame.currentSubject, quizGame.currentTense),
                         subject: quizGame.currentSubject,
                         englishSub: quizGameNotifier.quiz1EnglishSub(
-                          game.englishGuide,
+                          game.promptGuide,
                           game.beConjugation,
                           game.englishConjugation,
                         ),
@@ -246,8 +238,8 @@ String _quizErrorText(Object? error) => error is AppError
 
 //TODO usecase化
 String displayConjugacion(
-  QuizConjugation conjugaciones,
+  QuizConjugation conjugation,
   QuizSubject currentSubject,
   QuizMoodTense currentTense,
 ) =>
-    conjugaciones.form(currentTense, currentSubject) ?? 'N/A';
+    conjugation.form(currentTense, currentSubject) ?? 'N/A';

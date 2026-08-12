@@ -6,7 +6,7 @@ import 'package:my_dic/features/word_status/port/word_status.dart';
 final class FetchWordStatusInteractor {
   FetchWordStatusInteractor(this._repository);
 
-  final WordStatusRepository _repository;
+  final IWordStatusRepository _repository;
 
   Future<Result<WordStatus>> execute(
     CatalogWordRef word, {

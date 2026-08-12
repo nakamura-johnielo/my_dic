@@ -12,7 +12,7 @@ enum RemoteMutationTarget {
 
 /// Executes a pure remote mutation request against the application's remote
 /// backend. SDK transaction and value mapping are owned by the implementation.
-abstract interface class RemoteMutationExecutor {
+abstract interface class IRemoteMutationExecutor {
   Future<RemoteMutationAck> execute({
     required RemoteMutationTarget target,
     required RemoteMutationRequest request,

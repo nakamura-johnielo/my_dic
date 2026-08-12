@@ -10,7 +10,7 @@ import 'package:my_dic/features/sync/port/sync_dataset.dart';
 
 // TODO refactor repository的立ち位置
 /// MyWordStatus's wire and Drift mapping; durable sync policy lives in Sync runtime.
-final class MyWordStatusDatasetSyncAdapter implements DatasetSyncAdapter {
+final class MyWordStatusDatasetSyncAdapter implements IDatasetSyncAdapter {
   MyWordStatusDatasetSyncAdapter(
       {required IMyWordStatusLocalDataSource local,
       required IMyWordStatusRemoteDataSource remote})

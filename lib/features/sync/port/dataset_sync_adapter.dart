@@ -22,7 +22,7 @@ final class DatasetSyncRecord {
 
 /// Raw dataset operations. Sync owns queueing, retries, checkpointing, and
 /// session cancellation; a feature owns only its wire/local mapping here.
-abstract interface class DatasetSyncAdapter {
+abstract interface class IDatasetSyncAdapter {
   SyncDataset get dataset;
 
   Future<RemoteMutationAck> push(RemoteMutationRequest request);

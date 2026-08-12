@@ -6,15 +6,15 @@ import 'package:my_dic/features/sync/port/sync_handler_runtime.dart';
 import 'word_status_dataset_adapter.dart';
 
 /// Policy-free WordStatus handler facade over the shared Sync runtime.
-final class WordStatusDatasetSyncHandler implements DatasetSyncHandler {
+final class WordStatusDatasetSyncHandler implements IDatasetSyncHandler {
   const WordStatusDatasetSyncHandler({
     required WordStatusDatasetAdapter adapter,
-    required SyncHandlerRuntime runtime,
+    required ISyncHandlerRuntime runtime,
   })  : _adapter = adapter,
         _runtime = runtime;
 
   final WordStatusDatasetAdapter _adapter;
-  final SyncHandlerRuntime _runtime;
+  final ISyncHandlerRuntime _runtime;
 
   @override
   SyncDataset get dataset => _adapter.dataset;

@@ -9,7 +9,7 @@ import 'package:my_dic/features/quiz/internal/presentation/provider/view_model_d
 import 'package:my_dic/features/quiz/internal/game/presentation/components/quiz_search_result_card.dart';
 import 'package:my_dic/features/quiz/internal/presentation/ui_model/quiz_search_models.dart';
 import 'package:my_dic/features/quiz/internal/presentation/view_model/quiz_search_view_model.dart';
-import 'package:my_dic/features/quiz/port/model/quiz_candidate.dart';
+import 'package:my_dic/features/quiz/port/result/quiz_candidate_page.dart';
 
 class QuizSearchFragment extends ConsumerStatefulWidget {
   const QuizSearchFragment({super.key, required this.onOpenQuiz});

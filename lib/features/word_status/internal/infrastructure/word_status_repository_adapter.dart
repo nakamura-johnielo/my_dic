@@ -8,7 +8,7 @@ import 'package:my_dic/features/word_status/port/word_status.dart';
 ///
 /// The shared application layer only knows [CatalogWordRef].  Dataset and
 /// table-specific details deliberately remain behind this interface.
-abstract interface class DictionaryWordStatusAdapter {
+abstract interface class IDictionaryWordStatusAdapter {
   CatalogId get catalogId;
 
   Future<Result<WordStatus?>> get(
@@ -33,16 +33,16 @@ abstract interface class DictionaryWordStatusAdapter {
 
 /// Dispatches shared status operations to the adapter registered for the
 /// [CatalogWordRef.catalogId].
-final class WordStatusRepositoryAdapter implements WordStatusRepository {
-  WordStatusRepositoryAdapter(Iterable<DictionaryWordStatusAdapter> adapters)
+final class WordStatusRepositoryAdapter implements IWordStatusRepository {
+  WordStatusRepositoryAdapter(Iterable<IDictionaryWordStatusAdapter> adapters)
       : _adapters = _buildRegistry(adapters);
 
-  final Map<CatalogId, DictionaryWordStatusAdapter> _adapters;
+  final Map<CatalogId, IDictionaryWordStatusAdapter> _adapters;
 
-  static Map<CatalogId, DictionaryWordStatusAdapter> _buildRegistry(
-    Iterable<DictionaryWordStatusAdapter> adapters,
+  static Map<CatalogId, IDictionaryWordStatusAdapter> _buildRegistry(
+    Iterable<IDictionaryWordStatusAdapter> adapters,
   ) {
-    final registry = <CatalogId, DictionaryWordStatusAdapter>{};
+    final registry = <CatalogId, IDictionaryWordStatusAdapter>{};
     for (final adapter in adapters) {
       if (registry.containsKey(adapter.catalogId)) {
         throw ArgumentError.value(
@@ -65,7 +65,7 @@ final class WordStatusRepositoryAdapter implements WordStatusRepository {
     return Map.unmodifiable(registry);
   }
 
-  DictionaryWordStatusAdapter _adapterFor(CatalogWordRef word) =>
+  IDictionaryWordStatusAdapter _adapterFor(CatalogWordRef word) =>
       _adapters[word.catalogId]!;
 
   @override

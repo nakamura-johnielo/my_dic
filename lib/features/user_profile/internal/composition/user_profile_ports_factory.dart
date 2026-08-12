@@ -27,12 +27,12 @@ UserProfilePorts createInternalUserProfilePorts(
   final repository = UserRepository(
     userLocal,
     profileLocal,
-    read<OutboxWriter>(UserProfileDependency.outboxWriter),
+    read<IOutboxWriter>(UserProfileDependency.outboxWriter),
   );
   return UserProfilePorts(
     ensureUserProfile: EnsureUserExistsInteractor(UserProfileProvisioner(
       createInternalLifecycleFirebaseUserRemoteDataSource(
-        read<RemoteMutationExecutor>(
+        read<IRemoteMutationExecutor>(
           UserProfileDependency.remoteMutationExecutor,
         ),
       ),

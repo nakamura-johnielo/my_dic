@@ -49,8 +49,8 @@ UserProfilePorts createUserProfilePorts(UserProfileDependencyReader read) =>
 /// Opaque dependencies requested by the UserProfile sync contribution.
 enum UserProfileSyncDependency { database, firestore, remoteMutationExecutor }
 
-DatasetSyncHandler createUserProfileDatasetSyncHandler(
+IDatasetSyncHandler createUserProfileDatasetSyncHandler(
   SyncDependencyReaderPort read, {
-  required SyncHandlerRuntime runtime,
+  required ISyncHandlerRuntime runtime,
 }) =>
     createInternalUserProfileDatasetSyncHandlerFacade(read, runtime: runtime);

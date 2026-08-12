@@ -13,11 +13,11 @@ import 'package:my_dic/features/sync/port/sync_queue.dart';
 import 'sync_execution_guard.dart';
 
 /// The common durable Sync algorithm for every dataset adapter.
-final class SyncHandlerRuntimeAdapter implements SyncHandlerRuntime {
+final class SyncHandlerRuntimeAdapter implements ISyncHandlerRuntime {
   SyncHandlerRuntimeAdapter({
-    required SyncQueue queue,
-    required SyncCheckpointStore checkpoints,
-    required SessionFence sessionFence,
+    required ISyncQueue queue,
+    required ISyncCheckpointStore checkpoints,
+    required ISessionFence sessionFence,
     RetryPolicy? retryPolicy,
     SyncErrorClassifier? classifier,
     DateTime Function()? clock,
@@ -30,8 +30,8 @@ final class SyncHandlerRuntimeAdapter implements SyncHandlerRuntime {
         _classifier = classifier ?? const SyncErrorClassifier(),
         _clock = clock ?? DateTime.now;
 
-  final SyncQueue _queue;
-  final SyncCheckpointStore _checkpoints;
+  final ISyncQueue _queue;
+  final ISyncCheckpointStore _checkpoints;
   final SyncExecutionGuard _guard;
   final RetryPolicy _retryPolicy;
   final SyncErrorClassifier _classifier;
@@ -42,7 +42,7 @@ final class SyncHandlerRuntimeAdapter implements SyncHandlerRuntime {
   @override
   Future<DatasetSyncResult> run(
     SyncContext context,
-    DatasetSyncAdapter adapter,
+    IDatasetSyncAdapter adapter,
   ) async {
     try {
       if (!_guard.canContinue(context)) return _cancelled(context);

@@ -31,15 +31,15 @@ final class WordStatusPorts {
     required this.guestMigration,
   });
 
-  final WordStatusRepository repository;
-  final WordStatusGuestMigration guestMigration;
+  final IWordStatusRepository repository;
+  final IWordStatusGuestMigration guestMigration;
 }
 
 /// Creates the public WordStatus capabilities from neutral infrastructure
 /// dependencies. Direction-specific stores and adapters remain internal.
 WordStatusPorts createWordStatusPorts({
   required DatabaseProvider database,
-  required OutboxWriter outboxWriter,
+  required IOutboxWriter outboxWriter,
 }) {
   final espJpn = EspJpnWordStatusLocalStore(EspJpnWordStatusDao(database));
   final jpnEsp = JpnEspWordStatusLocalStore(JpnEspWordStatusDao(database));
@@ -63,15 +63,15 @@ WordStatusPorts createWordStatusPorts({
 }
 
 /// Creates the Esp-Jpn WordStatus handler from an app dependency reader.
-DatasetSyncHandler createEspJpnWordStatusDatasetSyncHandler(
+IDatasetSyncHandler createEspJpnWordStatusDatasetSyncHandler(
   WordStatusSyncDependencyReaderPort read, {
-  required SyncHandlerRuntime runtime,
+  required ISyncHandlerRuntime runtime,
 }) =>
     createInternalEspJpnWordStatusDatasetSyncHandler(read, runtime: runtime);
 
 /// Creates the Jpn-Esp WordStatus handler from an app dependency reader.
-DatasetSyncHandler createJpnEspWordStatusDatasetSyncHandler(
+IDatasetSyncHandler createJpnEspWordStatusDatasetSyncHandler(
   WordStatusSyncDependencyReaderPort read, {
-  required SyncHandlerRuntime runtime,
+  required ISyncHandlerRuntime runtime,
 }) =>
     createInternalJpnEspWordStatusDatasetSyncHandler(read, runtime: runtime);

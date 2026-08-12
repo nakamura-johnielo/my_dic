@@ -13,13 +13,13 @@ import 'package:my_dic/features/word_status/port/word_status.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/word_status_repository_adapter.dart';
 
 final class EspJpnDictionaryWordStatusAdapter
-    implements DictionaryWordStatusAdapter {
+    implements IDictionaryWordStatusAdapter {
   EspJpnDictionaryWordStatusAdapter(this._local, this._outboxWriter,
       {Uuid? uuid})
       : _uuid = uuid ?? const Uuid();
 
   final EspJpnWordStatusLocalDataSource _local;
-  final OutboxWriter _outboxWriter;
+  final IOutboxWriter _outboxWriter;
   final Uuid _uuid;
 
   @override

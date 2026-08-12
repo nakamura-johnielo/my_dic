@@ -7,6 +7,6 @@ import 'package:my_dic/features/sync/port/remote_mutation_executor.dart';
 
 final firestoreDBProvider = Provider((ref) => FirebaseFirestore.instance);
 final firestoreAuthProvider = Provider((ref) => FirebaseAuth.instance);
-final remoteMutationExecutorProvider = Provider<RemoteMutationExecutor>(
+final remoteMutationExecutorProvider = Provider<IRemoteMutationExecutor>(
   (ref) => FirebaseRemoteMutationExecutor(ref.watch(firestoreDBProvider)),
 );

@@ -14,7 +14,7 @@ export 'sync_infrastructure_providers.dart';
 
 /// Registry assembly imports feature port factories only. Riverpod reads stay
 /// in app-owned dependency readers and never cross a feature's public port.
-final syncDatasetHandlersProvider = Provider<List<DatasetSyncHandler>>((ref) {
+final syncDatasetHandlersProvider = Provider<List<IDatasetSyncHandler>>((ref) {
   final runtime = ref.watch(syncHandlerRuntimeProvider);
   return [
     word_status.createEspJpnWordStatusDatasetSyncHandler(
@@ -27,11 +27,11 @@ final syncDatasetHandlersProvider = Provider<List<DatasetSyncHandler>>((ref) {
     ),
     my_word.createMyWordDatasetSyncHandler(
       _featureReaderPort(ref),
-      runtime,
+      runtime: runtime,
     ),
     my_word.createMyWordStatusDatasetSyncHandler(
       _featureReaderPort(ref),
-      runtime,
+      runtime: runtime,
     ),
     user.createUserProfileDatasetSyncHandler(
       _featureReaderPort(ref),
@@ -41,7 +41,7 @@ final syncDatasetHandlersProvider = Provider<List<DatasetSyncHandler>>((ref) {
 });
 
 /// The only Sync entry point consumed by app workflows.
-final syncRunnerProvider = Provider<SyncRunner>((ref) {
+final syncRunnerProvider = Provider<ISyncRunner>((ref) {
   final runner = createSyncRunner(
     _syncReaderPort(ref),
     ref.watch(syncDatasetHandlersProvider),

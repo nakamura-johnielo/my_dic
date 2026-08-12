@@ -24,7 +24,7 @@ class UserRepository implements IUserRepository {
 
   final IUserLocalDataSource _local;
   final IUserProfileLocalDataSource _profileLocal;
-  final OutboxWriter _outboxWriter;
+  final IOutboxWriter _outboxWriter;
   final Uuid _uuid;
 
   AppError? _handleIdError(AppUser user, String? accountId) {

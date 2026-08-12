@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/features/my_word/internal/composition/view_model_di.dart';
+import 'package:my_dic/features/my_word/internal/presentation/provider/my_word_presentation_providers.dart';
 import 'package:my_dic/features/my_word/internal/presentation/ui_model/my_word_event.dart';
 import 'package:my_dic/core/presentation/state/ui_effect.dart';
-import 'package:my_dic/core/session/session_scope_provider.dart';
+import 'package:my_dic/core/session/session_scope_key.dart';
+import 'package:my_dic/features/my_word/port/composition.dart';
 
 class WordRegistrationModal extends ConsumerStatefulWidget {
-  const WordRegistrationModal({super.key, this.onRegistered});
+  const WordRegistrationModal(
+      {super.key, required this.scope, required this.ports, this.onRegistered});
+  final SessionScopeKey scope;
+  final MyWordPorts ports;
 
   final VoidCallback? onRegistered;
 
@@ -24,7 +28,8 @@ class _WordRegistrationModalState extends ConsumerState<WordRegistrationModal> {
   void initState() {
     super.initState();
     _commandSubscription = ref.listenManual(
-      myWordRegistrationCommandProvider(ref.read(sessionScopeKeyProvider)!),
+      myWordRegistrationCommandProvider(
+          (scope: widget.scope, ports: widget.ports)),
       (_, next) => _handleEffect(next),
     );
   }
@@ -40,9 +45,8 @@ class _WordRegistrationModalState extends ConsumerState<WordRegistrationModal> {
   void _handleEffect(MyWordCommandState next) {
     final envelope = next.pendingEffect;
     if (envelope == null || !mounted) return;
-    final scope = ref.read(sessionScopeKeyProvider);
-    if (scope == null) return;
-    final command = ref.read(myWordRegistrationCommandProvider(scope).notifier);
+    final command = ref.read(myWordRegistrationCommandProvider(
+        (scope: widget.scope, ports: widget.ports)).notifier);
     if (envelope.effect is UiCloseDialogEffect &&
         next.command.operation == 'register') {
       widget.onRegistered?.call();
@@ -57,9 +61,8 @@ class _WordRegistrationModalState extends ConsumerState<WordRegistrationModal> {
 
   @override
   Widget build(BuildContext context) {
-    final scope = ref.watch(sessionScopeKeyProvider);
-    if (scope == null) return const SizedBox.shrink();
-    final commandState = ref.watch(myWordRegistrationCommandProvider(scope));
+    final key = (scope: widget.scope, ports: widget.ports);
+    final commandState = ref.watch(myWordRegistrationCommandProvider(key));
     return FractionallySizedBox(
       heightFactor: .9,
       widthFactor: .8,
@@ -96,8 +99,7 @@ class _WordRegistrationModalState extends ConsumerState<WordRegistrationModal> {
                   onPressed: commandState.command.isSubmitting
                       ? null
                       : () => ref
-                          .read(
-                              myWordRegistrationCommandProvider(scope).notifier)
+                          .read(myWordRegistrationCommandProvider(key).notifier)
                           .registerWord(
                             headword: _headwordController.text,
                             description: _descriptionController.text,

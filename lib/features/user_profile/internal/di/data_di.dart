@@ -22,9 +22,9 @@ import 'package:my_dic/features/sync/port/outbox_writer.dart';
 import 'package:my_dic/features/sync/port/remote_mutation_executor.dart';
 
 final _legacyRemoteMutationExecutorProvider =
-    Provider<RemoteMutationExecutor>((_) => throw StateError('Not composed'));
+    Provider<IRemoteMutationExecutor>((_) => throw StateError('Not composed'));
 final _legacyOutboxWriterProvider =
-    Provider<OutboxWriter>((_) => throw StateError('Not composed'));
+    Provider<IOutboxWriter>((_) => throw StateError('Not composed'));
 
 final userDaoProvider = Provider((ref) => UserDao(
       ref.watch(userProfileFirestoreProvider),

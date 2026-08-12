@@ -26,10 +26,10 @@ import 'package:my_dic/features/sync/port/sync_run_outcome.dart';
 final class SyncCompositionFactory {
   const SyncCompositionFactory._();
 
-  static SyncHandlerRuntime createRuntime(SyncDependencyReaderPort read) {
+  static ISyncHandlerRuntime createRuntime(SyncDependencyReaderPort read) {
     final database =
         read<DatabaseProvider>(SyncCompositionDependencies.database);
-    final fence = read<SessionFence>(SyncCompositionDependencies.sessionFence);
+    final fence = read<ISessionFence>(SyncCompositionDependencies.sessionFence);
     return SyncHandlerRuntimeAdapter(
       queue: DriftSyncQueue(database),
       checkpoints: DriftSyncCheckpointStore(database),
@@ -37,25 +37,26 @@ final class SyncCompositionFactory {
     );
   }
 
-  static SyncQueue createQueue(SyncDependencyReaderPort read) => DriftSyncQueue(
-      read<DatabaseProvider>(SyncCompositionDependencies.database));
+  static ISyncQueue createQueue(SyncDependencyReaderPort read) =>
+      DriftSyncQueue(
+          read<DatabaseProvider>(SyncCompositionDependencies.database));
 
-  static SyncCheckpointStore createCheckpointStore(
+  static ISyncCheckpointStore createCheckpointStore(
           SyncDependencyReaderPort read) =>
       DriftSyncCheckpointStore(
           read<DatabaseProvider>(SyncCompositionDependencies.database));
 
-  static OutboxWriter createOutboxWriter(SyncDependencyReaderPort read) =>
+  static IOutboxWriter createOutboxWriter(SyncDependencyReaderPort read) =>
       DriftOutboxWriter(
           read<DatabaseProvider>(SyncCompositionDependencies.database));
 
-  static SyncRunner createRunner(
+  static ISyncRunner createRunner(
     SyncDependencyReaderPort read,
-    Iterable<DatasetSyncHandler> handlers,
+    Iterable<IDatasetSyncHandler> handlers,
   ) {
     final database =
         read<DatabaseProvider>(SyncCompositionDependencies.database);
-    final fence = read<SessionFence>(SyncCompositionDependencies.sessionFence);
+    final fence = read<ISessionFence>(SyncCompositionDependencies.sessionFence);
     final scheduler = SyncScheduler(
       SyncEngine(
         handlers: DatasetHandlerRegistry(handlers),
@@ -72,7 +73,7 @@ final class SyncCompositionFactory {
   }
 }
 
-final class _ComposedSyncRunner implements SyncRunner {
+final class _ComposedSyncRunner implements ISyncRunner {
   _ComposedSyncRunner(SyncScheduler scheduler)
       : _scheduler = scheduler,
         _runner = SyncWorkflowRunner(scheduler);

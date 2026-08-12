@@ -5,4 +5,4 @@ import 'package:my_dic/features/quiz/internal/presentation/view_model/quiz_searc
 
 final quizSearchViewModelProvider =
     StateNotifierProvider<QuizSearchViewModel, QuizSearchState>((ref) =>
-        QuizSearchViewModel(ref.read(quizCandidateSourceDependencyProvider)));
+        QuizSearchViewModel(ref.read(quizCandidateReaderDependencyProvider)));

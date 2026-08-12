@@ -43,7 +43,8 @@ class FeatureDependencyChecker {
       // consumer, including app/core, reaches it through port/.
       if (targetFeature != null &&
           sourceFeature != targetFeature &&
-          !target!.startsWith('lib/features/$targetFeature/port/')) {
+          !target!.startsWith('lib/features/$targetFeature/port/') &&
+          !isAllowedQuizBootstrapInfrastructureImport(entry.source, target)) {
         violations.add(FeatureDependencyViolation(
             'feature_import_only_port', entry.source, entry.target));
       }
@@ -79,6 +80,49 @@ class FeatureDependencyChecker {
           target != _catalogFacade) {
         violations.add(FeatureDependencyViolation(
             'integration_catalog_only_facade', entry.source, entry.target));
+      }
+      if (target != null &&
+          target.startsWith('lib/features/my_word/internal/') &&
+          sourceFeature != 'my_word') {
+        violations.add(FeatureDependencyViolation(
+            'my_word_external_no_internal', entry.source, entry.target));
+      }
+      if (target != null &&
+          target.startsWith('lib/features/my_word/port/') &&
+          sourceFeature != 'my_word' &&
+          !isAllowedMyWordExternalPortImport(entry.source, target)) {
+        violations.add(FeatureDependencyViolation(
+            'my_word_external_only_facade', entry.source, entry.target));
+      }
+      if (target != null &&
+          target.startsWith('lib/features/quiz/internal/') &&
+          sourceFeature != 'quiz' &&
+          !isAllowedQuizBootstrapInfrastructureImport(entry.source, target)) {
+        violations.add(FeatureDependencyViolation(
+            'quiz_external_no_internal', entry.source, entry.target));
+      }
+      if (target != null &&
+          target.startsWith('lib/features/quiz/port/') &&
+          sourceFeature != 'quiz' &&
+          !isAllowedQuizExternalPortImport(entry.source, target)) {
+        violations.add(FeatureDependencyViolation(
+            'quiz_external_only_facade', entry.source, entry.target));
+      }
+      if (target != null &&
+          entry.source.startsWith('lib/integration/') &&
+          target.startsWith('lib/features/quiz/') &&
+          target != _quizFacade) {
+        violations.add(FeatureDependencyViolation(
+            'integration_quiz_only_facade', entry.source, entry.target));
+      }
+      if (entry.source.startsWith('lib/integration/catalog_quiz/') &&
+          (entry.target.startsWith('package:flutter/') ||
+              entry.target.startsWith('package:flutter_riverpod/') ||
+              entry.target.startsWith('package:drift/'))) {
+        violations.add(FeatureDependencyViolation(
+            'integration_quiz_no_framework_or_drift',
+            entry.source,
+            entry.target));
       }
       if (entry.source.startsWith('lib/features/catalog/internal/') &&
           (targetFeature == 'search' || targetFeature == 'quiz')) {
@@ -166,6 +210,15 @@ const _catalogFacade = 'lib/features/catalog/port/catalog.dart';
 const _catalogComposition = 'lib/features/catalog/port/composition.dart';
 const _catalogPresentationDependencies =
     'lib/features/catalog/port/presentation_dependencies.dart';
+const _myWordFacade = 'lib/features/my_word/port/my_word.dart';
+const _myWordComposition = 'lib/features/my_word/port/composition.dart';
+const _myWordPresentationEntry =
+    'lib/features/my_word/port/presentation_entry.dart';
+const _quizFacade = 'lib/features/quiz/port/quiz.dart';
+const _quizComposition = 'lib/features/quiz/port/composition.dart';
+const _quizPresentationDependencies =
+    'lib/features/quiz/port/presentation_dependencies.dart';
+const _quizPresentationEntry = 'lib/features/quiz/port/presentation_entry.dart';
 const _frameworkPackages = {
   'flutter',
   'flutter_riverpod',
@@ -196,6 +249,30 @@ bool isAllowedCatalogExternalPortImport(String source, String target) {
   }
   return false;
 }
+
+bool isAllowedMyWordExternalPortImport(String source, String target) {
+  if (target == _myWordFacade) return true;
+  if (target == _myWordComposition) {
+    return source.startsWith('lib/app/bootstrap/');
+  }
+  if (target == _myWordPresentationEntry) {
+    return source.startsWith('lib/app/routing/');
+  }
+  return false;
+}
+
+bool isAllowedQuizExternalPortImport(String source, String target) {
+  if (target == _quizFacade) return true;
+  if (target == _quizComposition || target == _quizPresentationDependencies) {
+    return source.startsWith('lib/app/bootstrap/');
+  }
+  return target == _quizPresentationEntry &&
+      source.startsWith('lib/app/routing/');
+}
+
+bool isAllowedQuizBootstrapInfrastructureImport(String source, String target) =>
+    source.startsWith('lib/app/bootstrap/') &&
+    target.startsWith('lib/features/quiz/internal/infrastructure/');
 
 String dirname(String path) => path.substring(0, path.lastIndexOf('/') + 1);
 String relative(String root, String path) => normalize(path)

@@ -4,8 +4,7 @@ import 'package:my_dic/core/presentation/state/command_state.dart';
 import 'package:my_dic/core/presentation/state/ui_effect.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/core/shared/value_objects/field_update.dart';
-import 'package:my_dic/features/my_word/internal/application/usecase/my_word_status/update_my_word_status/i_update_my_word_status_use_case.dart';
-import 'package:my_dic/features/my_word/internal/application/usecase/my_word_status/update_my_word_status/update_my_word_status_input_data.dart';
+import 'package:my_dic/features/my_word/port/command.dart';
 
 /// Immutable command state. Effects are retained LIFO until their owner
 /// consumes each exact envelope id, so rebuilds cannot replay or lose one.
@@ -38,11 +37,11 @@ final class MyWordStatusCommandState {
 
 final class MyWordStatusCommand extends StateNotifier<MyWordStatusCommandState>
     implements UiEffectConsumer {
-  MyWordStatusCommand(this._wordId, this._updateUsecase, this._scope)
+  MyWordStatusCommand(this._wordId, this._commands, this._scope)
       : super(const MyWordStatusCommandState());
 
   final String _wordId;
-  final IUpdateMyWordStatusUseCase _updateUsecase;
+  final MyWordStatusCommandPort _commands;
   final SessionScopeKey _scope;
   int _sequence = 0;
 
@@ -58,29 +57,25 @@ final class MyWordStatusCommand extends StateNotifier<MyWordStatusCommandState>
 
   Future<void> toggleBookmark(bool value) => _set(
         'toggleBookmark',
-        UpdateMyWordStatusInputData(
-            _wordId,
-            const FieldUpdate.unchanged(),
-            FieldUpdate.set(!value),
-            const FieldUpdate.unchanged(),
-            _scope.accountScope),
+        UpdateMyWordStatusCommand(
+            myWordId: _wordId,
+            isBookmarked: FieldUpdate.set(!value),
+            accountScope: _scope.accountScope),
       );
   Future<void> toggleLearned(bool value) => _set(
         'toggleLearned',
-        UpdateMyWordStatusInputData(
-            _wordId,
-            FieldUpdate.set(!value),
-            const FieldUpdate.unchanged(),
-            const FieldUpdate.unchanged(),
-            _scope.accountScope),
+        UpdateMyWordStatusCommand(
+            myWordId: _wordId,
+            isLearned: FieldUpdate.set(!value),
+            accountScope: _scope.accountScope),
       );
 
-  Future<void> _set(String operation, UpdateMyWordStatusInputData input) async {
+  Future<void> _set(String operation, UpdateMyWordStatusCommand input) async {
     // The aggregate lane is the card (scope, word), not an individual field.
     if (state.isSubmitting) return;
     final expectedScope = _scope;
     state = state.copyWith(command: CommandState.submitting(operation));
-    final result = await _updateUsecase.execute(input);
+    final result = await _commands.updateStatus(input);
     if (!mounted || expectedScope != _scope) return;
     if (result.isSuccess) {
       state = state.copyWith(

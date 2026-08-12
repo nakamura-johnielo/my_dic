@@ -8,7 +8,7 @@ import 'package:my_dic/features/user_profile/port/user_dto.dart';
 import 'package:my_dic/features/user_profile/internal/infrastructure/firebase/i_user_remote_data_source.dart';
 
 /// UserProfile's singleton-document mapping; durable sync policy lives in Sync runtime.
-final class UserProfileDatasetSyncAdapter implements DatasetSyncAdapter {
+final class UserProfileDatasetSyncAdapter implements IDatasetSyncAdapter {
   UserProfileDatasetSyncAdapter(
       {required IUserProfileLocalDataSource local,
       required IUserRemoteDataSource remote})

@@ -6,9 +6,9 @@ import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart
 import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/drift_my_word_dao.dart';
 import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/my_word_drift_data_source.dart';
 import 'package:my_dic/features/my_word/internal/infrastructure/data/repository_impl/my_word_repository.dart';
-import 'package:my_dic/features/my_word/internal/domain/model/my_word/register_my_word_repository_input_data.dart';
-import 'package:my_dic/features/my_word/internal/domain/model/my_word/delete_my_word_repository_input_data.dart';
-import 'package:my_dic/features/my_word/internal/domain/model/my_word/update_my_word_repository_input_data.dart';
+import 'package:my_dic/features/my_word/internal/domain/inputData/my_word/register_my_word_repository_input_data.dart';
+import 'package:my_dic/features/my_word/internal/domain/inputData/my_word/delete_my_word_repository_input_data.dart';
+import 'package:my_dic/features/my_word/internal/domain/inputData/my_word/update_my_word_repository_input_data.dart';
 import 'package:my_dic/features/sync/internal/infrastructure/persistence/drift/drift_outbox_writer.dart';
 
 void main() {

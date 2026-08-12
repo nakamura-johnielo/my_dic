@@ -5,7 +5,7 @@ import 'package:my_dic/features/word_status/port/word_status.dart';
 final class WatchWordStatusInteractor {
   WatchWordStatusInteractor(this._repository);
 
-  final WordStatusRepository _repository;
+  final IWordStatusRepository _repository;
 
   Stream<WordStatus> execute(CatalogWordRef word,
           {required String accountScope}) =>

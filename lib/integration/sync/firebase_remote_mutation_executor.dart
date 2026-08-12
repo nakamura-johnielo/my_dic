@@ -6,7 +6,7 @@ import 'package:my_dic/features/sync/port/remote_mutation_executor.dart';
 ///
 /// This class is the sole owner of transaction metadata and dataset wire-value
 /// mapping; feature adapters supply only a target and pure request.
-final class FirebaseRemoteMutationExecutor implements RemoteMutationExecutor {
+final class FirebaseRemoteMutationExecutor implements IRemoteMutationExecutor {
   FirebaseRemoteMutationExecutor(this._firestore);
 
   static const _users = 'Users';

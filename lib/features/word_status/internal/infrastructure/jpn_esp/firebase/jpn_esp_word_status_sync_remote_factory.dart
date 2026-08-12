@@ -13,7 +13,7 @@ FirebaseJpnEspWordStatusRemoteStore
         FirebaseJpnEspWordStatusRemoteStore(
           FirebaseJpnEspWordStatusDao(
             read<FirebaseFirestore>(WordStatusSyncDependency.firestore),
-            read<RemoteMutationExecutor>(
+            read<IRemoteMutationExecutor>(
               WordStatusSyncDependency.remoteMutationExecutor,
             ),
           ),

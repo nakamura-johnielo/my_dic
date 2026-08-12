@@ -6,6 +6,8 @@ import 'package:my_dic/app/routing/route_definitions.dart';
 import 'package:my_dic/app/routing/route_names.dart';
 import 'package:my_dic/app/session/app_session.dart';
 import 'package:my_dic/app/session/session_providers.dart';
+import 'package:my_dic/app/bootstrap/my_word_composition.dart';
+import 'package:my_dic/app/bootstrap/session_composition.dart';
 import 'package:my_dic/integration/session_lifecycle_workflow/auth_lifecycle_presentation_entry.dart';
 import 'package:my_dic/integration/session_lifecycle_workflow/auth_lifecycle_provider.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
@@ -68,8 +70,16 @@ final routerProvider = Provider<GoRouter>((ref) {
             GoRoute(
               path: '/${RoutePaths.myWord}',
               name: RouteNames.myWord,
-              pageBuilder: (context, state) =>
-                  NoTransitionPage(key: state.pageKey, child: MyWordFragment()),
+              pageBuilder: (context, state) {
+                final scope = ref.watch(sessionScopeKeyProvider);
+                return NoTransitionPage(
+                  key: state.pageKey,
+                  child: scope == null
+                      ? const SizedBox.shrink()
+                      : MyWordPresentationPage(
+                          scope: scope, ports: ref.watch(myWordPortsProvider)),
+                );
+              },
             )
           ]),
           StatefulShellBranch(navigatorKey: search, routes: [

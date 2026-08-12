@@ -1,4 +1,38 @@
-# Catalog refactor remaining work
+# Catalog and MyWord refactor remaining work
+
+## Quiz Phase 8 result
+
+Quiz now has one pure-Dart business facade, documented technical seams, and
+checker coverage for external/internal imports and Catalog-to-Quiz integration.
+The legacy candidate source/query/gateway/game-loader contracts, compatibility
+adapter, old game data/repository/use-case graph, obsolete DI, and their
+dedicated tests were removed after reference checks.
+
+Repository-wide checker findings outside Quiz remain separate debt and are not
+fixed in this phase. Record them by checker rule ID and source path when
+reviewing the full gates; do not baseline them as Quiz exceptions.
+
+Current non-Quiz checker sources are:
+
+- `business_port_no_framework`:
+  `lib/features/search/port/presentation_dependencies.dart`
+- `composition_exact_facade` / `composition_no_provider_types`: Auth, MyWord,
+  Ranking, Search, Sync, UserProfile, and WordStatus composition files
+- `firebase_canonical_infrastructure_only`:
+  `lib/integration/sync/firebase_remote_mutation_executor.dart`
+- `internal_clean_architecture` (feature dependency checker):
+  `lib/features/catalog/internal/domain/repository/conjugation_repository.dart`
+  and `lib/features/ranking/internal/presentation/provider/view_model_di.dart`
+
+## MyWord Phase 8 result
+
+MyWord now has a single business facade, documented public surface, and
+checker coverage in both import-boundary gates. The checker permits only the
+bootstrap composition seam and routing presentation-entry seam outside the
+feature; all external `internal/**` and deep business-port imports are rejected.
+
+Repository-wide non-MyWord violations remain separate architecture debt and
+must not be treated as a failure of the MyWord facade migration.
 
 ## Phase 8 result
 

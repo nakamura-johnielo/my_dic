@@ -5,12 +5,7 @@ import 'package:my_dic/core/presentation/state/ui_effect.dart';
 import 'package:my_dic/core/shared/errors/app_error.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/my_word/internal/application/usecase/my_word/register_my_word/i_register_my_word_use_case.dart';
-import 'package:my_dic/features/my_word/internal/application/usecase/my_word/register_my_word/register_my_word_input_data.dart';
-import 'package:my_dic/features/my_word/internal/application/usecase/my_word/delete_my_word/delete_my_word_input_data.dart';
-import 'package:my_dic/features/my_word/internal/application/usecase/my_word/delete_my_word/i_delete_my_word_use_case.dart';
-import 'package:my_dic/features/my_word/internal/application/usecase/my_word/update/update_my_word/i_update_my_word_use_case.dart';
-import 'package:my_dic/features/my_word/internal/application/usecase/my_word/update/update_my_word/update_my_word_input_data.dart';
+import 'package:my_dic/features/my_word/port/command.dart';
 import 'package:my_dic/features/my_word/internal/presentation/ui_model/my_word_event.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
 
@@ -61,9 +56,9 @@ abstract class _MyWordCommandBase extends StateNotifier<MyWordCommandState>
 }
 
 class MyWordRegistrationCommand extends _MyWordCommandBase {
-  MyWordRegistrationCommand(this._registerUseCase, this._scope);
+  MyWordRegistrationCommand(this._commands, this._scope);
 
-  final IRegisterMyWordUseCase _registerUseCase;
+  final MyWordCommandPort _commands;
   final SessionScopeKey _scope;
 
   Future<void> registerWord({
@@ -73,9 +68,10 @@ class MyWordRegistrationCommand extends _MyWordCommandBase {
     if (isSubmitting) return;
     const operation = 'register';
     begin(operation);
-    final result = await _registerUseCase.execute(
-      RegisterMyWordInputData(headword, description, _scope.accountScope),
-    );
+    final result = await _commands.register(RegisterMyWordCommand(
+        headword: headword,
+        description: description,
+        accountScope: _scope.accountScope));
     result.when(
       success: (_) => succeed(operation),
       failure: (error) => fail(operation, error),
@@ -84,20 +80,18 @@ class MyWordRegistrationCommand extends _MyWordCommandBase {
 }
 
 class MyWordCommand extends _MyWordCommandBase {
-  MyWordCommand(
-      this._wordId, this._updateUseCase, this._deleteUseCase, this._scope);
+  MyWordCommand(this._wordId, this._commands, this._scope);
 
   final String _wordId;
-  final IUpdateMyWordUseCase _updateUseCase;
-  final IDeleteMyWordUseCase _deleteUseCase;
+  final MyWordCommandPort _commands;
   final SessionScopeKey _scope;
 
   Future<void> deleteWord() async {
     if (isSubmitting) return;
     const operation = 'delete';
     begin(operation);
-    final result = await _deleteUseCase
-        .execute(DeleteMyWordInputData(_wordId, _scope.accountScope));
+    final result = await _commands.delete(DeleteMyWordCommand(
+        myWordId: _wordId, accountScope: _scope.accountScope));
     result.when(
       success: (_) => succeed(operation),
       failure: (error) => fail(operation, error),
@@ -111,10 +105,11 @@ class MyWordCommand extends _MyWordCommandBase {
     if (isSubmitting) return;
     const operation = 'update';
     begin(operation);
-    final result = await _updateUseCase.execute(
-      UpdateMyWordInputData(
-          _wordId, headword, description, _scope.accountScope),
-    );
+    final result = await _commands.update(UpdateMyWordCommand(
+        myWordId: _wordId,
+        headword: headword,
+        description: description,
+        accountScope: _scope.accountScope));
     result.when(
       success: (_) => succeed(operation),
       failure: (error) => fail(operation, error),

@@ -12,9 +12,9 @@ import 'package:my_dic/features/word_status/internal/infrastructure/jpn_esp/jpn_
 import 'package:my_dic/features/word_status/internal/infrastructure/sync/word_status_dataset_sync_handler.dart';
 import 'package:my_dic/features/word_status/port/composition.dart';
 
-DatasetSyncHandler createInternalEspJpnWordStatusDatasetSyncHandler(
+IDatasetSyncHandler createInternalEspJpnWordStatusDatasetSyncHandler(
   WordStatusSyncDependencyReaderPort read, {
-  required SyncHandlerRuntime runtime,
+  required ISyncHandlerRuntime runtime,
 }) =>
     WordStatusDatasetSyncHandler(
       adapter: EspJpnWordStatusDatasetAdapter(
@@ -28,9 +28,9 @@ DatasetSyncHandler createInternalEspJpnWordStatusDatasetSyncHandler(
       runtime: runtime,
     );
 
-DatasetSyncHandler createInternalJpnEspWordStatusDatasetSyncHandler(
+IDatasetSyncHandler createInternalJpnEspWordStatusDatasetSyncHandler(
   WordStatusSyncDependencyReaderPort read, {
-  required SyncHandlerRuntime runtime,
+  required ISyncHandlerRuntime runtime,
 }) =>
     WordStatusDatasetSyncHandler(
       adapter: JpnEspWordStatusDatasetAdapter(

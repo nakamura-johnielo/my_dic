@@ -1,11 +1,21 @@
-/// Transitional app-workflow contracts.  The app imports them through this
-/// feature port while the transaction remains app-owned across datasets.
-export 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/i_my_word_local_data_source.dart';
-export 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/i_my_word_status_local_data_source.dart';
+/// The guest-scoped rows owned by the MyWord aggregate.
+final class MyWordGuestRowCounts {
+  const MyWordGuestRowCounts({required this.words, required this.statuses});
 
-/// Feature-owned contribution to the app's guest-data migration workflow.
+  final int words;
+  final int statuses;
+}
+
+/// App-workflow seam for migrating the entire MyWord aggregate.
+///
+/// Transactions, session fencing, and coordination with other features remain
+/// owned by the app. Implementations own the MyWord row and status-row policy.
 abstract interface class MyWordGuestMigrationPort {
-  Future<int> countGuestMyWords();
+  Future<MyWordGuestRowCounts> countGuestRows();
 
-  Future<int> countGuestMyWordStatuses();
+  Future<void> migrateGuestRows({
+    required String accountId,
+    required String migrationId,
+    required DateTime Function() clock,
+  });
 }

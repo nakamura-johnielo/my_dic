@@ -10,7 +10,7 @@ import 'package:my_dic/features/sync/port/sync_reason_codes.dart';
 class SyncExecutionGuard {
   const SyncExecutionGuard([this._sessionFence]);
 
-  final SessionFence? _sessionFence;
+  final ISessionFence? _sessionFence;
 
   bool canContinue(SyncContext context) =>
       !context.cancellation.isCancelled &&

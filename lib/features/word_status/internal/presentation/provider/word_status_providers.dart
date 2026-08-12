@@ -10,7 +10,7 @@ import 'package:my_dic/features/word_status/port/word_status.dart';
 import 'package:my_dic/features/word_status/port/repository.dart';
 
 /// App composition supplies the concrete repository at the root ProviderScope.
-final wordStatusRepositoryDependencyProvider = Provider<WordStatusRepository>(
+final wordStatusRepositoryDependencyProvider = Provider<IWordStatusRepository>(
   (_) => throw StateError('WordStatusRepository dependency was not supplied.'),
 );
 

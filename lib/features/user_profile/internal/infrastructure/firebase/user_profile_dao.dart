@@ -5,7 +5,7 @@ import 'package:my_dic/features/user_profile/port/user_dto.dart';
 
 class UserDao {
   final FirebaseFirestore _db;
-  final RemoteMutationExecutor _remoteMutations;
+  final IRemoteMutationExecutor _remoteMutations;
 
   UserDao(this._db, this._remoteMutations);
 

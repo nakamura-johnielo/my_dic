@@ -94,6 +94,8 @@ two legacy contracts. Technical Riverpod seams remain explicit exceptions.
 
 ## Follow-up
 
+- Apply the generalized [Feature design rules](../feature-design-rules.md) when
+  migrating other features; Catalog remains the reference implementation.
 - Keep the public manifest in `docs/refactor-v0.3/public-surface.md` synchronized
   with `port/catalog.dart`.
 - Remove the legacy detail/conjugation exports only after their consumers migrate.

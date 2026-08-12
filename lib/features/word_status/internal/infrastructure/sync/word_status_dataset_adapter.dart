@@ -9,7 +9,7 @@ import 'word_status_sync_record.dart';
 ///
 /// The Sync feature owns queue, retry, checkpoint, and cancellation policy.
 /// This adapter only translates WordStatus remote and local representations.
-abstract class WordStatusDatasetAdapter implements DatasetSyncAdapter {
+abstract class WordStatusDatasetAdapter implements IDatasetSyncAdapter {
   @override
   SyncDataset get dataset;
 

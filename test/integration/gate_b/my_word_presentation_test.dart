@@ -1,52 +1,69 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
-import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/my_word/internal/application/usecase/my_word/create/register_my_word/i_register_my_word_use_case.dart';
-import 'package:my_dic/features/my_word/internal/application/usecase/my_word/create/register_my_word/register_my_word_input_data.dart';
-import 'package:my_dic/features/my_word/internal/application/usecase/my_word/load_my_word/i_load_my_word_use_case.dart';
-import 'package:my_dic/features/my_word/internal/application/usecase/my_word/load_my_word/load_my_word_input_data.dart';
-import 'package:my_dic/features/my_word/internal/domain/entity/my_word.dart';
-import 'package:my_dic/features/my_word/internal/di/usecase_di.dart';
-import 'package:my_dic/features/my_word/internal/di/view_model_di.dart';
+import 'package:my_dic/features/my_word/internal/presentation/provider/my_word_presentation_providers.dart';
+import 'package:my_dic/features/my_word/port/composition.dart';
+import 'package:my_dic/features/my_word/port/my_word.dart';
 
 void main() {
   test('a new session epoch gets a re-keyed VM and fresh zero page', () async {
-    final loader = _LoadWords();
-    final container = ProviderContainer(overrides: [
-      loadMyWordUseCaseProvider.overrideWithValue(loader),
-      registerMyWordUseCaseProvider.overrideWithValue(_RegisterWords()),
-    ]);
+    final ports = _FakePorts();
+    final container = ProviderContainer();
     addTearDown(container.dispose);
     const first = SessionScopeKey(accountScope: 'guest', epoch: 1);
     const second = SessionScopeKey(accountScope: 'guest', epoch: 2);
-    final a = container.read(myWordFragmentViewModelProvider(first).notifier);
-    final b = container.read(myWordFragmentViewModelProvider(second).notifier);
+    final a = container.read(
+        myWordFragmentViewModelProvider((scope: first, ports: ports.value))
+            .notifier);
+    final b = container.read(
+        myWordFragmentViewModelProvider((scope: second, ports: ports.value))
+            .notifier);
     expect(identical(a, b), isFalse);
     await a.loadPage(size: 30, page: 0);
     await b.loadPage(size: 30, page: 0);
-    expect(loader.accounts, ['guest', 'guest']);
-    expect(loader.pages, [0, 0]);
+    expect(ports.accounts, ['guest', 'guest']);
+    expect(ports.pages, [0, 0]);
   });
 }
 
-class _LoadWords implements ILoadMyWordUseCase {
+class _FakePorts
+    implements
+        MyWordReaderPort,
+        MyWordCommandPort,
+        MyWordStatusCommandPort,
+        MyWordGuestMigrationPort {
   final pages = <int>[];
   final accounts = <String>[];
+  late final value = MyWordPorts(
+      reader: this, commands: this, statusCommands: this, guestMigration: this);
   @override
-  Future<Result<List<String>>> executeIds(LoadMyWordInputData input) async {
-    pages.add(input.requiredPage);
-    accounts.add(input.accountScope);
+  Future<Result<List<String>>> loadIds(LoadMyWordsQuery query) async {
+    pages.add(query.page);
+    accounts.add(query.accountScope);
     return const Result.success([]);
   }
 
   @override
-  Future<Result<List<MyWord>>> execute(LoadMyWordInputData input) =>
-      throw UnimplementedError();
-}
-
-class _RegisterWords implements IRegisterMyWordUseCase {
+  Stream<MyWordItem?> watchItem(WatchMyWordItemQuery query) =>
+      const Stream.empty();
   @override
-  Future<Result<String>> execute(RegisterMyWordInputData input) async =>
+  Future<Result<String>> register(RegisterMyWordCommand command) async =>
       const Result.success('id');
+  @override
+  Future<Result<void>> update(UpdateMyWordCommand command) async =>
+      const Result.success(null);
+  @override
+  Future<Result<void>> delete(DeleteMyWordCommand command) async =>
+      const Result.success(null);
+  @override
+  Future<Result<void>> updateStatus(UpdateMyWordStatusCommand command) async =>
+      const Result.success(null);
+  @override
+  Future<MyWordGuestRowCounts> countGuestRows() async =>
+      const MyWordGuestRowCounts(words: 0, statuses: 0);
+  @override
+  Future<void> migrateGuestRows(
+      {required String accountId,
+      required String migrationId,
+      required DateTime Function() clock}) async {}
 }

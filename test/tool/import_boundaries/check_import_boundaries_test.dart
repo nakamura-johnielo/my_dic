@@ -256,10 +256,37 @@ void main() {
       expectRule(await check(root), 'integration_catalog_only_facade');
     });
 
+    test('enforces the MyWord facade and rejects internal consumers', () async {
+      await write(root, 'lib/features/search/internal/good.dart',
+          imp('features/my_word/port/my_word.dart'));
+      await write(root, 'lib/features/search/internal/bad.dart',
+          "${imp('features/my_word/internal/domain/entity.dart')}\n${imp('features/my_word/port/command.dart')}");
+
+      final violations = await check(root);
+      expectRule(violations, 'my_word_external_no_internal');
+      expectRule(violations, 'my_word_external_only_facade');
+      expect(
+          violations.where((v) =>
+              v.source.endsWith('/good.dart') &&
+              v.ruleId.startsWith('my_word_')),
+          isEmpty);
+    });
+
+    test('allows only MyWord composition and presentation technical seams',
+        () async {
+      await write(root, 'lib/app/bootstrap/my_word.dart',
+          imp('features/my_word/port/composition.dart'));
+      await write(root, 'lib/app/routing/my_word.dart',
+          imp('features/my_word/port/presentation_entry.dart'));
+
+      final violations = await check(root);
+      expect(violations.where((v) => v.ruleId.startsWith('my_word_')), isEmpty);
+    });
+
     test('rejects Search and Quiz dependencies from Catalog internal',
         () async {
       await write(root, 'lib/features/catalog/internal/application/use.dart',
-          "${imp('features/search/port/catalog_gateway.dart')}\n${imp('features/quiz/port/catalog_gateway.dart')}");
+          "${imp('features/search/port/catalog_gateway.dart')}\n${imp('features/quiz/port/quiz.dart')}");
 
       final violations = await check(root);
       expect(
@@ -302,6 +329,37 @@ void main() {
                   v.source.endsWith('/presentation_dependencies.dart')) &&
               v.target.startsWith('package:flutter_riverpod/')),
           isEmpty);
+    });
+
+    test('enforces the Quiz facade and its narrow technical seams', () async {
+      await write(root, 'lib/features/search/internal/good.dart',
+          imp('features/quiz/port/quiz.dart'));
+      await write(root, 'lib/features/search/internal/bad.dart',
+          "${imp('features/quiz/internal/application/service.dart')}\n${imp('features/quiz/port/query/quiz_game_query.dart')}");
+      await write(root, 'lib/app/bootstrap/quiz.dart',
+          "${imp('features/quiz/port/composition.dart')}\n${imp('features/quiz/port/presentation_dependencies.dart')}\n${imp('features/quiz/internal/infrastructure/assets.dart')}");
+      await write(root, 'lib/app/routing/quiz.dart',
+          imp('features/quiz/port/presentation_entry.dart'));
+
+      final violations = await check(root);
+      expectRule(violations, 'quiz_external_no_internal');
+      expectRule(violations, 'quiz_external_only_facade');
+      expect(
+          violations.where((v) =>
+              v.source.endsWith('/good.dart') && v.ruleId.startsWith('quiz_')),
+          isEmpty);
+    });
+
+    test('rejects Quiz implementation and framework imports in integration',
+        () async {
+      await write(root, 'lib/integration/catalog_quiz/good.dart',
+          imp('features/quiz/port/quiz.dart'));
+      await write(root, 'lib/integration/catalog_quiz/bad.dart',
+          "${imp('features/quiz/internal/infrastructure/drift/dao.dart')}\n${sdk('drift/drift.dart')}\n${sdk('flutter/widgets.dart')}");
+
+      final violations = await check(root);
+      expectRule(violations, 'integration_quiz_only_facade');
+      expectRule(violations, 'integration_quiz_no_framework_or_drift');
     });
   });
 

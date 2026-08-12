@@ -10,18 +10,18 @@ import 'package:my_dic/features/word_status/internal/infrastructure/jpn_esp/drif
 ///
 /// This deliberately does not start a transaction: its caller combines this
 /// work with MyWord, MyWordStatus, and UserProfile in one database fence.
-class DriftWordStatusGuestMigration implements WordStatusGuestMigration {
+class DriftWordStatusGuestMigration implements IWordStatusGuestMigration {
   DriftWordStatusGuestMigration({
     required EspJpnWordStatusLocalDataSource espJpn,
     required JpnEspWordStatusLocalDataSource jpnEsp,
-    required OutboxWriter outboxWriter,
+    required IOutboxWriter outboxWriter,
   })  : _espJpn = espJpn,
         _jpnEsp = jpnEsp,
         _outboxWriter = outboxWriter;
 
   final EspJpnWordStatusLocalDataSource _espJpn;
   final JpnEspWordStatusLocalDataSource _jpnEsp;
-  final OutboxWriter _outboxWriter;
+  final IOutboxWriter _outboxWriter;
 
   @override
   Future<WordStatusGuestRowCounts> countGuestRows() async {

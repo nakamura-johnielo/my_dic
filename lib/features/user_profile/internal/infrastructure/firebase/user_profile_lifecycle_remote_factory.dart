@@ -6,7 +6,7 @@ import 'package:my_dic/features/user_profile/internal/infrastructure/firebase/us
 /// Canonical Firebase construction for lifecycle profile provisioning.
 FirebaseUserRemoteDataSource
     createInternalLifecycleFirebaseUserRemoteDataSource(
-  RemoteMutationExecutor remoteMutations,
+  IRemoteMutationExecutor remoteMutations,
 ) =>
         FirebaseUserRemoteDataSource(
           UserDao(FirebaseFirestore.instance, remoteMutations),

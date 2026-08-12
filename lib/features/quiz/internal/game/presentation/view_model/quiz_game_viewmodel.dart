@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/features/quiz/internal/consts/card_state.dart';
-import 'package:my_dic/features/quiz/internal/game/application/model/quiz_conjugation.dart';
+import 'package:my_dic/features/quiz/port/model/quiz_conjugation.dart';
+import 'package:my_dic/features/quiz/internal/game/presentation/quiz_display.dart';
 import 'package:my_dic/features/quiz/internal/game/presentation/ui_model/quiz_game_state.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 
@@ -30,12 +31,12 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
   }
 
   String quiz1EnglishSub(
-      Map<String, String> englishSubMap,
-      Map<String, Map<String, String>> beConj,
-      Map<String, String> englishConj) {
+      QuizEnglishPromptGuide promptGuide,
+      QuizBeConjugation beConjugation,
+      QuizEnglishConjugation englishConjugation) {
     final moodTense = state.currentTense;
     final subject = state.currentSubject;
-    String sub = englishSubMap[moodTense.guideKey] ?? '@ #';
+    String sub = promptGuide.templateFor(moodTense) ?? '@ #';
     AppLogger.print("sub: $sub");
 
     QuizEnglishSubject englishSubject = subject.englishEquivalent;
@@ -47,19 +48,19 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
     // #が動詞
 
     // beがaru場合==============
-    if (englishConj[QuizEnglishMoodTense.indicativePresent.wireKey] == "be") {
-      //Map<String, Map<String, String>> beConj = json;
+    if (englishConjugation.form(QuizEnglishMoodTense.indicativePresent) ==
+        "be") {
       if (moodTense == QuizMoodTense.indicativeImperfect ||
           moodTense == QuizMoodTense.indicativeFuture ||
           moodTense == QuizMoodTense.indicativeConditional ||
           moodTense == QuizMoodTense.imperative) {
         return sub.replaceAll("#", "be");
       }
-      final beForm = beConj[englishMoodTense.wireKey]?[englishSubject.wireKey];
+      final beForm = beConjugation.form(englishMoodTense, englishSubject);
       return sub.replaceAll("#", beForm ?? "be");
     }
     final present =
-        englishConj[QuizEnglishMoodTense.indicativePresent.wireKey] ?? '';
+        englishConjugation.form(QuizEnglishMoodTense.indicativePresent) ?? '';
     if (present.contains("be ")) {
       if (moodTense == QuizMoodTense.indicativeImperfect ||
           moodTense == QuizMoodTense.indicativeFuture ||
@@ -67,8 +68,8 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
           moodTense == QuizMoodTense.imperative) {
         return sub.replaceAll("#", present);
       }
-      final text = present.replaceFirst("be",
-          beConj[englishMoodTense.wireKey]?[englishSubject.wireKey] ?? 'be');
+      final text = present.replaceFirst(
+          "be", beConjugation.form(englishMoodTense, englishSubject) ?? 'be');
       sub = sub.replaceAll(
         "#",
         text,
@@ -82,7 +83,7 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
         englishMoodTense == QuizEnglishMoodTense.indicativePresent) {
       englishMoodTense = QuizEnglishMoodTense.indicativePresent3rd;
     }
-    sub = sub.replaceAll("#", englishConj[englishMoodTense.wireKey] ?? '');
+    sub = sub.replaceAll("#", englishConjugation.form(englishMoodTense) ?? '');
 
     return sub;
   }
@@ -154,18 +155,7 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
   /// 現在の問題を設定
   void _setCurrentQuestion(int index) {
     if (index < 0 || index >= _internalState.doneKeyOrder.length) return;
-    final key = _internalState.doneKeyOrder[index];
-    final parts = key.split('-');
-
-    final tense = QuizMoodTense.values.firstWhere(
-      (e) => e.toString() == parts[0],
-      orElse: () => QuizMoodTense.indicativePresent,
-    );
-
-    final subject = QuizSubject.values.firstWhere(
-      (e) => e.toString() == parts[1],
-      orElse: () => QuizSubject.yo,
-    );
+    final (tense, subject) = _internalState.doneKeyOrder[index];
 
     state = state.copyWith(
       currentIndex: index,

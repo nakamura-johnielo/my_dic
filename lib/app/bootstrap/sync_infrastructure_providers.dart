@@ -21,15 +21,15 @@ T _readSyncDependency<T>(Ref ref, Object dependency) {
   throw ArgumentError.value(dependency, 'dependency');
 }
 
-final driftSyncQueueProvider = Provider<SyncQueue>((ref) {
+final driftSyncQueueProvider = Provider<ISyncQueue>((ref) {
   return createSyncQueue(_syncReaderPort(ref));
 });
 
-final driftSyncCheckpointStoreProvider = Provider<SyncCheckpointStore>(
+final driftSyncCheckpointStoreProvider = Provider<ISyncCheckpointStore>(
   (ref) => createSyncCheckpointStore(_syncReaderPort(ref)),
 );
 
-final driftOutboxWriterProvider = Provider<OutboxWriter>(
+final driftOutboxWriterProvider = Provider<IOutboxWriter>(
   (ref) => createOutboxWriter(_syncReaderPort(ref)),
 );
 
@@ -37,7 +37,7 @@ final syncSessionFenceProvider = Provider<SessionFenceAdapter>(
   (ref) => SessionFenceAdapter(),
 );
 
-final syncHandlerRuntimeProvider = Provider<SyncHandlerRuntime>(
+final syncHandlerRuntimeProvider = Provider<ISyncHandlerRuntime>(
   (ref) => createSyncHandlerRuntime(_syncReaderPort(ref)),
 );
 

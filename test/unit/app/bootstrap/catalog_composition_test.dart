@@ -4,9 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/app/bootstrap/catalog_composition.dart';
 import 'package:my_dic/features/catalog/port/catalog.dart';
-import 'package:my_dic/features/quiz/port/candidate_source.dart';
-import 'package:my_dic/features/quiz/port/model/quiz_candidate_page.dart';
-import 'package:my_dic/features/quiz/port/model/quiz_candidate_query.dart';
+import 'package:my_dic/features/quiz/port/composition.dart';
+import 'package:my_dic/features/quiz/port/presentation_dependencies.dart';
+import 'package:my_dic/features/quiz/port/quiz.dart';
 import 'package:my_dic/features/search/port/model/search_query.dart';
 import 'package:my_dic/features/search/port/model/search_result_page.dart';
 import 'package:my_dic/features/search/port/reader.dart';
@@ -38,13 +38,17 @@ void main() {
     );
   });
 
-  test('composes Quiz candidate source from public Catalog read ports', () {
+  test('wires only Quiz Catalog gateways from public Catalog read ports', () {
     final container = ProviderContainer();
     addTearDown(container.dispose);
 
     expect(
-      container.read(quizCandidateSourceProvider),
-      isA<QuizCandidateSource>(),
+      container.read(quizCandidateCatalogGatewayProvider),
+      isA<QuizCandidateCatalogGateway>(),
+    );
+    expect(
+      container.read(quizGameCatalogGatewayProvider),
+      isA<QuizGameCatalogGateway>(),
     );
     final wiring = File(
       'lib/integration/catalog_quiz/catalog_quiz_providers.dart',
@@ -72,20 +76,35 @@ void main() {
     expect(container.read(searchReaderPortProvider), same(repository));
   });
 
-  test('allows Quiz candidate source to be replaced with a fake', () {
-    final source = _QuizCandidateSource();
+  test('injects focused Quiz readers from the QuizPorts bundle', () {
+    final candidateReader = _QuizCandidateReader();
+    final gameReader = _QuizGameReader();
+    final ports = QuizPorts(
+      candidateReader: candidateReader,
+      gameReader: gameReader,
+    );
     final container = ProviderContainer(
-      overrides: [quizCandidateSourceProvider.overrideWithValue(source)],
+      overrides: [quizPortsDependencyProvider.overrideWithValue(ports)],
     );
     addTearDown(container.dispose);
 
-    expect(container.read(quizCandidateSourceProvider), same(source));
+    expect(
+      container.read(quizCandidateReaderDependencyProvider),
+      same(candidateReader),
+    );
+    expect(container.read(quizGameReaderDependencyProvider), same(gameReader));
   });
 }
 
-final class _QuizCandidateSource implements QuizCandidateSource {
+final class _QuizCandidateReader implements QuizCandidateReaderPort {
   @override
   Future<Result<QuizCandidatePage>> search(QuizCandidateQuery query) async =>
+      throw UnimplementedError();
+}
+
+final class _QuizGameReader implements QuizGameReaderPort {
+  @override
+  Future<Result<QuizGameLoadOutcome>> load(QuizGameQuery query) async =>
       throw UnimplementedError();
 }
 
