@@ -3,8 +3,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/features/search/port/query.dart';
-import 'package:my_dic/features/catalog/port/catalog_id.dart';
-import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 
 void main() {
   const item = SearchResultItem(

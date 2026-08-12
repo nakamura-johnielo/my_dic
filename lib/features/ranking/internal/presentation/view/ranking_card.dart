@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/components/button/my_icon_button.dart';
 import 'package:my_dic/features/word_status/port/presentation_entry.dart';
-import 'package:my_dic/features/catalog/port/catalog_id.dart';
-import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/ranking/port/model/ranking_list_item.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 

@@ -1,14 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/catalog/port/catalog_id.dart';
-import 'package:my_dic/features/catalog/port/catalog_reader.dart';
-import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
-import 'package:my_dic/features/catalog/port/conjugation_reader.dart';
-import 'package:my_dic/features/catalog/port/model/catalog_conjugation.dart';
-import 'package:my_dic/features/catalog/port/model/catalog_entry_detail.dart';
-import 'package:my_dic/features/catalog/port/model/esp_jpn_entry.dart';
-import 'package:my_dic/features/catalog/port/model/jpn_esp_entry.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/word_detail/internal/application/query/load_word_detail_query.dart';
 import 'package:my_dic/features/word_detail/port/query.dart';
 
@@ -27,7 +20,8 @@ void main() {
     final reader = _CatalogReaderPort(Result.success(
       EspJpnEntryDetail(word: espWord, entries: [entry]),
     ));
-    final conjugationReaderPort = _ConjugationReaderPort(Result.success(conjugation));
+    final conjugationReaderPort =
+        _ConjugationReaderPort(Result.success(conjugation));
 
     final result = await _query(reader, conjugationReaderPort).execute(
       const WordDetailQuery(word: espWord),
@@ -91,7 +85,8 @@ void main() {
     expect(result.errorOrNull, same(error));
   });
 
-  test('fails when CatalogReaderPort returns a different word identity', () async {
+  test('fails when CatalogReaderPort returns a different word identity',
+      () async {
     const otherWord =
         CatalogWordRef(catalogId: CatalogId.espJpnMain, wordId: 2);
     final result = await _query(
@@ -103,7 +98,8 @@ void main() {
     expect(result.errorOrNull, isA<BusinessRuleError>());
   });
 
-  test('fails when CatalogReaderPort returns a detail variant for another catalog',
+  test(
+      'fails when CatalogReaderPort returns a detail variant for another catalog',
       () async {
     final result = await _query(
       _CatalogReaderPort(

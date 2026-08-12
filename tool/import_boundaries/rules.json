@@ -19,6 +19,11 @@
     {"id": "firebase_canonical_infrastructure_only", "sourcePath": "lib/**"},
     {"id": "database_schema_registration_exact_exception", "sourcePath": "lib/app/**"},
     {"id": "feature_presentation_navigation_callback_only", "sourcePath": "lib/features/*/**"},
+    {"id": "catalog_external_no_internal", "sourcePath": "lib/**"},
+    {"id": "catalog_external_only_facade", "sourcePath": "lib/**"},
+    {"id": "integration_catalog_only_facade", "sourcePath": "lib/integration/**"},
+    {"id": "catalog_internal_no_search_quiz", "sourcePath": "lib/features/catalog/internal/**"},
+    {"id": "catalog_port_framework_only_bridges", "sourcePath": "lib/features/catalog/port/**"},
     {
       "id": "domain_no_framework",
       "sourcePath": "lib/**/domain/**",

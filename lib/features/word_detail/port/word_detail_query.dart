@@ -1,4 +1,4 @@
-import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 
 /// Identifies the dictionary content needed for a word-detail page.
 class WordDetailQuery {

@@ -4,5 +4,4 @@ abstract class IUserLocalDataSource {
   Future<LocalUserDTO?> getUser();
 
   Future<void> updateUser(LocalUserDTO user);
-
 }

@@ -1,7 +1,4 @@
-import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
-import 'package:my_dic/features/catalog/port/model/catalog_conjugation.dart';
-import 'package:my_dic/features/catalog/port/model/esp_jpn_entry.dart';
-import 'package:my_dic/features/catalog/port/model/jpn_esp_entry.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 
 /// Complete, screen-ready catalog content for a word-detail page.
 sealed class WordDetailViewData {

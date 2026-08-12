@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/shared/enums/feature_tag.dart';
-import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/ranking/port/model/update_ranking_filter_input_data.dart';
 import 'package:my_dic/features/ranking/internal/application/usecase/update_ranking_filter/update_ranking_filter_interactor.dart';
 

@@ -36,9 +36,7 @@ class FirebaseMyWordDao {
 
     if (querySnapshot.docs.isEmpty) return [];
 
-    return querySnapshot.docs
-        .map(FirebaseMyWordMapper.fromDocument)
-        .toList();
+    return querySnapshot.docs.map(FirebaseMyWordMapper.fromDocument).toList();
   }
 
   /// Merge-writes only [fieldMask] keys plus bookkeeping timestamps, so that

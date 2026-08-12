@@ -280,6 +280,7 @@ class Options {
 const _frameworkPackages = {
   'flutter',
   'flutter_riverpod',
+  'riverpod',
   'provider',
   'drift',
   'firebase_core',
@@ -316,6 +317,37 @@ List<Violation> semanticViolations(
       result.add(
           Violation('feature_external_only_port', entry.source, entry.target));
     }
+    if (target != null &&
+        isCatalogInternal(target) &&
+        sourceFeature != 'catalog') {
+      result.add(Violation(
+          'catalog_external_no_internal', entry.source, entry.target));
+    }
+    if (target != null &&
+        isCatalogPort(target) &&
+        sourceFeature != 'catalog' &&
+        !isAllowedCatalogExternalPortImport(entry.source, target)) {
+      result.add(Violation(
+          'catalog_external_only_facade', entry.source, entry.target));
+    }
+    if (target != null &&
+        entry.source.startsWith('lib/integration/') &&
+        isCatalogPath(target) &&
+        target != _catalogFacade) {
+      result.add(Violation(
+          'integration_catalog_only_facade', entry.source, entry.target));
+    }
+    if (entry.source.startsWith('lib/features/catalog/internal/') &&
+        (targetFeature == 'search' || targetFeature == 'quiz')) {
+      result.add(Violation(
+          'catalog_internal_no_search_quiz', entry.source, entry.target));
+    }
+    if (entry.source.startsWith('lib/features/catalog/port/') &&
+        isFrameworkImport(entry.target) &&
+        !isAllowedCatalogBridgeFrameworkImport(entry.source, entry.target)) {
+      result.add(Violation(
+          'catalog_port_framework_only_bridges', entry.source, entry.target));
+    }
     if (sourceFeature != null &&
         targetFeature != null &&
         sourceFeature != targetFeature &&
@@ -341,8 +373,9 @@ List<Violation> semanticViolations(
         entry.source.contains('/port/')) {
       final isAllowedPresentationBridge =
           isPresentationEntry(entry.source) && isInternalPresentation(target);
-      final isAllowedCompositionBridge =
-          isComposition(entry.source) && target.contains('/internal/factory/');
+      final isAllowedCompositionBridge = isComposition(entry.source) &&
+          (target.contains('/internal/factory/') ||
+              isCatalogCompositionFactoryBridge(entry.source, target));
       if (!isAllowedPresentationBridge && !isAllowedCompositionBridge) {
         result.add(Violation(
             isComposition(entry.source)
@@ -353,7 +386,8 @@ List<Violation> semanticViolations(
       }
     }
     if ((isBusinessPort(entry.source) || isComposition(entry.source)) &&
-        isFrameworkImport(entry.target)) {
+        isFrameworkImport(entry.target) &&
+        !isAllowedCatalogBridgeFrameworkImport(entry.source, entry.target)) {
       result.add(Violation(
           isComposition(entry.source)
               ? 'composition_no_framework'
@@ -414,8 +448,17 @@ List<Violation> semanticViolations(
     }
 
     visit(source);
+    if (isCatalogPort(source)) {
+      for (final package in packages) {
+        if (!isAllowedCatalogBridgeFrameworkImport(source, package)) {
+          result.add(Violation(
+              'catalog_port_framework_only_bridges', source, package));
+        }
+      }
+    }
     if (isBusinessPort(source) || isComposition(source)) {
       for (final package in packages) {
+        if (isAllowedCatalogBridgeFrameworkImport(source, package)) continue;
         result.add(Violation(
             isComposition(source)
                 ? 'composition_no_framework'
@@ -429,10 +472,42 @@ List<Violation> semanticViolations(
 }
 
 bool isPortPath(String path) => path.contains('/port/');
+const _catalogFacade = 'lib/features/catalog/port/catalog.dart';
+const _catalogComposition = 'lib/features/catalog/port/composition.dart';
+const _catalogPresentationDependencies =
+    'lib/features/catalog/port/presentation_dependencies.dart';
+const _catalogCompositionFactory =
+    'lib/features/catalog/internal/composition/catalog_composition_factory.dart';
+bool isCatalogPath(String path) => path.startsWith('lib/features/catalog/');
+bool isCatalogInternal(String path) =>
+    path.startsWith('lib/features/catalog/internal/');
+bool isCatalogPort(String path) =>
+    path.startsWith('lib/features/catalog/port/');
+bool isCatalogFrameworkBridge(String source) =>
+    source == _catalogComposition || source == _catalogPresentationDependencies;
+bool isAllowedCatalogBridgeFrameworkImport(String source, String target) =>
+    isCatalogFrameworkBridge(source) &&
+    target.startsWith('package:flutter_riverpod/');
+bool isCatalogCompositionFactoryBridge(String source, String target) =>
+    source == _catalogComposition && target == _catalogCompositionFactory;
+bool isAllowedCatalogExternalPortImport(String source, String target) {
+  if (target == _catalogFacade) return true;
+  if (target == _catalogComposition) {
+    return source.startsWith('lib/app/bootstrap/');
+  }
+  if (target == _catalogPresentationDependencies) {
+    return source.startsWith('lib/app/bootstrap/') ||
+        RegExp(r'^lib/features/[^/]+/internal/(?:presentation|composition)/')
+            .hasMatch(source);
+  }
+  return false;
+}
+
 bool isBusinessPort(String path) =>
     path.contains('/port/') &&
     !path.endsWith('/port/presentation_entry.dart') &&
-    !path.endsWith('/port/composition.dart');
+    !path.endsWith('/port/composition.dart') &&
+    path != _catalogPresentationDependencies;
 bool isComposition(String path) => path.endsWith('/port/composition.dart');
 bool isPresentationEntry(String path) =>
     path.endsWith('/port/presentation_entry.dart');

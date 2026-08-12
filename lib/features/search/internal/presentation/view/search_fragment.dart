@@ -11,7 +11,7 @@ import 'package:my_dic/features/search/port/model/search_direction.dart';
 import 'package:my_dic/features/search/port/model/search_result_item.dart';
 import 'package:my_dic/features/search/internal/presentation/ui_model/search_ui_model.dart';
 import 'package:my_dic/features/search/internal/presentation/view_model/viewmodel.dart';
-import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 
 class SearchFragment extends ConsumerStatefulWidget {
   const SearchFragment({

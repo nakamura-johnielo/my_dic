@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/features/catalog/port/model/catalog_conjugation.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/word_detail/internal/presentation/components/conjugacion_card.dart';
 
 void main() {

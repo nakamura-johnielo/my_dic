@@ -1,5 +1,4 @@
-import 'package:my_dic/features/catalog/port/catalog_id.dart';
-import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'search_direction.dart';
 
 extension SearchDirectionCatalogWordRef on SearchDirection {

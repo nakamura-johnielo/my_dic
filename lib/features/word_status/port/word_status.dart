@@ -1,4 +1,4 @@
-import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 
 /// The status associated with a word in a specific Catalog dataset.
 final class WordStatus {
@@ -22,11 +22,12 @@ final class WordStatus {
     bool? isBookmarked,
     bool? hasNote,
     DateTime? updatedAt,
-  }) => WordStatus(
-    word: word ?? this.word,
-    isLearned: isLearned ?? this.isLearned,
-    isBookmarked: isBookmarked ?? this.isBookmarked,
-    hasNote: hasNote ?? this.hasNote,
-    updatedAt: updatedAt ?? this.updatedAt,
-  );
+  }) =>
+      WordStatus(
+        word: word ?? this.word,
+        isLearned: isLearned ?? this.isLearned,
+        isBookmarked: isBookmarked ?? this.isBookmarked,
+        hasNote: hasNote ?? this.hasNote,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
 }

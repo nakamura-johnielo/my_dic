@@ -57,6 +57,9 @@ class _AppBootstrapState extends State<AppBootstrap> {
             sharedPreferencesProvider
                 .overrideWithValue(snapshot.data!.sharedPreferences),
             sessionScopeKeyProvider.overrideWith(resolveSessionScopeKey),
+            catalogReadPortsDependencyProvider.overrideWith(
+              (ref) => ref.watch(catalogReadPortsProvider),
+            ),
             catalogReaderPortDependencyProvider.overrideWith(
               (ref) => ref.watch(catalogReaderPortProvider),
             ),

@@ -5,11 +5,11 @@ import 'package:my_dic/features/word_status/port/composition.dart';
 import 'package:my_dic/features/word_status/port/guest_migration.dart';
 import 'package:my_dic/features/word_status/port/repository.dart';
 
-final _wordStatusPortsProvider = Provider<WordStatusPorts>((ref) =>
-    createWordStatusPorts(
-      database: ref.watch(databaseProvider),
-      outboxWriter: ref.watch(driftOutboxWriterProvider),
-    ));
+final _wordStatusPortsProvider =
+    Provider<WordStatusPorts>((ref) => createWordStatusPorts(
+          database: ref.watch(databaseProvider),
+          outboxWriter: ref.watch(driftOutboxWriterProvider),
+        ));
 
 final wordStatusRepositoryProvider = Provider<WordStatusRepository>(
   (ref) => ref.watch(_wordStatusPortsProvider).repository,

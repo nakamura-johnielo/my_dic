@@ -21,5 +21,4 @@ class EspJpnSupplementDao extends DatabaseAccessor<DatabaseProvider>
           ..orderBy([(tbl) => OrderingTerm(expression: tbl.supplementId)]))
         .get();
   }
-
 }

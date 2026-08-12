@@ -5,7 +5,7 @@ import 'package:my_dic/core/presentation/state/ui_effect.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/core/shared/consts/account_scope.dart';
 import 'package:my_dic/core/shared/value_objects/field_update.dart';
-import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/word_status/internal/application/update_word_status.dart';
 import 'package:my_dic/features/word_status/port/commands.dart';
 

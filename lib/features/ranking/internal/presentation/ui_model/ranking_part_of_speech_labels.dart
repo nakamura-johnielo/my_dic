@@ -1,4 +1,4 @@
-import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 
 /// Ranking-owned presentation labels for Catalog part-of-speech values.
 extension RankingPartOfSpeechLabels on CatalogPartOfSpeech {

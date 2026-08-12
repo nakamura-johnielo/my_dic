@@ -6,11 +6,8 @@ enum EntryPoint {
   myword,
   profile
 }
-enum EntryPointCategory {
-  main,
-  study,
-  meta
-}
+
+enum EntryPointCategory { main, study, meta }
 
 extension EntryPointExtension on EntryPoint {
   EntryPointCategory get category {

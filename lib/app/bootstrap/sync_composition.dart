@@ -7,7 +7,8 @@ import 'package:my_dic/features/sync/port/composition.dart';
 import 'package:my_dic/features/sync/port/dataset_sync_handler.dart';
 import 'package:my_dic/features/sync/port/sync_runner.dart';
 import 'package:my_dic/features/user_profile/port/composition.dart' as user;
-import 'package:my_dic/features/word_status/port/composition.dart' as word_status;
+import 'package:my_dic/features/word_status/port/composition.dart'
+    as word_status;
 
 export 'sync_infrastructure_providers.dart';
 
@@ -76,21 +77,24 @@ T _readFeatureDependency<T>(Ref ref, Object dependency) {
   final isDatabase = switch (dependency) {
     my_word.MyWordSyncDependency.database ||
     user.UserProfileSyncDependency.database ||
-    word_status.WordStatusSyncDependency.database => true,
+    word_status.WordStatusSyncDependency.database =>
+      true,
     _ => false,
   };
   if (isDatabase) return ref.watch(databaseProvider) as T;
   final isFirestore = switch (dependency) {
     my_word.MyWordSyncDependency.firestore ||
     user.UserProfileSyncDependency.firestore ||
-    word_status.WordStatusSyncDependency.firestore => true,
+    word_status.WordStatusSyncDependency.firestore =>
+      true,
     _ => false,
   };
   if (isFirestore) return ref.watch(firestoreDBProvider) as T;
   final isMutationExecutor = switch (dependency) {
     my_word.MyWordSyncDependency.remoteMutationExecutor ||
     user.UserProfileSyncDependency.remoteMutationExecutor ||
-    word_status.WordStatusSyncDependency.remoteMutationExecutor => true,
+    word_status.WordStatusSyncDependency.remoteMutationExecutor =>
+      true,
     _ => false,
   };
   if (isMutationExecutor) return ref.watch(remoteMutationExecutorProvider) as T;

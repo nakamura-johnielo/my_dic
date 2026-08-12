@@ -26,7 +26,6 @@ class FakeSignInInteractor implements SignInPort {
 
     return _executeResult ?? Result.success(createTestAuth());
   }
-
 }
 
 /// Fake SignUpInteractor for testing
@@ -43,7 +42,6 @@ class FakeSignUpInteractor implements SignUpPort {
     callCount++;
     return _executeResult ?? Result.success(createTestAuth(isVerified: false));
   }
-
 }
 
 /// Fake VerifyEmailInteractor for testing
@@ -60,7 +58,6 @@ class FakeVerifyEmailInteractor implements SendVerificationEmailPort {
     callCount++;
     return _executeResult ?? const Result.success(null);
   }
-
 }
 
 /// Fake SignOutInteractor for testing
@@ -77,7 +74,6 @@ class FakeSignOutInteractor implements SignOutPort {
     callCount++;
     return _executeResult ?? const Result.success(null);
   }
-
 }
 
 class FakeReloadCurrentAuthInteractor implements ReloadCurrentAuthPort {
@@ -92,5 +88,4 @@ class FakeReloadCurrentAuthInteractor implements ReloadCurrentAuthPort {
     callCount++;
     return executeResult;
   }
-
 }

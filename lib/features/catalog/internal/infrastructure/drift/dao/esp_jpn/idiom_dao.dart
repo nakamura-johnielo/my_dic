@@ -19,5 +19,4 @@ class EspJpnIdiomDao extends DatabaseAccessor<DatabaseProvider>
           ..orderBy([(tbl) => OrderingTerm(expression: tbl.idiomId)]))
         .get();
   }
-
 }

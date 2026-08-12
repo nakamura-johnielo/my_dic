@@ -16,14 +16,17 @@ final class SyncWorkflowRunner implements SyncRunner {
   Future<SyncRunOutcome> foreground(SyncContext context) async {
     final report = await _scheduler.foreground(context);
     return switch (_interpreter.interpret(report)) {
-      SyncReportOutcome.succeeded || SyncReportOutcome.partialSuccess =>
+      SyncReportOutcome.succeeded ||
+      SyncReportOutcome.partialSuccess =>
         SyncRunOutcome.success,
-      SyncReportOutcome.retryScheduled || SyncReportOutcome.offlineDeferred =>
+      SyncReportOutcome.retryScheduled ||
+      SyncReportOutcome.offlineDeferred =>
         SyncRunOutcome.retryScheduled,
       SyncReportOutcome.cancelled => SyncRunOutcome.cancelled,
       SyncReportOutcome.alreadyRunning ||
       SyncReportOutcome.authenticationRequired ||
-      SyncReportOutcome.needsAttention => SyncRunOutcome.nonRetryableFailure,
+      SyncReportOutcome.needsAttention =>
+        SyncRunOutcome.nonRetryableFailure,
     };
   }
 

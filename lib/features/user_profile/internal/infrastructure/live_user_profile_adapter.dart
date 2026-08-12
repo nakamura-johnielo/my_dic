@@ -10,9 +10,8 @@ final class LiveUserProfileAdapter implements LiveUserProfilePort {
   final IUserProfileLocalDataSource _local;
 
   @override
-  Stream<AppUser?> watchProfile(String accountId) => _local
-      .watchProfile(accountId)
-      .map((row) {
+  Stream<AppUser?> watchProfile(String accountId) =>
+      _local.watchProfile(accountId).map((row) {
         if (row == null) return null;
         final payload = Map<String, Object?>.from(
           jsonDecode(row.payload) as Map,

@@ -2,9 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/catalog/port/catalog_id.dart';
-import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
-import 'package:my_dic/features/catalog/port/model/esp_jpn_entry.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/word_detail/internal/presentation/ui_model/word_detail_load_key.dart';
 import 'package:my_dic/features/word_detail/internal/presentation/view_model/word_detail_view_model.dart';
 import 'package:my_dic/features/word_detail/port/query.dart';

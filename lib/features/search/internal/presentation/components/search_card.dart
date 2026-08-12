@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 
 class SearchCard extends StatelessWidget {
   const SearchCard(

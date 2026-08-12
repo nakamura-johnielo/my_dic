@@ -9,9 +9,11 @@ import 'package:my_dic/features/sync/port/remote_mutation_executor.dart';
 /// Firebase infrastructure boundary.
 FirebaseMyWordDataSource createInternalFirebaseMyWordRemoteDataSource(
   SyncDependencyReaderPort read,
-) => FirebaseMyWordDataSource(
-  FirebaseMyWordDao(
-    read<FirebaseFirestore>(MyWordSyncDependency.firestore),
-    read<RemoteMutationExecutor>(MyWordSyncDependency.remoteMutationExecutor),
-  ),
-);
+) =>
+    FirebaseMyWordDataSource(
+      FirebaseMyWordDao(
+        read<FirebaseFirestore>(MyWordSyncDependency.firestore),
+        read<RemoteMutationExecutor>(
+            MyWordSyncDependency.remoteMutationExecutor),
+      ),
+    );

@@ -69,7 +69,8 @@ final class FirebaseRemoteMutationExecutor implements RemoteMutationExecutor {
   ) {
     final user = _firestore.collection(_users).doc(request.accountId);
     return switch (target) {
-      RemoteMutationTarget.myWord => user.collection(_myWords).doc(request.entityId),
+      RemoteMutationTarget.myWord =>
+        user.collection(_myWords).doc(request.entityId),
       RemoteMutationTarget.myWordStatus =>
         user.collection(_myWordStatuses).doc(request.entityId),
       RemoteMutationTarget.userProfile => user,
@@ -83,12 +84,17 @@ final class FirebaseRemoteMutationExecutor implements RemoteMutationExecutor {
   Map<String, dynamic> _identityFields(
     RemoteMutationTarget target,
     RemoteMutationRequest request,
-  ) => switch (target) {
+  ) =>
+      switch (target) {
         RemoteMutationTarget.myWord => {'wordId': request.entityId},
         RemoteMutationTarget.myWordStatus => {'myWordId': request.entityId},
         RemoteMutationTarget.userProfile => {'userId': request.accountId},
-        RemoteMutationTarget.espJpnWordStatus => {'wordId': int.parse(request.entityId)},
-        RemoteMutationTarget.jpnEspWordStatus => {'wordId': int.parse(request.entityId)},
+        RemoteMutationTarget.espJpnWordStatus => {
+            'wordId': int.parse(request.entityId)
+          },
+        RemoteMutationTarget.jpnEspWordStatus => {
+            'wordId': int.parse(request.entityId)
+          },
       };
 
   Map<String, dynamic> _encodeField(
@@ -99,7 +105,9 @@ final class FirebaseRemoteMutationExecutor implements RemoteMutationExecutor {
     if (target == RemoteMutationTarget.userProfile) {
       return field == 'username' ? {'userName': value} : const {};
     }
-    if (target == RemoteMutationTarget.myWord && field == 'deletedAt' && value is String) {
+    if (target == RemoteMutationTarget.myWord &&
+        field == 'deletedAt' &&
+        value is String) {
       return {field: Timestamp.fromDate(DateTime.parse(value).toUtc())};
     }
     if (target != RemoteMutationTarget.myWord && value is bool) {
@@ -112,19 +120,24 @@ final class FirebaseRemoteMutationExecutor implements RemoteMutationExecutor {
     required DocumentReference<Map<String, dynamic>> reference,
     required RemoteMutationRequest request,
     required Map<String, dynamic> identityFields,
-    required Map<String, dynamic> Function(String field, Object? value) encodeField,
+    required Map<String, dynamic> Function(String field, Object? value)
+        encodeField,
   }) async {
     final provisional = await _firestore.runTransaction((transaction) async {
       final snapshot = await transaction.get(reference);
       final existing = snapshot.data();
       final revision = _revisionOf(existing?['revision']);
       final lastMutationId = existing?['lastMutationId'] as String?;
-      final priorClientUpdatedAt = _dateOf(existing?['clientUpdatedAt']) ?? _dateOf(existing?['updatedAt']);
+      final priorClientUpdatedAt = _dateOf(existing?['clientUpdatedAt']) ??
+          _dateOf(existing?['updatedAt']);
       if (lastMutationId == request.mutationId) {
-        return _ProvisionalAck(RemoteMutationAckStatus.duplicate, revision, lastMutationId);
+        return _ProvisionalAck(
+            RemoteMutationAckStatus.duplicate, revision, lastMutationId);
       }
-      if (priorClientUpdatedAt != null && !request.clientUpdatedAt.isAfter(priorClientUpdatedAt)) {
-        return _ProvisionalAck(RemoteMutationAckStatus.superseded, revision, lastMutationId);
+      if (priorClientUpdatedAt != null &&
+          !request.clientUpdatedAt.isAfter(priorClientUpdatedAt)) {
+        return _ProvisionalAck(
+            RemoteMutationAckStatus.superseded, revision, lastMutationId);
       }
       final data = <String, dynamic>{...identityFields};
       for (final field in request.fieldMask) {
@@ -139,7 +152,8 @@ final class FirebaseRemoteMutationExecutor implements RemoteMutationExecutor {
       });
       if (!snapshot.exists) data['createdAt'] = FieldValue.serverTimestamp();
       transaction.set(reference, data, SetOptions(merge: true));
-      return _ProvisionalAck(RemoteMutationAckStatus.applied, revision + 1, request.mutationId);
+      return _ProvisionalAck(
+          RemoteMutationAckStatus.applied, revision + 1, request.mutationId);
     });
     final committed = await reference.get();
     return RemoteMutationAck(
@@ -150,11 +164,13 @@ final class FirebaseRemoteMutationExecutor implements RemoteMutationExecutor {
     );
   }
 
-  static int _revisionOf(Object? value) => value is int && value >= 0 ? value : 0;
+  static int _revisionOf(Object? value) =>
+      value is int && value >= 0 ? value : 0;
 
   static Map<String, Object?> _userProfileFields(
     Map<String, dynamic> data,
-  ) => {
+  ) =>
+      {
         ...data,
         'createdAt': _dateOf(data['createdAt']),
         'updatedAt': _dateOf(data['updatedAt']),

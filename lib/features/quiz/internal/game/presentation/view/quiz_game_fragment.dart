@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/features/quiz/internal/game/presentation/components/quiz_card.dart';
 import 'package:my_dic/features/word_status/port/presentation_entry.dart';
-import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/quiz/internal/game/application/model/quiz_conjugation.dart';
 import 'package:my_dic/features/quiz/internal/game/presentation/provider/quiz_game_view_model_provider.dart';
 import 'package:my_dic/features/quiz/internal/composition/quiz_game_providers.dart';

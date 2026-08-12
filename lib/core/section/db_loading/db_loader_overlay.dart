@@ -85,7 +85,8 @@ class DatabaseLoadingOverlay extends ConsumerWidget {
                       ? null // インデターミネートモード
                       : loadingState.progress,
                   minHeight: 8,
-                  backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  backgroundColor:
+                      Theme.of(context).colorScheme.surfaceContainerHighest,
                   valueColor: AlwaysStoppedAnimation<Color>(
                     Theme.of(context).colorScheme.primary,
                   ),

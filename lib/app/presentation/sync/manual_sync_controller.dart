@@ -130,8 +130,7 @@ class ManualSyncController extends StateNotifier<ManualSyncUiState>
         effect: UiNoticeEffect(message),
       );
 
-  String _messageFor(SyncRunOutcome outcome) =>
-      switch (outcome) {
+  String _messageFor(SyncRunOutcome outcome) => switch (outcome) {
         SyncRunOutcome.retryScheduled => 'Sync will retry automatically.',
         SyncRunOutcome.nonRetryableFailure => 'Sync needs attention.',
         SyncRunOutcome.success => 'Sync complete.',

@@ -1,0 +1,162 @@
+import 'package:my_dic/features/catalog/internal/infrastructure/drift/query/catalog_entry_summary_drift_query.dart';
+import 'package:my_dic/features/catalog/internal/infrastructure/drift/query/catalog_ranking_drift_query.dart';
+import 'package:my_dic/features/catalog/port/model/catalog_frequency_level.dart';
+import 'package:my_dic/features/catalog/port/model/catalog_search_models.dart';
+
+final class CatalogEntrySummaryMapper {
+  const CatalogEntrySummaryMapper();
+
+  CatalogMeaningSummary? meaning(CatalogMeaningDriftRow row) {
+    final meaning = switch (row.source) {
+      CatalogMeaningDriftSource.conjugation => _plainText(row.html),
+      CatalogMeaningDriftSource.dictionaryContent =>
+        extractMeaningText(row.html),
+    };
+    return meaning.isEmpty ? null : CatalogMeaningSummary(meaning: meaning);
+  }
+
+  CatalogHeadwordMetadata headword(CatalogHeadwordMetadataDriftRow row) {
+    final frequencyMatch = RegExp(
+      r'<sup\b[^>]*>\s*\((\*+)\)\s*</sup>',
+      caseSensitive: false,
+    ).firstMatch(row.headwordHtml);
+    final withoutFrequency = row.headwordHtml.replaceAll(
+      RegExp(
+        r'<sup\b[^>]*>\s*\(\*+\)\s*</sup>',
+        caseSensitive: false,
+      ),
+      '',
+    );
+    return CatalogHeadwordMetadata(
+      headword: _plainText(withoutFrequency),
+      frequencyLevel:
+          CatalogFrequencyLevel(frequencyMatch?.group(1)!.length ?? 0),
+    );
+  }
+
+  CatalogRankingMetadata ranking(CatalogRankingDriftRow row) =>
+      CatalogRankingMetadata(rankingNo: row.rankingNo);
+
+  /// Extracts every complete dictionary meaning element as normalized text.
+  String extractMeaningText(String html) {
+    final meanings = <String>[];
+    final elements = <_HtmlElement>[];
+    _MeaningFrame? activeMeaning;
+    for (final match
+        in RegExp(r'<!--[\s\S]*?-->|<[^>]*>|[^<]+').allMatches(html)) {
+      final token = match.group(0)!;
+      if (!token.startsWith('<')) {
+        activeMeaning?.text.write(token);
+        continue;
+      }
+      final closing = RegExp(r'^<\s*/\s*([a-z][\w:-]*)', caseSensitive: false)
+          .firstMatch(token);
+      if (closing != null) {
+        final tag = closing.group(1)!.toLowerCase();
+        while (elements.isNotEmpty) {
+          final element = elements.removeLast();
+          if (_isTextBoundary(element.tag)) activeMeaning?.text.write(' ');
+          if (element.meaning case final frame?) {
+            final meaning = _plainText(frame.text.toString());
+            if (meaning.isNotEmpty) meanings.add(meaning);
+            activeMeaning = null;
+          }
+          if (element.tag == tag) break;
+        }
+        continue;
+      }
+      final opening = RegExp(r'^<\s*([a-z][\w:-]*)\b', caseSensitive: false)
+          .firstMatch(token);
+      if (opening == null || token.startsWith('<!--')) continue;
+      final tag = opening.group(1)!.toLowerCase();
+      if (_isTextBoundary(tag)) activeMeaning?.text.write(' ');
+      final isMeaning = activeMeaning == null &&
+          RegExp(
+            r'''\bdata-orgtag\s*=\s*(?:"meaning"|'meaning')''',
+            caseSensitive: false,
+          ).hasMatch(token);
+      final frame = isMeaning ? _MeaningFrame() : null;
+      if (frame != null) activeMeaning = frame;
+      if (!token.endsWith('/>') && !_isVoidElement(tag)) {
+        elements.add(_HtmlElement(tag, frame));
+      } else if (frame != null) {
+        activeMeaning = null;
+      }
+    }
+    return meanings.join('  ');
+  }
+}
+
+final class _HtmlElement {
+  const _HtmlElement(this.tag, this.meaning);
+
+  final String tag;
+  final _MeaningFrame? meaning;
+}
+
+final class _MeaningFrame {
+  final StringBuffer text = StringBuffer();
+}
+
+bool _isTextBoundary(String tag) => const {
+      'br',
+      'p',
+      'div',
+      'li',
+      'tr',
+      'h1',
+      'h2',
+      'h3',
+      'h4',
+      'h5',
+      'h6'
+    }.contains(tag);
+
+bool _isVoidElement(String tag) => const {
+      'area',
+      'base',
+      'br',
+      'col',
+      'embed',
+      'hr',
+      'img',
+      'input',
+      'link',
+      'meta',
+      'param',
+      'source',
+      'track',
+      'wbr'
+    }.contains(tag);
+
+String _plainText(String html) {
+  final withBreaks = html.replaceAll(
+    RegExp(r'<(?:br|/p|/div|/li|/tr|/h[1-6])\b[^>]*>', caseSensitive: false),
+    ' ',
+  );
+  final withoutTags = withBreaks.replaceAll(RegExp(r'<[^>]*>'), '');
+  final decoded = withoutTags.replaceAllMapped(
+    RegExp(r'&(#(?:x[0-9a-f]+|[0-9]+)|[a-z]+);', caseSensitive: false),
+    (match) => _decodeEntity(match.group(1)!) ?? match.group(0)!,
+  );
+  return decoded.replaceAll(RegExp(r'\s+'), ' ').trim();
+}
+
+String? _decodeEntity(String entity) {
+  if (entity.startsWith('#x') || entity.startsWith('#X')) {
+    final value = int.tryParse(entity.substring(2), radix: 16);
+    return value == null ? null : String.fromCharCode(value);
+  }
+  if (entity.startsWith('#')) {
+    final value = int.tryParse(entity.substring(1));
+    return value == null ? null : String.fromCharCode(value);
+  }
+  return const {
+    'amp': '&',
+    'apos': "'",
+    'gt': '>',
+    'lt': '<',
+    'nbsp': ' ',
+    'quot': '"',
+  }[entity.toLowerCase()];
+}

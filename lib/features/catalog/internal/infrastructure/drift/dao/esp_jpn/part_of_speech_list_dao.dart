@@ -21,5 +21,4 @@ class PartOfSpeechListDao extends DatabaseAccessor<DatabaseProvider>
     return (select(partOfSpeechLists)..where((tbl) => tbl.wordId.equals(id)))
         .getSingleOrNull();
   }
-
 }

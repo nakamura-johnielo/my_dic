@@ -25,3 +25,24 @@ dart run tool/check_import_boundaries.dart --baseline tool/import_boundaries/bas
 
 Use `--format=json` for machine-readable output and replace default ownership
 metadata before committing new baseline entries.
+
+## Catalog boundary
+
+Business code outside `lib/features/catalog/**` imports Catalog only through:
+
+```dart
+import 'package:my_dic/features/catalog/port/catalog.dart';
+```
+
+The only direct public-port exceptions are technical wiring seams:
+
+- `features/catalog/port/composition.dart` for application composition
+- `features/catalog/port/presentation_dependencies.dart` for presentation wiring
+
+External imports of `features/catalog/internal/**` are forbidden. Code under
+`lib/integration/**` may import feature public ports, but not a feature's internal,
+DAO, Drift row, or infrastructure implementation. Catalog's facade remains pure
+Dart; Riverpod is limited to the two technical seam files above.
+
+See [ADR 0002](./decisions/0002-catalog-read-ownership.md) and the
+[Catalog public surface manifest](../refactor-v0.3/public-surface.md).

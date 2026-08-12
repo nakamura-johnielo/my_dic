@@ -2,12 +2,17 @@ import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
+import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/esp_jpn/conjugation_dao.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/esp_jpn/dictionary_dao.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/esp_jpn/example_dao.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/esp_jpn/idiom_dao.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/esp_jpn/supplement_dao.dart';
+import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/esp_jpn/esp_jpn_word_dao.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/jpn_esp/jpn_esp_dictionary_dao.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/jpn_esp/jpn_esp_example_dao.dart';
+import 'package:my_dic/features/catalog/internal/infrastructure/drift/query/catalog_ranking_drift_query.dart';
+import 'package:my_dic/features/catalog/port/catalog_id.dart';
+import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 
 void main() {
   late DatabaseProvider database;
@@ -133,5 +138,70 @@ void main() {
           .map((row) => row.exampleId),
       [1, 2, 3],
     );
+  });
+
+  test(
+      'word prefix paging retains the current SQLite row observation order '
+      'without promising lexical ordering', () async {
+    // Insert, word-id, and lexical orders deliberately differ. The DAO has no
+    // ORDER BY; this only characterizes the current SQLite observation order.
+    for (final entry in [(30, 'cacao'), (10, 'cama'), (20, 'cabra')]) {
+      await database.into(database.espJpnWords).insert(
+            EspJpnWordsCompanion.insert(
+              wordId: Value(entry.$1),
+              word: entry.$2,
+            ),
+          );
+    }
+    final dao = EspJpnWordDao(database);
+
+    final first = await dao.getWordsByWordByPage('ca', 2, 0);
+    final last = await dao.getWordsByWordByPage('ca', 2, 1);
+
+    expect(first.map((row) => row.word), ['cama', 'cabra']);
+    expect(last.map((row) => row.word), ['cacao']);
+  });
+
+  test('conjugation exact matches sort before prefix-only matches', () async {
+    await database.customStatement('''
+      INSERT INTO words (word_id, word) VALUES
+        (1, 'hablar'), (2, 'haber')
+    ''');
+    await database.customStatement('''
+      INSERT INTO conjugations
+        (word_id, word, indicative_present_yo)
+      VALUES
+        (1, 'hablar', 'hablo'),
+        (2, 'haber', 'habloque')
+    ''');
+
+    final rows = await ConjugationDao(database)
+        .getConjugationByWordWithPage('hablo', 2, 0);
+
+    expect(rows.map((row) => row.wordId), [1, 2]);
+    expect(rows.first.indicativePresentYo, 'hablo');
+  });
+
+  test('ranking query chooses the smallest ranking number for each word',
+      () async {
+    await database.customStatement(
+      "INSERT INTO words (word_id, word) VALUES (1, 'casa')",
+    );
+    await database.customStatement('''
+      INSERT INTO rankings
+        (ranking_id, ranking_no, word, word_origin, word_id)
+      VALUES
+        (10, 300, 'casa', 'casa', 1),
+        (20, 100, 'casa', 'casa', 1)
+    ''');
+
+    const word = CatalogWordRef(
+      catalogId: CatalogId.espJpnMain,
+      wordId: 1,
+    );
+    final rows = await CatalogRankingDriftQuery(database).fetch([word]);
+
+    expect(rows.single.rankingNo, 100);
+    expect(identical(rows.single.word, word), isTrue);
   });
 }

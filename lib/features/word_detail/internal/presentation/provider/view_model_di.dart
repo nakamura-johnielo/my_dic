@@ -8,7 +8,8 @@ import 'package:my_dic/features/word_detail/internal/presentation/ui_model/word_
 import 'package:my_dic/features/word_detail/internal/presentation/view_model/word_detail_view_model.dart';
 
 final wordDetailViewModelProvider = StateNotifierProvider.autoDispose
-    .family<WordDetailViewModel, WordDetailState, WordDetailLoadKey>((ref, key) {
+    .family<WordDetailViewModel, WordDetailState, WordDetailLoadKey>(
+        (ref, key) {
   final viewModel = WordDetailViewModel(LoadWordDetailQuery(
     ref.read(catalogReaderPortDependencyProvider),
     ref.read(conjugationReaderPortDependencyProvider),

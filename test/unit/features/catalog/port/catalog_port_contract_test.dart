@@ -22,7 +22,8 @@ void main() {
       await conjugationReaderPort.getConjugation(word),
       isA<Success<CatalogConjugation?>>(),
     );
-    expect(await conjugationReaderPort.hasConjugation(word), isA<Success<bool>>());
+    expect(
+        await conjugationReaderPort.hasConjugation(word), isA<Success<bool>>());
   });
 
   test('public Catalog port is independent of legacy and presentation layers',

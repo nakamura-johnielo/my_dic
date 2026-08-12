@@ -6,9 +6,11 @@ import 'package:my_dic/features/catalog/port/catalog_id.dart';
 import 'package:my_dic/features/catalog/port/catalog_reader.dart';
 import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_entry_detail.dart';
+import 'package:my_dic/features/catalog/port/reader/catalog_entry_detail_reader_port.dart';
 
 /// Catalog's public detail reader backed by the Catalog-owned repository graph.
-final class DriftCatalogReaderPort implements CatalogReaderPort {
+final class DriftCatalogReaderPort
+    implements CatalogReaderPort, CatalogEntryDetailReaderPort {
   const DriftCatalogReaderPort({
     required IEsjDictionaryRepository espJpnRepository,
     required IJpnEspDictionaryRepository jpnEspRepository,
@@ -17,6 +19,10 @@ final class DriftCatalogReaderPort implements CatalogReaderPort {
 
   final IEsjDictionaryRepository _espJpnRepository;
   final IJpnEspDictionaryRepository _jpnEspRepository;
+
+  @override
+  Future<Result<CatalogEntryDetail>> readEntryDetail(CatalogWordRef word) =>
+      getEntryDetail(word);
 
   @override
   Future<Result<CatalogEntryDetail>> getEntryDetail(CatalogWordRef word) async {

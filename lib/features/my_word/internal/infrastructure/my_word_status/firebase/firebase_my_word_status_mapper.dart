@@ -14,11 +14,16 @@ final class FirebaseMyWordStatusMapper {
       isLearned: data[MyWordStatusDTO.fieldIsLearned] as int,
       isBookmarked: data[MyWordStatusDTO.fieldIsBookmarked] as int,
       updateBy: data[MyWordStatusDTO.fieldUpdateBy] as String?,
-      createdAt: (data[MyWordStatusDTO.fieldCreatedAt] as Timestamp).toDate().toUtc(),
-      updatedAt: (data[MyWordStatusDTO.fieldUpdatedAt] as Timestamp).toDate().toUtc(),
+      createdAt:
+          (data[MyWordStatusDTO.fieldCreatedAt] as Timestamp).toDate().toUtc(),
+      updatedAt:
+          (data[MyWordStatusDTO.fieldUpdatedAt] as Timestamp).toDate().toUtc(),
       remoteRevision: data[MyWordStatusDTO.fieldRevision] as int? ?? 0,
       lastMutationId: data[MyWordStatusDTO.fieldLastMutationId] as String?,
-      clientUpdatedAt: (data[MyWordStatusDTO.fieldClientUpdatedAt] as Timestamp?)?.toDate().toUtc(),
+      clientUpdatedAt:
+          (data[MyWordStatusDTO.fieldClientUpdatedAt] as Timestamp?)
+              ?.toDate()
+              .toUtc(),
     );
   }
 }

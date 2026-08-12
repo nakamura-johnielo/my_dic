@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_dic/features/catalog/port/model/catalog_conjugation.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/word_detail/internal/presentation/ui_model/catalog_conjugation_labels.dart';
 
 class ConjugacionCard extends StatelessWidget {

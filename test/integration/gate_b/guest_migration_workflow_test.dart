@@ -53,9 +53,8 @@ void main() {
 
   testWidgets('non-retryable post-sync failure exposes one UI retry',
       (tester) async {
-    final harness =
-        await _pump(
-            tester, _Workflow(outcomes: [SyncRunOutcome.nonRetryableFailure]));
+    final harness = await _pump(
+        tester, _Workflow(outcomes: [SyncRunOutcome.nonRetryableFailure]));
     await tester.tap(find.descendant(
         of: find.byType(AlertDialog), matching: find.byType(FilledButton)));
     await tester.pumpAndSettle();

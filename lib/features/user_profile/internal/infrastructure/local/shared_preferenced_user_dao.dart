@@ -2,7 +2,7 @@ import 'package:my_dic/core/shared/consts/shared_preference.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPreferencesUserDao {
-  final  SharedPreferences prefs;
+  final SharedPreferences prefs;
   final String _deviceIdkey = SharedPreferenceKeys.deviceId;
 
   SharedPreferencesUserDao(this.prefs);

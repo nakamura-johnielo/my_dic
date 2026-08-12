@@ -9,7 +9,14 @@ final class SearchIssue {
 }
 
 final class SearchResultPage {
-  SearchResultPage({required List<SearchResultItem> items, required List<ConjugationSearchItem> conjugationSuggestions, required this.hasNext, required List<SearchIssue> issues}) : items = List.unmodifiable(items), conjugationSuggestions = List.unmodifiable(conjugationSuggestions), issues = List.unmodifiable(issues);
+  SearchResultPage(
+      {required List<SearchResultItem> items,
+      required List<ConjugationSearchItem> conjugationSuggestions,
+      required this.hasNext,
+      required List<SearchIssue> issues})
+      : items = List.unmodifiable(items),
+        conjugationSuggestions = List.unmodifiable(conjugationSuggestions),
+        issues = List.unmodifiable(issues);
   final List<SearchResultItem> items;
   final List<ConjugationSearchItem> conjugationSuggestions;
   final bool hasNext;

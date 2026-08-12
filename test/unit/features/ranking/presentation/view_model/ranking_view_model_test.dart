@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/shared/enums/feature_tag.dart';
-import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';

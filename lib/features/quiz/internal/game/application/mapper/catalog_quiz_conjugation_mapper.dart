@@ -1,4 +1,4 @@
-import 'package:my_dic/features/catalog/port/model/catalog_conjugation.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/quiz/internal/game/application/model/quiz_conjugation.dart';
 
 /// Consumer-side mapping from the Catalog contract to Quiz vocabulary.

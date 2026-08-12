@@ -4,10 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/application/query/query_issue.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/catalog/port/catalog_id.dart';
-import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
-import 'package:my_dic/features/catalog/port/model/esp_jpn_entry.dart';
-import 'package:my_dic/features/catalog/port/model/jpn_esp_entry.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/word_detail/port/query.dart';
 
 void main() {

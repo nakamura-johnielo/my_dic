@@ -5,14 +5,16 @@ import 'package:my_dic/features/auth/port/app_auth.dart';
 import 'package:my_dic/features/auth/port/auth_commands.dart';
 import 'package:my_dic/features/auth/port/auth_readers.dart';
 
-abstract interface class IObserveAuthStateUseCase implements ObserveAuthStatePort {
+abstract interface class IObserveAuthStateUseCase
+    implements ObserveAuthStatePort {
   Stream<AppAuth?> execute();
 
   @override
   Stream<AppAuth?> observeAuthState() => execute();
 }
 
-abstract interface class IReloadCurrentAuthUseCase implements ReloadCurrentAuthPort {
+abstract interface class IReloadCurrentAuthUseCase
+    implements ReloadCurrentAuthPort {
   Future<Result<AppAuth>> execute();
 
   @override

@@ -51,8 +51,11 @@ final class SyncHandlerRuntimeAdapter implements SyncHandlerRuntime {
       String? errorCode;
       var retryable = true;
       final leases = await _queue.leasePending(
-        accountId: context.accountId, dataset: adapter.dataset,
-        limit: pushBatchLimit, now: now, leaseDuration: leaseDuration,
+        accountId: context.accountId,
+        dataset: adapter.dataset,
+        limit: pushBatchLimit,
+        now: now,
+        leaseDuration: leaseDuration,
       );
       _guard.ensureCanContinue(context);
       for (final lease in leases) {
@@ -60,16 +63,21 @@ final class SyncHandlerRuntimeAdapter implements SyncHandlerRuntime {
         try {
           final m = lease.mutation;
           final ack = await adapter.push(RemoteMutationRequest(
-            accountId: context.accountId, entityId: m.entityId,
-            mutationId: m.mutationId, fields: m.payload, fieldMask: m.fieldMask,
+            accountId: context.accountId,
+            entityId: m.entityId,
+            mutationId: m.mutationId,
+            fields: m.payload,
+            fieldMask: m.fieldMask,
             clientUpdatedAt: m.clientUpdatedAt,
             baseRemoteRevision: m.baseRemoteRevision,
           ));
           _guard.ensureCanContinue(context);
           await adapter.transaction(() async {
             final updated = await adapter.acknowledge(
-              mutation: m, leasedLocalRevision: lease.leasedLocalRevision,
-              accountId: context.accountId, acknowledgement: ack,
+              mutation: m,
+              leasedLocalRevision: lease.leasedLocalRevision,
+              accountId: context.accountId,
+              acknowledgement: ack,
             );
             if (!updated || !await _queue.ack(lease)) {
               throw StateError('Sync remote acknowledgement is stale');
@@ -82,14 +90,17 @@ final class SyncHandlerRuntimeAdapter implements SyncHandlerRuntime {
           if (classified.kind == SyncFailureKind.deadLetter) {
             await _queue.deadLetter(lease, errorCode: classified.code);
           } else {
-            await _queue.retry(lease, errorCode: classified.code,
-              nextAttemptAt: now.add(_retryPolicy.delayForAttempt(lease.attemptCount + 1)));
+            await _queue.retry(lease,
+                errorCode: classified.code,
+                nextAttemptAt: now
+                    .add(_retryPolicy.delayForAttempt(lease.attemptCount + 1)));
           }
           errorCode = classified.code;
           retryable = classified.retryable;
         }
       }
-      final cursor = await _checkpoints.read(accountId: context.accountId, dataset: adapter.dataset);
+      final cursor = await _checkpoints.read(
+          accountId: context.accountId, dataset: adapter.dataset);
       _guard.ensureCanContinue(context);
       List<DatasetSyncRecord> records;
       try {
@@ -107,31 +118,44 @@ final class SyncHandlerRuntimeAdapter implements SyncHandlerRuntime {
       var pulled = 0;
       var nextCursor = cursor;
       if (records.isNotEmpty) {
-        final pending = await _queue.peekPending(accountId: context.accountId, dataset: adapter.dataset);
+        final pending = await _queue.peekPending(
+            accountId: context.accountId, dataset: adapter.dataset);
         _guard.ensureCanContinue(context);
         final skipped = <String, Set<String>>{};
-        for (final m in pending) { skipped.putIfAbsent(m.entityId, () => {}).addAll(m.fieldMask); }
+        for (final m in pending) {
+          skipped.putIfAbsent(m.entityId, () => {}).addAll(m.fieldMask);
+        }
         await adapter.transaction(() async {
           for (final record in records) {
             _guard.ensureCanContinue(context);
-            await adapter.applyRemote(record, accountId: context.accountId,
+            await adapter.applyRemote(record,
+                accountId: context.accountId,
                 skippedFields: skipped[record.entityId] ?? const {});
             pulled++;
-            final candidate = SyncCursor(seconds: record.updatedAt.millisecondsSinceEpoch ~/ 1000,
-              nanoseconds: (record.updatedAt.microsecondsSinceEpoch % 1000000) * 1000,
-              documentId: record.entityId);
-            if (nextCursor == null || candidate.compareTo(nextCursor!) > 0) nextCursor = candidate;
+            final candidate = SyncCursor(
+                seconds: record.updatedAt.millisecondsSinceEpoch ~/ 1000,
+                nanoseconds:
+                    (record.updatedAt.microsecondsSinceEpoch % 1000000) * 1000,
+                documentId: record.entityId);
+            if (nextCursor == null || candidate.compareTo(nextCursor!) > 0)
+              nextCursor = candidate;
           }
           if (nextCursor != null && (cursor == null || nextCursor != cursor)) {
-            await _checkpoints.write(accountId: context.accountId, dataset: adapter.dataset,
-              cursor: nextCursor!, lastSuccessfulAt: now);
+            await _checkpoints.write(
+                accountId: context.accountId,
+                dataset: adapter.dataset,
+                cursor: nextCursor!,
+                lastSuccessfulAt: now);
           }
         });
       }
       _guard.ensureCanContinue(context);
       return errorCode == null
-          ? DatasetSyncResult.success(pushedCount: pushed, pulledCount: pulled, cursor: nextCursor)
-          : DatasetSyncResult.failed(errorCode: errorCode, retryable: retryable,
+          ? DatasetSyncResult.success(
+              pushedCount: pushed, pulledCount: pulled, cursor: nextCursor)
+          : DatasetSyncResult.failed(
+              errorCode: errorCode,
+              retryable: retryable,
               cursorUnchanged: pulled == 0);
     } on SyncExecutionCancelled catch (_) {
       return _cancelled(context);

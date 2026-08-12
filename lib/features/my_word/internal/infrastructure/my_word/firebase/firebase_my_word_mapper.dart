@@ -18,7 +18,9 @@ final class FirebaseMyWordMapper {
       deletedAt: deletedAt is Timestamp ? deletedAt.toDate().toUtc() : null,
       remoteRevision: data[MyWordDTO.fieldRevision] as int? ?? 0,
       lastMutationId: data[MyWordDTO.fieldLastMutationId] as String?,
-      clientUpdatedAt: (data[MyWordDTO.fieldClientUpdatedAt] as Timestamp?)?.toDate().toUtc(),
+      clientUpdatedAt: (data[MyWordDTO.fieldClientUpdatedAt] as Timestamp?)
+          ?.toDate()
+          .toUtc(),
     );
   }
 }

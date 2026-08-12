@@ -13,9 +13,9 @@ void main() {
 
     test('allows consumers to import another feature port', () async {
       await write(root, 'lib/app/bootstrap.dart',
-          directive('features/catalog/port/reader.dart'));
-      await write(
-          root, 'lib/features/catalog/port/reader.dart', 'class ReaderPort {}');
+          directive('features/catalog/port/catalog.dart'));
+      await write(root, 'lib/features/catalog/port/catalog.dart',
+          'class ReaderPort {}');
 
       expect(await check(root), isEmpty);
     });
@@ -62,6 +62,106 @@ void main() {
               source,
               'package:my_dic/features/catalog/internal/infrastructure/store.dart')));
     });
+
+    test('enforces Catalog facade and ownership rules', () async {
+      await write(root, 'lib/features/search/internal/use.dart',
+          "${directive('features/catalog/internal/domain/entity.dart')}\n${directive('features/catalog/port/catalog_word_ref.dart')}");
+      await write(root, 'lib/integration/catalog_search/use.dart',
+          directive('features/catalog/port/composition.dart'));
+      await write(root, 'lib/features/catalog/internal/application/use.dart',
+          directive('features/quiz/port/catalog_gateway.dart'));
+      await write(root, 'lib/features/catalog/port/catalog.dart',
+          "import 'package:flutter_riverpod/flutter_riverpod.dart';");
+
+      final violations = await check(root);
+      expectRule(violations, 'catalog_external_no_internal');
+      expectRule(violations, 'catalog_external_only_facade');
+      expectRule(violations, 'integration_catalog_only_facade');
+      expectRule(violations, 'catalog_internal_no_search_quiz');
+      expectRule(violations, 'catalog_port_framework_only_bridges');
+    });
+
+    test('allows the Catalog facade and scoped bridge exceptions', () async {
+      await write(root, 'lib/features/search/internal/use.dart',
+          directive('features/catalog/port/catalog.dart'));
+      await write(root, 'lib/app/bootstrap/catalog.dart',
+          directive('features/catalog/port/composition.dart'));
+      await write(root, 'lib/features/quiz/internal/presentation/use.dart',
+          directive('features/catalog/port/presentation_dependencies.dart'));
+      await write(root, 'lib/features/catalog/port/composition.dart',
+          "import 'package:flutter_riverpod/flutter_riverpod.dart';");
+      await write(
+          root,
+          'lib/features/catalog/port/presentation_dependencies.dart',
+          "import 'package:flutter_riverpod/flutter_riverpod.dart';");
+
+      final catalogRules = (await check(root)).where((violation) =>
+          violation.ruleId.startsWith('catalog_') ||
+          violation.ruleId.startsWith('integration_catalog_'));
+      expect(catalogRules, isEmpty);
+    });
+
+    test('does not widen Catalog bridge exceptions to arbitrary callers',
+        () async {
+      await write(root, 'lib/app/use.dart',
+          directive('features/catalog/port/composition.dart'));
+      await write(root, 'lib/features/quiz/internal/application/use.dart',
+          directive('features/catalog/port/presentation_dependencies.dart'));
+
+      final violations = await check(root);
+      expect(
+          violations.where((v) => v.ruleId == 'catalog_external_only_facade'),
+          hasLength(2));
+    });
+
+    test('checks every conditional import branch for Catalog rules', () async {
+      await write(
+          root,
+          'lib/features/search/internal/use.dart',
+          "import 'package:my_dic/features/catalog/port/catalog.dart' "
+              "if (dart.library.io) "
+              "'package:my_dic/features/catalog/internal/domain/value.dart';");
+      await write(
+          root,
+          'lib/features/catalog/port/catalog.dart',
+          "import 'safe.dart' if (dart.library.io) "
+              "'package:flutter_riverpod/flutter_riverpod.dart';");
+
+      final violations = await check(root);
+      expectRule(violations, 'catalog_external_no_internal');
+      expectRule(violations, 'catalog_port_framework_only_bridges');
+    });
+
+    test('allows only Riverpod in Catalog port bridge files', () async {
+      await write(root, 'lib/features/catalog/port/catalog.dart',
+          "import 'package:flutter_riverpod/flutter_riverpod.dart';");
+      await write(
+          root,
+          'lib/features/catalog/port/composition.dart',
+          "import 'package:flutter_riverpod/flutter_riverpod.dart';\n"
+              "import 'package:drift/drift.dart';");
+      await write(
+          root,
+          'lib/features/catalog/port/presentation_dependencies.dart',
+          "import 'package:flutter_riverpod/flutter_riverpod.dart';\n"
+              "import 'package:riverpod/riverpod.dart';\n"
+              "import 'package:flutter/widgets.dart';\n"
+              "import 'package:firebase_auth/firebase_auth.dart';");
+
+      final violations = (await check(root))
+          .where((v) => v.ruleId == 'catalog_port_framework_only_bridges')
+          .toList();
+      expect(violations, hasLength(5));
+      expect(
+          violations.map((v) => v.target),
+          containsAll(<String>[
+            'package:flutter_riverpod/flutter_riverpod.dart',
+            'package:drift/drift.dart',
+            'package:riverpod/riverpod.dart',
+            'package:flutter/widgets.dart',
+            'package:firebase_auth/firebase_auth.dart',
+          ]));
+    });
   });
 }
 
@@ -76,3 +176,6 @@ Future<void> write(Directory root, String relativePath, String contents) async {
 }
 
 String directive(String target) => "import 'package:my_dic/$target';";
+void expectRule(Iterable<FeatureDependencyViolation> violations, String rule) =>
+    expect(violations.any((violation) => violation.ruleId == rule), isTrue,
+        reason: '$rule: $violations');

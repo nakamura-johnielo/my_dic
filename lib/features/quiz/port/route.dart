@@ -1,6 +1,5 @@
 import 'package:my_dic/core/result/route_parse_result.dart';
-import 'package:my_dic/features/catalog/port/catalog_id.dart';
-import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 
 /// URL-serializable route contract for a Quiz game.
 ///

@@ -65,11 +65,12 @@ class AuthLifecycleState {
     String? notice,
     bool clearError = false,
     bool clearNotice = false,
-  }) => AuthLifecycleState(
-    phase: phase ?? this.phase,
-    auth: auth ?? this.auth,
-    user: user ?? this.user,
-    error: clearError ? null : error ?? this.error,
-    notice: clearNotice ? null : notice ?? this.notice,
-  );
+  }) =>
+      AuthLifecycleState(
+        phase: phase ?? this.phase,
+        auth: auth ?? this.auth,
+        user: user ?? this.user,
+        error: clearError ? null : error ?? this.error,
+        notice: clearNotice ? null : notice ?? this.notice,
+      );
 }

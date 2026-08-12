@@ -32,7 +32,8 @@ final class UserProfileGuestMigrationAdapter
         {'username': guestUsername},
       );
       await outboxWriter.enqueue(SyncMutation(
-        mutationId: '$migrationId:${SyncDataset.userProfile.stableId}:$accountId',
+        mutationId:
+            '$migrationId:${SyncDataset.userProfile.stableId}:$accountId',
         accountId: accountId,
         dataset: SyncDataset.userProfile,
         entityId: accountId,

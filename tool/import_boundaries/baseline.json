@@ -1,6 +1,10 @@
 {
   "zeroViolationRuleIds": [
-   
+    "catalog_external_no_internal",
+    "catalog_external_only_facade",
+    "integration_catalog_only_facade",
+    "catalog_internal_no_search_quiz",
+    "catalog_port_framework_only_bridges"
   ],
   "violations": []
 }

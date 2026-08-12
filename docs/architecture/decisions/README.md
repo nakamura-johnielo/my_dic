@@ -16,3 +16,4 @@
 | ADR | Title | Status | Date | Replaces |
 |---|---|---|---|---|
 | [0001](./0001-catalog-word-status-my-word-ownership.md) | Catalog・WordStatus・MyWord の ownership | Accepted | 2026-08-08 | — |
+| [0002](./0002-catalog-read-ownership.md) | Catalog read ownership and public surface | Accepted | 2026-08-11 | — |

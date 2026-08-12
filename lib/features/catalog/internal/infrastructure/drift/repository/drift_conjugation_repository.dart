@@ -1,8 +1,8 @@
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/catalog/internal/domain/conjugation/conjugation_search_result_item.dart';
+import 'package:my_dic/features/catalog/internal/application/model/conjugation_search_result_item.dart';
 import 'package:my_dic/features/catalog/internal/domain/conjugation/esp_conjugations.dart';
-import 'package:my_dic/features/catalog/internal/domain/conjugation/search_result_conjugations.dart';
+import 'package:my_dic/features/catalog/internal/application/model/search_result_conjugations.dart';
 import 'package:my_dic/features/catalog/internal/domain/repository/conjugation_repository.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/datasource/conjugation/conjugation_data_source.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/mapper/catalog_drift_mapper.dart';

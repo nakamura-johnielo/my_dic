@@ -1,8 +1,6 @@
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/catalog/port/conjugation_reader.dart';
-import 'package:my_dic/features/catalog/port/catalog_reader.dart';
-import 'package:my_dic/features/catalog/port/model/catalog_conjugation.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/quiz/internal/infrastructure/assets/quiz_game_assets.dart';
 import 'package:my_dic/features/quiz/internal/game/domain/i_repository/i_es_en_conjugacion_repository.dart';
 import 'package:my_dic/features/quiz/port/game_loader.dart';

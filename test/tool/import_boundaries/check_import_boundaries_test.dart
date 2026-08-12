@@ -188,6 +188,121 @@ void main() {
 
       expect(await check(root), isEmpty);
     });
+
+    test('rejects Catalog internal and deep port imports from consumers',
+        () async {
+      await write(root, 'lib/features/search/internal/use.dart',
+          "${imp('features/catalog/internal/domain/value.dart')}\n${imp('features/catalog/port/catalog_word_ref.dart')}");
+
+      final violations = await check(root);
+      expectRule(violations, 'catalog_external_no_internal');
+      expectRule(violations, 'catalog_external_only_facade');
+    });
+
+    test('allows the Catalog facade and narrowly scoped public bridges',
+        () async {
+      await write(root, 'lib/features/search/internal/use.dart',
+          imp('features/catalog/port/catalog.dart'));
+      await write(root, 'lib/app/bootstrap/catalog.dart',
+          "${imp('features/catalog/port/composition.dart')}\n${imp('features/catalog/port/presentation_dependencies.dart')}");
+      await write(root, 'lib/features/quiz/internal/presentation/use.dart',
+          imp('features/catalog/port/presentation_dependencies.dart'));
+
+      final catalogRules = (await check(root))
+          .where((violation) => violation.ruleId.startsWith('catalog_'));
+      expect(catalogRules, isEmpty);
+    });
+
+    test('allows only Catalog composition to expose its exact factory',
+        () async {
+      const factory =
+          'features/catalog/internal/composition/catalog_composition_factory.dart';
+      const otherFactory =
+          'features/catalog/internal/composition/other_factory.dart';
+      await write(root, 'lib/features/catalog/port/composition.dart',
+          "export 'package:my_dic/$factory';\nexport 'package:my_dic/$otherFactory';");
+      await write(root, 'lib/$factory', 'void composeCatalog() {}');
+      await write(root, 'lib/$otherFactory', 'void composeOther() {}');
+
+      final violations = await check(root);
+      expect(violations.where((v) => v.ruleId == 'composition_exact_facade'),
+          hasLength(1));
+      expect(
+          violations
+              .singleWhere((v) => v.ruleId == 'composition_exact_facade')
+              .target,
+          endsWith('/other_factory.dart'));
+    });
+
+    test('does not widen Catalog bridge exceptions to arbitrary callers',
+        () async {
+      await write(root, 'lib/app/use.dart',
+          imp('features/catalog/port/composition.dart'));
+      await write(root, 'lib/features/quiz/internal/application/use.dart',
+          imp('features/catalog/port/presentation_dependencies.dart'));
+
+      expect(
+          (await check(root))
+              .where((v) => v.ruleId == 'catalog_external_only_facade'),
+          hasLength(2));
+    });
+
+    test('allows integration to import only the Catalog facade', () async {
+      await write(root, 'lib/integration/catalog_search/good.dart',
+          imp('features/catalog/port/catalog.dart'));
+      await write(root, 'lib/integration/catalog_search/bad.dart',
+          imp('features/catalog/port/presentation_dependencies.dart'));
+
+      expectRule(await check(root), 'integration_catalog_only_facade');
+    });
+
+    test('rejects Search and Quiz dependencies from Catalog internal',
+        () async {
+      await write(root, 'lib/features/catalog/internal/application/use.dart',
+          "${imp('features/search/port/catalog_gateway.dart')}\n${imp('features/quiz/port/catalog_gateway.dart')}");
+
+      final violations = await check(root);
+      expect(
+          violations
+              .where((v) => v.ruleId == 'catalog_internal_no_search_quiz'),
+          hasLength(2));
+    });
+
+    test('allows only Riverpod in Catalog port bridge files', () async {
+      await write(root, 'lib/features/catalog/port/catalog.dart',
+          sdk('flutter_riverpod/flutter_riverpod.dart'));
+      await write(root, 'lib/features/catalog/port/composition.dart',
+          "${sdk('flutter_riverpod/flutter_riverpod.dart')}\n${sdk('drift/drift.dart')}");
+      await write(
+          root,
+          'lib/features/catalog/port/presentation_dependencies.dart',
+          "${sdk('flutter_riverpod/flutter_riverpod.dart')}\n${sdk('riverpod/riverpod.dart')}\n${sdk('flutter/widgets.dart')}\n${sdk('firebase_auth/firebase_auth.dart')}");
+
+      final violations = await check(root);
+      expect(
+          violations
+              .where((v) => v.ruleId == 'catalog_port_framework_only_bridges'),
+          hasLength(5));
+      expect(
+          violations
+              .where((v) => v.ruleId == 'catalog_port_framework_only_bridges')
+              .map((v) => v.target),
+          containsAll(<String>[
+            'package:flutter_riverpod/flutter_riverpod.dart',
+            'package:drift/drift.dart',
+            'package:riverpod/riverpod.dart',
+            'package:flutter/widgets.dart',
+            'package:firebase_auth/firebase_auth.dart',
+          ]));
+      expect(
+          violations.where((v) =>
+              (v.ruleId == 'business_port_no_framework' ||
+                  v.ruleId == 'composition_no_framework') &&
+              (v.source.endsWith('/composition.dart') ||
+                  v.source.endsWith('/presentation_dependencies.dart')) &&
+              v.target.startsWith('package:flutter_riverpod/')),
+          isEmpty);
+    });
   });
 
   test('baseline comparison reports additions and removals', () async {

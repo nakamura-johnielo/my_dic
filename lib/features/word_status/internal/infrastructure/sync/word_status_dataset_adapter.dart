@@ -20,7 +20,8 @@ abstract class WordStatusDatasetAdapter implements DatasetSyncAdapter {
     SyncCursor? cursor,
   );
   @override
-  Future<List<DatasetSyncRecord>> pull(String accountId, SyncCursor? cursor) async =>
+  Future<List<DatasetSyncRecord>> pull(
+          String accountId, SyncCursor? cursor) async =>
       (await fetchWordStatusPage(accountId, cursor))
           .map(_toDatasetRecord)
           .toList(growable: false);

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/state/ui_effect.dart';
 import 'package:my_dic/core/session/session_scope_provider.dart';
-import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/word_status/internal/presentation/component/status_button.dart'
     as ui;
 import 'package:my_dic/features/word_status/internal/presentation/provider/word_status_providers.dart';

@@ -5,10 +5,12 @@ class BottomBarHeightNotifier extends StateNotifier<double> {
   BottomBarHeightNotifier() : super(0);
   void setHeight(double height) {
     state = height;
-    AppLogger.print("~~~~~~~~~~~~~~~~~~~~~~^^^Bottom bar height set to: $height");
+    AppLogger.print(
+        "~~~~~~~~~~~~~~~~~~~~~~^^^Bottom bar height set to: $height");
   }
 }
 
-final bottomBarHeightProvider = StateNotifierProvider<BottomBarHeightNotifier, double>((ref) {
+final bottomBarHeightProvider =
+    StateNotifierProvider<BottomBarHeightNotifier, double>((ref) {
   return BottomBarHeightNotifier();
 });

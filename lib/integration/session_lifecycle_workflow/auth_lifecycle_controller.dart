@@ -28,19 +28,21 @@ class AuthLifecycleController extends StateNotifier<AuthLifecycleState> {
                   reloadCurrentAuth != null &&
                   ensureUserExists != null),
         ),
-        _auth = auth ?? AuthLifecyclePorts(
-          // Tests and transitional callers may provide lifecycle capabilities
-          // individually; production composition always supplies one bundle.
-          observeAuthState: _NoAuthObserver(),
-          reloadCurrentAuth: reloadCurrentAuth!,
-          signIn: signIn!,
-          signUp: signUp!,
-          signOut: signOut!,
-          sendVerificationEmail: sendVerificationEmail!,
-        ),
-        _user = user ?? UserLifecyclePorts(
-          ensureUserProfile: ensureUserExists!,
-        ),
+        _auth = auth ??
+            AuthLifecyclePorts(
+              // Tests and transitional callers may provide lifecycle capabilities
+              // individually; production composition always supplies one bundle.
+              observeAuthState: _NoAuthObserver(),
+              reloadCurrentAuth: reloadCurrentAuth!,
+              signIn: signIn!,
+              signUp: signUp!,
+              signOut: signOut!,
+              sendVerificationEmail: sendVerificationEmail!,
+            ),
+        _user = user ??
+            UserLifecyclePorts(
+              ensureUserProfile: ensureUserExists!,
+            ),
         super(const AuthLifecycleState.initializing());
 
   final AuthLifecyclePorts _auth;
@@ -159,7 +161,8 @@ class AuthLifecycleController extends StateNotifier<AuthLifecycleState> {
       auth.accountId,
       email: auth.email,
     );
-    if (operation != _profileOperation || state.auth?.accountId != auth.accountId) {
+    if (operation != _profileOperation ||
+        state.auth?.accountId != auth.accountId) {
       return;
     }
     result.when(

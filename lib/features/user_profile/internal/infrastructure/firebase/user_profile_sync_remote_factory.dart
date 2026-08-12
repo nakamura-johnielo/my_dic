@@ -9,11 +9,12 @@ import 'package:my_dic/features/user_profile/port/composition.dart';
 /// infrastructure, keeping the dataset factory SDK-free.
 FirebaseUserRemoteDataSource createInternalFirebaseUserProfileRemoteDataSource(
   SyncDependencyReaderPort read,
-) => FirebaseUserRemoteDataSource(
-  UserDao(
-    read<FirebaseFirestore>(UserProfileSyncDependency.firestore),
-    read<RemoteMutationExecutor>(
-      UserProfileSyncDependency.remoteMutationExecutor,
-    ),
-  ),
-);
+) =>
+    FirebaseUserRemoteDataSource(
+      UserDao(
+        read<FirebaseFirestore>(UserProfileSyncDependency.firestore),
+        read<RemoteMutationExecutor>(
+          UserProfileSyncDependency.remoteMutationExecutor,
+        ),
+      ),
+    );

@@ -1,6 +1,6 @@
 /// Test for Result utility class
 /// Priority: ★★★★★ (Foundation for all other tests)
-/// 
+///
 /// Tests the Result monad pattern implementation which is critical
 /// for the Clean Architecture error handling approach.
 library;

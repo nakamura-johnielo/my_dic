@@ -9,7 +9,8 @@ import 'package:my_dic/features/word_detail/port/word_detail_query.dart';
 import 'package:my_dic/features/word_detail/port/word_detail_view_data.dart';
 
 class WordDetailViewModel extends StateNotifier<WordDetailState> {
-  WordDetailViewModel(this._loadWordDetailQuery) : super(const WordDetailState());
+  WordDetailViewModel(this._loadWordDetailQuery)
+      : super(const WordDetailState());
 
   final ILoadWordDetailQuery _loadWordDetailQuery;
   final _logger = Logger('WordDetailViewModel');

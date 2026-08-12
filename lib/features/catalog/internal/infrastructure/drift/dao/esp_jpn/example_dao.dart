@@ -20,5 +20,4 @@ class EspJpnExampleDao extends DatabaseAccessor<DatabaseProvider>
           ..orderBy([(tbl) => OrderingTerm(expression: tbl.exampleId)]))
         .get();
   }
-
 }

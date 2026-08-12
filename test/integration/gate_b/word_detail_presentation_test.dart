@@ -3,13 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/catalog/port/catalog_id.dart';
-import 'package:my_dic/features/catalog/port/catalog_reader.dart';
-import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
-import 'package:my_dic/features/catalog/port/conjugation_reader.dart';
-import 'package:my_dic/features/catalog/port/model/catalog_conjugation.dart';
-import 'package:my_dic/features/catalog/port/model/catalog_entry_detail.dart';
-import 'package:my_dic/features/catalog/port/model/esp_jpn_entry.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/catalog/port/presentation_dependencies.dart';
 import 'package:my_dic/features/word_detail/port/presentation_entry.dart';
 import 'package:my_dic/features/word_detail/port/presentation_input.dart';
@@ -24,7 +18,8 @@ void main() {
     await tester.pumpWidget(ProviderScope(
       overrides: [
         catalogReaderPortDependencyProvider.overrideWithValue(_Catalog()),
-        conjugationReaderPortDependencyProvider.overrideWithValue(_Conjugation()),
+        conjugationReaderPortDependencyProvider
+            .overrideWithValue(_Conjugation()),
       ],
       child: MaterialApp(
         home: WordDetailFragment(

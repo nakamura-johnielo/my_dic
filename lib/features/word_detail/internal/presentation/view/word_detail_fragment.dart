@@ -12,8 +12,7 @@ import 'package:my_dic/features/word_detail/internal/presentation/view/esp_jpn/d
 import 'package:my_dic/features/word_detail/internal/presentation/view/jpn_esp/jpn_esp_dictionary_fragment.dart';
 import 'package:my_dic/features/word_detail/port/presentation_input.dart';
 import 'package:my_dic/features/word_detail/port/word_detail_view_data.dart';
-import 'package:my_dic/features/catalog/port/catalog_id.dart';
-import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 
 //input data DS
 //TODO QuizCardState enumを使用してしまってる

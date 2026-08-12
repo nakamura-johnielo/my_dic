@@ -1,6 +1,1 @@
-enum WordType{
-  espJpn,
-  jpnEsp,
-  espEng,
-  engEsp
-}
+enum WordType { espJpn, jpnEsp, espEng, engEsp }

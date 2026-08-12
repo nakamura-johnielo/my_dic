@@ -1,6 +1,6 @@
 import 'package:my_dic/core/shared/enums/feature_tag.dart';
-import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/ranking/internal/application/usecase/load_rankings/i_load_rankings_use_case.dart';
 import 'package:my_dic/features/ranking/port/model/ranking_page.dart';
 import 'package:my_dic/features/ranking/port/model/ranking_query.dart';

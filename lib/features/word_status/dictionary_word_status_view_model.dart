@@ -4,7 +4,7 @@ import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/shared/errors/app_error.dart';
 import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 import 'package:my_dic/core/shared/value_objects/field_update.dart';
-import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/word_status/internal/application/update_word_status.dart';
 import 'package:my_dic/features/word_status/port/commands.dart';
 import 'package:my_dic/features/word_status/port/word_status.dart';

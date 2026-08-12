@@ -15,29 +15,31 @@ import 'package:my_dic/features/word_status/port/composition.dart';
 DatasetSyncHandler createInternalEspJpnWordStatusDatasetSyncHandler(
   WordStatusSyncDependencyReaderPort read, {
   required SyncHandlerRuntime runtime,
-}) => WordStatusDatasetSyncHandler(
-  adapter: EspJpnWordStatusDatasetAdapter(
-    local: EspJpnWordStatusLocalStore(
-      EspJpnWordStatusDao(
-        read<DatabaseProvider>(WordStatusSyncDependency.database),
+}) =>
+    WordStatusDatasetSyncHandler(
+      adapter: EspJpnWordStatusDatasetAdapter(
+        local: EspJpnWordStatusLocalStore(
+          EspJpnWordStatusDao(
+            read<DatabaseProvider>(WordStatusSyncDependency.database),
+          ),
+        ),
+        remote: createInternalFirebaseEspJpnWordStatusRemoteStore(read),
       ),
-    ),
-    remote: createInternalFirebaseEspJpnWordStatusRemoteStore(read),
-  ),
-  runtime: runtime,
-);
+      runtime: runtime,
+    );
 
 DatasetSyncHandler createInternalJpnEspWordStatusDatasetSyncHandler(
   WordStatusSyncDependencyReaderPort read, {
   required SyncHandlerRuntime runtime,
-}) => WordStatusDatasetSyncHandler(
-  adapter: JpnEspWordStatusDatasetAdapter(
-    local: JpnEspWordStatusLocalStore(
-      JpnEspWordStatusDao(
-        read<DatabaseProvider>(WordStatusSyncDependency.database),
+}) =>
+    WordStatusDatasetSyncHandler(
+      adapter: JpnEspWordStatusDatasetAdapter(
+        local: JpnEspWordStatusLocalStore(
+          JpnEspWordStatusDao(
+            read<DatabaseProvider>(WordStatusSyncDependency.database),
+          ),
+        ),
+        remote: createInternalFirebaseJpnEspWordStatusRemoteStore(read),
       ),
-    ),
-    remote: createInternalFirebaseJpnEspWordStatusRemoteStore(read),
-  ),
-  runtime: runtime,
-);
+      runtime: runtime,
+    );

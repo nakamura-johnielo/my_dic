@@ -1,4 +1,4 @@
-import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 
 /// Ephemeral display data for the word-detail entry.
 ///

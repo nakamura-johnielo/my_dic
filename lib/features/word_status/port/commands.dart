@@ -1,5 +1,5 @@
 import 'package:my_dic/core/shared/value_objects/field_update.dart';
-import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 
 /// A partial mutation requested for a dictionary word status.
 final class UpdateWordStatusCommand {

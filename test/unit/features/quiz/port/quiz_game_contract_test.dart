@@ -1,7 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/features/catalog/port/catalog_id.dart';
-import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
-import 'package:my_dic/features/catalog/port/model/catalog_conjugation.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/quiz/port/model/quiz_game_data.dart';
 import 'package:my_dic/features/quiz/port/model/quiz_game_load_result.dart';
 import 'package:my_dic/features/quiz/port/model/quiz_game_load_source.dart';

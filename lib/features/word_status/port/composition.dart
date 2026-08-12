@@ -45,14 +45,14 @@ WordStatusPorts createWordStatusPorts({
   final jpnEsp = JpnEspWordStatusLocalStore(JpnEspWordStatusDao(database));
   return WordStatusPorts(
     repository: WordStatusRepositoryAdapter([
-    EspJpnDictionaryWordStatusAdapter(
-      espJpn,
-      outboxWriter,
-    ),
-    JpnEspDictionaryWordStatusAdapter(
-      jpnEsp,
-      outboxWriter,
-    ),
+      EspJpnDictionaryWordStatusAdapter(
+        espJpn,
+        outboxWriter,
+      ),
+      JpnEspDictionaryWordStatusAdapter(
+        jpnEsp,
+        outboxWriter,
+      ),
     ]),
     guestMigration: DriftWordStatusGuestMigration(
       espJpn: espJpn,
@@ -66,10 +66,12 @@ WordStatusPorts createWordStatusPorts({
 DatasetSyncHandler createEspJpnWordStatusDatasetSyncHandler(
   WordStatusSyncDependencyReaderPort read, {
   required SyncHandlerRuntime runtime,
-}) => createInternalEspJpnWordStatusDatasetSyncHandler(read, runtime: runtime);
+}) =>
+    createInternalEspJpnWordStatusDatasetSyncHandler(read, runtime: runtime);
 
 /// Creates the Jpn-Esp WordStatus handler from an app dependency reader.
 DatasetSyncHandler createJpnEspWordStatusDatasetSyncHandler(
   WordStatusSyncDependencyReaderPort read, {
   required SyncHandlerRuntime runtime,
-}) => createInternalJpnEspWordStatusDatasetSyncHandler(read, runtime: runtime);
+}) =>
+    createInternalJpnEspWordStatusDatasetSyncHandler(read, runtime: runtime);

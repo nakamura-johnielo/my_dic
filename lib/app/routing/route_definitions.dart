@@ -4,7 +4,7 @@ import 'package:my_dic/app/routing/invalid_route_page.dart';
 import 'package:my_dic/app/routing/navigation_callbacks.dart';
 import 'package:my_dic/app/routing/route_names.dart';
 import 'package:my_dic/core/result/route_parse_result.dart';
-import 'package:my_dic/features/catalog/port/catalog_id.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/quiz/port/presentation_entry.dart';
 import 'package:my_dic/features/quiz/port/presentation_input.dart';
 import 'package:my_dic/features/quiz/port/route.dart';

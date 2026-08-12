@@ -1,4 +1,4 @@
-import 'package:my_dic/features/catalog/port/model/catalog_conjugation.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 
 /// Labels used exclusively by the word-detail presentation.
 ///

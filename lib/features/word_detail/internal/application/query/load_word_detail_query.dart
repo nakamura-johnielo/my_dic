@@ -1,10 +1,7 @@
 import 'package:my_dic/core/application/model/query_issue.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/catalog/port/catalog_id.dart';
-import 'package:my_dic/features/catalog/port/catalog_reader.dart';
-import 'package:my_dic/features/catalog/port/conjugation_reader.dart';
-import 'package:my_dic/features/catalog/port/model/catalog_entry_detail.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/word_detail/port/i_load_word_detail_query.dart';
 import 'package:my_dic/features/word_detail/port/word_detail_query.dart';
 import 'package:my_dic/features/word_detail/port/word_detail_query_result.dart';

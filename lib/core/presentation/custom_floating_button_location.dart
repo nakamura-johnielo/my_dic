@@ -30,7 +30,7 @@ class NoScaleFloatingActionButtonAnimator extends FloatingActionButtonAnimator {
   Offset getOffset(
       {required Offset begin, required Offset end, required double progress}) {
     // TODO: implement getOffset
-  
+
     return begin;
   }
 

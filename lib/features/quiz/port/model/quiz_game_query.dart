@@ -1,4 +1,4 @@
-import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 
 /// Identifies the Catalog word for which a Quiz game is loaded.
 final class QuizGameQuery {

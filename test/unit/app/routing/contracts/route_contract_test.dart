@@ -3,8 +3,7 @@ import 'package:my_dic/app/routing/route_definitions.dart';
 import 'package:my_dic/core/result/route_parse_result.dart';
 import 'package:my_dic/features/quiz/port/route.dart';
 import 'package:my_dic/features/word_detail/port/route.dart';
-import 'package:my_dic/features/catalog/port/catalog_id.dart';
-import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart';
 
 void main() {
   group('WordDetailRoute', () {

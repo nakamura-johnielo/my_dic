@@ -27,7 +27,8 @@ final class SyncCompositionFactory {
   const SyncCompositionFactory._();
 
   static SyncHandlerRuntime createRuntime(SyncDependencyReaderPort read) {
-    final database = read<DatabaseProvider>(SyncCompositionDependencies.database);
+    final database =
+        read<DatabaseProvider>(SyncCompositionDependencies.database);
     final fence = read<SessionFence>(SyncCompositionDependencies.sessionFence);
     return SyncHandlerRuntimeAdapter(
       queue: DriftSyncQueue(database),
@@ -36,20 +37,24 @@ final class SyncCompositionFactory {
     );
   }
 
-  static SyncQueue createQueue(SyncDependencyReaderPort read) =>
-      DriftSyncQueue(read<DatabaseProvider>(SyncCompositionDependencies.database));
+  static SyncQueue createQueue(SyncDependencyReaderPort read) => DriftSyncQueue(
+      read<DatabaseProvider>(SyncCompositionDependencies.database));
 
-  static SyncCheckpointStore createCheckpointStore(SyncDependencyReaderPort read) =>
-      DriftSyncCheckpointStore(read<DatabaseProvider>(SyncCompositionDependencies.database));
+  static SyncCheckpointStore createCheckpointStore(
+          SyncDependencyReaderPort read) =>
+      DriftSyncCheckpointStore(
+          read<DatabaseProvider>(SyncCompositionDependencies.database));
 
   static OutboxWriter createOutboxWriter(SyncDependencyReaderPort read) =>
-      DriftOutboxWriter(read<DatabaseProvider>(SyncCompositionDependencies.database));
+      DriftOutboxWriter(
+          read<DatabaseProvider>(SyncCompositionDependencies.database));
 
   static SyncRunner createRunner(
     SyncDependencyReaderPort read,
     Iterable<DatasetSyncHandler> handlers,
   ) {
-    final database = read<DatabaseProvider>(SyncCompositionDependencies.database);
+    final database =
+        read<DatabaseProvider>(SyncCompositionDependencies.database);
     final fence = read<SessionFence>(SyncCompositionDependencies.sessionFence);
     final scheduler = SyncScheduler(
       SyncEngine(
@@ -77,7 +82,8 @@ final class _ComposedSyncRunner implements SyncRunner {
   Future<SyncRunOutcome> foreground(SyncContext context) =>
       _runner.foreground(context);
   @override
-  void cancelRetryForAccount(String accountId) => _runner.cancelRetryForAccount(accountId);
+  void cancelRetryForAccount(String accountId) =>
+      _runner.cancelRetryForAccount(accountId);
   @override
   void dispose() => _scheduler.dispose();
 }

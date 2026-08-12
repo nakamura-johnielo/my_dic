@@ -109,4 +109,3 @@ final myWordStatusRepositoryProvider = Provider<IMyWordStatusRepository>((ref) {
     ref.read(myWordOutboxWriterDependencyProvider),
   );
 });
-
