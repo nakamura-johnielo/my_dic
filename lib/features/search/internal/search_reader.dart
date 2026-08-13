@@ -10,8 +10,8 @@ import 'package:my_dic/features/search/port/model/search_result_page.dart';
 import 'package:my_dic/features/search/port/reader.dart';
 
 /// Search policy for paging, suggestion eligibility, and partial failures.
-final class InternalSearchReaderPort implements SearchReaderPort {
-  InternalSearchReaderPort(this._gateway);
+final class InternalSearchQueryPort implements SearchQueryPort {
+  InternalSearchQueryPort(this._gateway);
 
   final SearchCatalogGateway _gateway;
 

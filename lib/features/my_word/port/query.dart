@@ -1,3 +1,4 @@
+import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/my_word/port/result.dart';
 
 /// A page request for MyWord IDs in one account scope.
@@ -25,7 +26,7 @@ final class WatchMyWordItemQuery {
 }
 
 /// Read operations owned by the MyWord aggregate.
-abstract interface class MyWordReaderPort {
+abstract interface class MyWordQueryPort {
   Future<Result<List<String>>> loadIds(LoadMyWordsQuery query);
 
   Stream<MyWordItem?> watchItem(WatchMyWordItemQuery query);

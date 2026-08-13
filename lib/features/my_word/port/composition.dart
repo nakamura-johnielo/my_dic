@@ -22,7 +22,7 @@ final class MyWordPorts {
     required this.guestMigration,
   });
 
-  final MyWordReaderPort reader;
+  final MyWordQueryPort reader;
   final MyWordCommandPort commands;
   final MyWordStatusCommandPort statusCommands;
   final MyWordGuestMigrationPort guestMigration;
@@ -36,13 +36,13 @@ MyWordPorts createMyWordPorts(MyWordDependencyReader read) =>
 enum MyWordSyncDependency { database, firestore, remoteMutationExecutor }
 
 IDatasetSyncHandler createMyWordDatasetSyncHandler(
-  SyncDependencyReaderPort read, {
+  SyncDependencyQueryPort read, {
   required ISyncHandlerRuntime runtime,
 }) =>
     createInternalMyWordDatasetSyncHandler(read, runtime: runtime);
 
 IDatasetSyncHandler createMyWordStatusDatasetSyncHandler(
-  SyncDependencyReaderPort read, {
+  SyncDependencyQueryPort read, {
   required ISyncHandlerRuntime runtime,
 }) =>
     createInternalMyWordStatusDatasetSyncHandler(read, runtime: runtime);

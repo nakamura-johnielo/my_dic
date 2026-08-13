@@ -10,16 +10,16 @@ import 'package:my_dic/features/word_detail/port/word_detail_view_data.dart';
 /// Aggregates the catalog reads needed by a word-detail page.
 class LoadWordDetailQuery implements ILoadWordDetailQuery {
   LoadWordDetailQuery(
-    this._catalogReaderPort,
-    this._conjugationReaderPort,
+    this._catalogQueryPort,
+    this._conjugationQueryPort,
   );
 
-  final CatalogReaderPort _catalogReaderPort;
-  final ConjugationReaderPort _conjugationReaderPort;
+  final CatalogQueryPort _catalogQueryPort;
+  final ConjugationQueryPort _conjugationQueryPort;
 
   @override
   Future<Result<WordDetailQueryResult>> execute(WordDetailQuery query) async {
-    final detailResult = await _catalogReaderPort.getEntryDetail(query.word);
+    final detailResult = await _catalogQueryPort.getEntryDetail(query.word);
     if (detailResult case Failure(error: final error)) {
       return Result.failure(error);
     }
@@ -42,7 +42,7 @@ class LoadWordDetailQuery implements ILoadWordDetailQuery {
     }
 
     final conjugationResult =
-        await _conjugationReaderPort.getConjugation(query.word);
+        await _conjugationQueryPort.getConjugation(query.word);
     return conjugationResult.when(
       success: (conjugation) => Result.success(
         WordDetailQueryResult(

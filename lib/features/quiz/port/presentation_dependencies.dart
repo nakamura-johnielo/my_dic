@@ -9,10 +9,10 @@ final quizPortsDependencyProvider = Provider<QuizPorts>(
   (_) => throw StateError('QuizPorts dependency was not supplied.'),
 );
 
-final quizCandidateReaderDependencyProvider = Provider<QuizCandidateReaderPort>(
+final quizCandidateReaderDependencyProvider = Provider<QuizCandidateQueryPort>(
   (ref) => ref.watch(quizPortsDependencyProvider).candidateReader,
 );
 
-final quizGameReaderDependencyProvider = Provider<QuizGameReaderPort>(
+final quizGameReaderDependencyProvider = Provider<QuizGameQueryPort>(
   (ref) => ref.watch(quizPortsDependencyProvider).gameReader,
 );

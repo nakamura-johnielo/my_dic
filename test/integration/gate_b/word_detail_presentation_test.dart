@@ -17,8 +17,8 @@ void main() {
       (tester) async {
     await tester.pumpWidget(ProviderScope(
       overrides: [
-        catalogReaderPortDependencyProvider.overrideWithValue(_Catalog()),
-        conjugationReaderPortDependencyProvider
+        catalogQueryPortDependencyProvider.overrideWithValue(_Catalog()),
+        conjugationQueryPortDependencyProvider
             .overrideWithValue(_Conjugation()),
       ],
       child: MaterialApp(
@@ -38,7 +38,7 @@ void main() {
   });
 }
 
-final class _Catalog implements CatalogReaderPort {
+final class _Catalog implements CatalogQueryPort {
   @override
   Future<Result<CatalogEntryDetail>> getEntryDetail(
           CatalogWordRef word) async =>
@@ -48,7 +48,7 @@ final class _Catalog implements CatalogReaderPort {
       ));
 }
 
-final class _Conjugation implements ConjugationReaderPort {
+final class _Conjugation implements ConjugationQueryPort {
   @override
   Future<Result<CatalogConjugation?>> getConjugation(
           CatalogWordRef word) async =>

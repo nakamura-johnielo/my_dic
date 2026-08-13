@@ -1,5 +1,5 @@
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
-import 'package:my_dic/features/my_word/internal/adapter/my_word_application_adapter.dart';
+import 'package:my_dic/features/my_word/internal/application/adapter/my_word_application_adapter.dart';
 import 'package:my_dic/features/my_word/internal/application/usecase/my_word/delete_my_word/delete_my_word_interactor.dart';
 import 'package:my_dic/features/my_word/internal/application/usecase/my_word/load_my_word/load_my_word_interactor.dart';
 import 'package:my_dic/features/my_word/internal/application/usecase/my_word/register_my_word/register_my_word_interactor.dart';

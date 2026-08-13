@@ -7,20 +7,20 @@ import 'package:my_dic/features/catalog/port/conjugation_reader.dart';
 /// The application supplies this bridge from its DI runtime. Catalog's public
 /// contract intentionally does not expose runtime, provider, or database
 /// types.
-typedef CatalogDependencyReaderPort = T Function<T>(Object dependency);
+typedef CatalogDependencyQueryPort = T Function<T>(Object dependency);
 
 /// The public Catalog read capabilities assembled for an application scope.
 final class CatalogComposition {
   const CatalogComposition({
     required this.readPorts,
-    required this.catalogReaderPort,
-    required this.conjugationReaderPort,
+    required this.catalogQueryPort,
+    required this.conjugationQueryPort,
   });
 
   /// The complete, scope-stable Catalog read API.
   final CatalogReadPorts readPorts;
 
   /// Legacy capabilities retained while existing consumers migrate.
-  final CatalogReaderPort catalogReaderPort;
-  final ConjugationReaderPort conjugationReaderPort;
+  final CatalogQueryPort catalogQueryPort;
+  final ConjugationQueryPort conjugationQueryPort;
 }

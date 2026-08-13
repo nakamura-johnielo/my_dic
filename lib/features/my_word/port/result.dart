@@ -1,5 +1,3 @@
-export 'package:my_dic/core/shared/utils/result.dart';
-
 /// An immutable MyWord snapshot exposed outside the feature.
 final class MyWord {
   const MyWord({

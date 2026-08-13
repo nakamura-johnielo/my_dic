@@ -9,7 +9,7 @@ import 'package:my_dic/features/catalog/port/reader/catalog_conjugation_search_r
 import 'package:my_dic/features/catalog/port/result/catalog_search_page.dart';
 
 final class DriftCatalogConjugationSearchReader
-    implements CatalogConjugationSearchReaderPort {
+    implements CatalogConjugationSearchQueryPort {
   DriftCatalogConjugationSearchReader(
     DatabaseProvider database, {
     CatalogSearchHitMapper mapper = const CatalogSearchHitMapper(),

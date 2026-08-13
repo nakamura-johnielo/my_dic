@@ -17,7 +17,7 @@ import 'package:my_dic/core/di/data/data_di.dart';
 
 /// Catalog-owned assembly of the Drift implementation graph.
 CatalogComposition createInternalCatalogComposition(
-  CatalogDependencyReaderPort read,
+  CatalogDependencyQueryPort read,
 ) {
   final espJpnDictionary = EsjDriftDictionaryDataSource(
     read(dictionaryDaoProvider),
@@ -31,24 +31,24 @@ CatalogComposition createInternalCatalogComposition(
   );
   final conjugations = ConjugacionDriftDataSource(read(conjugationDaoProvider));
   final database = read(databaseProvider);
-  final catalogReaderPort = DriftCatalogReaderPort(
+  final catalogQueryPort = DriftCatalogQueryPort(
     espJpnRepository: EsjDictionaryRepository(espJpnDictionary),
     jpnEspRepository: JpnEspDictionaryRepository(jpnEspDictionary),
   );
-  final conjugationReaderPort = DriftConjugationReaderPort(
+  final conjugationQueryPort = DriftConjugationQueryPort(
     DriftConjugationRepository(conjugations),
   );
 
   return CatalogComposition(
     readPorts: CatalogReadPorts(
-      entryDetail: catalogReaderPort,
-      conjugation: conjugationReaderPort,
+      entryDetail: catalogQueryPort,
+      conjugation: conjugationQueryPort,
       wordSearch: DriftCatalogWordSearchReader(database),
       conjugationSearch: DriftCatalogConjugationSearchReader(database),
       entrySummary: DriftCatalogEntrySummaryReader(database),
       ranking: DriftCatalogRankingReader(database),
     ),
-    catalogReaderPort: catalogReaderPort,
-    conjugationReaderPort: conjugationReaderPort,
+    catalogQueryPort: catalogQueryPort,
+    conjugationQueryPort: conjugationQueryPort,
   );
 }

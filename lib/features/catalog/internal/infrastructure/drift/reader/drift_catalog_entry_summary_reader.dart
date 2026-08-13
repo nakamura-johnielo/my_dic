@@ -8,7 +8,7 @@ import 'package:my_dic/features/catalog/port/model/catalog_search_models.dart';
 import 'package:my_dic/features/catalog/port/reader/catalog_entry_summary_reader_port.dart';
 
 final class DriftCatalogEntrySummaryReader
-    implements CatalogEntrySummaryReaderPort {
+    implements CatalogEntrySummaryQueryPort {
   DriftCatalogEntrySummaryReader(
     DatabaseProvider database, {
     CatalogEntrySummaryMapper mapper = const CatalogEntrySummaryMapper(),

@@ -45,7 +45,7 @@ void main() {
       ),
     );
 
-    final result = await InternalSearchReaderPort(gateway).search(query);
+    final result = await InternalSearchQueryPort(gateway).search(query);
 
     final page = result.dataOrNull!;
     expect(page.hasNext, isTrue);
@@ -60,7 +60,7 @@ void main() {
 
   test('only primary failure fails the whole search', () async {
     final failure = DatabaseError(message: 'primary');
-    final result = await InternalSearchReaderPort(
+    final result = await InternalSearchQueryPort(
       _Gateway(primaryError: failure),
     ).search(query);
     expect(result.errorOrNull, same(failure));
@@ -82,7 +82,7 @@ void main() {
       failEnrichment: true,
       suggestionError: DatabaseError(message: 'suggestions'),
     );
-    final result = await InternalSearchReaderPort(gateway).search(query);
+    final result = await InternalSearchQueryPort(gateway).search(query);
     final page = result.dataOrNull!;
     expect(page.items.single.meaningText, isNull);
     expect(page.items.single.rankingNo, isNull);
@@ -110,7 +110,7 @@ void main() {
         hasMore: false,
       ),
     );
-    await InternalSearchReaderPort(gateway).search(
+    await InternalSearchQueryPort(gateway).search(
       const SearchQuery(
         text: '話す',
         direction: SearchDirection.jpnEsp,

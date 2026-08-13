@@ -9,7 +9,7 @@ import 'package:my_dic/features/word_status/port/composition.dart';
 /// infrastructure, keeping feature composition SDK-free.
 FirebaseJpnEspWordStatusRemoteStore
     createInternalFirebaseJpnEspWordStatusRemoteStore(
-            SyncDependencyReaderPort read) =>
+            SyncDependencyQueryPort read) =>
         FirebaseJpnEspWordStatusRemoteStore(
           FirebaseJpnEspWordStatusDao(
             read<FirebaseFirestore>(WordStatusSyncDependency.firestore),

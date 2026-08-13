@@ -5,7 +5,7 @@ import 'package:my_dic/features/quiz/port/quiz.dart';
 /// The Catalog gateway deliberately exposes only mechanical reads. This reader
 /// owns query normalization, failure severity, fallback values, and the
 /// projection into the Quiz-facing candidate page.
-final class GatewayQuizCandidateSource implements QuizCandidateReaderPort {
+final class GatewayQuizCandidateSource implements QuizCandidateQueryPort {
   const GatewayQuizCandidateSource(this._catalog);
 
   final QuizCandidateCatalogGateway _catalog;

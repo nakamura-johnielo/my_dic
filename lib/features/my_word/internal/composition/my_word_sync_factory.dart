@@ -13,7 +13,7 @@ import 'package:my_dic/features/sync/port/dataset_sync_handler.dart';
 import 'package:my_dic/features/sync/port/sync_handler_runtime.dart';
 
 IDatasetSyncHandler createInternalMyWordDatasetSyncHandler(
-  SyncDependencyReaderPort read, {
+  SyncDependencyQueryPort read, {
   required ISyncHandlerRuntime runtime,
 }) =>
     AdapterDatasetSyncHandler(
@@ -27,7 +27,7 @@ IDatasetSyncHandler createInternalMyWordDatasetSyncHandler(
     );
 
 IDatasetSyncHandler createInternalMyWordStatusDatasetSyncHandler(
-  SyncDependencyReaderPort read, {
+  SyncDependencyQueryPort read, {
   required ISyncHandlerRuntime runtime,
 }) =>
     AdapterDatasetSyncHandler(

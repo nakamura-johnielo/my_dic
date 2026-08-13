@@ -69,7 +69,7 @@ Future<void> _pump(WidgetTester tester, ProviderContainer container) async {
   await tester.pumpAndSettle();
 }
 
-final class _Loader implements QuizGameReaderPort {
+final class _Loader implements QuizGameQueryPort {
   _Loader(this._results);
 
   final List<QuizGameLoadOutcome> _results;

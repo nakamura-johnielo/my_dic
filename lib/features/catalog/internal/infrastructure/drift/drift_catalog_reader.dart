@@ -9,9 +9,9 @@ import 'package:my_dic/features/catalog/port/model/catalog_entry_detail.dart';
 import 'package:my_dic/features/catalog/port/reader/catalog_entry_detail_reader_port.dart';
 
 /// Catalog's public detail reader backed by the Catalog-owned repository graph.
-final class DriftCatalogReaderPort
-    implements CatalogReaderPort, CatalogEntryDetailReaderPort {
-  const DriftCatalogReaderPort({
+final class DriftCatalogQueryPort
+    implements CatalogQueryPort, CatalogEntryDetailQueryPort {
+  const DriftCatalogQueryPort({
     required IEsjDictionaryRepository espJpnRepository,
     required IJpnEspDictionaryRepository jpnEspRepository,
   })  : _espJpnRepository = espJpnRepository,

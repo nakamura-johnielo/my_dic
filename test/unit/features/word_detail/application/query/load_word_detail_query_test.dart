@@ -17,13 +17,13 @@ void main() {
       participles:
           const CatalogParticiples(present: 'hablando', past: 'hablado'),
     );
-    final reader = _CatalogReaderPort(Result.success(
+    final reader = _CatalogQueryPort(Result.success(
       EspJpnEntryDetail(word: espWord, entries: [entry]),
     ));
-    final conjugationReaderPort =
-        _ConjugationReaderPort(Result.success(conjugation));
+    final conjugationQueryPort =
+        _ConjugationQueryPort(Result.success(conjugation));
 
-    final result = await _query(reader, conjugationReaderPort).execute(
+    final result = await _query(reader, conjugationQueryPort).execute(
       const WordDetailQuery(word: espWord),
     );
     final data = result.dataOrNull!.viewData as EspJpnWordDetailViewData;
@@ -31,14 +31,14 @@ void main() {
     expect(data.word, espWord);
     expect(data.entries.single, same(entry));
     expect(data.conjugation, same(conjugation));
-    expect(conjugationReaderPort.requests, [espWord]);
+    expect(conjugationQueryPort.requests, [espWord]);
   });
 
   test('keeps EspJpn detail when conjugation is absent', () async {
     final result = await _query(
-      _CatalogReaderPort(
+      _CatalogQueryPort(
           Result.success(EspJpnEntryDetail(word: espWord, entries: []))),
-      _ConjugationReaderPort(Result.success(null)),
+      _ConjugationQueryPort(Result.success(null)),
     ).execute(const WordDetailQuery(word: espWord));
 
     final data = result.dataOrNull!.viewData as EspJpnWordDetailViewData;
@@ -50,9 +50,9 @@ void main() {
       () async {
     final error = BusinessRuleError(message: 'conjugation failed');
     final result = await _query(
-      _CatalogReaderPort(
+      _CatalogQueryPort(
           Result.success(EspJpnEntryDetail(word: espWord, entries: []))),
-      _ConjugationReaderPort(Result.failure(error)),
+      _ConjugationQueryPort(Result.failure(error)),
     ).execute(const WordDetailQuery(word: espWord));
 
     expect(result.dataOrNull!.viewData, isA<EspJpnWordDetailViewData>());
@@ -62,49 +62,49 @@ void main() {
 
   test('maps JpnEsp detail without invoking the conjugation reader', () async {
     final entry = JpnEspEntry(dictionaryId: 2, wordId: 3, word: '日本語');
-    final conjugationReaderPort = _ConjugationReaderPort(Result.success(null));
+    final conjugationQueryPort = _ConjugationQueryPort(Result.success(null));
     final result = await _query(
-      _CatalogReaderPort(
+      _CatalogQueryPort(
           Result.success(JpnEspEntryDetail(word: jpnWord, entries: [entry]))),
-      conjugationReaderPort,
+      conjugationQueryPort,
     ).execute(const WordDetailQuery(word: jpnWord));
 
     final data = result.dataOrNull!.viewData as JpnEspWordDetailViewData;
     expect(data.word, jpnWord);
     expect(data.entries.single, same(entry));
-    expect(conjugationReaderPort.requests, isEmpty);
+    expect(conjugationQueryPort.requests, isEmpty);
   });
 
   test('propagates primary catalog failure', () async {
     final error = BusinessRuleError(message: 'dictionary failed');
     final result = await _query(
-      _CatalogReaderPort(Result.failure(error)),
-      _ConjugationReaderPort(Result.success(null)),
+      _CatalogQueryPort(Result.failure(error)),
+      _ConjugationQueryPort(Result.success(null)),
     ).execute(const WordDetailQuery(word: espWord));
 
     expect(result.errorOrNull, same(error));
   });
 
-  test('fails when CatalogReaderPort returns a different word identity',
+  test('fails when CatalogQueryPort returns a different word identity',
       () async {
     const otherWord =
         CatalogWordRef(catalogId: CatalogId.espJpnMain, wordId: 2);
     final result = await _query(
-      _CatalogReaderPort(
+      _CatalogQueryPort(
           Result.success(EspJpnEntryDetail(word: otherWord, entries: []))),
-      _ConjugationReaderPort(Result.success(null)),
+      _ConjugationQueryPort(Result.success(null)),
     ).execute(const WordDetailQuery(word: espWord));
 
     expect(result.errorOrNull, isA<BusinessRuleError>());
   });
 
   test(
-      'fails when CatalogReaderPort returns a detail variant for another catalog',
+      'fails when CatalogQueryPort returns a detail variant for another catalog',
       () async {
     final result = await _query(
-      _CatalogReaderPort(
+      _CatalogQueryPort(
           Result.success(EspJpnEntryDetail(word: jpnWord, entries: []))),
-      _ConjugationReaderPort(Result.success(null)),
+      _ConjugationQueryPort(Result.success(null)),
     ).execute(const WordDetailQuery(word: jpnWord));
 
     expect(result.errorOrNull, isA<BusinessRuleError>());
@@ -112,13 +112,13 @@ void main() {
 }
 
 LoadWordDetailQuery _query(
-  CatalogReaderPort catalogReaderPort,
-  ConjugationReaderPort conjugationReaderPort,
+  CatalogQueryPort catalogQueryPort,
+  ConjugationQueryPort conjugationQueryPort,
 ) =>
-    LoadWordDetailQuery(catalogReaderPort, conjugationReaderPort);
+    LoadWordDetailQuery(catalogQueryPort, conjugationQueryPort);
 
-class _CatalogReaderPort implements CatalogReaderPort {
-  _CatalogReaderPort(this.result);
+class _CatalogQueryPort implements CatalogQueryPort {
+  _CatalogQueryPort(this.result);
   final Result<CatalogEntryDetail> result;
 
   @override
@@ -127,8 +127,8 @@ class _CatalogReaderPort implements CatalogReaderPort {
       result;
 }
 
-class _ConjugationReaderPort implements ConjugationReaderPort {
-  _ConjugationReaderPort(this.result);
+class _ConjugationQueryPort implements ConjugationQueryPort {
+  _ConjugationQueryPort(this.result);
   final Result<CatalogConjugation?> result;
   final requests = <CatalogWordRef>[];
 

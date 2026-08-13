@@ -1,5 +1,5 @@
 /// Framework-free lookup supplied by an app composition root.
-typedef SyncDependencyReaderPort = T Function<T>(Object dependency);
+typedef SyncDependencyQueryPort = T Function<T>(Object dependency);
 
 /// Opaque dependency keys. Only app composition maps these to its providers.
 final class SyncCompositionDependencies {

@@ -16,10 +16,10 @@ final class CatalogReadPorts {
     required this.ranking,
   });
 
-  final CatalogEntryDetailReaderPort entryDetail;
-  final CatalogConjugationReaderPort conjugation;
-  final CatalogWordSearchReaderPort wordSearch;
-  final CatalogConjugationSearchReaderPort conjugationSearch;
-  final CatalogEntrySummaryReaderPort entrySummary;
-  final CatalogRankingReaderPort ranking;
+  final CatalogEntryDetailQueryPort entryDetail;
+  final CatalogConjugationQueryPort conjugation;
+  final CatalogWordSearchQueryPort wordSearch;
+  final CatalogConjugationSearchQueryPort conjugationSearch;
+  final CatalogEntrySummaryQueryPort entrySummary;
+  final CatalogRankingQueryPort ranking;
 }

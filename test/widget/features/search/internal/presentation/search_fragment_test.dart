@@ -17,7 +17,7 @@ import 'package:my_dic/features/search/port/reader.dart';
 void main() {
   testWidgets('query change removes old results while the new page loads',
       (tester) async {
-    final reader = _ReaderPort();
+    final reader = _QueryPort();
     await tester.pumpWidget(_app(reader));
 
     await tester.enterText(find.byType(TextField), 'hablar');
@@ -34,7 +34,7 @@ void main() {
 
   testWidgets('primary failure retries through the VM failed-page target',
       (tester) async {
-    final reader = _ReaderPort();
+    final reader = _QueryPort();
     await tester.pumpWidget(_app(reader));
 
     await tester.enterText(find.byType(TextField), 'hablar');
@@ -50,8 +50,8 @@ void main() {
   });
 }
 
-Widget _app(_ReaderPort reader) => ProviderScope(
-      overrides: [searchReaderPortDependencyProvider.overrideWithValue(reader)],
+Widget _app(_QueryPort reader) => ProviderScope(
+      overrides: [searchQueryPortDependencyProvider.overrideWithValue(reader)],
       child: MaterialApp(
         home: SearchFragment(onOpenWordDetail: (_) {}, onOpenQuiz: (_, __) {}),
       ),
@@ -78,7 +78,7 @@ SearchResultPage _page(String word) => SearchResultPage(
       issues: const [],
     );
 
-final class _ReaderPort implements SearchReaderPort {
+final class _QueryPort implements SearchQueryPort {
   final queries = <SearchQuery>[];
   final pending = <Completer<Result<SearchResultPage>>>[];
 

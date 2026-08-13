@@ -7,7 +7,7 @@ import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_search_models.dart';
 import 'package:my_dic/features/catalog/port/reader/catalog_ranking_reader_port.dart';
 
-final class DriftCatalogRankingReader implements CatalogRankingReaderPort {
+final class DriftCatalogRankingReader implements CatalogRankingQueryPort {
   DriftCatalogRankingReader(
     DatabaseProvider database, {
     CatalogEntrySummaryMapper mapper = const CatalogEntrySummaryMapper(),

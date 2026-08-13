@@ -57,14 +57,14 @@ class _AppBootstrapState extends State<AppBootstrap> {
             catalogReadPortsDependencyProvider.overrideWith(
               (ref) => ref.watch(catalogReadPortsProvider),
             ),
-            catalogReaderPortDependencyProvider.overrideWith(
-              (ref) => ref.watch(catalogReaderPortProvider),
+            catalogQueryPortDependencyProvider.overrideWith(
+              (ref) => ref.watch(catalogQueryPortProvider),
             ),
-            conjugationReaderPortDependencyProvider.overrideWith(
-              (ref) => ref.watch(conjugationReaderPortProvider),
+            conjugationQueryPortDependencyProvider.overrideWith(
+              (ref) => ref.watch(conjugationQueryPortProvider),
             ),
-            searchReaderPortDependencyProvider.overrideWith(
-              (ref) => ref.watch(searchReaderPortProvider),
+            searchQueryPortDependencyProvider.overrideWith(
+              (ref) => ref.watch(searchQueryPortProvider),
             ),
             quizPortsDependencyProvider.overrideWith(
               (ref) => ref.watch(quizPortsProvider),

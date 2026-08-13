@@ -9,7 +9,7 @@ import 'package:my_dic/features/user_profile/internal/infrastructure/sync/user_p
 import 'package:my_dic/features/user_profile/port/composition.dart';
 
 IDatasetSyncHandler createInternalUserProfileDatasetSyncHandler(
-        SyncDependencyReaderPort read,
+        SyncDependencyQueryPort read,
         {required ISyncHandlerRuntime runtime}) =>
     AdapterDatasetSyncHandler(
         adapter: UserProfileDatasetSyncAdapter(

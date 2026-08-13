@@ -22,18 +22,18 @@ void main() {
     final second = container.read(catalogReadPortsProvider);
 
     expect(second, same(first));
-    expect(first.entryDetail, isA<CatalogEntryDetailReaderPort>());
-    expect(first.conjugation, isA<CatalogConjugationReaderPort>());
-    expect(first.wordSearch, isA<CatalogWordSearchReaderPort>());
+    expect(first.entryDetail, isA<CatalogEntryDetailQueryPort>());
+    expect(first.conjugation, isA<CatalogConjugationQueryPort>());
+    expect(first.wordSearch, isA<CatalogWordSearchQueryPort>());
     expect(
       first.conjugationSearch,
-      isA<CatalogConjugationSearchReaderPort>(),
+      isA<CatalogConjugationSearchQueryPort>(),
     );
-    expect(first.entrySummary, isA<CatalogEntrySummaryReaderPort>());
-    expect(first.ranking, isA<CatalogRankingReaderPort>());
-    expect(container.read(catalogReaderPortProvider), same(first.entryDetail));
+    expect(first.entrySummary, isA<CatalogEntrySummaryQueryPort>());
+    expect(first.ranking, isA<CatalogRankingQueryPort>());
+    expect(container.read(catalogQueryPortProvider), same(first.entryDetail));
     expect(
-      container.read(conjugationReaderPortProvider),
+      container.read(conjugationQueryPortProvider),
       same(first.conjugation),
     );
   });
@@ -61,19 +61,19 @@ void main() {
     addTearDown(container.dispose);
 
     expect(
-      container.read(searchReaderPortProvider),
-      isA<SearchReaderPort>(),
+      container.read(searchQueryPortProvider),
+      isA<SearchQueryPort>(),
     );
   });
 
   test('allows Search reader to be replaced at the composition boundary', () {
-    final repository = _SearchReaderPort();
+    final repository = _SearchQueryPort();
     final container = ProviderContainer(
-      overrides: [searchReaderPortProvider.overrideWithValue(repository)],
+      overrides: [searchQueryPortProvider.overrideWithValue(repository)],
     );
     addTearDown(container.dispose);
 
-    expect(container.read(searchReaderPortProvider), same(repository));
+    expect(container.read(searchQueryPortProvider), same(repository));
   });
 
   test('injects focused Quiz readers from the QuizPorts bundle', () {
@@ -96,19 +96,19 @@ void main() {
   });
 }
 
-final class _QuizCandidateReader implements QuizCandidateReaderPort {
+final class _QuizCandidateReader implements QuizCandidateQueryPort {
   @override
   Future<Result<QuizCandidatePage>> search(QuizCandidateQuery query) async =>
       throw UnimplementedError();
 }
 
-final class _QuizGameReader implements QuizGameReaderPort {
+final class _QuizGameReader implements QuizGameQueryPort {
   @override
   Future<Result<QuizGameLoadOutcome>> load(QuizGameQuery query) async =>
       throw UnimplementedError();
 }
 
-final class _SearchReaderPort implements SearchReaderPort {
+final class _SearchQueryPort implements SearchQueryPort {
   @override
   Future<Result<SearchResultPage>> search(SearchQuery query) async =>
       throw UnimplementedError();

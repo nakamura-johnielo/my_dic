@@ -8,7 +8,7 @@ import 'package:my_dic/features/user_profile/port/composition.dart';
 /// Builds the Firebase-backed profile remote adapter in canonical Firebase
 /// infrastructure, keeping the dataset factory SDK-free.
 FirebaseUserRemoteDataSource createInternalFirebaseUserProfileRemoteDataSource(
-  SyncDependencyReaderPort read,
+  SyncDependencyQueryPort read,
 ) =>
     FirebaseUserRemoteDataSource(
       UserDao(

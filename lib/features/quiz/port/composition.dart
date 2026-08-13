@@ -24,8 +24,8 @@ final class QuizPorts {
     required this.gameReader,
   });
 
-  final QuizCandidateReaderPort candidateReader;
-  final QuizGameReaderPort gameReader;
+  final QuizCandidateQueryPort candidateReader;
+  final QuizGameQueryPort gameReader;
 }
 
 /// Assembles Quiz's internal policy graph from application-owned inputs.

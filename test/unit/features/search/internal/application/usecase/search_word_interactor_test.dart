@@ -43,7 +43,7 @@ void main() {
   });
 }
 
-class _SearchQueryRepositoryFake implements SearchReaderPort {
+class _SearchQueryRepositoryFake implements SearchQueryPort {
   SearchQuery? query;
 
   @override

@@ -13,7 +13,7 @@ import 'package:my_dic/features/word_status/internal/infrastructure/sync/word_st
 import 'package:my_dic/features/word_status/port/composition.dart';
 
 IDatasetSyncHandler createInternalEspJpnWordStatusDatasetSyncHandler(
-  WordStatusSyncDependencyReaderPort read, {
+  WordStatusSyncDependencyQueryPort read, {
   required ISyncHandlerRuntime runtime,
 }) =>
     WordStatusDatasetSyncHandler(
@@ -29,7 +29,7 @@ IDatasetSyncHandler createInternalEspJpnWordStatusDatasetSyncHandler(
     );
 
 IDatasetSyncHandler createInternalJpnEspWordStatusDatasetSyncHandler(
-  WordStatusSyncDependencyReaderPort read, {
+  WordStatusSyncDependencyQueryPort read, {
   required ISyncHandlerRuntime runtime,
 }) =>
     WordStatusDatasetSyncHandler(

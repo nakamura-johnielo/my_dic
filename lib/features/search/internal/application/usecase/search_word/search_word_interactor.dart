@@ -7,7 +7,7 @@ import 'package:my_dic/features/search/internal/application/usecase/search_word/
 
 class SearchWordInteractor implements ISearchWordUseCase {
   SearchWordInteractor(this._repository);
-  final SearchReaderPort _repository;
+  final SearchQueryPort _repository;
 
   @override
   Future<Result<SearchResultPage>> execute(SearchQuery query) {

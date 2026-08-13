@@ -7,7 +7,7 @@ import 'package:my_dic/features/quiz/port/quiz.dart';
 ///
 /// This deliberately depends only on Quiz-owned seams.  Implementations that
 /// read Drift or Flutter assets are supplied later by composition.
-final class QuizGameApplicationService implements QuizGameReaderPort {
+final class QuizGameApplicationService implements QuizGameQueryPort {
   QuizGameApplicationService({
     required QuizGameCatalogGateway catalogGateway,
     required QuizGameEnglishReader englishReader,

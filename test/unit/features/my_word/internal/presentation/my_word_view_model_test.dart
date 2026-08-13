@@ -71,7 +71,7 @@ void main() {
   });
 }
 
-class _DeferredLoadWords implements MyWordReaderPort {
+class _DeferredLoadWords implements MyWordQueryPort {
   final inputs = <LoadMyWordsQuery>[];
   final _requests = <int, List<Completer<Result<List<String>>>>>{};
 

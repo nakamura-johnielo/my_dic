@@ -92,7 +92,7 @@ QuizCandidatePage _page(String word, {bool hasNext = false}) =>
       issues: const [],
     );
 
-final class _Source implements QuizCandidateReaderPort {
+final class _Source implements QuizCandidateQueryPort {
   final pending = <Completer<Result<QuizCandidatePage>>>[];
   @override
   Future<Result<QuizCandidatePage>> search(QuizCandidateQuery query) {

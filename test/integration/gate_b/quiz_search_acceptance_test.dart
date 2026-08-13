@@ -75,7 +75,7 @@ QuizCandidatePage _page(
       issues: const [],
     );
 
-final class _Bridge implements QuizCandidateReaderPort {
+final class _Bridge implements QuizCandidateQueryPort {
   final pending = <Completer<Result<QuizCandidatePage>>>[];
   @override
   Future<Result<QuizCandidatePage>> search(QuizCandidateQuery query) {

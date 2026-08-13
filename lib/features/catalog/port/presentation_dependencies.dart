@@ -11,10 +11,10 @@ final catalogReadPortsDependencyProvider = Provider<CatalogReadPorts>(
 
 //todo remove
 /// Legacy dependencies retained while existing presentation consumers migrate.
-final catalogReaderPortDependencyProvider = Provider<CatalogReaderPort>(
-  (_) => throw StateError('CatalogReaderPort dependency was not supplied.'),
+final catalogQueryPortDependencyProvider = Provider<CatalogQueryPort>(
+  (_) => throw StateError('CatalogQueryPort dependency was not supplied.'),
 );
 
-final conjugationReaderPortDependencyProvider = Provider<ConjugationReaderPort>(
-  (_) => throw StateError('ConjugationReaderPort dependency was not supplied.'),
+final conjugationQueryPortDependencyProvider = Provider<ConjugationQueryPort>(
+  (_) => throw StateError('ConjugationQueryPort dependency was not supplied.'),
 );

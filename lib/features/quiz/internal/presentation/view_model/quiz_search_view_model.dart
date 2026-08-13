@@ -7,7 +7,7 @@ import 'package:my_dic/features/quiz/port/reader/quiz_candidate_reader_port.dart
 
 class QuizSearchViewModel extends StateNotifier<QuizSearchState> {
   QuizSearchViewModel(this._source) : super(const QuizSearchState());
-  final QuizCandidateReaderPort _source;
+  final QuizCandidateQueryPort _source;
 
   int _resultSetGeneration = 0;
   RequestToken? _activeToken;

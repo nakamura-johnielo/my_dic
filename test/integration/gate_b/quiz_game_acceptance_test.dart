@@ -44,7 +44,7 @@ void main() {
   });
 }
 
-final class _DeferredLoader implements QuizGameReaderPort {
+final class _DeferredLoader implements QuizGameQueryPort {
   final completer = Completer<Result<QuizGameLoadOutcome>>();
   @override
   Future<Result<QuizGameLoadOutcome>> load(QuizGameQuery query) =>

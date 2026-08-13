@@ -23,7 +23,7 @@ void main() {
 
 class _FakePorts
     implements
-        MyWordReaderPort,
+        MyWordQueryPort,
         MyWordCommandPort,
         MyWordStatusCommandPort,
         MyWordGuestMigrationPort {

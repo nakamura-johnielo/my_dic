@@ -8,5 +8,5 @@ export 'composition_contract.dart';
 ///
 /// The implementation lives in Catalog internal composition; this facade keeps
 /// callers independent from Riverpod and Drift.
-CatalogComposition createCatalogComposition(CatalogDependencyReaderPort read) =>
+CatalogComposition createCatalogComposition(CatalogDependencyQueryPort read) =>
     createInternalCatalogComposition(read);

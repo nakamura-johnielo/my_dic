@@ -21,7 +21,7 @@ void main() {
       (tester) async {
     final bridge = _CatalogBridgeFake();
     await tester.pumpWidget(ProviderScope(
-      overrides: [searchReaderPortDependencyProvider.overrideWithValue(bridge)],
+      overrides: [searchQueryPortDependencyProvider.overrideWithValue(bridge)],
       child: MaterialApp(
         home: SearchFragment(onOpenWordDetail: (_) {}, onOpenQuiz: (_, __) {}),
       ),
@@ -64,7 +64,7 @@ SearchResultPage _page(String word) => SearchResultPage(
       issues: const [],
     );
 
-final class _CatalogBridgeFake implements SearchReaderPort {
+final class _CatalogBridgeFake implements SearchQueryPort {
   final queries = <SearchQuery>[];
   final _pending = <Completer<Result<SearchResultPage>>>[];
 

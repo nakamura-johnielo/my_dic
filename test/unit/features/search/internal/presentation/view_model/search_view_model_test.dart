@@ -203,7 +203,7 @@ SearchResultPage _page(String word, {required bool hasNext, int wordId = 1}) =>
       issues: const [],
     );
 
-class _SearchWordUseCaseFake implements SearchReaderPort {
+class _SearchWordUseCaseFake implements SearchQueryPort {
   final queries = <SearchQuery>[];
   final responses = <Result<SearchResultPage>>[];
   final deferred = <Completer<Result<SearchResultPage>>>[];

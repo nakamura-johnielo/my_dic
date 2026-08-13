@@ -11,7 +11,7 @@ class MyWordFragmentViewModel extends StateNotifier<MyWordFragmentState> {
   MyWordFragmentViewModel(this._reader, this._commands, this._scope)
       : super(const MyWordFragmentState());
 
-  final MyWordReaderPort _reader;
+  final MyWordQueryPort _reader;
   final MyWordCommandPort _commands;
   final SessionScopeKey _scope;
   int _generation = 0;

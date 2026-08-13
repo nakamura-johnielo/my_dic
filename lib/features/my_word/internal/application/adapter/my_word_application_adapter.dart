@@ -1,4 +1,5 @@
-import 'package:my_dic/features/my_word/internal/infrastructure/mapper/my_word_result_mapper.dart';
+import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/features/my_word/internal/application/adapter/my_word_result_mapper.dart';
 import 'package:my_dic/features/my_word/internal/application/query/i_my_word_item_query_repository.dart';
 import 'package:my_dic/features/my_word/internal/application/usecase/my_word/delete_my_word/delete_my_word_input_data.dart';
 import 'package:my_dic/features/my_word/internal/application/usecase/my_word/delete_my_word/i_delete_my_word_use_case.dart';
@@ -19,7 +20,7 @@ import 'package:my_dic/features/my_word/port/result.dart';
 /// レガシーの入力データ型およびユースケース型は、意図的に内部用として残されています。
 /// このアダプタは、利用者が本機能のコマンド／クエリ契約へ移行する間、それらの互換性の境界となります。
 final class MyWordApplicationAdapter
-    implements MyWordCommandPort, MyWordStatusCommandPort, MyWordReaderPort {
+    implements MyWordCommandPort, MyWordStatusCommandPort, MyWordQueryPort {
   const MyWordApplicationAdapter({
     required IRegisterMyWordUseCase registerUseCase,
     required IUpdateMyWordUseCase updateUseCase,

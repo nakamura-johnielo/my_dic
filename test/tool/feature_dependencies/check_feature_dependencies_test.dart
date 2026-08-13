@@ -14,8 +14,8 @@ void main() {
     test('allows consumers to import another feature port', () async {
       await write(root, 'lib/app/bootstrap.dart',
           directive('features/catalog/port/catalog.dart'));
-      await write(root, 'lib/features/catalog/port/catalog.dart',
-          'class ReaderPort {}');
+      await write(
+          root, 'lib/features/catalog/port/catalog.dart', 'class QueryPort {}');
 
       expect(await check(root), isEmpty);
     });

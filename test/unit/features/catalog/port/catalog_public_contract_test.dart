@@ -166,33 +166,33 @@ void main() {
   });
 }
 
-final class _EntryDetailReader implements CatalogEntryDetailReaderPort {
+final class _EntryDetailReader implements CatalogEntryDetailQueryPort {
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-final class _ConjugationReader implements CatalogConjugationReaderPort {
+final class _ConjugationReader implements CatalogConjugationQueryPort {
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-final class _WordSearchReader implements CatalogWordSearchReaderPort {
+final class _WordSearchReader implements CatalogWordSearchQueryPort {
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 final class _ConjugationSearchReader
-    implements CatalogConjugationSearchReaderPort {
+    implements CatalogConjugationSearchQueryPort {
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-final class _EntrySummaryReader implements CatalogEntrySummaryReaderPort {
+final class _EntrySummaryReader implements CatalogEntrySummaryQueryPort {
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-final class _RankingReader implements CatalogRankingReaderPort {
+final class _RankingReader implements CatalogRankingQueryPort {
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

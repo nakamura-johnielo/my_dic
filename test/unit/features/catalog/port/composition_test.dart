@@ -20,12 +20,12 @@ import 'package:my_dic/features/catalog/port/result/catalog_search_page.dart';
 
 void main() {
   test('composition is a pure holder for Catalog public capabilities', () {
-    final reader = _CatalogReaderPort();
-    final conjugations = _ConjugationReaderPort();
-    final wordSearch = _WordSearchReaderPort();
-    final conjugationSearch = _ConjugationSearchReaderPort();
-    final entrySummary = _EntrySummaryReaderPort();
-    final ranking = _RankingReaderPort();
+    final reader = _CatalogQueryPort();
+    final conjugations = _ConjugationQueryPort();
+    final wordSearch = _WordSearchQueryPort();
+    final conjugationSearch = _ConjugationSearchQueryPort();
+    final entrySummary = _EntrySummaryQueryPort();
+    final ranking = _RankingQueryPort();
     final readPorts = CatalogReadPorts(
       entryDetail: reader,
       conjugation: conjugations,
@@ -37,8 +37,8 @@ void main() {
 
     final composition = CatalogComposition(
       readPorts: readPorts,
-      catalogReaderPort: reader,
-      conjugationReaderPort: conjugations,
+      catalogQueryPort: reader,
+      conjugationQueryPort: conjugations,
     );
 
     expect(composition.readPorts, same(readPorts));
@@ -48,13 +48,13 @@ void main() {
     expect(composition.readPorts.conjugationSearch, same(conjugationSearch));
     expect(composition.readPorts.entrySummary, same(entrySummary));
     expect(composition.readPorts.ranking, same(ranking));
-    expect(composition.catalogReaderPort, same(reader));
-    expect(composition.conjugationReaderPort, same(conjugations));
+    expect(composition.catalogQueryPort, same(reader));
+    expect(composition.conjugationQueryPort, same(conjugations));
   });
 }
 
-final class _CatalogReaderPort
-    implements CatalogReaderPort, CatalogEntryDetailReaderPort {
+final class _CatalogQueryPort
+    implements CatalogQueryPort, CatalogEntryDetailQueryPort {
   @override
   Future<Result<CatalogEntryDetail>> getEntryDetail(CatalogWordRef word) =>
       throw UnimplementedError();
@@ -64,8 +64,8 @@ final class _CatalogReaderPort
       throw UnimplementedError();
 }
 
-final class _ConjugationReaderPort
-    implements ConjugationReaderPort, CatalogConjugationReaderPort {
+final class _ConjugationQueryPort
+    implements ConjugationQueryPort, CatalogConjugationQueryPort {
   @override
   Future<Result<CatalogConjugation?>> getConjugation(CatalogWordRef word) =>
       throw UnimplementedError();
@@ -79,7 +79,7 @@ final class _ConjugationReaderPort
       throw UnimplementedError();
 }
 
-final class _WordSearchReaderPort implements CatalogWordSearchReaderPort {
+final class _WordSearchQueryPort implements CatalogWordSearchQueryPort {
   @override
   Future<Result<CatalogSearchPage<CatalogWordSearchHit>>> searchWords(
     CatalogWordSearchQuery query,
@@ -87,15 +87,15 @@ final class _WordSearchReaderPort implements CatalogWordSearchReaderPort {
       throw UnimplementedError();
 }
 
-final class _ConjugationSearchReaderPort
-    implements CatalogConjugationSearchReaderPort {
+final class _ConjugationSearchQueryPort
+    implements CatalogConjugationSearchQueryPort {
   @override
   Future<Result<CatalogSearchPage<CatalogConjugationSearchHit>>>
       searchConjugations(CatalogConjugationSearchQuery query) =>
           throw UnimplementedError();
 }
 
-final class _EntrySummaryReaderPort implements CatalogEntrySummaryReaderPort {
+final class _EntrySummaryQueryPort implements CatalogEntrySummaryQueryPort {
   @override
   Future<Result<Map<CatalogWordRef, CatalogHeadwordMetadata>>>
       readHeadwordMetadata(Iterable<CatalogWordRef> words) =>
@@ -108,7 +108,7 @@ final class _EntrySummaryReaderPort implements CatalogEntrySummaryReaderPort {
       throw UnimplementedError();
 }
 
-final class _RankingReaderPort implements CatalogRankingReaderPort {
+final class _RankingQueryPort implements CatalogRankingQueryPort {
   @override
   Future<Result<Map<CatalogWordRef, CatalogRankingMetadata>>>
       readRankingMetadata(Iterable<CatalogWordRef> words) =>

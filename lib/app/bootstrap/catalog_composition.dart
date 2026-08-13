@@ -13,11 +13,11 @@ final catalogReadPortsProvider = Provider<CatalogReadPorts>(
 );
 
 /// App-facing provider retained for existing Catalog reader consumers.
-final catalogReaderPortProvider = Provider<CatalogReaderPort>(
-  (ref) => ref.read(catalogCompositionProvider).catalogReaderPort,
+final catalogQueryPortProvider = Provider<CatalogQueryPort>(
+  (ref) => ref.read(catalogCompositionProvider).catalogQueryPort,
 );
 
 /// App-facing provider retained for existing conjugation reader consumers.
-final conjugationReaderPortProvider = Provider<ConjugationReaderPort>(
-  (ref) => ref.read(catalogCompositionProvider).conjugationReaderPort,
+final conjugationQueryPortProvider = Provider<ConjugationQueryPort>(
+  (ref) => ref.read(catalogCompositionProvider).conjugationQueryPort,
 );

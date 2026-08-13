@@ -11,8 +11,8 @@ final wordDetailViewModelProvider = StateNotifierProvider.autoDispose
     .family<WordDetailViewModel, WordDetailState, WordDetailLoadKey>(
         (ref, key) {
   final viewModel = WordDetailViewModel(LoadWordDetailQuery(
-    ref.read(catalogReaderPortDependencyProvider),
-    ref.read(conjugationReaderPortDependencyProvider),
+    ref.read(catalogQueryPortDependencyProvider),
+    ref.read(conjugationQueryPortDependencyProvider),
   ));
   unawaited(viewModel.initialize(key));
   return viewModel;

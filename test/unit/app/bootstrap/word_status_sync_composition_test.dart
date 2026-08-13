@@ -16,7 +16,7 @@ void main() {
     final runtime = _Runtime();
     final database = DatabaseProvider.forTesting(NativeDatabase.memory());
     addTearDown(database.close);
-    final WordStatusSyncDependencyReaderPort read =
+    final WordStatusSyncDependencyQueryPort read =
         <T>(Object dependency) => _readDependency<T>(dependency, database);
 
     final esp = createEspJpnWordStatusDatasetSyncHandler(
