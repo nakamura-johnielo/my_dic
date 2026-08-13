@@ -1,48 +1,66 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/features/my_word/internal/composition/my_word_ports_factory.dart';
 import 'package:my_dic/features/my_word/internal/composition/my_word_sync_factory.dart';
-import 'package:my_dic/features/my_word/port/command.dart';
-import 'package:my_dic/features/my_word/port/guest_migration.dart';
-import 'package:my_dic/features/my_word/port/query.dart';
-import 'package:my_dic/features/sync/port/composition_contract.dart';
+import 'package:my_dic/features/my_word/port/composition_contract.dart';
 import 'package:my_dic/features/sync/port/dataset_sync_handler.dart';
+import 'package:my_dic/features/sync/port/outbox_writer.dart';
+import 'package:my_dic/features/sync/port/remote_mutation_executor.dart';
 import 'package:my_dic/features/sync/port/sync_handler_runtime.dart';
 
-/// Opaque application-owned services required to assemble MyWord.
-enum MyWordDependency { database, outboxWriter }
+export 'composition_contract.dart';
 
-/// Reads an application-owned dependency requested by the MyWord factory.
-typedef MyWordDependencyReader = T Function<T>(MyWordDependency dependency);
-
-/// The complete set of MyWord capabilities used by application workflows.
-final class MyWordPorts {
-  const MyWordPorts({
-    required this.reader,
-    required this.commands,
-    required this.statusCommands,
-    required this.guestMigration,
+/// Application-owned services required to assemble MyWord capabilities.
+final class MyWordDependencies {
+  const MyWordDependencies({
+    required this.database,
+    required this.outboxWriter,
   });
 
-  final MyWordQueryPort reader;
-  final MyWordCommandPort commands;
-  final MyWordStatusCommandPort statusCommands;
-  final MyWordGuestMigrationPort guestMigration;
+  final DatabaseProvider database;
+  final IOutboxWriter outboxWriter;
+}
+
+/// Application-owned services required by MyWord dataset synchronization.
+final class MyWordSyncDependencies {
+  const MyWordSyncDependencies({
+    required this.database,
+    required this.firestore,
+    required this.remoteMutationExecutor,
+  });
+
+  final DatabaseProvider database;
+  final FirebaseFirestore firestore;
+  final IRemoteMutationExecutor remoteMutationExecutor;
 }
 
 /// Assembles MyWord from application-owned services without framework state.
-MyWordPorts createMyWordPorts(MyWordDependencyReader read) =>
-    createInternalMyWordPorts(read);
+MyWordPorts createMyWordPorts({
+  required MyWordDependencies dependencies,
+}) =>
+    createInternalMyWordPorts(
+      database: dependencies.database,
+      outboxWriter: dependencies.outboxWriter,
+    );
 
-/// Opaque dependencies used only by MyWord's sync dataset contributions.
-enum MyWordSyncDependency { database, firestore, remoteMutationExecutor }
-
-IDatasetSyncHandler createMyWordDatasetSyncHandler(
-  SyncDependencyQueryPort read, {
+IDatasetSyncHandler createMyWordDatasetSyncHandler({
+  required MyWordSyncDependencies dependencies,
   required ISyncHandlerRuntime runtime,
 }) =>
-    createInternalMyWordDatasetSyncHandler(read, runtime: runtime);
+    createInternalMyWordDatasetSyncHandler(
+      database: dependencies.database,
+      firestore: dependencies.firestore,
+      remoteMutationExecutor: dependencies.remoteMutationExecutor,
+      runtime: runtime,
+    );
 
-IDatasetSyncHandler createMyWordStatusDatasetSyncHandler(
-  SyncDependencyQueryPort read, {
+IDatasetSyncHandler createMyWordStatusDatasetSyncHandler({
+  required MyWordSyncDependencies dependencies,
   required ISyncHandlerRuntime runtime,
 }) =>
-    createInternalMyWordStatusDatasetSyncHandler(read, runtime: runtime);
+    createInternalMyWordStatusDatasetSyncHandler(
+      database: dependencies.database,
+      firestore: dependencies.firestore,
+      remoteMutationExecutor: dependencies.remoteMutationExecutor,
+      runtime: runtime,
+    );

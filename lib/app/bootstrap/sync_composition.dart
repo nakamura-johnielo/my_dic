@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/app/bootstrap/sync_infrastructure_providers.dart';
 import 'package:my_dic/app/bootstrap/firebase_providers.dart';
+import 'package:my_dic/app/bootstrap/my_word_composition.dart';
+import 'package:my_dic/app/bootstrap/sync_infrastructure_providers.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
-import 'package:my_dic/features/my_word/port/composition.dart' as my_word;
 import 'package:my_dic/features/sync/port/composition.dart';
 import 'package:my_dic/features/sync/port/dataset_sync_handler.dart';
 import 'package:my_dic/features/sync/port/sync_runner.dart';
@@ -12,8 +12,8 @@ import 'package:my_dic/features/word_status/port/composition.dart'
 
 export 'sync_infrastructure_providers.dart';
 
-/// Registry assembly imports feature port factories only. Riverpod reads stay
-/// in app-owned dependency readers and never cross a feature's public port.
+/// Registry assembly registers completed MyWord capabilities while features
+/// awaiting migration continue to use their public composition factories.
 final syncDatasetHandlersProvider = Provider<List<IDatasetSyncHandler>>((ref) {
   final runtime = ref.watch(syncHandlerRuntimeProvider);
   return [
@@ -25,14 +25,8 @@ final syncDatasetHandlersProvider = Provider<List<IDatasetSyncHandler>>((ref) {
       _featureQueryPort(ref),
       runtime: runtime,
     ),
-    my_word.createMyWordDatasetSyncHandler(
-      _featureQueryPort(ref),
-      runtime: runtime,
-    ),
-    my_word.createMyWordStatusDatasetSyncHandler(
-      _featureQueryPort(ref),
-      runtime: runtime,
-    ),
+    ref.watch(myWordDatasetSyncHandlerProvider),
+    ref.watch(myWordStatusDatasetSyncHandlerProvider),
     user.createUserProfileDatasetSyncHandler(
       _featureQueryPort(ref),
       runtime: runtime,
@@ -70,12 +64,10 @@ SyncDependencyQueryPort _featureQueryPort(Ref ref) {
   return read;
 }
 
-/// All dataset factories request only neutral app capabilities through their
-/// public opaque keys; feature DI and feature internal types never enter this
-/// registry.
+/// Resolver-backed features request only neutral app capabilities through
+/// their public opaque keys; feature internal types never enter this registry.
 T _readFeatureDependency<T>(Ref ref, Object dependency) {
   final isDatabase = switch (dependency) {
-    my_word.MyWordSyncDependency.database ||
     user.UserProfileSyncDependency.database ||
     word_status.WordStatusSyncDependency.database =>
       true,
@@ -83,7 +75,6 @@ T _readFeatureDependency<T>(Ref ref, Object dependency) {
   };
   if (isDatabase) return ref.watch(databaseProvider) as T;
   final isFirestore = switch (dependency) {
-    my_word.MyWordSyncDependency.firestore ||
     user.UserProfileSyncDependency.firestore ||
     word_status.WordStatusSyncDependency.firestore =>
       true,
@@ -91,7 +82,6 @@ T _readFeatureDependency<T>(Ref ref, Object dependency) {
   };
   if (isFirestore) return ref.watch(firestoreDBProvider) as T;
   final isMutationExecutor = switch (dependency) {
-    my_word.MyWordSyncDependency.remoteMutationExecutor ||
     user.UserProfileSyncDependency.remoteMutationExecutor ||
     word_status.WordStatusSyncDependency.remoteMutationExecutor =>
       true,

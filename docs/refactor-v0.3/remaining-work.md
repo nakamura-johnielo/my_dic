@@ -12,14 +12,12 @@ Repository-wide checker findings outside Quiz remain separate debt and are not
 fixed in this phase. Record them by checker rule ID and source path when
 reviewing the full gates; do not baseline them as Quiz exceptions.
 
-Current non-Quiz checker sources are:
+Current non-Quiz checker sources after the MyWord Composition DI migration are:
 
-- `business_port_no_framework`:
-  `lib/features/search/port/presentation_dependencies.dart`
-- `composition_exact_facade` / `composition_no_provider_types`: Auth, MyWord,
-  Ranking, Search, Sync, UserProfile, and WordStatus composition files
-- `firebase_canonical_infrastructure_only`:
-  `lib/integration/sync/firebase_remote_mutation_executor.dart`
+- `business_port_no_framework`: Auth and UserProfile Firebase dependency
+  providers, and Search presentation dependencies
+- `composition_exact_facade`: Auth, Quiz, Ranking, Search, Sync, UserProfile,
+  and WordStatus composition files
 - `internal_clean_architecture` (feature dependency checker):
   `lib/features/catalog/internal/domain/repository/conjugation_repository.dart`
   and `lib/features/ranking/internal/presentation/provider/view_model_di.dart`
@@ -33,6 +31,22 @@ feature; all external `internal/**` and deep business-port imports are rejected.
 
 Repository-wide non-MyWord violations remain separate architecture debt and
 must not be treated as a failure of the MyWord facade migration.
+
+## MyWord Composition DI result
+
+MyWord now uses immutable typed dependency bundles and required named factory
+parameters. `MyWordPorts` is a framework-free composition contract. Internal
+factories use explicit constructor DI, and app bootstrap owns the completed
+ports and dataset-handler Providers consumed by the sync registry.
+
+The opaque MyWord dependency readers, enum keys, and runtime casts are removed.
+The unreferenced feature-owned Firebase Provider shim was deleted after a
+zero-reference check. The migration did not change database schema, Firestore
+wire format, sync protocol, dataset ordering, or business behavior.
+
+Targeted MyWord factory, Provider composition, and boundary fixture tests are
+green. Repository-wide boundary checks remain non-green only because of the
+non-MyWord debt listed above.
 
 ## Phase 8 result
 
@@ -48,20 +62,16 @@ Targeted validation is green:
 - the application Catalog composition test through public reader interfaces
 
 Repository-wide boundary checks are not green yet, but report no Catalog facade,
-Catalog internal, or Catalog integration violations. The remaining failures are
-outside this refactor's ownership:
+Catalog internal, Catalog integration, or MyWord Composition DI violations. The
+remaining failures are outside these refactors' ownership:
 
-- `check_import_boundaries.dart` reports existing MyWord public-port/framework
-  leaks, several feature composition-to-internal dependencies, Quiz/Search
-  presentation dependency bridge framework imports, one Firebase integration
-  placement violation, and other non-Catalog presentation facade violations.
-- `check_feature_dependencies.dart` reports four MyWord
-  presentation-to-composition dependencies, one Quiz
-  application-to-infrastructure dependency, and one Ranking
-  presentation-to-composition dependency.
+- `check_import_boundaries.dart` reports the non-MyWord Riverpod and composition
+  seam findings listed above.
+- `check_feature_dependencies.dart` reports two Catalog domain-to-application
+  imports and one Ranking presentation-to-composition import.
 
-Therefore the repository-wide checker and full-suite completion criteria in the
-plan must not be recorded as green from this Phase 8 slice.
+Therefore the repository-wide checker and full-suite completion criteria must
+not be recorded as green.
 
 ## Intentional compatibility surface
 
@@ -70,12 +80,14 @@ facade. Their presence is not a deep-import exception. Remove these exports only
 after all detail/conjugation consumers use the focused reader ports and their
 tests no longer require the legacy contracts.
 
-`composition.dart` and `presentation_dependencies.dart` remain explicit technical
-seams while the current Riverpod resolver/composition design is in use.
+`composition.dart`, `presentation_dependencies.dart`, and
+`presentation_entry.dart` remain explicit technical seams rather than business
+facades. New feature composition work follows
+[`docs/architecture/composition-rule.md`](../architecture/composition-rule.md).
 
 ## Out of scope for v0.3
 
 - Database schema or migration changes
 - Sync or serialization protocol changes
 - Route and screen behavior changes
-- Replacing the current Riverpod dependency resolver
+- Resolving the non-MyWord boundary debt listed above

@@ -351,6 +351,15 @@ List<Violation> semanticViolations(
       result.add(Violation(
           'my_word_external_only_facade', entry.source, entry.target));
     }
+    if (entry.source == _myWordFacade && target == _myWordComposition) {
+      result.add(Violation(
+          'my_word_external_only_facade', entry.source, entry.target));
+    }
+    if (entry.source == _myWordComposition &&
+        !isAllowedMyWordCompositionImport(entry)) {
+      result.add(
+          Violation('composition_exact_facade', entry.source, entry.target));
+    }
     if (target != null &&
         isQuizInternal(target) &&
         sourceFeature != 'quiz' &&
@@ -417,7 +426,8 @@ List<Violation> semanticViolations(
           isPresentationEntry(entry.source) && isInternalPresentation(target);
       final isAllowedCompositionBridge = isComposition(entry.source) &&
           (target.contains('/internal/factory/') ||
-              isCatalogCompositionFactoryBridge(entry.source, target));
+              isCatalogCompositionFactoryBridge(entry.source, target) ||
+              isMyWordCompositionFactoryBridge(entry.source, target));
       if (!isAllowedPresentationBridge && !isAllowedCompositionBridge) {
         result.add(Violation(
             isComposition(entry.source)
@@ -437,13 +447,18 @@ List<Violation> semanticViolations(
           entry.source,
           entry.target));
     }
+    if (isFeatureBusinessImplementation(entry.source) &&
+        isRiverpodImport(entry.target)) {
+      result.add(
+          Violation('business_port_no_framework', entry.source, entry.target));
+    }
     if (isPresentationEntry(entry.source) &&
         isForbiddenPresentationFacadeImport(entry.target)) {
       result.add(Violation(
           'presentation_entry_exact_facade', entry.source, entry.target));
     }
     if (isFirebaseImport(entry.target) &&
-        !isCanonicalFirebaseSource(entry.source)) {
+        !isCanonicalFirebaseImport(entry.source, entry.target)) {
       result.add(Violation('firebase_canonical_infrastructure_only',
           entry.source, entry.target));
     }
@@ -458,10 +473,30 @@ List<Violation> semanticViolations(
           Violation('feature_top_level_only_port_internal', source, source));
     }
     if (isComposition(source) &&
-        RegExp(r'\b(?:Provider|Override|DatabaseProvider)\b')
-            .hasMatch(sources[source]!)) {
+        RegExp(
+          r'\b(?:Provider|Ref|Override|ProviderContainer|ProviderListenable)\b',
+        ).hasMatch(sources[source]!)) {
       result.add(Violation('composition_no_provider_types', source,
           'public signature/provider type'));
+    }
+    if (source == _myWordComposition &&
+        RegExp(
+          r'MyWordDep'
+          r'endencyReader|MyWordDep'
+          r'endency|MyWordSyncDep'
+          r'endency|SyncDependencyQueryPort|T\s+Function<T>\s*\(\s*Object|'
+          r'\bas\s+T\b',
+        ).hasMatch(sources[source]!)) {
+      result.add(Violation('composition_no_provider_types', source,
+          'opaque dependency resolver'));
+    }
+    if ((source == _myWordComposition || source == _myWordSyncFactory) &&
+        RegExp(
+          r'FirebaseFirestore\s*\.\s*instance|'
+          r'\.\s*(?:collection|doc|runTransaction|batch)\s*\(',
+        ).hasMatch(sources[source]!)) {
+      result.add(Violation('firebase_canonical_infrastructure_only', source,
+          'Firebase API invocation'));
     }
   }
 
@@ -522,6 +557,10 @@ const _myWordFacade = 'lib/features/my_word/port/my_word.dart';
 const _myWordComposition = 'lib/features/my_word/port/composition.dart';
 const _myWordPresentationEntry =
     'lib/features/my_word/port/presentation_entry.dart';
+const _myWordPortsFactory =
+    'lib/features/my_word/internal/composition/my_word_ports_factory.dart';
+const _myWordSyncFactory =
+    'lib/features/my_word/internal/composition/my_word_sync_factory.dart';
 const _quizFacade = 'lib/features/quiz/port/quiz.dart';
 const _quizComposition = 'lib/features/quiz/port/composition.dart';
 const _quizPresentationDependencies =
@@ -553,9 +592,31 @@ bool isAllowedQuizBridgeFrameworkImport(String source, String target) =>
     target.startsWith('package:flutter_riverpod/');
 bool isAllowedTechnicalBridgeFrameworkImport(String source, String target) =>
     isAllowedCatalogBridgeFrameworkImport(source, target) ||
-    isAllowedQuizBridgeFrameworkImport(source, target);
+    isAllowedQuizBridgeFrameworkImport(source, target) ||
+    (source == _myWordComposition &&
+        target == 'package:cloud_firestore/cloud_firestore.dart');
 bool isCatalogCompositionFactoryBridge(String source, String target) =>
     source == _catalogComposition && target == _catalogCompositionFactory;
+bool isMyWordCompositionFactoryBridge(String source, String target) =>
+    source == _myWordComposition &&
+    (target == _myWordPortsFactory || target == _myWordSyncFactory);
+bool isAllowedMyWordCompositionImport(ImportEntry entry) {
+  if (entry.source != _myWordComposition) return false;
+  if (entry.target == 'package:cloud_firestore/cloud_firestore.dart') {
+    return true;
+  }
+  return const {
+    'lib/core/infrastructure/database/drift/database_provider.dart',
+    _myWordPortsFactory,
+    _myWordSyncFactory,
+    'lib/features/my_word/port/composition_contract.dart',
+    'lib/features/sync/port/dataset_sync_handler.dart',
+    'lib/features/sync/port/outbox_writer.dart',
+    'lib/features/sync/port/remote_mutation_executor.dart',
+    'lib/features/sync/port/sync_handler_runtime.dart',
+  }.contains(entry.localTarget);
+}
+
 bool isAllowedCatalogExternalPortImport(String source, String target) {
   if (target == _catalogFacade) return true;
   if (target == _catalogComposition) {
@@ -606,6 +667,12 @@ bool isInternalPresentation(String path) =>
     path.contains('/internal/') && path.contains('/presentation/');
 bool isFrameworkImport(String target) =>
     _frameworkPackages.any((package) => target.startsWith('package:$package/'));
+bool isRiverpodImport(String target) =>
+    target.startsWith('package:flutter_riverpod/') ||
+    target.startsWith('package:riverpod/');
+bool isFeatureBusinessImplementation(String source) => RegExp(
+      r'^lib/features/[^/]+/internal/(?:domain|application|infrastructure)/',
+    ).hasMatch(source);
 bool isFirebaseImport(String target) => const {
       'firebase_core',
       'firebase_auth',
@@ -618,12 +685,13 @@ bool isForbiddenPresentationFacadeImport(String target) =>
     target.startsWith('package:drift/') ||
     isFirebaseImport(target) ||
     target.startsWith('package:go_router/');
-bool isCanonicalFirebaseSource(String source) =>
+bool isCanonicalFirebaseImport(String source, String target) =>
+    ((source == _myWordComposition || source == _myWordSyncFactory) &&
+        target == 'package:cloud_firestore/cloud_firestore.dart') ||
     source == 'lib/app/bootstrap/bootstrap.dart' ||
     source == 'lib/app/bootstrap/firebase_options.dart' ||
     source == 'lib/app/bootstrap/firebase_providers.dart' ||
-    source ==
-        'lib/app/integration/sync/firebase_remote_mutation_executor.dart' ||
+    source == 'lib/integration/sync/firebase_remote_mutation_executor.dart' ||
     RegExp(r'^lib/features/[^/]+/internal/infrastructure/(?:.*/)?firebase/')
         .hasMatch(source);
 

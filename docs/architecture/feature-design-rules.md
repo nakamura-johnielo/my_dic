@@ -291,6 +291,8 @@ provided port実装は、owner featureの`internal/infrastructure/**`に置く�
 
 `app/bootstrap`はruntime instance、lifetime、override、feature間adapterを組み立てる。
 featureのinternal factoryは自身のinfrastructure graphを組み立てる。
+型付きdependency bundle、completed capability Provider、Riverpodの配置に関する詳細は
+[CompositionとDIの設計ルール](./composition-rule.md)に従う。
 
 ```text
 app/bootstrap

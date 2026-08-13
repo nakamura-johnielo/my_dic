@@ -13,13 +13,14 @@ import 'package:my_dic/features/my_word/internal/infrastructure/data/query/drift
 import 'package:my_dic/features/my_word/internal/infrastructure/data/repository_impl/my_word_repository.dart';
 import 'package:my_dic/features/my_word/internal/infrastructure/data/repository_impl/my_word_status_repository.dart';
 import 'package:my_dic/features/my_word/internal/infrastructure/guest_migration/my_word_guest_migration_adapter.dart';
-import 'package:my_dic/features/my_word/port/composition.dart';
+import 'package:my_dic/features/my_word/port/composition_contract.dart';
 import 'package:my_dic/features/sync/port/outbox_writer.dart';
 
 /// Owner-only assembly for MyWord persistence and application adapters.
-MyWordPorts createInternalMyWordPorts(MyWordDependencyReader read) {
-  final database = read<DatabaseProvider>(MyWordDependency.database);
-  final outboxWriter = read<IOutboxWriter>(MyWordDependency.outboxWriter);
+MyWordPorts createInternalMyWordPorts({
+  required DatabaseProvider database,
+  required IOutboxWriter outboxWriter,
+}) {
   final wordLocal = MyWordDriftDataSource(MyWordDao(database));
   final statusLocal = MyWordStatusDriftDataSource(MyWordStatusDao(database));
   final wordRepository = MyWordRepository(wordLocal, outboxWriter);

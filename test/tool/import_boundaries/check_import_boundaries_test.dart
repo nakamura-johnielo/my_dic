@@ -47,6 +47,34 @@ void main() {
       expectRule(await check(root), 'feature_no_app');
     });
 
+    test('allows Riverpod in app bootstrap composition roots', () async {
+      await write(
+        root,
+        'lib/app/bootstrap/my_word_composition.dart',
+        sdk('flutter_riverpod/flutter_riverpod.dart'),
+      );
+
+      expect(await check(root), isEmpty);
+    });
+
+    test('rejects Riverpod from feature business implementation layers',
+        () async {
+      await write(
+        root,
+        'lib/features/a/internal/application/use_case.dart',
+        sdk('flutter_riverpod/flutter_riverpod.dart'),
+      );
+      await write(
+        root,
+        'lib/features/a/internal/infrastructure/store.dart',
+        sdk('riverpod/riverpod.dart'),
+      );
+
+      final violations = (await check(root))
+          .where((v) => v.ruleId == 'business_port_no_framework');
+      expect(violations, hasLength(2));
+    });
+
     test('finds cycles between otherwise valid feature ports', () async {
       await write(root, 'lib/features/a/internal/a.dart',
           imp('features/b/port/model.dart'));
@@ -127,12 +155,19 @@ void main() {
       expect(await check(root), isEmpty);
     });
 
-    test('rejects Provider and Override types from a public composition source',
+    test('rejects provider types but not DatabaseProvider in composition',
         () async {
       await write(root, 'lib/features/a/port/composition.dart',
-          'Object compose(Provider provider) => provider;');
+          'Object compose(ProviderListenable provider) => provider;');
+      await write(root, 'lib/features/b/port/composition.dart',
+          'Object compose(DatabaseProvider database) => database;');
 
-      expectRule(await check(root), 'composition_no_provider_types');
+      final violations = await check(root);
+      expectRule(violations, 'composition_no_provider_types');
+      expect(
+        violations.where((v) => v.source.contains('/features/b/')),
+        isEmpty,
+      );
     });
 
     test('allows Firebase only in canonical infrastructure', () async {
@@ -281,6 +316,113 @@ void main() {
 
       final violations = await check(root);
       expect(violations.where((v) => v.ruleId.startsWith('my_word_')), isEmpty);
+    });
+
+    test('rejects app composition importing MyWord internal code', () async {
+      await write(
+        root,
+        'lib/app/bootstrap/my_word_composition.dart',
+        imp('features/my_word/internal/composition/my_word_ports_factory.dart'),
+      );
+
+      expectRule(await check(root), 'my_word_external_no_internal');
+    });
+
+    test('allows only the two MyWord internal composition factories', () async {
+      await write(
+        root,
+        'lib/features/my_word/port/composition.dart',
+        "${imp('features/my_word/internal/composition/my_word_ports_factory.dart')}\n"
+            "${imp('features/my_word/internal/composition/my_word_sync_factory.dart')}\n"
+            "${imp('features/my_word/internal/composition/other_factory.dart')}",
+      );
+
+      final violations = (await check(root)).where((v) =>
+          v.ruleId == 'composition_exact_facade' &&
+          v.source.endsWith('/my_word/port/composition.dart'));
+      expect(violations, hasLength(1));
+      expect(violations.single.target, endsWith('/other_factory.dart'));
+    });
+
+    test('rejects opaque dependency resolvers in MyWord composition', () async {
+      await write(
+        root,
+        'lib/features/my_word/port/composition.dart',
+        'typedef Reader = T Function<T>(Object dependency);',
+      );
+
+      expectRule(await check(root), 'composition_no_provider_types');
+    });
+
+    test('keeps MyWord composition out of the business facade', () async {
+      await write(
+        root,
+        'lib/features/my_word/port/my_word.dart',
+        "export 'composition.dart';",
+      );
+
+      expectRule(await check(root), 'my_word_external_only_facade');
+    });
+
+    test('allows only controlled technical MyWord composition imports',
+        () async {
+      await write(
+        root,
+        'lib/features/my_word/port/composition.dart',
+        "${sdk('cloud_firestore/cloud_firestore.dart')}\n"
+            "${imp('core/infrastructure/database/drift/database_provider.dart')}\n"
+            "${imp('features/my_word/internal/composition/my_word_ports_factory.dart')}\n"
+            "${imp('features/my_word/internal/composition/my_word_sync_factory.dart')}\n"
+            "export 'package:my_dic/features/my_word/port/composition_contract.dart';\n"
+            "${imp('features/sync/port/dataset_sync_handler.dart')}\n"
+            "${imp('features/sync/port/outbox_writer.dart')}\n"
+            "${imp('features/sync/port/remote_mutation_executor.dart')}\n"
+            "${imp('features/sync/port/sync_handler_runtime.dart')}\n"
+            'Object compose(DatabaseProvider database) => database;',
+      );
+
+      expect(
+        (await check(root)).where(
+          (v) => v.source.endsWith('/my_word/port/composition.dart'),
+        ),
+        isEmpty,
+      );
+    });
+
+    test('limits MyWord composition Firebase exception to Firestore', () async {
+      await write(
+        root,
+        'lib/features/my_word/port/composition.dart',
+        "${sdk('cloud_firestore/cloud_firestore.dart')}\n"
+            "${sdk('firebase_auth/firebase_auth.dart')}\n"
+            "Object build() => FirebaseFirestore.instance.collection('x');",
+      );
+      await write(
+        root,
+        'lib/features/my_word/internal/composition/my_word_sync_factory.dart',
+        "${sdk('cloud_firestore/cloud_firestore.dart')}\n"
+            'Object build(FirebaseFirestore firestore) => firestore;',
+      );
+
+      final violations = await check(root);
+      expect(
+        violations.where((v) =>
+            v.ruleId == 'firebase_canonical_infrastructure_only' &&
+            v.target.startsWith('package:cloud_firestore/')),
+        isEmpty,
+      );
+      expect(
+        violations.where((v) =>
+            v.ruleId == 'firebase_canonical_infrastructure_only' &&
+            v.target.startsWith('package:firebase_auth/')),
+        hasLength(1),
+      );
+      expect(
+        violations.where((v) =>
+            v.ruleId == 'firebase_canonical_infrastructure_only' &&
+            v.target == 'Firebase API invocation'),
+        hasLength(1),
+      );
     });
 
     test('rejects Search and Quiz dependencies from Catalog internal',
