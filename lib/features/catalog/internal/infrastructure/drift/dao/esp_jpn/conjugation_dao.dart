@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/conjugations.dart';
-import 'package:my_dic/features/catalog/internal/infrastructure/drift/query/catalog_like_pattern.dart';
+import 'package:my_dic/features/catalog/internal/infrastructure/drift/catalog_like_pattern.dart';
 
 part '../../../../../../../__generated/features/catalog/internal/infrastructure/drift/dao/esp_jpn/conjugation_dao.g.dart';
 

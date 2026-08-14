@@ -1,26 +1,23 @@
-import 'package:my_dic/features/catalog/internal/infrastructure/drift/query/catalog_entry_summary_drift_query.dart';
-import 'package:my_dic/features/catalog/internal/infrastructure/drift/query/catalog_ranking_drift_query.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_frequency_level.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_search_models.dart';
 
 final class CatalogEntrySummaryMapper {
   const CatalogEntrySummaryMapper();
 
-  CatalogMeaningSummary? meaning(CatalogMeaningDriftRow row) {
-    final meaning = switch (row.source) {
-      CatalogMeaningDriftSource.conjugation => _plainText(row.html),
-      CatalogMeaningDriftSource.dictionaryContent =>
-        extractMeaningText(row.html),
-    };
+  CatalogMeaningSummary? meaning(
+    String html, {
+    required bool isConjugation,
+  }) {
+    final meaning = isConjugation ? _plainText(html) : extractMeaningText(html);
     return meaning.isEmpty ? null : CatalogMeaningSummary(meaning: meaning);
   }
 
-  CatalogHeadwordMetadata headword(CatalogHeadwordMetadataDriftRow row) {
+  CatalogHeadwordMetadata headword(String headwordHtml) {
     final frequencyMatch = RegExp(
       r'<sup\b[^>]*>\s*\((\*+)\)\s*</sup>',
       caseSensitive: false,
-    ).firstMatch(row.headwordHtml);
-    final withoutFrequency = row.headwordHtml.replaceAll(
+    ).firstMatch(headwordHtml);
+    final withoutFrequency = headwordHtml.replaceAll(
       RegExp(
         r'<sup\b[^>]*>\s*\(\*+\)\s*</sup>',
         caseSensitive: false,
@@ -34,8 +31,8 @@ final class CatalogEntrySummaryMapper {
     );
   }
 
-  CatalogRankingMetadata ranking(CatalogRankingDriftRow row) =>
-      CatalogRankingMetadata(rankingNo: row.rankingNo);
+  CatalogRankingMetadata ranking(int rankingNo) =>
+      CatalogRankingMetadata(rankingNo: rankingNo);
 
   /// Extracts every complete dictionary meaning element as normalized text.
   String extractMeaningText(String html) {

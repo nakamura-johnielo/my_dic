@@ -2,6 +2,7 @@ import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
+import 'package:my_dic/features/catalog/internal/infrastructure/drift/catalog_like_pattern.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/mapper/catalog_read_error_mapper.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/reader/drift_catalog_conjugation_search_reader.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/reader/drift_catalog_word_search_reader.dart';
@@ -56,6 +57,59 @@ void main() {
 
     expect(result.dataOrNull!.items, isEmpty);
     expect(result.dataOrNull!.hasMore, isFalse);
+  });
+
+  test('prefix pattern escapes user wildcards and appends one wildcard', () {
+    expect(catalogPrefixLikePattern("a!%_'"), "a!!!%!_'%");
+  });
+
+  test('word reader treats SQL and LIKE special characters literally',
+      () async {
+    for (final entry in [
+      (1, "o'clock"),
+      (2, 'a%literal'),
+      (3, 'axliteral'),
+      (4, 'a_literal'),
+      (5, 'ayliteral'),
+      (6, 'a!literal'),
+    ]) {
+      await database.into(database.espJpnWords).insert(
+            EspJpnWordsCompanion.insert(
+              wordId: Value(entry.$1),
+              word: entry.$2,
+            ),
+          );
+    }
+
+    Future<List<int>> search(String text) async {
+      final result = await DriftCatalogWordSearchQueryService(database)
+          .searchWords(_wordQuery(page: 0, size: 10, text: text));
+      return result.dataOrNull!.items
+          .map((item) => item.word.wordId)
+          .toList(growable: false);
+    }
+
+    expect(await search("o'"), [1]);
+    expect(await search('a%'), [2]);
+    expect(await search('a_'), [4]);
+    expect(await search('a!'), [6]);
+    expect(await search("x' OR 1=1 --"), isEmpty);
+  });
+
+  test('word reader dispatches to the Japanese-Spanish table', () async {
+    await database.into(database.jpnEspWords).insert(
+          JpnEspWordsCompanion.insert(wordId: const Value(8), word: '家'),
+        );
+
+    final result = await DriftCatalogWordSearchQueryService(database)
+        .searchWords(CatalogWordSearchQuery(
+      catalogId: CatalogId.jpnEspMain,
+      text: '家',
+      page: 0,
+      size: 1,
+    ));
+
+    expect(result.dataOrNull!.items.single.word.wordId, 8);
   });
 
   test('conjugation reader exposes only typed matching forms', () async {
@@ -127,6 +181,43 @@ void main() {
     expect(last.dataOrNull!.items.every((hit) => hit.matches.isEmpty), isTrue);
   });
 
+  test('conjugation reader orders exact words and forms before prefixes',
+      () async {
+    for (final entry in [
+      (1, 'hacer', 'hablo'),
+      (2, 'haber', 'hablo'),
+      (3, 'hablo', 'habloque'),
+      (4, 'hablar', 'habloque'),
+    ]) {
+      await database.into(database.espJpnWords).insert(
+            EspJpnWordsCompanion.insert(
+              wordId: Value(entry.$1),
+              word: entry.$2,
+            ),
+          );
+      await database.into(database.espConjugations).insert(
+            EspConjugationsCompanion.insert(
+              wordId: Value(entry.$1),
+              word: entry.$2,
+              indicativePresentYo: Value(entry.$3),
+            ),
+          );
+    }
+
+    final result = await DriftCatalogConjugationSearchQueryService(database)
+        .searchConjugations(CatalogConjugationSearchQuery(
+      catalogId: CatalogId.espJpnMain,
+      text: 'hablo',
+      page: 0,
+      size: 4,
+    ));
+
+    expect(
+      result.dataOrNull!.items.map((item) => item.word.wordId),
+      [1, 2, 3, 4],
+    );
+  });
+
   test('conversion errors route corrupted data separately from reader defects',
       () {
     const mapper = CatalogReadErrorMapper();
@@ -162,10 +253,14 @@ void main() {
   });
 }
 
-CatalogWordSearchQuery _wordQuery({required int page, required int size}) =>
+CatalogWordSearchQuery _wordQuery({
+  required int page,
+  required int size,
+  String text = 'casa',
+}) =>
     CatalogWordSearchQuery(
       catalogId: CatalogId.espJpnMain,
-      text: 'casa',
+      text: text,
       page: page,
       size: size,
     );

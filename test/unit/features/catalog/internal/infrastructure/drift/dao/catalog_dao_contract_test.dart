@@ -10,7 +10,7 @@ import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/esp_jp
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/esp_jpn/esp_jpn_word_dao.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/jpn_esp/jpn_esp_dictionary_dao.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/jpn_esp/jpn_esp_example_dao.dart';
-import 'package:my_dic/features/catalog/internal/infrastructure/drift/query/catalog_ranking_drift_query.dart';
+import 'package:my_dic/features/catalog/internal/infrastructure/drift/reader/drift_catalog_ranking_reader.dart';
 import 'package:my_dic/features/catalog/port/catalog_id.dart';
 import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 
@@ -199,9 +199,11 @@ void main() {
       catalogId: CatalogId.espJpnMain,
       wordId: 1,
     );
-    final rows = await CatalogRankingDriftQuery(database).fetch([word]);
+    final result = await DriftCatalogRankingQueryService(database)
+        .readRankingMetadata([word]);
+    final rows = result.dataOrNull!;
 
-    expect(rows.single.rankingNo, 100);
-    expect(identical(rows.single.word, word), isTrue);
+    expect(rows[word]!.rankingNo, 100);
+    expect(identical(rows.keys.single, word), isTrue);
   });
 }
