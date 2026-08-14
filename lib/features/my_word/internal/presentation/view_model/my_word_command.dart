@@ -86,6 +86,23 @@ class MyWordCommand extends _MyWordCommandBase {
   final MyWordCommandPort _commands;
   final SessionScopeKey _scope;
 
+  // Future<void> registerWord({
+  //   required String headword,
+  //   required String description,
+  // }) async {
+  //   if (isSubmitting) return;
+  //   const operation = 'register';
+  //   begin(operation);
+  //   final result = await _commands.register(RegisterMyWordCommand(
+  //       headword: headword,
+  //       description: description,
+  //       accountScope: _scope.accountScope));
+  //   result.when(
+  //     success: (_) => succeed(operation),
+  //     failure: (error) => fail(operation, error),
+  //   );
+  // }
+
   Future<void> deleteWord() async {
     if (isSubmitting) return;
     const operation = 'delete';

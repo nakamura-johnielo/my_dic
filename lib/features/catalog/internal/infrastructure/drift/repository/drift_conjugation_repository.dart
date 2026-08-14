@@ -17,7 +17,7 @@ class CatalogConjugationRepository implements ICatalogConjugationRepository {
       );
     } catch (error, stackTrace) {
       return Result.failure(DatabaseError(
-        message: '豢ｻ逕ｨ蠖｢縺ｮ譛臥┌縺ｮ遒ｺ隱阪↓螟ｱ謨励＠縺ｾ縺励◆',
+        message: 'データベースエラーが発生しました',
         originalError: error,
         stackTrace: stackTrace,
       ));
@@ -34,7 +34,7 @@ class CatalogConjugationRepository implements ICatalogConjugationRepository {
       );
     } catch (error, stackTrace) {
       return Result.failure(DatabaseError(
-        message: '豢ｻ逕ｨ蠖｢縺ｮ蜿門ｾ励↓螟ｱ謨励＠縺ｾ縺励◆',
+        message: 'データベースエラーが発生しました',
         originalError: error,
         stackTrace: stackTrace,
       ));
