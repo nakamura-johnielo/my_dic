@@ -11,12 +11,12 @@ import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/jpn_es
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/jpn_esp/jpn_esp_example_dao.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/drift_catalog_reader.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/drift_conjugation_reader.dart';
-import 'package:my_dic/features/catalog/internal/infrastructure/drift/reader/drift_catalog_conjugation_search_reader.dart';
-import 'package:my_dic/features/catalog/internal/infrastructure/drift/reader/drift_catalog_entry_summary_reader.dart';
-import 'package:my_dic/features/catalog/internal/infrastructure/drift/reader/drift_catalog_ranking_reader.dart';
-import 'package:my_dic/features/catalog/internal/infrastructure/drift/reader/drift_catalog_ranked_entry_feed_reader.dart';
-import 'package:my_dic/features/catalog/internal/infrastructure/drift/reader/drift_catalog_semantic_entry_detail_reader.dart';
-import 'package:my_dic/features/catalog/internal/infrastructure/drift/reader/drift_catalog_word_search_reader.dart';
+import 'package:my_dic/features/catalog/internal/infrastructure/drift/query/drift_catalog_conjugation_search_reader.dart';
+import 'package:my_dic/features/catalog/internal/infrastructure/drift/query/drift_catalog_entry_summary_reader.dart';
+import 'package:my_dic/features/catalog/internal/infrastructure/drift/query/drift_catalog_ranking_reader.dart';
+import 'package:my_dic/features/catalog/internal/infrastructure/drift/query/drift_catalog_ranked_entry_feed_reader.dart';
+import 'package:my_dic/features/catalog/internal/infrastructure/drift/query/drift_catalog_semantic_entry_detail_reader.dart';
+import 'package:my_dic/features/catalog/internal/infrastructure/drift/query/drift_catalog_word_search_reader.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/repository/drift_conjugation_repository.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/repository/drift_esp_jpn_dictionary_repository.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/repository/drift_jpn_esp_dictionary_repository.dart';
@@ -46,14 +46,14 @@ CatalogReadPorts createInternalCatalogComposition({
   );
 
   return CatalogReadPorts(
-      entryDetail: entryDetail,
-      conjugation: conjugation,
-      wordSearch: DriftCatalogWordSearchQueryService(database),
-      conjugationSearch: DriftCatalogConjugationSearchQueryService(database),
-      entrySummary: DriftCatalogEntrySummaryQueryService(database),
-      ranking: DriftCatalogRankingQueryService(database),
-      rankedEntries: DriftCatalogRankedEntryFeedQueryService(database),
-      semanticEntryDetail:
-          DriftCatalogSemanticEntryDetailQueryService(entryDetail),
+    entryDetail: entryDetail,
+    conjugation: conjugation,
+    wordSearch: DriftCatalogWordSearchQueryService(database),
+    conjugationSearch: DriftCatalogConjugationSearchQueryService(database),
+    entrySummary: DriftCatalogEntrySummaryQueryService(database),
+    ranking: DriftCatalogRankingQueryService(database),
+    rankedEntries: DriftCatalogRankedEntryFeedQueryService(database),
+    semanticEntryDetail:
+        DriftCatalogSemanticEntryDetailQueryService(entryDetail),
   );
 }

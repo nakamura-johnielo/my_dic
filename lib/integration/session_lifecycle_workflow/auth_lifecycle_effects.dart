@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/app/bootstrap/auth_composition.dart';
+import 'package:my_dic/app/bootstrap/feature_composition/auth_composition.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/features/auth/port/auth.dart';
 import 'auth_lifecycle_provider.dart';

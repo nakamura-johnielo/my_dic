@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/app/bootstrap/catalog_composition.dart';
+import 'package:my_dic/app/bootstrap/feature_composition/catalog_composition.dart';
 import 'package:my_dic/features/search/port/composition.dart';
 import 'package:my_dic/features/search/port/search.dart';
 import 'package:my_dic/integration/catalog_search/catalog_backed_search_gateway.dart';

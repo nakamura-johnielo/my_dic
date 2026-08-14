@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/app/bootstrap/session_composition.dart';
-import 'package:my_dic/app/bootstrap/sync_composition.dart';
+import 'package:my_dic/app/bootstrap/feature_composition/sync_composition.dart';
 import 'package:my_dic/app/session/app_session.dart';
 import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';

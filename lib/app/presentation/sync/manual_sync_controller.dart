@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/app/bootstrap/sync_composition.dart';
+import 'package:my_dic/app/bootstrap/feature_composition/sync_composition.dart';
 import 'package:my_dic/app/bootstrap/session_composition.dart';
 import 'package:my_dic/app/presentation/sync/manual_sync_ui_state.dart';
 import 'package:my_dic/app/session/app_session.dart';

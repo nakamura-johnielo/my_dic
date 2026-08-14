@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/app/session/app_session.dart';
 import 'package:my_dic/app/session/current_session.dart';
-import 'package:my_dic/app/bootstrap/user_profile_composition.dart';
+import 'package:my_dic/app/bootstrap/feature_composition/user_profile_composition.dart';
 import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 import 'package:my_dic/integration/session_lifecycle_workflow/auth_lifecycle_provider.dart';
 import 'package:my_dic/integration/session_lifecycle_workflow/auth_lifecycle_state.dart';
@@ -47,10 +47,8 @@ final currentSessionProvider = Provider<CurrentSession>((ref) {
 });
 
 final _liveUserProfileProvider = StreamProvider.autoDispose.family(
-    (ref, String accountId) => ref
-        .watch(userProfilePortsProvider)
-        .query
-        .watchProfile(accountId));
+    (ref, String accountId) =>
+        ref.watch(userProfilePortsProvider).query.watchProfile(accountId));
 
 AppSession _toAppSession(AuthLifecycleState state) {
   final auth = state.auth;

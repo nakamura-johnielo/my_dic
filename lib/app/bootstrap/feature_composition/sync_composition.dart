@@ -1,13 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/app/bootstrap/my_word_composition.dart';
+import 'package:my_dic/app/bootstrap/feature_composition/my_word_composition.dart';
 import 'package:my_dic/app/bootstrap/sync_infrastructure_providers.dart';
-import 'package:my_dic/app/bootstrap/word_status_composition.dart';
-import 'package:my_dic/app/bootstrap/user_profile_composition.dart';
+import 'package:my_dic/app/bootstrap/feature_composition/word_status_composition.dart';
+import 'package:my_dic/app/bootstrap/feature_composition/user_profile_composition.dart';
 import 'package:my_dic/core/composition/data_di.dart';
 import 'package:my_dic/features/sync/port/composition.dart';
 import 'package:my_dic/features/sync/port/dataset_contract.dart';
 
-export 'sync_infrastructure_providers.dart';
+export '../sync_infrastructure_providers.dart';
 
 /// Registry assembly registers completed MyWord capabilities while features
 /// awaiting migration continue to use their public composition factories.

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/app/bootstrap/session_composition.dart';
-import 'package:my_dic/app/bootstrap/user_profile_composition.dart';
+import 'package:my_dic/app/bootstrap/feature_composition/user_profile_composition.dart';
 import 'package:my_dic/app/session/app_session.dart';
 import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/features/user_profile/port/presentation_entry.dart';

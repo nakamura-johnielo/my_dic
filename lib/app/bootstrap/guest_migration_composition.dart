@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/app/bootstrap/sync_composition.dart';
-import 'package:my_dic/app/bootstrap/my_word_composition.dart';
-import 'package:my_dic/app/bootstrap/word_status_composition.dart';
-import 'package:my_dic/app/bootstrap/user_profile_composition.dart';
+import 'package:my_dic/app/bootstrap/feature_composition/sync_composition.dart';
+import 'package:my_dic/app/bootstrap/feature_composition/my_word_composition.dart';
+import 'package:my_dic/app/bootstrap/feature_composition/word_status_composition.dart';
+import 'package:my_dic/app/bootstrap/feature_composition/user_profile_composition.dart';
 import 'package:my_dic/app/guest_migration/detect_guest_data_usecase.dart';
 import 'package:my_dic/app/guest_migration/guest_data_summary.dart';
 import 'package:my_dic/app/guest_migration/migrate_guest_data_usecase.dart';
