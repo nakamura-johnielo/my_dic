@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/core/session/session_scope_provider.dart';
 import 'package:my_dic/features/ranking/internal/domain/ranking_filter_selection.dart';
 import 'package:my_dic/features/ranking/internal/presentation/provider/view_model_di.dart';
 import 'package:my_dic/features/ranking/internal/presentation/ui_model/ranking_part_of_speech_labels.dart';
 import 'package:my_dic/features/ranking/port/ranking.dart';
 
 class RankingFilterModal extends ConsumerWidget {
-  const RankingFilterModal({super.key});
+  const RankingFilterModal({
+    super.key,
+    required this.presentationKey,
+  });
+
+  final RankingPresentationKey presentationKey;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final scope = ref.watch(sessionScopeKeyProvider);
-    if (scope == null) return const SizedBox.shrink();
-    final state = ref.watch(rankingViewModelProvider(scope));
-    final notifier = ref.read(rankingViewModelProvider(scope).notifier);
+    final state = ref.watch(rankingViewModelProvider(presentationKey));
+    final notifier =
+        ref.read(rankingViewModelProvider(presentationKey).notifier);
     return FractionallySizedBox(
       heightFactor: 0.8,
       widthFactor: 1,
@@ -137,8 +140,7 @@ class _FilterSection<T extends Object> extends StatelessWidget {
   Widget build(BuildContext context) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('$label:',
-              style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text('$label:', style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 6),
           Wrap(
             spacing: 5,
@@ -176,16 +178,13 @@ class PagenationFilterSection extends StatelessWidget {
   Widget build(BuildContext context) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('$label:',
-              style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text('$label:', style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 6),
           Wrap(
             spacing: 5,
             runSpacing: 5,
             children: [
-              for (var page = 0;
-                  page < _maximumRank ~/ _pageSize;
-                  page++)
+              for (var page = 0; page < _maximumRank ~/ _pageSize; page++)
                 FilterChip(
                   label: Text(page.toString()),
                   selected: pagenationFilter == page,

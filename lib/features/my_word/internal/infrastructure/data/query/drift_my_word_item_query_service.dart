@@ -5,8 +5,8 @@ import 'package:my_dic/features/my_word/internal/infrastructure/mapper/my_word_i
 import 'package:my_dic/features/my_word/internal/infrastructure/mapper/my_word_item_projection_mapper.dart';
 
 /// Drift-backed read adapter. It never writes a missing status row.
-final class DriftMyWordItemQueryService implements MyWordItemQuery {
-  DriftMyWordItemQueryService(this._dao);
+final class DriftMyWordItemQueryRepository implements MyWordItemQuery {
+  DriftMyWordItemQueryRepository(this._dao);
 
   final MyWordDao _dao;
 

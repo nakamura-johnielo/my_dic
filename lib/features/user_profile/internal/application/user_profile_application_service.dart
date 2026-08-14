@@ -6,12 +6,12 @@ import 'package:my_dic/features/user_profile/port/user_profile.dart';
 final class UserProfileApplicationService implements UserProfileCommandPort {
   UserProfileApplicationService({
     required UserProfileProvisioningPort provisioning,
-    required UserProfileRepository repository,
+    required IUserProfileRepository repository,
   })  : _provisioning = provisioning,
         _repository = repository;
 
   final UserProfileProvisioningPort _provisioning;
-  final UserProfileRepository _repository;
+  final IUserProfileRepository _repository;
 
   @override
   Future<Result<AppUser>> ensureUserProfile(

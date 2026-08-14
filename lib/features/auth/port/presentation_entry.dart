@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_dic/core/shared/errors/app_error.dart';
 import 'package:my_dic/features/auth/internal/presentation/view/sign_up.dart';
+import 'command.dart';
 import 'model/auth_identity.dart';
 
 /// Feature-facing projection of the app-owned authentication workflow.
@@ -51,12 +52,14 @@ class AuthPresentationPage extends StatelessWidget {
     super.key,
     required this.state,
     required this.actions,
+    required this.commands,
   });
 
   final AuthPresentationState state;
   final AuthPresentationActions actions;
+  final AuthCommandPort commands;
 
   @override
   Widget build(BuildContext context) =>
-      EmailPasswordPage(state: state, actions: actions);
+      EmailPasswordPage(state: state, actions: actions, commands: commands);
 }

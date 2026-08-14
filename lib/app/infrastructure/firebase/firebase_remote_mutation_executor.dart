@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_dic/features/sync/port/dataset_contract.dart';
 
-/// App-owned Firestore implementation of Sync's remote-mutation contract.
+/// 同期機能がFirestore上のドキュメントを安全に更新するための実装。
+/// オフラインや複数端末からの同期更新を、重複・競合に配慮してFirestoreへ適用し、その結果を返すアダプター
 ///
-/// Dataset owners supply document paths and SDK-free encoded field values.
-/// This adapter owns SDK value conversion, transaction, and acknowledgement
-/// mechanics.
+/// Syncのリモートミューテーション契約を、アプリ側が所有するFirestore実装として実装したものです。
+/// データセットの所有者は、ドキュメントパスとSDKを使用しない形式でエンコードされたフィールド値を指定します。
+/// このアダプターは、SDKによる値の変換、トランザクション、および確認応答の処理を管理します。
 final class FirebaseRemoteMutationExecutor implements RemoteMutationExecutor {
   FirebaseRemoteMutationExecutor(this._firestore);
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/features/auth/port/presentation_entry.dart';
+import 'package:my_dic/app/bootstrap/feature_composition/auth_composition.dart';
 import 'package:my_dic/integration/session_lifecycle_workflow/auth_lifecycle_controller.dart';
 import 'package:my_dic/integration/session_lifecycle_workflow/auth_lifecycle_provider.dart';
 
@@ -25,6 +26,7 @@ class AuthLifecyclePresentationPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) => AuthPresentationPage(
         state: _authLifecyclePresentationState(ref),
         actions: _authLifecyclePresentationActions(ref),
+        commands: ref.watch(authCommandPortProvider),
       );
 }
 

@@ -146,7 +146,8 @@ void main() {
       expectRule(violations, 'catalog_port_framework_only_bridges');
     });
 
-    test('rejects framework imports from Catalog business and composition ports',
+    test(
+        'rejects framework imports from Catalog business and composition ports',
         () async {
       await write(root, 'lib/features/catalog/port/catalog.dart',
           "import 'package:flutter_riverpod/flutter_riverpod.dart';");
@@ -204,7 +205,8 @@ void main() {
           "${directive('features/search/port/composition.dart')}\n${directive('features/search/port/presentation_dependencies.dart')}");
       await write(root, 'lib/app/routing/search.dart',
           directive('features/search/port/presentation_entry.dart'));
-      await write(root,
+      await write(
+          root,
           'lib/integration/catalog_search/catalog_search_providers.dart',
           directive('features/search/port/composition.dart'));
 
@@ -225,8 +227,8 @@ void main() {
     test('enforces Auth facade and controlled technical seam callers',
         () async {
       await writeStrictSurface(root, 'auth');
-      await write(root, 'lib/app/use.dart',
-          directive('features/auth/port/auth.dart'));
+      await write(
+          root, 'lib/app/use.dart', directive('features/auth/port/auth.dart'));
       await write(root, 'lib/app/bootstrap/auth.dart',
           directive('features/auth/port/composition.dart'));
       await write(root, 'lib/app/routing/auth.dart',
@@ -273,15 +275,20 @@ void main() {
     test('rejects UserProfile internal, wire DTO, seam and resolver leaks',
         () async {
       await writeStrictSurface(root, 'user_profile');
-      await write(root, 'lib/app/bad_user_profile_internal.dart',
-          directive('features/user_profile/internal/infrastructure/firebase/user_profile_remote_dto.dart'));
+      await write(
+          root,
+          'lib/app/bad_user_profile_internal.dart',
+          directive(
+              'features/user_profile/internal/infrastructure/firebase/user_profile_remote_dto.dart'));
       await write(root, 'lib/app/bad_user_profile_wire.dart',
           directive('features/user_profile/port/user_profile_remote_dto.dart'));
       await write(root, 'lib/app/bad_user_profile_entry.dart',
           directive('features/user_profile/port/presentation_entry.dart'));
       await write(root, 'lib/features/user_profile/port/composition.dart',
           "${directive('features/user_profile/internal/composition/user_profile_composition_factory.dart')}\n${directive('features/user_profile/internal/infrastructure/firebase/user_profile_remote_dto.dart')}\nimport 'package:flutter_riverpod/flutter_riverpod.dart';\ntypedef Reader = T Function<T>(Object value);");
-      await write(root, 'lib/features/user_profile/port/presentation_entry.dart',
+      await write(
+          root,
+          'lib/features/user_profile/port/presentation_entry.dart',
           "export 'package:my_dic/features/user_profile/internal/presentation/provider/provider.dart';");
 
       final violations = await check(root);
@@ -337,8 +344,11 @@ void main() {
           directive('features/word_detail/port/model/detail.dart'));
       await write(root, 'lib/features/search/internal/internal.dart',
           directive('features/word_detail/internal/application/service.dart'));
-      await write(root, 'lib/features/search/internal/seam.dart',
-          directive('features/word_detail/port/presentation_dependencies.dart'));
+      await write(
+          root,
+          'lib/features/search/internal/seam.dart',
+          directive(
+              'features/word_detail/port/presentation_dependencies.dart'));
 
       final violations = await check(root);
       expectRule(violations, 'feature_external_only_facade');
@@ -350,8 +360,7 @@ void main() {
       );
     });
 
-    test('discovers a canonical facade without requiring every seam',
-        () async {
+    test('discovers a canonical facade without requiring every seam', () async {
       await write(root, 'lib/features/notes/port/notes.dart', 'library;');
       await write(root, 'lib/features/notes/port/query.dart', 'class Query {}');
       await write(root, 'lib/features/notes/port/composition.dart',
@@ -374,12 +383,14 @@ void main() {
           'abstract interface class DatasetSyncGateway {}');
       await write(root, 'lib/features/my_word/port/composition.dart',
           directive('features/sync/port/dataset_contract.dart'));
-      await write(root,
+      await write(
+          root,
           'lib/features/my_word/internal/infrastructure/sync/service.dart',
           directive('features/sync/port/dataset_contract.dart'));
       await write(root, 'lib/app/bootstrap/sync.dart',
           directive('features/sync/port/dataset_contract.dart'));
-      await write(root,
+      await write(
+          root,
           'lib/app/infrastructure/firebase/remote_mutation_executor.dart',
           directive('features/sync/port/dataset_contract.dart'));
       await write(root, 'lib/integration/sync/executor.dart',
@@ -428,6 +439,22 @@ void main() {
         );
       }
     });
+
+    test(
+        'rejects feature presentation dependency seams and bootstrap overrides',
+        () async {
+      await write(
+          root,
+          'lib/features/search/port/presentation_dependencies.dart',
+          'library;');
+      await write(root, 'lib/app/bootstrap/bootstrap.dart', '''
+final ignored = searchReaderPortDependencyProvider.overrideWith((ref) => 1);
+''');
+
+      final violations = await check(root);
+      expectRule(violations, 'presentation_dependency_provider_removed');
+      expectRule(violations, 'bootstrap_no_feature_presentation_override');
+    });
   });
 }
 
@@ -446,8 +473,6 @@ Future<void> writeStrictSurface(Directory root, String feature) async {
   await write(root, '$port/$feature.dart', 'library;');
   await write(root, '$port/composition.dart',
       "import 'package:my_dic/features/$feature/internal/composition/${feature}_composition_factory.dart';");
-  await write(root, '$port/presentation_dependencies.dart',
-      "import 'package:flutter_riverpod/flutter_riverpod.dart';");
   await write(root, '$port/presentation_entry.dart',
       "export 'package:my_dic/features/$feature/internal/presentation/view/view.dart';");
 }

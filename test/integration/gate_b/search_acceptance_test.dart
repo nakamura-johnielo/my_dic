@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/features/catalog/port/catalog.dart';
-import 'package:my_dic/features/search/port/presentation_dependencies.dart';
 import 'package:my_dic/features/search/port/presentation_entry.dart';
 import 'package:my_dic/features/search/port/search.dart';
 
@@ -15,9 +14,12 @@ void main() {
       (tester) async {
     final bridge = _CatalogBridgeFake();
     await tester.pumpWidget(ProviderScope(
-      overrides: [searchReaderPortDependencyProvider.overrideWithValue(bridge)],
       child: MaterialApp(
-        home: SearchFragment(onOpenWordDetail: (_) {}, onOpenQuiz: (_, __) {}),
+        home: SearchFragment(
+          reader: bridge,
+          onOpenWordDetail: (_) {},
+          onOpenQuiz: (_, __) {},
+        ),
       ),
     ));
 

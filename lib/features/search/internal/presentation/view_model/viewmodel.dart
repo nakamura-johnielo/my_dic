@@ -12,7 +12,7 @@ import 'package:my_dic/features/search/port/search.dart';
 class SearchViewModel extends StateNotifier<SearchState> {
   SearchViewModel(this._search) : super(const SearchState());
 
-  final SearchReaderPort _search;
+  final SearchQueryPort _search;
   int _generation = 0;
   final _attempts = <_SearchPageIdentity, int>{};
   final _inFlight = <_SearchPageIdentity, Future<bool>>{};

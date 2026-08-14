@@ -1,7 +1,7 @@
 import 'package:my_dic/features/word_detail/port/word_detail.dart';
 
 /// WordDetail-owned orchestration of primary dictionary and optional detail.
-final class WordDetailApplicationService implements WordDetailReaderPort {
+final class WordDetailApplicationService implements WordDetailQueryPort {
   const WordDetailApplicationService(this._catalog);
 
   final WordDetailCatalogGateway _catalog;
@@ -49,7 +49,8 @@ final class WordDetailApplicationService implements WordDetailReaderPort {
 
     try {
       final conjugationResult = await _catalog.readConjugation(query.word);
-      if (conjugationResult case Failure<WordDetailConjugation?>(:final error)) {
+      if (conjugationResult
+          case Failure<WordDetailConjugation?>(:final error)) {
         return Result.success(
           WordDetailResult(
             data: EspJpnWordDetailData(

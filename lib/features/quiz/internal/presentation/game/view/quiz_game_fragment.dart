@@ -11,10 +11,12 @@ class QuizGameFragment extends ConsumerStatefulWidget {
   const QuizGameFragment({
     super.key,
     required this.input,
+    required this.reader,
     required this.onOpenWordDetail,
     required this.wordStatusRenderer,
   });
   final QuizGamePresentationInput input;
+  final QuizGameQueryPort reader;
   final ValueChanged<CatalogWordRef> onOpenWordDetail;
   final Widget Function(CatalogWordRef word) wordStatusRenderer;
 
@@ -43,7 +45,7 @@ class _QuizGameFragmentState extends ConsumerState<QuizGameFragment> {
 
     //　VVVVVVVVVVV活用の英訳の共有部のデータ読み込みVVVVVVVVV
     final query = QuizGameQuery(input.word);
-    final gameAsync = ref.watch(quizGameLoadProvider(query));
+    final gameAsync = ref.watch(quizGameLoadProvider(widget.reader, query));
 
     // Keep the retry lane occupied until its invalidated provider settles.
     // This is also the mounted fence for a route that disappears while its
@@ -59,7 +61,7 @@ class _QuizGameFragmentState extends ConsumerState<QuizGameFragment> {
       // prevents two taps from invalidating the same provider twice.
       if (_retrying) return;
       _retrying = true;
-      ref.invalidate(quizGameLoadProvider(query));
+      ref.invalidate(quizGameLoadProvider(widget.reader, query));
     }
 
     void onSwipe(String dir) {

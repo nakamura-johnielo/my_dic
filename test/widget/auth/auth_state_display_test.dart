@@ -70,6 +70,12 @@ Widget _app(AuthLifecycleController controller) {
           notice: controller.state.notice,
         ),
         actions: _Actions(controller),
+        commands: FakeAuthCommandService(
+          signInFake: FakeSignInInteractor(),
+          signUpFake: FakeSignUpInteractor(),
+          signOutFake: FakeSignOutInteractor(),
+          verifyFake: FakeVerifyEmailInteractor(),
+        ),
       ),
     ),
   );

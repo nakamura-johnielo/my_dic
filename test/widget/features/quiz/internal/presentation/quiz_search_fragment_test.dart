@@ -6,8 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/catalog/port/catalog.dart';
-import 'package:my_dic/features/quiz/internal/presentation/view/quiz_search_fragment.dart';
-import 'package:my_dic/features/quiz/port/presentation_dependencies.dart';
+import 'package:my_dic/features/quiz/internal/presentation/search/view/quiz_search_fragment.dart';
 import 'package:my_dic/features/quiz/port/error/quiz_candidate_issue.dart';
 import 'package:my_dic/features/quiz/port/query/quiz_candidate_query.dart';
 import 'package:my_dic/features/quiz/port/reader/quiz_candidate_reader_port.dart';
@@ -70,10 +69,9 @@ void main() {
 }
 
 Widget _app(_Source source) => ProviderScope(
-      overrides: [
-        quizCandidateReaderDependencyProvider.overrideWithValue(source)
-      ],
-      child: MaterialApp(home: QuizSearchFragment(onOpenQuiz: (_, __) {})),
+      child: MaterialApp(
+        home: QuizSearchFragment(reader: source, onOpenQuiz: (_, __) {}),
+      ),
     );
 
 QuizCandidatePage _page(String word, {bool hasNext = false}) =>

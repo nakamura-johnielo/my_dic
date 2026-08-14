@@ -12,6 +12,6 @@ final wordDetailPortsProvider = Provider<WordDetailPorts>(
   ),
 );
 
-final wordDetailReaderPortProvider = Provider<WordDetailReaderPort>(
+final wordDetailQueryPortProvider = Provider<WordDetailQueryPort>(
   (ref) => ref.watch(wordDetailPortsProvider).reader,
 );

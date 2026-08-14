@@ -3,7 +3,7 @@ import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/quiz/internal/presentation/search/ui_model/quiz_search_models.dart';
 import 'package:my_dic/features/quiz/port/query/quiz_candidate_query.dart';
-import 'package:my_dic/features/quiz/port/reader/quiz_candidate_reader_port.dart';
+import 'package:my_dic/features/quiz/port/query/quiz_candidate_reader_port.dart';
 
 class QuizSearchViewModel extends StateNotifier<QuizSearchState> {
   QuizSearchViewModel(this._source) : super(const QuizSearchState());

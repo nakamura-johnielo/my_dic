@@ -13,7 +13,9 @@ import 'package:my_dic/core/presentation/error/app_error_message.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/features/ranking/internal/presentation/ui_model/ranking_ui_model.dart';
 import 'package:my_dic/core/session/session_scope_provider.dart';
+import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/features/ranking/port/ranking.dart';
+import 'package:my_dic/features/ranking/port/composition_contract.dart';
 
 class RankingFragment extends ConsumerStatefulWidget {
   const RankingFragment({
@@ -21,11 +23,13 @@ class RankingFragment extends ConsumerStatefulWidget {
     required this.onOpenWordDetail,
     required this.onOpenQuiz,
     required this.wordStatusRenderer,
+    required this.ports,
   });
 
   final ValueChanged<CatalogWordRef> onOpenWordDetail;
   final void Function(CatalogWordRef word, String? displayHint) onOpenQuiz;
   final Widget Function(CatalogWordRef word) wordStatusRenderer;
+  final RankingPorts ports;
 
   @override
   ConsumerState<RankingFragment> createState() => _RankingFragmentState();
@@ -46,14 +50,16 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
     final scope = ref.read(sessionScopeKeyProvider);
     if (scope == null) return false;
     return ref
-        .read(rankingViewModelProvider(scope).notifier)
+        .read(rankingViewModelProvider(_presentationKey(scope)).notifier)
         .loadNextPage(nextPage);
   }
 
   Future<void> _retryFailedPage() async {
     final scope = ref.read(sessionScopeKeyProvider);
     if (scope == null) return;
-    await ref.read(rankingViewModelProvider(scope).notifier).retry();
+    await ref
+        .read(rankingViewModelProvider(_presentationKey(scope)).notifier)
+        .retry();
   }
 
   void _resetPage() {
@@ -66,11 +72,12 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
   Widget build(BuildContext context) {
     final scope = ref.watch(sessionScopeKeyProvider);
     if (scope == null) return const Scaffold(body: SizedBox.shrink());
-    final viewModel = ref.watch(rankingViewModelProvider(scope));
+    final presentationKey = _presentationKey(scope);
+    final viewModel = ref.watch(rankingViewModelProvider(presentationKey));
     const margin = EdgeInsets.symmetric(vertical: 1, horizontal: 16);
 
     ref.watch(rankingFilterEffectProvider(
-        (scope: scope, resetPage: _resetPageCallback)));
+        (key: presentationKey, resetPage: _resetPageCallback)));
 
     return Scaffold(
       appBar: AppBar(
@@ -92,14 +99,18 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
           ),
         ],
       ),
-      floatingActionButton: const FilterButton(
+      floatingActionButton: FilterButton(
         key: ValueKey("ranking-fl-btn"),
+        presentationKey: presentationKey,
       ),
       floatingActionButtonLocation:
           FloatAboveNavBar(UIConsts.bottomBarCompleteHeight),
       floatingActionButtonAnimator: const NoScaleFloatingActionButtonAnimator(),
     );
   }
+
+  RankingPresentationKey _presentationKey(SessionScopeKey scope) =>
+      RankingPresentationKey(scope: scope, ports: widget.ports);
 
   Widget _content(
     RankingState screen,
@@ -256,7 +267,9 @@ class Header extends StatelessWidget {
 }
 
 class FilterButton extends StatelessWidget {
-  const FilterButton({super.key});
+  const FilterButton({super.key, required this.presentationKey});
+
+  final RankingPresentationKey presentationKey;
 
   @override
   Widget build(BuildContext context) {
@@ -270,7 +283,7 @@ class FilterButton extends StatelessWidget {
             enableDrag: true,
             barrierColor: Colors.black.withValues(alpha: .5),
             builder: (context) {
-              return RankingFilterModal();
+              return RankingFilterModal(presentationKey: presentationKey);
             });
       },
       child: Icon(Icons.filter_alt_rounded),

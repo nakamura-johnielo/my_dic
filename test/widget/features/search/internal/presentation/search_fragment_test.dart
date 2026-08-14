@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/features/catalog/port/catalog.dart';
-import 'package:my_dic/features/search/port/presentation_dependencies.dart';
 import 'package:my_dic/features/search/port/presentation_entry.dart';
 import 'package:my_dic/features/search/port/search.dart';
 
@@ -44,7 +43,8 @@ void main() {
     expect(reader.queries.last.page, 0);
   });
 
-  testWidgets('uses CatalogWordRef callbacks and displays two of four suggestions',
+  testWidgets(
+      'uses CatalogWordRef callbacks and displays two of four suggestions',
       (tester) async {
     final reader = _QueryPort();
     CatalogWordRef? openedWord;
@@ -103,9 +103,9 @@ Widget _app(
   void Function(CatalogWordRef word, String? displayHint)? onOpenQuiz,
 }) =>
     ProviderScope(
-      overrides: [searchReaderPortDependencyProvider.overrideWithValue(reader)],
       child: MaterialApp(
         home: SearchFragment(
+          reader: reader,
           onOpenWordDetail: onOpenWordDetail ?? (_) {},
           onOpenQuiz: onOpenQuiz ?? (_, __) {},
         ),

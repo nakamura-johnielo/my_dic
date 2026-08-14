@@ -2,7 +2,7 @@ import 'package:my_dic/features/word_detail/internal/application/word_detail_rea
 import 'package:my_dic/features/word_detail/port/word_detail.dart';
 
 /// WordDetail-owned assembly of its application service graph.
-WordDetailReaderPort createInternalWordDetailReader({
+WordDetailQueryPort createInternalWordDetailReader({
   required WordDetailCatalogGateway catalogGateway,
 }) =>
     WordDetailApplicationService(catalogGateway);

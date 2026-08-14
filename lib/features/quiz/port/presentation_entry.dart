@@ -1,9 +1,49 @@
-/// The sole public Quiz-game presentation entry.
-///
-/// Its implementation obtains feature state only through focused Quiz reader
-/// contracts; all concrete UI and provider wiring remain feature-internal.
+/// The controlled public presentation entries for Quiz.
 library;
 
-export 'package:my_dic/features/quiz/internal/presentation/game/view/quiz_game_fragment.dart';
-export 'package:my_dic/features/quiz/internal/presentation/search/view/quiz_search_fragment.dart'
-    show QuizSearchFragment;
+import 'package:flutter/widgets.dart';
+import 'package:my_dic/features/quiz/internal/presentation/view/quiz_presentation_fragments.dart'
+    as internal;
+import 'package:my_dic/features/quiz/port/quiz.dart';
+
+/// Controlled Flutter entry for candidate search.
+class QuizSearchFragment extends StatelessWidget {
+  const QuizSearchFragment({
+    super.key,
+    required this.reader,
+    required this.onOpenQuiz,
+  });
+
+  final QuizCandidateQueryPort reader;
+  final void Function(CatalogWordRef word, String? displayHint) onOpenQuiz;
+
+  @override
+  Widget build(BuildContext context) => internal.QuizSearchFragment(
+        reader: reader,
+        onOpenQuiz: onOpenQuiz,
+      );
+}
+
+/// Controlled Flutter entry for one loaded Quiz game.
+class QuizGameFragment extends StatelessWidget {
+  const QuizGameFragment({
+    super.key,
+    required this.input,
+    required this.reader,
+    required this.onOpenWordDetail,
+    required this.wordStatusRenderer,
+  });
+
+  final QuizGamePresentationInput input;
+  final QuizGameQueryPort reader;
+  final ValueChanged<CatalogWordRef> onOpenWordDetail;
+  final Widget Function(CatalogWordRef word) wordStatusRenderer;
+
+  @override
+  Widget build(BuildContext context) => internal.QuizGameFragment(
+        input: input,
+        reader: reader,
+        onOpenWordDetail: onOpenWordDetail,
+        wordStatusRenderer: wordStatusRenderer,
+      );
+}

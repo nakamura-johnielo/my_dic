@@ -148,7 +148,8 @@ void main() {
     test('enforces the Auth facade, pure composition and routing-owned entry',
         () async {
       await writeStrictSurface(root, 'auth');
-      await write(root, 'lib/app/use.dart', imp('features/auth/port/auth.dart'));
+      await write(
+          root, 'lib/app/use.dart', imp('features/auth/port/auth.dart'));
       await write(
         root,
         'lib/app/bootstrap/auth_composition.dart',
@@ -188,7 +189,8 @@ void main() {
         () async {
       await write(root, 'lib/features/a/port/composition.dart',
           "export '../internal/composition/a_composition_factory.dart';");
-      await write(root,
+      await write(
+          root,
           'lib/features/a/internal/composition/a_composition_factory.dart',
           sdk('flutter_riverpod/flutter_riverpod.dart'));
 
@@ -268,8 +270,8 @@ void main() {
       await writeStrictSurface(root, 'word_detail');
       await write(root, 'lib/features/word_detail/port/word_detail.dart',
           "export 'model.dart';");
-      await write(root, 'lib/features/word_detail/port/model.dart',
-          'class Detail {}');
+      await write(
+          root, 'lib/features/word_detail/port/model.dart', 'class Detail {}');
       await write(root, 'lib/features/word_detail/internal/value.dart',
           'class Internal {}');
       await write(root, 'lib/features/search/internal/good.dart',
@@ -428,7 +430,8 @@ void main() {
       expectRule(await check(root), 'my_word_external_only_facade');
     });
 
-    test('allows typed technical contracts and canonical factory in composition',
+    test(
+        'allows typed technical contracts and canonical factory in composition',
         () async {
       await write(
         root,
@@ -522,7 +525,7 @@ void main() {
       await write(root, 'lib/features/search/internal/bad.dart',
           "${imp('features/quiz/internal/application/service.dart')}\n${imp('features/quiz/port/query/quiz_game_query.dart')}");
       await write(root, 'lib/app/bootstrap/quiz.dart',
-          "${imp('features/quiz/port/composition.dart')}\n${imp('features/quiz/port/presentation_dependencies.dart')}\n${imp('features/quiz/internal/infrastructure/assets.dart')}");
+          "${imp('features/quiz/port/composition.dart')}\n${imp('features/quiz/internal/infrastructure/assets.dart')}");
       await write(root, 'lib/app/routing/quiz.dart',
           imp('features/quiz/port/presentation_entry.dart'));
 
@@ -557,12 +560,15 @@ void main() {
     test('allows the generic Search facade and its three technical seams',
         () async {
       await writeStrictSurface(root, 'search');
-      await write(root, 'lib/app/use.dart', imp('features/search/port/search.dart'));
+      await write(
+          root, 'lib/app/use.dart', imp('features/search/port/search.dart'));
       await write(root, 'lib/app/bootstrap/search.dart',
           "${imp('features/search/port/composition.dart')}\n${imp('features/search/port/presentation_dependencies.dart')}");
       await write(root, 'lib/app/routing/search.dart',
           imp('features/search/port/presentation_entry.dart'));
-      await write(root, 'lib/integration/catalog_search/catalog_search_providers.dart',
+      await write(
+          root,
+          'lib/integration/catalog_search/catalog_search_providers.dart',
           imp('features/search/port/composition.dart'));
 
       final generic = (await check(root)).where((violation) => {
@@ -612,7 +618,9 @@ void main() {
           imp('features/user_profile/port/presentation_entry.dart'));
       await write(root, 'lib/features/user_profile/port/composition.dart',
           "${imp('features/user_profile/internal/composition/user_profile_composition_factory.dart')}\n${imp('features/user_profile/internal/infrastructure/firebase/user_profile_remote_dto.dart')}\n${sdk('flutter_riverpod/flutter_riverpod.dart')}\ntypedef Reader = T Function<T>(Object value);");
-      await write(root, 'lib/features/user_profile/port/presentation_entry.dart',
+      await write(
+          root,
+          'lib/features/user_profile/port/presentation_entry.dart',
           "export 'package:my_dic/features/user_profile/internal/presentation/provider/provider.dart';");
 
       final violations = await check(root);
@@ -661,14 +669,13 @@ void main() {
       }
     });
 
-    test('discovers a canonical facade without requiring every seam',
-        () async {
+    test('discovers a canonical facade without requiring every seam', () async {
       await write(root, 'lib/features/notes/port/notes.dart', 'library;');
       await write(root, 'lib/features/notes/port/query.dart', 'class Query {}');
       await write(root, 'lib/features/notes/port/composition.dart',
           'Object compose(ProviderListenable provider) => provider;');
-      await write(root, 'lib/app/bad_deep.dart',
-          imp('features/notes/port/query.dart'));
+      await write(
+          root, 'lib/app/bad_deep.dart', imp('features/notes/port/query.dart'));
       await write(root, 'lib/app/bad_seam.dart',
           imp('features/notes/port/composition.dart'));
 
@@ -685,12 +692,14 @@ void main() {
           'abstract interface class DatasetSyncGateway {}');
       await write(root, 'lib/features/my_word/port/composition.dart',
           imp('features/sync/port/dataset_contract.dart'));
-      await write(root,
+      await write(
+          root,
           'lib/features/my_word/internal/infrastructure/sync/service.dart',
           imp('features/sync/port/dataset_contract.dart'));
       await write(root, 'lib/app/bootstrap/sync.dart',
           imp('features/sync/port/dataset_contract.dart'));
-      await write(root,
+      await write(
+          root,
           'lib/app/infrastructure/firebase/remote_mutation_executor.dart',
           imp('features/sync/port/dataset_contract.dart'));
       await write(root, 'lib/integration/sync/executor.dart',
@@ -751,6 +760,21 @@ void main() {
     expect(report.added, hasLength(1));
     expect(report.removed, isEmpty);
   });
+
+  test('rejects feature presentation dependency seams and bootstrap overrides',
+      () async {
+    final root = await Directory.systemTemp.createTemp('import-boundary-');
+    addTearDown(() => root.delete(recursive: true));
+    await write(root, 'lib/features/search/port/presentation_dependencies.dart',
+        'library;');
+    await write(root, 'lib/app/bootstrap/bootstrap.dart', '''
+final ignored = searchReaderPortDependencyProvider.overrideWith((ref) => 1);
+''');
+
+    final violations = await check(root);
+    expectRule(violations, 'presentation_dependency_provider_removed');
+    expectRule(violations, 'bootstrap_no_feature_presentation_override');
+  });
 }
 
 Future<List<Violation>> check(Directory root) =>
@@ -773,8 +797,6 @@ Future<void> writeStrictSurface(Directory root, String feature) async {
   await write(root, '$port/$feature.dart', 'library;');
   await write(root, '$port/composition.dart',
       "import 'package:my_dic/features/$feature/internal/composition/${feature}_composition_factory.dart';");
-  await write(root, '$port/presentation_dependencies.dart',
-      "import 'package:flutter_riverpod/flutter_riverpod.dart';");
   await write(root, '$port/presentation_entry.dart',
       "export 'package:my_dic/features/$feature/internal/presentation/view/view.dart';");
 }

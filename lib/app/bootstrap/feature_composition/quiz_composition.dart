@@ -8,13 +8,13 @@ import 'package:my_dic/integration/catalog_quiz/catalog_backed_quiz_game_gateway
 
 final quizCandidateCatalogGatewayProvider = Provider(
   (ref) => CatalogBackedQuizCandidateGateway(
-    ref.watch(catalogReadPortsProvider),
+    ref.watch(catalogQueryPortsProvider),
   ),
 );
 
 final quizGameCatalogGatewayProvider = Provider(
   (ref) => CatalogBackedQuizGameGateway(
-    ref.watch(catalogReadPortsProvider),
+    ref.watch(catalogQueryPortsProvider),
   ),
 );
 

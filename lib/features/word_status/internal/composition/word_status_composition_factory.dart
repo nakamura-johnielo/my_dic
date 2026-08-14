@@ -13,7 +13,6 @@ import 'package:my_dic/features/word_status/internal/infrastructure/jpn_esp/drif
 import 'package:my_dic/features/word_status/internal/infrastructure/jpn_esp/firebase/jpn_esp_word_status_sync_remote_factory.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/jpn_esp/jpn_esp_dictionary_word_status_store.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/jpn_esp/jpn_esp_word_status_dataset_sync_service.dart';
-import 'package:my_dic/features/word_status/internal/infrastructure/sync/word_status_dataset_sync_handler.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/composite_word_status_repository.dart';
 import 'package:my_dic/features/word_status/port/composition_contract.dart';
 
@@ -48,7 +47,7 @@ DatasetSyncHandler createInternalEspJpnWordStatusDatasetSyncHandler({
   required RemoteMutationExecutor remoteMutationExecutor,
   required SyncHandlerRuntime runtime,
 }) =>
-    WordStatusDatasetSyncHandler(
+    DatasetSyncService(
       adapter: EspJpnWordStatusDatasetSyncService(
         local: EspJpnWordStatusLocalStore(EspJpnWordStatusDao(database)),
         remote: createInternalFirebaseEspJpnWordStatusRemoteStore(
@@ -65,7 +64,7 @@ DatasetSyncHandler createInternalJpnEspWordStatusDatasetSyncHandler({
   required RemoteMutationExecutor remoteMutationExecutor,
   required SyncHandlerRuntime runtime,
 }) =>
-    WordStatusDatasetSyncHandler(
+    DatasetSyncService(
       adapter: JpnEspWordStatusDatasetSyncService(
         local: JpnEspWordStatusLocalStore(JpnEspWordStatusDao(database)),
         remote: createInternalFirebaseJpnEspWordStatusRemoteStore(

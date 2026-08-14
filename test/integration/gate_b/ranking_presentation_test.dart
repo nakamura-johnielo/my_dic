@@ -7,7 +7,6 @@ import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/core/session/session_scope_provider.dart';
 import 'package:my_dic/core/shared/consts/account_scope.dart';
 import 'package:my_dic/features/ranking/port/composition_contract.dart';
-import 'package:my_dic/features/ranking/port/presentation_dependencies.dart';
 import 'package:my_dic/features/ranking/port/presentation_entry.dart';
 import 'package:my_dic/features/ranking/port/ranking.dart';
 
@@ -23,14 +22,10 @@ void main() {
       ProviderScope(
         overrides: [
           sessionScopeKeyProvider.overrideWith((ref) => ref.watch(session)),
-          rankingPresentationDependenciesProvider.overrideWithValue(
-            RankingPresentationDependencies(
-              ports: RankingPorts(reader: reader),
-            ),
-          ),
         ],
         child: MaterialApp(
           home: RankingFragment(
+            ports: RankingPorts(reader: reader),
             wordStatusRenderer: (_) => const SizedBox.shrink(),
             onOpenWordDetail: (_) {},
             onOpenQuiz: (_, __) {},

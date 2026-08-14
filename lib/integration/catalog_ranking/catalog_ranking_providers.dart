@@ -5,6 +5,6 @@ import 'package:my_dic/integration/catalog_ranking/catalog_backed_ranking_gatewa
 
 final rankingCatalogGatewayProvider = Provider<RankingCatalogGateway>(
   (ref) => CatalogBackedRankingGateway(
-    ref.watch(catalogReadPortsProvider).rankedEntries,
+    ref.watch(catalogQueryPortsProvider).rankedEntries,
   ),
 );

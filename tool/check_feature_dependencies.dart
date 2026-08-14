@@ -248,6 +248,28 @@ class FeatureDependencyChecker {
         ));
       }
     }
+    for (final source in sources.keys) {
+      if (source.endsWith('/port/presentation_dependencies.dart')) {
+        violations.add(FeatureDependencyViolation(
+          'presentation_dependency_provider_removed',
+          source,
+          'feature presentation dependencies must be constructor-injected',
+        ));
+      }
+    }
+    const bootstrap = 'lib/app/bootstrap/bootstrap.dart';
+    final bootstrapSource = sources[bootstrap];
+    if (bootstrapSource != null &&
+        RegExp(r'\b(?:[A-Za-z0-9_]+PresentationDependenciesProvider|'
+                r'[A-Za-z0-9_]+PortDependencyProvider|'
+                r'quizPortsDependencyProvider)\s*\.overrideWith')
+            .hasMatch(bootstrapSource)) {
+      violations.add(FeatureDependencyViolation(
+        'bootstrap_no_feature_presentation_override',
+        bootstrap,
+        'feature presentation dependency override',
+      ));
+    }
     return violations.toSet().toList()..sort();
   }
 }
@@ -377,7 +399,8 @@ bool isAllowedCompositionFactoryBridge(String source, String target) {
 }
 
 bool isControlledPresentationTarget(String path) =>
-    path.contains('/presentation/view/') || path.endsWith('/presentation/view.dart');
+    path.contains('/presentation/view/') ||
+    path.endsWith('/presentation/view.dart');
 bool isStrictFeatureIntegration(String source, Set<String> strictFeatures) {
   final match = RegExp(r'^lib/integration/([^/]+)/').firstMatch(source);
   if (match == null) return false;

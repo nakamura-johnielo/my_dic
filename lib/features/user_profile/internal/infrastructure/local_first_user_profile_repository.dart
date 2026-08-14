@@ -11,7 +11,7 @@ import 'package:my_dic/features/user_profile/internal/domain/repository/user_pro
 ///
 /// Editable fields are read from Drift and written atomically with an outbox
 /// mutation. Remote provisioning and sync delivery are separate adapters.
-final class LocalFirstUserProfileRepository implements UserProfileRepository {
+final class LocalFirstUserProfileRepository implements IUserProfileRepository {
   LocalFirstUserProfileRepository(
       this._local, this._profileLocal, this._outboxWriter,
       {Uuid? uuid})

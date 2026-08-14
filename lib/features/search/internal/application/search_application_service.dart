@@ -3,7 +3,7 @@ import 'package:my_dic/features/search/port/search.dart';
 import 'search_suggestion_policy.dart';
 
 /// Search's application-level reader over its consumer-owned Catalog gateway.
-final class SearchApplicationService implements SearchReaderPort {
+final class SearchApplicationService implements SearchQueryPort {
   SearchApplicationService(this._gateway);
 
   final SearchCatalogGateway _gateway;

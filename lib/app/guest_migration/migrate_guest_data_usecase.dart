@@ -5,22 +5,22 @@ import 'package:my_dic/features/sync/port/sync.dart';
 import 'package:my_dic/features/user_profile/port/user_profile.dart';
 import 'package:my_dic/features/word_status/port/word_status.dart';
 
-/// Moves every guest-scoped local row to a signed-in account, atomically.
 ///
-/// Word status (esp_jpn/jpn_esp) entities are keyed by a shared dictionary
-/// wordId, so a guest row and an existing account row for the same word can
-/// legitimately both exist; their boolean fields are OR-merged (true wins)
-/// and the row is written under the account scope, then the guest row is
-/// removed. MyWord/MyWordStatus entities are keyed by a UUID generated at
-/// creation time, so a same-id collision between a guest row and an account
-/// row is not expected in practice; those rows are simply re-keyed in place,
-/// and in the practically-impossible collision case the account's existing
-/// row is kept and the guest row is left untouched (not migrated).
 ///
-/// Idempotency: every approved run creates one migration ID, shared by its
-/// outbox mutations. A successful transaction leaves no guest-scoped rows,
-/// so a later run is a no-op; a failed transaction rolls back both rows and
-/// queued mutations together.
+/// ゲストスコープのローカル行をすべて、ログイン済みアカウントへアトミックに移動します。
+/// 単語ステータス（esp_jpn/jpn_esp）エンティティは、共有辞書の wordId をキーとしているため、
+/// 同じ単語に対してゲスト行と既存のアカウント行が正当に共存することが可能です。
+/// それらのブール値フィールドは OR 演算で統合され（true の方が優先）、
+/// 行はアカウントスコープ下に書き込まれた後、ゲスト行は削除されます。
+/// MyWord/MyWordStatusエンティティは、作成時に生成されるUUIDをキーとするため、
+/// 実際にはゲスト行とアカウント行の間でIDが衝突することは想定されていません。
+/// これらの行は単にその場でキーが更新されます。また、事実上あり得ない衝突が発生した場合でも、
+/// アカウントの既存の行が保持され、ゲスト行はそのまま残されます（移行されません）。
+
+/// 冪等性：承認された各実行は1つの移行IDを生成し、そのアウトボックスへの変更操作で共有されます。
+/// トランザクションが成功した場合、ゲストスコープの行は残らないため、後の実行はノーオペレーションとなります。
+/// トランザクションが失敗した場合は、両方の行とキューに格納された変更操作がまとめてロールバックされます。
+
 class MigrateGuestDataUseCase {
   MigrateGuestDataUseCase({
     required DatabaseProvider database,

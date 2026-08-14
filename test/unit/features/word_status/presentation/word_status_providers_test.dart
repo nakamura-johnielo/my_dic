@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/features/word_status/internal/presentation/provider/word_status_providers.dart';
 import 'package:my_dic/features/word_status/port/composition_contract.dart';
-import 'package:my_dic/features/word_status/port/presentation_dependencies.dart';
 import 'package:my_dic/features/word_status/port/word_status.dart';
 
 void main() {
@@ -24,19 +23,22 @@ void main() {
     addTearDown(container.dispose);
     final subscription = container.listen(
       watchWordStatusProvider(
-        const WordStatusEntryKey(scope: firstScope, word: espWord),
+        WordStatusEntryKey(
+            scope: firstScope, word: espWord, ports: capabilities.ports),
       ),
       (_, __) {},
     );
     addTearDown(subscription.close);
 
     await container.read(watchWordStatusProvider(
-      const WordStatusEntryKey(scope: firstScope, word: espWord),
+      WordStatusEntryKey(
+          scope: firstScope, word: espWord, ports: capabilities.ports),
     ).future);
     expect(capabilities.scopes, [WordStatusScope.account('first-account')]);
 
     await container.read(watchWordStatusProvider(
-      const WordStatusEntryKey(scope: secondScope, word: espWord),
+      WordStatusEntryKey(
+          scope: secondScope, word: espWord, ports: capabilities.ports),
     ).future);
     expect(capabilities.scopes, [
       WordStatusScope.account('first-account'),
@@ -51,10 +53,12 @@ void main() {
     addTearDown(container.dispose);
 
     final esp = await container.read(watchWordStatusProvider(
-      const WordStatusEntryKey(scope: firstScope, word: espWord),
+      WordStatusEntryKey(
+          scope: firstScope, word: espWord, ports: capabilities.ports),
     ).future);
     final jpn = await container.read(watchWordStatusProvider(
-      const WordStatusEntryKey(scope: firstScope, word: jpnWord),
+      WordStatusEntryKey(
+          scope: firstScope, word: jpnWord, ports: capabilities.ports),
     ).future);
 
     expect(esp.dataOrNull!.word, espWord);
@@ -63,12 +67,7 @@ void main() {
   });
 }
 
-ProviderContainer _container(_Capabilities capabilities) =>
-    ProviderContainer(overrides: [
-      wordStatusPortsDependencyProvider.overrideWithValue(
-        capabilities.ports,
-      ),
-    ]);
+ProviderContainer _container(_Capabilities capabilities) => ProviderContainer();
 
 final class _Capabilities
     implements

@@ -13,7 +13,7 @@ import 'package:my_dic/app/routing/user_profile_lifecycle_presentation_entry.dar
 import 'package:my_dic/integration/session_lifecycle_workflow/auth_lifecycle_provider.dart';
 import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/features/my_word/port/presentation_entry.dart';
-import 'package:my_dic/features/search/port/presentation_entry.dart';
+import 'package:my_dic/app/routing/read_feature_presentation_entries.dart';
 import 'package:my_dic/main_activity.dart';
 
 final rootNavigatorKeyProvider = Provider<GlobalKey<NavigatorState>>(
@@ -88,7 +88,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               name: RouteNames.search,
               pageBuilder: (context, state) => NoTransitionPage(
                   key: state.pageKey,
-                  child: SearchFragment(
+                  child: SearchRouteEntry(
                       onOpenWordDetail: (word) => openWordDetail(context,
                           routeName:
                               '${RouteNames.search}-${RouteNames.wordDetail}',

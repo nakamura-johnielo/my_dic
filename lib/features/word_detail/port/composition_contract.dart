@@ -4,5 +4,5 @@ import 'package:my_dic/features/word_detail/port/word_detail.dart';
 final class WordDetailPorts {
   const WordDetailPorts({required this.reader});
 
-  final WordDetailReaderPort reader;
+  final WordDetailQueryPort reader;
 }

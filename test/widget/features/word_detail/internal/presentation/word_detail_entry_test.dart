@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/features/word_detail/port/presentation_dependencies.dart';
 import 'package:my_dic/features/word_detail/port/presentation_entry.dart';
 import 'package:my_dic/features/word_detail/port/word_detail.dart';
 
@@ -58,20 +57,14 @@ void main() {
 
 Future<void> _pump(
   WidgetTester tester,
-  WordDetailReaderPort reader, {
+  WordDetailQueryPort reader, {
   void Function(CatalogWordRef, String?)? onOpenQuiz,
 }) =>
     tester.pumpWidget(ProviderScope(
-      overrides: [
-        wordDetailPresentationDependenciesProvider.overrideWithValue(
-          WordDetailPresentationDependencies(
-            reader: reader,
-          ),
-        ),
-      ],
       child: MaterialApp(
         home: WordDetailEntry(
           input: const WordDetailPresentationInput(word: _word),
+          reader: reader,
           wordStatusRenderer: (_) => const SizedBox(
             key: Key('status-entry'),
           ),
@@ -105,7 +98,7 @@ final _conjugation = WordDetailConjugation(
   ),
 );
 
-final class _Reader implements WordDetailReaderPort {
+final class _Reader implements WordDetailQueryPort {
   const _Reader(this.result);
   final Result<WordDetailResult> result;
 
@@ -113,9 +106,10 @@ final class _Reader implements WordDetailReaderPort {
   Future<Result<WordDetailResult>> read(WordDetailQuery query) async => result;
 }
 
-final class _DeferredReader implements WordDetailReaderPort {
+final class _DeferredReader implements WordDetailQueryPort {
   final _result = Completer<Result<WordDetailResult>>();
 
   @override
-  Future<Result<WordDetailResult>> read(WordDetailQuery query) => _result.future;
+  Future<Result<WordDetailResult>> read(WordDetailQuery query) =>
+      _result.future;
 }

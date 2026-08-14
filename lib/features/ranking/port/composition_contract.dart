@@ -4,5 +4,5 @@ import 'package:my_dic/features/ranking/port/ranking.dart';
 final class RankingPorts {
   const RankingPorts({required this.reader});
 
-  final RankingPageReaderPort reader;
+  final RankingPageQueryPort reader;
 }

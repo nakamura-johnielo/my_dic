@@ -15,10 +15,12 @@ import 'package:my_dic/features/search/port/search.dart';
 class SearchFragment extends ConsumerStatefulWidget {
   const SearchFragment({
     super.key,
+    required this.reader,
     required this.onOpenWordDetail,
     required this.onOpenQuiz,
   });
 
+  final SearchQueryPort reader;
   final ValueChanged<CatalogWordRef> onOpenWordDetail;
   final void Function(CatalogWordRef word, String? displayHint) onOpenQuiz;
   @override
@@ -37,7 +39,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
 
   Future<bool> _load(int nextPage) async {
     return ref
-        .read(searchViewModelProvider.notifier)
+        .read(searchViewModelProviderFor(widget.reader).notifier)
         .loadSearchResults(_size, nextPage);
   }
 
@@ -47,8 +49,9 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
       widget.onOpenQuiz(word, displayHint);
   @override
   Widget build(BuildContext context) {
-    final screen = ref.watch(searchViewModelProvider);
-    final notifier = ref.read(searchViewModelProvider.notifier);
+    final screen = ref.watch(searchViewModelProviderFor(widget.reader));
+    final notifier =
+        ref.read(searchViewModelProviderFor(widget.reader).notifier);
     return Scaffold(
         appBar: AppBar(title: const Text('search')),
         body: Column(children: [
@@ -100,7 +103,9 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
           for (final warning in screen.results.warnings)
             _warning(warning,
                 onRetry: () => _reload(
-                    ref.read(searchViewModelProvider.notifier), screen.query)),
+                    ref.read(
+                        searchViewModelProviderFor(widget.reader).notifier),
+                    screen.query)),
           if (screen.results
               case QueryFailure(error: final error, previousData: final _?))
             MaterialBanner(

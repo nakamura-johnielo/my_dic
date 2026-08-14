@@ -2,7 +2,7 @@ import 'package:my_dic/features/search/internal/application/search_application_s
 import 'package:my_dic/features/search/port/search.dart';
 
 /// Search-owned assembly of the application service graph.
-SearchReaderPort createInternalSearchReader({
+SearchQueryPort createInternalSearchReader({
   required SearchCatalogGateway catalogGateway,
 }) =>
     SearchApplicationService(catalogGateway);

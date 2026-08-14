@@ -14,5 +14,5 @@ export 'model/ranking_item.dart';
 export 'model/ranking_item_id.dart';
 export 'model/ranking_part_of_speech.dart';
 export 'query/ranking_page_query.dart';
-export 'reader/ranking_page_reader_port.dart';
+export 'query/ranking_page_reader_port.dart';
 export 'result/ranking_page.dart';

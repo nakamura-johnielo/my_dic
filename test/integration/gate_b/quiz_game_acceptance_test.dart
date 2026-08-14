@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/quiz/port/presentation_dependencies.dart';
 import 'package:my_dic/features/quiz/port/query/quiz_game_query.dart';
 import 'package:my_dic/features/quiz/port/reader/quiz_game_reader_port.dart';
 import 'package:my_dic/features/quiz/port/result/quiz_game_load_outcome.dart';
@@ -18,9 +17,7 @@ void main() {
   testWidgets('Gate B: a disposed game route ignores late aggregate completion',
       (tester) async {
     final loader = _DeferredLoader();
-    final container = ProviderContainer(overrides: [
-      quizGameReaderDependencyProvider.overrideWithValue(loader),
-    ]);
+    final container = ProviderContainer();
     addTearDown(container.dispose);
 
     await tester.pumpWidget(UncontrolledProviderScope(
@@ -28,6 +25,7 @@ void main() {
       child: MaterialApp(
         home: QuizGameFragment(
           input: const QuizGamePresentationInput(word: _word),
+          reader: loader,
           onOpenWordDetail: (_) {},
           wordStatusRenderer: (_) => const SizedBox.shrink(),
         ),

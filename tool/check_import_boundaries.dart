@@ -81,6 +81,28 @@ class ImportBoundaryChecker {
       sources,
       strictFacadeFeatures(sources.keys),
     ));
+    for (final source in sources.keys) {
+      if (source.endsWith('/port/presentation_dependencies.dart')) {
+        violations.add(Violation(
+          'presentation_dependency_provider_removed',
+          source,
+          'feature presentation dependencies must be constructor-injected',
+        ));
+      }
+    }
+    const bootstrap = 'lib/app/bootstrap/bootstrap.dart';
+    final bootstrapSource = sources[bootstrap];
+    if (bootstrapSource != null &&
+        RegExp(r'\b(?:[A-Za-z0-9_]+PresentationDependenciesProvider|'
+                r'[A-Za-z0-9_]+PortDependencyProvider|'
+                r'quizPortsDependencyProvider)\s*\.overrideWith')
+            .hasMatch(bootstrapSource)) {
+      violations.add(Violation(
+        'bootstrap_no_feature_presentation_override',
+        bootstrap,
+        'feature presentation dependency override',
+      ));
+    }
     return violations.toSet().toList()..sort();
   }
 
@@ -413,9 +435,7 @@ List<Violation> semanticViolations(
       result.add(Violation(
           'my_word_external_only_facade', entry.source, entry.target));
     }
-    if (target != null &&
-        isQuizInternal(target) &&
-        sourceFeature != 'quiz') {
+    if (target != null && isQuizInternal(target) && sourceFeature != 'quiz') {
       result.add(
           Violation('quiz_external_no_internal', entry.source, entry.target));
     }
@@ -474,11 +494,10 @@ List<Violation> semanticViolations(
         target.contains('/internal/') &&
         sourceFeature == targetFeature &&
         entry.source.contains('/port/')) {
-      final isAllowedPresentationBridge =
-          isPresentationEntry(entry.source) &&
-              isInternalPresentation(target) &&
-              (!strictFeatures.contains(sourceFeature) ||
-                  isControlledPresentationTarget(target));
+      final isAllowedPresentationBridge = isPresentationEntry(entry.source) &&
+          isInternalPresentation(target) &&
+          (!strictFeatures.contains(sourceFeature) ||
+              isControlledPresentationTarget(target));
       final isAllowedCompositionBridge = isComposition(entry.source) &&
           isCanonicalCompositionFactoryBridge(entry.source, target);
       if (!isAllowedPresentationBridge && !isAllowedCompositionBridge) {
@@ -657,8 +676,6 @@ const _myWordPresentationEntry =
     'lib/features/my_word/port/presentation_entry.dart';
 const _quizFacade = 'lib/features/quiz/port/quiz.dart';
 const _quizComposition = 'lib/features/quiz/port/composition.dart';
-const _quizPresentationDependencies =
-    'lib/features/quiz/port/presentation_dependencies.dart';
 const _quizPresentationEntry = 'lib/features/quiz/port/presentation_entry.dart';
 bool isCatalogPath(String path) => path.startsWith('lib/features/catalog/');
 bool isCatalogInternal(String path) =>
@@ -672,15 +689,9 @@ bool isQuizPath(String path) => path.startsWith('lib/features/quiz/');
 bool isQuizInternal(String path) =>
     path.startsWith('lib/features/quiz/internal/');
 bool isQuizPort(String path) => path.startsWith('lib/features/quiz/port/');
-bool isQuizFrameworkBridge(String source) =>
-    source == _quizPresentationDependencies;
-bool isAllowedQuizBridgeFrameworkImport(String source, String target) =>
-    isQuizFrameworkBridge(source) &&
-    target.startsWith('package:flutter_riverpod/');
 bool isAllowedTechnicalBridgeFrameworkImport(String source, String target) =>
     (isPresentationDependencies(source) &&
-        target.startsWith('package:flutter_riverpod/')) ||
-    isAllowedQuizBridgeFrameworkImport(source, target);
+        target.startsWith('package:flutter_riverpod/'));
 bool isCanonicalCompositionFactoryBridge(String source, String target) {
   final feature = featureOf(source);
   return feature != null &&
@@ -710,7 +721,7 @@ bool isAllowedMyWordExternalPortImport(String source, String target) {
 
 bool isAllowedQuizExternalPortImport(String source, String target) {
   if (target == _quizFacade) return true;
-  if (target == _quizComposition || target == _quizPresentationDependencies) {
+  if (target == _quizComposition) {
     return source.startsWith('lib/app/bootstrap/');
   }
   return target == _quizPresentationEntry &&
@@ -730,7 +741,8 @@ bool isPresentationEntry(String path) =>
 bool isInternalPresentation(String path) =>
     path.contains('/internal/') && path.contains('/presentation/');
 bool isControlledPresentationTarget(String path) =>
-    path.contains('/presentation/view/') || path.endsWith('/presentation/view.dart');
+    path.contains('/presentation/view/') ||
+    path.endsWith('/presentation/view.dart');
 bool isFrameworkImport(String target) =>
     _frameworkPackages.any((package) => target.startsWith('package:$package/'));
 bool isRiverpodImport(String target) =>

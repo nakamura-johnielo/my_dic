@@ -8,7 +8,7 @@ import 'package:my_dic/features/word_detail/port/word_detail.dart';
 final class WordDetailViewModel extends StateNotifier<WordDetailState> {
   WordDetailViewModel(this._reader) : super(const WordDetailState());
 
-  final WordDetailReaderPort _reader;
+  final WordDetailQueryPort _reader;
   final _logger = Logger('WordDetailViewModel');
 
   Future<void>? _initialization;

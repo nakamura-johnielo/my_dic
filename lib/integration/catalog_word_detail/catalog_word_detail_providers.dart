@@ -7,6 +7,6 @@ import 'package:my_dic/integration/catalog_word_detail/catalog_backed_word_detai
 final catalogBackedWordDetailGatewayProvider =
     Provider<WordDetailCatalogGateway>(
   (ref) => CatalogBackedWordDetailGateway(
-    ref.watch(catalogReadPortsProvider),
+    ref.watch(catalogQueryPortsProvider),
   ),
 );

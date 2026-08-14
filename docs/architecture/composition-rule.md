@@ -343,6 +343,19 @@ CIのimport boundary checkerで最低限次を検査する。
 - [ ] disposeが必要なobjectのownerが明確である
 - [ ] lazy／eager initializationの選択理由が明確である
 
+## Presentation constructor injection
+
+Production bootstrap overrides are restricted to startup values, session
+resolution, and environment/flavor differences. A feature presentation entry
+receives its completed capability through a required constructor argument from
+an app-owned, lazy routing adapter. Feature-internal Riverpod state remains
+allowed, but its family key includes the injected capability by identity.
+
+`port/presentation_dependencies.dart` is not a production seam. Tests may
+override completed app capabilities at the adapter boundary, or pass a fake
+port directly to a feature entry. The feature-dependency checker rejects both
+that file and feature presentation overrides in `AppBootstrap`.
+
 ## 13. 例外
 
 この規則から外れる場合は、対象path、理由、owner、終了条件をADRまたは追跡文書へ記録する。

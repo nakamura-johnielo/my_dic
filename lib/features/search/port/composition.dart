@@ -12,7 +12,7 @@ final class SearchDependencies {
 final class SearchPorts {
   const SearchPorts({required this.reader});
 
-  final SearchReaderPort reader;
+  final SearchQueryPort reader;
 }
 
 /// Assembles Search's internal policy graph without framework state.

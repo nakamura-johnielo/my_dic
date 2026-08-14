@@ -5,16 +5,19 @@ import 'package:my_dic/core/presentation/state/ui_effect.dart';
 import 'package:my_dic/features/auth/internal/presentation/provider/view_model_di.dart';
 import 'package:my_dic/features/auth/internal/presentation/ui_model/sign_in_model.dart';
 import 'package:my_dic/features/auth/port/presentation_entry.dart';
+import 'package:my_dic/features/auth/port/command.dart';
 
 class EmailPasswordPage extends ConsumerStatefulWidget {
   const EmailPasswordPage({
     super.key,
     required this.state,
     required this.actions,
+    required this.commands,
   });
 
   final AuthPresentationState state;
   final AuthPresentationActions actions;
+  final AuthCommandPort commands;
 
   @override
   ConsumerState<EmailPasswordPage> createState() => _EmailPasswordPageState();
@@ -42,12 +45,14 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
         SnackBar(content: Text((envelope.effect as UiNoticeEffect).message)),
       );
     }
-    ref.read(signInViewModelProvider.notifier).consumeEffect(envelope.id);
+    ref
+        .read(signInViewModelProvider(widget.commands).notifier)
+        .consumeEffect(envelope.id);
   }
 
   void _ensureCommandListener() {
     _commandSubscription ??= ref.listenManual(
-      signInViewModelProvider,
+      signInViewModelProvider(widget.commands),
       (_, next) => _handleEffect(next),
     );
   }
@@ -153,7 +158,7 @@ class _EmailPasswordPageState extends ConsumerState<EmailPasswordPage> {
             }
             _ensureCommandListener();
             ref
-                .read(signInViewModelProvider.notifier)
+                .read(signInViewModelProvider(widget.commands).notifier)
                 .resetEmailPassword(email);
           },
           child: const Text('Forgot password?'),

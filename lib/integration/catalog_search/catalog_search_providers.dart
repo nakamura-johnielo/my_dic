@@ -9,13 +9,13 @@ final searchPortsProvider = Provider<SearchPorts>(
   (ref) => createSearchComposition(
     dependencies: SearchDependencies(
       catalogGateway: CatalogBackedSearchGateway(
-        ref.watch(catalogReadPortsProvider),
+        ref.watch(catalogQueryPortsProvider),
       ),
     ),
   ),
 );
 
 /// Focused Search reader supplied to presentation and other consumers.
-final searchReaderPortProvider = Provider<SearchReaderPort>(
+final searchReaderPortProvider = Provider<SearchQueryPort>(
   (ref) => ref.watch(searchPortsProvider).reader,
 );

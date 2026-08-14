@@ -5,19 +5,18 @@ import 'package:my_dic/features/word_status/internal/presentation/component/stat
 import 'package:my_dic/features/word_status/internal/presentation/model/dictionary_word_status_command.dart';
 import 'package:my_dic/features/word_status/internal/presentation/viewmodel/dictionary_word_status_view_model.dart';
 import 'package:my_dic/features/word_status/port/composition_contract.dart';
-import 'package:my_dic/features/word_status/port/presentation_dependencies.dart';
 import 'package:my_dic/features/word_status/port/word_status.dart';
 
 final class WordStatusEntryKey {
   const WordStatusEntryKey({
     required this.scope,
     required this.word,
-    this.ports,
+    required this.ports,
   });
 
   final SessionScopeKey scope;
   final CatalogWordRef word;
-  final WordStatusPorts? ports;
+  final WordStatusPorts ports;
 
   @override
   bool operator ==(Object other) =>
@@ -30,19 +29,16 @@ final class WordStatusEntryKey {
   int get hashCode => Object.hash(scope, word, identityHashCode(ports));
 }
 
-WordStatusPorts _ports(Ref ref, WordStatusEntryKey entry) =>
-    entry.ports ?? ref.watch(wordStatusPortsDependencyProvider);
-
 WordStatusScope _scope(SessionScopeKey scope) =>
     scope.accountScope == guestAccountScope
         ? const WordStatusScope.guest()
         : WordStatusScope.account(scope.accountScope);
 
-final watchWordStatusProvider = StreamProvider.autoDispose
-    .family<Result<WordStatus>, WordStatusEntryKey>(
-  (ref, entry) => _ports(ref, entry).watcher.watch(
-        ReadWordStatusQuery(scope: _scope(entry.scope), word: entry.word),
-      ),
+final watchWordStatusProvider =
+    StreamProvider.autoDispose.family<Result<WordStatus>, WordStatusEntryKey>(
+  (ref, entry) => entry.ports.watcher.watch(
+    ReadWordStatusQuery(scope: _scope(entry.scope), word: entry.word),
+  ),
 );
 
 final wordStatusCommandProvider = StateNotifierProvider.autoDispose.family<
@@ -51,13 +47,13 @@ final wordStatusCommandProvider = StateNotifierProvider.autoDispose.family<
     WordStatusEntryKey>(
   (ref, entry) => DictionaryWordStatusCommand(
     entry.word,
-    _ports(ref, entry).commands,
+    entry.ports.commands,
     entry.scope,
   ),
 );
 
-final wordStatusUiStateProvider = Provider.autoDispose
-    .family<WordStatusState, WordStatusEntryKey>(
+final wordStatusUiStateProvider =
+    Provider.autoDispose.family<WordStatusState, WordStatusEntryKey>(
   (ref, entry) =>
       WordStatusState.fromAsync(ref.watch(watchWordStatusProvider(entry))),
 );
@@ -70,7 +66,7 @@ final dictionaryWordStatusViewModelProvider = Provider.autoDispose
   ),
 );
 
-final dictionaryStatusButtonsViewModelProvider = Provider.autoDispose
-    .family<WordStatusViewModel, WordStatusEntryKey>(
+final dictionaryStatusButtonsViewModelProvider =
+    Provider.autoDispose.family<WordStatusViewModel, WordStatusEntryKey>(
   (ref, entry) => ref.watch(dictionaryWordStatusViewModelProvider(entry)),
 );

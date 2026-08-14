@@ -29,7 +29,7 @@ MyWordPorts createInternalMyWordPorts({
   final application = MyWordApplicationService(
     wordRepository: wordRepository,
     statusRepository: statusRepository,
-    itemQuery: DriftMyWordItemQueryService(MyWordDao(database)),
+    itemQuery: DriftMyWordItemQueryRepository(MyWordDao(database)),
   );
   return MyWordPorts(
     reader: application,

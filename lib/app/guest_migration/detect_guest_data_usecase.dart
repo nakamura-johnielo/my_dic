@@ -11,18 +11,18 @@ class DetectGuestDataUseCase {
     required WordStatusGuestMigrationPort wordStatus,
     required MyWordGuestMigrationPort myWord,
     required UserProfileGuestMigrationPort userProfile,
-  })  : _wordStatus = wordStatus,
-        _myWord = myWord,
-        _userProfile = userProfile;
+  })  : _wordStatusAdapter = wordStatus,
+        _myWordAdapter = myWord,
+        _userProfileAdapter = userProfile;
 
-  final WordStatusGuestMigrationPort _wordStatus;
-  final MyWordGuestMigrationPort _myWord;
-  final UserProfileGuestMigrationPort _userProfile;
+  final WordStatusGuestMigrationPort _wordStatusAdapter;
+  final MyWordGuestMigrationPort _myWordAdapter;
+  final UserProfileGuestMigrationPort _userProfileAdapter;
 
   Future<GuestDataSummary> execute() async {
-    final wordStatus = await _wordStatus.countGuestRows();
-    final myWord = await _myWord.countGuestRows();
-    final userProfile = await _userProfile.hasGuestProfile();
+    final wordStatus = await _wordStatusAdapter.countGuestRows();
+    final myWord = await _myWordAdapter.countGuestRows();
+    final userProfile = await _userProfileAdapter.hasGuestProfile();
 
     return GuestDataSummary(
       espJpnWordStatusCount: wordStatus.espJpn,

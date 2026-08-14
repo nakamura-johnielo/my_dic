@@ -6,7 +6,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/catalog/port/catalog.dart';
-import 'package:my_dic/features/quiz/port/presentation_dependencies.dart';
 import 'package:my_dic/features/quiz/port/presentation_entry.dart';
 import 'package:my_dic/features/quiz/port/query/quiz_candidate_query.dart';
 import 'package:my_dic/features/quiz/port/reader/quiz_candidate_reader_port.dart';
@@ -17,10 +16,9 @@ void main() {
       (tester) async {
     final bridge = _Bridge();
     await tester.pumpWidget(ProviderScope(
-      overrides: [
-        quizCandidateReaderDependencyProvider.overrideWithValue(bridge)
-      ],
-      child: MaterialApp(home: QuizSearchFragment(onOpenQuiz: (_, __) {})),
+      child: MaterialApp(
+        home: QuizSearchFragment(reader: bridge, onOpenQuiz: (_, __) {}),
+      ),
     ));
 
     await tester.enterText(find.byType(TextField), 'hablar');

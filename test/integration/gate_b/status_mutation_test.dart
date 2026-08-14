@@ -5,7 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/features/word_status/internal/presentation/provider/word_status_providers.dart';
 import 'package:my_dic/features/word_status/port/composition_contract.dart';
-import 'package:my_dic/features/word_status/port/presentation_dependencies.dart';
 import 'package:my_dic/features/word_status/port/word_status.dart';
 
 void main() {
@@ -13,15 +12,15 @@ void main() {
       () async {
     final commands = _DeferredCommands();
     final ports = _ports(commands);
-    final container = ProviderContainer(overrides: [
-      wordStatusPortsDependencyProvider.overrideWithValue(ports),
-    ]);
+    final container = ProviderContainer();
     addTearDown(container.dispose);
     const word = CatalogWordRef(catalogId: CatalogId.espJpnMain, wordId: 3);
     const oldScope = SessionScopeKey(accountScope: 'same-account', epoch: 1);
     const newScope = SessionScopeKey(accountScope: 'same-account', epoch: 2);
-    const oldKey = WordStatusEntryKey(scope: oldScope, word: word);
-    const newKey = WordStatusEntryKey(scope: newScope, word: word);
+    final oldKey =
+        WordStatusEntryKey(scope: oldScope, word: word, ports: ports);
+    final newKey =
+        WordStatusEntryKey(scope: newScope, word: word, ports: ports);
     final old = container.read(wordStatusCommandProvider(oldKey).notifier);
     final oldRequest = old.toggleBookmark(false);
     container.invalidate(wordStatusCommandProvider(oldKey));
@@ -78,7 +77,8 @@ final class _DeferredCommands implements WordStatusCommandPort {
     return next.future;
   }
 
-  void completeNext() => _pending.removeAt(0).complete(const Result.success(null));
+  void completeNext() =>
+      _pending.removeAt(0).complete(const Result.success(null));
 }
 
 final class _GuestMigration implements WordStatusGuestMigrationPort {

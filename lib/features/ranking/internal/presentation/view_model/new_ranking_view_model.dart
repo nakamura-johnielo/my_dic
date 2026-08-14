@@ -12,7 +12,7 @@ import 'package:my_dic/features/ranking/port/ranking.dart';
 final class RankingViewModel extends StateNotifier<RankingState> {
   RankingViewModel(this._reader, this._scope) : super(RankingState());
 
-  final RankingPageReaderPort _reader;
+  final RankingPageQueryPort _reader;
   final SessionScopeKey _scope;
   final _logger = Logger('RankingViewModel');
 

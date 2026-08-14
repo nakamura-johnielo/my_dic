@@ -9,10 +9,16 @@ import 'package:my_dic/features/quiz/internal/presentation/search/provider/view_
 import 'package:my_dic/features/quiz/internal/presentation/game/components/quiz_search_result_card.dart';
 import 'package:my_dic/features/quiz/internal/presentation/search/ui_model/quiz_search_models.dart';
 import 'package:my_dic/features/quiz/internal/presentation/search/view_model/quiz_search_view_model.dart';
+import 'package:my_dic/features/quiz/port/query/quiz_candidate_reader_port.dart';
 import 'package:my_dic/features/quiz/port/result/quiz_candidate_page.dart';
 
 class QuizSearchFragment extends ConsumerStatefulWidget {
-  const QuizSearchFragment({super.key, required this.onOpenQuiz});
+  const QuizSearchFragment({
+    super.key,
+    required this.reader,
+    required this.onOpenQuiz,
+  });
+  final QuizCandidateQueryPort reader;
   final void Function(CatalogWordRef word, String? displayHint) onOpenQuiz;
   @override
   ConsumerState<QuizSearchFragment> createState() => _QuizSearchFragmentState();
@@ -28,14 +34,15 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
   }
 
   Future<bool> _load(int nextPage) => ref
-      .read(quizSearchViewModelProvider.notifier)
+      .read(quizSearchViewModelProvider(widget.reader).notifier)
       .loadSearchResults(_size, nextPage);
   void _tap(QuizCandidate candidate) =>
       widget.onOpenQuiz(candidate.word, candidate.headword);
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(quizSearchViewModelProvider);
-    final notifier = ref.read(quizSearchViewModelProvider.notifier);
+    final state = ref.watch(quizSearchViewModelProvider(widget.reader));
+    final notifier =
+        ref.read(quizSearchViewModelProvider(widget.reader).notifier);
     return Scaffold(
         appBar: AppBar(title: const Text('Quiz')),
         body: Column(children: [
@@ -94,7 +101,8 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
                   .join('\n'),
               key: const Key('quiz-search-warnings')));
   Widget _list(QuizSearchResults data) {
-    final results = ref.read(quizSearchViewModelProvider).results;
+    final results =
+        ref.read(quizSearchViewModelProvider(widget.reader)).results;
     final isLoading = results is QueryLoading<QuizSearchResults>;
     final failure = results is QueryFailure<QuizSearchResults> ? results : null;
     return Column(children: [

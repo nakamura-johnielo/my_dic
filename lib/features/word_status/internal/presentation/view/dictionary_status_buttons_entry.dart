@@ -8,7 +8,6 @@ import 'package:my_dic/features/word_status/internal/presentation/component/stat
     as ui;
 import 'package:my_dic/features/word_status/internal/presentation/provider/word_status_providers.dart';
 import 'package:my_dic/features/word_status/port/composition_contract.dart';
-import 'package:my_dic/features/word_status/port/presentation_dependencies.dart';
 
 /// Final WordStatus presentation entry. The caller supplies its current
 /// session identity; all WordStatus reads and commands stay feature-owned.
@@ -16,23 +15,22 @@ class DictionaryStatusButtonsEntry extends ConsumerWidget {
   const DictionaryStatusButtonsEntry({
     super.key,
     required this.word,
+    required this.ports,
     this.scope,
-    this.ports,
   });
   final CatalogWordRef word;
   final SessionScopeKey? scope;
-  final WordStatusPorts? ports;
+  final WordStatusPorts ports;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final resolvedScope = scope ?? ref.watch(sessionScopeKeyProvider);
     if (resolvedScope == null)
       return const ui.DictionaryStatusButtons(
           viewModel: _DetachedStatusViewModel());
-    final resolvedPorts = ports ?? ref.watch(wordStatusPortsDependencyProvider);
     final key = WordStatusEntryKey(
       scope: resolvedScope,
       word: word,
-      ports: resolvedPorts,
+      ports: ports,
     );
     ref.listen(wordStatusCommandProvider(key), (previous, next) {
       final envelope = next.pendingEffect;

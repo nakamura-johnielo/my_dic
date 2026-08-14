@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/app/routing/invalid_route_page.dart';
 import 'package:my_dic/app/routing/navigation_callbacks.dart';
+import 'package:my_dic/app/routing/ranking_presentation_entry.dart';
+import 'package:my_dic/app/routing/quiz_presentation_entries.dart';
 import 'package:my_dic/app/routing/route_names.dart';
 import 'package:my_dic/core/result/route_parse_result.dart';
-import 'package:my_dic/features/quiz/port/presentation_entry.dart';
 import 'package:my_dic/features/quiz/port/quiz.dart';
-import 'package:my_dic/features/ranking/port/presentation_entry.dart';
-import 'package:my_dic/features/word_detail/port/presentation_entry.dart';
 import 'package:my_dic/features/word_detail/port/word_detail.dart';
-import 'package:my_dic/features/word_status/port/presentation_entry.dart';
+import 'package:my_dic/app/routing/read_feature_presentation_entries.dart';
 
 final dashboardRoute = GoRoute(
   path: RoutePaths.dashboard,
@@ -39,8 +38,7 @@ final rankingRoute = GoRoute(
   ],
 );
 
-Widget _ranking(BuildContext context) => RankingFragment(
-      wordStatusRenderer: (word) => DictionaryStatusButtonsEntry(word: word),
+Widget _ranking(BuildContext context) => RankingPresentationEntry(
       onOpenWordDetail: (word) => openWordDetail(context,
           routeName: '${RouteNames.ranking}-${RouteNames.wordDetail}',
           word: word),
@@ -64,7 +62,7 @@ final quizRoute = GoRoute(
   ],
 );
 
-Widget _quizSearch(BuildContext context) => QuizSearchFragment(
+Widget _quizSearch(BuildContext context) => QuizSearchPresentationEntry(
       onOpenQuiz: (word, hint) => openQuizGame(context,
           routeName: '${RouteNames.quiz}-${RouteNames.flashCard}',
           word: word,
@@ -118,11 +116,9 @@ GoRoute _flashCardRoute({
             queryParameters: state.uri.queryParameters);
         return switch (result) {
           RouteParseSuccess(value: final route) => MaterialPage(
-              child: QuizGameFragment(
+              child: QuizGamePresentationEntry(
                   input: QuizGamePresentationInput(
                       word: route.word, displayHint: route.displayHint),
-                  wordStatusRenderer: (word) =>
-                      DictionaryStatusButtonsEntry(word: word),
                   onOpenWordDetail: (word) => openWordDetail(context,
                       routeName: wordDetailRouteName, word: word))),
           RouteParseFailure(message: final message) =>
@@ -144,10 +140,8 @@ GoRoute wordDetailRoute(String name,
             queryParameters: state.uri.queryParameters);
         return switch (result) {
           RouteParseSuccess(value: final route) => MaterialPage(
-              child: WordDetailEntry(
+              child: WordDetailRouteEntry(
                   input: WordDetailPresentationInput(word: route.word),
-                  wordStatusRenderer: (word) =>
-                      DictionaryStatusButtonsEntry(word: word),
                   onOpenQuiz: (word, hint) => openQuizGame(context,
                       routeName: quizGameRouteName,
                       word: word,

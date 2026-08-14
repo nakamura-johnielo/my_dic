@@ -8,14 +8,19 @@ import 'package:my_dic/core/port/firebase_account_nested_document_gateway.dart';
 import 'package:my_dic/features/auth/port/composition.dart';
 import 'package:my_dic/features/sync/port/dataset_contract.dart';
 
+
 final firestoreDBProvider = Provider((ref) => FirebaseFirestore.instance);
 final firebaseAuthRuntimeProvider = Provider<AuthRuntimeGateway>(
   (ref) => FirebaseAuthDataSource(firebase_auth.FirebaseAuth.instance),
 );
+
+何か調べる
 final firebaseAccountDocumentGatewayProvider =
     Provider<FirebaseAccountDocumentGateway>(
   (ref) => FirestoreAccountDocumentGateway(ref.watch(firestoreDBProvider)),
 );
+
+何か調べる
 final remoteMutationExecutorProvider = Provider<RemoteMutationExecutor>(
   (ref) => FirebaseRemoteMutationExecutor(ref.watch(firestoreDBProvider)),
 );

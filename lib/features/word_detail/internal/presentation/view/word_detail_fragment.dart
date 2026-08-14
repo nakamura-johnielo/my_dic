@@ -29,10 +29,12 @@ class WordDetailFragment extends ConsumerWidget {
   const WordDetailFragment({
     super.key,
     required this.input,
+    required this.reader,
     required this.onOpenQuiz,
     required this.wordStatusRenderer,
   });
   final WordDetailPresentationInput input;
+  final WordDetailQueryPort reader;
   final void Function(CatalogWordRef word, String? displayHint) onOpenQuiz;
   final Widget Function(CatalogWordRef word) wordStatusRenderer;
 
@@ -44,15 +46,17 @@ class WordDetailFragment extends ConsumerWidget {
     FloatingActionButton? floatingButton;
     Widget? statusButton;
 
-    final pageState = ref.watch(wordDetailViewModelProvider(loadKey));
+    final pageState = ref.watch(wordDetailViewModelProviderFor(
+      reader: reader,
+      loadKey: loadKey,
+    ));
 
     final detail = pageState.detail;
     // Status mutations are only meaningful for a confirmed, non-empty
     // primary result.  Do not mount their provider for loading, failure,
     // empty, or stale-data renderer states.
-    final viewData = detail is QueryData<WordDetailData>
-        ? detail.dataOrNull
-        : null;
+    final viewData =
+        detail is QueryData<WordDetailData> ? detail.dataOrNull : null;
     switch (viewData) {
       case JpnEspWordDetailData():
         tabs['Dictionary'] = JpnEspDictionaryFragment(detail: detail);
@@ -76,9 +80,7 @@ class WordDetailFragment extends ConsumerWidget {
     }
 
     final builderInput = _WordDetailLayout(
-        tabs: tabs,
-        floatingButton: floatingButton,
-        statusButton: statusButton);
+        tabs: tabs, floatingButton: floatingButton, statusButton: statusButton);
 
     return _WordDetailFragmentBuilder(input: builderInput);
   }
