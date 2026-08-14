@@ -6,12 +6,7 @@ import 'package:my_dic/app/session/app_session.dart';
 import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/core/presentation/state/ui_effect.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
-import 'package:my_dic/features/sync/port/cancellation_token.dart';
-import 'package:my_dic/features/sync/port/model/sync_context.dart';
-import 'package:my_dic/features/sync/port/session_fence.dart';
-import 'package:my_dic/features/sync/port/sync_run_outcome.dart';
-import 'package:my_dic/features/sync/port/sync_runner.dart';
-import 'package:my_dic/features/sync/port/sync_reason_codes.dart';
+import 'package:my_dic/features/sync/port/sync.dart';
 
 final manualSyncControllerProvider =
     StateNotifierProvider<ManualSyncController, ManualSyncUiState>((ref) {
@@ -32,8 +27,8 @@ final manualSyncControllerProvider =
 class ManualSyncController extends StateNotifier<ManualSyncUiState>
     implements UiEffectConsumer {
   ManualSyncController({
-    required ISyncRunner scheduler,
-    required ISessionFence sessionFence,
+    required SyncRunner scheduler,
+    required SessionFence sessionFence,
     required SessionScopeKey? Function() currentScope,
     required AppSession initialSession,
   })  : _scheduler = scheduler,
@@ -42,8 +37,8 @@ class ManualSyncController extends StateNotifier<ManualSyncUiState>
         _readyAccountId = initialSession.accountIdOrNull,
         super(const ManualSyncUiState());
 
-  final ISyncRunner _scheduler;
-  final ISessionFence _sessionFence;
+  final SyncRunner _scheduler;
+  final SessionFence _sessionFence;
   final SessionScopeKey? Function() _currentScope;
   String? _readyAccountId;
   CancellationToken? _cancellation;

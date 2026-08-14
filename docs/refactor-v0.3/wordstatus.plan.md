@@ -188,6 +188,20 @@ WordStatusCommandPort.update(command)
 9. `dart analyze`
 10. repository全体の`flutter test`
 
+## Phase 5–6 completion record
+
+- WordDetail、Quiz、Rankingはappから注入されたcontrolled rendererを利用し、
+  WordStatus presentation internalを参照しない。
+- Rankingのstatus取得は`lib/integration/word_status_ranking`からbatch portへ
+  接続され、WordStatus tableと保存形式を参照しない。
+- guest migration consumerはsole business facadeをimportする。
+- 旧`repository.dart`、`commands.dart`、`guest_migration.dart`、旧use caseは
+  参照0を確認して削除した。
+- compositionは単一canonical factory bridgeを使い、remote document操作は
+  SDK-free gatewayを介してFirestore integration adapterへ接続する。
+- schema、wire、stable dataset IDs、cursor順序、guest OR merge、UI挙動は
+  変更していない。
+
 ## 対象外
 
 - Drift schema、table名、column、primary key

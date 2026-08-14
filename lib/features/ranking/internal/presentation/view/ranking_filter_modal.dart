@@ -1,40 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/core/shared/enums/feature_tag.dart';
-import 'package:my_dic/features/catalog/port/catalog.dart';
-
-import 'package:my_dic/core/shared/enums/i_enum.dart';
+import 'package:my_dic/core/session/session_scope_provider.dart';
+import 'package:my_dic/features/ranking/internal/domain/ranking_filter_selection.dart';
 import 'package:my_dic/features/ranking/internal/presentation/provider/view_model_di.dart';
 import 'package:my_dic/features/ranking/internal/presentation/ui_model/ranking_part_of_speech_labels.dart';
-import 'package:my_dic/core/session/session_scope_provider.dart';
+import 'package:my_dic/features/ranking/port/ranking.dart';
 
 class RankingFilterModal extends ConsumerWidget {
   const RankingFilterModal({super.key});
-
-  // MyWord has no dictionary WordStatus projection, so it is deliberately not
-  // a Ranking filter. Adding such a filter requires a separate product model.
-  static const _featureTags = [
-    FeatureTag.isLearned,
-    FeatureTag.hasNote,
-    FeatureTag.isBookmarked,
-    FeatureTag.multiLemma,
-  ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scope = ref.watch(sessionScopeKeyProvider);
     if (scope == null) return const SizedBox.shrink();
-    final viewModel = ref.watch(rankingViewModelProvider(scope));
-    final rankingNotifier = ref.read(rankingViewModelProvider(scope).notifier);
+    final state = ref.watch(rankingViewModelProvider(scope));
+    final notifier = ref.read(rankingViewModelProvider(scope).notifier);
     return FractionallySizedBox(
       heightFactor: 0.8,
       widthFactor: 1,
       child: Container(
-        margin: EdgeInsets.all(0),
-        padding: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 0),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.only(
+          borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(10),
             topRight: Radius.circular(10),
           ),
@@ -42,70 +30,85 @@ class RankingFilterModal extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Filter',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    FilterSection(
-                      label: "品詞",
-                      filters: viewModel.partOfSpeechFilters,
-                      chipsEnum: CatalogPartOfSpeech.values,
-                      addFilter: rankingNotifier.addFilter,
-                      deleteFilter: rankingNotifier.removeFilter,
+                    _FilterSection<RankingPartOfSpeech>(
+                      label: '品詞',
+                      values: RankingPartOfSpeech.values,
+                      labelFor: (value) => value.displayLabel,
+                      selected: state.filter.includedPartsOfSpeech.contains,
+                      onChanged: (value, selected) =>
+                          notifier.setPartOfSpeechFilter(
+                        value,
+                        selected
+                            ? RankingFilterSelection.include
+                            : RankingFilterSelection.neutral,
+                      ),
                     ),
-                    SizedBox(
-                      height: 20,
+                    const SizedBox(height: 20),
+                    _FilterSection<RankingStatusFilter>(
+                      label: 'タグ',
+                      values: RankingStatusFilter.values,
+                      labelFor: (value) => value.displayLabel,
+                      selected: state.filter.includedStatuses.contains,
+                      onChanged: (value, selected) => notifier.setStatusFilter(
+                        value,
+                        selected
+                            ? RankingFilterSelection.include
+                            : RankingFilterSelection.neutral,
+                      ),
+                      trailing: FilterChip(
+                        label: const Text('ダブり表示なし'),
+                        selected: state.filter.groupByCatalogWord,
+                        onSelected: notifier.setGroupByCatalogWord,
+                      ),
                     ),
-                    FilterSection(
-                      label: "タグ",
-                      filters: viewModel.featureTagFilters,
-                      chipsEnum: _featureTags,
-                      addFilter: rankingNotifier.addFilter,
-                      deleteFilter: rankingNotifier.removeFilter,
+                    const SizedBox(height: 20),
+                    _FilterSection<RankingPartOfSpeech>(
+                      label: '品詞除外',
+                      values: RankingPartOfSpeech.values,
+                      labelFor: (value) => value.displayLabel,
+                      selected: state.filter.excludedPartsOfSpeech.contains,
+                      onChanged: (value, selected) =>
+                          notifier.setPartOfSpeechFilter(
+                        value,
+                        selected
+                            ? RankingFilterSelection.exclude
+                            : RankingFilterSelection.neutral,
+                      ),
                     ),
-                    SizedBox(
-                      height: 20,
+                    const SizedBox(height: 20),
+                    _FilterSection<RankingStatusFilter>(
+                      label: 'タグ除外',
+                      values: RankingStatusFilter.values,
+                      labelFor: (value) => value.displayLabel,
+                      selected: state.filter.excludedStatuses.contains,
+                      onChanged: (value, selected) => notifier.setStatusFilter(
+                        value,
+                        selected
+                            ? RankingFilterSelection.exclude
+                            : RankingFilterSelection.neutral,
+                      ),
                     ),
-                    FilterExclusionSection(
-                      label: "品詞除外",
-                      filters: viewModel.partOfSpeechFilters,
-                      chipsEnum: CatalogPartOfSpeech.values,
-                      addFilter: rankingNotifier.addExcludeFilter,
-                      deleteFilter: rankingNotifier.removeFilter,
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    FilterExclusionSection(
-                      label: "タグ除外",
-                      filters: viewModel.featureTagFilters,
-                      chipsEnum: _featureTags,
-                      addFilter: rankingNotifier.addExcludeFilter,
-                      deleteFilter: rankingNotifier.removeFilter,
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
+                    const SizedBox(height: 20),
                     PagenationFilterSection(
-                      label: "ページ",
-                      locatePage: rankingNotifier.locatePage,
-                      pagenationFilter: viewModel.pagenationFilter,
+                      label: 'ページ',
+                      locatePage: notifier.locatePage,
+                      pagenationFilter: state.pagenationFilter,
                     ),
-                    SizedBox(
-                      height: 40,
-                    ),
+                    const SizedBox(height: 40),
                   ],
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -113,175 +116,85 @@ class RankingFilterModal extends ConsumerWidget {
   }
 }
 
-class FilterSection<ChipsEnum extends Object> extends StatelessWidget {
-  const FilterSection({
-    super.key,
+class _FilterSection<T extends Object> extends StatelessWidget {
+  const _FilterSection({
     required this.label,
-    required this.chipsEnum,
-    required this.filters,
-    required this.addFilter,
-    required this.deleteFilter,
+    required this.values,
+    required this.labelFor,
+    required this.selected,
+    required this.onChanged,
+    this.trailing,
   });
+
   final String label;
-  final List<ChipsEnum> chipsEnum; //Enum
-  final Map<ChipsEnum, int> filters;
-  final Function(Object) addFilter;
-  final Function(Object) deleteFilter;
+  final List<T> values;
+  final String Function(T value) labelFor;
+  final bool Function(T value) selected;
+  final void Function(T value, bool selected) onChanged;
+  final Widget? trailing;
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "$label:",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        SizedBox(
-          height: 6,
-        ),
-        Wrap(
-          spacing: 5.0,
-          runSpacing: 5,
-          children: chipsEnum.map((ChipsEnum chip) {
-            //TODO ここだけ違う.ダブり表示ありを検索することはない
-            return FilterChip(
-              label: Text(_filterLabel(chip)),
-              selected: filters[chip] == 1,
-              onSelected: (bool selected) {
-                if (selected) {
-                  addFilter(chip);
-                } else {
-                  deleteFilter(chip);
-                }
-              },
-            );
-          }).toList(),
-        ),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('$label:',
+              style: const TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 5,
+            runSpacing: 5,
+            children: [
+              for (final value in values)
+                FilterChip(
+                  label: Text(labelFor(value)),
+                  selected: selected(value),
+                  onSelected: (next) => onChanged(value, next),
+                ),
+              if (trailing case final widget?) widget,
+            ],
+          ),
+        ],
+      );
 }
-
-class FilterExclusionSection<ChipsEnum extends Object> extends StatelessWidget {
-  const FilterExclusionSection({
-    super.key,
-    required this.label,
-    required this.chipsEnum,
-    required this.filters,
-    required this.addFilter,
-    required this.deleteFilter,
-  });
-  final String label;
-  final List<ChipsEnum> chipsEnum; //Enum
-  final Map<ChipsEnum, int> filters;
-  final Function(Object) addFilter;
-  final Function(Object) deleteFilter;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "$label:",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        SizedBox(
-          height: 6,
-        ),
-        Wrap(
-          spacing: 5.0,
-          runSpacing: 5,
-          children: chipsEnum.map((ChipsEnum chip) {
-            //TODO ここだけ違う.ダブり表示ありを検索することはない
-
-            if (chip == FeatureTag.multiLemma) {
-              return SizedBox(
-                width: 0,
-                height: 0,
-              );
-            }
-            return FilterChip(
-              label: Text(_filterLabel(chip)),
-              selected: filters[chip] == -1,
-              onSelected: (bool selected) {
-                if (selected) {
-                  addFilter(chip);
-                } else {
-                  deleteFilter(chip);
-                }
-              },
-            );
-          }).toList(),
-        ),
-      ],
-    );
-  }
-}
-
-String _filterLabel(Object value) => switch (value) {
-      CatalogPartOfSpeech partOfSpeech => partOfSpeech.displayLabel,
-      DisplayEnumMixin displayEnum => displayEnum.display,
-      _ => value.toString(),
-    };
 
 class PagenationFilterSection extends StatelessWidget {
-  const PagenationFilterSection(
-      {super.key,
-      required this.label,
-      required this.pagenationFilter,
-      required this.locatePage});
+  const PagenationFilterSection({
+    super.key,
+    required this.label,
+    required this.pagenationFilter,
+    required this.locatePage,
+  });
 
-  final String label; //Enum
+  static const int _pageSize = 100;
+  static const int _maximumRank = 10000;
+
+  final String label;
   final int pagenationFilter;
-  final Function(int) locatePage;
+  final ValueChanged<int> locatePage;
 
   @override
-  Widget build(BuildContext context) {
-    int size = 100;
-    int max = 10000;
-    int pageTotal = max ~/ size;
-    List<int> pageNum = [];
-    for (int i = 0; i < pageTotal; i++) {
-      pageNum.add(i);
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "$label:",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        SizedBox(
-          height: 6,
-        ),
-        Wrap(
-          spacing: 5.0,
-          runSpacing: 5,
-          children: pageNum.map((int page) {
-            return FilterChip(
-              label: Text(page.toString()),
-              selected: pagenationFilter == page,
-              onSelected: (bool selected) {
-                if (selected) {
-                  locatePage(page);
-                } else {}
-              },
-            );
-          }).toList(),
-        ),
-      ],
-    );
-  }
-}
-
-class ChipButtonGroup extends StatelessWidget {
-  const ChipButtonGroup({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
-  }
+  Widget build(BuildContext context) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('$label:',
+              style: const TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 5,
+            runSpacing: 5,
+            children: [
+              for (var page = 0;
+                  page < _maximumRank ~/ _pageSize;
+                  page++)
+                FilterChip(
+                  label: Text(page.toString()),
+                  selected: pagenationFilter == page,
+                  onSelected: (selected) {
+                    if (selected) locatePage(page);
+                  },
+                ),
+            ],
+          ),
+        ],
+      );
 }

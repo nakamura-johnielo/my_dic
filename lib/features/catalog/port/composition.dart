@@ -1,12 +1,16 @@
+import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/features/catalog/internal/composition/catalog_composition_factory.dart';
-import 'package:my_dic/features/catalog/port/composition_contract.dart';
+import 'package:my_dic/features/catalog/port/catalog_read_ports.dart';
 
-export 'composition_contract.dart';
+/// Application-owned services required to assemble Catalog capabilities.
+final class CatalogDependencies {
+  const CatalogDependencies({required this.database});
 
-/// Creates Catalog's public read capabilities from an application dependency
-/// bridge.
-///
-/// The implementation lives in Catalog internal composition; this facade keeps
-/// callers independent from Riverpod and Drift.
-CatalogComposition createCatalogComposition(CatalogDependencyQueryPort read) =>
-    createInternalCatalogComposition(read);
+  final DatabaseProvider database;
+}
+
+/// Assembles Catalog's public read capabilities without framework state.
+CatalogReadPorts createCatalogComposition({
+  required CatalogDependencies dependencies,
+}) =>
+    createInternalCatalogComposition(database: dependencies.database);

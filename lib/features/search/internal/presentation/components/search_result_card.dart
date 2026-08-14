@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_dic/features/search/internal/presentation/components/card/card_view.dart';
-import 'package:my_dic/features/search/port/model/search_conjugation_match_key.dart';
+import 'package:my_dic/features/search/port/search.dart';
 
 /// Search presentation adapter for the shared result-card shell.
 class SearchResultCard extends StatelessWidget {

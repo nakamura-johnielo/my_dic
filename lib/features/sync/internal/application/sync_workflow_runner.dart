@@ -5,7 +5,7 @@ import 'report/sync_report_interpreter.dart';
 import 'sync_scheduler.dart';
 
 /// Collapses internal report detail into the public workflow outcome.
-final class SyncWorkflowRunner implements ISyncRunner {
+final class SyncWorkflowRunner implements SyncRunner {
   SyncWorkflowRunner(this._scheduler, {SyncReportInterpreter? interpreter})
       : _interpreter = interpreter ?? const SyncReportInterpreter();
 

@@ -1,8 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'reader.dart';
+import 'package:my_dic/features/search/port/search.dart';
 
 /// App composition supplies the Catalog-backed Search reader.
-final searchQueryPortDependencyProvider = Provider<SearchQueryPort>(
-  (_) => throw StateError('SearchQueryPort dependency was not supplied.'),
+final searchReaderPortDependencyProvider = Provider<SearchReaderPort>(
+  (_) => throw StateError('SearchReaderPort dependency was not supplied.'),
 );

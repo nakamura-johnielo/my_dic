@@ -1,17 +1,17 @@
-/// Fake implementation of IMyWordRepository for testing
+/// Fake implementation of MyWordRepository for testing.
 library;
 
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/my_word/internal/domain/entity/my_word.dart';
-import 'package:my_dic/features/my_word/internal/domain/i_repository/i_my_word_repository.dart';
-import 'package:my_dic/features/my_word/internal/domain/inputData/my_word/load_my_word_repository_input_data.dart';
-import 'package:my_dic/features/my_word/internal/domain/inputData/my_word/register_my_word_repository_input_data.dart';
-import 'package:my_dic/features/my_word/internal/domain/inputData/my_word/delete_my_word_repository_input_data.dart';
-import 'package:my_dic/features/my_word/internal/domain/inputData/my_word/update_my_word_repository_input_data.dart';
+import 'package:my_dic/features/my_word/internal/domain/repository/my_word_repository.dart';
+import 'package:my_dic/features/my_word/internal/domain/repository/delete_my_word_record.dart';
+import 'package:my_dic/features/my_word/internal/domain/repository/my_word_page_query.dart';
+import 'package:my_dic/features/my_word/internal/domain/repository/register_my_word_record.dart';
+import 'package:my_dic/features/my_word/internal/domain/repository/update_my_word_record.dart';
 
-class FakeMyWordRepository implements IMyWordRepository {
+class FakeMyWordRepository implements MyWordRepository {
   final Result<List<MyWord>>? _getFilteredResult;
   final Result<MyWord>? _getByIdResult;
   final Result<String>? _registerResult;
@@ -87,7 +87,7 @@ class FakeMyWordRepository implements IMyWordRepository {
 
   @override
   Future<Result<List<MyWord>>> getFilteredByPage(
-      LoadMyWordRepositoryInputData input,
+      MyWordPageQuery input,
       {required String accountId}) async {
     getFilteredCallCount++;
     lastSize = input.size;
@@ -108,30 +108,29 @@ class FakeMyWordRepository implements IMyWordRepository {
   }
 
   @override
-  @override
   Future<Result<String>> registerWord(
-    RegisterMyWordRepositoryInputData input,
+    RegisterMyWordRecord input,
   ) async {
     return _registerResult ?? const Result.success('1');
   }
 
   @override
   Future<Result<void>> updateWord(
-    UpdateMyWordRepositoryInputData input,
+    UpdateMyWordRecord input,
   ) async {
     return _updateResult ?? const Result.success(null);
   }
 
   @override
   Future<Result<void>> deleteWord(
-    DeleteMyWordRepositoryInputData input,
+    DeleteMyWordRecord input,
   ) async {
     return _deleteResult ?? const Result.success(null);
   }
 
   @override
   Future<Result<List<String>>> getIdsFilteredByPage(
-    LoadMyWordRepositoryInputData input, {
+    MyWordPageQuery input, {
     required String accountId,
   }) async =>
       const Result.success([]);

@@ -12,7 +12,7 @@ import 'package:my_dic/features/my_word/port/command.dart';
 import 'package:my_dic/features/my_word/port/composition.dart';
 import 'package:my_dic/features/my_word/port/guest_migration.dart';
 import 'package:my_dic/features/my_word/port/query.dart';
-import 'package:my_dic/features/sync/port/dataset_sync_adapter.dart';
+import 'package:my_dic/features/sync/port/dataset_sync_gateway.dart';
 import 'package:my_dic/features/sync/port/dataset_sync_handler.dart';
 import 'package:my_dic/features/sync/port/model/dataset_sync_result.dart';
 import 'package:my_dic/features/sync/port/model/sync_context.dart';
@@ -21,20 +21,20 @@ import 'package:my_dic/features/sync/port/remote_mutation_executor.dart';
 import 'package:my_dic/features/sync/port/sync_dataset.dart';
 import 'package:my_dic/features/sync/port/sync_handler_runtime.dart';
 
-final class _OutboxWriter extends Mock implements IOutboxWriter {}
+final class _OutboxWriter extends Mock implements OutboxWriter {}
 
 final class _Firestore extends Mock implements FirebaseFirestore {}
 
 final class _RemoteMutationExecutor extends Mock
-    implements IRemoteMutationExecutor {}
+    implements RemoteMutationExecutor {}
 
-final class _Runtime implements ISyncHandlerRuntime {
-  final adapters = <IDatasetSyncAdapter>[];
+final class _Runtime implements SyncHandlerRuntime {
+  final adapters = <DatasetSyncGateway>[];
 
   @override
   Future<DatasetSyncResult> run(
     SyncContext context,
-    IDatasetSyncAdapter adapter,
+    DatasetSyncGateway adapter,
   ) async {
     adapters.add(adapter);
     return const DatasetSyncResult.success(pushedCount: 0, pulledCount: 0);
@@ -49,7 +49,7 @@ final class _StatusCommands extends Mock implements MyWordStatusCommandPort {}
 
 final class _GuestMigration extends Mock implements MyWordGuestMigrationPort {}
 
-final class _Handler implements IDatasetSyncHandler {
+final class _Handler implements DatasetSyncHandler {
   const _Handler(this.dataset);
 
   @override

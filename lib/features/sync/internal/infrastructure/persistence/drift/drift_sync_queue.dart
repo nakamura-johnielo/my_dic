@@ -7,7 +7,7 @@ import 'package:my_dic/features/sync/port/model/sync_mutation.dart';
 import 'package:my_dic/features/sync/port/sync_dataset.dart';
 import 'package:my_dic/features/sync/port/sync_queue.dart';
 
-class DriftSyncQueue implements ISyncQueue {
+class DriftSyncQueue implements SyncQueue {
   DriftSyncQueue(this._db, {Uuid? uuid}) : _uuid = uuid ?? const Uuid();
   final DatabaseProvider _db;
   final Uuid _uuid;

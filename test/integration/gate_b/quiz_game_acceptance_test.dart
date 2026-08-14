@@ -29,6 +29,7 @@ void main() {
         home: QuizGameFragment(
           input: const QuizGamePresentationInput(word: _word),
           onOpenWordDetail: (_) {},
+          wordStatusRenderer: (_) => const SizedBox.shrink(),
         ),
       ),
     ));

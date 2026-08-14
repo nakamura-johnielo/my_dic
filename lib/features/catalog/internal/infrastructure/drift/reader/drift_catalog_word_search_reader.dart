@@ -8,8 +8,9 @@ import 'package:my_dic/features/catalog/port/query/catalog_word_search_query.dar
 import 'package:my_dic/features/catalog/port/reader/catalog_word_search_reader_port.dart';
 import 'package:my_dic/features/catalog/port/result/catalog_search_page.dart';
 
-final class DriftCatalogWordSearchReader implements CatalogWordSearchQueryPort {
-  DriftCatalogWordSearchReader(
+final class DriftCatalogWordSearchQueryService
+    implements CatalogWordSearchQueryPort {
+  DriftCatalogWordSearchQueryService(
     DatabaseProvider database, {
     CatalogSearchHitMapper mapper = const CatalogSearchHitMapper(),
     CatalogReadErrorMapper errorMapper = const CatalogReadErrorMapper(),
@@ -17,7 +18,7 @@ final class DriftCatalogWordSearchReader implements CatalogWordSearchQueryPort {
         _mapper = mapper,
         _errorMapper = errorMapper;
 
-  const DriftCatalogWordSearchReader.withQuery(
+  const DriftCatalogWordSearchQueryService.withQuery(
     this._query, {
     CatalogSearchHitMapper mapper = const CatalogSearchHitMapper(),
     CatalogReadErrorMapper errorMapper = const CatalogReadErrorMapper(),

@@ -2,25 +2,25 @@ import 'package:my_dic/features/catalog/internal/domain/conjugation/participles.
 import 'package:my_dic/features/catalog/internal/domain/conjugation/tense_conjugation.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_conjugation.dart';
 
-class EspConjugacions {
+class EspJpnConjugation {
   final int wordId;
-  final Map<CatalogMoodTense, TenseConjugacion> conjugacions;
+  final Map<CatalogMoodTense, TenseConjugation> conjugations;
   final EspParticiples participles;
 
-  const EspConjugacions({
+  const EspJpnConjugation({
     required this.wordId,
-    required this.conjugacions,
+    required this.conjugations,
     required this.participles,
   });
 
-  EspConjugacions copyWith({
+  EspJpnConjugation copyWith({
     int? wordId,
-    Map<CatalogMoodTense, TenseConjugacion>? conjugacions,
+    Map<CatalogMoodTense, TenseConjugation>? conjugations,
     EspParticiples? participles,
   }) {
-    return EspConjugacions(
+    return EspJpnConjugation(
       wordId: wordId ?? this.wordId,
-      conjugacions: conjugacions ?? this.conjugacions,
+      conjugations: conjugations ?? this.conjugations,
       participles: participles ?? this.participles,
     );
   }

@@ -2,17 +2,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/error/app_error_message.dart';
 import 'package:my_dic/core/presentation/state/command_state.dart';
 import 'package:my_dic/core/presentation/state/ui_effect.dart';
-import 'package:my_dic/core/shared/errors/app_error.dart';
-import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/auth/internal/application/usecase/auth_usecases.dart';
 import 'package:my_dic/features/auth/internal/presentation/ui_model/sign_in_model.dart';
+import 'package:my_dic/features/auth/port/auth.dart';
 
 class SignInViewModel extends StateNotifier<SignInUIState>
     implements UiEffectConsumer {
-  SignInViewModel(this._resetEmailPasswordUseCase)
+  SignInViewModel(this._commands)
       : super(const SignInUIState());
 
-  final IResetEmailPasswordUseCase _resetEmailPasswordUseCase;
+  final AuthCommandPort _commands;
   int _effectSequence = 0;
 
   @override
@@ -29,7 +27,7 @@ class SignInViewModel extends StateNotifier<SignInUIState>
 
   Future<void> resetEmailPassword(String email) => _run(
         operation: 'resetPassword',
-        action: () => _resetEmailPasswordUseCase.execute(email),
+        action: () => _commands.resetPassword(ResetPasswordCommand(email: email)),
         successMessage: 'Password reset email sent.',
       );
 
@@ -41,15 +39,17 @@ class SignInViewModel extends StateNotifier<SignInUIState>
     if (isSubmitting) return;
     state = state.copyWith(command: CommandState.submitting(operation));
     final result = await action();
-    result.when(
-      success: (_) => state = SignInUIState(
+    if (result is Success<void>) {
+      state = SignInUIState(
         command: CommandState.succeeded(operation),
         pendingEffect: _notice(operation, successMessage),
-      ),
-      failure: (AppError error) => state = SignInUIState(
-        command: CommandState.failed(operation, error),
-        pendingEffect: _notice(operation, AppErrorMessage.from(error).text),
-      ),
+      );
+      return;
+    }
+    final error = result.errorOrNull!;
+    state = SignInUIState(
+      command: CommandState.failed(operation, error),
+      pendingEffect: _notice(operation, AppErrorMessage.from(error).text),
     );
   }
 

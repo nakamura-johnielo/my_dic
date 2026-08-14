@@ -45,7 +45,7 @@ void main() {
   });
 
   test('Spanish conjugation uses Catalog mood/tense values', () {
-    const tense = TenseConjugacion(
+    const tense = TenseConjugation(
       yo: 'hablo',
       tu: 'hablas',
       el: 'habla',
@@ -53,14 +53,14 @@ void main() {
       vosotros: 'hablais',
       ellos: 'hablan',
     );
-    const conjugation = EspConjugacions(
+    const conjugation = EspJpnConjugation(
       wordId: 9,
-      conjugacions: {CatalogMoodTense.indicativePresent: tense},
+      conjugations: {CatalogMoodTense.indicativePresent: tense},
       participles: EspParticiples(present: 'hablando', past: 'hablado'),
     );
 
     expect(
-      conjugation.conjugacions[CatalogMoodTense.indicativePresent]?.yo,
+      conjugation.conjugations[CatalogMoodTense.indicativePresent]?.yo,
       'hablo',
     );
   });

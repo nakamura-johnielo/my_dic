@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/features/sync/internal/application/in_memory_session_fence.dart';
 import 'package:my_dic/features/sync/internal/application/policy/retry_policy.dart';
-import 'package:my_dic/features/sync/internal/application/sync_handler_runtime_adapter.dart';
+import 'package:my_dic/features/sync/internal/application/sync_handler_runtime_service.dart';
 import 'package:my_dic/features/sync/port/cancellation_token.dart';
-import 'package:my_dic/features/sync/port/dataset_sync_adapter.dart';
+import 'package:my_dic/features/sync/port/dataset_sync_gateway.dart';
 import 'package:my_dic/features/sync/port/dataset_sync_handler.dart';
 import 'package:my_dic/features/sync/port/model/dataset_sync_result.dart';
 import 'package:my_dic/features/sync/port/model/mutation_lease.dart';
@@ -50,7 +50,7 @@ void main() {
       expect(source, isNot(contains('SyncExecutionGuard')), reason: file.path);
     }
     final runtime = File(
-      'lib/features/sync/internal/application/sync_handler_runtime_adapter.dart',
+      'lib/features/sync/internal/application/sync_handler_runtime_service.dart',
     ).readAsStringSync();
     expect(runtime, contains('ExponentialBackoff'));
     expect(runtime, contains('SyncErrorClassifier'));
@@ -61,9 +61,9 @@ void main() {
   test('standard handler delegates the MyWord-shaped adapter only to runtime',
       () async {
     final runtime = _RecordingRuntime();
-    final adapter = _Adapter();
+    final adapter = _DatasetSyncStub();
     final handler =
-        AdapterDatasetSyncHandler(adapter: adapter, runtime: runtime);
+        DatasetSyncService(adapter: adapter, runtime: runtime);
 
     final result = await handler.run(context());
 
@@ -77,7 +77,7 @@ void main() {
       () async {
     final queue = _Queue(leases: [_lease()]);
     final checkpoints = _Checkpoints();
-    final adapter = _Adapter(pushError: StateError('network error'));
+    final adapter = _DatasetSyncStub(pushError: StateError('network error'));
     final result =
         await _runtime(queue, checkpoints, now).run(context(), adapter);
 
@@ -99,7 +99,7 @@ void main() {
       _mutation(fieldMask: const ['word'])
     ]);
     final checkpoints = _Checkpoints();
-    final adapter = _Adapter(records: [
+    final adapter = _DatasetSyncStub(records: [
       _record('older', now.subtract(const Duration(seconds: 1))),
       _record('newer', now),
     ]);
@@ -127,8 +127,8 @@ void main() {
     final fence = InMemorySessionFence()..setCurrent('account-a', 2);
     final queue = _Queue(leases: [_lease()]);
     final checkpoints = _Checkpoints();
-    final adapter = _Adapter();
-    final runtime = SyncHandlerRuntimeAdapter(
+    final adapter = _DatasetSyncStub();
+    final runtime = SyncHandlerRuntimeService(
       queue: queue,
       checkpoints: checkpoints,
       sessionFence: fence,
@@ -146,13 +146,13 @@ void main() {
   });
 }
 
-SyncHandlerRuntimeAdapter _runtime(
+SyncHandlerRuntimeService _runtime(
   _Queue queue,
   _Checkpoints checkpoints,
   DateTime now,
 ) {
   final fence = InMemorySessionFence()..setCurrent('account-a', 1);
-  return SyncHandlerRuntimeAdapter(
+  return SyncHandlerRuntimeService(
     queue: queue,
     checkpoints: checkpoints,
     sessionFence: fence,
@@ -169,20 +169,31 @@ final class _FixedRetryPolicy implements RetryPolicy {
 }
 
 final class _RecordingRuntime implements SyncHandlerRuntime {
-  DatasetSyncAdapter? adapter;
+  DatasetSyncGateway? adapter;
   @override
   Future<DatasetSyncResult> run(
-      SyncContext context, DatasetSyncAdapter adapter) async {
+      SyncContext context, DatasetSyncGateway adapter) async {
     this.adapter = adapter;
     return const DatasetSyncResult.success(pushedCount: 0, pulledCount: 0);
   }
 }
 
-final class _Adapter implements DatasetSyncAdapter {
-  _Adapter({this.pushError, List<DatasetSyncRecord>? records})
-      : records = records ?? const [];
+final class _DatasetSyncStub implements DatasetSyncGateway {
+  _DatasetSyncStub({this.pushError, List<DatasetSyncRecord>? records}) {
+    for (final record in records ?? const <DatasetSyncRecord>[]) {
+      this.records.add(DatasetSyncRecord(
+            entityId: record.entityId,
+            updatedAt: record.updatedAt,
+            remoteRevision: record.remoteRevision,
+            lastMutationId: record.lastMutationId,
+            applyRemote: ({required accountId, required skippedFields}) async {
+              applied.add((record: record, skippedFields: Set.of(skippedFields)));
+            },
+          ));
+    }
+  }
   final Object? pushError;
-  final List<DatasetSyncRecord> records;
+  final List<DatasetSyncRecord> records = [];
   int pushCalls = 0;
   final applied = <({DatasetSyncRecord record, Set<String> skippedFields})>[];
   @override
@@ -212,11 +223,6 @@ final class _Adapter implements DatasetSyncAdapter {
           required String accountId,
           required RemoteMutationAck acknowledgement}) async =>
       true;
-  @override
-  Future<void> applyRemote(DatasetSyncRecord record,
-      {required String accountId, required Set<String> skippedFields}) async {
-    applied.add((record: record, skippedFields: Set.of(skippedFields)));
-  }
 }
 
 final class _Queue implements SyncQueue {
@@ -304,4 +310,4 @@ DatasetSyncRecord _record(String id, DateTime updatedAt) => DatasetSyncRecord(
     updatedAt: updatedAt,
     remoteRevision: 1,
     lastMutationId: null,
-    payload: const {});
+    applyRemote: ({required accountId, required skippedFields}) async {});

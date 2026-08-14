@@ -1,18 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
-import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/word_detail/internal/presentation/ui_model/jpn_esp_state.dart';
 import 'package:my_dic/features/word_detail/internal/presentation/ui_model/word_detail_load_key.dart';
-import 'package:my_dic/features/word_detail/port/i_load_word_detail_query.dart';
-import 'package:my_dic/features/word_detail/port/word_detail_query.dart';
-import 'package:my_dic/features/word_detail/port/word_detail_view_data.dart';
+import 'package:my_dic/features/word_detail/internal/presentation/ui_model/word_detail_state.dart';
+import 'package:my_dic/features/word_detail/port/word_detail.dart';
 
-class WordDetailViewModel extends StateNotifier<WordDetailState> {
-  WordDetailViewModel(this._loadWordDetailQuery)
-      : super(const WordDetailState());
+final class WordDetailViewModel extends StateNotifier<WordDetailState> {
+  WordDetailViewModel(this._reader) : super(const WordDetailState());
 
-  final ILoadWordDetailQuery _loadWordDetailQuery;
+  final WordDetailReaderPort _reader;
   final _logger = Logger('WordDetailViewModel');
 
   Future<void>? _initialization;
@@ -30,42 +26,39 @@ class WordDetailViewModel extends StateNotifier<WordDetailState> {
           detail: QueryState.loading(previousData: previous),
         ));
 
-    final result = await _loadWordDetailQuery.execute(WordDetailQuery(
+    final result = await _reader.read(WordDetailQuery(
       word: key.word,
     ));
     if (!_isCurrent(generation)) return;
 
-    result.when(
-      success: (result) {
-        final warnings = result.issue == null
-            ? const <QueryWarning>[]
-            : [
-                QueryWarning(
-                    source: result.issue!.source, error: result.issue!.error)
-              ];
+    switch (result) {
+      case Success<WordDetailResult>(data: final result):
+        final warnings = result.issues
+            .map(
+              (issue) => QueryWarning(
+                source: switch (issue) {
+                  WordDetailConjugationIssue() => 'conjugation',
+                },
+                error: issue.error,
+              ),
+            )
+            .toList(growable: false);
         _setState(
             generation,
             state.copyWith(
-              detail: _isEmpty(result.viewData)
+              detail: result.data.isEmpty
                   ? QueryState.empty(warnings: warnings)
-                  : QueryState.data(result.viewData, warnings: warnings),
+                  : QueryState.data(result.data, warnings: warnings),
             ));
-      },
-      failure: (error) {
+      case Failure<WordDetailResult>(error: final error):
         _logger.warning('Failed to load word detail', error);
         _setState(
             generation,
             state.copyWith(
               detail: QueryState.failure(error, previousData: previous),
             ));
-      },
-    );
+    }
   }
-
-  bool _isEmpty(WordDetailViewData data) => switch (data) {
-        EspJpnWordDetailViewData(entries: final entries) => entries.isEmpty,
-        JpnEspWordDetailViewData(entries: final entries) => entries.isEmpty,
-      };
 
   bool _isCurrent(int generation) => mounted && generation == _generation;
 

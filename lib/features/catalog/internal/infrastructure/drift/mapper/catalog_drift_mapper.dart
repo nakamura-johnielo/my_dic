@@ -1,8 +1,6 @@
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
-import 'package:my_dic/features/catalog/internal/application/model/conjugation_search_result_item.dart';
 import 'package:my_dic/features/catalog/internal/domain/conjugation/esp_conjugations.dart';
 import 'package:my_dic/features/catalog/internal/domain/conjugation/participles.dart';
-import 'package:my_dic/features/catalog/internal/application/model/search_result_conjugations.dart';
 import 'package:my_dic/features/catalog/internal/domain/conjugation/tense_conjugation.dart';
 import 'package:my_dic/features/catalog/internal/domain/dictionary_entry/esp_jpn_dictionary.dart';
 import 'package:my_dic/features/catalog/internal/domain/dictionary_entry/jpn_esp_dictionary.dart';
@@ -14,7 +12,6 @@ import 'package:my_dic/features/catalog/internal/domain/word/esp_jpn_word.dart';
 import 'package:my_dic/features/catalog/internal/domain/word/jpn_esp_word.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/datasource/esp_jpn/esp_jpn_dictionary_dataset.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/datasource/jpn_esp/jpn_esp_dictionary_dataset.dart';
-import 'package:my_dic/features/catalog/internal/infrastructure/drift/mapper/catalog_conjugation_match_mapper.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_conjugation.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
 
@@ -112,11 +109,11 @@ final class CatalogDriftMapper {
   ) =>
       data.map(jpnEspDictionary).toList();
 
-  static EspConjugacions? conjugation(EspConjugationTableData? row) {
+  static EspJpnConjugation? conjugation(EspConjugationTableData? row) {
     if (row == null) return null;
-    return EspConjugacions(
+    return EspJpnConjugation(
       wordId: row.wordId,
-      conjugacions: {
+      conjugations: {
         CatalogMoodTense.participlePresent: _tense(row.presentParticiple),
         CatalogMoodTense.participlePast: _tense(row.pastParticiple),
         CatalogMoodTense.indicativePresent: _tense(
@@ -191,25 +188,7 @@ final class CatalogDriftMapper {
     );
   }
 
-  static ConjugacionSearchResultItem conjugationSearchItem(
-    EspConjugationTableData row,
-  ) =>
-      ConjugacionSearchResultItem(
-        wordId: row.wordId,
-        word: row.word,
-        simpleMeaning: row.meaning ?? '',
-      );
-
-  static SearchResultConjugacions conjugationSearchResult(
-    EspConjugationTableData row,
-  ) =>
-      SearchResultConjugacions(
-        wordId: row.wordId,
-        word: row.word,
-        matches: CatalogConjugationMatchMapper.fromRow(row),
-      );
-
-  static TenseConjugacion _tense([
+  static TenseConjugation _tense([
     String? yo,
     String? tu,
     String? el,
@@ -217,7 +196,7 @@ final class CatalogDriftMapper {
     String? vosotros,
     String? ellos,
   ]) =>
-      TenseConjugacion(
+      TenseConjugation(
         yo: yo ?? _missingConjugation,
         tu: tu ?? _missingConjugation,
         el: el ?? _missingConjugation,

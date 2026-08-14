@@ -1,56 +1,64 @@
-import 'package:my_dic/features/sync/port/composition_contract.dart';
-import 'package:my_dic/features/sync/port/dataset_sync_handler.dart';
-import 'package:my_dic/features/sync/port/sync_handler_runtime.dart';
-import 'package:my_dic/features/user_profile/internal/composition/user_profile_ports_factory.dart';
-import 'package:my_dic/features/user_profile/internal/composition/user_profile_sync_factory.dart';
-import 'auth_lifecycle.dart';
-import 'guest_migration.dart';
-import 'live_user_profile.dart';
-import 'user_profile.dart';
+import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
+import 'package:my_dic/core/infrastructure/firebase/firebase_account_document_namespace.dart';
+import 'package:my_dic/features/sync/port/dataset_contract.dart';
+import 'package:my_dic/features/user_profile/internal/composition/user_profile_composition_factory.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-/// Opaque app capabilities requested by UserProfile's owner factory.
-enum UserProfileDependency {
-  database,
-  sharedPreferences,
-  remoteMutationExecutor,
-  outboxWriter,
-}
+import 'composition_contract.dart';
 
-typedef UserProfileDependencyReader = T Function<T>(
-  UserProfileDependency dependency,
-);
+export 'composition_contract.dart';
 
-/// Lifecycle subset used by the app's authentication workflow.
-final class UserLifecyclePorts {
-  const UserLifecyclePorts({required this.ensureUserProfile});
-
-  final EnsureUserProfilePort ensureUserProfile;
-}
-
-/// The complete set of UserProfile capabilities consumed by app workflows.
-final class UserProfilePorts {
-  const UserProfilePorts({
-    required this.ensureUserProfile,
-    required this.liveUserProfile,
-    required this.guestMigration,
-    required this.updateUserProfile,
+/// Application-owned runtime dependencies for normal UserProfile behavior.
+final class UserProfileDependencies {
+  const UserProfileDependencies({
+    required this.database,
+    required this.sharedPreferences,
+    required this.accountDocuments,
+    required this.remoteMutationExecutor,
+    required this.outboxWriter,
+    required this.clock,
   });
 
-  final EnsureUserProfilePort ensureUserProfile;
-  final LiveUserProfilePort liveUserProfile;
-  final UserProfileGuestMigrationPort guestMigration;
-  final UpdateUserProfilePort updateUserProfile;
+  final DatabaseProvider database;
+  final SharedPreferences sharedPreferences;
+  final FirebaseAccountDocumentGateway accountDocuments;
+  final RemoteMutationExecutor remoteMutationExecutor;
+  final OutboxWriter outboxWriter;
+  final UserProfileClock clock;
 }
 
-/// Creates UserProfile's production capabilities from app-owned services.
-UserProfilePorts createUserProfilePorts(UserProfileDependencyReader read) =>
-    createInternalUserProfilePorts(read);
+/// Application-owned runtime dependencies for UserProfile synchronization.
+final class UserProfileSyncDependencies {
+  const UserProfileSyncDependencies({
+    required this.database,
+    required this.accountDocuments,
+    required this.remoteMutationExecutor,
+  });
 
-/// Opaque dependencies requested by the UserProfile sync contribution.
-enum UserProfileSyncDependency { database, firestore, remoteMutationExecutor }
+  final DatabaseProvider database;
+  final FirebaseAccountDocumentGateway accountDocuments;
+  final RemoteMutationExecutor remoteMutationExecutor;
+}
 
-IDatasetSyncHandler createUserProfileDatasetSyncHandler(
-  SyncDependencyQueryPort read, {
-  required ISyncHandlerRuntime runtime,
+UserProfilePorts createUserProfilePorts({
+  required UserProfileDependencies dependencies,
 }) =>
-    createInternalUserProfileDatasetSyncHandlerFacade(read, runtime: runtime);
+    createInternalUserProfileComposition(
+      database: dependencies.database,
+      sharedPreferences: dependencies.sharedPreferences,
+      accountDocuments: dependencies.accountDocuments,
+      remoteMutationExecutor: dependencies.remoteMutationExecutor,
+      outboxWriter: dependencies.outboxWriter,
+      clock: dependencies.clock,
+    );
+
+DatasetSyncHandler createUserProfileDatasetSyncHandler({
+  required UserProfileSyncDependencies dependencies,
+  required SyncHandlerRuntime runtime,
+}) =>
+    createInternalUserProfileSyncComposition(
+      database: dependencies.database,
+      accountDocuments: dependencies.accountDocuments,
+      remoteMutationExecutor: dependencies.remoteMutationExecutor,
+      runtime: runtime,
+    );

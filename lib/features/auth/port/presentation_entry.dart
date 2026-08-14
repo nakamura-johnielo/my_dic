@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_dic/core/shared/errors/app_error.dart';
 import 'package:my_dic/features/auth/internal/presentation/view/sign_up.dart';
-import 'app_auth.dart';
+import 'model/auth_identity.dart';
 
 /// Feature-facing projection of the app-owned authentication workflow.
 enum AuthPresentationPhase {
@@ -28,7 +28,7 @@ final class AuthPresentationState {
   });
 
   final AuthPresentationPhase phase;
-  final AppAuth? auth;
+  final AuthIdentity? auth;
   final AppError? error;
   final String? notice;
 }

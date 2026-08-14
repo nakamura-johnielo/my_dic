@@ -4,24 +4,24 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/drift_my_word_dao.dart';
-import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/my_word_drift_data_source.dart';
-import 'package:my_dic/features/my_word/internal/infrastructure/data/repository_impl/my_word_repository.dart';
-import 'package:my_dic/features/my_word/internal/domain/inputData/my_word/register_my_word_repository_input_data.dart';
-import 'package:my_dic/features/my_word/internal/domain/inputData/my_word/delete_my_word_repository_input_data.dart';
-import 'package:my_dic/features/my_word/internal/domain/inputData/my_word/update_my_word_repository_input_data.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/data/store/drift_my_word_store.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/data/repository/drift_my_word_repository.dart';
+import 'package:my_dic/features/my_word/internal/domain/repository/register_my_word_record.dart';
+import 'package:my_dic/features/my_word/internal/domain/repository/delete_my_word_record.dart';
+import 'package:my_dic/features/my_word/internal/domain/repository/update_my_word_record.dart';
 import 'package:my_dic/features/sync/internal/infrastructure/persistence/drift/drift_outbox_writer.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late DatabaseProvider database;
-  late MyWordRepository repository;
+  late DriftMyWordRepository repository;
 
   setUp(() {
     database = DatabaseProvider.forTesting(NativeDatabase.memory());
-    final local = MyWordDriftDataSource(MyWordDao(database));
+    final local = DriftMyWordStore(MyWordDao(database));
     final writer = DriftOutboxWriter(database, clock: () => DateTime.utc(2026));
-    repository = MyWordRepository(local, writer);
+    repository = DriftMyWordRepository(local, writer);
   });
 
   tearDown(() => database.close());
@@ -29,7 +29,7 @@ void main() {
   group('MyWord outbox enqueue on local write', () {
     test('signed-in register enqueues one upsert mutation', () async {
       final result = await repository.registerWord(
-        RegisterMyWordRepositoryInputData(
+        RegisterMyWordRecord(
             'hola', 'greeting', DateTime.utc(2026, 8, 5), 'account-a'),
       );
       expect(result.isSuccess, isTrue);
@@ -49,7 +49,7 @@ void main() {
 
     test('guest register does not enqueue an outbox mutation', () async {
       final result = await repository.registerWord(
-        RegisterMyWordRepositoryInputData(
+        RegisterMyWordRecord(
             'hola', 'greeting', DateTime.utc(2026, 8, 5), null),
       );
       expect(result.isSuccess, isTrue);
@@ -59,13 +59,13 @@ void main() {
     test('signed-in update enqueues a patch mutation and advances revision',
         () async {
       final registerResult = await repository.registerWord(
-        RegisterMyWordRepositoryInputData(
+        RegisterMyWordRecord(
             'hola', 'greeting', DateTime.utc(2026, 8, 5), 'account-a'),
       );
       final wordId = registerResult.dataOrNull!;
 
       final updateResult = await repository.updateWord(
-        UpdateMyWordRepositoryInputData(wordId, 'hola!', 'greeting (updated)',
+        UpdateMyWordRecord(wordId, 'hola!', 'greeting (updated)',
             DateTime.utc(2026, 8, 6), 'account-a'),
       );
       expect(updateResult.isSuccess, isTrue);
@@ -81,13 +81,13 @@ void main() {
 
     test('guest update does not enqueue an outbox mutation', () async {
       final registerResult = await repository.registerWord(
-        RegisterMyWordRepositoryInputData(
+        RegisterMyWordRecord(
             'hola', 'greeting', DateTime.utc(2026, 8, 5), null),
       );
       final wordId = registerResult.dataOrNull!;
 
       final updateResult = await repository.updateWord(
-        UpdateMyWordRepositoryInputData(wordId, 'hola!', 'greeting (updated)',
+        UpdateMyWordRecord(wordId, 'hola!', 'greeting (updated)',
             DateTime.utc(2026, 8, 6), null),
       );
       expect(updateResult.isSuccess, isTrue);
@@ -99,13 +99,13 @@ void main() {
     test('signed-in delete enqueues a delete mutation and hides the word',
         () async {
       final registerResult = await repository.registerWord(
-        RegisterMyWordRepositoryInputData(
+        RegisterMyWordRecord(
             'hola', 'greeting', DateTime.utc(2026, 8, 5), 'account-a'),
       );
       final wordId = registerResult.dataOrNull!;
 
       final deleteResult = await repository.deleteWord(
-        DeleteMyWordRepositoryInputData(
+        DeleteMyWordRecord(
             wordId, DateTime.utc(2026, 8, 6).toIso8601String(), 'account-a'),
       );
       expect(deleteResult.isSuccess, isTrue);
@@ -124,13 +124,13 @@ void main() {
 
     test('guest delete does not enqueue an outbox mutation', () async {
       final registerResult = await repository.registerWord(
-        RegisterMyWordRepositoryInputData(
+        RegisterMyWordRecord(
             'hola', 'greeting', DateTime.utc(2026, 8, 5), null),
       );
       final wordId = registerResult.dataOrNull!;
 
       final deleteResult = await repository.deleteWord(
-        DeleteMyWordRepositoryInputData(
+        DeleteMyWordRecord(
             wordId, DateTime.utc(2026, 8, 6).toIso8601String(), null),
       );
       expect(deleteResult.isSuccess, isTrue);
@@ -139,17 +139,17 @@ void main() {
 
     test('deleting an already-deleted word returns NotFound', () async {
       final registerResult = await repository.registerWord(
-        RegisterMyWordRepositoryInputData(
+        RegisterMyWordRecord(
             'hola', 'greeting', DateTime.utc(2026, 8, 5), 'account-a'),
       );
       final wordId = registerResult.dataOrNull!;
       await repository.deleteWord(
-        DeleteMyWordRepositoryInputData(
+        DeleteMyWordRecord(
             wordId, DateTime.utc(2026, 8, 6).toIso8601String(), 'account-a'),
       );
 
       final secondDelete = await repository.deleteWord(
-        DeleteMyWordRepositoryInputData(
+        DeleteMyWordRecord(
             wordId, DateTime.utc(2026, 8, 7).toIso8601String(), 'account-a'),
       );
       expect(secondDelete.isFailure, isTrue);

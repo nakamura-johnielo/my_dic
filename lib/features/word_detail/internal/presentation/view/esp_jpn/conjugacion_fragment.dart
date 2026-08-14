@@ -3,19 +3,18 @@ import 'package:my_dic/core/presentation/error/app_error_message.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/core/shared/consts/ui/ui2.dart';
-import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/word_detail/internal/presentation/components/conjugacion_card.dart';
-import 'package:my_dic/features/word_detail/port/word_detail_view_data.dart';
+import 'package:my_dic/features/word_detail/port/word_detail.dart';
 
 class ConjugacionFragment extends StatelessWidget {
   const ConjugacionFragment({super.key, required this.detail, this.highlight});
-  final QueryState<WordDetailViewData> detail;
+  final QueryState<WordDetailData> detail;
   final String? highlight;
 
   @override
   Widget build(BuildContext context) {
     final conjugations = switch (detail.dataOrNull) {
-      EspJpnWordDetailViewData(conjugation: final conjugation) => conjugation,
+      EspJpnWordDetailData(conjugation: final conjugation) => conjugation,
       _ => null,
     };
     if (conjugations == null) return _ConjugationReadState(state: detail);
@@ -30,11 +29,11 @@ class ConjugacionFragment extends StatelessWidget {
       children: conjugations.conjugations.entries.map((entry) {
         final moodTense = entry.key;
         final conjugation = entry.value;
-        if (moodTense == CatalogMoodTense.participlePresent ||
-            moodTense == CatalogMoodTense.participlePast) {
+        if (moodTense == WordDetailMoodTense.participlePresent ||
+            moodTense == WordDetailMoodTense.participlePast) {
           return ParticipleCard(
             moodTense: moodTense,
-            conjugacion: conjugation[CatalogSubject.yo] ?? '',
+            conjugacion: conjugation[WordDetailSubject.yo] ?? '',
           );
         }
         return ConjugacionCard(
@@ -49,7 +48,7 @@ class ConjugacionFragment extends StatelessWidget {
 
 class _ConjugationReadState extends StatelessWidget {
   const _ConjugationReadState({required this.state});
-  final QueryState<WordDetailViewData> state;
+  final QueryState<WordDetailData> state;
 
   @override
   Widget build(BuildContext context) => Center(

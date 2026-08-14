@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
-import 'package:my_dic/features/my_word/internal/infrastructure/error/my_word_infrastructure_error_mapper.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/mapper/my_word_infrastructure_error_mapper.dart';
 
 void main() {
   group('MyWordInfrastructureErrorMapper', () {

@@ -1,55 +1,24 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/core/shared/errors/unexpected_error.dart';
-import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/auth/port/app_auth.dart';
-import 'package:my_dic/features/auth/port/composition.dart';
-import 'package:my_dic/features/auth/port/auth_commands.dart';
-import 'package:my_dic/features/auth/port/auth_readers.dart';
-import 'package:my_dic/features/user_profile/port/composition.dart';
-import 'package:my_dic/features/user_profile/port/auth_lifecycle.dart';
+import 'package:my_dic/features/auth/port/auth.dart';
+import 'package:my_dic/features/user_profile/port/user_profile.dart';
 import 'auth_lifecycle_state.dart';
 
 class AuthLifecycleController extends StateNotifier<AuthLifecycleState> {
   AuthLifecycleController({
-    AuthLifecyclePorts? auth,
-    UserLifecyclePorts? user,
-    SignInPort? signIn,
-    SignUpPort? signUp,
-    SignOutPort? signOut,
-    SendVerificationEmailPort? sendVerificationEmail,
-    ReloadCurrentAuthPort? reloadCurrentAuth,
-    EnsureUserProfilePort? ensureUserExists,
-  })  : assert(
-          (auth != null && user != null) ||
-              (signIn != null &&
-                  signUp != null &&
-                  signOut != null &&
-                  sendVerificationEmail != null &&
-                  reloadCurrentAuth != null &&
-                  ensureUserExists != null),
-        ),
-        _auth = auth ??
-            AuthLifecyclePorts(
-              // Tests and transitional callers may provide lifecycle capabilities
-              // individually; production composition always supplies one bundle.
-              observeAuthState: _NoAuthObserver(),
-              reloadCurrentAuth: reloadCurrentAuth!,
-              signIn: signIn!,
-              signUp: signUp!,
-              signOut: signOut!,
-              sendVerificationEmail: sendVerificationEmail!,
-            ),
-        _user = user ??
-            UserLifecyclePorts(
-              ensureUserProfile: ensureUserExists!,
-            ),
+    required AuthQueryPort query,
+    required AuthCommandPort commands,
+    required UserProfileCommandPort userProfileCommands,
+  })  : _query = query,
+        _commands = commands,
+        _userProfileCommands = userProfileCommands,
         super(const AuthLifecycleState.initializing());
 
-  final AuthLifecyclePorts _auth;
-  final UserLifecyclePorts _user;
+  final AuthQueryPort _query;
+  final AuthCommandPort _commands;
+  final UserProfileCommandPort _userProfileCommands;
   int _profileOperation = 0;
 
-  Future<void> handleAuthStateChange(AppAuth? auth) async {
+  Future<void> handleAuthStateChange(AuthIdentity? auth) async {
     if (auth == null) {
       _profileOperation++;
       state = const AuthLifecycleState(phase: AuthLifecyclePhase.signedOut);
@@ -72,32 +41,36 @@ class AuthLifecycleController extends StateNotifier<AuthLifecycleState> {
   Future<void> signUp(String email, String password) async {
     if (state.isBusy) return;
     state = const AuthLifecycleState(phase: AuthLifecyclePhase.creatingAccount);
-    final result = await _auth.signUp.signUp(email, password);
-    await result.when(
-      success: (auth) async {
-        state = AuthLifecycleState(
-          phase: AuthLifecyclePhase.sendingVerificationEmail,
-          auth: auth,
-        );
-        await _sendVerification(auth);
-      },
-      failure: (error) async => state = AuthLifecycleState(
-        phase: AuthLifecyclePhase.signedOut,
-        error: error,
-      ),
+    final result = await _commands.signUp(
+      SignUpCommand(email: email, password: password),
+    );
+    if (result case Success<AuthIdentity>(data: final auth)) {
+      state = AuthLifecycleState(
+        phase: AuthLifecyclePhase.sendingVerificationEmail,
+        auth: auth,
+      );
+      await _sendVerification(auth);
+      return;
+    }
+    state = AuthLifecycleState(
+      phase: AuthLifecyclePhase.signedOut,
+      error: result.errorOrNull!,
     );
   }
 
   Future<void> signIn(String email, String password) async {
     if (state.isBusy) return;
     state = const AuthLifecycleState(phase: AuthLifecyclePhase.signingIn);
-    final result = await _auth.signIn.signIn(email, password);
-    await result.when(
-      success: handleAuthStateChange,
-      failure: (error) async => state = AuthLifecycleState(
-        phase: AuthLifecyclePhase.signedOut,
-        error: error,
-      ),
+    final result = await _commands.signIn(
+      SignInCommand(email: email, password: password),
+    );
+    if (result case Success<AuthIdentity>(data: final auth)) {
+      await handleAuthStateChange(auth);
+      return;
+    }
+    state = AuthLifecycleState(
+      phase: AuthLifecyclePhase.signedOut,
+      error: result.errorOrNull!,
     );
   }
 
@@ -111,19 +84,20 @@ class AuthLifecycleController extends StateNotifier<AuthLifecycleState> {
     await _sendVerification(auth);
   }
 
-  Future<void> _sendVerification(AppAuth auth) async {
-    final result = await _auth.sendVerificationEmail.sendVerificationEmail();
-    result.when(
-      success: (_) => state = AuthLifecycleState(
+  Future<void> _sendVerification(AuthIdentity auth) async {
+    final result = await _commands.sendVerificationEmail();
+    if (result is Success<void>) {
+      state = AuthLifecycleState(
         phase: AuthLifecyclePhase.emailUnverified,
         auth: auth,
         notice: 'Verification email sent. Please check your inbox.',
-      ),
-      failure: (error) => state = AuthLifecycleState(
-        phase: AuthLifecyclePhase.verificationEmailFailed,
-        auth: auth,
-        error: error,
-      ),
+      );
+      return;
+    }
+    state = AuthLifecycleState(
+      phase: AuthLifecyclePhase.verificationEmailFailed,
+      auth: auth,
+      error: result.errorOrNull!,
     );
   }
 
@@ -134,14 +108,15 @@ class AuthLifecycleController extends StateNotifier<AuthLifecycleState> {
       phase: AuthLifecyclePhase.reloadingIdentity,
       auth: auth,
     );
-    final result = await _auth.reloadCurrentAuth.reloadCurrentAuth();
-    await result.when(
-      success: handleAuthStateChange,
-      failure: (error) async => state = AuthLifecycleState(
-        phase: AuthLifecyclePhase.emailUnverified,
-        auth: auth,
-        error: error,
-      ),
+    final result = await _query.reloadCurrentAuth();
+    if (result case Success<AuthIdentity>(data: final refreshedAuth)) {
+      await handleAuthStateChange(refreshedAuth);
+      return;
+    }
+    state = AuthLifecycleState(
+      phase: AuthLifecyclePhase.emailUnverified,
+      auth: auth,
+      error: result.errorOrNull!,
     );
   }
 
@@ -151,13 +126,13 @@ class AuthLifecycleController extends StateNotifier<AuthLifecycleState> {
     await _provisionProfile(auth);
   }
 
-  Future<void> _provisionProfile(AppAuth auth) async {
+  Future<void> _provisionProfile(AuthIdentity auth) async {
     final operation = ++_profileOperation;
     state = AuthLifecycleState(
       phase: AuthLifecyclePhase.provisioningProfile,
       auth: auth,
     );
-    final result = await _user.ensureUserProfile.ensureUserProfile(
+    final result = await _userProfileCommands.ensureUserProfile(
       auth.accountId,
       email: auth.email,
     );
@@ -165,17 +140,18 @@ class AuthLifecycleController extends StateNotifier<AuthLifecycleState> {
         state.auth?.accountId != auth.accountId) {
       return;
     }
-    result.when(
-      success: (user) => state = AuthLifecycleState(
+    if (result case Success(data: final user)) {
+      state = AuthLifecycleState(
         phase: AuthLifecyclePhase.ready,
         auth: auth,
         user: user,
-      ),
-      failure: (error) => state = AuthLifecycleState(
-        phase: AuthLifecyclePhase.profileProvisioningFailed,
-        auth: auth,
-        error: error,
-      ),
+      );
+      return;
+    }
+    state = AuthLifecycleState(
+      phase: AuthLifecyclePhase.profileProvisioningFailed,
+      auth: auth,
+      error: result.errorOrNull!,
     );
   }
 
@@ -187,13 +163,14 @@ class AuthLifecycleController extends StateNotifier<AuthLifecycleState> {
       auth: previous.auth,
       user: previous.user,
     );
-    final result = await _auth.signOut.signOut();
-    await result.when(
-      success: (_) => handleAuthStateChange(null),
-      failure: (error) async => state = previous.copyWith(
-        error: error,
-        clearNotice: true,
-      ),
+    final result = await _commands.signOut();
+    if (result is Success<void>) {
+      await handleAuthStateChange(null);
+      return;
+    }
+    state = previous.copyWith(
+      error: result.errorOrNull!,
+      clearNotice: true,
     );
   }
 
@@ -207,9 +184,4 @@ class AuthLifecycleController extends StateNotifier<AuthLifecycleState> {
       clearNotice: true,
     );
   }
-}
-
-final class _NoAuthObserver implements ObserveAuthStatePort {
-  @override
-  Stream<AppAuth?> observeAuthState() => const Stream.empty();
 }

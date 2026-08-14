@@ -2,8 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/app/routing/route_definitions.dart';
 import 'package:my_dic/core/result/route_parse_result.dart';
 import 'package:my_dic/features/quiz/port/route.dart';
-import 'package:my_dic/features/word_detail/port/route.dart';
-import 'package:my_dic/features/catalog/port/catalog.dart';
+import 'package:my_dic/features/word_detail/port/word_detail.dart';
 
 void main() {
   group('WordDetailRoute', () {
@@ -30,7 +29,6 @@ void main() {
           'catalog': 'esp-jpn-main',
           'type': 'espJpn',
         },
-        parseLegacyType: _legacyCatalogId,
       );
 
       expect(result, isA<RouteParseSuccess<WordDetailRoute>>());
@@ -49,7 +47,6 @@ void main() {
         final result = WordDetailRoute.parse(
           pathParameters: const {'wordId': '42'},
           queryParameters: {'type': 'espJpn', 'hasConj': hasConj},
-          parseLegacyType: _legacyCatalogId,
         );
 
         expect(result, isA<RouteParseSuccess<WordDetailRoute>>(),
@@ -66,22 +63,18 @@ void main() {
       final unknownCatalog = WordDetailRoute.parse(
         pathParameters: const {'wordId': '42'},
         queryParameters: const {'catalog': 'unknown'},
-        parseLegacyType: _legacyCatalogId,
       );
       final unsupportedType = WordDetailRoute.parse(
         pathParameters: const {'wordId': '42'},
         queryParameters: const {'type': 'espEng'},
-        parseLegacyType: _legacyCatalogId,
       );
       final conflict = WordDetailRoute.parse(
         pathParameters: const {'wordId': '42'},
         queryParameters: const {'catalog': 'esp-jpn-main', 'type': 'jpnEsp'},
-        parseLegacyType: _legacyCatalogId,
       );
       final missingIdentity = WordDetailRoute.parse(
         pathParameters: const {'wordId': '42'},
         queryParameters: const {},
-        parseLegacyType: _legacyCatalogId,
       );
 
       expect(unknownCatalog, isA<RouteParseFailure<WordDetailRoute>>());
@@ -155,9 +148,3 @@ void main() {
     });
   });
 }
-
-CatalogId? _legacyCatalogId(String type) => switch (type) {
-      'espJpn' => CatalogId.espJpnMain,
-      'jpnEsp' => CatalogId.jpnEspMain,
-      _ => null,
-    };

@@ -2,7 +2,7 @@ import 'model/mutation_lease.dart';
 import 'model/sync_mutation.dart';
 import 'sync_dataset.dart';
 
-abstract interface class ISyncQueue {
+abstract interface class SyncQueue {
   Future<List<MutationLease>> leasePending(
       {required String accountId,
       required SyncDataset dataset,

@@ -1,35 +1,47 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/core/application/query/query_issue.dart';
-import 'package:my_dic/core/shared/errors/domain_errors.dart';
-import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/catalog/port/catalog.dart';
-import 'package:my_dic/features/word_detail/port/query.dart';
+import 'package:my_dic/features/word_detail/port/word_detail.dart';
 
 void main() {
   const word = CatalogWordRef(catalogId: CatalogId.espJpnMain, wordId: 42);
 
   test('WordDetailQuery retains the catalog-owned word identity', () {
-    const query = WordDetailQuery(word: word);
+    final query = WordDetailQuery(word: word);
     expect(query.word, word);
+    expect(query, WordDetailQuery(word: word));
   });
 
-  group('WordDetailViewData', () {
-    test('preserves immutable EspJpn Catalog entries', () {
-      final entry = EspJpnEntry(dictionaryId: 1, word: 'hablar');
-      final data = EspJpnWordDetailViewData(word: word, entries: [entry]);
+  group('WordDetailData', () {
+    test('preserves immutable EspJpn entries', () {
+      final entry = WordDetailEspJpnEntry(
+        dictionaryId: 1,
+        word: 'hablar',
+        headword: WordDetailContent.text('hablar'),
+        content: WordDetailContent.text('話す'),
+      );
+      final entries = [entry];
+      final data = EspJpnWordDetailData(word: word, entries: entries);
+      entries.clear();
 
       expect(data.word, word);
       expect(data.entries.single, same(entry));
       expect(() => data.entries.add(entry), throwsUnsupportedError);
     });
 
-    test('preserves immutable JpnEsp Catalog entries', () {
+    test('preserves immutable JpnEsp entries', () {
       const jpnWord =
           CatalogWordRef(catalogId: CatalogId.jpnEspMain, wordId: 9);
-      final entry = JpnEspEntry(dictionaryId: 1, wordId: 9, word: '日本語');
-      final data = JpnEspWordDetailViewData(word: jpnWord, entries: [entry]);
+      final entry = WordDetailJpnEspEntry(
+        dictionaryId: 1,
+        wordId: 9,
+        word: '日本語',
+        headword: WordDetailContent.text('日本語'),
+        content: WordDetailContent.text('japonés'),
+      );
+      final entries = [entry];
+      final data = JpnEspWordDetailData(word: jpnWord, entries: entries);
+      entries.clear();
 
       expect(data.word, jpnWord);
       expect(data.entries.single, same(entry));
@@ -37,42 +49,57 @@ void main() {
     });
   });
 
-  test('WordDetailQueryResult retains an optional query issue', () {
-    final issue = QueryIssue(
-      source: 'conjugation',
-      error: BusinessRuleError(message: 'conjugation unavailable'),
+  test('WordDetailResult retains immutable typed conjugation issues', () {
+    const error = WordDetailDataUnavailableError(
+      message: 'conjugation unavailable',
     );
-    final viewData = JpnEspWordDetailViewData(word: word, entries: const []);
-    final result = WordDetailQueryResult(viewData: viewData, issue: issue);
+    const issue = WordDetailConjugationIssue(error: error);
+    final data = EspJpnWordDetailData(word: word, entries: const []);
+    final issues = <WordDetailIssue>[issue];
+    final result = WordDetailResult(data: data, issues: issues);
+    issues.clear();
 
-    expect(result.viewData, same(viewData));
-    expect(result.issue, same(issue));
+    expect(result.data, same(data));
+    expect(result.issues.single, same(issue));
+    expect(result.issues.single, isA<WordDetailConjugationIssue>());
+    expect(result.issues.single.error, isA<WordDetailReadError>());
+    expect(() => result.issues.clear(), throwsUnsupportedError);
   });
 
-  test('ILoadWordDetailQuery expresses a typed Result boundary', () async {
-    final result = await _Loader().execute(const WordDetailQuery(word: word));
-    expect(result, isA<Success<WordDetailQueryResult>>());
+  test('WordDetailReaderPort expresses a typed Result boundary', () async {
+    final result = await _Reader().read(WordDetailQuery(word: word));
+    expect(result, isA<Success<WordDetailResult>>());
   });
 
-  test('query models do not import Flutter, Drift, or legacy repositories', () {
-    final directory = Directory('lib/features/word_detail/port');
-    final source = directory
-        .listSync(recursive: true)
-        .whereType<File>()
-        .where((file) => file.path.endsWith('.dart'))
-        .map((file) => file.readAsStringSync())
-        .join('\n');
+  test('business facade contracts remain pure Dart', () {
+    const files = [
+      'lib/features/word_detail/port/word_detail.dart',
+      'lib/features/word_detail/port/word_detail_query.dart',
+      'lib/features/word_detail/port/error/word_detail_read_error.dart',
+      'lib/features/word_detail/port/gateway/word_detail_catalog_gateway.dart',
+      'lib/features/word_detail/port/model/word_detail_conjugation.dart',
+      'lib/features/word_detail/port/model/word_detail_content_block.dart',
+      'lib/features/word_detail/port/model/word_detail_data.dart',
+      'lib/features/word_detail/port/model/word_detail_entry.dart',
+      'lib/features/word_detail/port/model/word_detail_issue.dart',
+      'lib/features/word_detail/port/reader/word_detail_reader_port.dart',
+      'lib/features/word_detail/port/result/word_detail_result.dart',
+    ];
+    final source = files.map((path) => File(path).readAsStringSync()).join();
 
     expect(source, isNot(contains('package:flutter/')));
+    expect(source, isNot(contains('package:flutter_riverpod/')));
     expect(source, isNot(contains('package:drift/')));
-    expect(source, isNot(contains('core/domain/')));
+    expect(source, isNot(contains('features/word_detail/internal/')));
   });
 }
 
-class _Loader implements ILoadWordDetailQuery {
+final class _Reader implements WordDetailReaderPort {
   @override
-  Future<Result<WordDetailQueryResult>> execute(WordDetailQuery query) async =>
-      Result.success(WordDetailQueryResult(
-        viewData: JpnEspWordDetailViewData(word: query.word, entries: const []),
-      ));
+  Future<Result<WordDetailResult>> read(WordDetailQuery query) async =>
+      Result.success(
+        WordDetailResult(
+          data: EspJpnWordDetailData(word: query.word, entries: const []),
+        ),
+      );
 }

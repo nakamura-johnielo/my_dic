@@ -1,6 +1,6 @@
 import 'package:my_dic/features/catalog/internal/domain/example/catalog_example.dart';
 
-class EspJpnSoloExample implements IExample {
+class EspJpnSoloExample implements CatalogExample {
   @override
   final int exampleId;
   final int dictionaryId;

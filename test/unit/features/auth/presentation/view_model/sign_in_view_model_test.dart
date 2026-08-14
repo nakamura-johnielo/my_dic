@@ -2,10 +2,8 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/presentation/state/ui_effect.dart';
-import 'package:my_dic/core/shared/errors/domain_errors.dart';
-import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/auth/internal/application/usecase/auth_usecases.dart';
 import 'package:my_dic/features/auth/internal/presentation/view_model/sign_in_view_model.dart';
+import 'package:my_dic/features/auth/port/auth.dart';
 
 void main() {
   test('reset password succeeds and the notice is consumed once', () async {
@@ -56,7 +54,7 @@ void main() {
   });
 }
 
-class _ResetPasswordUseCase implements IResetEmailPasswordUseCase {
+class _ResetPasswordUseCase implements AuthCommandPort {
   _ResetPasswordUseCase({Result<void>? result, this.deferred = false})
       : _result = result ?? const Result.success(null);
 
@@ -67,11 +65,14 @@ class _ResetPasswordUseCase implements IResetEmailPasswordUseCase {
   String? email;
 
   @override
-  Future<Result<void>> execute(String value) {
+  Future<Result<void>> resetPassword(ResetPasswordCommand command) {
     callCount++;
-    email = value;
+    email = command.email;
     return deferred ? _completer.future : Future.value(_result);
   }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 
   void complete() => _completer.complete(_result);
 }

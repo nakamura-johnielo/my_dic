@@ -3,16 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
-import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/catalog/port/catalog.dart';
-import 'package:my_dic/features/search/port/model/search_direction.dart';
-import 'package:my_dic/features/search/port/model/search_query.dart';
-import 'package:my_dic/features/search/port/model/search_result_item.dart';
-import 'package:my_dic/features/search/port/model/search_result_page.dart';
 import 'package:my_dic/features/search/port/presentation_dependencies.dart';
 import 'package:my_dic/features/search/port/presentation_entry.dart';
-import 'package:my_dic/features/search/port/reader.dart';
+import 'package:my_dic/features/search/port/search.dart';
 
 /// Gate B cross-layer acceptance: public presentation entry + app bridge fake.
 void main() {
@@ -21,7 +15,7 @@ void main() {
       (tester) async {
     final bridge = _CatalogBridgeFake();
     await tester.pumpWidget(ProviderScope(
-      overrides: [searchQueryPortDependencyProvider.overrideWithValue(bridge)],
+      overrides: [searchReaderPortDependencyProvider.overrideWithValue(bridge)],
       child: MaterialApp(
         home: SearchFragment(onOpenWordDetail: (_) {}, onOpenQuiz: (_, __) {}),
       ),
@@ -46,13 +40,12 @@ void main() {
 }
 
 SearchResultPage _page(String word) => SearchResultPage(
+      direction: SearchDirection.espJpn,
       items: [
         SearchResultItem(
-          wordId: 1,
           word:
               const CatalogWordRef(catalogId: CatalogId.espJpnMain, wordId: 1),
           headword: word,
-          direction: SearchDirection.espJpn,
           hasConjugation: false,
           meaningText: word,
           rankingNo: null,
@@ -64,7 +57,7 @@ SearchResultPage _page(String word) => SearchResultPage(
       issues: const [],
     );
 
-final class _CatalogBridgeFake implements SearchQueryPort {
+final class _CatalogBridgeFake implements SearchReaderPort {
   final queries = <SearchQuery>[];
   final _pending = <Completer<Result<SearchResultPage>>>[];
 
@@ -80,6 +73,6 @@ final class _CatalogBridgeFake implements SearchQueryPort {
       _pending.removeAt(index).complete(Result.success(page));
 
   void failAt(int index) => _pending.removeAt(index).complete(
-        Result.failure(DatabaseError(message: 'temporary failure')),
+        const Result.failure(SearchDataUnavailableError()),
       );
 }

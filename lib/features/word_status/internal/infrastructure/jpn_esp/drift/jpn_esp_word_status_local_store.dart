@@ -1,11 +1,46 @@
 import 'package:my_dic/features/word_status/internal/infrastructure/jpn_esp/drift/jpn_esp_word_status_dao.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
+import 'package:my_dic/features/word_status/internal/domain/model/word_status_record.dart';
+import 'package:my_dic/features/word_status/internal/domain/word_status_repository_error.dart';
 
 import 'jpn_esp_word_status_local_data_source.dart';
 
 class JpnEspWordStatusLocalStore implements JpnEspWordStatusLocalDataSource {
   final JpnEspWordStatusDao _dao;
   JpnEspWordStatusLocalStore(this._dao);
+
+  @override
+  Future<WordStatusRecord?> getWordStatusRecordById(
+      int id, String accountId) async {
+    final row = await _dao.getStatusById(id, accountId);
+    return row == null ? null : _toRecord(row);
+  }
+
+  @override
+  Future<List<WordStatusRecord>> getWordStatusRecordsByIds(
+      Iterable<int> ids, String accountId) async =>
+      (await _dao.getStatusesByIds(ids, accountId))
+          .map(_toRecord)
+          .toList(growable: false);
+
+  @override
+  Stream<WordStatusRecord?> watchWordStatusRecordById(
+          int id, String accountId) =>
+      _dao.watchWordStatus(id, accountId).map(
+            (row) => row == null ? null : _toRecord(row),
+          );
+
+  WordStatusRecord _toRecord(JpnEspWordStatusTableData row) {
+    final updatedAt = DateTime.tryParse(row.editAt);
+    if (updatedAt == null) throw const WordStatusRecordCorruptionError();
+    return WordStatusRecord(
+      wordId: row.wordId,
+      isLearned: row.isLearned == 1,
+      isBookmarked: row.isBookmarked == 1,
+      hasNote: row.hasNote == 1,
+      updatedAt: updatedAt.toUtc(),
+    );
+  }
 
   @override
   Future<JpnEspWordStatusTableData?> getWordStatusById(

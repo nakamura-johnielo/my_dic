@@ -3,9 +3,7 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/presentation/state/ui_effect.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
-import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
-import 'package:my_dic/features/user_profile/internal/application/usecase/user_usecases.dart';
 import 'package:my_dic/features/user_profile/port/user_profile.dart';
 import 'package:my_dic/features/user_profile/internal/presentation/view_model/user_profile_view_model.dart';
 
@@ -56,7 +54,7 @@ void main() {
   });
 }
 
-class _UpdateUserUseCase implements IUpdateUserUseCase {
+class _UpdateUserUseCase implements UserProfileCommandPort {
   _UpdateUserUseCase({Result<void>? result, this.deferred = false})
       : _result = result ?? const Result.success(null);
 
@@ -66,7 +64,6 @@ class _UpdateUserUseCase implements IUpdateUserUseCase {
   int callCount = 0;
   AppUser? user;
 
-  @override
   Future<Result<void>> execute(AppUser value, String accountId) {
     callCount++;
     user = value;
@@ -76,6 +73,13 @@ class _UpdateUserUseCase implements IUpdateUserUseCase {
   @override
   Future<Result<void>> updateUser(AppUser user, String accountId) =>
       execute(user, accountId);
+
+  @override
+  Future<Result<AppUser>> ensureUserProfile(
+    String accountId, {
+    String? email,
+  }) async =>
+      Result.success(AppUser(deviceId: 'device', email: email));
 
   void complete() => _completer.complete(_result);
 }

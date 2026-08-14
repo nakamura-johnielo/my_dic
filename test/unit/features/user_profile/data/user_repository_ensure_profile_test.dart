@@ -1,34 +1,34 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:my_dic/features/user_profile/internal/infrastructure/local/i_user_local_data_source.dart';
-import 'package:my_dic/features/user_profile/internal/infrastructure/local/i_user_profile_local_data_source.dart';
-import 'package:my_dic/features/user_profile/internal/infrastructure/firebase/i_user_remote_data_source.dart';
+import 'package:my_dic/features/user_profile/internal/infrastructure/local/user_device_local_data_source.dart';
+import 'package:my_dic/features/user_profile/internal/infrastructure/local/user_profile_local_data_source.dart';
+import 'package:my_dic/features/user_profile/internal/infrastructure/firebase/user_profile_remote_data_source.dart';
+import 'package:my_dic/features/user_profile/internal/infrastructure/firebase/user_profile_remote_dto.dart';
 import 'package:my_dic/features/user_profile/internal/infrastructure/local/local_user_dto.dart';
-import 'package:my_dic/features/user_profile/port/user_dto.dart';
-import 'package:my_dic/features/user_profile/internal/infrastructure/user_profile_provisioner.dart';
+import 'package:my_dic/features/user_profile/internal/infrastructure/user_profile_provisioning_service.dart';
 
-class _MockRemote extends Mock implements IUserRemoteDataSource {}
+class _MockRemote extends Mock implements UserProfileRemoteDataSource {}
 
-class _MockLocal extends Mock implements IUserLocalDataSource {}
+class _MockLocal extends Mock implements UserDeviceLocalDataSource {}
 
 class _MockUserProfileLocal extends Mock
-    implements IUserProfileLocalDataSource {}
+    implements UserProfileLocalDataSource {}
 
 void main() {
   late _MockRemote remote;
   late _MockLocal local;
   late _MockUserProfileLocal profileLocal;
-  late UserProfileProvisioner repository;
+  late UserProfileProvisioningService repository;
 
   setUpAll(() {
-    registerFallbackValue(UserDTO(userId: 'fallback'));
+    registerFallbackValue(UserProfileRemoteDto(userId: 'fallback'));
   });
 
   setUp(() {
     remote = _MockRemote();
     local = _MockLocal();
     profileLocal = _MockUserProfileLocal();
-    repository = UserProfileProvisioner(
+    repository = UserProfileProvisioningService(
       remote,
       local,
       profileLocal,
@@ -37,7 +37,7 @@ void main() {
       (_) async => LocalUserDTO(deviceId: 'device-1'),
     );
     when(() => remote.ensureUser(any())).thenAnswer(
-      (_) async => UserDTO(
+      (_) async => UserProfileRemoteDto(
         userId: 'account-1',
         email: 'person@example.com',
         userName: 'Existing Name',
@@ -64,7 +64,9 @@ void main() {
     expect(second.dataOrNull?.username, 'Existing Name');
 
     final captured =
-        verify(() => remote.ensureUser(captureAny())).captured.cast<UserDTO>();
+        verify(() => remote.ensureUser(captureAny()))
+            .captured
+            .cast<UserProfileRemoteDto>();
     expect(captured, hasLength(2));
     expect(captured.every((dto) => dto.userId == 'account-1'), isTrue);
     verifyNever(() => remote.createUser(any()));

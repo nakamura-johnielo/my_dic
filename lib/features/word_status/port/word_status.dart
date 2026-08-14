@@ -1,33 +1,15 @@
-import 'package:my_dic/features/catalog/port/catalog.dart';
+/// The sole business-facing import for WordStatus.
+library;
 
-/// The status associated with a word in a specific Catalog dataset.
-final class WordStatus {
-  const WordStatus({
-    required this.word,
-    required this.isLearned,
-    required this.isBookmarked,
-    required this.hasNote,
-    required this.updatedAt,
-  });
-
-  final CatalogWordRef word;
-  final bool isLearned;
-  final bool isBookmarked;
-  final bool hasNote;
-  final DateTime updatedAt;
-
-  WordStatus copyWith({
-    CatalogWordRef? word,
-    bool? isLearned,
-    bool? isBookmarked,
-    bool? hasNote,
-    DateTime? updatedAt,
-  }) =>
-      WordStatus(
-        word: word ?? this.word,
-        isLearned: isLearned ?? this.isLearned,
-        isBookmarked: isBookmarked ?? this.isBookmarked,
-        hasNote: hasNote ?? this.hasNote,
-        updatedAt: updatedAt ?? this.updatedAt,
-      );
-}
+export 'package:my_dic/core/shared/utils/result.dart'
+    show Failure, Result, Success;
+export 'package:my_dic/core/shared/value_objects/field_update.dart'
+    show FieldUpdate, SetValue, Unchanged;
+export 'package:my_dic/features/catalog/port/catalog.dart'
+    show CatalogId, CatalogWordRef;
+export 'command.dart';
+export 'error.dart';
+export 'model/word_status.dart';
+export 'model/word_status_scope.dart';
+export 'query.dart';
+export 'result.dart';

@@ -25,4 +25,23 @@ void main() {
     expect(forbiddenImports.hasMatch(source), isFalse);
     expect(source, isNot(contains('SyncDataset')));
   });
+
+  test('legacy public files stay deleted and composition stays SDK-free', () {
+    for (final path in [
+      'lib/features/word_status/port/repository.dart',
+      'lib/features/word_status/port/commands.dart',
+      'lib/features/word_status/port/guest_migration.dart',
+    ]) {
+      expect(File(path).existsSync(), isFalse, reason: path);
+    }
+
+    final composition =
+        File('lib/features/word_status/port/composition.dart').readAsStringSync();
+    expect(composition, isNot(contains('cloud_firestore')));
+    expect(composition, isNot(contains('FirebaseFirestore')));
+    expect(
+      composition,
+      contains('internal/composition/word_status_composition_factory.dart'),
+    );
+  });
 }

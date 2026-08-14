@@ -8,8 +8,8 @@ import 'package:my_dic/features/quiz/port/presentation_entry.dart';
 import 'package:my_dic/features/quiz/port/quiz.dart';
 import 'package:my_dic/features/ranking/port/presentation_entry.dart';
 import 'package:my_dic/features/word_detail/port/presentation_entry.dart';
-import 'package:my_dic/features/word_detail/port/presentation_input.dart';
-import 'package:my_dic/features/word_detail/port/route.dart';
+import 'package:my_dic/features/word_detail/port/word_detail.dart';
+import 'package:my_dic/features/word_status/port/presentation_entry.dart';
 
 final dashboardRoute = GoRoute(
   path: RoutePaths.dashboard,
@@ -40,6 +40,7 @@ final rankingRoute = GoRoute(
 );
 
 Widget _ranking(BuildContext context) => RankingFragment(
+      wordStatusRenderer: (word) => DictionaryStatusButtonsEntry(word: word),
       onOpenWordDetail: (word) => openWordDetail(context,
           routeName: '${RouteNames.ranking}-${RouteNames.wordDetail}',
           word: word),
@@ -120,6 +121,8 @@ GoRoute _flashCardRoute({
               child: QuizGameFragment(
                   input: QuizGamePresentationInput(
                       word: route.word, displayHint: route.displayHint),
+                  wordStatusRenderer: (word) =>
+                      DictionaryStatusButtonsEntry(word: word),
                   onOpenWordDetail: (word) => openWordDetail(context,
                       routeName: wordDetailRouteName, word: word))),
           RouteParseFailure(message: final message) =>
@@ -138,12 +141,13 @@ GoRoute wordDetailRoute(String name,
       pageBuilder: (context, state) {
         final result = WordDetailRoute.parse(
             pathParameters: state.pathParameters,
-            queryParameters: state.uri.queryParameters,
-            parseLegacyType: _catalogIdFromLegacyType);
+            queryParameters: state.uri.queryParameters);
         return switch (result) {
           RouteParseSuccess(value: final route) => MaterialPage(
-              child: WordDetailFragment(
+              child: WordDetailEntry(
                   input: WordDetailPresentationInput(word: route.word),
+                  wordStatusRenderer: (word) =>
+                      DictionaryStatusButtonsEntry(word: word),
                   onOpenQuiz: (word, hint) => openQuizGame(context,
                       routeName: quizGameRouteName,
                       word: word,
@@ -153,9 +157,3 @@ GoRoute wordDetailRoute(String name,
         };
       },
     );
-
-CatalogId? _catalogIdFromLegacyType(String type) => switch (type) {
-      'espJpn' => CatalogId.espJpnMain,
-      'jpnEsp' => CatalogId.jpnEspMain,
-      _ => null,
-    };

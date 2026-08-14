@@ -1,4 +1,4 @@
-import 'dataset_sync_adapter.dart';
+import 'dataset_sync_gateway.dart';
 import 'model/dataset_sync_result.dart';
 import 'model/sync_context.dart';
 
@@ -6,9 +6,9 @@ import 'model/sync_context.dart';
 ///
 /// The implementation owns retry/backoff/classification/guard and all durable
 /// queue and checkpoint flow. Feature adapters receive no policy objects.
-abstract interface class ISyncHandlerRuntime {
+abstract interface class SyncHandlerRuntime {
   Future<DatasetSyncResult> run(
     SyncContext context,
-    IDatasetSyncAdapter adapter,
+    DatasetSyncGateway adapter,
   );
 }

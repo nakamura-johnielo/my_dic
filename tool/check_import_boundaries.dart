@@ -76,7 +76,11 @@ class ImportBoundaryChecker {
       }
     }
     violations.addAll(findFeatureCycles(imports));
-    violations.addAll(semanticViolations(imports, sources));
+    violations.addAll(semanticViolations(
+      imports,
+      sources,
+      strictFacadeFeatures(sources.keys),
+    ));
     return violations.toSet().toList()..sort();
   }
 
@@ -293,7 +297,10 @@ const _frameworkPackages = {
 /// Keeping them here makes the JSON file an auditable list of rule IDs while
 /// avoiding broad allowlists for same-feature and cross-feature directions.
 List<Violation> semanticViolations(
-    List<ImportEntry> imports, Map<String, String> sources) {
+  List<ImportEntry> imports,
+  Map<String, String> sources,
+  Set<String> strictFeatures,
+) {
   final result = <Violation>[];
   final bySource = <String, List<ImportEntry>>{};
   for (final entry in imports) {
@@ -302,6 +309,58 @@ List<Violation> semanticViolations(
     final targetFeature =
         entry.localTarget == null ? null : featureOf(entry.localTarget!);
     final target = entry.localTarget;
+
+    if (targetFeature != null &&
+        strictFeatures.contains(targetFeature) &&
+        sourceFeature != targetFeature) {
+      if (target!.startsWith('lib/features/$targetFeature/internal/')) {
+        result.add(Violation(
+          'feature_external_no_internal',
+          entry.source,
+          entry.target,
+        ));
+      } else if (target.startsWith('lib/features/$targetFeature/port/')) {
+        if (isTechnicalSeam(target)) {
+          if (!isAllowedTechnicalSeamCaller(
+            entry.source,
+            target,
+          )) {
+            result.add(Violation(
+              'feature_technical_seam_only',
+              entry.source,
+              entry.target,
+            ));
+          }
+        } else if (target != featureFacade(targetFeature)) {
+          result.add(Violation(
+            'feature_external_only_facade',
+            entry.source,
+            entry.target,
+          ));
+        }
+
+        if (entry.source.startsWith('lib/integration/') &&
+            target != featureFacade(targetFeature) &&
+            !((isComposition(target) && isIntegrationWiring(entry.source)) ||
+                (isSyncDatasetContract(target) &&
+                    isAllowedSyncDatasetContractCaller(entry.source)))) {
+          result.add(Violation(
+            'integration_feature_only_facade',
+            entry.source,
+            entry.target,
+          ));
+        }
+      }
+    }
+    if (isStrictFeatureIntegration(entry.source, strictFeatures) &&
+        !isIntegrationWiring(entry.source) &&
+        isFrameworkImport(entry.target)) {
+      result.add(Violation(
+        'integration_feature_no_framework',
+        entry.source,
+        entry.target,
+      ));
+    }
 
     if (sourceFeature != null &&
         target != null &&
@@ -313,8 +372,7 @@ List<Violation> semanticViolations(
     }
     if (targetFeature != null &&
         sourceFeature != targetFeature &&
-        !isPortPath(target!) &&
-        !isAllowedQuizBootstrapInfrastructureImport(entry.source, target)) {
+        !isPortPath(target!)) {
       result.add(
           Violation('feature_external_only_port', entry.source, entry.target));
     }
@@ -355,15 +413,9 @@ List<Violation> semanticViolations(
       result.add(Violation(
           'my_word_external_only_facade', entry.source, entry.target));
     }
-    if (entry.source == _myWordComposition &&
-        !isAllowedMyWordCompositionImport(entry)) {
-      result.add(
-          Violation('composition_exact_facade', entry.source, entry.target));
-    }
     if (target != null &&
         isQuizInternal(target) &&
-        sourceFeature != 'quiz' &&
-        !isAllowedQuizBootstrapInfrastructureImport(entry.source, target)) {
+        sourceFeature != 'quiz') {
       result.add(
           Violation('quiz_external_no_internal', entry.source, entry.target));
     }
@@ -423,11 +475,12 @@ List<Violation> semanticViolations(
         sourceFeature == targetFeature &&
         entry.source.contains('/port/')) {
       final isAllowedPresentationBridge =
-          isPresentationEntry(entry.source) && isInternalPresentation(target);
+          isPresentationEntry(entry.source) &&
+              isInternalPresentation(target) &&
+              (!strictFeatures.contains(sourceFeature) ||
+                  isControlledPresentationTarget(target));
       final isAllowedCompositionBridge = isComposition(entry.source) &&
-          (target.contains('/internal/factory/') ||
-              isCatalogCompositionFactoryBridge(entry.source, target) ||
-              isMyWordCompositionFactoryBridge(entry.source, target));
+          isCanonicalCompositionFactoryBridge(entry.source, target);
       if (!isAllowedPresentationBridge && !isAllowedCompositionBridge) {
         result.add(Violation(
             isComposition(entry.source)
@@ -458,7 +511,7 @@ List<Violation> semanticViolations(
           'presentation_entry_exact_facade', entry.source, entry.target));
     }
     if (isFirebaseImport(entry.target) &&
-        !isCanonicalFirebaseImport(entry.source, entry.target)) {
+        !isCanonicalFirebaseImport(entry.source)) {
       result.add(Violation('firebase_canonical_infrastructure_only',
           entry.source, entry.target));
     }
@@ -479,24 +532,12 @@ List<Violation> semanticViolations(
       result.add(Violation('composition_no_provider_types', source,
           'public signature/provider type'));
     }
-    if (source == _myWordComposition &&
+    if (isComposition(source) &&
         RegExp(
-          r'MyWordDep'
-          r'endencyReader|MyWordDep'
-          r'endency|MyWordSyncDep'
-          r'endency|SyncDependencyQueryPort|T\s+Function<T>\s*\(\s*Object|'
-          r'\bas\s+T\b',
+          r'T\s+Function<T>\s*\(\s*(?:Object|dynamic)|\bas\s+T\b',
         ).hasMatch(sources[source]!)) {
       result.add(Violation('composition_no_provider_types', source,
           'opaque dependency resolver'));
-    }
-    if ((source == _myWordComposition || source == _myWordSyncFactory) &&
-        RegExp(
-          r'FirebaseFirestore\s*\.\s*instance|'
-          r'\.\s*(?:collection|doc|runTransaction|batch)\s*\(',
-        ).hasMatch(sources[source]!)) {
-      result.add(Violation('firebase_canonical_infrastructure_only', source,
-          'Firebase API invocation'));
     }
   }
 
@@ -549,25 +590,76 @@ List<Violation> semanticViolations(
 }
 
 bool isPortPath(String path) => path.contains('/port/');
+String featureFacade(String feature) =>
+    'lib/features/$feature/port/$feature.dart';
+Set<String> strictFacadeFeatures(Iterable<String> paths) {
+  final sources = paths.toSet();
+  final features = sources.map(featureOf).whereType<String>().toSet();
+  return features
+      .where((feature) => sources.contains(featureFacade(feature)))
+      .toSet();
+}
+
+bool isTechnicalSeam(String path) =>
+    isComposition(path) ||
+    isPresentationDependencies(path) ||
+    isPresentationEntry(path) ||
+    isSyncDatasetContract(path);
+bool isSyncDatasetContract(String path) =>
+    path == 'lib/features/sync/port/dataset_contract.dart';
+bool isIntegrationWiring(String source) =>
+    source.startsWith('lib/integration/') &&
+    (source.endsWith('_providers.dart') ||
+        source.endsWith('_composition.dart'));
+bool isAllowedTechnicalSeamCaller(
+  String source,
+  String target,
+) {
+  if (isSyncDatasetContract(target)) {
+    return isAllowedSyncDatasetContractCaller(source);
+  }
+  if (isComposition(target)) {
+    return source.startsWith('lib/app/bootstrap/') ||
+        isIntegrationWiring(source);
+  }
+  if (isPresentationDependencies(target)) {
+    return source.startsWith('lib/app/bootstrap/');
+  }
+  return isPresentationEntry(target) && source.startsWith('lib/app/routing/');
+}
+
+/// The Sync dataset SPI is not a second business facade.  It is available only
+/// to dataset-owner assembly/implementation code and the technical runtime
+/// roots which register or execute those completed implementations. An
+/// app/infrastructure external-system executor is also a technical runtime
+/// root; app business and presentation remain outside this boundary.
+bool isAllowedSyncDatasetContractCaller(String source) {
+  if (source.startsWith('lib/app/bootstrap/')) return true;
+  if (source.startsWith('lib/app/infrastructure/')) return true;
+  if (source.startsWith('lib/integration/sync/')) return true;
+  return RegExp(
+    r'^lib/features/[^/]+/(?:port/composition\.dart|internal/(?:composition|infrastructure)/)',
+  ).hasMatch(source);
+}
+
+bool isStrictFeatureIntegration(String source, Set<String> strictFeatures) {
+  final match = RegExp(r'^lib/integration/([^/]+)/').firstMatch(source);
+  if (match == null) return false;
+  final tokens = match.group(1)!.split('_').toSet();
+  return strictFeatures.any(tokens.contains);
+}
+
 const _catalogFacade = 'lib/features/catalog/port/catalog.dart';
 const _catalogComposition = 'lib/features/catalog/port/composition.dart';
-const _catalogPresentationDependencies =
-    'lib/features/catalog/port/presentation_dependencies.dart';
 const _myWordFacade = 'lib/features/my_word/port/my_word.dart';
 const _myWordComposition = 'lib/features/my_word/port/composition.dart';
 const _myWordPresentationEntry =
     'lib/features/my_word/port/presentation_entry.dart';
-const _myWordPortsFactory =
-    'lib/features/my_word/internal/composition/my_word_ports_factory.dart';
-const _myWordSyncFactory =
-    'lib/features/my_word/internal/composition/my_word_sync_factory.dart';
 const _quizFacade = 'lib/features/quiz/port/quiz.dart';
 const _quizComposition = 'lib/features/quiz/port/composition.dart';
 const _quizPresentationDependencies =
     'lib/features/quiz/port/presentation_dependencies.dart';
 const _quizPresentationEntry = 'lib/features/quiz/port/presentation_entry.dart';
-const _catalogCompositionFactory =
-    'lib/features/catalog/internal/composition/catalog_composition_factory.dart';
 bool isCatalogPath(String path) => path.startsWith('lib/features/catalog/');
 bool isCatalogInternal(String path) =>
     path.startsWith('lib/features/catalog/internal/');
@@ -580,52 +672,27 @@ bool isQuizPath(String path) => path.startsWith('lib/features/quiz/');
 bool isQuizInternal(String path) =>
     path.startsWith('lib/features/quiz/internal/');
 bool isQuizPort(String path) => path.startsWith('lib/features/quiz/port/');
-bool isCatalogFrameworkBridge(String source) =>
-    source == _catalogComposition || source == _catalogPresentationDependencies;
-bool isAllowedCatalogBridgeFrameworkImport(String source, String target) =>
-    isCatalogFrameworkBridge(source) &&
-    target.startsWith('package:flutter_riverpod/');
 bool isQuizFrameworkBridge(String source) =>
     source == _quizPresentationDependencies;
 bool isAllowedQuizBridgeFrameworkImport(String source, String target) =>
     isQuizFrameworkBridge(source) &&
     target.startsWith('package:flutter_riverpod/');
 bool isAllowedTechnicalBridgeFrameworkImport(String source, String target) =>
-    isAllowedCatalogBridgeFrameworkImport(source, target) ||
-    isAllowedQuizBridgeFrameworkImport(source, target) ||
-    (source == _myWordComposition &&
-        target == 'package:cloud_firestore/cloud_firestore.dart');
-bool isCatalogCompositionFactoryBridge(String source, String target) =>
-    source == _catalogComposition && target == _catalogCompositionFactory;
-bool isMyWordCompositionFactoryBridge(String source, String target) =>
-    source == _myWordComposition &&
-    (target == _myWordPortsFactory || target == _myWordSyncFactory);
-bool isAllowedMyWordCompositionImport(ImportEntry entry) {
-  if (entry.source != _myWordComposition) return false;
-  if (entry.target == 'package:cloud_firestore/cloud_firestore.dart') {
-    return true;
-  }
-  return const {
-    'lib/core/infrastructure/database/drift/database_provider.dart',
-    _myWordPortsFactory,
-    _myWordSyncFactory,
-    'lib/features/my_word/port/composition_contract.dart',
-    'lib/features/sync/port/dataset_sync_handler.dart',
-    'lib/features/sync/port/outbox_writer.dart',
-    'lib/features/sync/port/remote_mutation_executor.dart',
-    'lib/features/sync/port/sync_handler_runtime.dart',
-  }.contains(entry.localTarget);
+    (isPresentationDependencies(source) &&
+        target.startsWith('package:flutter_riverpod/')) ||
+    isAllowedQuizBridgeFrameworkImport(source, target);
+bool isCanonicalCompositionFactoryBridge(String source, String target) {
+  final feature = featureOf(source);
+  return feature != null &&
+      source == 'lib/features/$feature/port/composition.dart' &&
+      target ==
+          'lib/features/$feature/internal/composition/${feature}_composition_factory.dart';
 }
 
 bool isAllowedCatalogExternalPortImport(String source, String target) {
   if (target == _catalogFacade) return true;
   if (target == _catalogComposition) {
     return source.startsWith('lib/app/bootstrap/');
-  }
-  if (target == _catalogPresentationDependencies) {
-    return source.startsWith('lib/app/bootstrap/') ||
-        RegExp(r'^lib/features/[^/]+/internal/(?:presentation|composition)/')
-            .hasMatch(source);
   }
   return false;
 }
@@ -650,21 +717,20 @@ bool isAllowedQuizExternalPortImport(String source, String target) {
       source.startsWith('lib/app/routing/');
 }
 
-bool isAllowedQuizBootstrapInfrastructureImport(String source, String target) =>
-    source.startsWith('lib/app/bootstrap/') &&
-    target.startsWith('lib/features/quiz/internal/infrastructure/');
-
 bool isBusinessPort(String path) =>
     path.contains('/port/') &&
-    !path.endsWith('/port/presentation_entry.dart') &&
-    !path.endsWith('/port/composition.dart') &&
-    path != _catalogPresentationDependencies &&
-    path != _quizPresentationDependencies;
+    !isPresentationEntry(path) &&
+    !isPresentationDependencies(path) &&
+    !isComposition(path);
 bool isComposition(String path) => path.endsWith('/port/composition.dart');
+bool isPresentationDependencies(String path) =>
+    path.endsWith('/port/presentation_dependencies.dart');
 bool isPresentationEntry(String path) =>
     path.endsWith('/port/presentation_entry.dart');
 bool isInternalPresentation(String path) =>
     path.contains('/internal/') && path.contains('/presentation/');
+bool isControlledPresentationTarget(String path) =>
+    path.contains('/presentation/view/') || path.endsWith('/presentation/view.dart');
 bool isFrameworkImport(String target) =>
     _frameworkPackages.any((package) => target.startsWith('package:$package/'));
 bool isRiverpodImport(String target) =>
@@ -685,13 +751,12 @@ bool isForbiddenPresentationFacadeImport(String target) =>
     target.startsWith('package:drift/') ||
     isFirebaseImport(target) ||
     target.startsWith('package:go_router/');
-bool isCanonicalFirebaseImport(String source, String target) =>
-    ((source == _myWordComposition || source == _myWordSyncFactory) &&
-        target == 'package:cloud_firestore/cloud_firestore.dart') ||
+bool isCanonicalFirebaseImport(String source) =>
     source == 'lib/app/bootstrap/bootstrap.dart' ||
     source == 'lib/app/bootstrap/firebase_options.dart' ||
     source == 'lib/app/bootstrap/firebase_providers.dart' ||
-    source == 'lib/integration/sync/firebase_remote_mutation_executor.dart' ||
+    source.startsWith('lib/app/infrastructure/firebase/') ||
+    source.startsWith('lib/core/infrastructure/firebase/') ||
     RegExp(r'^lib/features/[^/]+/internal/infrastructure/(?:.*/)?firebase/')
         .hasMatch(source);
 

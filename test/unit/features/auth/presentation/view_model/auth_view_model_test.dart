@@ -1,15 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_controller.dart';
-import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_state.dart';
+import 'package:my_dic/integration/session_lifecycle_workflow/auth_lifecycle_controller.dart';
+import 'package:my_dic/integration/session_lifecycle_workflow/auth_lifecycle_state.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
-import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/user_profile/port/user_profile.dart';
-import 'package:my_dic/features/user_profile/internal/application/usecase/user_usecases.dart';
 
 import '../../../../../helpers/fake_auth_usecases.dart';
-import '../../../../../helpers/fake_user_usecases.dart';
+import '../../../../../helpers/fake_user_profile_ports.dart';
 import '../../../../../helpers/test_helpers.dart';
 
 void main() {
@@ -19,7 +17,7 @@ void main() {
         executeResult: Result.success(createTestAuth(isVerified: false)),
       );
       final verify = FakeVerifyEmailInteractor();
-      final ensure = FakeEnsureUserExistsInteractor();
+      final ensure = FakeEnsureUserProfileCommands();
       final fixture = _Fixture(signUp: signUp, verify: verify, ensure: ensure);
 
       await fixture.controller.signUp('new@example.com', 'password123');
@@ -55,7 +53,7 @@ void main() {
     });
 
     test('unverified identity does not provision a profile', () async {
-      final ensure = FakeEnsureUserExistsInteractor();
+      final ensure = FakeEnsureUserProfileCommands();
       final fixture = _Fixture(ensure: ensure);
 
       await fixture.controller.handleAuthStateChange(
@@ -74,7 +72,7 @@ void main() {
       final reload = FakeReloadCurrentAuthInteractor(
         executeResult: Result.success(createTestAuth(isVerified: true)),
       );
-      final ensure = FakeEnsureUserExistsInteractor(
+      final ensure = FakeEnsureUserProfileCommands(
         executeResult: Result.success(
           AppUser(deviceId: 'device-1', email: 'test@example.com'),
         ),
@@ -157,24 +155,28 @@ class _Fixture {
     FakeSignUpInteractor? signUp,
     FakeVerifyEmailInteractor? verify,
     FakeReloadCurrentAuthInteractor? reload,
-    IEnsureUserExistsUseCase? ensure,
+    UserProfileCommandPort? ensure,
   }) {
+    final signUpFake = signUp ?? FakeSignUpInteractor();
+    final verification = verify ?? FakeVerifyEmailInteractor();
+    final reloadFake = reload ?? FakeReloadCurrentAuthInteractor();
     controller = AuthLifecycleController(
-      signIn: FakeSignInInteractor(),
-      signUp: signUp ?? FakeSignUpInteractor(),
-      signOut: FakeSignOutInteractor(),
-      sendVerificationEmail: verify ?? FakeVerifyEmailInteractor(),
-      reloadCurrentAuth: reload ?? FakeReloadCurrentAuthInteractor(),
-      ensureUserExists: ensure ?? FakeEnsureUserExistsInteractor(),
+      query: FakeAuthQueryService(reloadFake),
+      commands: FakeAuthCommandService(
+        signInFake: FakeSignInInteractor(),
+        signUpFake: signUpFake,
+        signOutFake: FakeSignOutInteractor(),
+        verifyFake: verification,
+      ),
+      userProfileCommands: ensure ?? FakeEnsureUserProfileCommands(),
     );
   }
 }
 
-class _RetryableEnsureUser implements IEnsureUserExistsUseCase {
+class _RetryableEnsureUser implements UserProfileCommandPort {
   bool shouldFail = true;
   int callCount = 0;
 
-  @override
   Future<Result<AppUser>> execute(String id, {String? email}) async {
     callCount++;
     if (shouldFail) {
@@ -187,14 +189,17 @@ class _RetryableEnsureUser implements IEnsureUserExistsUseCase {
   Future<Result<AppUser>> ensureUserProfile(String accountId,
           {String? email}) =>
       execute(accountId, email: email);
+
+  @override
+  Future<Result<void>> updateUser(AppUser user, String accountId) async =>
+      const Result.success(null);
 }
 
-class _DeferredEnsureUser implements IEnsureUserExistsUseCase {
+class _DeferredEnsureUser implements UserProfileCommandPort {
   final _completer = Completer<Result<AppUser>>();
 
   void complete(AppUser user) => _completer.complete(Result.success(user));
 
-  @override
   Future<Result<AppUser>> execute(String id, {String? email}) =>
       _completer.future;
 
@@ -202,4 +207,8 @@ class _DeferredEnsureUser implements IEnsureUserExistsUseCase {
   Future<Result<AppUser>> ensureUserProfile(String accountId,
           {String? email}) =>
       execute(accountId, email: email);
+
+  @override
+  Future<Result<void>> updateUser(AppUser user, String accountId) async =>
+      const Result.success(null);
 }

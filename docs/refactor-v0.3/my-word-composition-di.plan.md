@@ -1,5 +1,10 @@
 # MyWord Composition DIリファクタ実装計画
 
+> Implementation status (2026-08-14): completed with the stricter generalized
+> composition rule. `port/composition.dart` is SDK-free, imports only the
+> canonical `my_word_composition_factory.dart` internal bridge, and receives a
+> core nested-account-document gateway instead of `FirebaseFirestore`.
+
 ## 1. 目的
 
 MyWordの通常機能と同期機能に残るopaque dependency resolverを廃止し、Riverpodを

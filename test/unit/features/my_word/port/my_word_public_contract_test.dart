@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:my_dic/core/shared/value_objects/field_update.dart';
 import 'package:my_dic/features/my_word/port/my_word.dart';
 
 void main() {
@@ -28,7 +29,7 @@ void main() {
     test('keeps mutations and queries framework-free data contracts', () {
       const statusUpdate = UpdateMyWordStatusCommand(
         myWordId: 'word-1',
-        isLearned: FieldUpdate.set(true),
+        isLearned: FieldUpdate<bool>.set(true),
         accountScope: 'account-1',
       );
       const page = LoadMyWordsQuery(

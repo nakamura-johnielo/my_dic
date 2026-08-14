@@ -3,7 +3,6 @@ import 'package:my_dic/core/shared/enums/auth/subscription_status.dart';
 import 'package:my_dic/core/presentation/error/app_error_message.dart';
 import 'package:my_dic/core/presentation/state/command_state.dart';
 import 'package:my_dic/core/presentation/state/ui_effect.dart';
-import 'package:my_dic/core/shared/errors/app_error.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/features/user_profile/port/user_profile.dart';
@@ -15,7 +14,7 @@ class UserProfileViewModel extends StateNotifier<UserProfileUIState>
       : super(const UserProfileUIState());
 
   final SessionScopeKey _scope;
-  final UpdateUserProfilePort _updateUser;
+  final UserProfileCommandPort _updateUser;
   int _effectSequence = 0;
 
   SessionScopeKey get scope => _scope;

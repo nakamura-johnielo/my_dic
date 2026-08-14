@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
-import 'package:my_dic/core/shared/errors/app_error.dart';
 import 'package:my_dic/features/user_profile/internal/presentation/view/profile.dart';
 import 'package:my_dic/features/user_profile/port/user_profile.dart';
 
@@ -34,7 +33,7 @@ class UserProfilePresentationPage extends StatelessWidget {
   });
 
   final UserProfilePresentationSession session;
-  final UpdateUserProfilePort updateUserProfile;
+  final UserProfileCommandPort updateUserProfile;
   final VoidCallback onSignOut;
 
   @override

@@ -1,11 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/app/session/app_session.dart';
 import 'package:my_dic/app/session/current_session.dart';
+import 'package:my_dic/app/bootstrap/user_profile_composition.dart';
 import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 import 'package:my_dic/integration/session_lifecycle_workflow/auth_lifecycle_provider.dart';
 import 'package:my_dic/integration/session_lifecycle_workflow/auth_lifecycle_state.dart';
-import 'package:my_dic/features/user_profile/port/composition.dart';
-import 'package:my_dic/integration/session_lifecycle_workflow/user_profile_composition.dart';
 
 /// The single Router/UI-facing session state, derived from
 /// `authLifecycleProvider`. Nothing else should be treated as the entry
@@ -50,7 +49,7 @@ final currentSessionProvider = Provider<CurrentSession>((ref) {
 final _liveUserProfileProvider = StreamProvider.autoDispose.family(
     (ref, String accountId) => ref
         .watch(userProfilePortsProvider)
-        .liveUserProfile
+        .query
         .watchProfile(accountId));
 
 AppSession _toAppSession(AuthLifecycleState state) {

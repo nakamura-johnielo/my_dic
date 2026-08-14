@@ -5,76 +5,88 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/core/session/session_scope_provider.dart';
-import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/ranking/internal/application/usecase/load_rankings/i_load_rankings_use_case.dart';
-import 'package:my_dic/features/ranking/internal/application/usecase/update_ranking_filter/i_update_ranking_filter_use_case.dart';
-import 'package:my_dic/features/ranking/internal/composition/usecase_di.dart';
-import 'package:my_dic/features/ranking/internal/composition/view_model_di.dart';
-import 'package:my_dic/features/ranking/internal/presentation/view/ranking_fragment.dart';
-import 'package:my_dic/features/ranking/port/model/load_rankings_input_data.dart';
-import 'package:my_dic/features/ranking/port/model/ranking_page.dart';
-import 'package:my_dic/features/ranking/port/model/update_ranking_filter_input_data.dart';
-import 'package:my_dic/features/ranking/port/model/update_ranking_filter_output_data.dart';
+import 'package:my_dic/core/shared/consts/account_scope.dart';
+import 'package:my_dic/features/ranking/port/composition_contract.dart';
+import 'package:my_dic/features/ranking/port/presentation_dependencies.dart';
+import 'package:my_dic/features/ranking/port/presentation_entry.dart';
+import 'package:my_dic/features/ranking/port/ranking.dart';
 
-/// Gate B cross-layer coverage: the session key rekeys the entry and a stale
-/// completion from the former entry cannot publish into the new one.
 void main() {
-  testWidgets('new session epoch starts a fresh page zero entry',
+  testWidgets('new session epoch fences the former page completion',
       (tester) async {
-    final loader = _DeferredLoader();
-    const first = SessionScopeKey(accountScope: 'guest', epoch: 1);
-    const second = SessionScopeKey(accountScope: 'account-a', epoch: 2);
-    final session = StateProvider<SessionScopeKey?>((_) => first);
-    final container = ProviderContainer(overrides: [
-      sessionScopeKeyProvider.overrideWith((ref) => ref.watch(session)),
-      loadRankingsUseCaseProvider.overrideWithValue(loader),
-      updateRankingFilterUseCaseProvider.overrideWithValue(const _Updater()),
-    ]);
-    addTearDown(container.dispose);
+    final reader = _DeferredReader();
+    const guest = SessionScopeKey(accountScope: guestAccountScope, epoch: 1);
+    const account = SessionScopeKey(accountScope: 'account-a', epoch: 2);
+    final session = StateProvider<SessionScopeKey?>((_) => guest);
 
-    await tester.pumpWidget(UncontrolledProviderScope(
-      container: container,
-      child: MaterialApp(
-        home: RankingFragment(onOpenWordDetail: (_) {}, onOpenQuiz: (_, __) {}),
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          sessionScopeKeyProvider.overrideWith((ref) => ref.watch(session)),
+          rankingPresentationDependenciesProvider.overrideWithValue(
+            RankingPresentationDependencies(
+              ports: RankingPorts(reader: reader),
+            ),
+          ),
+        ],
+        child: MaterialApp(
+          home: RankingFragment(
+            wordStatusRenderer: (_) => const SizedBox.shrink(),
+            onOpenWordDetail: (_) {},
+            onOpenQuiz: (_, __) {},
+          ),
+        ),
       ),
-    ));
+    );
     await tester.pump();
-    expect(loader.inputs.map((input) => input.accountScope), ['guest']);
+    expect(reader.queries.single.scope, const RankingAccountScope.guest());
 
-    container.read(session.notifier).state = second;
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(RankingFragment)),
+    );
+    container.read(session.notifier).state = account;
     await tester.pump();
-    expect(loader.inputs.map((input) => input.accountScope),
-        ['guest', 'account-a']);
+    expect(reader.queries.last.scope, RankingAccountScope.account('account-a'));
 
-    loader.complete(0);
+    reader.complete(0, _page('stale'));
     await tester.pump();
-    expect(container.read(rankingViewModelProvider(second)).items, isEmpty);
-    loader.complete(0);
+    expect(find.text('stale'), findsNothing);
+    expect(find.byKey(const ValueKey('ranking-card-1')), findsNothing);
+    reader.complete(0, _page('current'));
     await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('ranking-card-2')), findsOneWidget);
+    // The unchanged card UI shows both the ranked form and lemma. This fixture
+    // intentionally gives them the same label, so two Text widgets are valid.
+    expect(find.text('current'), findsNWidgets(2));
   });
 }
 
-class _DeferredLoader implements ILoadRankingsUseCase {
-  final inputs = <LoadRankingsInputData>[];
+RankingPage _page(String label) => RankingPage(items: [
+      RankingItem(
+        id: RankingItemId.fromSerialized(label == 'stale' ? 1 : 2),
+        word: CatalogWordRef(
+          catalogId: CatalogId.espJpnMain,
+          wordId: label == 'stale' ? 1 : 2,
+        ),
+        rank: 1,
+        rankedWord: label,
+        lemma: label,
+        hasConjugation: false,
+      ),
+    ], hasMore: false);
+
+final class _DeferredReader implements RankingPageReaderPort {
+  final queries = <RankingPageQuery>[];
   final _pending = <Completer<Result<RankingPage>>>[];
 
   @override
-  Future<Result<RankingPage>> execute(LoadRankingsInputData input) {
-    inputs.add(input);
+  Future<Result<RankingPage>> readPage(RankingPageQuery query) {
+    queries.add(query);
     final completion = Completer<Result<RankingPage>>();
     _pending.add(completion);
     return completion.future;
   }
 
-  void complete(int index) => _pending.removeAt(index).complete(
-        Result.success(RankingPage(items: const [], hasNext: false)),
-      );
-}
-
-class _Updater implements IUpdateRankingFilterUseCase {
-  const _Updater();
-
-  @override
-  UpdateRankingFilterOutputData execute(UpdateRankingFilterInputData input) =>
-      UpdateRankingFilterOutputData(input.data, input.filterType);
+  void complete(int index, RankingPage page) =>
+      _pending.removeAt(index).complete(Result.success(page));
 }

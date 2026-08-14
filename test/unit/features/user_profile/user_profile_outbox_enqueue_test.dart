@@ -3,16 +3,15 @@ import 'dart:convert';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
-import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/features/sync/internal/infrastructure/persistence/drift/drift_outbox_writer.dart';
 import 'package:my_dic/features/user_profile/internal/infrastructure/local/drift_user_profile_dao.dart';
-import 'package:my_dic/features/user_profile/internal/infrastructure/local/i_user_local_data_source.dart';
+import 'package:my_dic/features/user_profile/internal/infrastructure/local/user_device_local_data_source.dart';
 import 'package:my_dic/features/user_profile/internal/infrastructure/local/user_profile_drift_data_source.dart';
 import 'package:my_dic/features/user_profile/internal/infrastructure/local/local_user_dto.dart';
-import 'package:my_dic/features/user_profile/internal/infrastructure/user_repository.dart';
+import 'package:my_dic/features/user_profile/internal/infrastructure/local_first_user_profile_repository.dart';
 import 'package:my_dic/features/user_profile/port/user_profile.dart';
 
-class _FakeUserLocalDataSource implements IUserLocalDataSource {
+class _FakeUserLocalDataSource implements UserDeviceLocalDataSource {
   LocalUserDTO? _stored = LocalUserDTO(deviceId: 'device-a');
 
   @override
@@ -28,13 +27,13 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late DatabaseProvider database;
-  late UserRepository repository;
+  late LocalFirstUserProfileRepository repository;
 
   setUp(() {
     database = DatabaseProvider.forTesting(NativeDatabase.memory());
     final profileLocal = UserProfileDriftDataSource(UserProfileDao(database));
     final writer = DriftOutboxWriter(database, clock: () => DateTime.utc(2026));
-    repository = UserRepository(
+    repository = LocalFirstUserProfileRepository(
       _FakeUserLocalDataSource(),
       profileLocal,
       writer,

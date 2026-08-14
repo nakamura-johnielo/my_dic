@@ -1,6 +1,6 @@
 import 'package:my_dic/features/catalog/internal/domain/idiom/catalog_idiom.dart';
 
-class SoloIdiom implements IIdiom {
+class SoloIdiom implements CatalogIdiom {
   @override
   final int idiomId;
   @override

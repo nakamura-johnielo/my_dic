@@ -1,9 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/features/quiz/internal/infrastructure/assets/quiz_game_assets.dart';
 import 'package:my_dic/features/quiz/port/error/quiz_game_infrastructure_error.dart';
+import 'package:my_dic/features/quiz/port/model/quiz_conjugation.dart';
 
 void main() {
-  test('reads the established asset paths and preserves their wire keys',
+  test('reads established asset paths and maps wire keys to typed values',
       () async {
     final requested = <String>[];
     final assets = QuizGameAssets(readJson: (path) async {
@@ -18,11 +19,17 @@ void main() {
       'assets/data/es_conjugacion_en_translation.json',
       'assets/data/be_conjugacion.json',
     ]);
-    expect(guide.dataOrNull?['MoodTense.indicativePresent'], '@ #');
     expect(
-        be.dataOrNull?['EnglishMoodTense.indicativePresent']
-            ?['EnglishSubject.I'],
-        'am');
+      guide.dataOrNull?.templateFor(QuizMoodTense.indicativePresent),
+      '@ #',
+    );
+    expect(
+      be.dataOrNull?.form(
+        QuizEnglishMoodTense.indicativePresent,
+        QuizEnglishSubject.i,
+      ),
+      'am',
+    );
   });
 
   test('maps an asset read exception to a Quiz-owned asset error', () async {

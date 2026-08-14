@@ -1,17 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
-import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
-import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/search/port/model/search_direction.dart';
-import 'package:my_dic/features/search/port/model/search_query.dart';
-import 'package:my_dic/features/search/port/model/search_result_item.dart';
-import 'package:my_dic/features/search/port/model/search_result_page.dart';
 import 'package:my_dic/features/catalog/port/catalog.dart';
-import 'package:my_dic/features/search/port/reader.dart';
 import 'package:my_dic/features/search/internal/presentation/view_model/viewmodel.dart';
 import 'package:my_dic/features/search/internal/presentation/ui_model/search_ui_model.dart';
+import 'package:my_dic/features/search/port/search.dart';
 
 void main() {
   group('SearchViewModel pagination', () {
@@ -61,7 +56,7 @@ void main() {
 
     test('retrying an initial failure requests page 0 again', () async {
       search.responses.addAll([
-        Result.failure(DatabaseError(message: 'temporary failure')),
+        const Result.failure(SearchDataUnavailableError()),
         Result.success(_page('recovered', hasNext: false)),
       ]);
 
@@ -120,7 +115,7 @@ void main() {
     test('retries the failed page rather than advancing pagination', () async {
       search.responses.addAll([
         Result.success(_page('first', hasNext: true)),
-        Result.failure(DatabaseError(message: 'temporary failure')),
+        const Result.failure(SearchDataUnavailableError()),
         Result.success(_page('second', hasNext: false, wordId: 2)),
       ]);
 
@@ -152,13 +147,16 @@ void main() {
     test('publishes supplemental issues as warnings with successful data',
         () async {
       search.responses.add(Result.success(SearchResultPage(
+        direction: SearchDirection.espJpn,
         items: _page('first', hasNext: false).items,
         conjugationSuggestions: const [],
         hasNext: false,
         issues: [
-          SearchIssue(
-            source: 'conjugation',
-            error: DatabaseError(message: 'supplement unavailable'),
+          const SearchIssue(
+            source: SearchIssueSource.conjugation,
+            error: SearchEnrichmentUnavailableError(
+              message: 'supplement unavailable',
+            ),
           ),
         ],
       )));
@@ -179,19 +177,44 @@ void main() {
       expect(await load, isFalse);
     });
   });
+
+  test('Search presentation avoids legacy contracts and destination routes',
+      () {
+    final sources = Directory('lib/features/search/internal/presentation')
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((file) => file.path.endsWith('.dart'))
+        .map((file) => file.readAsStringSync())
+        .join('\n');
+
+    final searchPortImports = RegExp(
+      r"features/search/port/([^']+)'",
+    ).allMatches(sources).map((match) => match.group(1));
+    expect(
+      searchPortImports,
+      everyElement(anyOf('search.dart', 'presentation_dependencies.dart')),
+    );
+
+    for (final forbidden in [
+      'features/word_detail/',
+      'features/quiz/',
+      'app/routing/',
+    ]) {
+      expect(sources, isNot(contains(forbidden)), reason: forbidden);
+    }
+  });
 }
 
 SearchResultPage _page(String word, {required bool hasNext, int wordId = 1}) =>
     SearchResultPage(
+      direction: SearchDirection.espJpn,
       items: [
         SearchResultItem(
-          wordId: wordId,
           word: CatalogWordRef(
             catalogId: CatalogId.espJpnMain,
             wordId: wordId,
           ),
           headword: word,
-          direction: SearchDirection.espJpn,
           hasConjugation: false,
           meaningText: null,
           rankingNo: null,
@@ -203,7 +226,7 @@ SearchResultPage _page(String word, {required bool hasNext, int wordId = 1}) =>
       issues: const [],
     );
 
-class _SearchWordUseCaseFake implements SearchQueryPort {
+class _SearchWordUseCaseFake implements SearchReaderPort {
   final queries = <SearchQuery>[];
   final responses = <Result<SearchResultPage>>[];
   final deferred = <Completer<Result<SearchResultPage>>>[];

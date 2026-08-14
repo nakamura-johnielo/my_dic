@@ -1,6 +1,6 @@
 import 'package:my_dic/features/my_word/port/my_word.dart';
-import 'package:my_dic/features/user_profile/port/guest_migration.dart';
-import 'package:my_dic/features/word_status/port/guest_migration.dart';
+import 'package:my_dic/features/user_profile/port/user_profile.dart';
+import 'package:my_dic/features/word_status/port/word_status.dart';
 
 import 'guest_data_summary.dart';
 
@@ -8,14 +8,14 @@ import 'guest_data_summary.dart';
 /// every dataset that supports real per-account scoping.
 class DetectGuestDataUseCase {
   DetectGuestDataUseCase({
-    required IWordStatusGuestMigration wordStatus,
+    required WordStatusGuestMigrationPort wordStatus,
     required MyWordGuestMigrationPort myWord,
     required UserProfileGuestMigrationPort userProfile,
   })  : _wordStatus = wordStatus,
         _myWord = myWord,
         _userProfile = userProfile;
 
-  final IWordStatusGuestMigration _wordStatus;
+  final WordStatusGuestMigrationPort _wordStatus;
   final MyWordGuestMigrationPort _myWord;
   final UserProfileGuestMigrationPort _userProfile;
 

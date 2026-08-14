@@ -4,7 +4,7 @@ import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart
 import 'package:my_dic/features/sync/port/model/sync_mutation.dart';
 import 'package:my_dic/features/sync/port/outbox_writer.dart';
 
-class DriftOutboxWriter implements IOutboxWriter {
+class DriftOutboxWriter implements OutboxWriter {
   DriftOutboxWriter(this._db, {DateTime Function()? clock})
       : _clock = clock ?? DateTime.now;
   final DatabaseProvider _db;

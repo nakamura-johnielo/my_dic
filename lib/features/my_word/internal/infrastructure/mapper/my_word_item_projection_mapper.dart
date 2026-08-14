@@ -1,7 +1,7 @@
 import 'package:my_dic/features/my_word/internal/application/model/my_word_item_projection.dart';
 import 'package:my_dic/features/my_word/internal/domain/entity/my_word.dart';
 import 'package:my_dic/features/my_word/internal/domain/entity/my_word_status.dart';
-import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/drift_my_word_dao.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/data/dao/local/drift_my_word_dao.dart';
 
 /// The canonical conversion from an account-scoped Drift join row to the
 /// read-side model consumed by the public MyWord result mapper.

@@ -86,14 +86,8 @@ void main() {
           directive('features/catalog/port/catalog.dart'));
       await write(root, 'lib/app/bootstrap/catalog.dart',
           directive('features/catalog/port/composition.dart'));
-      await write(root, 'lib/features/quiz/internal/presentation/use.dart',
-          directive('features/catalog/port/presentation_dependencies.dart'));
       await write(root, 'lib/features/catalog/port/composition.dart',
-          "import 'package:flutter_riverpod/flutter_riverpod.dart';");
-      await write(
-          root,
-          'lib/features/catalog/port/presentation_dependencies.dart',
-          "import 'package:flutter_riverpod/flutter_riverpod.dart';");
+          "import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';");
 
       final catalogRules = (await check(root)).where((violation) =>
           violation.ruleId.startsWith('catalog_') ||
@@ -126,7 +120,7 @@ void main() {
       await write(root, 'lib/app/use.dart',
           directive('features/catalog/port/composition.dart'));
       await write(root, 'lib/features/quiz/internal/application/use.dart',
-          directive('features/catalog/port/presentation_dependencies.dart'));
+          directive('features/catalog/port/catalog_word_ref.dart'));
 
       final violations = await check(root);
       expect(
@@ -152,7 +146,8 @@ void main() {
       expectRule(violations, 'catalog_port_framework_only_bridges');
     });
 
-    test('allows only Riverpod in Catalog port bridge files', () async {
+    test('rejects framework imports from Catalog business and composition ports',
+        () async {
       await write(root, 'lib/features/catalog/port/catalog.dart',
           "import 'package:flutter_riverpod/flutter_riverpod.dart';");
       await write(
@@ -160,26 +155,15 @@ void main() {
           'lib/features/catalog/port/composition.dart',
           "import 'package:flutter_riverpod/flutter_riverpod.dart';\n"
               "import 'package:drift/drift.dart';");
-      await write(
-          root,
-          'lib/features/catalog/port/presentation_dependencies.dart',
-          "import 'package:flutter_riverpod/flutter_riverpod.dart';\n"
-              "import 'package:riverpod/riverpod.dart';\n"
-              "import 'package:flutter/widgets.dart';\n"
-              "import 'package:firebase_auth/firebase_auth.dart';");
-
       final violations = (await check(root))
           .where((v) => v.ruleId == 'catalog_port_framework_only_bridges')
           .toList();
-      expect(violations, hasLength(5));
+      expect(violations, hasLength(3));
       expect(
           violations.map((v) => v.target),
           containsAll(<String>[
             'package:flutter_riverpod/flutter_riverpod.dart',
             'package:drift/drift.dart',
-            'package:riverpod/riverpod.dart',
-            'package:flutter/widgets.dart',
-            'package:firebase_auth/firebase_auth.dart',
           ]));
     });
 
@@ -200,8 +184,249 @@ void main() {
       expectRule(violations, 'integration_quiz_no_framework_or_drift');
       expect(
           violations.where((v) =>
+              v.source == 'lib/app/bootstrap/quiz.dart' &&
+              v.target ==
+                  'package:my_dic/features/quiz/internal/infrastructure/assets.dart' &&
+              v.ruleId == 'quiz_external_no_internal'),
+          hasLength(1));
+      expect(
+          violations.where((v) =>
               v.source.endsWith('/good.dart') && v.ruleId.startsWith('quiz_')),
           isEmpty);
+    });
+
+    test('allows the generic Search facade and controlled technical seams',
+        () async {
+      await writeStrictSurface(root, 'search');
+      await write(root, 'lib/app/use.dart',
+          directive('features/search/port/search.dart'));
+      await write(root, 'lib/app/bootstrap/search.dart',
+          "${directive('features/search/port/composition.dart')}\n${directive('features/search/port/presentation_dependencies.dart')}");
+      await write(root, 'lib/app/routing/search.dart',
+          directive('features/search/port/presentation_entry.dart'));
+      await write(root,
+          'lib/integration/catalog_search/catalog_search_providers.dart',
+          directive('features/search/port/composition.dart'));
+
+      final generic = (await check(root)).where((violation) => {
+            'feature_external_no_internal',
+            'feature_external_only_facade',
+            'feature_technical_seam_only',
+            'integration_feature_only_facade',
+            'integration_feature_no_framework',
+            'composition_exact_facade',
+            'presentation_entry_exact_facade',
+            'composition_no_framework',
+            'composition_no_provider_types',
+          }.contains(violation.ruleId));
+      expect(generic, isEmpty);
+    });
+
+    test('enforces Auth facade and controlled technical seam callers',
+        () async {
+      await writeStrictSurface(root, 'auth');
+      await write(root, 'lib/app/use.dart',
+          directive('features/auth/port/auth.dart'));
+      await write(root, 'lib/app/bootstrap/auth.dart',
+          directive('features/auth/port/composition.dart'));
+      await write(root, 'lib/app/routing/auth.dart',
+          directive('features/auth/port/presentation_entry.dart'));
+      await write(root, 'lib/integration/session_lifecycle_workflow/auth.dart',
+          directive('features/auth/port/presentation_entry.dart'));
+      await write(root, 'lib/features/search/internal/bad.dart',
+          directive('features/auth/port/query.dart'));
+
+      final violations = await check(root);
+      expectRule(violations, 'feature_technical_seam_only');
+      expectRule(violations, 'feature_external_only_facade');
+      expect(
+        violations.where((v) =>
+            v.source == 'lib/app/use.dart' ||
+            v.source == 'lib/app/bootstrap/auth.dart' ||
+            v.source == 'lib/app/routing/auth.dart'),
+        isEmpty,
+      );
+    });
+
+    test('allows the UserProfile facade and controlled technical seams',
+        () async {
+      await writeStrictSurface(root, 'user_profile');
+      await write(root, 'lib/app/use.dart',
+          directive('features/user_profile/port/user_profile.dart'));
+      await write(root, 'lib/app/bootstrap/user_profile.dart',
+          directive('features/user_profile/port/composition.dart'));
+      await write(root, 'lib/app/routing/user_profile.dart',
+          directive('features/user_profile/port/presentation_entry.dart'));
+
+      final violations = (await check(root)).where((violation) => {
+            'feature_external_no_internal',
+            'feature_external_only_facade',
+            'feature_technical_seam_only',
+            'composition_exact_facade',
+            'presentation_entry_exact_facade',
+            'composition_no_framework',
+            'composition_no_provider_types',
+          }.contains(violation.ruleId));
+      expect(violations, isEmpty);
+    });
+
+    test('rejects UserProfile internal, wire DTO, seam and resolver leaks',
+        () async {
+      await writeStrictSurface(root, 'user_profile');
+      await write(root, 'lib/app/bad_user_profile_internal.dart',
+          directive('features/user_profile/internal/infrastructure/firebase/user_profile_remote_dto.dart'));
+      await write(root, 'lib/app/bad_user_profile_wire.dart',
+          directive('features/user_profile/port/user_profile_remote_dto.dart'));
+      await write(root, 'lib/app/bad_user_profile_entry.dart',
+          directive('features/user_profile/port/presentation_entry.dart'));
+      await write(root, 'lib/features/user_profile/port/composition.dart',
+          "${directive('features/user_profile/internal/composition/user_profile_composition_factory.dart')}\n${directive('features/user_profile/internal/infrastructure/firebase/user_profile_remote_dto.dart')}\nimport 'package:flutter_riverpod/flutter_riverpod.dart';\ntypedef Reader = T Function<T>(Object value);");
+      await write(root, 'lib/features/user_profile/port/presentation_entry.dart',
+          "export 'package:my_dic/features/user_profile/internal/presentation/provider/provider.dart';");
+
+      final violations = await check(root);
+      for (final rule in [
+        'feature_external_no_internal',
+        'feature_external_only_facade',
+        'feature_technical_seam_only',
+        'composition_exact_facade',
+        'presentation_entry_exact_facade',
+        'composition_no_framework',
+        'composition_no_provider_types',
+      ]) {
+        expectRule(violations, rule);
+      }
+    });
+
+    test('rejects generic Search boundary and composition leaks', () async {
+      await writeStrictSurface(root, 'search');
+      await write(root, 'lib/app/bad_internal.dart',
+          directive('features/search/internal/application/service.dart'));
+      await write(root, 'lib/app/bad_deep.dart',
+          directive('features/search/port/query/search_query.dart'));
+      await write(root, 'lib/app/bad_entry.dart',
+          directive('features/search/port/presentation_entry.dart'));
+      await write(root, 'lib/integration/catalog_search/adapter.dart',
+          "${directive('features/search/port/query/search_query.dart')}\nimport 'package:flutter/widgets.dart';");
+      await write(root, 'lib/features/search/port/composition.dart',
+          "${directive('features/search/internal/composition/search_composition_factory.dart')}\n${directive('features/search/internal/factory/other_factory.dart')}\n${directive('features/search/internal/application/service.dart')}\nimport 'package:flutter_riverpod/flutter_riverpod.dart';\ntypedef Reader = T Function<T>(Object value);");
+      await write(root, 'lib/features/search/port/presentation_entry.dart',
+          "export 'package:my_dic/features/search/internal/presentation/provider/provider.dart';");
+
+      final violations = await check(root);
+      for (final rule in [
+        'feature_external_no_internal',
+        'feature_external_only_facade',
+        'feature_technical_seam_only',
+        'integration_feature_only_facade',
+        'integration_feature_no_framework',
+        'composition_exact_facade',
+        'presentation_entry_exact_facade',
+        'composition_no_framework',
+        'composition_no_provider_types',
+      ]) {
+        expectRule(violations, rule);
+      }
+    });
+
+    test('enforces the generic WordDetail strict surface', () async {
+      await writeStrictSurface(root, 'word_detail');
+      await write(root, 'lib/features/search/internal/good.dart',
+          directive('features/word_detail/port/word_detail.dart'));
+      await write(root, 'lib/features/search/internal/deep.dart',
+          directive('features/word_detail/port/model/detail.dart'));
+      await write(root, 'lib/features/search/internal/internal.dart',
+          directive('features/word_detail/internal/application/service.dart'));
+      await write(root, 'lib/features/search/internal/seam.dart',
+          directive('features/word_detail/port/presentation_dependencies.dart'));
+
+      final violations = await check(root);
+      expectRule(violations, 'feature_external_only_facade');
+      expectRule(violations, 'feature_external_no_internal');
+      expectRule(violations, 'feature_technical_seam_only');
+      expect(
+        violations.where((v) => v.source.endsWith('/good.dart')),
+        isEmpty,
+      );
+    });
+
+    test('discovers a canonical facade without requiring every seam',
+        () async {
+      await write(root, 'lib/features/notes/port/notes.dart', 'library;');
+      await write(root, 'lib/features/notes/port/query.dart', 'class Query {}');
+      await write(root, 'lib/features/notes/port/composition.dart',
+          'Object compose(ProviderListenable provider) => provider;');
+      await write(root, 'lib/app/bad_deep.dart',
+          directive('features/notes/port/query.dart'));
+      await write(root, 'lib/app/bad_seam.dart',
+          directive('features/notes/port/composition.dart'));
+
+      final violations = await check(root);
+      expectRule(violations, 'feature_external_only_facade');
+      expectRule(violations, 'feature_technical_seam_only');
+      expectRule(violations, 'composition_no_provider_types');
+    });
+
+    test('limits the Sync dataset SPI to dataset-owner technical code',
+        () async {
+      await write(root, 'lib/features/sync/port/sync.dart', 'library;');
+      await write(root, 'lib/features/sync/port/dataset_contract.dart',
+          'abstract interface class DatasetSyncGateway {}');
+      await write(root, 'lib/features/my_word/port/composition.dart',
+          directive('features/sync/port/dataset_contract.dart'));
+      await write(root,
+          'lib/features/my_word/internal/infrastructure/sync/service.dart',
+          directive('features/sync/port/dataset_contract.dart'));
+      await write(root, 'lib/app/bootstrap/sync.dart',
+          directive('features/sync/port/dataset_contract.dart'));
+      await write(root,
+          'lib/app/infrastructure/firebase/remote_mutation_executor.dart',
+          directive('features/sync/port/dataset_contract.dart'));
+      await write(root, 'lib/integration/sync/executor.dart',
+          directive('features/sync/port/dataset_contract.dart'));
+      await write(root, 'lib/features/my_word/internal/application/bad.dart',
+          directive('features/sync/port/dataset_contract.dart'));
+      await write(root, 'lib/features/my_word/internal/presentation/bad.dart',
+          directive('features/sync/port/dataset_contract.dart'));
+      await write(root, 'lib/app/bad_business.dart',
+          directive('features/sync/port/dataset_contract.dart'));
+      await write(root, 'lib/app/presentation/bad.dart',
+          directive('features/sync/port/dataset_contract.dart'));
+      await write(root, 'lib/integration/catalog_sync/bad.dart',
+          directive('features/sync/port/dataset_contract.dart'));
+
+      final violations = await check(root);
+      for (final allowed in [
+        'lib/features/my_word/port/composition.dart',
+        'lib/features/my_word/internal/infrastructure/sync/service.dart',
+        'lib/app/bootstrap/sync.dart',
+        'lib/app/infrastructure/firebase/remote_mutation_executor.dart',
+        'lib/integration/sync/executor.dart',
+      ]) {
+        expect(
+          violations.where((v) =>
+              v.source == allowed &&
+              (v.ruleId == 'feature_technical_seam_only' ||
+                  v.ruleId == 'feature_external_only_facade' ||
+                  v.ruleId == 'integration_feature_only_facade')),
+          isEmpty,
+        );
+      }
+      for (final rejected in [
+        'lib/features/my_word/internal/application/bad.dart',
+        'lib/features/my_word/internal/presentation/bad.dart',
+        'lib/app/bad_business.dart',
+        'lib/app/presentation/bad.dart',
+        'lib/integration/catalog_sync/bad.dart',
+      ]) {
+        expect(
+          violations.any((v) =>
+              v.source == rejected &&
+              v.ruleId == 'feature_technical_seam_only'),
+          isTrue,
+          reason: rejected,
+        );
+      }
     });
   });
 }
@@ -214,6 +439,17 @@ Future<void> write(Directory root, String relativePath, String contents) async {
       '${root.path}${Platform.pathSeparator}${relativePath.replaceAll('/', Platform.pathSeparator)}');
   await file.parent.create(recursive: true);
   await file.writeAsString(contents);
+}
+
+Future<void> writeStrictSurface(Directory root, String feature) async {
+  final port = 'lib/features/$feature/port';
+  await write(root, '$port/$feature.dart', 'library;');
+  await write(root, '$port/composition.dart',
+      "import 'package:my_dic/features/$feature/internal/composition/${feature}_composition_factory.dart';");
+  await write(root, '$port/presentation_dependencies.dart',
+      "import 'package:flutter_riverpod/flutter_riverpod.dart';");
+  await write(root, '$port/presentation_entry.dart',
+      "export 'package:my_dic/features/$feature/internal/presentation/view/view.dart';");
 }
 
 String directive(String target) => "import 'package:my_dic/$target';";

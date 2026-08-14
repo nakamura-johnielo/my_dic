@@ -19,7 +19,7 @@ class SyncEngine {
         _clock = clock ?? DateTime.now;
   final DatasetHandlerRegistry _handlers;
   final DatasetPlan datasetPlan;
-  final ISessionFence sessionFence;
+  final SessionFence sessionFence;
   final SingleFlightCoordinator singleFlightCoordinator;
   final DateTime Function() _clock;
 

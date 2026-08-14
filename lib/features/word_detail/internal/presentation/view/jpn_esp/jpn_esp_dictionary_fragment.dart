@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:my_dic/core/presentation/error/app_error_message.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/core/shared/consts/ui/ui2.dart';
-import 'package:my_dic/features/catalog/port/catalog.dart';
-import 'package:my_dic/features/word_detail/internal/presentation/view/html_style_kotobank.dart';
-import 'package:my_dic/features/word_detail/port/word_detail_view_data.dart';
+import 'package:my_dic/features/word_detail/internal/presentation/components/word_detail_content_view.dart';
+import 'package:my_dic/features/word_detail/port/word_detail.dart';
 
 class JpnEspDictionaryFragment extends StatelessWidget {
   const JpnEspDictionaryFragment({super.key, required this.detail});
-  final QueryState<WordDetailViewData> detail;
+  final QueryState<WordDetailData> detail;
 
   @override
   Widget build(BuildContext context) {
     final dictionaries = switch (detail.dataOrNull) {
-      JpnEspWordDetailViewData(entries: final entries) => entries,
+      JpnEspWordDetailData(entries: final entries) => entries,
       _ => null,
     };
     if (dictionaries == null || dictionaries.isEmpty) {
@@ -63,7 +61,7 @@ class JpnEspDictionaryFragment extends StatelessWidget {
 
 class _DictionaryReadState extends StatelessWidget {
   const _DictionaryReadState({required this.state});
-  final QueryState<WordDetailViewData> state;
+  final QueryState<WordDetailData> state;
   @override
   Widget build(BuildContext context) => Center(
         child: switch (state) {
@@ -78,12 +76,10 @@ class _DictionaryReadState extends StatelessWidget {
 
 class DicSection extends StatelessWidget {
   const DicSection({super.key, required this.dictionary});
-  final JpnEspEntry dictionary;
+  final WordDetailJpnEspEntry dictionary;
   @override
   Widget build(BuildContext context) => Column(children: [
-        Html(
-            data: '<p class="hw">${dictionary.headword ?? dictionary.word}</p>',
-            style: htmlStyles),
-        Html(data: dictionary.content ?? '', style: htmlStyles),
+        WordDetailContentView(content: dictionary.headword, isHeadword: true),
+        WordDetailContentView(content: dictionary.content),
       ]);
 }

@@ -1,21 +1,26 @@
 import 'dart:io';
 
+import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/app/bootstrap/catalog_composition.dart';
+import 'package:my_dic/app/bootstrap/quiz_composition.dart';
+import 'package:my_dic/core/di/data/data_di.dart';
+import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/quiz/port/composition.dart';
 import 'package:my_dic/features/quiz/port/presentation_dependencies.dart';
 import 'package:my_dic/features/quiz/port/quiz.dart';
-import 'package:my_dic/features/search/port/model/search_query.dart';
-import 'package:my_dic/features/search/port/model/search_result_page.dart';
-import 'package:my_dic/features/search/port/reader.dart';
-import 'package:my_dic/integration/catalog_quiz/catalog_quiz_providers.dart';
+import 'package:my_dic/features/search/port/search.dart';
 import 'package:my_dic/integration/catalog_search/catalog_search_providers.dart';
 
 void main() {
   test('resolves Catalog readers through the public Catalog composition', () {
-    final container = ProviderContainer();
+    final database = DatabaseProvider.forTesting(NativeDatabase.memory());
+    final container = ProviderContainer(
+      overrides: [databaseProvider.overrideWithValue(database)],
+    );
+    addTearDown(database.close);
     addTearDown(container.dispose);
 
     final first = container.read(catalogReadPortsProvider);
@@ -31,17 +36,18 @@ void main() {
     );
     expect(first.entrySummary, isA<CatalogEntrySummaryQueryPort>());
     expect(first.ranking, isA<CatalogRankingQueryPort>());
-    expect(container.read(catalogQueryPortProvider), same(first.entryDetail));
+    expect(first.rankedEntries, isA<CatalogRankedEntryFeedQueryPort>());
     expect(
-      container.read(conjugationQueryPortProvider),
-      same(first.conjugation),
+      first.semanticEntryDetail,
+      isA<CatalogSemanticEntryDetailQueryPort>(),
     );
   });
 
-  test('wires only Quiz Catalog gateways from public Catalog read ports', () {
+  test('wires both Quiz gateways to the same Catalog completed provider', () {
     final container = ProviderContainer();
     addTearDown(container.dispose);
 
+    final catalog = container.read(catalogReadPortsProvider);
     expect(
       container.read(quizCandidateCatalogGatewayProvider),
       isA<QuizCandidateCatalogGateway>(),
@@ -50,10 +56,14 @@ void main() {
       container.read(quizGameCatalogGatewayProvider),
       isA<QuizGameCatalogGateway>(),
     );
+    expect(container.read(catalogReadPortsProvider), same(catalog));
     final wiring = File(
-      'lib/integration/catalog_quiz/catalog_quiz_providers.dart',
+      'lib/app/bootstrap/quiz_composition.dart',
     ).readAsStringSync();
-    expect(wiring, contains('catalogReadPortsProvider'));
+    expect(
+      RegExp(r'ref\.watch\(catalogReadPortsProvider\)').allMatches(wiring),
+      hasLength(2),
+    );
   });
 
   test('resolves Search reader through the Catalog integration adapter', () {
@@ -61,19 +71,19 @@ void main() {
     addTearDown(container.dispose);
 
     expect(
-      container.read(searchQueryPortProvider),
-      isA<SearchQueryPort>(),
+      container.read(searchReaderPortProvider),
+      isA<SearchReaderPort>(),
     );
   });
 
   test('allows Search reader to be replaced at the composition boundary', () {
-    final repository = _SearchQueryPort();
+    final repository = _SearchReaderPort();
     final container = ProviderContainer(
-      overrides: [searchQueryPortProvider.overrideWithValue(repository)],
+      overrides: [searchReaderPortProvider.overrideWithValue(repository)],
     );
     addTearDown(container.dispose);
 
-    expect(container.read(searchQueryPortProvider), same(repository));
+    expect(container.read(searchReaderPortProvider), same(repository));
   });
 
   test('injects focused Quiz readers from the QuizPorts bundle', () {
@@ -108,7 +118,7 @@ final class _QuizGameReader implements QuizGameQueryPort {
       throw UnimplementedError();
 }
 
-final class _SearchQueryPort implements SearchQueryPort {
+final class _SearchReaderPort implements SearchReaderPort {
   @override
   Future<Result<SearchResultPage>> search(SearchQuery query) async =>
       throw UnimplementedError();

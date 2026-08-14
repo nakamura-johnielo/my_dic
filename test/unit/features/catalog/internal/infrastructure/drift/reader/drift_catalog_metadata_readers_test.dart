@@ -56,7 +56,7 @@ void main() {
       for (var id = 1; id <= 6; id++)
         CatalogWordRef(catalogId: CatalogId.espJpnMain, wordId: id),
     ];
-    final reader = DriftCatalogEntrySummaryReader(database);
+    final reader = DriftCatalogEntrySummaryQueryService(database);
 
     final meanings = (await reader.readMeanings(words)).dataOrNull!;
     final metadata = (await reader.readHeadwordMetadata(words)).dataOrNull!;
@@ -107,9 +107,9 @@ void main() {
       wordId: 2,
     );
 
-    final meanings = await DriftCatalogEntrySummaryReader(database)
+    final meanings = await DriftCatalogEntrySummaryQueryService(database)
         .readMeanings([existing, missing]);
-    final rankings = await DriftCatalogRankingReader(database)
+    final rankings = await DriftCatalogRankingQueryService(database)
         .readRankingMetadata([existing, missing]);
 
     expect(meanings.dataOrNull, isEmpty);
@@ -152,7 +152,7 @@ void main() {
     );
 
     final result =
-        await DriftCatalogEntrySummaryReader(database).readMeanings([word]);
+        await DriftCatalogEntrySummaryQueryService(database).readMeanings([word]);
 
     expect(result.dataOrNull![word]!.meaning, 'preferred meaning');
   });
@@ -202,14 +202,15 @@ void main() {
     );
 
     final result =
-        await DriftCatalogEntrySummaryReader(database).readMeanings([esp, jpn]);
+        await DriftCatalogEntrySummaryQueryService(database)
+            .readMeanings([esp, jpn]);
 
     expect(result.dataOrNull, isEmpty);
   });
 
   test('database error is unavailable and preserves cause and stack', () async {
-    final summaryReader = DriftCatalogEntrySummaryReader(database);
-    final rankingReader = DriftCatalogRankingReader(database);
+    final summaryReader = DriftCatalogEntrySummaryQueryService(database);
+    final rankingReader = DriftCatalogRankingQueryService(database);
     await database.customStatement('DROP TABLE dictionaries');
     await database.customStatement('DROP TABLE rankings');
     const word = CatalogWordRef(

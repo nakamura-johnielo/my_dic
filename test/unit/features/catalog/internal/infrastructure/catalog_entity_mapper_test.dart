@@ -106,10 +106,10 @@ void main() {
   });
 
   test('maps conjugation moods, all subjects, and participles immutably', () {
-    const entity = EspConjugacions(
+    const entity = EspJpnConjugation(
       wordId: 7,
-      conjugacions: {
-        CatalogMoodTense.indicativePresent: TenseConjugacion(
+      conjugations: {
+        CatalogMoodTense.indicativePresent: TenseConjugation(
           yo: 'hablo',
           tu: 'hablas',
           el: 'habla',

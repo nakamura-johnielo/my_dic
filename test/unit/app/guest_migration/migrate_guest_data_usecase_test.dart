@@ -7,15 +7,16 @@ import 'package:my_dic/core/shared/consts/account_scope.dart';
 import 'package:my_dic/features/sync/port/sync_dataset.dart';
 import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/drift_my_word_dao.dart';
 import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/drift_my_word_status_dao.dart';
-import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/my_word_drift_data_source.dart';
-import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/my_word_status_drift_data_source.dart';
-import 'package:my_dic/features/my_word/internal/infrastructure/guest_migration/my_word_guest_migration_adapter.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/data/store/drift_my_word_store.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/data/store/drift_my_word_status_store.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/guest_migration/my_word_guest_migration_service.dart';
 import 'package:my_dic/features/sync/port/model/sync_mutation.dart';
 import 'package:my_dic/features/sync/internal/application/in_memory_session_fence.dart';
 import 'package:my_dic/features/sync/port/outbox_writer.dart';
 import 'package:my_dic/features/user_profile/internal/infrastructure/local/drift_user_profile_dao.dart';
 import 'package:my_dic/features/user_profile/internal/infrastructure/local/user_profile_drift_data_source.dart';
-import 'package:my_dic/features/user_profile/internal/infrastructure/user_profile_guest_migration_adapter.dart';
+import 'package:my_dic/features/user_profile/internal/infrastructure/user_profile_guest_migration_service.dart';
+import 'package:my_dic/features/user_profile/port/composition.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/esp_jpn/drift/esp_jpn_word_status_local_data_source.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/guest_migration/drift_word_status_guest_migration.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/jpn_esp/drift/jpn_esp_word_status_local_data_source.dart';
@@ -35,13 +36,13 @@ void main() {
   test('moves a guest MyWord and merges its status exactly once', () async {
     final database = DatabaseProvider.forTesting(NativeDatabase.memory());
     addTearDown(database.close);
-    final myWord = MyWordDriftDataSource(MyWordDao(database));
-    final myWordStatus = MyWordStatusDriftDataSource(MyWordStatusDao(database));
+    final myWord = DriftMyWordStore(MyWordDao(database));
+    final myWordStatus = DriftMyWordStatusStore(MyWordStatusDao(database));
     final userProfile = UserProfileDriftDataSource(UserProfileDao(database));
-    final userProfilePort = UserProfileGuestMigrationAdapter(userProfile);
     final espJpn = _EspJpnStatus();
     final jpnEsp = _JpnEspStatus();
     final outbox = _OutboxWriter();
+    final userProfilePort = _userProfilePort(userProfile, outbox);
     final fence = InMemorySessionFence()..setCurrent('account-a', 1);
     when(() => espJpn.getWordStatusAfter(any(), any()))
         .thenAnswer((_) async => []);
@@ -72,7 +73,7 @@ void main() {
         jpnEsp: jpnEsp,
         outboxWriter: outbox,
       ),
-      myWord: MyWordGuestMigrationAdapter(myWord, myWordStatus, outbox),
+      myWord: MyWordGuestMigrationService(myWord, myWordStatus, outbox),
       userProfile: userProfilePort,
       outboxWriter: outbox,
       sessionFence: fence,
@@ -100,8 +101,8 @@ void main() {
       () async {
     final database = DatabaseProvider.forTesting(NativeDatabase.memory());
     addTearDown(database.close);
-    final myWord = MyWordDriftDataSource(MyWordDao(database));
-    final myWordStatus = MyWordStatusDriftDataSource(MyWordStatusDao(database));
+    final myWord = DriftMyWordStore(MyWordDao(database));
+    final myWordStatus = DriftMyWordStatusStore(MyWordStatusDao(database));
     final outbox = _OutboxWriter();
     await myWord.insertMyWordWithRevision(
       id: 'guest-word',
@@ -119,7 +120,7 @@ void main() {
       guestAccountScope,
     );
 
-    final counts = await MyWordGuestMigrationAdapter(
+    final counts = await MyWordGuestMigrationService(
       myWord,
       myWordStatus,
       outbox,
@@ -132,8 +133,8 @@ void main() {
   test('preserves a colliding MyWord and its guest status pair', () async {
     final database = DatabaseProvider.forTesting(NativeDatabase.memory());
     addTearDown(database.close);
-    final myWord = MyWordDriftDataSource(MyWordDao(database));
-    final myWordStatus = MyWordStatusDriftDataSource(MyWordStatusDao(database));
+    final myWord = DriftMyWordStore(MyWordDao(database));
+    final myWordStatus = DriftMyWordStatusStore(MyWordStatusDao(database));
     final userProfile = UserProfileDriftDataSource(UserProfileDao(database));
     final espJpn = _EspJpnStatus();
     final jpnEsp = _JpnEspStatus();
@@ -168,8 +169,8 @@ void main() {
         jpnEsp: jpnEsp,
         outboxWriter: outbox,
       ),
-      myWord: MyWordGuestMigrationAdapter(myWord, myWordStatus, outbox),
-      userProfile: UserProfileGuestMigrationAdapter(userProfile),
+      myWord: MyWordGuestMigrationService(myWord, myWordStatus, outbox),
+      userProfile: _userProfilePort(userProfile, outbox),
       outboxWriter: outbox,
       sessionFence: InMemorySessionFence()..setCurrent('account-a', 1),
     ).execute('account-a', 1);
@@ -186,13 +187,13 @@ void main() {
       () async {
     final database = DatabaseProvider.forTesting(NativeDatabase.memory());
     addTearDown(database.close);
-    final myWord = MyWordDriftDataSource(MyWordDao(database));
-    final myWordStatus = MyWordStatusDriftDataSource(MyWordStatusDao(database));
+    final myWord = DriftMyWordStore(MyWordDao(database));
+    final myWordStatus = DriftMyWordStatusStore(MyWordStatusDao(database));
     final userProfile = UserProfileDriftDataSource(UserProfileDao(database));
-    final userProfilePort = UserProfileGuestMigrationAdapter(userProfile);
     final espJpn = _EspJpnStatus();
     final jpnEsp = _JpnEspStatus();
     final outbox = _OutboxWriter();
+    final userProfilePort = _userProfilePort(userProfile, outbox);
     final fence = InMemorySessionFence()..setCurrent('account-a', 1);
     when(() => espJpn.getWordStatusAfter(any(), any()))
         .thenAnswer((_) async => []);
@@ -209,7 +210,7 @@ void main() {
         jpnEsp: jpnEsp,
         outboxWriter: outbox,
       ),
-      myWord: MyWordGuestMigrationAdapter(myWord, myWordStatus, outbox),
+      myWord: MyWordGuestMigrationService(myWord, myWordStatus, outbox),
       userProfile: userProfilePort,
       outboxWriter: outbox,
       sessionFence: fence,
@@ -234,13 +235,13 @@ void main() {
       () async {
     final database = DatabaseProvider.forTesting(NativeDatabase.memory());
     addTearDown(database.close);
-    final myWord = MyWordDriftDataSource(MyWordDao(database));
-    final myWordStatus = MyWordStatusDriftDataSource(MyWordStatusDao(database));
+    final myWord = DriftMyWordStore(MyWordDao(database));
+    final myWordStatus = DriftMyWordStatusStore(MyWordStatusDao(database));
     final userProfile = UserProfileDriftDataSource(UserProfileDao(database));
-    final userProfilePort = UserProfileGuestMigrationAdapter(userProfile);
     final espJpn = _EspJpnStatus();
     final jpnEsp = _JpnEspStatus();
     final outbox = _OutboxWriter();
+    final userProfilePort = _userProfilePort(userProfile, outbox);
     final fence = InMemorySessionFence()..setCurrent('account-a', 1);
     when(() => espJpn.getWordStatusAfter(any(), any()))
         .thenAnswer((_) async => []);
@@ -259,7 +260,7 @@ void main() {
         jpnEsp: jpnEsp,
         outboxWriter: outbox,
       ),
-      myWord: MyWordGuestMigrationAdapter(myWord, myWordStatus, outbox),
+      myWord: MyWordGuestMigrationService(myWord, myWordStatus, outbox),
       userProfile: userProfilePort,
       outboxWriter: outbox,
       sessionFence: fence,
@@ -372,4 +373,21 @@ void main() {
     expect(mutations.first.mutationId, 'migration-1:esp_jpn_word_status:7');
     expect(mutations.last.mutationId, 'migration-1:jpn_esp_word_status:9');
   });
+}
+
+UserProfileGuestMigrationService _userProfilePort(
+  UserProfileDriftDataSource local,
+  OutboxWriter outbox,
+) =>
+    UserProfileGuestMigrationService(
+      local,
+      outbox,
+      const _FixedUserProfileClock(),
+    );
+
+final class _FixedUserProfileClock implements UserProfileClock {
+  const _FixedUserProfileClock();
+
+  @override
+  DateTime now() => DateTime.utc(2026, 8, 7);
 }

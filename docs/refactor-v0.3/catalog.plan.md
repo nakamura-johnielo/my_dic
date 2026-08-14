@@ -1,7 +1,7 @@
-Catalogリファクタの方針と実装計画です。Phase 8 のCatalog facade、外部
-deep-import移行、境界checker、ADRおよび公開surface文書まで実装済みです。
-repository全体の完了条件にはCatalog外の既存違反が残るため、検証状況は
-`remaining-work.md` に記録します。
+Catalogリファクタの方針と実装計画です。Phase 0-8を実装済みです。
+Catalog facade、外部deep-import移行、typed composition、legacy contract削除、
+命名整理、境界checker、ADRおよび公開surface文書を完了しました。repository
+全体の最終検証状況は`remaining-work.md`に記録します。
 
 # 確定した設計
 
@@ -77,32 +77,34 @@ ReaderPort、Query、Result、model、errorはpure Dartを維持します。
 Riverpodは一旦、次の技術的公開ファイルにだけ許可します。
 
 - `port/composition.dart`
-- `port/presentation_dependencies.dart`
+- Catalog presentation seamは不要になったため削除
 
-現在の `T Function<T>(Object)` dependency resolverは今回変更しません。
+opaque dependency resolverは削除し、`CatalogDependencies`でdatabaseを明示します。
 
-# 公開するReaderPort
+# 公開するQueryPort
 
 すべて読み取り専用のapplication Query Serviceとし、`Result<T>`を返します。
 
 ```text
 CatalogReadPorts
-├─ CatalogEntryDetailReaderPort
-├─ CatalogConjugationReaderPort
-├─ CatalogWordSearchReaderPort
-├─ CatalogConjugationSearchReaderPort
-├─ CatalogEntrySummaryReaderPort
-└─ CatalogRankingReaderPort
+├─ CatalogEntryDetailQueryPort
+├─ CatalogConjugationQueryPort
+├─ CatalogWordSearchQueryPort
+├─ CatalogConjugationSearchQueryPort
+├─ CatalogEntrySummaryQueryPort
+├─ CatalogRankingQueryPort
+├─ CatalogRankedEntryFeedQueryPort
+└─ CatalogSemanticEntryDetailQueryPort
 ```
 
-`CatalogEntrySummaryReaderPort` は部分失敗を維持するため、operationを分けます。
+`CatalogEntrySummaryQueryPort` は部分失敗を維持するため、operationを分けます。
 
 ```dart
 readMeanings(...)
 readHeadwordMetadata(...)
 ```
 
-`CatalogRankingReaderPort` も独立させ、語義などの取得失敗と分離します。
+`CatalogRankingQueryPort` も独立させ、語義などの取得失敗と分離します。
 
 ## 主な公開型
 
@@ -260,12 +262,14 @@ Quiz専用Readerは作らず、Quizも汎用Catalog Readerを利用します。
 
 ## Phase 4：Catalog composition切替
 
-[composition_contract.dart](C:/Users/deded/Documents/LocalDev/my_dic/lib/features/catalog/port/composition_contract.dart) を`CatalogReadPorts`中心へ変更します。
+`composition.dart`がtyped dependencyを受け取り、完成済み
+`CatalogReadPorts`を直接返す形へ変更します。legacy fieldだけを保持する
+中間bundleは作りません。
 
-- resolver方式は維持
+- immutableな`CatalogDependencies`を使用
 - 新Readerをbundleへ登録
-- 旧raw Readerも移行期間中だけ併存
-- presentation dependency providerを新しいReader型へ更新
+- legacy Readerは移行期間中だけ併存し、Phase 7で削除
+- app compositionのcompleted Providerを`CatalogReadPorts`へ更新
 - composition testで全Readerが同一scopeから取得されることを確認
 
 ## Phase 5：Search切替
@@ -303,6 +307,7 @@ Quiz専用Readerは作らず、Quizも汎用Catalog Readerを利用します。
 - Search/Quiz側のwire key parser
 - Search/Quiz側のHTML frequency parser
 - 一時的なcompatibility provider／alias
+- `CatalogQueryPort`／`ConjugationQueryPort`と旧composition field
 - 旧test
 
 最終状態にshimは残しません。
@@ -374,3 +379,18 @@ ProviderContainerなしでpure adapterをテストします。
 - full `flutter test`がgreen
 
 この計画ではDB schema、同期protocol、画面仕様は変更しません。意図的な挙動変更は「正確な`hasMore`」「最小`ranking_no`」「SQL安全化」の3点です。
+
+# 後続feature向けCatalog prerequisite
+
+Ranking Phase 2とWordDetail Phase 2のprovider-owned prerequisiteとして、
+既存contractと併存する次のfocused read能力を追加します。
+
+- `CatalogRankingEntryRef`: positiveな`rankings.ranking_id`を包むopaqueな
+  source-row identity。serializationは整数値、lifecycleはCatalog dataset rowと一致する
+- ranked-entry feed: `ranking_no`、entry refの順で決定的に読み、同一wordの複数rowを
+  保持し、`size + 1` look-aheadから`hasMore`を返す
+- semantic entry detail: source HTMLをCatalog internal mapperで階層、role、強調、改行、
+  link、imageを持つtyped content nodeへ変換し、raw HTMLを新contractへ公開しない
+
+この追加はschema、既存ranking row identity、legacy reader、consumer policyを変更しません。
+asset更新で`ranking_id`を振り直す場合はidentity migrationとして別決定を必要とします。

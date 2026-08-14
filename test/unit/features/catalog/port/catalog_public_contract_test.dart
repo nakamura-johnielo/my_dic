@@ -147,6 +147,7 @@ void main() {
     final conjugationSearch = _ConjugationSearchReader();
     final entrySummary = _EntrySummaryReader();
     final ranking = _RankingReader();
+    final prerequisites = _PrerequisiteReaders();
 
     final ports = CatalogReadPorts(
       entryDetail: entryDetail,
@@ -155,6 +156,8 @@ void main() {
       conjugationSearch: conjugationSearch,
       entrySummary: entrySummary,
       ranking: ranking,
+      rankedEntries: prerequisites,
+      semanticEntryDetail: prerequisites,
     );
 
     expect(ports.entryDetail, same(entryDetail));
@@ -163,6 +166,8 @@ void main() {
     expect(ports.conjugationSearch, same(conjugationSearch));
     expect(ports.entrySummary, same(entrySummary));
     expect(ports.ranking, same(ranking));
+    expect(ports.rankedEntries, same(prerequisites));
+    expect(ports.semanticEntryDetail, same(prerequisites));
   });
 }
 
@@ -193,6 +198,14 @@ final class _EntrySummaryReader implements CatalogEntrySummaryQueryPort {
 }
 
 final class _RankingReader implements CatalogRankingQueryPort {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+final class _PrerequisiteReaders
+    implements
+        CatalogRankedEntryFeedQueryPort,
+        CatalogSemanticEntryDetailQueryPort {
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

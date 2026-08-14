@@ -1,4 +1,4 @@
-class TenseConjugacion {
+class TenseConjugation {
   final String yo;
   final String tu;
   final String el;
@@ -6,7 +6,7 @@ class TenseConjugacion {
   final String vosotros;
   final String ellos;
 
-  const TenseConjugacion({
+  const TenseConjugation({
     required this.yo,
     required this.tu,
     required this.el,
@@ -15,7 +15,7 @@ class TenseConjugacion {
     required this.ellos,
   });
 
-  TenseConjugacion copyWith({
+  TenseConjugation copyWith({
     String? yo,
     String? tu,
     String? el,
@@ -23,7 +23,7 @@ class TenseConjugacion {
     String? vosotros,
     String? ellos,
   }) {
-    return TenseConjugacion(
+    return TenseConjugation(
       yo: yo ?? this.yo,
       tu: tu ?? this.tu,
       el: el ?? this.el,

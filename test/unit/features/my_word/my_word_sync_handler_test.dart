@@ -4,12 +4,12 @@ import 'package:mocktail/mocktail.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/features/sync/port/sync_dataset.dart';
 import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/drift_my_word_dao.dart';
-import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/my_word_drift_data_source.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/data/store/drift_my_word_store.dart';
 import 'package:my_dic/features/my_word/internal/infrastructure/my_word/firebase/firebase_my_word_dto.dart';
-import 'package:my_dic/features/my_word/internal/infrastructure/my_word/firebase/i_my_word_remote_data_source.dart';
-import 'package:my_dic/features/my_word/internal/infrastructure/sync/my_word_dataset_sync_adapter.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/my_word/firebase/my_word_remote_gateway.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/sync/my_word_dataset_sync_service.dart';
 import 'package:my_dic/features/sync/internal/application/in_memory_session_fence.dart';
-import 'package:my_dic/features/sync/internal/application/sync_handler_runtime_adapter.dart';
+import 'package:my_dic/features/sync/internal/application/sync_handler_runtime_service.dart';
 import 'package:my_dic/features/sync/port/cancellation_token.dart';
 import 'package:my_dic/features/sync/port/dataset_sync_handler.dart';
 import 'package:my_dic/features/sync/port/model/dataset_sync_result.dart';
@@ -20,7 +20,7 @@ import 'package:my_dic/features/sync/internal/infrastructure/persistence/drift/d
 
 import '../../../helpers/sync/fake_sync_queue.dart';
 
-class _MockRemote extends Mock implements IMyWordRemoteDataSource {}
+class _MockRemote extends Mock implements MyWordRemoteGateway {}
 
 const _accountId = 'account-a';
 
@@ -68,7 +68,7 @@ void main() {
 
   late DatabaseProvider database;
   late MyWordDao dao;
-  late MyWordDriftDataSource local;
+  late DriftMyWordStore local;
   late _MockRemote remote;
   late FakeSyncQueue queue;
   late DatasetSyncHandler handler;
@@ -77,14 +77,14 @@ void main() {
   setUp(() async {
     database = DatabaseProvider.forTesting(NativeDatabase.memory());
     dao = MyWordDao(database);
-    local = MyWordDriftDataSource(dao);
+    local = DriftMyWordStore(dao);
     remote = _MockRemote();
     queue = FakeSyncQueue();
     fence = InMemorySessionFence()..setCurrent(_accountId, 1);
     final checkpointStore = DriftSyncCheckpointStore(database);
-    handler = AdapterDatasetSyncHandler(
-      adapter: MyWordDatasetSyncAdapter(local: local, remote: remote),
-      runtime: SyncHandlerRuntimeAdapter(
+    handler = DatasetSyncService(
+      adapter: MyWordDatasetSyncService(local: local, remote: remote),
+      runtime: SyncHandlerRuntimeService(
           queue: queue,
           checkpoints: checkpointStore,
           sessionFence: fence,

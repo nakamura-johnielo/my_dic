@@ -1,9 +1,9 @@
 import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/features/quiz/port/model/quiz_conjugation.dart';
 
 /// Owner-side seam for the English conjugation table.
 ///
-/// The table's wire keys remain an infrastructure concern; the application
-/// service projects this raw value into the public typed model.
+/// The table's row and fallback mapping remain infrastructure concerns.
 abstract interface class QuizGameEnglishReader {
-  Future<Result<Map<String, String>>> readEnglishConjugation(int wordId);
+  Future<Result<QuizEnglishConjugation>> readEnglishConjugation(int wordId);
 }

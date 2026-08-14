@@ -76,11 +76,11 @@ final class CatalogEntityMapper {
 
   static CatalogConjugation conjugation(
     CatalogWordRef word,
-    EspConjugacions entity,
+    EspJpnConjugation entity,
   ) =>
       CatalogConjugation(
         word: word,
-        conjugations: entity.conjugacions.map(
+        conjugations: entity.conjugations.map(
           (key, value) => MapEntry(key, _tense(value)),
         ),
         participles: CatalogParticiples(
@@ -89,7 +89,7 @@ final class CatalogEntityMapper {
         ),
       );
 
-  static CatalogTenseConjugation _tense(TenseConjugacion value) =>
+  static CatalogTenseConjugation _tense(TenseConjugation value) =>
       CatalogTenseConjugation(forms: {
         CatalogSubject.yo: value.yo,
         CatalogSubject.tu: value.tu,

@@ -3,56 +3,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/custom_floating_button_location.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
-import 'package:my_dic/features/word_status/port/presentation_entry.dart';
 import 'package:my_dic/features/word_detail/internal/presentation/provider/view_model_di.dart';
-import 'package:my_dic/features/word_detail/internal/presentation/ui_model/jpn_esp_state.dart';
 import 'package:my_dic/features/word_detail/internal/presentation/ui_model/word_detail_load_key.dart';
+import 'package:my_dic/features/word_detail/internal/presentation/ui_model/word_detail_state.dart';
 import 'package:my_dic/features/word_detail/internal/presentation/view/esp_jpn/conjugacion_fragment.dart';
 import 'package:my_dic/features/word_detail/internal/presentation/view/esp_jpn/dictionary_fragment.dart';
 import 'package:my_dic/features/word_detail/internal/presentation/view/jpn_esp/jpn_esp_dictionary_fragment.dart';
-import 'package:my_dic/features/word_detail/port/presentation_input.dart';
-import 'package:my_dic/features/word_detail/port/word_detail_view_data.dart';
-import 'package:my_dic/features/catalog/port/catalog.dart';
+import 'package:my_dic/features/word_detail/port/word_detail.dart';
 
-//input data DS
-//TODO QuizCardState enumを使用してしまってる
-class WordDetailFragmentBuilderInput {
-  final int wordId;
+final class _WordDetailLayout {
+  _WordDetailLayout({
+    required Map<String, Widget> tabs,
+    this.floatingButton,
+    this.statusButton,
+  }) : tabs = Map.unmodifiable(tabs);
+
   final Map<String, Widget> tabs;
   final FloatingActionButton? floatingButton;
   final Widget? statusButton;
-  WordDetailFragmentBuilderInput(
-      {required this.wordId,
-      required this.tabs,
-      this.floatingButton,
-      required this.statusButton});
 }
-
-class TabWordDetailInput {
-  final int wordId;
-  final Map<String, Widget> tabs;
-  final FloatingActionButton? floatingButton;
-  final Widget? statusButton;
-  TabWordDetailInput(
-      {required this.wordId,
-      required this.tabs,
-      this.floatingButton,
-      required this.statusButton});
-}
-
-class SingleWordDetailInput {
-  final int wordId;
-  final Widget body;
-  final FloatingActionButton? floatingButton;
-  final Widget? statusButton;
-  SingleWordDetailInput(
-      {required this.wordId,
-      required this.body,
-      this.floatingButton,
-      required this.statusButton});
-}
-
-//========input========================================================
 
 //main fragment
 //wordId,dictionarytype
@@ -61,15 +30,16 @@ class WordDetailFragment extends ConsumerWidget {
     super.key,
     required this.input,
     required this.onOpenQuiz,
+    required this.wordStatusRenderer,
   });
   final WordDetailPresentationInput input;
   final void Function(CatalogWordRef word, String? displayHint) onOpenQuiz;
+  final Widget Function(CatalogWordRef word) wordStatusRenderer;
 
   WordDetailLoadKey get loadKey => WordDetailLoadKey(input.word);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    //TODO ここでデータ取得
     final Map<String, Widget> tabs = {};
     FloatingActionButton? floatingButton;
     Widget? statusButton;
@@ -80,15 +50,15 @@ class WordDetailFragment extends ConsumerWidget {
     // Status mutations are only meaningful for a confirmed, non-empty
     // primary result.  Do not mount their provider for loading, failure,
     // empty, or stale-data renderer states.
-    final viewData =
-        detail is QueryData<WordDetailViewData> ? detail.dataOrNull : null;
-
+    final viewData = detail is QueryData<WordDetailData>
+        ? detail.dataOrNull
+        : null;
     switch (viewData) {
-      case JpnEspWordDetailViewData():
+      case JpnEspWordDetailData():
         tabs['Dictionary'] = JpnEspDictionaryFragment(detail: detail);
-        statusButton = DictionaryStatusButtonsEntry(word: input.word);
-      case EspJpnWordDetailViewData(conjugation: final conjugation):
-        statusButton = DictionaryStatusButtonsEntry(word: input.word);
+        statusButton = wordStatusRenderer(input.word);
+      case EspJpnWordDetailData(conjugation: final conjugation):
+        statusButton = wordStatusRenderer(input.word);
         tabs['Dictionary'] = EspJpnDictionaryFragment(detail: detail);
         if (conjugation != null) {
           tabs['Conjugacion'] = ConjugacionFragment(
@@ -105,10 +75,7 @@ class WordDetailFragment extends ConsumerWidget {
         }
     }
 
-    //TODO 名前とページwidgetつける
-
-    final builderInput = WordDetailFragmentBuilderInput(
-        wordId: input.word.wordId,
+    final builderInput = _WordDetailLayout(
         tabs: tabs,
         floatingButton: floatingButton,
         statusButton: statusButton);
@@ -119,7 +86,7 @@ class WordDetailFragment extends ConsumerWidget {
   FloatingActionButton quizFloatingButton(WordDetailState pageState) {
     final viewData = pageState.detail.dataOrNull;
     final quizWord = switch (viewData) {
-      EspJpnWordDetailViewData(
+      EspJpnWordDetailData(
         entries: final entries,
         conjugation: final conjugation,
       )
@@ -140,32 +107,22 @@ class WordDetailFragment extends ConsumerWidget {
 
 class _WordDetailFragmentBuilder extends StatelessWidget {
   const _WordDetailFragmentBuilder({required this.input});
-  final WordDetailFragmentBuilderInput input;
+  final _WordDetailLayout input;
 
   @override
   Widget build(BuildContext context) {
     //複数画面を持つか判定
     if (input.tabs.length > 1) {
-      final tabInput = TabWordDetailInput(
-          wordId: input.wordId,
-          tabs: input.tabs,
-          floatingButton: input.floatingButton,
-          statusButton: input.statusButton);
-      return _TabWordDetail(input: tabInput);
+      return _TabWordDetail(input: input);
     }
 
-    final singleInput = SingleWordDetailInput(
-        wordId: input.wordId,
-        body: input.tabs.values.first,
-        floatingButton: input.floatingButton,
-        statusButton: input.statusButton);
-    return _SingleWordDetail(input: singleInput);
+    return _SingleWordDetail(input: input);
   }
 }
 
 class _TabWordDetail extends ConsumerStatefulWidget {
   const _TabWordDetail({required this.input});
-  final TabWordDetailInput input;
+  final _WordDetailLayout input;
   @override
   ConsumerState<_TabWordDetail> createState() => _TabWordDetailState();
 }
@@ -252,7 +209,7 @@ class _TabWordDetailState extends ConsumerState<_TabWordDetail>
 
 class _SingleWordDetail extends StatelessWidget {
   const _SingleWordDetail({required this.input});
-  final SingleWordDetailInput input;
+  final _WordDetailLayout input;
 
   @override
   Widget build(BuildContext context) {
@@ -264,7 +221,7 @@ class _SingleWordDetail extends StatelessWidget {
           if (input.statusButton != null) const SizedBox(width: 14),
         ],
       ),
-      body: input.body,
+      body: input.tabs.values.first,
       floatingActionButton: input.floatingButton,
       floatingActionButtonLocation:
           FloatAboveNavBar(UIConsts.bottomBarCompleteHeight),

@@ -2,14 +2,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/catalog/internal/domain/conjugation/conjugation_search_result_item.dart';
 import 'package:my_dic/features/catalog/internal/domain/conjugation/esp_conjugations.dart';
-import 'package:my_dic/features/catalog/internal/domain/conjugation/search_result_conjugations.dart';
 import 'package:my_dic/features/catalog/internal/domain/dictionary_entry/esp_jpn_dictionary.dart';
 import 'package:my_dic/features/catalog/internal/domain/dictionary_entry/jpn_esp_dictionary.dart';
-import 'package:my_dic/features/catalog/internal/domain/repository/conjugation_repository.dart';
-import 'package:my_dic/features/catalog/internal/domain/repository/esp_jpn_dictionary_repository.dart';
-import 'package:my_dic/features/catalog/internal/domain/repository/jpn_esp_dictionary_repository.dart';
+import 'package:my_dic/features/catalog/internal/domain/repository/catalog_conjugation_store.dart';
+import 'package:my_dic/features/catalog/internal/domain/repository/esp_jpn_dictionary_store.dart';
+import 'package:my_dic/features/catalog/internal/domain/repository/jpn_esp_dictionary_store.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/drift_catalog_reader.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/drift_conjugation_reader.dart';
 import 'package:my_dic/features/catalog/port/catalog_id.dart';
@@ -25,15 +23,15 @@ void main() {
     final jpn = _JpnRepository(Result.success(
       const [JpnEspDictionary(id: 2, wordId: 43, word: '話す')],
     ));
-    final reader = DriftCatalogQueryPort(
+    final reader = DriftCatalogEntryDetailQueryService(
       espJpnRepository: esp,
       jpnEspRepository: jpn,
     );
 
-    final espResult = await reader.getEntryDetail(
+    final espResult = await reader.readEntryDetail(
       const CatalogWordRef(catalogId: CatalogId.espJpnMain, wordId: 41),
     );
-    final jpnResult = await reader.getEntryDetail(
+    final jpnResult = await reader.readEntryDetail(
       const CatalogWordRef(catalogId: CatalogId.jpnEspMain, wordId: 43),
     );
 
@@ -50,12 +48,12 @@ void main() {
       message: 'stable repository failure',
       originalError: cause,
     );
-    final reader = DriftCatalogQueryPort(
+    final reader = DriftCatalogEntryDetailQueryService(
       espJpnRepository: _EspRepository(Result.failure(error)),
       jpnEspRepository: _JpnRepository(const Result.success([])),
     );
 
-    final result = await reader.getEntryDetail(
+    final result = await reader.readEntryDetail(
       const CatalogWordRef(catalogId: CatalogId.espJpnMain, wordId: 9),
     );
     expect(result.errorOrNull, same(error));
@@ -66,12 +64,12 @@ void main() {
 
   test('preserves dictionary not-found as the identical error', () async {
     final error = NotFoundError(message: 'stable not-found');
-    final reader = DriftCatalogQueryPort(
+    final reader = DriftCatalogEntryDetailQueryService(
       espJpnRepository: _EspRepository(Result.failure(error)),
       jpnEspRepository: _JpnRepository(const Result.success([])),
     );
 
-    final result = await reader.getEntryDetail(
+    final result = await reader.readEntryDetail(
       const CatalogWordRef(catalogId: CatalogId.espJpnMain, wordId: 10),
     );
     expect(result.errorOrNull, same(error));
@@ -85,19 +83,19 @@ void main() {
       conjugation: Result.failure(error),
       hasConjugation: const Result.success(true),
     );
-    final reader = DriftConjugationQueryPort(repository);
+    final reader = DriftCatalogConjugationQueryService(repository);
     const word = CatalogWordRef(catalogId: CatalogId.espJpnMain, wordId: 58);
 
-    expect((await reader.getConjugation(word)).errorOrNull, same(error));
+    expect((await reader.readConjugation(word)).errorOrNull, same(error));
     expect((await reader.hasConjugation(word)).dataOrNull, isTrue);
     expect(repository.conjugationIds, [58]);
     expect(repository.hasIds, [58]);
 
-    final notFound = DriftConjugationQueryPort(_ConjugationRepository(
+    final notFound = DriftCatalogConjugationQueryService(_ConjugationRepository(
       conjugation: const Result.success(null),
       hasConjugation: const Result.success(false),
     ));
-    expect((await notFound.getConjugation(word)).dataOrNull, isNull);
+    expect((await notFound.readConjugation(word)).dataOrNull, isNull);
   });
 
   test('rejects JpnEsp conjugation with the stable business error', () async {
@@ -105,10 +103,10 @@ void main() {
       conjugation: const Result.success(null),
       hasConjugation: const Result.success(false),
     );
-    final reader = DriftConjugationQueryPort(repository);
+    final reader = DriftCatalogConjugationQueryService(repository);
     const word = CatalogWordRef(catalogId: CatalogId.jpnEspMain, wordId: 64);
 
-    final conjugation = await reader.getConjugation(word);
+    final conjugation = await reader.readConjugation(word);
     final hasConjugation = await reader.hasConjugation(word);
     expect(conjugation.errorOrNull, isA<BusinessRuleError>());
     expect(hasConjugation.errorOrNull, isA<BusinessRuleError>());
@@ -125,7 +123,7 @@ void main() {
   });
 }
 
-final class _EspRepository implements IEsjDictionaryRepository {
+final class _EspRepository implements EspJpnDictionaryStore {
   _EspRepository(this.result);
   final Result<List<EspJpnDictionary>> result;
   final List<int> requestedIds = [];
@@ -137,7 +135,7 @@ final class _EspRepository implements IEsjDictionaryRepository {
   }
 }
 
-final class _JpnRepository implements IJpnEspDictionaryRepository {
+final class _JpnRepository implements JpnEspDictionaryStore {
   _JpnRepository(this.result);
   final Result<List<JpnEspDictionary>> result;
   final List<int> requestedIds = [];
@@ -151,41 +149,26 @@ final class _JpnRepository implements IJpnEspDictionaryRepository {
   }
 }
 
-final class _ConjugationRepository implements IConjugacionsRepository {
+final class _ConjugationRepository implements CatalogConjugationStore {
   _ConjugationRepository({
     required this.conjugation,
     required this.hasConjugation,
   });
-  final Result<EspConjugacions?> conjugation;
+  final Result<EspJpnConjugation?> conjugation;
   final Result<bool> hasConjugation;
   final List<int> conjugationIds = [];
   final List<int> hasIds = [];
 
   @override
-  Future<Result<EspConjugacions?>> getConjugacionByWordId(int id) async {
+  Future<Result<EspJpnConjugation?>> getConjugationByWordId(int id) async {
     conjugationIds.add(id);
     return conjugation;
   }
 
   @override
-  Future<Result<bool>> hasConjByWordId(int wordId) async {
+  Future<Result<bool>> hasConjugationByWordId(int wordId) async {
     hasIds.add(wordId);
     return hasConjugation;
   }
 
-  @override
-  Future<Result<List<SearchResultConjugacions>>> getConjugacionByWordWithPage(
-    String word,
-    int size,
-    int currentPage,
-  ) =>
-      throw UnimplementedError();
-
-  @override
-  Future<Result<List<ConjugacionSearchResultItem>>> searchConjugations(
-    String word,
-    int size,
-    int currentPage,
-  ) =>
-      throw UnimplementedError();
 }

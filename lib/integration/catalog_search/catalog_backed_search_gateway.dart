@@ -1,10 +1,5 @@
-import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/catalog/port/catalog.dart';
-import 'package:my_dic/core/shared/errors/app_error.dart';
-import 'package:my_dic/features/search/port/catalog_gateway.dart';
-import 'package:my_dic/features/search/port/error/search_catalog_gateway_error.dart';
-import 'package:my_dic/features/search/port/model/search_conjugation_match_key.dart';
-import 'package:my_dic/features/search/port/model/search_direction.dart';
+import 'package:my_dic/features/search/port/search.dart';
 
 /// Pure value adapter from Catalog's public readers to Search's required port.
 final class CatalogBackedSearchGateway implements SearchCatalogGateway {
@@ -17,7 +12,7 @@ final class CatalogBackedSearchGateway implements SearchCatalogGateway {
     SearchCatalogQuery query,
   ) =>
       _adapt(
-        'primary',
+        SearchCatalogOperation.primarySearch,
         () => _catalog.wordSearch.searchWords(
           CatalogWordSearchQuery(
             catalogId: _catalogId(query.direction),
@@ -45,7 +40,7 @@ final class CatalogBackedSearchGateway implements SearchCatalogGateway {
     SearchCatalogQuery query,
   ) =>
       _adapt(
-        'conjugation',
+        SearchCatalogOperation.conjugationSearch,
         () => _catalog.conjugationSearch.searchConjugations(
           CatalogConjugationSearchQuery(
             catalogId: _catalogId(query.direction),
@@ -76,7 +71,7 @@ final class CatalogBackedSearchGateway implements SearchCatalogGateway {
     Iterable<CatalogWordRef> words,
   ) =>
       _adapt(
-        'meaning',
+        SearchCatalogOperation.meanings,
         () => _catalog.entrySummary.readMeanings(words),
         (values) => values.map(
           (word, value) => MapEntry(word, SearchMeaningMetadata(value.meaning)),
@@ -84,31 +79,32 @@ final class CatalogBackedSearchGateway implements SearchCatalogGateway {
       );
 
   @override
-  Future<Result<Map<CatalogWordRef, SearchHeadwordMetadata>>>
-      readHeadwordMetadata(Iterable<CatalogWordRef> words) => _adapt(
-            'frequency',
-            () => _catalog.entrySummary.readHeadwordMetadata(words),
-            (values) => values.map(
-              (word, value) => MapEntry(
-                word,
-                SearchHeadwordMetadata(
-                  headword: value.headword,
-                  frequency: value.frequencyLevel.value,
-                ),
-              ),
-            ),
-          );
+  Future<Result<Map<CatalogWordRef, SearchFrequencyMetadata>>> readFrequencies(
+    Iterable<CatalogWordRef> words,
+  ) =>
+      _adapt(
+        SearchCatalogOperation.frequencies,
+        () => _catalog.entrySummary.readHeadwordMetadata(words),
+        (values) => values.map(
+          (word, value) => MapEntry(
+            word,
+            SearchFrequencyMetadata(value.frequencyLevel.value),
+          ),
+        ),
+      );
 
   @override
-  Future<Result<Map<CatalogWordRef, SearchRankingMetadata>>>
-      readRankingMetadata(Iterable<CatalogWordRef> words) => _adapt(
-            'ranking',
-            () => _catalog.ranking.readRankingMetadata(words),
-            (values) => values.map(
-              (word, value) =>
-                  MapEntry(word, SearchRankingMetadata(value.rankingNo)),
-            ),
-          );
+  Future<Result<Map<CatalogWordRef, SearchRankingMetadata>>> readRankings(
+    Iterable<CatalogWordRef> words,
+  ) =>
+      _adapt(
+        SearchCatalogOperation.rankings,
+        () => _catalog.ranking.readRankingMetadata(words),
+        (values) => values.map(
+          (word, value) =>
+              MapEntry(word, SearchRankingMetadata(value.rankingNo)),
+        ),
+      );
 }
 
 CatalogId _catalogId(SearchDirection direction) => switch (direction) {
@@ -117,28 +113,54 @@ CatalogId _catalogId(SearchDirection direction) => switch (direction) {
     };
 
 SearchConjugationMatchKey _matchKey(CatalogConjugationMatch match) {
-  final mood = SearchMoodTense.values[match.moodTense.index];
-  final subject = match.subject == null
-      ? SearchSubject.yo
-      : SearchSubject.values[match.subject!.index];
+  final mood = switch (match.moodTense) {
+    CatalogMoodTense.participlePresent => SearchMoodTense.participlePresent,
+    CatalogMoodTense.participlePast => SearchMoodTense.participlePast,
+    CatalogMoodTense.indicativePresent => SearchMoodTense.indicativePresent,
+    CatalogMoodTense.indicativePreterite => SearchMoodTense.indicativePreterite,
+    CatalogMoodTense.indicativeImperfect => SearchMoodTense.indicativeImperfect,
+    CatalogMoodTense.indicativeFuture => SearchMoodTense.indicativeFuture,
+    CatalogMoodTense.indicativeConditional =>
+      SearchMoodTense.indicativeConditional,
+    CatalogMoodTense.imperative => SearchMoodTense.imperative,
+    CatalogMoodTense.subjunctivePresent => SearchMoodTense.subjunctivePresent,
+    CatalogMoodTense.subjunctivePast => SearchMoodTense.subjunctivePast,
+  };
+  final subject = switch (match.subject) {
+    null => SearchSubject.yo,
+    CatalogSubject.yo => SearchSubject.yo,
+    CatalogSubject.tu => SearchSubject.tu,
+    CatalogSubject.el => SearchSubject.el,
+    CatalogSubject.nosotros => SearchSubject.nosotros,
+    CatalogSubject.vosotros => SearchSubject.vosotros,
+    CatalogSubject.ellos => SearchSubject.ellos,
+  };
   return SearchConjugationMatchKey.values.firstWhere(
     (key) => key.moodTense == mood && key.subject == subject,
   );
 }
 
 Future<Result<Target>> _adapt<Source, Target>(
-  String operation,
+  SearchCatalogOperation operation,
   Future<Result<Source>> Function() read,
   Target Function(Source) convert,
 ) async {
   try {
     final result = await read();
-    return result.when(
-      success: (value) => Result.success(convert(value)),
-      failure: (error) => Result.failure(_gatewayError(operation, error)),
+    if (result case Success<Source>(data: final value)) {
+      return Result<Target>.success(convert(value));
+    }
+    final error = result.errorOrNull!;
+    return Result<Target>.failure(
+      SearchCatalogGatewayError(
+        operation: operation,
+        message: error.message,
+        originalError: error.originalError ?? error,
+        stackTrace: error.stackTrace,
+      ),
     );
   } catch (error, stackTrace) {
-    return Result.failure(
+    return Result<Target>.failure(
       SearchCatalogGatewayError(
         operation: operation,
         message: 'Unable to read Search catalog data.',
@@ -148,11 +170,3 @@ Future<Result<Target>> _adapt<Source, Target>(
     );
   }
 }
-
-SearchCatalogGatewayError _gatewayError(String operation, AppError error) =>
-    SearchCatalogGatewayError(
-      operation: operation,
-      message: error.message,
-      originalError: error.originalError ?? error,
-      stackTrace: error.stackTrace,
-    );

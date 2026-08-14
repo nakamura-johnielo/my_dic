@@ -66,14 +66,15 @@ feature直下は原則として`port`と`internal`に分ける。
 lib/features/<feature>/
 ├─ port/
 │  ├─ <feature>.dart
-│  ├─ reader/
-│  ├─ command/
-│  ├─ query/
-│  ├─ result/
+│  ├─ command.dart
+│  ├─ query.dart
+│  ├─ result.dart
 │  ├─ model/
-│  ├─ error/
+│  ├─ error.dart
 │  ├─ composition.dart
-│  └─ presentation_dependencies.dart
+│  ├─ composition_contract.dart
+│  ├─ presentation_dependencies.dart
+│  └─ presentation_entry.dart
 └─ internal/
    ├─ application/
    ├─ domain/
@@ -82,7 +83,16 @@ lib/features/<feature>/
    └─ composition/
 ```
 
-すべてのdirectoryを機械的に作る必要はない。必要な責務だけを作る。ただし、外部へ公開するcontractと内部実装の境界は曖昧にしない。
+`command.dart`にはCommand DTOとCommandPort、`query.dart`にはQuery DTOとQueryPortを置く。
+`result.dart`にはQueryまたはCommandが直接返す操作固有の返却型を置く。複数の操作から
+参照されるidentity、value object、その他の安定した公開modelは`model/`に置く。
+
+`Result<T>`のようにfeature横断で利用する成功・失敗wrapperは各featureへ複製せず、coreが
+所有する。プリミティブや`void`で十分なoperationのために、返却型を機械的に作ってはならない。
+
+小規模なfeatureでは`command.dart`、`query.dart`、`result.dart`を単一fileとして保つ。型が増えて
+可読性が下がった場合に限り、同名directoryへ分割してよい。すべてのfileやdirectoryを機械的に
+作る必要はない。ただし、外部へ公開するcontractと内部実装の境界は曖昧にしない。
 
 ## 5. 公開surface
 
@@ -94,9 +104,16 @@ feature外のbusiness codeは、原則として次のfacadeだけをimportする
 import 'package:my_dic/features/<feature>/port/<feature>.dart';
 ```
 
-facadeは外部利用を意図した型だけを明示的にre-exportする。公開value object、identity、
-Query、Command、Result、Event、ReaderPort、Gateway、errorは、外部利用前にfacadeへ
-追加しなければならない。
+facadeは`command.dart`、`query.dart`、`result.dart`、公開対象の`model/**`を明示的に
+re-exportする。公開value object、identity、Query、Command、Result、Event、QueryPort、
+CommandPort、Gateway、errorは、外部利用前にfacadeへ追加しなければならない。
+
+```dart
+export 'command.dart';
+export 'query.dart';
+export 'result.dart';
+export 'model/<public_model>.dart';
+```
 
 次は禁止する。
 
@@ -115,7 +132,7 @@ RiverpodやFlutterを使う既存featureでは、必要に応じて次をbusines
 - `port/presentation_entry.dart`: 制御されたFlutter entry専用
 
 これらはbusiness APIではない。利用場所をcheckerで限定し、business facadeから
-re-exportしない。ReaderPort、Query、Command、Result、model、errorはSHOULDとして
+re-exportしない。QueryPort、CommandPort、Query、Command、Result、model、errorはSHOULDとして
 pure Dartを維持する。
 
 framework-free compositionへの移行は望ましいが、既存runtimeとの接続を理由にscopeが
@@ -131,10 +148,10 @@ consumer名や画面名をcontractへ含めてはならない。
 
 ```dart
 // Good: providerの能力
-abstract interface class ArticleSummaryReaderPort {}
+abstract interface class ArticleSummaryQueryPort {}
 
 // Bad: consumerのuse caseをproviderが所有している
-abstract interface class QuizArticleCandidateReaderPort {}
+abstract interface class QuizArticleCandidateQueryPort {}
 ```
 
 providerがconsumerの型をimportしていなくても、consumer固有名、consumer固有paging、
@@ -173,23 +190,23 @@ operationを分ける。
 まとめてよい。
 
 ```dart
-final class FeatureReadPorts {
-  const FeatureReadPorts({
+final class FeaturePorts {
+  const FeaturePorts({
     required this.detail,
     required this.search,
     required this.summary,
   });
 
-  final DetailReaderPort detail;
-  final SearchReaderPort search;
-  final SummaryReaderPort summary;
+  final DetailQueryPort detail;
+  final SearchQueryPort search;
+  final SummaryQueryPort summary;
 }
 ```
 
-### 6.4 ReaderPortはread-only Query Serviceとする
+### 6.4 QueryPortとCommandPortを分離する
 
-`ReaderPort`はrepositoryの公開aliasではなく、外部consumer向けのread-only application
-Query Serviceとする。
+`QueryPort`はrepositoryの公開aliasではなく、外部consumer向けのread-only application
+Query Serviceを表す契約とする。
 
 - 入力はowner featureのQuery DTO
 - 出力はowner featureのResult DTO
@@ -198,7 +215,11 @@ Query Serviceとする。
 - infrastructure例外を直接投げない
 - ownerが保証する検索・集約semanticsだけを持つ
 
-write use caseは`CommandPort`等として明示的に分離する。公開repositoryは、その抽象が
+write use caseは`CommandPort`として明示的に分離する。QueryPortとCommandPortの実装命名は
+`<能力>QueryService`、`<能力>CommandService`とする。複数Portを一つのFacadeが実装する場合は
+`<Feature>ApplicationService`とする。実装クラス名に`Port`を使用しない。
+
+公開repositoryは、その抽象が
 本当に外部contractである場合を除きSHOULD NOTとする。
 
 ## 7. Result、validation、error
@@ -305,7 +326,7 @@ appからfeature internalを直接importしてはならない。feature internal
 ならない。
 
 既存のopaque dependency resolverを使う場合は、composition factoryに閉じ込め、domain、
-application service、ReaderPort実装へ渡さない。resolverの改善はfeature移行とは別phaseに
+application service、QueryPort実装へ渡さない。resolverの改善はfeature移行とは別phaseに
 してよいが、service locatorを業務コードへ拡散させない。
 
 ## 11. Paging、部分失敗、複数source
@@ -364,7 +385,7 @@ Flutter entryを公開する場合は`port/presentation_entry.dart`へ限定し�
 
 ### Internal contract test
 
-- in-memory DBによるReaderPort contract
+- in-memory DBによるQueryPort／CommandPort contract
 - mapperと複数sourceの優先順位
 - bind parameterと特殊文字
 - infrastructure errorの正規化
@@ -459,18 +480,16 @@ baselineは新しい違反を正当化する仕組みとして使わない。既
 - [ ] 最終状態にlegacy shimが残っていない
 - [ ] checker、manifest、ADRが実装と一致している
 
-## 18. Catalogへの適用例
+## 18. MyWordへの適用例
 
-Catalogはこの規則の基準実装である。
+MyWordのbusiness facadeは、Portとその入出力を次のように公開する。
 
-- sole facade: `features/catalog/port/catalog.dart`
-- provided ports: focused read-only Query Services
-- shared identity: `CatalogWordRef`
-- consumer required ports: `SearchCatalogGateway`、`QuizCatalogGateway`
-- adapters: `lib/integration/catalog_search`、`lib/integration/catalog_quiz`
-- provider infrastructure: `features/catalog/internal/infrastructure/drift`
-- Catalog-owned facts: 語義、活用、frequency、ranking metadata
-- consumer-owned policy: Search/Quizのpaging表示、warning、候補選定
+- sole facade: `features/my_word/port/my_word.dart`
+- `query.dart`: `MyWordQueryPort`と`LoadMyWordsQuery`等のQuery DTO
+- `command.dart`: `MyWordCommandPort`、`MyWordStatusCommandPort`とCommand DTO
+- `result.dart`: QueryまたはCommandが返すMyWord公開snapshot／projection
+- `model/`: 複数operationから利用する安定した公開modelが生じた場合に追加
+- technical seams: `composition.dart`、`composition_contract.dart`、`presentation_entry.dart`
 
-Catalog固有の詳細は[ADR 0002](./decisions/0002-catalog-read-ownership.md)と
-[Catalog public surface](../refactor-v0.3/public-surface.md)を参照する。
+`my_word.dart`は`command.dart`、`query.dart`、`result.dart`および公開対象の`model/**`だけを
+business APIとしてre-exportする。technical seamはre-exportしない。

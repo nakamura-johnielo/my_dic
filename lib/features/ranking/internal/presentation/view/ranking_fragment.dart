@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/custom_floating_button_location.dart';
 import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/features/ranking/internal/presentation/view/ranking_filter_modal.dart';
-import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/ranking/internal/presentation/provider/effect_provider.dart';
 import 'package:my_dic/features/ranking/internal/presentation/view/ranking_card.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
@@ -14,16 +13,19 @@ import 'package:my_dic/core/presentation/error/app_error_message.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/features/ranking/internal/presentation/ui_model/ranking_ui_model.dart';
 import 'package:my_dic/core/session/session_scope_provider.dart';
+import 'package:my_dic/features/ranking/port/ranking.dart';
 
 class RankingFragment extends ConsumerStatefulWidget {
   const RankingFragment({
     super.key,
     required this.onOpenWordDetail,
     required this.onOpenQuiz,
+    required this.wordStatusRenderer,
   });
 
   final ValueChanged<CatalogWordRef> onOpenWordDetail;
   final void Function(CatalogWordRef word, String? displayHint) onOpenQuiz;
+  final Widget Function(CatalogWordRef word) wordStatusRenderer;
 
   @override
   ConsumerState<RankingFragment> createState() => _RankingFragmentState();
@@ -80,7 +82,14 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
             height: 12,
           ),
           Header(margin: margin),
-          Expanded(child: _content(viewModel, margin, scope)),
+          Expanded(
+            child: _content(
+              viewModel,
+              margin,
+              scope,
+              widget.wordStatusRenderer,
+            ),
+          ),
         ],
       ),
       floatingActionButton: const FilterButton(
@@ -96,6 +105,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
     RankingState screen,
     EdgeInsetsGeometry margin,
     Object scopeKey,
+    Widget Function(CatalogWordRef word) wordStatusRenderer,
   ) {
     final data = screen.rankings.dataOrNull;
     return Stack(
@@ -124,16 +134,14 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
               itemBuilder: (context, index) {
                 final ranking = data!.items[index];
                 return RankingCard(
-                  key: ValueKey("ranking-card-${ranking.rankingId}"),
+                  key: ValueKey(
+                    "ranking-card-${ranking.id.toSerialized()}",
+                  ),
                   ranking: ranking,
                   margin: margin,
+                  wordStatusRenderer: wordStatusRenderer,
                   onOpenQuiz: widget.onOpenQuiz,
-                  onTap: () {
-                    widget.onOpenWordDetail(CatalogWordRef(
-                      catalogId: CatalogId.espJpnMain,
-                      wordId: ranking.wordId,
-                    ));
-                  },
+                  onTap: () => widget.onOpenWordDetail(ranking.word),
                 );
               },
             ),

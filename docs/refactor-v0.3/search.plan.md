@@ -326,6 +326,11 @@ business facadeからre-exportしません。
 
 完了条件: checkerが各禁止fixtureを検出し、repository内のSearch境界違反が0になる。
 
+Phase 6 result: 両checkerはcanonical facadeと3 technical seamを構造から認識するgeneric
+ruleへ移行した。Search固有allowlistやbaseline追加はなく、positive／negative fixtureが
+internal、deep port、integration、seam caller、exact factory／entry、framework、opaque
+resolverを固定する。Search production pathの該当違反は0である。
+
 ## 10. テスト計画
 
 ### Port contract

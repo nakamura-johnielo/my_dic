@@ -4,10 +4,7 @@ import 'package:my_dic/core/presentation/state/command_state.dart';
 import 'package:my_dic/core/presentation/state/ui_effect.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/core/shared/consts/account_scope.dart';
-import 'package:my_dic/core/shared/value_objects/field_update.dart';
-import 'package:my_dic/features/catalog/port/catalog.dart';
-import 'package:my_dic/features/word_status/internal/application/update_word_status.dart';
-import 'package:my_dic/features/word_status/port/commands.dart';
+import 'package:my_dic/features/word_status/port/word_status.dart';
 
 final class DictionaryWordStatusCommandState {
   const DictionaryWordStatusCommandState({
@@ -37,10 +34,10 @@ final class DictionaryWordStatusCommandState {
 final class DictionaryWordStatusCommand
     extends StateNotifier<DictionaryWordStatusCommandState>
     implements UiEffectConsumer {
-  DictionaryWordStatusCommand(this._word, this._useCase, this._scope)
+  DictionaryWordStatusCommand(this._word, this._commands, this._scope)
       : super(const DictionaryWordStatusCommandState());
   final CatalogWordRef _word;
-  final UpdateWordStatusInteractor _useCase;
+  final WordStatusCommandPort _commands;
   final SessionScopeKey _scope;
   int _sequence = 0;
   bool get isSubmitting => state.isSubmitting;
@@ -73,15 +70,15 @@ final class DictionaryWordStatusCommand
       command: CommandState.submitting(operation),
       effects: state.effects,
     );
-    final result = await _useCase.execute(
+    final result = await _commands.update(
         UpdateWordStatusCommand(
+            scope: expectedScope.accountScope == guestAccountScope
+                ? const WordStatusScope.guest()
+                : WordStatusScope.account(expectedScope.accountScope),
             word: _word,
             isLearned: isLearned,
             isBookmarked: isBookmarked,
-            hasNote: hasNote),
-        accountId: expectedScope.accountScope == guestAccountScope
-            ? null
-            : expectedScope.accountScope);
+            hasNote: hasNote));
     if (!mounted || expectedScope != _scope) return;
     final id = 'dictionary-word-status:${expectedScope.epoch}:${++_sequence}';
     state = result.isSuccess

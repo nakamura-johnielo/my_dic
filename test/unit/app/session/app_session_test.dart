@@ -5,20 +5,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/app/session/app_session.dart';
 import 'package:my_dic/app/session/current_session.dart';
 import 'package:my_dic/app/session/session_providers.dart';
-import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_controller.dart';
-import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_provider.dart';
-import 'package:my_dic/app/workflows/session_lifecycle/user_profile_composition.dart';
-import 'package:my_dic/core/shared/errors/domain_errors.dart';
-import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/integration/session_lifecycle_workflow/auth_lifecycle_controller.dart';
+import 'package:my_dic/integration/session_lifecycle_workflow/auth_lifecycle_provider.dart';
+import 'package:my_dic/app/bootstrap/user_profile_composition.dart';
 import 'package:my_dic/features/user_profile/port/composition.dart';
-import 'package:my_dic/features/user_profile/port/guest_migration.dart';
-import 'package:my_dic/features/user_profile/port/live_user_profile.dart';
 import 'package:my_dic/features/user_profile/port/user_profile.dart';
-import 'package:my_dic/features/sync/port/outbox_writer.dart';
-import 'package:my_dic/features/user_profile/internal/application/usecase/user_usecases.dart';
 
 import '../../../helpers/fake_auth_usecases.dart';
-import '../../../helpers/fake_user_usecases.dart';
+import '../../../helpers/fake_user_profile_ports.dart';
 import '../../../helpers/test_helpers.dart';
 
 void main() {
@@ -58,7 +52,7 @@ void main() {
     });
 
     test('profile provisioning failure is a Failure, not SignedOut', () async {
-      final ensure = FakeEnsureUserExistsInteractor(
+      final ensure = FakeEnsureUserProfileCommands(
         executeResult: Result.failure(NotFoundError(message: 'no profile')),
       );
       final container = _makeContainer(ensure: ensure);
@@ -72,7 +66,7 @@ void main() {
     });
 
     test('ready session exposes accountId through CurrentSession', () async {
-      final ensure = FakeEnsureUserExistsInteractor(
+      final ensure = FakeEnsureUserProfileCommands(
         executeResult: Result.success(AppUser(deviceId: 'device-1')),
       );
       final container = _makeContainer(ensure: ensure);
@@ -97,7 +91,7 @@ void main() {
     test(
         'sign-out after ready clears accountId and does not keep the prior profile',
         () async {
-      final ensure = FakeEnsureUserExistsInteractor(
+      final ensure = FakeEnsureUserProfileCommands(
         executeResult: Result.success(AppUser(deviceId: 'device-1')),
       );
       final container = _makeContainer(ensure: ensure);
@@ -124,7 +118,7 @@ void main() {
       final profiles = StreamController<AppUser?>();
       addTearDown(profiles.close);
       final container = _makeContainer(
-        ensure: FakeEnsureUserExistsInteractor(
+        ensure: FakeEnsureUserProfileCommands(
           executeResult: Result.success(
             AppUser(
               deviceId: 'device-1',
@@ -164,7 +158,7 @@ void main() {
       final profiles = StreamController<AppUser?>();
       addTearDown(profiles.close);
       final container = _makeContainer(
-        ensure: FakeEnsureUserExistsInteractor(
+        ensure: FakeEnsureUserProfileCommands(
           executeResult: Result.success(AppUser(deviceId: 'device-1')),
         ),
         profileStream: profiles.stream,
@@ -199,29 +193,30 @@ void main() {
 }
 
 ProviderContainer _makeContainer({
-  IEnsureUserExistsUseCase? ensure,
+  FakeEnsureUserProfileCommands? ensure,
   Stream<AppUser?>? profileStream,
 }) {
   final container = ProviderContainer(
     overrides: [
       authLifecycleProvider.overrideWith((ref) {
         return AuthLifecycleController(
-          signIn: FakeSignInInteractor(),
-          signUp: FakeSignUpInteractor(),
-          signOut: FakeSignOutInteractor(),
-          sendVerificationEmail: FakeVerifyEmailInteractor(),
-          reloadCurrentAuth: FakeReloadCurrentAuthInteractor(),
-          ensureUserExists: ensure ?? FakeEnsureUserExistsInteractor(),
+          query: FakeAuthQueryService(FakeReloadCurrentAuthInteractor()),
+          commands: FakeAuthCommandService(
+            signInFake: FakeSignInInteractor(),
+            signUpFake: FakeSignUpInteractor(),
+            signOutFake: FakeSignOutInteractor(),
+            verifyFake: FakeVerifyEmailInteractor(),
+          ),
+          userProfileCommands: ensure ?? FakeEnsureUserProfileCommands(),
         );
       }),
       userProfilePortsProvider.overrideWithValue(
         UserProfilePorts(
-          ensureUserProfile: ensure ?? FakeEnsureUserExistsInteractor(),
-          liveUserProfile: _LiveProfilePort(
+          query: _LiveProfilePort(
             profileStream ?? Stream.value(_profile('Test User')),
           ),
+          commands: ensure ?? FakeEnsureUserProfileCommands(),
           guestMigration: _NoopGuestMigrationPort(),
-          updateUserProfile: FakeUpdateUserInteractor(),
         ),
       ),
     ],
@@ -231,7 +226,7 @@ ProviderContainer _makeContainer({
 
 AppUser _profile(String username) => AppUser(username: username);
 
-class _LiveProfilePort implements LiveUserProfilePort {
+class _LiveProfilePort implements UserProfileQueryPort {
   const _LiveProfilePort(this._profiles);
 
   final Stream<AppUser?> _profiles;
@@ -248,8 +243,6 @@ class _NoopGuestMigrationPort implements UserProfileGuestMigrationPort {
   Future<void> migrateGuestProfile({
     required String accountId,
     required String migrationId,
-    required OutboxWriter outboxWriter,
-    required DateTime Function() clock,
   }) async {}
 }
 

@@ -5,5 +5,5 @@ import 'package:my_dic/features/search/internal/presentation/view_model/viewmode
 
 final searchViewModelProvider =
     StateNotifierProvider<SearchViewModel, SearchState>((ref) {
-  return SearchViewModel(ref.read(searchQueryPortDependencyProvider));
+  return SearchViewModel(ref.watch(searchReaderPortDependencyProvider));
 });

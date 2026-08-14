@@ -63,6 +63,7 @@ Future<void> _pump(WidgetTester tester, ProviderContainer container) async {
           displayHint: 'hablar',
         ),
         onOpenWordDetail: (_) {},
+        wordStatusRenderer: (_) => const SizedBox.shrink(),
       ),
     ),
   ));

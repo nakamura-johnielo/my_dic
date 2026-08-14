@@ -1,30 +1,38 @@
-import 'dataset_sync_handler.dart';
-import 'sync_handler_runtime.dart';
-import 'sync_runner.dart';
-import 'outbox_writer.dart';
-import 'sync_checkpoint_store.dart';
-import 'sync_queue.dart';
+import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
+
 import 'composition_contract.dart';
+import 'dataset_contract.dart';
 import '../internal/composition/sync_composition_factory.dart';
 
 export 'composition_contract.dart';
 
-/// Creates the dataset runtime without exposing Sync internals to the app.
-ISyncHandlerRuntime createSyncHandlerRuntime(SyncDependencyQueryPort read) =>
-    SyncCompositionFactory.createRuntime(read);
+/// Application-owned runtime dependencies required to assemble Sync.
+final class SyncDependencies {
+  const SyncDependencies({
+    required this.database,
+    required this.sessionFence,
+  });
 
-ISyncQueue createSyncQueue(SyncDependencyQueryPort read) =>
-    SyncCompositionFactory.createQueue(read);
+  final DatabaseProvider database;
+  final SessionFence sessionFence;
+}
 
-ISyncCheckpointStore createSyncCheckpointStore(SyncDependencyQueryPort read) =>
-    SyncCompositionFactory.createCheckpointStore(read);
-
-IOutboxWriter createOutboxWriter(SyncDependencyQueryPort read) =>
-    SyncCompositionFactory.createOutboxWriter(read);
+/// Creates the completed Sync infrastructure without framework state.
+SyncComposition createSyncComposition({
+  required SyncDependencies dependencies,
+}) =>
+    SyncCompositionFactory.createComposition(
+      database: dependencies.database,
+      sessionFence: dependencies.sessionFence,
+    );
 
 /// Creates the public workflow runner for the registered dataset handlers.
-ISyncRunner createSyncRunner(
-  SyncDependencyQueryPort read,
-  Iterable<IDatasetSyncHandler> handlers,
-) =>
-    SyncCompositionFactory.createRunner(read, handlers);
+SyncRunner createSyncRunner({
+  required SyncDependencies dependencies,
+  required Iterable<DatasetSyncHandler> handlers,
+}) =>
+    SyncCompositionFactory.createRunner(
+      database: dependencies.database,
+      sessionFence: dependencies.sessionFence,
+      handlers: handlers,
+    );

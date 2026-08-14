@@ -7,6 +7,11 @@
   ],
   "rules": [
     {"id": "feature_external_only_port", "sourcePath": "lib/**"},
+    {"id": "feature_external_no_internal", "sourcePath": "lib/**"},
+    {"id": "feature_external_only_facade", "sourcePath": "lib/**"},
+    {"id": "feature_technical_seam_only", "sourcePath": "lib/**"},
+    {"id": "integration_feature_only_facade", "sourcePath": "lib/integration/**"},
+    {"id": "integration_feature_no_framework", "sourcePath": "lib/integration/**"},
     {"id": "feature_top_level_only_port_internal", "sourcePath": "lib/features/**"},
     {"id": "feature_no_app", "sourcePath": "lib/features/**"},
     {"id": "core_no_feature", "sourcePath": "lib/core/**"},

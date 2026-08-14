@@ -1,40 +1,65 @@
+import 'dart:convert';
+
 import 'package:my_dic/core/shared/utils/json.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/quiz/internal/application/game/quiz_game_asset_reader.dart';
 import 'package:my_dic/features/quiz/port/error/quiz_game_infrastructure_error.dart';
+import 'package:my_dic/features/quiz/port/model/quiz_conjugation.dart';
 
-/// Reads the two bundled English prompt assets used by the legacy game.
-///
-/// Wire keys remain here: callers only receive the raw maps expected by the
-/// application-layer mapper.
+/// Reads and maps the two bundled English prompt assets used by the game.
 final class QuizGameAssets implements QuizGameAssetReader {
   QuizGameAssets({Future<Map<String, dynamic>> Function(String)? readJson})
       : _readJson = readJson ?? readJsonFile;
+
+  QuizGameAssets.loadingText(Future<String> Function(String) loadText)
+      : _readJson = ((path) async {
+          final decoded = jsonDecode(await loadText(path));
+          if (decoded is! Map<String, dynamic>) {
+            throw const _AssetDataCorruption('asset must be a JSON object');
+          }
+          return decoded;
+        });
 
   static const englishGuideAssetPath =
       'assets/data/es_conjugacion_en_translation.json';
   static const beConjugationAssetPath = 'assets/data/be_conjugacion.json';
 
+  static const _guideKeys = <QuizMoodTense, String>{
+    QuizMoodTense.participlePresent: 'MoodTense.participlePresent',
+    QuizMoodTense.participlePast: 'MoodTense.participlePast',
+    QuizMoodTense.indicativePresent: 'MoodTense.indicativePresent',
+    QuizMoodTense.indicativePreterite: 'MoodTense.indicativePreterite',
+    QuizMoodTense.indicativeImperfect: 'MoodTense.indicativeImperfect',
+    QuizMoodTense.indicativeFuture: 'MoodTense.indicativeFuture',
+    QuizMoodTense.indicativeConditional: 'MoodTense.indicativeConditional',
+    QuizMoodTense.imperative: 'MoodTense.imperative',
+    QuizMoodTense.subjunctivePresent: 'MoodTense.subjunctivePresent',
+    QuizMoodTense.subjunctivePast: 'MoodTense.subjunctivePast',
+  };
+  static const _beTenseKeys = <QuizEnglishMoodTense, String>{
+    QuizEnglishMoodTense.participlePresent:
+        'EnglishMoodTense.participlePresent',
+    QuizEnglishMoodTense.participlePast: 'EnglishMoodTense.participlePast',
+    QuizEnglishMoodTense.indicativePresent:
+        'EnglishMoodTense.indicativePresent',
+    QuizEnglishMoodTense.indicativePast: 'EnglishMoodTense.indicativePast',
+  };
+  static const _subjectKeys = <QuizEnglishSubject, String>{
+    QuizEnglishSubject.i: 'EnglishSubject.I',
+    QuizEnglishSubject.you: 'EnglishSubject.you',
+    QuizEnglishSubject.he: 'EnglishSubject.he',
+    QuizEnglishSubject.we: 'EnglishSubject.we',
+    QuizEnglishSubject.they: 'EnglishSubject.they',
+  };
+
   final Future<Map<String, dynamic>> Function(String) _readJson;
 
-  /// Legacy entry point retained until the compatibility graph is removed.
-  Future<Map<String, String>> loadEnglishGuide() async {
-    final result = await readEnglishPromptGuide();
-    return result.dataOrNull ?? (throw result.errorOrNull!);
-  }
-
-  /// Legacy entry point retained until the compatibility graph is removed.
-  Future<Map<String, Map<String, String>>> loadBeConjugation() async {
-    final result = await readBeConjugation();
-    return result.dataOrNull ?? (throw result.errorOrNull!);
-  }
-
   @override
-  Future<Result<Map<String, String>>> readEnglishPromptGuide() =>
+  Future<Result<QuizEnglishPromptGuide>> readEnglishPromptGuide() =>
       _readAsset(englishGuideAssetPath, _parseEnglishGuide);
 
   @override
-  Future<Result<Map<String, Map<String, String>>>> readBeConjugation() =>
+  Future<Result<QuizBeConjugation>> readBeConjugation() =>
       _readAsset(beConjugationAssetPath, _parseBeConjugation);
 
   Future<Result<T>> _readAsset<T>(
@@ -59,60 +84,34 @@ final class QuizGameAssets implements QuizGameAssetReader {
     }
   }
 
-  Map<String, String> _parseEnglishGuide(Map<String, dynamic> raw) {
-    const keys = {
-      'MoodTense.participlePresent',
-      'MoodTense.participlePast',
-      'MoodTense.indicativePresent',
-      'MoodTense.indicativePreterite',
-      'MoodTense.indicativeImperfect',
-      'MoodTense.indicativeFuture',
-      'MoodTense.indicativeConditional',
-      'MoodTense.imperative',
-      'MoodTense.subjunctivePresent',
-      'MoodTense.subjunctivePast',
-    };
-    _requireExactKeys(raw, keys);
-    return {
-      for (final entry in raw.entries)
-        entry.key: _stringValue(entry.value, entry.key),
-    };
+  QuizEnglishPromptGuide _parseEnglishGuide(Map<String, dynamic> raw) {
+    _requireExactKeys(raw, _guideKeys.values.toSet());
+    return QuizEnglishPromptGuide({
+      for (final entry in _guideKeys.entries)
+        entry.key: _stringValue(raw[entry.value], entry.value),
+    });
   }
 
-  Map<String, Map<String, String>> _parseBeConjugation(
-      Map<String, dynamic> raw) {
-    const tenseKeys = {
-      'EnglishMoodTense.participlePresent',
-      'EnglishMoodTense.participlePast',
-      'EnglishMoodTense.indicativePresent',
-      'EnglishMoodTense.indicativePast',
-    };
-    const subjectKeys = {
-      'EnglishSubject.I',
-      'EnglishSubject.you',
-      'EnglishSubject.he',
-      'EnglishSubject.we',
-      'EnglishSubject.they',
-    };
-    _requireExactKeys(raw, tenseKeys);
-    return {
-      for (final entry in raw.entries)
-        entry.key: _parseBeForms(entry.value, entry.key, subjectKeys),
-    };
+  QuizBeConjugation _parseBeConjugation(Map<String, dynamic> raw) {
+    _requireExactKeys(raw, _beTenseKeys.values.toSet());
+    return QuizBeConjugation({
+      for (final tense in _beTenseKeys.entries)
+        tense.key: _parseBeForms(raw[tense.value], tense.value),
+    });
   }
 
-  Map<String, String> _parseBeForms(
+  Map<QuizEnglishSubject, String> _parseBeForms(
     Object? value,
     String tenseKey,
-    Set<String> subjectKeys,
   ) {
     if (value is! Map<String, dynamic>) {
       throw _AssetDataCorruption('$tenseKey must be a JSON object');
     }
-    _requireExactKeys(value, subjectKeys);
+    _requireExactKeys(value, _subjectKeys.values.toSet());
     return {
-      for (final entry in value.entries)
-        entry.key: _stringValue(entry.value, '$tenseKey.${entry.key}'),
+      for (final subject in _subjectKeys.entries)
+        subject.key:
+            _stringValue(value[subject.value], '$tenseKey.${subject.value}'),
     };
   }
 

@@ -91,7 +91,17 @@ CatalogReadPorts _ports({
       conjugationSearch: search ?? _UnusedSearch(),
       entrySummary: _UnusedSummary(),
       ranking: _UnusedRanking(),
+      rankedEntries: _UnusedProviderPrerequisites(),
+      semanticEntryDetail: _UnusedProviderPrerequisites(),
     );
+
+final class _UnusedProviderPrerequisites
+    implements
+        CatalogRankedEntryFeedQueryPort,
+        CatalogSemanticEntryDetailQueryPort {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
 
 final class _SearchReader implements CatalogConjugationSearchQueryPort {
   _SearchReader(this.result);

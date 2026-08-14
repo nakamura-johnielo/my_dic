@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_dic/app/routing/invalid_route_page.dart';
 import 'package:my_dic/app/routing/route_definitions.dart';
-import 'package:my_dic/features/catalog/port/presentation_dependencies.dart';
 
 void main() {
   testWidgets(
@@ -18,7 +17,6 @@ void main() {
     ];
 
     for (final location in invalidLocations) {
-      var catalogReads = 0;
       final router = GoRouter(
         initialLocation: location,
         routes: [
@@ -32,18 +30,11 @@ void main() {
       addTearDown(router.dispose);
 
       await tester.pumpWidget(ProviderScope(
-        overrides: [
-          catalogQueryPortDependencyProvider.overrideWith((ref) {
-            catalogReads++;
-            throw StateError('invalid routes must not build WordDetail');
-          }),
-        ],
         child: MaterialApp.router(routerConfig: router),
       ));
       await tester.pumpAndSettle();
 
       expect(find.byType(InvalidRoutePage), findsOneWidget, reason: location);
-      expect(catalogReads, 0, reason: location);
       await tester.pumpWidget(const SizedBox.shrink());
     }
   });

@@ -2,37 +2,14 @@ import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/esp_jp
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/datasource/conjugation/conjugation_data_source.dart';
 
-class ConjugacionDriftDataSource implements IConjugacionLocalDataSource {
-  ConjugacionDriftDataSource(this._conjugacionDao);
-  final ConjugationDao _conjugacionDao;
+class ConjugationDriftDataSource implements ConjugationDataSource {
+  ConjugationDriftDataSource(this._conjugationDao);
+  final ConjugationDao _conjugationDao;
 
   @override
-  Future<String?> getSimpleMeaningById(int id) =>
-      _conjugacionDao.getMeaningById(id);
+  Future<bool> existsConjugationByWordId(int wordId) =>
+      _conjugationDao.exists(wordId);
   @override
-  Future<bool> existsConjByWordId(int wordId) => _conjugacionDao.exists(wordId);
-  @override
-  Future<EspConjugationTableData?> getConjugacionByWordId(int id) =>
-      _conjugacionDao.getConjugationById(id);
-  @override
-  Future<List<EspConjugationTableData>> getConjugacionByWordWithPage(
-    String word,
-    int size,
-    int currentPage,
-  ) =>
-      _conjugacionDao.getConjugationByWordWithPage(word, size, currentPage);
-  @override
-  Future<List<EspConjugationTableData>> searchConjugationsAcrossCatalog(
-    String word,
-    int size,
-    int currentPage,
-  ) =>
-      _conjugacionDao.getConjugationInAllTableByWordWithPage(
-        word,
-        size,
-        currentPage,
-      );
-  @override
-  Future<Map<int, String>> getMeaningsByWordIds(List<int> wordIds) =>
-      _conjugacionDao.getMeaningsByWordIds(wordIds);
+  Future<EspConjugationTableData?> getConjugationByWordId(int id) =>
+      _conjugationDao.getConjugationById(id);
 }

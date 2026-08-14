@@ -1,387 +1,138 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/core/shared/enums/feature_tag.dart';
-import 'package:my_dic/features/catalog/port/catalog.dart';
-import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
-import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
-import 'package:my_dic/features/ranking/internal/composition/view_model_di.dart'
-    as ranking_di;
-import 'package:my_dic/features/ranking/port/model/ranking_list_item.dart';
-import 'package:my_dic/features/ranking/port/model/ranking_page.dart';
-import 'package:my_dic/features/ranking/internal/composition/usecase_di.dart';
-
-import '../../../../../helpers/fake_ranking_usecases.dart';
-
-/// This suite intentionally exercises one concrete family entry. Other tests
-/// below assert that a changed epoch selects a distinct entry.
-const _scope = SessionScopeKey(accountScope: 'account-a', epoch: 1);
-final rankingViewModelProvider = ranking_di.rankingViewModelProvider(_scope);
+import 'package:my_dic/features/ranking/internal/domain/ranking_filter_selection.dart';
+import 'package:my_dic/features/ranking/internal/presentation/view_model/new_ranking_view_model.dart';
+import 'package:my_dic/features/ranking/port/ranking.dart';
 
 void main() {
   group('RankingViewModel', () {
-    late ProviderContainer container;
-    late FakeLoadRankingsUseCase fakeLoadRankingsUseCase;
+    test('uses typed filters and resets paging state', () async {
+      final reader = _ImmediateReader(_page([_item(1)], hasMore: true));
+      final viewModel = RankingViewModel(reader, _scope);
+      await viewModel.loadNextPage(0);
 
-    setUp(() {
-      fakeLoadRankingsUseCase = FakeLoadRankingsUseCase(
-        result: Result.success(_createTestRankings()),
+      viewModel.setPartOfSpeechFilter(
+        RankingPartOfSpeech.noun,
+        RankingFilterSelection.include,
       );
-
-      container = ProviderContainer(
-        overrides: [
-          loadRankingsUseCaseProvider
-              .overrideWithValue(fakeLoadRankingsUseCase),
-          updateRankingFilterUseCaseProvider
-              .overrideWithValue(FakeUpdateRankingFilterUseCase()),
-        ],
+      viewModel.setStatusFilter(
+        RankingStatusFilter.learned,
+        RankingFilterSelection.exclude,
       );
+      viewModel.setGroupByCatalogWord(true);
+
+      expect(viewModel.state.currentPage, -1);
+      expect(viewModel.state.items, isEmpty);
+      expect(viewModel.state.filter.includedPartsOfSpeech,
+          {RankingPartOfSpeech.noun});
+      expect(viewModel.state.filter.excludedStatuses,
+          {RankingStatusFilter.learned});
+      expect(viewModel.state.filter.groupByCatalogWord, isTrue);
+      viewModel.dispose();
     });
 
-    tearDown(() {
-      container.dispose();
+    test('page zero replaces and following pages append by stable item id',
+        () async {
+      final reader = _QueueReader([
+        _page([_item(1), _item(2)], hasMore: true),
+        _page([_item(2), _item(3)], hasMore: false),
+      ]);
+      final viewModel = RankingViewModel(reader, _scope);
+
+      await viewModel.loadNextPage(0);
+      await viewModel.loadNextPage(1);
+
+      expect(viewModel.state.items.map((item) => item.id.toSerialized()),
+          [1, 2, 3]);
+      expect(viewModel.state.hasNext, isFalse);
+      viewModel.dispose();
     });
 
-    test('guest, account, and relogin epochs select distinct provider entries',
-        () {
-      const guest = SessionScopeKey(accountScope: 'legacy_unowned', epoch: 1);
-      const account = SessionScopeKey(accountScope: 'account-a', epoch: 2);
-      const relogin = SessionScopeKey(accountScope: 'account-a', epoch: 3);
+    test('same request is single-flight and filter reset rejects late result',
+        () async {
+      final reader = _PendingReader();
+      final viewModel = RankingViewModel(reader, _scope);
+      final first = viewModel.loadNextPage(0);
+      final duplicate = await viewModel.loadNextPage(0);
+      expect(duplicate, isFalse);
+      expect(reader.queries, hasLength(1));
 
-      final guestNotifier =
-          container.read(ranking_di.rankingViewModelProvider(guest).notifier);
-      final accountNotifier =
-          container.read(ranking_di.rankingViewModelProvider(account).notifier);
-      final reloginNotifier =
-          container.read(ranking_di.rankingViewModelProvider(relogin).notifier);
+      viewModel.setStatusFilter(
+        RankingStatusFilter.bookmarked,
+        RankingFilterSelection.include,
+      );
+      reader.complete(_page([_item(1)], hasMore: false));
 
-      expect(guestNotifier, isNot(same(accountNotifier)));
-      expect(accountNotifier, isNot(same(reloginNotifier)));
+      expect(await first, isFalse);
+      expect(viewModel.state.items, isEmpty);
+      viewModel.dispose();
     });
 
-    group('Filter state management', () {
-      test('addFilter updates partOfSpeech filter value to 1', () {
-        // Arrange
-        final viewModel = container.read(rankingViewModelProvider.notifier);
+    test('retry repeats the failed page identity', () async {
+      final reader = _QueueReader([
+        const Result.failure(RankingReadError.catalogUnavailable()),
+        _page([_item(4)], hasMore: false),
+      ]);
+      final viewModel = RankingViewModel(reader, _scope);
 
-        // Act
-        viewModel.addFilter(CatalogPartOfSpeech.noun);
-
-        // Assert
-        final state = container.read(rankingViewModelProvider);
-        expect(state.partOfSpeechFilters[CatalogPartOfSpeech.noun], 1);
-      });
-
-      test('addExcludeFilter updates partOfSpeech filter value to -1', () {
-        // Arrange
-        final viewModel = container.read(rankingViewModelProvider.notifier);
-
-        // Act
-        viewModel.addExcludeFilter(CatalogPartOfSpeech.verb);
-
-        // Assert
-        final state = container.read(rankingViewModelProvider);
-        expect(state.partOfSpeechFilters[CatalogPartOfSpeech.verb], -1);
-      });
-
-      test('removeFilter updates partOfSpeech filter value to 0', () {
-        // Arrange
-        final viewModel = container.read(rankingViewModelProvider.notifier);
-        viewModel.addFilter(CatalogPartOfSpeech.adjective);
-
-        // Act
-        viewModel.removeFilter(CatalogPartOfSpeech.adjective);
-
-        // Assert
-        final state = container.read(rankingViewModelProvider);
-        expect(state.partOfSpeechFilters[CatalogPartOfSpeech.adjective], 0);
-      });
-
-      test('addFilter updates featureTag filter value to 1', () {
-        // Arrange
-        final viewModel = container.read(rankingViewModelProvider.notifier);
-
-        // Act
-        viewModel.addFilter(FeatureTag.isLearned);
-
-        // Assert
-        final state = container.read(rankingViewModelProvider);
-        expect(state.featureTagFilters[FeatureTag.isLearned], 1);
-      });
-
-      test('addExcludeFilter updates featureTag filter value to -1', () {
-        // Arrange
-        final viewModel = container.read(rankingViewModelProvider.notifier);
-
-        // Act
-        viewModel.addExcludeFilter(FeatureTag.hasNote);
-
-        // Assert
-        final state = container.read(rankingViewModelProvider);
-        expect(state.featureTagFilters[FeatureTag.hasNote], -1);
-      });
-
-      test('removeFilter updates featureTag filter value to 0', () {
-        // Arrange
-        final viewModel = container.read(rankingViewModelProvider.notifier);
-        viewModel.addFilter(FeatureTag.isBookmarked);
-
-        // Act
-        viewModel.removeFilter(FeatureTag.isBookmarked);
-
-        // Assert
-        final state = container.read(rankingViewModelProvider);
-        expect(state.featureTagFilters[FeatureTag.isBookmarked], 0);
-      });
-
-      test('filter changes reset currentPage to -1', () async {
-        // Arrange
-        final viewModel = container.read(rankingViewModelProvider.notifier);
-        await viewModel.loadNextPage(2);
-
-        // Act
-        viewModel.addFilter(CatalogPartOfSpeech.noun);
-
-        // Assert
-        final state = container.read(rankingViewModelProvider);
-        expect(state.currentPage, -1);
-      });
-
-      test('filter changes clear items list', () async {
-        // Arrange
-        final viewModel = container.read(rankingViewModelProvider.notifier);
-        await viewModel.loadNextPage(0);
-        expect(container.read(rankingViewModelProvider).items, isNotEmpty);
-
-        // Act
-        viewModel.addFilter(CatalogPartOfSpeech.verb);
-
-        // Assert
-        final state = container.read(rankingViewModelProvider);
-        expect(state.items, isEmpty);
-      });
-
-      test('handles multiple filter updates', () {
-        // Arrange
-        final viewModel = container.read(rankingViewModelProvider.notifier);
-
-        // Act
-        viewModel.addFilter(CatalogPartOfSpeech.noun);
-        viewModel.addExcludeFilter(CatalogPartOfSpeech.verb);
-        viewModel.addFilter(FeatureTag.isLearned);
-
-        // Assert
-        final state = container.read(rankingViewModelProvider);
-        expect(state.partOfSpeechFilters[CatalogPartOfSpeech.noun], 1);
-        expect(state.partOfSpeechFilters[CatalogPartOfSpeech.verb], -1);
-        expect(state.featureTagFilters[FeatureTag.isLearned], 1);
-      });
-    });
-
-    group('Pagination state management', () {
-      test('loadNextPage appends items to state', () async {
-        // Arrange
-        final viewModel = container.read(rankingViewModelProvider.notifier);
-
-        // Act
-        await viewModel.loadNextPage(0);
-
-        // Assert
-        final state = container.read(rankingViewModelProvider);
-        expect(state.items.length, 3);
-        expect(state.items[0].rankedWord, 'ser');
-      });
-
-      test('loadNextPage updates currentPage', () async {
-        // Arrange
-        final viewModel = container.read(rankingViewModelProvider.notifier);
-
-        // Act
-        await viewModel.loadNextPage(0);
-
-        // Assert
-        final state = container.read(rankingViewModelProvider);
-        expect(state.currentPage, 0);
-      });
-
-      test('loadNextPage with multiple pages accumulates items', () async {
-        // Arrange
-        final viewModel = container.read(rankingViewModelProvider.notifier);
-        fakeLoadRankingsUseCase.setResult(Result.success(_createTestRankings(
-          prefix: 'page1_',
-          hasNext: true,
-        )));
-
-        // Act
-        await viewModel.loadNextPage(0);
-        fakeLoadRankingsUseCase.setResult(Result.success(_createTestRankings(
-          prefix: 'page2_',
-          rankingIdOffset: 100,
-        )));
-        await viewModel.loadNextPage(1);
-
-        // Assert
-        final state = container.read(rankingViewModelProvider);
-        expect(state.items.length, 6);
-        expect(state.items[0].rankedWord, 'page1_ser');
-        expect(state.items[3].rankedWord, 'page2_ser');
-      });
-
-      test(
-          'uses the extra record only to determine whether another page exists',
-          () async {
-        final viewModel = container.read(rankingViewModelProvider.notifier);
-        fakeLoadRankingsUseCase
-            .setResult(Result.success(_createRankingPage(100, hasNext: true)));
-
-        final hasNext = await viewModel.loadNextPage(0);
-
-        final state = container.read(rankingViewModelProvider);
-        expect(hasNext, isTrue);
-        expect(state.hasNext, isTrue);
-        expect(state.items, hasLength(100));
-        expect(state.items.last.rank, 100);
-      });
-    });
-
-    group('Error handling', () {
-      test('loadNextPage returns false on failure', () async {
-        // Arrange
-        fakeLoadRankingsUseCase.setResult(
-          Result.failure(DatabaseError(message: 'Failed to load')),
-        );
-        final viewModel = container.read(rankingViewModelProvider.notifier);
-
-        // Act
-        final result = await viewModel.loadNextPage(0);
-
-        // Assert
-        expect(result, false);
-      });
-
-      test('loadNextPage preserves state on failure', () async {
-        // Arrange
-        final viewModel = container.read(rankingViewModelProvider.notifier);
-        await viewModel.loadNextPage(1);
-        fakeLoadRankingsUseCase.setResult(
-          Result.failure(DatabaseError(message: 'Failed to load')),
-        );
-
-        // Act
-        await viewModel.loadNextPage(2);
-
-        // Assert
-        final state = container.read(rankingViewModelProvider);
-        expect(state.currentPage, 1);
-        expect(state.items, hasLength(3));
-      });
-    });
-
-    group('Reset operations', () {
-      test('resetAndReload clears state to initial values', () async {
-        // Arrange
-        final viewModel = container.read(rankingViewModelProvider.notifier);
-        await viewModel.loadNextPage(0);
-        viewModel.addFilter(CatalogPartOfSpeech.noun);
-
-        // Act
-        viewModel.resetAndReload();
-
-        // Assert
-        final state = container.read(rankingViewModelProvider);
-        expect(state.items, isEmpty);
-        expect(state.currentPage, -1);
-        expect(state.partOfSpeechFilters, isEmpty);
-        expect(state.featureTagFilters, isEmpty);
-      });
-    });
-
-    group('Direct filter setters', () {
-      test('setFeatureTagFilter updates specific tag', () {
-        // Arrange
-        final viewModel = container.read(rankingViewModelProvider.notifier);
-
-        // Act
-        viewModel.setFeatureTagFilter(FeatureTag.isLearned, 1);
-
-        // Assert
-        final state = container.read(rankingViewModelProvider);
-        expect(state.featureTagFilters[FeatureTag.isLearned], 1);
-      });
-
-      test('setPartOfSpeechFilter updates specific part of speech', () {
-        // Arrange
-        final viewModel = container.read(rankingViewModelProvider.notifier);
-
-        // Act
-        viewModel.setPartOfSpeechFilter(CatalogPartOfSpeech.verb, -1);
-
-        // Assert
-        final state = container.read(rankingViewModelProvider);
-        expect(state.partOfSpeechFilters[CatalogPartOfSpeech.verb], -1);
-      });
-
-      test('locatePage updates pagenationFilter and resets page', () async {
-        // Arrange
-        final viewModel = container.read(rankingViewModelProvider.notifier);
-        await viewModel.loadNextPage(2);
-
-        // Act
-        viewModel.locatePage(5);
-
-        // Assert
-        final state = container.read(rankingViewModelProvider);
-        expect(state.pagenationFilter, 5);
-        expect(state.currentPage, -1);
-        expect(state.items, isEmpty);
-      });
+      expect(await viewModel.loadNextPage(3), isFalse);
+      expect(await viewModel.retry(), isFalse);
+      expect(reader.queries.map((query) => query.page), [3, 3]);
+      expect(viewModel.state.items.single.id.toSerialized(), 4);
+      viewModel.dispose();
     });
   });
 }
 
-RankingPage _createTestRankings({
-  String prefix = '',
-  int rankingIdOffset = 0,
-  bool hasNext = false,
-}) =>
-    RankingPage(items: [
-      RankingListItem(
-        rankingId: rankingIdOffset + 1,
-        rank: 1,
-        rankedWord: '${prefix}ser',
-        lemma: '${prefix}ser',
-        wordId: 1,
-        hasConjugation: true,
-      ),
-      RankingListItem(
-        rankingId: rankingIdOffset + 2,
-        rank: 2,
-        rankedWord: '${prefix}estar',
-        lemma: '${prefix}estar',
-        wordId: 2,
-        hasConjugation: true,
-      ),
-      RankingListItem(
-        rankingId: rankingIdOffset + 3,
-        rank: 3,
-        rankedWord: '${prefix}casa',
-        lemma: '${prefix}casa',
-        wordId: 3,
-        hasConjugation: false,
-      ),
-    ], hasNext: hasNext);
+const _scope = SessionScopeKey(accountScope: 'account-a', epoch: 1);
 
-RankingPage _createRankingPage(int length, {required bool hasNext}) =>
-    RankingPage(
-        items: List.generate(
-          length,
-          (index) => RankingListItem(
-            rankingId: index + 1,
-            rank: index + 1,
-            rankedWord: 'word_$index',
-            lemma: 'word_$index',
-            wordId: index + 1,
-            hasConjugation: false,
-          ),
-        ),
-        hasNext: hasNext);
+RankingPage _page(List<RankingItem> items, {required bool hasMore}) =>
+    RankingPage(items: items, hasMore: hasMore);
+
+RankingItem _item(int id) => RankingItem(
+      id: RankingItemId.fromSerialized(id),
+      word: CatalogWordRef(
+        catalogId: CatalogId.espJpnMain,
+        wordId: id,
+      ),
+      rank: id,
+      rankedWord: 'word $id',
+      lemma: 'lemma $id',
+      hasConjugation: false,
+    );
+
+final class _ImmediateReader implements RankingPageReaderPort {
+  _ImmediateReader(this.page);
+  final RankingPage page;
+  @override
+  Future<Result<RankingPage>> readPage(RankingPageQuery query) async =>
+      Result.success(page);
+}
+
+final class _QueueReader implements RankingPageReaderPort {
+  _QueueReader(List<Object> results) : _results = [...results];
+  final List<Object> _results;
+  final List<RankingPageQuery> queries = [];
+  @override
+  Future<Result<RankingPage>> readPage(RankingPageQuery query) async {
+    queries.add(query);
+    final next = _results.removeAt(0);
+    return next is RankingPage
+        ? Result.success(next)
+        : next as Result<RankingPage>;
+  }
+}
+
+final class _PendingReader implements RankingPageReaderPort {
+  final queries = <RankingPageQuery>[];
+  final _completion = Completer<Result<RankingPage>>();
+  @override
+  Future<Result<RankingPage>> readPage(RankingPageQuery query) {
+    queries.add(query);
+    return _completion.future;
+  }
+
+  void complete(RankingPage page) => _completion.complete(Result.success(page));
+}

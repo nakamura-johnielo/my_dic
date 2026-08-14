@@ -1,8 +1,6 @@
 import 'package:my_dic/core/shared/consts/account_scope.dart';
-import 'package:my_dic/features/sync/port/sync_dataset.dart';
-import 'package:my_dic/features/sync/port/model/sync_mutation.dart';
-import 'package:my_dic/features/sync/port/outbox_writer.dart';
-import 'package:my_dic/features/word_status/port/guest_migration.dart';
+import 'package:my_dic/features/sync/port/dataset_contract.dart';
+import 'package:my_dic/features/word_status/port/word_status.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/esp_jpn/drift/esp_jpn_word_status_local_data_source.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/jpn_esp/drift/jpn_esp_word_status_local_data_source.dart';
 
@@ -10,18 +8,18 @@ import 'package:my_dic/features/word_status/internal/infrastructure/jpn_esp/drif
 ///
 /// This deliberately does not start a transaction: its caller combines this
 /// work with MyWord, MyWordStatus, and UserProfile in one database fence.
-class DriftWordStatusGuestMigration implements IWordStatusGuestMigration {
+class DriftWordStatusGuestMigration implements WordStatusGuestMigrationPort {
   DriftWordStatusGuestMigration({
     required EspJpnWordStatusLocalDataSource espJpn,
     required JpnEspWordStatusLocalDataSource jpnEsp,
-    required IOutboxWriter outboxWriter,
+    required OutboxWriter outboxWriter,
   })  : _espJpn = espJpn,
         _jpnEsp = jpnEsp,
         _outboxWriter = outboxWriter;
 
   final EspJpnWordStatusLocalDataSource _espJpn;
   final JpnEspWordStatusLocalDataSource _jpnEsp;
-  final IOutboxWriter _outboxWriter;
+  final OutboxWriter _outboxWriter;
 
   @override
   Future<WordStatusGuestRowCounts> countGuestRows() async {

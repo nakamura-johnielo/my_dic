@@ -2,28 +2,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
-import 'package:my_dic/core/shared/enums/feature_tag.dart';
+import 'package:my_dic/core/shared/consts/account_scope.dart';
 import 'package:my_dic/core/shared/errors/unexpected_error.dart';
-import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/catalog/port/catalog.dart';
-import 'package:my_dic/features/ranking/internal/application/usecase/load_rankings/i_load_rankings_use_case.dart';
-import 'package:my_dic/features/ranking/internal/application/usecase/update_ranking_filter/i_update_ranking_filter_use_case.dart';
+import 'package:my_dic/features/ranking/internal/domain/ranking_filter_selection.dart';
 import 'package:my_dic/features/ranking/internal/presentation/ui_model/ranking_ui_model.dart';
 import 'package:my_dic/features/ranking/internal/presentation/view_model/ranking_page_identity.dart';
-import 'package:my_dic/features/ranking/port/model/load_rankings_input_data.dart';
-import 'package:my_dic/features/ranking/port/model/update_ranking_filter_input_data.dart';
+import 'package:my_dic/features/ranking/port/ranking.dart';
 
-class RankingViewModel extends StateNotifier<RankingState> {
-  RankingViewModel(
-    this._loadRankingsUseCase,
-    this._updateRankingFilterUseCase,
-    this._scope,
-  ) : super(const RankingState());
+final class RankingViewModel extends StateNotifier<RankingState> {
+  RankingViewModel(this._reader, this._scope) : super(RankingState());
 
-  final ILoadRankingsUseCase _loadRankingsUseCase;
-  final IUpdateRankingFilterUseCase _updateRankingFilterUseCase;
+  final RankingPageReaderPort _reader;
   final SessionScopeKey _scope;
-  final _logger = Logger('RankingViewModelV2');
+  final _logger = Logger('RankingViewModel');
 
   static const int _pageSize = 100;
   int _generation = 0;
@@ -31,7 +22,6 @@ class RankingViewModel extends StateNotifier<RankingState> {
   RankingRequestToken? _activeRequest;
   RankingPageIdentity? _failedPage;
 
-  /// Retry is owned by the VM because the controller has no business identity.
   Future<bool> retry() {
     final failedPage = _failedPage;
     if (failedPage == null) return Future.value(false);
@@ -52,49 +42,48 @@ class RankingViewModel extends StateNotifier<RankingState> {
     );
     _activeRequest = token;
     final previous = state.rankings.dataOrNull;
-    state =
-        state.copyWith(rankings: QueryState.loading(previousData: previous));
+    state = state.copyWith(
+      rankings: QueryState.loading(previousData: previous),
+    );
 
     try {
-      final result = await _loadRankingsUseCase.execute(LoadRankingsInputData(
-        identity.normalizedFilter.partOfSpeech,
-        identity.normalizedFilter.featureTags,
-        identity.page,
-        identity.size,
-        _scope.accountScope,
-      ));
+      final result = await _reader.readPage(
+        RankingPageQuery(
+          page: identity.page,
+          size: identity.size,
+          scope: _rankingScope(identity.sessionKey),
+          filter: identity.filter,
+        ),
+      );
       if (!_isCurrent(token)) return false;
 
-      return result.when(
-        success: (output) {
-          final current = state.rankings.dataOrNull;
-          final results = identity.page == 0
-              ? RankingResults(output.items)
-              : (current ?? const RankingResults([])).append(output.items);
-          state = state.copyWith(
-            rankings: results.items.isEmpty
-                ? QueryState.empty()
-                : QueryState.data(results),
-            currentPage: identity.page,
-            hasNext: output.hasNext,
-          );
-          _failedPage = null;
-          _clearActive(token);
-          return output.hasNext;
-        },
-        failure: (error) {
-          _logger.warning('Failed to load ranking page.', error);
-          state = state.copyWith(
-            rankings: QueryState.failure(
-              error,
-              previousData: state.rankings.dataOrNull ?? previous,
-            ),
-          );
-          _failedPage = identity;
-          _clearActive(token);
-          return false;
-        },
+      if (result case Success<RankingPage>(data: final output)) {
+        final current = state.rankings.dataOrNull;
+        final results = identity.page == 0
+            ? RankingResults(output.items)
+            : (current ?? RankingResults(const [])).append(output.items);
+        state = state.copyWith(
+          rankings: results.items.isEmpty
+              ? QueryState.empty()
+              : QueryState.data(results),
+          currentPage: identity.page,
+          hasNext: output.hasMore,
+        );
+        _failedPage = null;
+        _clearActive(token);
+        return output.hasMore;
+      }
+      final error = result.errorOrNull!;
+      _logger.warning('Failed to load ranking page.', error);
+      state = state.copyWith(
+        rankings: QueryState.failure(
+          error,
+          previousData: state.rankings.dataOrNull ?? previous,
+        ),
       );
+      _failedPage = identity;
+      _clearActive(token);
+      return false;
     } catch (error) {
       if (!_isCurrent(token)) return false;
       state = state.copyWith(
@@ -109,45 +98,75 @@ class RankingViewModel extends StateNotifier<RankingState> {
     }
   }
 
-  void addExcludeFilter(Object data) =>
-      _updateFilter(UpdateRankingFilterInputData(data, -1));
-
-  void addFilter(Object data) =>
-      _updateFilter(UpdateRankingFilterInputData(data, 1));
-
-  void removeFilter(Object data) =>
-      _updateFilter(UpdateRankingFilterInputData(data, 0));
-
-  void locatePage(int page) =>
-      _resetPage(state.copyWith(paginationFilter: page));
-
-  void _updateFilter(UpdateRankingFilterInputData input) {
-    final result = _updateRankingFilterUseCase.execute(input);
-    final data = result.data;
-    final value = result.value;
-    RankingState? next;
-    if (data is CatalogPartOfSpeech) {
-      next = state.copyWith(
-        partOfSpeechFilters: Map<CatalogPartOfSpeech, int>.from(
-          state.partOfSpeechFilters,
-        )..[data] = value,
-        hasNext: true,
-      );
-    } else if (data is FeatureTag) {
-      next = state.copyWith(
-        featureTagFilters: Map<FeatureTag, int>.from(state.featureTagFilters)
-          ..[data] = value,
-        hasNext: true,
-      );
+  void setPartOfSpeechFilter(
+    RankingPartOfSpeech value,
+    RankingFilterSelection selection,
+  ) {
+    final included = {...state.filter.includedPartsOfSpeech}..remove(value);
+    final excluded = {...state.filter.excludedPartsOfSpeech}..remove(value);
+    switch (selection) {
+      case RankingFilterSelection.neutral:
+        break;
+      case RankingFilterSelection.include:
+        included.add(value);
+      case RankingFilterSelection.exclude:
+        excluded.add(value);
     }
-    _resetPage(next, resetPaginationFilter: true);
+    _replaceFilter(RankingFilter(
+      includedPartsOfSpeech: included,
+      excludedPartsOfSpeech: excluded,
+      includedStatuses: state.filter.includedStatuses,
+      excludedStatuses: state.filter.excludedStatuses,
+      groupByCatalogWord: state.filter.groupByCatalogWord,
+    ));
   }
 
-  void _resetPage(RankingState? currentState,
-      {bool resetPaginationFilter = false}) {
+  void setStatusFilter(
+    RankingStatusFilter value,
+    RankingFilterSelection selection,
+  ) {
+    final included = {...state.filter.includedStatuses}..remove(value);
+    final excluded = {...state.filter.excludedStatuses}..remove(value);
+    switch (selection) {
+      case RankingFilterSelection.neutral:
+        break;
+      case RankingFilterSelection.include:
+        included.add(value);
+      case RankingFilterSelection.exclude:
+        excluded.add(value);
+    }
+    _replaceFilter(RankingFilter(
+      includedPartsOfSpeech: state.filter.includedPartsOfSpeech,
+      excludedPartsOfSpeech: state.filter.excludedPartsOfSpeech,
+      includedStatuses: included,
+      excludedStatuses: excluded,
+      groupByCatalogWord: state.filter.groupByCatalogWord,
+    ));
+  }
+
+  void setGroupByCatalogWord(bool selected) => _replaceFilter(RankingFilter(
+        includedPartsOfSpeech: state.filter.includedPartsOfSpeech,
+        excludedPartsOfSpeech: state.filter.excludedPartsOfSpeech,
+        includedStatuses: state.filter.includedStatuses,
+        excludedStatuses: state.filter.excludedStatuses,
+        groupByCatalogWord: selected,
+      ));
+
+  void locatePage(int page) => _resetPage(
+        state.copyWith(paginationFilter: page),
+      );
+
+  void _replaceFilter(RankingFilter filter) => _resetPage(
+        state.copyWith(filter: filter, hasNext: true),
+        resetPaginationFilter: true,
+      );
+
+  void _resetPage(
+    RankingState currentState, {
+    bool resetPaginationFilter = false,
+  }) {
     _invalidateRequests();
-    final source = currentState ?? state;
-    state = source.copyWith(
+    state = currentState.copyWith(
       currentPage: -1,
       hasNext: true,
       paginationFilter: resetPaginationFilter ? 0 : null,
@@ -155,23 +174,14 @@ class RankingViewModel extends StateNotifier<RankingState> {
     );
   }
 
-  void resetAndReload({int initialPage = 0}) {
+  void resetAndReload() {
     _invalidateRequests();
-    state = const RankingState();
+    state = RankingState();
   }
-
-  void setFeatureTagFilter(FeatureTag tag, int value) =>
-      _updateFilter(UpdateRankingFilterInputData(tag, value));
-
-  void setPartOfSpeechFilter(CatalogPartOfSpeech pos, int value) =>
-      _updateFilter(UpdateRankingFilterInputData(pos, value));
 
   RankingPageIdentity _identityFor(int page) => RankingPageIdentity(
         sessionKey: _scope,
-        normalizedFilter: RankingNormalizedFilter(
-          partOfSpeech: state.partOfSpeechFilters,
-          featureTags: state.featureTagFilters,
-        ),
+        filter: state.filter,
         page: page,
         size: _pageSize,
       );
@@ -195,3 +205,8 @@ class RankingViewModel extends StateNotifier<RankingState> {
     super.dispose();
   }
 }
+
+RankingAccountScope _rankingScope(SessionScopeKey scope) =>
+    scope.accountScope == guestAccountScope
+        ? const RankingAccountScope.guest()
+        : RankingAccountScope.account(scope.accountScope);

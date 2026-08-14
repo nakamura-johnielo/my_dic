@@ -1,6 +1,15 @@
 import 'package:my_dic/core/shared/errors/app_error.dart';
 
-/// A Catalog failure translated into Search's own boundary vocabulary.
+/// Failure units supported by Search's required Catalog contract.
+enum SearchCatalogOperation {
+  primarySearch,
+  conjugationSearch,
+  meanings,
+  frequencies,
+  rankings,
+}
+
+/// A provider failure translated into Search-owned gateway vocabulary.
 final class SearchCatalogGatewayError extends AppError {
   const SearchCatalogGatewayError({
     required this.operation,
@@ -9,5 +18,5 @@ final class SearchCatalogGatewayError extends AppError {
     super.stackTrace,
   }) : super(code: 'SEARCH_CATALOG_GATEWAY_FAILURE');
 
-  final String operation;
+  final SearchCatalogOperation operation;
 }

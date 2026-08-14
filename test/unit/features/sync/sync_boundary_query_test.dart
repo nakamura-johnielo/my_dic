@@ -9,18 +9,37 @@ void main() {
       'lib/features/my_word/internal/infrastructure/my_word_status/firebase/firebase_my_word_status_dao.dart',
     ];
     const myWordAdapterPath =
-        'lib/features/my_word/internal/infrastructure/sync/my_word_dataset_sync_adapter.dart';
+        'lib/features/my_word/internal/infrastructure/sync/my_word_dataset_sync_service.dart';
     const localDaoPaths = [
       'lib/features/word_status/internal/infrastructure/esp_jpn/drift/esp_jpn_word_status_dao.dart',
     ];
 
     for (final path in remoteDaoPaths) {
       final source = File(path).readAsStringSync();
-      expect(source.contains('isGreaterThanOrEqualTo:'), isTrue,
-          reason: '$path must retry records exactly at the checkpoint.');
-      expect(RegExp(r'\bisGreaterThan:').hasMatch(source), isFalse,
-          reason: '$path must not exclude the checkpoint timestamp.');
+      expect(source.contains('fetchUpdatedSince('), isTrue,
+          reason: '$path must use the canonical inclusive query gateway.');
+      expect(source.contains('since: lastSync'), isTrue,
+          reason: '$path must forward the checkpoint without changing it.');
     }
+
+    const updatedDocumentGatewayPath =
+        'lib/app/bootstrap/firebase_providers.dart';
+    final updatedDocumentGateway =
+        File(updatedDocumentGatewayPath).readAsStringSync();
+    expect(
+      updatedDocumentGateway.contains(
+        'isGreaterThanOrEqualTo: Timestamp.fromDate(since)',
+      ),
+      isTrue,
+      reason: '$updatedDocumentGatewayPath must retry records exactly at the '
+          'checkpoint.',
+    );
+    expect(
+      RegExp(r'\bisGreaterThan:').hasMatch(updatedDocumentGateway),
+      isFalse,
+      reason: '$updatedDocumentGatewayPath must not exclude the checkpoint '
+          'timestamp.',
+    );
 
     for (final path in localDaoPaths) {
       final source = File(path).readAsStringSync();
@@ -49,11 +68,20 @@ void main() {
     for (final path in statusDaoPaths) {
       final source = File(path).readAsStringSync();
       expect(source.contains('Future<List<'), isTrue);
-      expect(source.contains('.orderBy(FieldPath.documentId)'), isTrue);
-      expect(source.contains('query = query.startAt(['), isTrue);
-      expect(source.contains('Timestamp(cursor.seconds, cursor.nanoseconds)'),
-          isTrue);
-      expect(source.contains('cursor.documentId'), isTrue);
+      expect(source.contains('cursorSeconds: cursor?.seconds'), isTrue);
+      expect(source.contains('cursorNanoseconds: cursor?.nanoseconds'), isTrue);
+      expect(source.contains('cursorDocumentId: cursor?.documentId'), isTrue);
     }
+
+    const gatewayPath = 'lib/app/bootstrap/firebase_providers.dart';
+    final gateway = File(gatewayPath).readAsStringSync();
+    expect(gateway.contains('.orderBy(updatedAtField)'), isTrue);
+    expect(gateway.contains('.orderBy(FieldPath.documentId)'), isTrue);
+    expect(gateway.contains('query = query.startAt(['), isTrue);
+    expect(gateway.contains('Timestamp(cursorSeconds, cursorNanoseconds)'),
+        isTrue);
+    expect(gateway.contains('cursorDocumentId'), isTrue);
+    expect(gateway.contains('startAfter('), isFalse,
+        reason: '$gatewayPath must include the checkpoint row for retry.');
   });
 }

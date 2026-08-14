@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_controller.dart';
+import 'package:my_dic/integration/session_lifecycle_workflow/auth_lifecycle_controller.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/auth/port/presentation_entry.dart';
 
 import '../../helpers/fake_auth_usecases.dart';
-import '../../helpers/fake_user_usecases.dart';
+import '../../helpers/fake_user_profile_ports.dart';
 import '../../helpers/test_helpers.dart';
 
 void main() {
@@ -98,12 +98,15 @@ final class _Actions implements AuthPresentationActions {
 }
 
 AuthLifecycleController _controller({FakeVerifyEmailInteractor? verify}) {
+  final verification = verify ?? FakeVerifyEmailInteractor();
   return AuthLifecycleController(
-    signIn: FakeSignInInteractor(),
-    signUp: FakeSignUpInteractor(),
-    signOut: FakeSignOutInteractor(),
-    sendVerificationEmail: verify ?? FakeVerifyEmailInteractor(),
-    reloadCurrentAuth: FakeReloadCurrentAuthInteractor(),
-    ensureUserExists: FakeEnsureUserExistsInteractor(),
+    query: FakeAuthQueryService(FakeReloadCurrentAuthInteractor()),
+    commands: FakeAuthCommandService(
+      signInFake: FakeSignInInteractor(),
+      signUpFake: FakeSignUpInteractor(),
+      signOutFake: FakeSignOutInteractor(),
+      verifyFake: verification,
+    ),
+    userProfileCommands: FakeEnsureUserProfileCommands(),
   );
 }

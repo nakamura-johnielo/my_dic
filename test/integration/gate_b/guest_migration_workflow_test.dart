@@ -11,7 +11,7 @@ import 'package:my_dic/app/session/app_session.dart';
 import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/core/session/session_scope_provider.dart';
-import 'package:my_dic/features/auth/port/app_auth.dart';
+import 'package:my_dic/features/auth/port/auth.dart';
 import 'package:my_dic/features/sync/port/model/sync_context.dart';
 import 'package:my_dic/features/sync/port/sync_run_outcome.dart';
 import 'package:my_dic/features/user_profile/port/user_profile.dart';
@@ -111,7 +111,7 @@ Future<_Harness> _pump(WidgetTester tester, _Workflow workflow) async {
 }
 
 AppSessionReady _ready(String id) =>
-    AppSessionReady(AppAuth(accountId: id, isAuthenticated: true), AppUser());
+    AppSessionReady(AuthIdentity(accountId: id, emailVerified: true), AppUser());
 
 class _Workflow {
   _Workflow({this.deferredDetect = false, List<SyncRunOutcome>? outcomes})

@@ -105,14 +105,17 @@ final class _Gateway implements QuizGameCatalogGateway {
 }
 
 final class _English implements QuizGameEnglishReader {
-  _English(this.calls, {Result<Map<String, String>>? result})
+  _English(this.calls, {Result<QuizEnglishConjugation>? result})
       : _result = result ??
-            const Result.success(
-                {'EnglishMoodTense.indicativePresent': 'speak'});
+            Result.success(QuizEnglishConjugation(
+              {QuizEnglishMoodTense.indicativePresent: 'speak'},
+            ));
   final List<String> calls;
-  final Result<Map<String, String>> _result;
+  final Result<QuizEnglishConjugation> _result;
   @override
-  Future<Result<Map<String, String>>> readEnglishConjugation(int wordId) async {
+  Future<Result<QuizEnglishConjugation>> readEnglishConjugation(
+    int wordId,
+  ) async {
     calls.add('english');
     return _result;
   }
@@ -122,17 +125,19 @@ final class _Assets implements QuizGameAssetReader {
   _Assets(this.calls);
   final List<String> calls;
   @override
-  Future<Result<Map<String, Map<String, String>>>> readBeConjugation() async {
+  Future<Result<QuizBeConjugation>> readBeConjugation() async {
     calls.add('be');
-    return const Result.success({
-      'EnglishMoodTense.indicativePresent': {'EnglishSubject.I': 'am'}
-    });
+    return Result.success(QuizBeConjugation({
+      QuizEnglishMoodTense.indicativePresent: {QuizEnglishSubject.i: 'am'},
+    }));
   }
 
   @override
-  Future<Result<Map<String, String>>> readEnglishPromptGuide() async {
+  Future<Result<QuizEnglishPromptGuide>> readEnglishPromptGuide() async {
     calls.add('guide');
-    return const Result.success({'MoodTense.indicativePresent': '@ #'});
+    return Result.success(QuizEnglishPromptGuide(
+      {QuizMoodTense.indicativePresent: '@ #'},
+    ));
   }
 }
 

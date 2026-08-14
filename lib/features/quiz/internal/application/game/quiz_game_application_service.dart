@@ -47,26 +47,23 @@ final class QuizGameApplicationService implements QuizGameQueryPort {
     // Keep the legacy loading order: both bundled assets precede the English
     // database lookup. It keeps source-specific failures stable for the UI.
     final guide = await _readGuide();
-    if (guide is Failure<Map<String, String>>) {
+    if (guide is Failure<QuizEnglishPromptGuide>) {
       return _failure(QuizGameLoadSource.englishGuide, guide.error);
     }
     final be = await _readBe();
-    if (be is Failure<Map<String, Map<String, String>>>) {
+    if (be is Failure<QuizBeConjugation>) {
       return _failure(QuizGameLoadSource.beConjugation, be.error);
     }
     final english = await _readEnglish(query);
-    if (english is Failure<Map<String, String>>) {
+    if (english is Failure<QuizEnglishConjugation>) {
       return _failure(QuizGameLoadSource.englishConjugation, english.error);
     }
 
     return Result.success(QuizGameLoadOutcome.ready(QuizGameData(
       conjugation: conjugation,
-      promptGuide:
-          _mapPromptGuide((guide as Success<Map<String, String>>).data),
-      beConjugation: _mapBeConjugation(
-          (be as Success<Map<String, Map<String, String>>>).data),
-      englishConjugation: _mapEnglishConjugation(
-          (english as Success<Map<String, String>>).data),
+      promptGuide: (guide as Success<QuizEnglishPromptGuide>).data,
+      beConjugation: (be as Success<QuizBeConjugation>).data,
+      englishConjugation: (english as Success<QuizEnglishConjugation>).data,
     )));
   }
 
@@ -78,13 +75,13 @@ final class QuizGameApplicationService implements QuizGameQueryPort {
   ) =>
       _guard(() => _catalogGateway.readConjugation(query.word));
 
-  Future<Result<Map<String, String>>> _readGuide() =>
+  Future<Result<QuizEnglishPromptGuide>> _readGuide() =>
       _guard(_assetReader.readEnglishPromptGuide);
 
-  Future<Result<Map<String, Map<String, String>>>> _readBe() =>
+  Future<Result<QuizBeConjugation>> _readBe() =>
       _guard(_assetReader.readBeConjugation);
 
-  Future<Result<Map<String, String>>> _readEnglish(QuizGameQuery query) =>
+  Future<Result<QuizEnglishConjugation>> _readEnglish(QuizGameQuery query) =>
       _guard(() => _englishReader.readEnglishConjugation(query.word.wordId));
 
   Future<Result<T>> _guard<T>(Future<Result<T>> Function() read) async {
@@ -114,35 +111,4 @@ final class QuizGameApplicationService implements QuizGameQueryPort {
     QuizCatalogConjugation required,
   ) =>
       QuizConjugation(word: required.word, forms: required.forms);
-
-  QuizEnglishConjugation _mapEnglishConjugation(Map<String, String> raw) =>
-      QuizEnglishConjugation({
-        for (final tense in QuizEnglishMoodTense.values)
-          if (raw[_englishTenseKey(tense)] case final value?) tense: value,
-      });
-
-  QuizEnglishPromptGuide _mapPromptGuide(Map<String, String> raw) =>
-      QuizEnglishPromptGuide({
-        for (final tense in QuizMoodTense.values)
-          if (raw['MoodTense.${tense.name}'] case final value?) tense: value,
-      });
-
-  QuizBeConjugation _mapBeConjugation(
-    Map<String, Map<String, String>> raw,
-  ) =>
-      QuizBeConjugation({
-        for (final tense in QuizEnglishMoodTense.values)
-          if (raw[_englishTenseKey(tense)] case final bySubject?)
-            tense: {
-              for (final subject in QuizEnglishSubject.values)
-                if (bySubject[_englishSubjectKey(subject)] case final value?)
-                  subject: value,
-            },
-      });
-
-  String _englishTenseKey(QuizEnglishMoodTense tense) =>
-      'EnglishMoodTense.${tense.name}';
-
-  String _englishSubjectKey(QuizEnglishSubject subject) =>
-      'EnglishSubject.${subject == QuizEnglishSubject.i ? 'I' : subject.name}';
 }

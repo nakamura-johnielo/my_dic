@@ -45,27 +45,3 @@ class RemoteMutationAck {
   final String? lastMutationId;
   final DateTime? serverUpdatedAt;
 }
-
-/// Pure input for one-time user-profile provisioning.
-class RemoteUserProfileProvisioningRequest {
-  const RemoteUserProfileProvisioningRequest({
-    required this.accountId,
-    this.email,
-    this.userName,
-  }) : assert(accountId != '');
-
-  final String accountId;
-  final String? email;
-  final String? userName;
-}
-
-/// Existing profile data returned by a provisioning transaction.
-class RemoteUserProfileProvisioningResult {
-  RemoteUserProfileProvisioningResult({
-    required this.alreadyExisted,
-    Map<String, Object?> fields = const {},
-  }) : fields = UnmodifiableMapView(Map.of(fields));
-
-  final bool alreadyExisted;
-  final Map<String, Object?> fields;
-}

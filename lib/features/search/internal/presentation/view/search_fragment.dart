@@ -4,14 +4,13 @@ import 'package:my_dic/core/presentation/components/auto_focus_text_field.dart';
 import 'package:my_dic/core/presentation/components/infinityscroll.dart';
 import 'package:my_dic/core/presentation/error/app_error_message.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart' show CatalogWordRef;
+import 'package:my_dic/features/search/internal/application/search_suggestion_policy.dart';
 import 'package:my_dic/features/search/internal/presentation/provider/view_model_di.dart';
 import 'package:my_dic/features/search/internal/presentation/components/search_result_card.dart';
-import 'package:my_dic/features/search/port/model/conjugation_search_item.dart';
-import 'package:my_dic/features/search/port/model/search_direction.dart';
-import 'package:my_dic/features/search/port/model/search_result_item.dart';
 import 'package:my_dic/features/search/internal/presentation/ui_model/search_ui_model.dart';
 import 'package:my_dic/features/search/internal/presentation/view_model/viewmodel.dart';
-import 'package:my_dic/features/catalog/port/catalog.dart';
+import 'package:my_dic/features/search/port/search.dart';
 
 class SearchFragment extends ConsumerStatefulWidget {
   const SearchFragment({
@@ -28,7 +27,7 @@ class SearchFragment extends ConsumerStatefulWidget {
 
 class _SearchFragmentState extends ConsumerState<SearchFragment> {
   static const _size = 30;
-  static const _conjCount = 2;
+  static const _conjCount = SearchSuggestionPolicy.displayLimit;
   late final InfinityScrollController _scroll;
   @override
   void initState() {
@@ -144,7 +143,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                 padding: const EdgeInsets.only(bottom: 11),
                 child: SearchResultCard(
                     query: query,
-                    wordId: word.wordId,
+                    wordId: word.word.wordId,
                     showRanking: false,
                     word: word.headword,
                     meaning: word.meaningText ?? '',
@@ -179,20 +178,24 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
               ? () => _toQuiz(item.word, item.headword)
               : null,
           query: query,
-          wordId: item.wordId,
+          wordId: item.word.wordId,
           ranking: item.rankingNo,
           showRanking: true,
           word: item.headword,
           meaning: item.meaningText ?? '',
           onTap: () => _toWordDetail(item.word)));
 
-  Widget _conjugationCard(String query, ConjugationSearchItem item) => Padding(
+  Widget _conjugationCard(
+    String query,
+    SearchConjugationSuggestion item,
+  ) =>
+      Padding(
         padding: const EdgeInsets.only(bottom: 11),
         child: SearchResultCard(
           status: const SizedBox.shrink(),
           onQuizTap: () => _toQuiz(item.word, item.headword),
           query: query,
-          wordId: item.wordId,
+          wordId: item.word.wordId,
           ranking: item.rankingNo,
           showRanking: true,
           word: item.headword,

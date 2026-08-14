@@ -1,7 +1,7 @@
 import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/core/shared/consts/account_scope.dart';
-import 'package:my_dic/features/sync/port/sync_runner.dart';
-import 'session_fence_adapter.dart';
+import 'package:my_dic/features/sync/port/sync.dart';
+import 'session_fence_service.dart';
 import 'auth_lifecycle_state.dart';
 
 /// The sole issuer of session epochs.
@@ -12,8 +12,8 @@ import 'auth_lifecycle_state.dart';
 final class SessionEpochCoordinator {
   SessionEpochCoordinator(this._fence, this._scheduler);
 
-  final SessionFenceAdapter _fence;
-  final ISyncRunner _scheduler;
+  final SessionFenceService _fence;
+  final SyncRunner _scheduler;
   int _nextEpoch = 0;
   SessionScopeKey? _active;
   bool _disposed = false;

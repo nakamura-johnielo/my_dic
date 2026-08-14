@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:my_dic/features/catalog/port/catalog.dart';
-import 'package:my_dic/features/word_detail/internal/presentation/ui_model/catalog_conjugation_labels.dart';
+import 'package:my_dic/features/word_detail/internal/presentation/ui_model/word_detail_conjugation_labels.dart';
+import 'package:my_dic/features/word_detail/port/word_detail.dart';
 
 class ConjugacionCard extends StatelessWidget {
   const ConjugacionCard({
@@ -10,8 +10,8 @@ class ConjugacionCard extends StatelessWidget {
     this.query = '',
   });
 
-  final CatalogMoodTense moodTense;
-  final CatalogTenseConjugation conjugacion;
+  final WordDetailMoodTense moodTense;
+  final WordDetailTenseConjugation conjugacion;
   final String query;
 
   Widget _highlightMatch(BuildContext context, String text) {
@@ -70,9 +70,9 @@ class ConjugacionCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        for (final subject in catalogSubjectOrder) ...[
+                        for (final subject in wordDetailSubjectOrder) ...[
                           Text(subject.displayEsp, textAlign: TextAlign.left),
-                          if (subject != catalogSubjectOrder.last)
+                          if (subject != wordDetailSubjectOrder.last)
                             const SizedBox(height: 5),
                         ],
                       ],
@@ -82,9 +82,9 @@ class ConjugacionCard extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      for (final subject in catalogSubjectOrder) ...[
+                      for (final subject in wordDetailSubjectOrder) ...[
                         _highlightMatch(context, conjugacion[subject] ?? ''),
-                        if (subject != catalogSubjectOrder.last)
+                        if (subject != wordDetailSubjectOrder.last)
                           const SizedBox(height: 5),
                       ],
                     ],
@@ -105,7 +105,7 @@ class ParticipleCard extends StatelessWidget {
     this.query = '',
   });
 
-  final CatalogMoodTense moodTense;
+  final WordDetailMoodTense moodTense;
   final String conjugacion;
   final String query;
 

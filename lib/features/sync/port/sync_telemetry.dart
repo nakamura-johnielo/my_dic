@@ -1,7 +1,7 @@
 import 'model/sync_report.dart';
 
 /// Observes completed sync cycles without participating in sync correctness.
-abstract interface class ISyncTelemetry {
+abstract interface class SyncTelemetry {
   Future<void> recordCycleCompleted({
     required String trigger,
     required SyncReport report,
@@ -9,7 +9,7 @@ abstract interface class ISyncTelemetry {
 }
 
 /// Production-safe default for compositions that do not install telemetry.
-class NoopSyncTelemetry implements ISyncTelemetry {
+class NoopSyncTelemetry implements SyncTelemetry {
   const NoopSyncTelemetry();
 
   @override
@@ -20,7 +20,7 @@ class NoopSyncTelemetry implements ISyncTelemetry {
 }
 
 /// In-memory test double for asserting completed-cycle notifications.
-class FakeSyncTelemetry implements ISyncTelemetry {
+class FakeSyncTelemetry implements SyncTelemetry {
   final List<SyncTelemetryCall> calls = [];
 
   @override

@@ -1,5 +1,16 @@
 # MyWord refactor plan
 
+> Implementation status (2026-08-13): Phases 1-7 are implemented. The sole
+> facade and typed composition remain in place; `MyWordApplicationService`
+> owns the application contract; the legacy `I*UseCase`, `*InputData`,
+> interactor, and dead watch graph have been removed after reference migration.
+> The composition seam is SDK-free and delegates all completed capabilities to
+> the canonical `my_word_composition_factory.dart`; Firestore is closed behind
+> the app-owned core external-system gateway.
+> Repository, query, store, gateway, and infrastructure implementations now
+> use role-based names. Runtime verification remains part of the repository-wide
+> Phase 8 validation pass.
+
 ## 1. 目的とスコープ
 
 MyWord feature を Catalog と同じ境界原則へ移行する。

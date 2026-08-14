@@ -4,7 +4,6 @@ import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/core/presentation/components/icons/rotating_icon.dart';
 import 'package:my_dic/core/presentation/error/app_error_message.dart';
 import 'package:my_dic/core/presentation/state/ui_effect.dart';
-import 'package:my_dic/core/shared/errors/app_error.dart';
 import 'package:my_dic/features/user_profile/internal/presentation/model/user_profile_ui_model.dart';
 import 'package:my_dic/features/user_profile/internal/presentation/view_model/user_profile_view_model.dart';
 import 'package:my_dic/features/user_profile/port/user_profile.dart';
@@ -27,7 +26,7 @@ class ProfilePage extends StatefulWidget {
   final String? email;
   final AppError? error;
   final bool isLoading;
-  final UpdateUserProfilePort updateUserProfile;
+  final UserProfileCommandPort updateUserProfile;
   final VoidCallback onSignOut;
 
   @override

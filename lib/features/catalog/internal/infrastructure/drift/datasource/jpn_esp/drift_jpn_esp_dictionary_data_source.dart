@@ -3,9 +3,8 @@ import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/jpn_es
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/datasource/jpn_esp/jpn_esp_dictionary_data_source.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/datasource/jpn_esp/jpn_esp_dictionary_dataset.dart';
 
-class JpnEspDriftDictionaryDataSource
-    implements IJpnEspDictionaryLocalDataSource {
-  JpnEspDriftDictionaryDataSource(this._dictionaryDao, this._exampleDao);
+class JpnEspDictionaryDriftDataSource implements JpnEspDictionaryDataSource {
+  JpnEspDictionaryDriftDataSource(this._dictionaryDao, this._exampleDao);
   final JpnEspDictionaryDao _dictionaryDao;
   final JpnEspExampleDao _exampleDao;
 
@@ -24,7 +23,4 @@ class JpnEspDriftDictionaryDataSource
     return result;
   }
 
-  @override
-  Future<Map<int, String>> getContentsByWordIds(List<int> wordIds) =>
-      _dictionaryDao.getFirstContentsByWordIds(wordIds);
 }

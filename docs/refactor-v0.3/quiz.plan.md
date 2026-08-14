@@ -250,7 +250,7 @@ trim、warning化、fallback、表示方針はadapterへ置かない。
 
 ### Phase 3: candidate application policy切替
 
-- `GatewayQuizCandidateSource` を `QuizCandidateReaderPort` 実装へ移行する
+- candidate reader実装を規則準拠の`QuizCandidateQueryService`へ移行する
 - trim済みquery、primary failure、3 enrichmentの並行取得、issue化、fallback headwordを維持する
 - issue sourceとerrorをtyped化し、presentationの`QueryWarning`へ変換する責務はQuiz presentationに残す
 - app/integration/testのcandidate business importを`quiz.dart`へ切り替える

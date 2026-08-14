@@ -1,12 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
-import 'package:my_dic/features/my_word/internal/composition/my_word_ports_factory.dart';
-import 'package:my_dic/features/my_word/internal/composition/my_word_sync_factory.dart';
+import 'package:my_dic/core/port/firebase_account_nested_document_gateway.dart';
+import 'package:my_dic/features/my_word/internal/composition/my_word_composition_factory.dart';
 import 'package:my_dic/features/my_word/port/composition_contract.dart';
-import 'package:my_dic/features/sync/port/dataset_sync_handler.dart';
-import 'package:my_dic/features/sync/port/outbox_writer.dart';
-import 'package:my_dic/features/sync/port/remote_mutation_executor.dart';
-import 'package:my_dic/features/sync/port/sync_handler_runtime.dart';
+import 'package:my_dic/features/sync/port/dataset_contract.dart';
 
 export 'composition_contract.dart';
 
@@ -18,20 +14,20 @@ final class MyWordDependencies {
   });
 
   final DatabaseProvider database;
-  final IOutboxWriter outboxWriter;
+  final OutboxWriter outboxWriter;
 }
 
 /// Application-owned services required by MyWord dataset synchronization.
 final class MyWordSyncDependencies {
   const MyWordSyncDependencies({
     required this.database,
-    required this.firestore,
+    required this.remoteDocuments,
     required this.remoteMutationExecutor,
   });
 
   final DatabaseProvider database;
-  final FirebaseFirestore firestore;
-  final IRemoteMutationExecutor remoteMutationExecutor;
+  final FirebaseAccountNestedUpdatedDocumentGateway remoteDocuments;
+  final RemoteMutationExecutor remoteMutationExecutor;
 }
 
 /// Assembles MyWord from application-owned services without framework state.
@@ -43,24 +39,24 @@ MyWordPorts createMyWordPorts({
       outboxWriter: dependencies.outboxWriter,
     );
 
-IDatasetSyncHandler createMyWordDatasetSyncHandler({
+DatasetSyncHandler createMyWordDatasetSyncHandler({
   required MyWordSyncDependencies dependencies,
-  required ISyncHandlerRuntime runtime,
+  required SyncHandlerRuntime runtime,
 }) =>
     createInternalMyWordDatasetSyncHandler(
       database: dependencies.database,
-      firestore: dependencies.firestore,
+      remoteDocuments: dependencies.remoteDocuments,
       remoteMutationExecutor: dependencies.remoteMutationExecutor,
       runtime: runtime,
     );
 
-IDatasetSyncHandler createMyWordStatusDatasetSyncHandler({
+DatasetSyncHandler createMyWordStatusDatasetSyncHandler({
   required MyWordSyncDependencies dependencies,
-  required ISyncHandlerRuntime runtime,
+  required SyncHandlerRuntime runtime,
 }) =>
     createInternalMyWordStatusDatasetSyncHandler(
       database: dependencies.database,
-      firestore: dependencies.firestore,
+      remoteDocuments: dependencies.remoteDocuments,
       remoteMutationExecutor: dependencies.remoteMutationExecutor,
       runtime: runtime,
     );

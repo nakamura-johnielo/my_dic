@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/word_status/port/word_status.dart';
 
 void main() {
@@ -22,7 +21,7 @@ void main() {
       final status = _status(updatedAt: utcTime);
 
       expect(status.updatedAt, utcTime);
-      expect(status.updatedAt.isUtc, isTrue);
+      expect(status.updatedAt!.isUtc, isTrue);
     });
 
     test('copyWith preserves unspecified fields and a new UTC timestamp', () {
@@ -48,7 +47,7 @@ void main() {
       expect(copied.isBookmarked, isTrue);
       expect(copied.hasNote, isTrue);
       expect(copied.updatedAt, utcTime);
-      expect(copied.updatedAt.isUtc, isTrue);
+      expect(copied.updatedAt!.isUtc, isTrue);
     });
   });
 }

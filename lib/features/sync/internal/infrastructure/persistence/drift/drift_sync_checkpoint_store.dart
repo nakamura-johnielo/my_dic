@@ -4,7 +4,7 @@ import 'package:my_dic/features/sync/port/model/sync_cursor.dart';
 import 'package:my_dic/features/sync/port/sync_checkpoint_store.dart';
 import 'package:my_dic/features/sync/port/sync_dataset.dart';
 
-class DriftSyncCheckpointStore implements ISyncCheckpointStore {
+class DriftSyncCheckpointStore implements SyncCheckpointStore {
   DriftSyncCheckpointStore(this._db);
   final DatabaseProvider _db;
   @override

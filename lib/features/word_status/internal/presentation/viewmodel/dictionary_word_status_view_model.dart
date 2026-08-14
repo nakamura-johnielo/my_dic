@@ -13,17 +13,28 @@ final class WordStatusState {
   bool get isLearned => status.dataOrNull?.isLearned ?? false;
   bool get isBookmarked => status.dataOrNull?.isBookmarked ?? false;
   bool get hasNote => status.dataOrNull?.hasNote ?? false;
-  factory WordStatusState.fromAsync(AsyncValue<WordStatus> value) => value.when(
+  factory WordStatusState.fromAsync(AsyncValue<Result<WordStatus>> value) =>
+      value.when(
         skipLoadingOnRefresh: false,
         skipError: false,
-        data: (status) => WordStatusState(status: QueryState.data(status)),
+        data: (result) {
+          final status = result.dataOrNull;
+          if (status != null) {
+            return WordStatusState(status: QueryState.data(status));
+          }
+          return WordStatusState(
+            status: QueryState.failure(result.errorOrNull!),
+          );
+        },
         loading: () => WordStatusState(
-          status: QueryState.loading(previousData: value.valueOrNull),
+          status: QueryState.loading(
+            previousData: value.valueOrNull?.dataOrNull,
+          ),
         ),
         error: (error, _) => WordStatusState(
           status: QueryState.failure(
             asWordStatusReadError(error),
-            previousData: value.valueOrNull,
+            previousData: value.valueOrNull?.dataOrNull,
           ),
         ),
       );

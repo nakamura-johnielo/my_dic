@@ -1,42 +1,36 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:my_dic/core/infrastructure/firebase/firebase_account_document_namespace.dart';
+import 'package:my_dic/core/port/firebase_account_nested_document_gateway.dart';
 import 'package:my_dic/features/my_word/internal/infrastructure/my_word/firebase/firebase_my_word_dto.dart';
 import 'package:my_dic/features/my_word/internal/infrastructure/my_word/firebase/firebase_my_word_mapper.dart';
-import 'package:my_dic/features/sync/port/model/remote_mutation.dart';
-import 'package:my_dic/features/sync/port/remote_mutation_executor.dart';
-import 'package:my_dic/features/user_profile/port/user_dto.dart';
+import 'package:my_dic/features/sync/port/dataset_contract.dart';
 
 class FirebaseMyWordDao {
-  final FirebaseFirestore _db;
-  final IRemoteMutationExecutor _remoteMutations;
+  final FirebaseAccountNestedUpdatedDocumentGateway _remoteDocuments;
+  final RemoteMutationExecutor _remoteMutations;
 
-  FirebaseMyWordDao(this._db, this._remoteMutations);
+  FirebaseMyWordDao(this._remoteDocuments, this._remoteMutations);
 
   /// Get a single MyWord by ID
   Future<MyWordDTO?> getMyWord(String userId, String myWordId) async {
-    final doc = await _db
-        .collection(UserDTO.collectionName)
-        .doc(userId)
-        .collection(MyWordDTO.collectionName)
-        .doc(myWordId)
-        .get();
-    if (!doc.exists || doc.data() == null) return null;
-    return FirebaseMyWordMapper.fromDocument(doc);
+    final document = await _remoteDocuments.read(
+      accountId: userId,
+      collection: MyWordDTO.collectionName,
+      documentId: myWordId,
+    );
+    if (document == null) return null;
+    return FirebaseMyWordMapper.fromDocument(document);
   }
 
   /// Get MyWords updated after a specific timestamp (one-time query)
   Future<List<MyWordDTO>> getMyWordsAfter(
       String userId, DateTime lastSync) async {
-    final querySnapshot = await _db
-        .collection(UserDTO.collectionName)
-        .doc(userId)
-        .collection(MyWordDTO.collectionName)
-        .where(MyWordDTO.fieldUpdatedAt,
-            isGreaterThanOrEqualTo: Timestamp.fromDate(lastSync))
-        .get();
-
-    if (querySnapshot.docs.isEmpty) return [];
-
-    return querySnapshot.docs.map(FirebaseMyWordMapper.fromDocument).toList();
+    final documents = await _remoteDocuments.fetchUpdatedSince(
+      accountId: userId,
+      collection: MyWordDTO.collectionName,
+      updatedAtField: MyWordDTO.fieldUpdatedAt,
+      since: lastSync,
+    );
+    return documents.map(FirebaseMyWordMapper.fromDocument).toList();
   }
 
   /// Merge-writes only [fieldMask] keys plus bookkeeping timestamps, so that
@@ -45,7 +39,22 @@ class FirebaseMyWordDao {
   /// Firestore `Timestamp` tombstone marker.
   Future<RemoteMutationAck> patch(RemoteMutationRequest request) {
     return _remoteMutations.execute(
-      target: RemoteMutationTarget.myWord,
+      document: RemoteMutationDocument(
+        pathSegments: [
+          FirebaseAccountDocumentNamespace.usersCollection,
+          request.accountId,
+          MyWordDTO.collectionName,
+          request.entityId,
+        ],
+        identityFields: {'wordId': request.entityId},
+        encodedFields: {
+          for (final field in request.fieldMask)
+            field: field == MyWordDTO.fieldDeletedAt &&
+                    request.fields[field] is String
+                ? DateTime.parse(request.fields[field]! as String).toUtc()
+                : request.fields[field],
+        },
+      ),
       request: request,
     );
   }

@@ -1,10 +1,9 @@
 import 'package:my_dic/features/my_word/port/my_word.dart';
 import 'package:uuid/uuid.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
-import 'package:my_dic/features/sync/port/outbox_writer.dart';
-import 'package:my_dic/features/sync/port/session_fence.dart';
-import 'package:my_dic/features/user_profile/port/guest_migration.dart';
-import 'package:my_dic/features/word_status/port/guest_migration.dart';
+import 'package:my_dic/features/sync/port/sync.dart';
+import 'package:my_dic/features/user_profile/port/user_profile.dart';
+import 'package:my_dic/features/word_status/port/word_status.dart';
 
 /// Moves every guest-scoped local row to a signed-in account, atomically.
 ///
@@ -25,28 +24,26 @@ import 'package:my_dic/features/word_status/port/guest_migration.dart';
 class MigrateGuestDataUseCase {
   MigrateGuestDataUseCase({
     required DatabaseProvider database,
-    required IWordStatusGuestMigration wordStatus,
+    required WordStatusGuestMigrationPort wordStatus,
     required MyWordGuestMigrationPort myWord,
     required UserProfileGuestMigrationPort userProfile,
-    required IOutboxWriter outboxWriter,
-    required ISessionFence sessionFence,
+    OutboxWriter? outboxWriter,
+    required SessionFence sessionFence,
     Uuid? uuid,
     DateTime Function()? clock,
   })  : _database = database,
         _wordStatus = wordStatus,
         _myWord = myWord,
         _userProfile = userProfile,
-        _outboxWriter = outboxWriter,
         _sessionFence = sessionFence,
         _uuid = uuid ?? const Uuid(),
         _clock = clock ?? DateTime.now;
 
   final DatabaseProvider _database;
-  final IWordStatusGuestMigration _wordStatus;
+  final WordStatusGuestMigrationPort _wordStatus;
   final MyWordGuestMigrationPort _myWord;
   final UserProfileGuestMigrationPort _userProfile;
-  final IOutboxWriter _outboxWriter;
-  final ISessionFence _sessionFence;
+  final SessionFence _sessionFence;
   final Uuid _uuid;
   final DateTime Function() _clock;
 
@@ -90,8 +87,6 @@ class MigrateGuestDataUseCase {
     await _userProfile.migrateGuestProfile(
       accountId: accountId,
       migrationId: migrationId,
-      outboxWriter: _outboxWriter,
-      clock: _clock,
     );
   }
 }

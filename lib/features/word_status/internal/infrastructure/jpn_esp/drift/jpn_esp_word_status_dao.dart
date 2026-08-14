@@ -2,7 +2,6 @@ import 'package:drift/drift.dart';
 import 'package:my_dic/core/infrastructure/database/drift/tables/jpn-esp/jpn_esp_word_status.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/core/shared/consts/account_scope.dart';
-import 'package:my_dic/core/shared/utils/logger.dart';
 
 part '../../../../../../__generated/features/word_status/internal/infrastructure/jpn_esp/drift/jpn_esp_word_status_dao.g.dart';
 
@@ -79,7 +78,6 @@ class JpnEspWordStatusDao extends DatabaseAccessor<DatabaseProvider>
       if (updated == null) {
         throw StateError('Jpn-Esp word status was not persisted: $wordId');
       }
-      AppLogger.print("update jpn_esp word status");
       return updated;
     });
   }
@@ -90,6 +88,16 @@ class JpnEspWordStatusDao extends DatabaseAccessor<DatabaseProvider>
           ..where((tbl) =>
               tbl.wordId.equals(wordId) & tbl.accountId.equals(accountId)))
         .getSingleOrNull();
+  }
+
+  Future<List<JpnEspWordStatusTableData>> getStatusesByIds(
+      Iterable<int> wordIds, String accountId) {
+    final ids = wordIds.toList(growable: false);
+    if (ids.isEmpty) return Future.value(const []);
+    return (select(jpnEspWordStatus)
+          ..where((tbl) =>
+              tbl.wordId.isIn(ids) & tbl.accountId.equals(accountId)))
+        .get();
   }
 
   Future<List<JpnEspWordStatusTableData>> getWordStatusAfter(
@@ -103,7 +111,6 @@ class JpnEspWordStatusDao extends DatabaseAccessor<DatabaseProvider>
 
   Future<void> insertStatus(JpnEspWordStatusTableData data) async {
     await into(jpnEspWordStatus).insert(data);
-    AppLogger.print("insert jpn_esp word status");
   }
 
   Future<bool> exist(int id, String accountId) async {

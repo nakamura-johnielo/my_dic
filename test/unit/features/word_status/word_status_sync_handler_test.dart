@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/features/sync/internal/application/sync_handler_runtime_adapter.dart';
+import 'package:my_dic/features/sync/internal/application/sync_handler_runtime_service.dart';
 import 'package:my_dic/features/sync/port/cancellation_token.dart';
 import 'package:my_dic/features/sync/port/model/dataset_sync_result.dart';
 import 'package:my_dic/features/sync/port/model/remote_mutation.dart';
@@ -9,7 +9,7 @@ import 'package:my_dic/features/sync/port/model/sync_mutation.dart';
 import 'package:my_dic/features/sync/port/session_fence.dart';
 import 'package:my_dic/features/sync/port/sync_checkpoint_store.dart';
 import 'package:my_dic/features/sync/port/sync_dataset.dart';
-import 'package:my_dic/features/word_status/internal/infrastructure/sync/word_status_dataset_adapter.dart';
+import 'package:my_dic/features/word_status/internal/infrastructure/sync/word_status_dataset_sync_service.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/sync/word_status_dataset_sync_handler.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/sync/word_status_sync_record.dart';
 
@@ -30,8 +30,8 @@ SyncMutation _mutation(SyncDataset dataset, [String suffix = '']) =>
       clientUpdatedAt: DateTime.utc(2026),
     );
 
-class _Adapter extends WordStatusDatasetAdapter {
-  _Adapter(this.dataset);
+class _WordStatusDatasetSyncStub extends WordStatusDatasetSyncService {
+  _WordStatusDatasetSyncStub(this.dataset);
 
   @override
   final SyncDataset dataset;
@@ -116,16 +116,16 @@ void main() {
     SyncDataset.jpnEspWordStatus,
   ]) {
     group('${dataset.stableId} common handler', () {
-      late _Adapter adapter;
+      late _WordStatusDatasetSyncStub adapter;
       late FakeSyncQueue queue;
       late WordStatusDatasetSyncHandler handler;
 
       setUp(() {
-        adapter = _Adapter(dataset);
+        adapter = _WordStatusDatasetSyncStub(dataset);
         queue = FakeSyncQueue();
         handler = WordStatusDatasetSyncHandler(
           adapter: adapter,
-          runtime: SyncHandlerRuntimeAdapter(
+          runtime: SyncHandlerRuntimeService(
             queue: queue,
             checkpoints: _CheckpointStore(),
             sessionFence: _SessionFence(),

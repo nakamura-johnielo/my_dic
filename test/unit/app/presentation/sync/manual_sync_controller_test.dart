@@ -5,7 +5,7 @@ import 'package:my_dic/app/presentation/sync/manual_sync_controller.dart';
 import 'package:my_dic/app/session/app_session.dart';
 import 'package:my_dic/core/presentation/state/ui_effect.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
-import 'package:my_dic/features/auth/port/app_auth.dart';
+import 'package:my_dic/features/auth/port/auth.dart';
 import 'package:my_dic/features/sync/internal/application/in_memory_session_fence.dart';
 import 'package:my_dic/features/sync/port/model/sync_context.dart';
 import 'package:my_dic/features/sync/port/sync_run_outcome.dart';
@@ -37,7 +37,7 @@ class _Handler implements SyncRunner {
 }
 
 AppSessionReady _ready(String accountId) => AppSessionReady(
-      AppAuth(accountId: accountId, isAuthenticated: true),
+      AuthIdentity(accountId: accountId, emailVerified: true),
       AppUser(),
     );
 

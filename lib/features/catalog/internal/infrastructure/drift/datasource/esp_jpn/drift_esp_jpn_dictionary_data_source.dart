@@ -5,8 +5,8 @@ import 'package:my_dic/features/catalog/internal/infrastructure/drift/dao/esp_jp
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/datasource/esp_jpn/esp_jpn_dictionary_data_source.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/datasource/esp_jpn/esp_jpn_dictionary_dataset.dart';
 
-class EsjDriftDictionaryDataSource implements IEsjDictionaryLocalDataSource {
-  EsjDriftDictionaryDataSource(
+class EspJpnDictionaryDriftDataSource implements EspJpnDictionaryDataSource {
+  EspJpnDictionaryDriftDataSource(
     this._dictionaryDao,
     this._exampleDao,
     this._idiomDao,
@@ -36,21 +36,4 @@ class EsjDriftDictionaryDataSource implements IEsjDictionaryLocalDataSource {
     return result;
   }
 
-  @override
-  Future<String?> getSimpleMeaningById(int id) =>
-      _dictionaryDao.getContentById(id);
-  @override
-  Future<String?> getHeadwordById(int id) => _dictionaryDao.getHeadwordById(id);
-  @override
-  Future<String?> getFirstContentByWordId(int wordId) =>
-      _dictionaryDao.getFirstContentByWordId(wordId);
-  @override
-  Future<String?> getFirstHeadwordByWordId(int wordId) =>
-      _dictionaryDao.getFirstHeadwordByWordId(wordId);
-  @override
-  Future<Map<int, String>> getFirstContentsByWordIds(List<int> wordIds) =>
-      _dictionaryDao.getFirstContentsByWordIds(wordIds);
-  @override
-  Future<Map<int, String>> getFirstHeadwordsByWordIds(List<int> wordIds) =>
-      _dictionaryDao.getFirstHeadwordsByWordIds(wordIds);
 }

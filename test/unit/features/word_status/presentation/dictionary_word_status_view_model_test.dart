@@ -1,20 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/presentation/state/command_state.dart';
+import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
-import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
-import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/core/shared/value_objects/field_update.dart';
-import 'package:my_dic/features/catalog/port/catalog.dart';
-import 'package:my_dic/features/word_status/internal/application/update_word_status.dart';
-import 'package:my_dic/features/word_status/port/repository.dart';
+import 'package:my_dic/features/word_status/internal/presentation/model/dictionary_word_status_command.dart';
+import 'package:my_dic/features/word_status/internal/presentation/viewmodel/dictionary_word_status_view_model.dart';
 import 'package:my_dic/features/word_status/port/word_status.dart';
-import 'package:my_dic/features/word_status/internal/presentation/dictionary_status/dictionary_word_status_command.dart';
-import 'package:my_dic/features/word_status/internal/presentation/dictionary_status/dictionary_word_status_view_model.dart';
 
-class _MockRepository extends Mock implements WordStatusRepository {}
+class _MockCommands extends Mock implements WordStatusCommandPort {}
 
 void main() {
   const word = CatalogWordRef(catalogId: CatalogId.espJpnMain, wordId: 42);
@@ -27,14 +21,19 @@ void main() {
   );
 
   setUpAll(() {
-    registerFallbackValue(word);
-    registerFallbackValue(const FieldUpdate<bool>.unchanged());
+    registerFallbackValue(const UpdateWordStatusCommand(
+      scope: WordStatusScope.guest(),
+      word: word,
+    ));
   });
 
   group('WordStatusState', () {
     test('keeps previous data while loading', () {
       final state = WordStatusState.fromAsync(
-          AsyncLoading<WordStatus>().copyWithPrevious(AsyncData(status)));
+        AsyncLoading<Result<WordStatus>>().copyWithPrevious(
+          AsyncData(Result.success(status)),
+        ),
+      );
 
       expect(state.status, isA<QueryLoading<WordStatus>>());
       expect(state.isLearned, isTrue);
@@ -43,8 +42,10 @@ void main() {
 
     test('turns a read exception into a query failure with previous data', () {
       final state = WordStatusState.fromAsync(
-        AsyncError<WordStatus>(StateError('offline'), StackTrace.empty)
-            .copyWithPrevious(AsyncData(status)),
+        AsyncError<Result<WordStatus>>(
+          StateError('offline'),
+          StackTrace.empty,
+        ).copyWithPrevious(AsyncData(Result.success(status))),
       );
 
       expect(state.status, isA<QueryFailure<WordStatus>>());
@@ -55,54 +56,38 @@ void main() {
   group('WordStatusCommand', () {
     test('uses its CatalogWordRef and emits the matching success event',
         () async {
-      final repository = _MockRepository();
-      when(() => repository.update(
-            any(),
-            isLearned: any(named: 'isLearned'),
-            isBookmarked: any(named: 'isBookmarked'),
-            hasNote: any(named: 'hasNote'),
-            updatedAt: any(named: 'updatedAt'),
-            accountId: any(named: 'accountId'),
-          )).thenAnswer((_) async => Result.success(status));
+      final commands = _MockCommands();
+      when(() => commands.update(any()))
+          .thenAnswer((_) async => const Result.success(null));
       final command = DictionaryWordStatusCommand(
         word,
-        UpdateWordStatus(repository),
-        const SessionScopeKey(accountScope: 'guest', epoch: 1),
+        commands,
+        const SessionScopeKey(accountScope: 'account-a', epoch: 1),
       );
 
       await command.toggleBookmark(false);
 
       expect(command.state.command, isA<CommandSucceeded>());
-      final captured = verify(() => repository.update(
-            word,
-            isLearned: captureAny(named: 'isLearned'),
-            isBookmarked: captureAny(named: 'isBookmarked'),
-            hasNote: captureAny(named: 'hasNote'),
-            updatedAt: any(named: 'updatedAt'),
-            accountId: 'guest',
-          )).captured;
-      expect(captured[0], isA<Unchanged<bool>>());
-      expect(captured[1],
+      final captured = verify(() => commands.update(captureAny())).captured.single
+          as UpdateWordStatusCommand;
+      expect(captured.word, word);
+      expect(captured.scope, WordStatusScope.account('account-a'));
+      expect(captured.isLearned, isA<Unchanged<bool>>());
+      expect(captured.isBookmarked,
           isA<SetValue<bool>>().having((value) => value.value, 'value', true));
-      expect(captured[2], isA<Unchanged<bool>>());
+      expect(captured.hasNote, isA<Unchanged<bool>>());
     });
 
     test('emits a failure event when the update fails', () async {
-      final repository = _MockRepository();
-      when(() => repository.update(
-                any(),
-                isLearned: any(named: 'isLearned'),
-                isBookmarked: any(named: 'isBookmarked'),
-                hasNote: any(named: 'hasNote'),
-                updatedAt: any(named: 'updatedAt'),
-                accountId: any(named: 'accountId'),
-              ))
-          .thenAnswer(
-              (_) async => Result.failure(DatabaseError(message: 'nope')));
+      final commands = _MockCommands();
+      when(() => commands.update(any())).thenAnswer(
+        (_) async =>
+            const Result.failure(WordStatusWriteError.storage()),
+      );
       final command = DictionaryWordStatusCommand(
         word,
-        UpdateWordStatus(repository),
-        const SessionScopeKey(accountScope: 'guest', epoch: 1),
+        commands,
+        const SessionScopeKey(accountScope: 'account-a', epoch: 1),
       );
 
       await command.toggleLearned(false);

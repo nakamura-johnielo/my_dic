@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/app/workflows/session_lifecycle/session_epoch_coordinator.dart';
-import 'package:my_dic/app/workflows/session_lifecycle/session_fence_adapter.dart';
-import 'package:my_dic/app/workflows/session_lifecycle/auth_lifecycle_state.dart';
+import 'package:my_dic/integration/session_lifecycle_workflow/session_epoch_coordinator.dart';
+import 'package:my_dic/integration/session_lifecycle_workflow/session_fence_service.dart';
+import 'package:my_dic/integration/session_lifecycle_workflow/auth_lifecycle_state.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/core/shared/consts/account_scope.dart';
-import 'package:my_dic/features/auth/port/app_auth.dart';
+import 'package:my_dic/features/auth/port/auth.dart';
 import 'package:my_dic/features/sync/port/sync_runner.dart';
 import 'package:my_dic/features/sync/port/model/sync_context.dart';
 import 'package:my_dic/features/sync/port/sync_run_outcome.dart';
@@ -23,7 +23,7 @@ void main() {
   group('SessionEpochCoordinator', () {
     test('activates guest only from stable signed-out and keeps repeats stable',
         () {
-      final fence = SessionFenceAdapter();
+      final fence = SessionFenceService();
       final coordinator = SessionEpochCoordinator(fence, _scheduler(fence));
 
       expect(
@@ -48,7 +48,7 @@ void main() {
     });
 
     test('detaches intermediate scope and reissues same-account epoch', () {
-      final fence = SessionFenceAdapter();
+      final fence = SessionFenceService();
       final coordinator = SessionEpochCoordinator(fence, _scheduler(fence));
       final ready = _ready('account-a');
       final first = coordinator.onLifecycleChanged(ready)!;
@@ -77,7 +77,7 @@ void main() {
 
     test('switching accounts issues one matching presentation and fence epoch',
         () {
-      final fence = SessionFenceAdapter();
+      final fence = SessionFenceService();
       final coordinator = SessionEpochCoordinator(fence, _scheduler(fence));
       coordinator.onLifecycleChanged(_ready('account-a'));
       final b = coordinator.onLifecycleChanged(_ready('account-b'))!;
@@ -92,7 +92,7 @@ void main() {
 
 AuthLifecycleState _ready(String id) => AuthLifecycleState(
       phase: AuthLifecyclePhase.ready,
-      auth: AppAuth(accountId: id, email: '$id@example.test'),
+      auth: AuthIdentity(accountId: id, email: '$id@example.test'),
     );
 
 class _Runner implements SyncRunner {
@@ -105,4 +105,4 @@ class _Runner implements SyncRunner {
   void dispose() {}
 }
 
-SyncRunner _scheduler(SessionFenceAdapter fence) => _Runner();
+SyncRunner _scheduler(SessionFenceService fence) => _Runner();

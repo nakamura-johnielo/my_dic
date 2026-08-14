@@ -1,47 +1,35 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
-import 'package:my_dic/integration/session_lifecycle_workflow/session_fence_adapter.dart';
+import 'package:my_dic/integration/session_lifecycle_workflow/session_fence_service.dart';
 import 'package:my_dic/features/sync/port/composition.dart';
-import 'package:my_dic/features/sync/port/outbox_writer.dart';
-import 'package:my_dic/features/sync/port/sync_checkpoint_store.dart';
-import 'package:my_dic/features/sync/port/sync_handler_runtime.dart';
-import 'package:my_dic/features/sync/port/sync_queue.dart';
+import 'package:my_dic/features/sync/port/dataset_contract.dart';
 
-/// Shared persistence and execution primitives used by app composition roots.
-///
-/// Keeping these outside `sync_composition.dart` lets feature composition
-/// construct dataset handlers without importing the registry.
-T _readSyncDependency<T>(Ref ref, Object dependency) {
-  if (identical(dependency, SyncCompositionDependencies.database)) {
-    return ref.watch(databaseProvider) as T;
-  }
-  if (identical(dependency, SyncCompositionDependencies.sessionFence)) {
-    return ref.watch(syncSessionFenceProvider) as T;
-  }
-  throw ArgumentError.value(dependency, 'dependency');
-}
+final syncSessionFenceProvider = Provider<SessionFenceService>(
+  (ref) => SessionFenceService(),
+);
 
-final driftSyncQueueProvider = Provider<ISyncQueue>((ref) {
-  return createSyncQueue(_syncQueryPort(ref));
+/// Shared, completed persistence and execution capabilities for Sync.
+final syncInfrastructureProvider = Provider<SyncComposition>((ref) {
+  return createSyncComposition(
+    dependencies: SyncDependencies(
+      database: ref.watch(databaseProvider),
+      sessionFence: ref.watch(syncSessionFenceProvider),
+    ),
+  );
 });
 
-final driftSyncCheckpointStoreProvider = Provider<ISyncCheckpointStore>(
-  (ref) => createSyncCheckpointStore(_syncQueryPort(ref)),
+final driftSyncQueueProvider = Provider<SyncQueue>(
+  (ref) => ref.watch(syncInfrastructureProvider).queue,
 );
 
-final driftOutboxWriterProvider = Provider<IOutboxWriter>(
-  (ref) => createOutboxWriter(_syncQueryPort(ref)),
+final driftSyncCheckpointStoreProvider = Provider<SyncCheckpointStore>(
+  (ref) => ref.watch(syncInfrastructureProvider).checkpointStore,
 );
 
-final syncSessionFenceProvider = Provider<SessionFenceAdapter>(
-  (ref) => SessionFenceAdapter(),
+final driftOutboxWriterProvider = Provider<OutboxWriter>(
+  (ref) => ref.watch(syncInfrastructureProvider).outboxWriter,
 );
 
-final syncHandlerRuntimeProvider = Provider<ISyncHandlerRuntime>(
-  (ref) => createSyncHandlerRuntime(_syncQueryPort(ref)),
+final syncHandlerRuntimeProvider = Provider<SyncHandlerRuntime>(
+  (ref) => ref.watch(syncInfrastructureProvider).handlerRuntime,
 );
-
-SyncDependencyQueryPort _syncQueryPort(Ref ref) {
-  T read<T>(Object dependency) => _readSyncDependency<T>(ref, dependency);
-  return read;
-}

@@ -1,12 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logging/logging.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/core/shared/errors/app_error.dart';
-import 'package:my_dic/core/shared/utils/result.dart';
+import 'package:my_dic/features/search/internal/application/search_direction_policy.dart';
 import 'package:my_dic/features/search/internal/presentation/ui_model/search_ui_model.dart';
-import 'package:my_dic/features/search/port/model/search_direction.dart';
-import 'package:my_dic/features/search/port/model/search_query.dart';
-import 'package:my_dic/features/search/port/reader.dart';
+import 'package:my_dic/features/search/port/search.dart';
 
 /// Owns result-set identity, request attempts, and the page to retry.
 ///
@@ -15,8 +12,7 @@ import 'package:my_dic/features/search/port/reader.dart';
 class SearchViewModel extends StateNotifier<SearchState> {
   SearchViewModel(this._search) : super(const SearchState());
 
-  final SearchQueryPort _search;
-  final _logger = Logger('SearchViewModel');
+  final SearchReaderPort _search;
   int _generation = 0;
   final _attempts = <_SearchPageIdentity, int>{};
   final _inFlight = <_SearchPageIdentity, Future<bool>>{};
@@ -102,38 +98,37 @@ class SearchViewModel extends StateNotifier<SearchState> {
         direction: identity.direction,
         page: identity.page,
         size: identity.size,
-        includeConjugationSuggestions:
-            identity.direction == SearchDirection.espJpn,
       ));
       if (!_isCurrent(token)) return false;
-      return result.when(
-        success: (output) {
-          _failedPage = null;
-          final next = SearchResults(
-            items: output.items,
-            conjugationSuggestions: output.conjugationSuggestions,
-            hasNext: output.hasNext,
-          );
-          // Capture the current value after await. This retains a completed
-          // page when another valid page completed while this request waited.
-          final current = state.results.dataOrNull;
-          _publish(
-            next,
-            current,
-            identity.page > 0,
-            warnings: output.issues
-                .map((issue) =>
-                    QueryWarning(source: issue.source, error: issue.error))
-                .toList(growable: false),
-          );
-          return output.hasNext;
-        },
-        failure: (error) {
-          _failedPage = identity;
-          _fail(error, state.results.dataOrNull);
-          return false;
-        },
-      );
+      if (result case Success<SearchResultPage>(data: final output)) {
+        _failedPage = null;
+        final next = SearchResults(
+          direction: output.direction,
+          items: output.items,
+          conjugationSuggestions: output.conjugationSuggestions,
+          hasNext: output.hasNext,
+        );
+        // Capture the current value after await. This retains a completed
+        // page when another valid page completed while this request waited.
+        final current = state.results.dataOrNull;
+        _publish(
+          next,
+          current,
+          identity.page > 0,
+          warnings: output.issues
+              .map(
+                (issue) => QueryWarning(
+                  source: issue.source.name,
+                  error: issue.error,
+                ),
+              )
+              .toList(growable: false),
+        );
+        return output.hasNext;
+      }
+      _failedPage = identity;
+      _fail(result.errorOrNull!, state.results.dataOrNull);
+      return false;
     } finally {
       if (_activeTokens[identity] == token) _activeTokens.remove(identity);
       // The map entry is still this request unless a later attempt replaced it.
@@ -147,16 +142,8 @@ class SearchViewModel extends StateNotifier<SearchState> {
       token.page.query == state.query &&
       _activeTokens[token.page] == token;
 
-  SearchDirection _directionFor(String query) {
-    try {
-      return RegExp(r'[a-zA-Záéíóúñü]').hasMatch(query)
-          ? SearchDirection.espJpn
-          : SearchDirection.jpnEsp;
-    } catch (error) {
-      _logger.warning('Dictionary judgement failed', error);
-      return SearchDirection.espJpn;
-    }
-  }
+  SearchDirection _directionFor(String query) =>
+      SearchDirectionPolicy.fromText(query);
 
   void _fail(AppError error, SearchResults? previous) {
     if (mounted) {

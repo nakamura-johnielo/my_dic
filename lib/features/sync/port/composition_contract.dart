@@ -1,15 +1,22 @@
-/// Framework-free lookup supplied by an app composition root.
-typedef SyncDependencyQueryPort = T Function<T>(Object dependency);
+import 'outbox_writer.dart';
+import 'sync_checkpoint_store.dart';
+import 'sync_handler_runtime.dart';
+import 'sync_queue.dart';
 
-/// Opaque dependency keys. Only app composition maps these to its providers.
-final class SyncCompositionDependencies {
-  const SyncCompositionDependencies._();
+/// Completed Sync infrastructure for one application scope.
+///
+/// App composition owns this bundle's lifetime. Dataset registries consume
+/// only completed handlers and never construct these capabilities themselves.
+final class SyncComposition {
+  const SyncComposition({
+    required this.queue,
+    required this.checkpointStore,
+    required this.outboxWriter,
+    required this.handlerRuntime,
+  });
 
-  static const database = _SyncDependency('database');
-  static const sessionFence = _SyncDependency('sessionFence');
-}
-
-final class _SyncDependency {
-  const _SyncDependency(this.name);
-  final String name;
+  final SyncQueue queue;
+  final SyncCheckpointStore checkpointStore;
+  final OutboxWriter outboxWriter;
+  final SyncHandlerRuntime handlerRuntime;
 }

@@ -17,3 +17,9 @@
 |---|---|---|---|---|
 | [0001](./0001-catalog-word-status-my-word-ownership.md) | Catalog・WordStatus・MyWord の ownership | Accepted | 2026-08-08 | — |
 | [0002](./0002-catalog-read-ownership.md) | Catalog read ownership and public surface | Accepted | 2026-08-11 | — |
+| [0005](./0005-sync-runtime-ownership-and-public-surface.md) | Sync runtime ownership and public surface | Proposed | 2026-08-13 | — |
+| [0004](./0004-search-public-contract.md) | Search public contract and Catalog requirement | Accepted | 2026-08-13 | — |
+| [0007](./0007-auth-public-contract-and-runtime-ownership.md) | Auth public contract and runtime ownership | Accepted | 2026-08-13 | — |
+| [0008](./0008-ranking-public-contract.md) | Ranking public contract and read ownership | Accepted | 2026-08-13 | — |
+| [0009](./0009-firebase-account-document-namespace.md) | Firebase account document namespace ownership | Accepted | 2026-08-13 | — |
+| [0010](./0010-word-detail-public-contract.md) | WordDetail public contract and aggregation ownership | Accepted | 2026-08-13 | — |

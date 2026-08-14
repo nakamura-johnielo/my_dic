@@ -38,7 +38,7 @@ void main() {
             ),
           );
     }
-    final reader = DriftCatalogWordSearchReader(database);
+    final reader = DriftCatalogWordSearchQueryService(database);
 
     final first = await reader.searchWords(_wordQuery(page: 0, size: 2));
     final last = await reader.searchWords(_wordQuery(page: 1, size: 2));
@@ -51,7 +51,7 @@ void main() {
   });
 
   test('word reader returns a successful empty page', () async {
-    final result = await DriftCatalogWordSearchReader(database)
+    final result = await DriftCatalogWordSearchQueryService(database)
         .searchWords(_wordQuery(page: 0, size: 2));
 
     expect(result.dataOrNull!.items, isEmpty);
@@ -75,7 +75,7 @@ void main() {
           ),
         );
 
-    final result = await DriftCatalogConjugationSearchReader(database)
+    final result = await DriftCatalogConjugationSearchQueryService(database)
         .searchConjugations(CatalogConjugationSearchQuery(
       catalogId: CatalogId.espJpnMain,
       text: 'habl',
@@ -115,7 +115,7 @@ void main() {
             ),
           );
     }
-    final reader = DriftCatalogConjugationSearchReader(database);
+    final reader = DriftCatalogConjugationSearchQueryService(database);
 
     final first = await reader.searchConjugations(_conjugationQuery(page: 0));
     final last = await reader.searchConjugations(_conjugationQuery(page: 1));
@@ -150,7 +150,7 @@ void main() {
 
   test('database failures become unavailable and preserve their cause',
       () async {
-    final reader = DriftCatalogWordSearchReader(database);
+    final reader = DriftCatalogWordSearchQueryService(database);
     await database.customStatement('DROP TABLE words');
 
     final result = await reader.searchWords(_wordQuery(page: 0, size: 2));

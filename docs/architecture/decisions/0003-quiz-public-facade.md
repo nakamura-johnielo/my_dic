@@ -13,9 +13,11 @@ The only external technical seams are:
   bootstrap;
 - `port/presentation_entry.dart` from app routing.
 
-Bootstrap also owns the runtime construction of Quiz's asset and Drift
-infrastructure adapters. That narrowly scoped infrastructure import is not a
-business dependency and is checker-allowlisted only below `app/bootstrap`.
+Bootstrap supplies only the runtime dependencies declared by
+`port/composition.dart`: the database, bundled-asset text loader, and the two
+Catalog gateways. Quiz's internal factory owns construction of its DAO, typed
+infrastructure readers, and application services. App bootstrap never imports
+Quiz internals, and the boundary checkers provide no exception for doing so.
 
 `presentation_dependencies.dart` may use Riverpod only to bridge focused
 reader ports. It is not a business facade and cannot expose provider types

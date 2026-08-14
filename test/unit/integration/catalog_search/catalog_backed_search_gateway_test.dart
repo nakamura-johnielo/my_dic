@@ -1,15 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/catalog/port/catalog.dart';
-import 'package:my_dic/features/search/port/catalog_gateway.dart';
-import 'package:my_dic/features/search/port/error/search_catalog_gateway_error.dart';
-import 'package:my_dic/features/search/port/model/search_conjugation_match_key.dart';
-import 'package:my_dic/features/search/port/model/search_direction.dart';
+import 'package:my_dic/features/search/port/search.dart';
 import 'package:my_dic/integration/catalog_search/catalog_backed_search_gateway.dart';
 
 void main() {
   const word = CatalogWordRef(catalogId: CatalogId.espJpnMain, wordId: 9);
-  const query = SearchCatalogQuery(
+  final query = SearchCatalogQuery(
     text: 'hab',
     direction: SearchDirection.espJpn,
     page: 1,
@@ -61,8 +59,8 @@ void main() {
     final primary = (await gateway.searchPrimary(query)).dataOrNull!;
     final suggestions = (await gateway.searchConjugations(query)).dataOrNull!;
     final meanings = (await gateway.readMeanings([word])).dataOrNull!;
-    final headwords = (await gateway.readHeadwordMetadata([word])).dataOrNull!;
-    final rankings = (await gateway.readRankingMetadata([word])).dataOrNull!;
+    final frequencies = (await gateway.readFrequencies([word])).dataOrNull!;
+    final rankings = (await gateway.readRankings([word])).dataOrNull!;
 
     expect(primary.hasMore, isTrue);
     expect(primary.items.single.word, word);
@@ -71,8 +69,7 @@ void main() {
       const {SearchConjugationMatchKey.indicativePresentYo: 'hablo'},
     );
     expect(meanings[word]!.text, 'speak');
-    expect(headwords[word]!.headword, 'hablar');
-    expect(headwords[word]!.frequency, 3);
+    expect(frequencies[word]!.value, 3);
     expect(rankings[word]!.rankingNo, 12);
   });
 
@@ -94,9 +91,138 @@ void main() {
 
     final error = (await gateway.searchPrimary(query)).errorOrNull;
     expect(error, isA<SearchCatalogGatewayError>());
-    expect(error!.originalError, same(cause));
-    expect(error.stackTrace, same(stack));
+    final typedError = error as SearchCatalogGatewayError;
+    expect(
+      typedError.operation,
+      SearchCatalogOperation.primarySearch,
+    );
+    expect(typedError.originalError, same(cause));
+    expect(typedError.stackTrace, same(stack));
   });
+
+  test('maps every supported conjugation variant without enum indexes',
+      () async {
+    final matches = {
+      for (final match in _allCatalogMatches()) match: match.toString(),
+    };
+    final gateway = CatalogBackedSearchGateway(
+      _ports(
+        words: _WordReader(
+          Result.success(
+            CatalogSearchPage<CatalogWordSearchHit>(
+              items: const [],
+              hasMore: false,
+            ),
+          ),
+        ),
+        conjugations: _ConjugationSearchReader(
+          Result.success(
+            CatalogSearchPage(
+              items: [
+                CatalogConjugationSearchHit(
+                  word: word,
+                  headword: 'hablar',
+                  matches: matches,
+                ),
+              ],
+              hasMore: false,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final page = (await gateway.searchConjugations(query)).dataOrNull!;
+
+    expect(
+      page.items.single.matches.keys.toSet(),
+      SearchConjugationMatchKey.values.toSet(),
+    );
+  });
+
+  test('keeps empty batches and missing keys as successful absence', () async {
+    final gateway = CatalogBackedSearchGateway(
+      _ports(
+        words: _WordReader(
+          Result.success(
+            CatalogSearchPage<CatalogWordSearchHit>(
+              items: const [],
+              hasMore: false,
+            ),
+          ),
+        ),
+        summaries: _MissingSummaryReader(),
+      ),
+    );
+
+    expect((await gateway.readMeanings(const [])).dataOrNull, isEmpty);
+    expect((await gateway.readMeanings([word])).dataOrNull, isEmpty);
+    expect((await gateway.readFrequencies([word])).dataOrNull, isEmpty);
+  });
+
+  test('normalizes unexpected exceptions with typed operation and stack',
+      () async {
+    final cause = StateError('unexpected');
+    final gateway = CatalogBackedSearchGateway(
+      _ports(words: _ThrowingWordReader(cause)),
+    );
+
+    final error = (await gateway.searchPrimary(query)).errorOrNull;
+
+    expect(error, isA<SearchCatalogGatewayError>());
+    final typedError = error as SearchCatalogGatewayError;
+    expect(
+      typedError.operation,
+      SearchCatalogOperation.primarySearch,
+    );
+    expect(typedError.originalError, same(cause));
+    expect(typedError.stackTrace, isNotNull);
+  });
+
+  test('pure adapter imports only the Catalog and Search business facades', () {
+    final source = File(
+      'lib/integration/catalog_search/catalog_backed_search_gateway.dart',
+    ).readAsStringSync();
+    final imports = RegExp(
+      r'''^import ['"]([^'"]+)['"];''',
+      multiLine: true,
+    ).allMatches(source).map((match) => match.group(1)).toList();
+
+    expect(imports, const [
+      'package:my_dic/features/catalog/port/catalog.dart',
+      'package:my_dic/features/search/port/search.dart',
+    ]);
+    expect(source, isNot(contains('.index')));
+    for (final forbidden in [
+      'features/catalog/internal/',
+      'features/search/internal/',
+      'package:flutter/',
+      'package:flutter_riverpod/',
+      'package:drift/',
+    ]) {
+      expect(source, isNot(contains(forbidden)), reason: forbidden);
+    }
+  });
+}
+
+Iterable<CatalogConjugationMatch> _allCatalogMatches() sync* {
+  for (final moodTense in CatalogMoodTense.values) {
+    if (moodTense == CatalogMoodTense.participlePresent ||
+        moodTense == CatalogMoodTense.participlePast) {
+      yield CatalogConjugationMatch(moodTense: moodTense);
+      continue;
+    }
+    for (final subject in CatalogSubject.values) {
+      if (moodTense == CatalogMoodTense.imperative &&
+          subject == CatalogSubject.yo) {
+        continue;
+      }
+      yield CatalogConjugationMatch(
+        moodTense: moodTense,
+        subject: subject,
+      );
+    }
+  }
 }
 
 CatalogReadPorts _ports({
@@ -112,7 +238,17 @@ CatalogReadPorts _ports({
       conjugationSearch: conjugations ?? _UnusedConjugationSearch(),
       entrySummary: summaries ?? _UnusedSummary(),
       ranking: rankings ?? _UnusedRanking(),
+      rankedEntries: _UnusedProviderPrerequisites(),
+      semanticEntryDetail: _UnusedProviderPrerequisites(),
     );
+
+final class _UnusedProviderPrerequisites
+    implements
+        CatalogRankedEntryFeedQueryPort,
+        CatalogSemanticEntryDetailQueryPort {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
 
 final class _WordReader implements CatalogWordSearchQueryPort {
   const _WordReader(this.result);
@@ -122,6 +258,18 @@ final class _WordReader implements CatalogWordSearchQueryPort {
     CatalogWordSearchQuery query,
   ) async =>
       result;
+}
+
+final class _ThrowingWordReader implements CatalogWordSearchQueryPort {
+  const _ThrowingWordReader(this.error);
+
+  final Object error;
+
+  @override
+  Future<Result<CatalogSearchPage<CatalogWordSearchHit>>> searchWords(
+    CatalogWordSearchQuery query,
+  ) =>
+      Future.error(error, StackTrace.current);
 }
 
 final class _ConjugationSearchReader
@@ -153,6 +301,19 @@ final class _SummaryReader implements CatalogEntrySummaryQueryPort {
                 frequencyLevel: CatalogFrequencyLevel(3),
               ),
           });
+}
+
+final class _MissingSummaryReader implements CatalogEntrySummaryQueryPort {
+  @override
+  Future<Result<Map<CatalogWordRef, CatalogMeaningSummary>>> readMeanings(
+    Iterable<CatalogWordRef> words,
+  ) async =>
+      Result.success(<CatalogWordRef, CatalogMeaningSummary>{});
+
+  @override
+  Future<Result<Map<CatalogWordRef, CatalogHeadwordMetadata>>>
+      readHeadwordMetadata(Iterable<CatalogWordRef> words) async =>
+          Result.success(<CatalogWordRef, CatalogHeadwordMetadata>{});
 }
 
 final class _RankingReader implements CatalogRankingQueryPort {

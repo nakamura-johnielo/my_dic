@@ -5,43 +5,29 @@ import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart
 import 'package:my_dic/core/shared/consts/account_scope.dart';
 import 'package:my_dic/features/sync/port/sync_dataset.dart';
 import 'package:my_dic/core/shared/value_objects/field_update.dart';
-import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/drift_my_word_dao.dart';
 import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/drift_my_word_status_dao.dart';
-import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/my_word_drift_data_source.dart';
-import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/my_word_status_drift_data_source.dart';
-import 'package:my_dic/features/my_word/internal/infrastructure/data/repository_impl/my_word_repository.dart';
-import 'package:my_dic/features/my_word/internal/infrastructure/data/repository_impl/my_word_status_repository.dart';
-import 'package:my_dic/features/my_word/internal/domain/entity/my_word.dart';
-import 'package:my_dic/features/my_word/internal/domain/entity/my_word_status.dart';
-import 'package:my_dic/features/my_word/internal/domain/i_repository/i_my_word_repository.dart';
-import 'package:my_dic/features/my_word/internal/domain/i_repository/i_my_word_status_repository.dart';
-import 'package:my_dic/features/my_word/internal/application/usecase/my_word/load_my_word/load_my_word_input_data.dart';
-import 'package:my_dic/features/my_word/internal/application/usecase/my_word/load_my_word/load_my_word_interactor.dart';
-import 'package:my_dic/features/my_word/internal/domain/inputData/my_word/load_my_word_repository_input_data.dart';
-import 'package:my_dic/features/my_word/internal/application/usecase/my_word/watch/watch_my_word_interactor.dart';
-import 'package:my_dic/features/my_word/internal/domain/inputData/my_word/register_my_word_repository_input_data.dart';
-import 'package:my_dic/features/my_word/internal/domain/inputData/my_word_status/update_my_word_status_repository_input_data.dart';
-import 'package:my_dic/features/my_word/internal/application/usecase/my_word_status/watch_my_word_status/watch_my_word_status_interactor.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/data/store/drift_my_word_store.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/data/store/drift_my_word_status_store.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/data/repository/drift_my_word_repository.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/data/repository/drift_my_word_status_repository.dart';
+import 'package:my_dic/features/my_word/internal/domain/repository/my_word_page_query.dart';
+import 'package:my_dic/features/my_word/internal/domain/repository/register_my_word_record.dart';
+import 'package:my_dic/features/my_word/internal/domain/repository/update_my_word_status_record.dart';
 import 'package:my_dic/features/sync/port/model/sync_mutation.dart';
 import 'package:my_dic/features/sync/port/outbox_writer.dart';
 
 class _MockOutboxWriter extends Mock implements OutboxWriter {}
-
-class _MockMyWordRepository extends Mock implements IMyWordRepository {}
-
-class _MockMyWordStatusRepository extends Mock
-    implements IMyWordStatusRepository {}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() {
     registerFallbackValue(
-        RegisterMyWordRepositoryInputData('w', '', DateTime.utc(2026), null));
-    registerFallbackValue(UpdateMyWordStatusRepositoryInputData(
+        RegisterMyWordRecord('w', '', DateTime.utc(2026), null));
+    registerFallbackValue(UpdateMyWordStatusRecord(
         'w', null, null, null, DateTime.utc(2026), null));
-    registerFallbackValue(LoadMyWordRepositoryInputData(0, 0));
+    registerFallbackValue(MyWordPageQuery(0, 0));
     registerFallbackValue(SyncMutation(
       mutationId: 'fallback',
       accountId: 'fallback',
@@ -57,14 +43,14 @@ void main() {
 
   group('MyWord local row account scoping', () {
     late DatabaseProvider database;
-    late MyWordRepository repository;
+    late DriftMyWordRepository repository;
 
     setUp(() {
       database = DatabaseProvider.forTesting(NativeDatabase.memory());
-      final local = MyWordDriftDataSource(MyWordDao(database));
+      final local = DriftMyWordStore(MyWordDao(database));
       final writer = _MockOutboxWriter();
       when(() => writer.enqueue(any())).thenAnswer((_) async {});
-      repository = MyWordRepository(local, writer);
+      repository = DriftMyWordRepository(local, writer);
     });
 
     tearDown(() => database.close());
@@ -72,19 +58,19 @@ void main() {
     test('two signed-in accounts do not see or list each other\'s words',
         () async {
       final aResult = await repository.registerWord(
-          RegisterMyWordRepositoryInputData(
+          RegisterMyWordRecord(
               'hola', 'greeting', DateTime.utc(2026, 8, 6), 'account-a'));
       final bResult = await repository.registerWord(
-          RegisterMyWordRepositoryInputData(
+          RegisterMyWordRecord(
               'libro', 'book', DateTime.utc(2026, 8, 6), 'account-b'));
       final aWordId = aResult.dataOrNull!;
       final bWordId = bResult.dataOrNull!;
 
       final aIds = await repository.getIdsFilteredByPage(
-          LoadMyWordRepositoryInputData(10, 0),
+          MyWordPageQuery(10, 0),
           accountId: 'account-a');
       final bIds = await repository.getIdsFilteredByPage(
-          LoadMyWordRepositoryInputData(10, 0),
+          MyWordPageQuery(10, 0),
           accountId: 'account-b');
 
       expect(aIds.dataOrNull, [aWordId]);
@@ -97,7 +83,7 @@ void main() {
 
     test('guest writes are isolated from a signed-in account scope', () async {
       final guestResult = await repository.registerWord(
-          RegisterMyWordRepositoryInputData(
+          RegisterMyWordRecord(
               'perro', 'dog', DateTime.utc(2026, 8, 6), null));
       final wordId = guestResult.dataOrNull!;
 
@@ -113,7 +99,7 @@ void main() {
 
     test('maps persisted write fields without status data', () async {
       final registered = await repository.registerWord(
-        RegisterMyWordRepositoryInputData(
+        RegisterMyWordRecord(
           'casa',
           'house',
           DateTime.utc(2026, 8, 6),
@@ -133,14 +119,14 @@ void main() {
 
   group('MyWordStatus local row account scoping', () {
     late DatabaseProvider database;
-    late MyWordStatusRepository repository;
+    late DriftMyWordStatusRepository repository;
 
     setUp(() {
       database = DatabaseProvider.forTesting(NativeDatabase.memory());
-      final local = MyWordStatusDriftDataSource(MyWordStatusDao(database));
+      final local = DriftMyWordStatusStore(MyWordStatusDao(database));
       final writer = _MockOutboxWriter();
       when(() => writer.enqueue(any())).thenAnswer((_) async {});
-      repository = MyWordStatusRepository(local, writer);
+      repository = DriftMyWordStatusRepository(local, writer);
     });
 
     tearDown(() => database.close());
@@ -148,7 +134,7 @@ void main() {
     test(
         'two signed-in accounts on the same wordId do not overwrite each '
         'other', () async {
-      await repository.updateStatus(UpdateMyWordStatusRepositoryInputData(
+      await repository.updateStatus(UpdateMyWordStatusRecord(
         'word-1',
         const FieldUpdate.set(true),
         const FieldUpdate.set(false),
@@ -156,7 +142,7 @@ void main() {
         DateTime.utc(2026, 8, 6),
         'account-a',
       ));
-      await repository.updateStatus(UpdateMyWordStatusRepositoryInputData(
+      await repository.updateStatus(UpdateMyWordStatusRecord(
         'word-1',
         const FieldUpdate.set(false),
         const FieldUpdate.set(true),
@@ -177,7 +163,7 @@ void main() {
     });
 
     test('guest writes are isolated from a signed-in account scope', () async {
-      await repository.updateStatus(UpdateMyWordStatusRepositoryInputData(
+      await repository.updateStatus(UpdateMyWordStatusRecord(
           'word-1', 1, 1, null, DateTime.utc(2026, 8, 6), null));
 
       final asAccount =
@@ -193,69 +179,4 @@ void main() {
     });
   });
 
-  group('Load/Watch interactors require explicit account scope', () {
-    test('LoadMyWordInteractor uses the explicit guest scope', () async {
-      final repository = _MockMyWordRepository();
-      when(() => repository.getIdsFilteredByPage(any(),
-              accountId: any(named: 'accountId')))
-          .thenAnswer((_) async => const Result.success(['w1']));
-
-      final interactor = LoadMyWordInteractor(repository);
-      await interactor
-          .executeIds(LoadMyWordInputData(10, 0, guestAccountScope));
-
-      verify(() => repository.getIdsFilteredByPage(any(),
-          accountId: guestAccountScope)).called(1);
-    });
-
-    test('LoadMyWordInteractor uses the explicit account scope', () async {
-      final repository = _MockMyWordRepository();
-      when(() => repository.getIdsFilteredByPage(any(),
-              accountId: any(named: 'accountId')))
-          .thenAnswer((_) async => const Result.success(['w1']));
-
-      final interactor = LoadMyWordInteractor(repository);
-      await interactor.executeIds(LoadMyWordInputData(10, 0, 'account-a'));
-
-      verify(() =>
-              repository.getIdsFilteredByPage(any(), accountId: 'account-a'))
-          .called(1);
-    });
-
-    test('WatchMyWordInteractor uses its explicit account scope', () async {
-      final repository = _MockMyWordRepository();
-      when(() =>
-              repository.watchMyWord(any(), accountId: any(named: 'accountId')))
-          .thenAnswer((_) =>
-              Stream.value(MyWord(wordId: 'w1', word: 'hola', contents: '')));
-
-      final signedIn = WatchMyWordInteractor(repository);
-      signedIn.execute('w1', 'account-c');
-      verify(() => repository.watchMyWord('w1', accountId: 'account-c'))
-          .called(1);
-
-      final guest = WatchMyWordInteractor(repository);
-      guest.execute('w1', guestAccountScope);
-      verify(() => repository.watchMyWord('w1', accountId: guestAccountScope))
-          .called(1);
-    });
-
-    test('WatchMyWordStatusInteractor uses its explicit account scope',
-        () async {
-      final repository = _MockMyWordStatusRepository();
-      when(() =>
-              repository.watchStatus(any(), accountId: any(named: 'accountId')))
-          .thenAnswer((_) => Stream.value(MyWordStatus(wordId: 'w1')));
-
-      final signedIn = WatchMyWordStatusInteractor(repository);
-      signedIn.execute('w1', 'account-c');
-      verify(() => repository.watchStatus('w1', accountId: 'account-c'))
-          .called(1);
-
-      final guest = WatchMyWordStatusInteractor(repository);
-      guest.execute('w1', guestAccountScope);
-      verify(() => repository.watchStatus('w1', accountId: guestAccountScope))
-          .called(1);
-    });
-  });
 }

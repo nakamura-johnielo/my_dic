@@ -1,5 +1,17 @@
 # WordDetail refactor plan
 
+## Implementation status (2026-08-13)
+
+- Phase 0-4: complete; facade, typed contracts, semantic Catalog adapter,
+  application service, and typed composition are in place.
+- Phase 5-7: complete; presentation uses WordDetail semantic models and an
+  injected WordStatus renderer, routing uses the feature-owned typed contract,
+  and legacy loader/result/view-data/DI/shims and duplicate tests are removed.
+- Phase 8: implementation and documentation complete; generic checker fixtures
+  cover the sole facade and technical seams without a baseline exception.
+- Focused/full Dart and Flutter commands are intentionally left to the
+  coordinating thread for final repository-wide validation.
+
 ## 1. 目的とスコープ
 
 WordDetail feature を

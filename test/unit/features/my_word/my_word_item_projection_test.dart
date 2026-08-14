@@ -5,19 +5,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/core/shared/consts/account_scope.dart';
 import 'package:my_dic/features/my_word/internal/infrastructure/data/data_source/local/drift_my_word_dao.dart';
-import 'package:my_dic/features/my_word/internal/infrastructure/data/query/drift_my_word_item_query_repository.dart';
+import 'package:my_dic/features/my_word/internal/infrastructure/data/query/drift_my_word_item_query_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late DatabaseProvider database;
   late MyWordDao dao;
-  late DriftMyWordItemQueryRepository repository;
+  late DriftMyWordItemQueryService repository;
 
   setUp(() {
     database = DatabaseProvider.forTesting(NativeDatabase.memory());
     dao = MyWordDao(database);
-    repository = DriftMyWordItemQueryRepository(dao);
+    repository = DriftMyWordItemQueryService(dao);
   });
 
   tearDown(() => database.close());

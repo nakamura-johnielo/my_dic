@@ -1,54 +1,16 @@
-import 'package:flutter/foundation.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
-import 'package:my_dic/core/shared/enums/feature_tag.dart';
-import 'package:my_dic/features/catalog/port/catalog.dart';
+import 'package:my_dic/features/ranking/port/ranking.dart';
 
-@immutable
-final class RankingNormalizedFilter {
-  RankingNormalizedFilter({
-    Map<CatalogPartOfSpeech, int> partOfSpeech = const {},
-    Map<FeatureTag, int> featureTags = const {},
-  })  : partOfSpeech = Map.unmodifiable(_withoutNeutral(partOfSpeech)),
-        featureTags = Map.unmodifiable(_withoutNeutral(featureTags));
-
-  final Map<CatalogPartOfSpeech, int> partOfSpeech;
-  final Map<FeatureTag, int> featureTags;
-
-  static Map<T, int> _withoutNeutral<T>(Map<T, int> source) => {
-        for (final entry in source.entries)
-          if (entry.value != 0) entry.key: entry.value,
-      };
-
-  @override
-  bool operator ==(Object other) =>
-      other is RankingNormalizedFilter &&
-      mapEquals(partOfSpeech, other.partOfSpeech) &&
-      mapEquals(featureTags, other.featureTags);
-
-  @override
-  int get hashCode => Object.hash(
-        Object.hashAllUnordered(
-          partOfSpeech.entries
-              .map((entry) => Object.hash(entry.key, entry.value)),
-        ),
-        Object.hashAllUnordered(
-          featureTags.entries
-              .map((entry) => Object.hash(entry.key, entry.value)),
-        ),
-      );
-}
-
-@immutable
 final class RankingPageIdentity {
   const RankingPageIdentity({
     required this.sessionKey,
-    required this.normalizedFilter,
+    required this.filter,
     required this.page,
     required this.size,
   });
 
   final SessionScopeKey sessionKey;
-  final RankingNormalizedFilter normalizedFilter;
+  final RankingFilter filter;
   final int page;
   final int size;
 
@@ -56,15 +18,14 @@ final class RankingPageIdentity {
   bool operator ==(Object other) =>
       other is RankingPageIdentity &&
       other.sessionKey == sessionKey &&
-      other.normalizedFilter == normalizedFilter &&
+      other.filter == filter &&
       other.page == page &&
       other.size == size;
 
   @override
-  int get hashCode => Object.hash(sessionKey, normalizedFilter, page, size);
+  int get hashCode => Object.hash(sessionKey, filter, page, size);
 }
 
-@immutable
 final class RankingRequestToken {
   const RankingRequestToken({
     required this.generation,

@@ -1,5 +1,4 @@
-import 'package:my_dic/core/shared/errors/app_error.dart';
-import 'package:my_dic/features/auth/port/app_auth.dart';
+import 'package:my_dic/features/auth/port/auth.dart';
 import 'package:my_dic/features/user_profile/port/user_profile.dart';
 
 enum AuthLifecyclePhase {
@@ -19,7 +18,7 @@ enum AuthLifecyclePhase {
 
 class AuthLifecycleState {
   final AuthLifecyclePhase phase;
-  final AppAuth? auth;
+  final AuthIdentity? auth;
   final AppUser? user;
   final AppError? error;
   final String? notice;
@@ -59,7 +58,7 @@ class AuthLifecycleState {
 
   AuthLifecycleState copyWith({
     AuthLifecyclePhase? phase,
-    AppAuth? auth,
+    AuthIdentity? auth,
     AppUser? user,
     AppError? error,
     String? notice,

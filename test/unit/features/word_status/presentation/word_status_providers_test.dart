@@ -1,13 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
-import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/core/shared/value_objects/field_update.dart';
-import 'package:my_dic/features/catalog/port/catalog.dart';
-import 'package:my_dic/features/word_status/port/repository.dart';
+import 'package:my_dic/features/word_status/internal/presentation/provider/word_status_providers.dart';
+import 'package:my_dic/features/word_status/port/composition_contract.dart';
+import 'package:my_dic/features/word_status/port/presentation_dependencies.dart';
 import 'package:my_dic/features/word_status/port/word_status.dart';
-import 'package:my_dic/features/word_status/port/presentation_entry.dart';
-import 'package:my_dic/features/word_status/internal/presentation/dictionary_status/word_status_providers.dart';
 
 void main() {
   const espWord = CatalogWordRef(
@@ -18,37 +15,39 @@ void main() {
     catalogId: CatalogId.jpnEspMain,
     wordId: 42,
   );
-
   const firstScope = SessionScopeKey(accountScope: 'first-account', epoch: 1);
   const secondScope = SessionScopeKey(accountScope: 'second-account', epoch: 2);
 
   test('watch provider rekeys when the session scope changes', () async {
-    final repository = _RecordingRepository();
-    final container = _container(repository);
+    final capabilities = _Capabilities();
+    final container = _container(capabilities);
     addTearDown(container.dispose);
     final subscription = container.listen(
-        watchWordStatusProvider(
-          const WordStatusEntryKey(scope: firstScope, word: espWord),
-        ),
-        (_, __) {});
+      watchWordStatusProvider(
+        const WordStatusEntryKey(scope: firstScope, word: espWord),
+      ),
+      (_, __) {},
+    );
     addTearDown(subscription.close);
 
     await container.read(watchWordStatusProvider(
       const WordStatusEntryKey(scope: firstScope, word: espWord),
     ).future);
-    expect(repository.accountIds, ['first-account']);
+    expect(capabilities.scopes, [WordStatusScope.account('first-account')]);
 
     await container.read(watchWordStatusProvider(
       const WordStatusEntryKey(scope: secondScope, word: espWord),
     ).future);
-
-    expect(repository.accountIds, ['first-account', 'second-account']);
+    expect(capabilities.scopes, [
+      WordStatusScope.account('first-account'),
+      WordStatusScope.account('second-account'),
+    ]);
   });
 
   test('CatalogWordRef provider families isolate equal word IDs by catalog',
       () async {
-    final repository = _RecordingRepository();
-    final container = _container(repository);
+    final capabilities = _Capabilities();
+    final container = _container(capabilities);
     addTearDown(container.dispose);
 
     final esp = await container.read(watchWordStatusProvider(
@@ -58,44 +57,58 @@ void main() {
       const WordStatusEntryKey(scope: firstScope, word: jpnWord),
     ).future);
 
-    expect(esp.word, espWord);
-    expect(jpn.word, jpnWord);
-    expect(repository.words, [espWord, jpnWord]);
+    expect(esp.dataOrNull!.word, espWord);
+    expect(jpn.dataOrNull!.word, jpnWord);
+    expect(capabilities.words, [espWord, jpnWord]);
   });
 }
 
-ProviderContainer _container(_RecordingRepository repository) {
-  return ProviderContainer(overrides: [
-    wordStatusRepositoryDependencyProvider.overrideWithValue(repository),
-  ]);
-}
+ProviderContainer _container(_Capabilities capabilities) =>
+    ProviderContainer(overrides: [
+      wordStatusPortsDependencyProvider.overrideWithValue(
+        capabilities.ports,
+      ),
+    ]);
 
-final class _RecordingRepository implements WordStatusRepository {
-  final accountIds = <String>[];
+final class _Capabilities
+    implements
+        WordStatusReaderPort,
+        WordStatusWatchPort,
+        WordStatusBatchReaderPort,
+        WordStatusCommandPort {
+  _Capabilities() {
+    ports = WordStatusPorts(
+      reader: this,
+      watcher: this,
+      batchReader: this,
+      commands: this,
+      guestMigration: _GuestMigration(),
+    );
+  }
+
+  late final WordStatusPorts ports;
+  final scopes = <WordStatusScope>[];
   final words = <CatalogWordRef>[];
 
   @override
-  Future<Result<WordStatus?>> get(CatalogWordRef word,
-          {required String accountId}) async =>
-      Result.success(null);
+  Future<Result<WordStatus>> read(ReadWordStatusQuery query) async =>
+      Result.success(_status(query.word));
 
   @override
-  Future<Result<WordStatus>> update(
-    CatalogWordRef word, {
-    required FieldUpdate<bool> isLearned,
-    required FieldUpdate<bool> isBookmarked,
-    required FieldUpdate<bool> hasNote,
-    required DateTime updatedAt,
-    required String? accountId,
-  }) async =>
-      Result.success(_status(word));
-
-  @override
-  Stream<WordStatus> watch(CatalogWordRef word, {required String accountId}) {
-    accountIds.add(accountId);
-    words.add(word);
-    return Stream.value(_status(word));
+  Stream<Result<WordStatus>> watch(ReadWordStatusQuery query) {
+    scopes.add(query.scope);
+    words.add(query.word);
+    return Stream.value(Result.success(_status(query.word)));
   }
+
+  @override
+  Future<Result<WordStatusBatch>> readBatch(
+          ReadWordStatusBatchQuery query) async =>
+      Result.success(WordStatusBatch(query.words.map(_status)));
+
+  @override
+  Future<Result<void>> update(UpdateWordStatusCommand command) async =>
+      const Result.success(null);
 
   WordStatus _status(CatalogWordRef word) => WordStatus(
         word: word,
@@ -104,4 +117,17 @@ final class _RecordingRepository implements WordStatusRepository {
         hasNote: false,
         updatedAt: DateTime.utc(2026, 8, 9),
       );
+}
+
+final class _GuestMigration implements WordStatusGuestMigrationPort {
+  @override
+  Future<WordStatusGuestRowCounts> countGuestRows() async =>
+      const WordStatusGuestRowCounts(espJpn: 0, jpnEsp: 0);
+
+  @override
+  Future<void> migrateGuestRows({
+    required String accountId,
+    required String migrationId,
+    required DateTime Function() clock,
+  }) async {}
 }

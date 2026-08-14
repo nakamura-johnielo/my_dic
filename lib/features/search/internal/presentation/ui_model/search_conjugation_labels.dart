@@ -1,4 +1,4 @@
-import 'package:my_dic/features/search/port/model/search_conjugation_match_key.dart';
+import 'package:my_dic/features/search/port/search.dart';
 
 extension SearchMoodTenseLabel on SearchMoodTense {
   String get shortLabel => switch (this) {

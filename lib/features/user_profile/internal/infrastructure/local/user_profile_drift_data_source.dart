@@ -1,9 +1,9 @@
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart'
     as db;
 import 'package:my_dic/features/user_profile/internal/infrastructure/local/drift_user_profile_dao.dart';
-import 'package:my_dic/features/user_profile/internal/infrastructure/local/i_user_profile_local_data_source.dart';
+import 'package:my_dic/features/user_profile/internal/infrastructure/local/user_profile_local_data_source.dart';
 
-class UserProfileDriftDataSource implements IUserProfileLocalDataSource {
+final class UserProfileDriftDataSource implements UserProfileLocalDataSource {
   final UserProfileDao _dao;
 
   UserProfileDriftDataSource(this._dao);

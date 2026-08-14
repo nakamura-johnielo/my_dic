@@ -1,14 +1,14 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
+import 'package:my_dic/core/port/firebase_account_nested_document_gateway.dart';
 import 'package:my_dic/core/shared/consts/account_scope.dart';
 import 'package:my_dic/features/my_word/port/command.dart';
 import 'package:my_dic/features/my_word/port/composition.dart';
 import 'package:my_dic/features/my_word/port/guest_migration.dart';
 import 'package:my_dic/features/sync/port/cancellation_token.dart';
-import 'package:my_dic/features/sync/port/dataset_sync_adapter.dart';
+import 'package:my_dic/features/sync/port/dataset_sync_gateway.dart';
 import 'package:my_dic/features/sync/port/model/dataset_sync_result.dart';
 import 'package:my_dic/features/sync/port/model/sync_context.dart';
 import 'package:my_dic/features/sync/port/model/sync_mutation.dart';
@@ -17,19 +17,20 @@ import 'package:my_dic/features/sync/port/remote_mutation_executor.dart';
 import 'package:my_dic/features/sync/port/sync_dataset.dart';
 import 'package:my_dic/features/sync/port/sync_handler_runtime.dart';
 
-class _OutboxWriter extends Mock implements IOutboxWriter {}
+class _OutboxWriter extends Mock implements OutboxWriter {}
 
-class _Firestore extends Mock implements FirebaseFirestore {}
+class _RemoteDocuments extends Mock
+    implements FirebaseAccountNestedUpdatedDocumentGateway {}
 
-class _RemoteMutationExecutor extends Mock implements IRemoteMutationExecutor {}
+class _RemoteMutationExecutor extends Mock implements RemoteMutationExecutor {}
 
-final class _RecordingRuntime implements ISyncHandlerRuntime {
-  final adapters = <IDatasetSyncAdapter>[];
+final class _RecordingRuntime implements SyncHandlerRuntime {
+  final adapters = <DatasetSyncGateway>[];
 
   @override
   Future<DatasetSyncResult> run(
     SyncContext context,
-    IDatasetSyncAdapter adapter,
+    DatasetSyncGateway adapter,
   ) async {
     adapters.add(adapter);
     return const DatasetSyncResult.success(pushedCount: 0, pulledCount: 0);
@@ -114,12 +115,12 @@ void main() {
       () async {
     final database = DatabaseProvider.forTesting(NativeDatabase.memory());
     addTearDown(database.close);
-    final firestore = _Firestore();
+    final remoteDocuments = _RemoteDocuments();
     final executor = _RemoteMutationExecutor();
     final runtime = _RecordingRuntime();
     final dependencies = MyWordSyncDependencies(
       database: database,
-      firestore: firestore,
+      remoteDocuments: remoteDocuments,
       remoteMutationExecutor: executor,
     );
 

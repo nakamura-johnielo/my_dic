@@ -9,7 +9,7 @@ import 'package:my_dic/app/session/app_session.dart';
 import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/core/session/session_scope_provider.dart';
-import 'package:my_dic/features/auth/port/app_auth.dart';
+import 'package:my_dic/features/auth/port/auth.dart';
 import 'package:my_dic/features/sync/port/model/sync_context.dart';
 import 'package:my_dic/features/sync/port/session_fence.dart';
 import 'package:my_dic/features/sync/port/sync_run_outcome.dart';
@@ -66,7 +66,7 @@ void main() {
 }
 
 AppSessionReady _readySession() => AppSessionReady(
-      AppAuth(accountId: 'account-a', isAuthenticated: true),
+      AuthIdentity(accountId: 'account-a', emailVerified: true),
       AppUser(),
     );
 

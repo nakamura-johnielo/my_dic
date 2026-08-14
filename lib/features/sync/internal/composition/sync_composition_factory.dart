@@ -3,7 +3,7 @@ import 'package:my_dic/features/sync/internal/application/dataset_handler_regist
 import 'package:my_dic/features/sync/internal/application/policy/dataset_plan.dart';
 import 'package:my_dic/features/sync/internal/application/single_flight_coordinator.dart';
 import 'package:my_dic/features/sync/internal/application/sync_engine.dart';
-import 'package:my_dic/features/sync/internal/application/sync_handler_runtime_adapter.dart';
+import 'package:my_dic/features/sync/internal/application/sync_handler_runtime_service.dart';
 import 'package:my_dic/features/sync/internal/application/sync_scheduler.dart';
 import 'package:my_dic/features/sync/internal/application/sync_workflow_runner.dart';
 import 'package:my_dic/features/sync/internal/infrastructure/persistence/drift/drift_sync_checkpoint_store.dart';
@@ -12,67 +12,52 @@ import 'package:my_dic/features/sync/internal/infrastructure/persistence/drift/d
 import 'package:my_dic/features/sync/internal/infrastructure/scheduling/timer_sync_retry_wakeup.dart';
 import 'package:my_dic/features/sync/internal/infrastructure/telemetry/app_logger_sync_telemetry.dart';
 import 'package:my_dic/features/sync/port/composition_contract.dart';
-import 'package:my_dic/features/sync/port/dataset_sync_handler.dart';
-import 'package:my_dic/features/sync/port/outbox_writer.dart';
-import 'package:my_dic/features/sync/port/session_fence.dart';
-import 'package:my_dic/features/sync/port/sync_handler_runtime.dart';
-import 'package:my_dic/features/sync/port/sync_checkpoint_store.dart';
-import 'package:my_dic/features/sync/port/sync_queue.dart';
-import 'package:my_dic/features/sync/port/sync_runner.dart';
-import 'package:my_dic/features/sync/port/model/sync_context.dart';
-import 'package:my_dic/features/sync/port/sync_run_outcome.dart';
+import 'package:my_dic/features/sync/port/dataset_contract.dart';
 
 /// Same-feature implementation behind the pure port composition bridge.
 final class SyncCompositionFactory {
   const SyncCompositionFactory._();
 
-  static ISyncHandlerRuntime createRuntime(SyncDependencyQueryPort read) {
-    final database =
-        read<DatabaseProvider>(SyncCompositionDependencies.database);
-    final fence = read<ISessionFence>(SyncCompositionDependencies.sessionFence);
-    return SyncHandlerRuntimeAdapter(
-      queue: DriftSyncQueue(database),
-      checkpoints: DriftSyncCheckpointStore(database),
-      sessionFence: fence,
+  static SyncComposition createComposition({
+    required DatabaseProvider database,
+    required SessionFence sessionFence,
+  }) {
+    final queue = DriftSyncQueue(database);
+    final checkpointStore = DriftSyncCheckpointStore(database);
+    return SyncComposition(
+      queue: queue,
+      checkpointStore: checkpointStore,
+      outboxWriter: DriftOutboxWriter(database),
+      handlerRuntime: SyncHandlerRuntimeService(
+        queue: queue,
+        checkpoints: checkpointStore,
+        sessionFence: sessionFence,
+      ),
     );
   }
 
-  static ISyncQueue createQueue(SyncDependencyQueryPort read) => DriftSyncQueue(
-      read<DatabaseProvider>(SyncCompositionDependencies.database));
-
-  static ISyncCheckpointStore createCheckpointStore(
-          SyncDependencyQueryPort read) =>
-      DriftSyncCheckpointStore(
-          read<DatabaseProvider>(SyncCompositionDependencies.database));
-
-  static IOutboxWriter createOutboxWriter(SyncDependencyQueryPort read) =>
-      DriftOutboxWriter(
-          read<DatabaseProvider>(SyncCompositionDependencies.database));
-
-  static ISyncRunner createRunner(
-    SyncDependencyQueryPort read,
-    Iterable<IDatasetSyncHandler> handlers,
-  ) {
-    final database =
-        read<DatabaseProvider>(SyncCompositionDependencies.database);
-    final fence = read<ISessionFence>(SyncCompositionDependencies.sessionFence);
+  static SyncRunner createRunner({
+    required DatabaseProvider database,
+    required SessionFence sessionFence,
+    required Iterable<DatasetSyncHandler> handlers,
+  }) {
     final scheduler = SyncScheduler(
       SyncEngine(
         handlers: DatasetHandlerRegistry(handlers),
         datasetPlan: DatasetPlan.localFirst,
-        sessionFence: fence,
+        sessionFence: sessionFence,
         singleFlightCoordinator: SingleFlightCoordinator(),
       ),
       telemetry: AppLoggerSyncTelemetry(),
       queue: DriftSyncQueue(database),
       retryWakeup: TimerSyncRetryWakeup(),
-      sessionFence: fence,
+      sessionFence: sessionFence,
     );
     return _ComposedSyncRunner(scheduler);
   }
 }
 
-final class _ComposedSyncRunner implements ISyncRunner {
+final class _ComposedSyncRunner implements SyncRunner {
   _ComposedSyncRunner(SyncScheduler scheduler)
       : _scheduler = scheduler,
         _runner = SyncWorkflowRunner(scheduler);

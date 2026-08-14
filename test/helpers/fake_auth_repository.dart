@@ -1,21 +1,18 @@
-// Fake implementation of IAuthRepository for testing.
-// This replaces mockito/mocktail per test_query.md requirements.
+// Fake Auth repository contract for tests.
 
-import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
-import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/auth/internal/domain/repository/i_auth_repository.dart';
-import 'package:my_dic/features/auth/port/app_auth.dart';
+import 'package:my_dic/features/auth/internal/domain/repository/auth_repository.dart';
+import 'package:my_dic/features/auth/port/auth.dart';
 
 import 'test_helpers.dart';
 
-class FakeAuthRepository implements IAuthRepository {
-  final Result<AppAuth>? _signInResult;
-  final Result<AppAuth>? _signUpResult;
+class FakeAuthRepository implements AuthRepositoryContract {
+  final Result<AuthIdentity>? _signInResult;
+  final Result<AuthIdentity>? _signUpResult;
   final Result<void>? _signOutResult;
   final Result<void>? _verificationResult;
   final Result<void>? _passwordResetResult;
-  final AppAuth? _currentAuth;
+  final AuthIdentity? _currentAuth;
 
   // Track method calls for verification
   int signInCallCount = 0;
@@ -24,12 +21,12 @@ class FakeAuthRepository implements IAuthRepository {
   String? lastSignInPassword;
 
   FakeAuthRepository({
-    Result<AppAuth>? signInResult,
-    Result<AppAuth>? signUpResult,
+    Result<AuthIdentity>? signInResult,
+    Result<AuthIdentity>? signUpResult,
     Result<void>? signOutResult,
     Result<void>? verificationResult,
     Result<void>? passwordResetResult,
-    AppAuth? currentAuth,
+    AuthIdentity? currentAuth,
   })  : _signInResult = signInResult,
         _signUpResult = signUpResult,
         _signOutResult = signOutResult,
@@ -38,7 +35,7 @@ class FakeAuthRepository implements IAuthRepository {
         _currentAuth = currentAuth;
 
   // Factory: Success scenario
-  factory FakeAuthRepository.success({AppAuth? auth}) {
+  factory FakeAuthRepository.success({AuthIdentity? auth}) {
     final testAuth = auth ?? createTestAuth();
     return FakeAuthRepository(
       signInResult: Result.success(testAuth),
@@ -84,7 +81,7 @@ class FakeAuthRepository implements IAuthRepository {
   }
 
   @override
-  Future<Result<AppAuth>> signInWithEmailAndPassword({
+  Future<Result<AuthIdentity>> signInWithEmailAndPassword({
     required String email,
     required String password,
   }) async {
@@ -99,7 +96,7 @@ class FakeAuthRepository implements IAuthRepository {
   }
 
   @override
-  Future<Result<AppAuth>> createUserWithEmailAndPassword({
+  Future<Result<AuthIdentity>> createUserWithEmailAndPassword({
     required String email,
     required String password,
   }) async {
@@ -126,12 +123,12 @@ class FakeAuthRepository implements IAuthRepository {
   }
 
   @override
-  Stream<AppAuth?> observeAuthState() {
+  Stream<AuthIdentity?> observeAuthState() {
     return Stream.value(_currentAuth);
   }
 
   @override
-  Future<Result<AppAuth>> getCurrentAuth() async {
+  Future<Result<AuthIdentity>> getCurrentAuth() async {
     final auth = _currentAuth;
     return auth == null
         ? Result.failure(UnauthorizedError(message: 'ログインしていません'))
@@ -139,5 +136,5 @@ class FakeAuthRepository implements IAuthRepository {
   }
 
   @override
-  Future<Result<AppAuth>> reloadCurrentAuth() => getCurrentAuth();
+  Future<Result<AuthIdentity>> reloadCurrentAuth() => getCurrentAuth();
 }

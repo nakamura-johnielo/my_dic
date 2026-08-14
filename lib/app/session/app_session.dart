@@ -1,5 +1,4 @@
-import 'package:my_dic/core/shared/errors/app_error.dart';
-import 'package:my_dic/features/auth/port/app_auth.dart';
+import 'package:my_dic/features/auth/port/auth.dart';
 import 'package:my_dic/features/user_profile/port/user_profile.dart';
 
 /// Router/UI-facing session state derived from `AuthLifecycleState`.
@@ -24,19 +23,19 @@ class AppSessionSignedOut extends AppSession {
 class AppSessionEmailUnverified extends AppSession {
   const AppSessionEmailUnverified(this.identity);
 
-  final AppAuth identity;
+  final AuthIdentity identity;
 }
 
 class AppSessionLoadingProfile extends AppSession {
   const AppSessionLoadingProfile(this.identity);
 
-  final AppAuth identity;
+  final AuthIdentity identity;
 }
 
 class AppSessionReady extends AppSession {
   const AppSessionReady(this.identity, this.profile);
 
-  final AppAuth identity;
+  final AuthIdentity identity;
   final AppUser profile;
 
   @override
@@ -47,5 +46,5 @@ class AppSessionFailure extends AppSession {
   const AppSessionFailure(this.error, {this.identity});
 
   final AppError error;
-  final AppAuth? identity;
+  final AuthIdentity? identity;
 }

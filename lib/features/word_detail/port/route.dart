@@ -1,5 +1,6 @@
 import 'package:my_dic/core/result/route_parse_result.dart';
-import 'package:my_dic/features/catalog/port/catalog.dart';
+import 'package:my_dic/features/catalog/port/catalog.dart'
+    show CatalogId, CatalogWordRef;
 
 /// URL-serializable contract for the word detail screen.
 ///
@@ -22,7 +23,6 @@ final class WordDetailRoute {
   static RouteParseResult<WordDetailRoute> parse({
     required Map<String, String> pathParameters,
     required Map<String, String> queryParameters,
-    CatalogId? Function(String type)? parseLegacyType,
   }) {
     final wordId = int.tryParse(pathParameters['wordId'] ?? '');
 
@@ -38,8 +38,7 @@ final class WordDetailRoute {
     }
 
     final legacyType = queryParameters[_legacyTypeParameter];
-    final legacyCatalogId =
-        legacyType == null ? null : parseLegacyType?.call(legacyType);
+    final legacyCatalogId = legacyType == null ? null : _legacyCatalog(legacyType);
     if (legacyType != null && legacyCatalogId == null) {
       return const RouteParseFailure('type is invalid.');
     }
@@ -58,4 +57,10 @@ final class WordDetailRoute {
       word: CatalogWordRef(catalogId: resolvedCatalogId, wordId: wordId),
     ));
   }
+
+  static CatalogId? _legacyCatalog(String type) => switch (type) {
+        'espJpn' => CatalogId.espJpnMain,
+        'jpnEsp' => CatalogId.jpnEspMain,
+        _ => null,
+      };
 }

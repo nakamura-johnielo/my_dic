@@ -9,9 +9,7 @@ import 'package:my_dic/app/session/app_session.dart';
 import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/core/session/session_scope_provider.dart';
-import 'package:my_dic/features/sync/port/cancellation_token.dart';
-import 'package:my_dic/features/sync/port/model/sync_context.dart';
-import 'package:my_dic/features/sync/port/sync_run_outcome.dart';
+import 'package:my_dic/features/sync/port/sync.dart';
 
 /// Account/epoch-owned guest-data prompt. Work is deliberately serial, but a
 /// newer session is remembered while detection or migration is in flight and

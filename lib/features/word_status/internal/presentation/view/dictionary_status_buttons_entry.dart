@@ -2,23 +2,38 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/state/ui_effect.dart';
 import 'package:my_dic/core/session/session_scope_provider.dart';
+import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/word_status/internal/presentation/component/status_button.dart'
     as ui;
 import 'package:my_dic/features/word_status/internal/presentation/provider/word_status_providers.dart';
+import 'package:my_dic/features/word_status/port/composition_contract.dart';
+import 'package:my_dic/features/word_status/port/presentation_dependencies.dart';
 
 /// Final WordStatus presentation entry. The caller supplies its current
 /// session identity; all WordStatus reads and commands stay feature-owned.
 class DictionaryStatusButtonsEntry extends ConsumerWidget {
-  const DictionaryStatusButtonsEntry({super.key, required this.word});
+  const DictionaryStatusButtonsEntry({
+    super.key,
+    required this.word,
+    this.scope,
+    this.ports,
+  });
   final CatalogWordRef word;
+  final SessionScopeKey? scope;
+  final WordStatusPorts? ports;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final scope = ref.watch(sessionScopeKeyProvider);
-    if (scope == null)
+    final resolvedScope = scope ?? ref.watch(sessionScopeKeyProvider);
+    if (resolvedScope == null)
       return const ui.DictionaryStatusButtons(
           viewModel: _DetachedStatusViewModel());
-    final key = WordStatusEntryKey(scope: scope, word: word);
+    final resolvedPorts = ports ?? ref.watch(wordStatusPortsDependencyProvider);
+    final key = WordStatusEntryKey(
+      scope: resolvedScope,
+      word: word,
+      ports: resolvedPorts,
+    );
     ref.listen(wordStatusCommandProvider(key), (previous, next) {
       final envelope = next.pendingEffect;
       if (envelope == null || previous?.pendingEffect?.id == envelope.id)

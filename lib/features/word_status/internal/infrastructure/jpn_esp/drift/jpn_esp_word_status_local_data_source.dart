@@ -1,6 +1,13 @@
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
+import 'package:my_dic/features/word_status/internal/domain/model/word_status_record.dart';
 
 abstract class JpnEspWordStatusLocalDataSource {
+  Future<WordStatusRecord?> getWordStatusRecordById(int id, String accountId);
+  Future<List<WordStatusRecord>> getWordStatusRecordsByIds(
+      Iterable<int> ids, String accountId);
+  Stream<WordStatusRecord?> watchWordStatusRecordById(
+      int id, String accountId);
+
   Future<JpnEspWordStatusTableData?> getWordStatusById(
       int id, String accountId);
   Future<List<JpnEspWordStatusTableData>> getWordStatusAfter(

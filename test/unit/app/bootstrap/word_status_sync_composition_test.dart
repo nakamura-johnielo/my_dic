@@ -1,9 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
-import 'package:my_dic/features/sync/port/dataset_sync_adapter.dart';
+import 'package:my_dic/core/port/firebase_account_nested_document_gateway.dart';
+import 'package:my_dic/features/sync/port/dataset_sync_gateway.dart';
 import 'package:my_dic/features/sync/port/model/dataset_sync_result.dart';
 import 'package:my_dic/features/sync/port/model/sync_context.dart';
 import 'package:my_dic/features/sync/port/remote_mutation_executor.dart';
@@ -16,15 +16,18 @@ void main() {
     final runtime = _Runtime();
     final database = DatabaseProvider.forTesting(NativeDatabase.memory());
     addTearDown(database.close);
-    final WordStatusSyncDependencyQueryPort read =
-        <T>(Object dependency) => _readDependency<T>(dependency, database);
+    final dependencies = WordStatusSyncDependencies(
+      database: database,
+      remoteDocuments: _RemoteDocuments(),
+      remoteMutationExecutor: _RemoteMutations(),
+    );
 
     final esp = createEspJpnWordStatusDatasetSyncHandler(
-      read,
+      dependencies: dependencies,
       runtime: runtime,
     );
     final jpn = createJpnEspWordStatusDatasetSyncHandler(
-      read,
+      dependencies: dependencies,
       runtime: runtime,
     );
 
@@ -33,24 +36,16 @@ void main() {
   });
 }
 
-T _readDependency<T>(Object dependency, DatabaseProvider database) =>
-    switch (dependency) {
-      WordStatusSyncDependency.database => database as T,
-      WordStatusSyncDependency.firestore => _Firestore() as T,
-      WordStatusSyncDependency.remoteMutationExecutor =>
-        _RemoteMutations() as T,
-      _ => throw ArgumentError.value(dependency, 'dependency'),
-    };
-
 final class _Runtime implements SyncHandlerRuntime {
   @override
   Future<DatasetSyncResult> run(
     SyncContext context,
-    DatasetSyncAdapter adapter,
+    DatasetSyncGateway adapter,
   ) async =>
       const DatasetSyncResult.cancelled('test');
 }
 
-final class _Firestore extends Mock implements FirebaseFirestore {}
+final class _RemoteDocuments extends Mock
+    implements FirebaseAccountNestedDocumentGateway {}
 
 final class _RemoteMutations extends Mock implements RemoteMutationExecutor {}

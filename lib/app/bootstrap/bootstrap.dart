@@ -3,20 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/app/app.dart';
 import 'package:my_dic/app/bootstrap/app_dependencies.dart';
-import 'package:my_dic/integration/sync_trigger_workflow/application_lifecycle_effects.dart';
+import 'package:my_dic/app/workflows/sync_trigger/application_lifecycle_effects.dart';
 import 'package:my_dic/core/di/data/data_di.dart';
 import 'package:my_dic/core/infrastructure/database/shared_preferences/shared_preferences.dart';
 import 'package:my_dic/app/bootstrap/session_composition.dart';
 import 'package:my_dic/app/bootstrap/firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:my_dic/features/word_status/port/presentation_entry.dart';
+import 'package:my_dic/features/word_status/port/presentation_dependencies.dart';
 import 'package:my_dic/app/bootstrap/word_status_composition.dart';
-import 'package:my_dic/app/bootstrap/catalog_composition.dart';
 import 'package:my_dic/integration/catalog_search/catalog_search_providers.dart';
 import 'package:my_dic/app/bootstrap/quiz_composition.dart';
-import 'package:my_dic/features/catalog/port/presentation_dependencies.dart';
 import 'package:my_dic/features/search/port/presentation_dependencies.dart';
 import 'package:my_dic/features/quiz/port/presentation_dependencies.dart';
+import 'package:my_dic/features/auth/port/presentation_dependencies.dart';
+import 'package:my_dic/app/bootstrap/auth_composition.dart';
+import 'package:my_dic/app/bootstrap/ranking_composition.dart';
+import 'package:my_dic/app/bootstrap/word_detail_composition.dart';
+import 'package:my_dic/features/ranking/port/presentation_dependencies.dart';
+import 'package:my_dic/features/word_detail/port/presentation_dependencies.dart';
 
 class AppBootstrap extends StatefulWidget {
   const AppBootstrap({super.key, this.bootstrapper, this.appBuilder});
@@ -54,23 +58,27 @@ class _AppBootstrapState extends State<AppBootstrap> {
             sharedPreferencesProvider
                 .overrideWithValue(snapshot.data!.sharedPreferences),
             sessionScopeKeyProvider.overrideWith(resolveSessionScopeKey),
-            catalogReadPortsDependencyProvider.overrideWith(
-              (ref) => ref.watch(catalogReadPortsProvider),
+            searchReaderPortDependencyProvider.overrideWith(
+              (ref) => ref.watch(searchReaderPortProvider),
             ),
-            catalogQueryPortDependencyProvider.overrideWith(
-              (ref) => ref.watch(catalogQueryPortProvider),
-            ),
-            conjugationQueryPortDependencyProvider.overrideWith(
-              (ref) => ref.watch(conjugationQueryPortProvider),
-            ),
-            searchQueryPortDependencyProvider.overrideWith(
-              (ref) => ref.watch(searchQueryPortProvider),
+            wordDetailPresentationDependenciesProvider.overrideWith(
+              (ref) => WordDetailPresentationDependencies(
+                reader: ref.watch(wordDetailReaderPortProvider),
+              ),
             ),
             quizPortsDependencyProvider.overrideWith(
               (ref) => ref.watch(quizPortsProvider),
             ),
-            wordStatusRepositoryDependencyProvider.overrideWith(
-              (ref) => ref.watch(wordStatusRepositoryProvider),
+            wordStatusPortsDependencyProvider.overrideWith(
+              (ref) => ref.watch(wordStatusPortsProvider),
+            ),
+            rankingPresentationDependenciesProvider.overrideWith(
+              (ref) => RankingPresentationDependencies(
+                ports: ref.watch(rankingPortsProvider),
+              ),
+            ),
+            authCommandPortDependencyProvider.overrideWith(
+              (ref) => ref.watch(authCommandPortProvider),
             ),
           ],
           child: AppReadinessGate(

@@ -7,20 +7,20 @@ import 'package:my_dic/features/sync/port/cancellation_token.dart';
 import 'package:my_dic/features/sync/port/dataset_sync_handler.dart';
 import 'package:my_dic/features/sync/port/model/dataset_sync_result.dart';
 import 'package:my_dic/features/sync/internal/application/in_memory_session_fence.dart';
-import 'package:my_dic/features/sync/internal/application/sync_handler_runtime_adapter.dart';
+import 'package:my_dic/features/sync/internal/application/sync_handler_runtime_service.dart';
 import 'package:my_dic/features/sync/port/model/remote_mutation.dart';
 import 'package:my_dic/features/sync/port/model/sync_context.dart';
 import 'package:my_dic/features/sync/port/model/sync_mutation.dart';
 import 'package:my_dic/features/sync/internal/infrastructure/persistence/drift/drift_sync_checkpoint_store.dart';
 import 'package:my_dic/features/user_profile/internal/infrastructure/local/drift_user_profile_dao.dart';
 import 'package:my_dic/features/user_profile/internal/infrastructure/local/user_profile_drift_data_source.dart';
-import 'package:my_dic/features/user_profile/internal/infrastructure/firebase/i_user_remote_data_source.dart';
-import 'package:my_dic/features/user_profile/port/user_dto.dart';
-import 'package:my_dic/features/user_profile/internal/infrastructure/sync/user_profile_dataset_sync_adapter.dart';
+import 'package:my_dic/features/user_profile/internal/infrastructure/firebase/user_profile_remote_data_source.dart';
+import 'package:my_dic/features/user_profile/internal/infrastructure/firebase/user_profile_remote_dto.dart';
+import 'package:my_dic/features/user_profile/internal/infrastructure/sync/user_profile_dataset_sync_service.dart';
 
 import '../../../helpers/sync/fake_sync_queue.dart';
 
-class _MockRemote extends Mock implements IUserRemoteDataSource {}
+class _MockRemote extends Mock implements UserProfileRemoteDataSource {}
 
 const _accountId = 'account-a';
 
@@ -80,9 +80,9 @@ void main() {
     queue = FakeSyncQueue();
     fence = InMemorySessionFence()..setCurrent(_accountId, 1);
     final checkpointStore = DriftSyncCheckpointStore(database);
-    handler = AdapterDatasetSyncHandler(
-        adapter: UserProfileDatasetSyncAdapter(local: local, remote: remote),
-        runtime: SyncHandlerRuntimeAdapter(
+    handler = DatasetSyncService(
+        adapter: UserProfileDatasetSyncService(local: local, remote: remote),
+        runtime: SyncHandlerRuntimeService(
             queue: queue,
             checkpoints: checkpointStore,
             sessionFence: fence,
@@ -158,7 +158,7 @@ void main() {
       () async {
     final updatedAt = DateTime.utc(2026, 8, 5, 12);
     when(() => remote.getUserById(_accountId)).thenAnswer(
-      (_) async => UserDTO(
+      (_) async => UserProfileRemoteDto(
         userId: _accountId,
         userName: 'Remote Name',
         updatedAt: updatedAt,
@@ -193,7 +193,7 @@ void main() {
     );
     final updatedAt = DateTime.utc(2026, 8, 5, 12);
     when(() => remote.getUserById(_accountId)).thenAnswer(
-      (_) async => UserDTO(
+      (_) async => UserProfileRemoteDto(
         userId: _accountId,
         userName: 'Remote Name',
         updatedAt: updatedAt,
