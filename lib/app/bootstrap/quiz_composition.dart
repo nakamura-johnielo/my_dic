@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/app/bootstrap/catalog_composition.dart';
-import 'package:my_dic/core/di/data/data_di.dart';
+import 'package:my_dic/core/composition/data_di.dart';
 import 'package:my_dic/features/quiz/port/composition.dart';
 import 'package:my_dic/integration/catalog_quiz/catalog_backed_quiz_candidate_gateway.dart';
 import 'package:my_dic/integration/catalog_quiz/catalog_backed_quiz_game_gateway.dart';

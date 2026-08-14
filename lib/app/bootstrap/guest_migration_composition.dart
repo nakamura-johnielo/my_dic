@@ -6,7 +6,7 @@ import 'package:my_dic/app/bootstrap/user_profile_composition.dart';
 import 'package:my_dic/app/guest_migration/detect_guest_data_usecase.dart';
 import 'package:my_dic/app/guest_migration/guest_data_summary.dart';
 import 'package:my_dic/app/guest_migration/migrate_guest_data_usecase.dart';
-import 'package:my_dic/core/di/data/data_di.dart' show databaseProvider;
+import 'package:my_dic/core/composition/data_di.dart' show databaseProvider;
 import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/features/sync/port/sync.dart';
 

@@ -3,7 +3,7 @@ import 'package:my_dic/app/bootstrap/my_word_composition.dart';
 import 'package:my_dic/app/bootstrap/sync_infrastructure_providers.dart';
 import 'package:my_dic/app/bootstrap/word_status_composition.dart';
 import 'package:my_dic/app/bootstrap/user_profile_composition.dart';
-import 'package:my_dic/core/di/data/data_di.dart';
+import 'package:my_dic/core/composition/data_di.dart';
 import 'package:my_dic/features/sync/port/composition.dart';
 import 'package:my_dic/features/sync/port/dataset_contract.dart';
 

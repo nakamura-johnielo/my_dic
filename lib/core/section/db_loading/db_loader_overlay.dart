@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/core/di/view_model/view_model.dart';
+import 'package:my_dic/core/composition/view_model.dart';
 import 'package:my_dic/core/shared/enums/web/db.dart';
 
 class DatabaseLoadingOverlay extends ConsumerWidget {

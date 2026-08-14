@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/core/di/data/data_di.dart';
+import 'package:my_dic/core/composition/data_di.dart';
 import 'package:my_dic/integration/session_lifecycle_workflow/session_fence_service.dart';
 import 'package:my_dic/features/sync/port/composition.dart';
 import 'package:my_dic/features/sync/port/dataset_contract.dart';

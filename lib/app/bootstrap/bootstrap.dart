@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/app/app.dart';
 import 'package:my_dic/app/bootstrap/app_dependencies.dart';
 import 'package:my_dic/app/workflows/sync_trigger/application_lifecycle_effects.dart';
-import 'package:my_dic/core/di/data/data_di.dart';
+import 'package:my_dic/core/composition/data_di.dart';
 import 'package:my_dic/core/infrastructure/database/shared_preferences/shared_preferences.dart';
 import 'package:my_dic/app/bootstrap/session_composition.dart';
 import 'package:my_dic/app/bootstrap/firebase_options.dart';

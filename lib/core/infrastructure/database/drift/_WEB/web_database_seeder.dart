@@ -10,7 +10,7 @@ import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:archive/archive.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:drift/drift.dart';
-import 'package:my_dic/core/di/global.dart';
+import 'package:my_dic/core/composition/global.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/core/shared/consts/enviroment.dart';
 import 'package:my_dic/core/shared/enums/web/db.dart';
