@@ -75,3 +75,12 @@ assets\data\kotobank.json
 assets\data\kotobank.json.gz
 
 assets/db_for_web/
+
+.codex/
+.firebase/
+.github/
+.vscode/
+.VSCodeCounter/
+
+
+
