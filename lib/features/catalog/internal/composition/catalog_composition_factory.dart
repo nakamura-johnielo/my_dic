@@ -23,7 +23,7 @@ import 'package:my_dic/features/catalog/internal/infrastructure/drift/repository
 import 'package:my_dic/features/catalog/port/catalog_read_ports.dart';
 
 /// Catalog-owned assembly of the Drift implementation graph.
-CatalogReadPorts createInternalCatalogComposition({
+CatalogQueryPorts createInternalCatalogComposition({
   required DatabaseProvider database,
 }) {
   final espJpnDictionary = EspJpnDictionaryDriftDataSource(
@@ -45,7 +45,7 @@ CatalogReadPorts createInternalCatalogComposition({
     CatalogConjugationRepository(conjugations),
   );
 
-  return CatalogReadPorts(
+  return CatalogQueryPorts(
     entryDetail: entryDetail,
     conjugation: conjugation,
     wordSearch: DriftCatalogWordSearchQueryService(database),

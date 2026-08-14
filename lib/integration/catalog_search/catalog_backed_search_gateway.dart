@@ -5,7 +5,7 @@ import 'package:my_dic/features/search/port/search.dart';
 final class CatalogBackedSearchGateway implements SearchCatalogGateway {
   const CatalogBackedSearchGateway(this._catalog);
 
-  final CatalogReadPorts _catalog;
+  final CatalogQueryPorts _catalog;
 
   @override
   Future<Result<SearchCatalogPage<SearchPrimaryHit>>> searchPrimary(

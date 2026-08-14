@@ -2,11 +2,10 @@ import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/word_detail/port/word_detail.dart';
 
 /// Pure value/error adapter from Catalog's public semantic readers.
-final class CatalogBackedWordDetailGateway
-    implements WordDetailCatalogGateway {
+final class CatalogBackedWordDetailGateway implements WordDetailCatalogGateway {
   const CatalogBackedWordDetailGateway(this._catalog);
 
-  final CatalogReadPorts _catalog;
+  final CatalogQueryPorts _catalog;
 
   @override
   Future<Result<WordDetailDictionary>> readDictionary(
@@ -148,8 +147,7 @@ WordDetailContentBlock _contentBlock(CatalogContentNode node) => switch (node) {
           children: children.map(_contentBlock),
         ),
       CatalogContentLineBreak() => const WordDetailLineBreakBlock(),
-      CatalogContentLink(:final target, :final children) =>
-        WordDetailLinkBlock(
+      CatalogContentLink(:final target, :final children) => WordDetailLinkBlock(
           target: target,
           children: children.map(_contentBlock),
         ),
@@ -160,8 +158,7 @@ WordDetailContentBlock _contentBlock(CatalogContentNode node) => switch (node) {
 WordDetailContentGroupKind _groupKind(CatalogContentGroupKind kind) =>
     switch (kind) {
       CatalogContentGroupKind.section => WordDetailContentGroupKind.section,
-      CatalogContentGroupKind.paragraph =>
-        WordDetailContentGroupKind.paragraph,
+      CatalogContentGroupKind.paragraph => WordDetailContentGroupKind.paragraph,
       CatalogContentGroupKind.inline => WordDetailContentGroupKind.inline,
       CatalogContentGroupKind.strong => WordDetailContentGroupKind.strong,
       CatalogContentGroupKind.italic => WordDetailContentGroupKind.italic,
@@ -224,15 +221,13 @@ WordDetailMoodTense _moodTense(CatalogMoodTense value) => switch (value) {
         WordDetailMoodTense.indicativePreterite,
       CatalogMoodTense.indicativeImperfect =>
         WordDetailMoodTense.indicativeImperfect,
-      CatalogMoodTense.indicativeFuture =>
-        WordDetailMoodTense.indicativeFuture,
+      CatalogMoodTense.indicativeFuture => WordDetailMoodTense.indicativeFuture,
       CatalogMoodTense.indicativeConditional =>
         WordDetailMoodTense.indicativeConditional,
       CatalogMoodTense.imperative => WordDetailMoodTense.imperative,
       CatalogMoodTense.subjunctivePresent =>
         WordDetailMoodTense.subjunctivePresent,
-      CatalogMoodTense.subjunctivePast =>
-        WordDetailMoodTense.subjunctivePast,
+      CatalogMoodTense.subjunctivePast => WordDetailMoodTense.subjunctivePast,
     };
 
 WordDetailSubject _subject(CatalogSubject value) => switch (value) {

@@ -1,15 +1,15 @@
-import 'package:my_dic/features/catalog/port/reader/catalog_conjugation_reader_port.dart';
-import 'package:my_dic/features/catalog/port/reader/catalog_conjugation_search_reader_port.dart';
-import 'package:my_dic/features/catalog/port/reader/catalog_entry_detail_reader_port.dart';
-import 'package:my_dic/features/catalog/port/reader/catalog_entry_summary_reader_port.dart';
-import 'package:my_dic/features/catalog/port/reader/catalog_ranking_reader_port.dart';
-import 'package:my_dic/features/catalog/port/reader/catalog_ranked_entry_feed_reader_port.dart';
-import 'package:my_dic/features/catalog/port/reader/catalog_semantic_entry_detail_reader_port.dart';
-import 'package:my_dic/features/catalog/port/reader/catalog_word_search_reader_port.dart';
+import 'package:my_dic/features/catalog/port/queryport/catalog_conjugation_reader_port.dart';
+import 'package:my_dic/features/catalog/port/queryport/catalog_conjugation_search_reader_port.dart';
+import 'package:my_dic/features/catalog/port/queryport/catalog_entry_detail_reader_port.dart';
+import 'package:my_dic/features/catalog/port/queryport/catalog_entry_summary_reader_port.dart';
+import 'package:my_dic/features/catalog/port/queryport/catalog_ranking_reader_port.dart';
+import 'package:my_dic/features/catalog/port/queryport/catalog_ranked_entry_feed_reader_port.dart';
+import 'package:my_dic/features/catalog/port/queryport/catalog_semantic_entry_detail_reader_port.dart';
+import 'package:my_dic/features/catalog/port/queryport/catalog_word_search_reader_port.dart';
 
 /// The complete set of public Catalog read capabilities for one app scope.
-final class CatalogReadPorts {
-  const CatalogReadPorts({
+final class CatalogQueryPorts {
+  const CatalogQueryPorts({
     required this.entryDetail,
     required this.conjugation,
     required this.wordSearch,

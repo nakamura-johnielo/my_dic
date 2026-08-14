@@ -5,8 +5,8 @@ import 'package:my_dic/features/catalog/internal/infrastructure/drift/mapper/cat
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/mapper/catalog_search_hit_mapper.dart';
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/catalog_like_pattern.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_search_models.dart';
-import 'package:my_dic/features/catalog/port/query/catalog_conjugation_search_query.dart';
-import 'package:my_dic/features/catalog/port/reader/catalog_conjugation_search_reader_port.dart';
+import 'package:my_dic/features/catalog/port/inputdata/catalog_conjugation_search_query.dart';
+import 'package:my_dic/features/catalog/port/queryport/catalog_conjugation_search_reader_port.dart';
 import 'package:my_dic/features/catalog/port/result/catalog_search_page.dart';
 
 final class DriftCatalogConjugationSearchQueryService

@@ -5,8 +5,8 @@ import 'package:my_dic/features/catalog/internal/infrastructure/drift/mapper/cat
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/mapper/catalog_read_error_mapper.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_ranked_entry.dart';
-import 'package:my_dic/features/catalog/port/query/catalog_ranked_entry_feed_query.dart';
-import 'package:my_dic/features/catalog/port/reader/catalog_ranked_entry_feed_reader_port.dart';
+import 'package:my_dic/features/catalog/port/inputdata/catalog_ranked_entry_feed_query.dart';
+import 'package:my_dic/features/catalog/port/queryport/catalog_ranked_entry_feed_reader_port.dart';
 import 'package:my_dic/features/catalog/port/result/catalog_ranked_entry_feed.dart';
 
 typedef CatalogRankedEntryFeedFetch = Future<List<CatalogRankedEntry>>

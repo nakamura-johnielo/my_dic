@@ -9,7 +9,7 @@ import 'package:my_dic/features/quiz/port/quiz.dart';
 final class CatalogBackedQuizGameGateway implements QuizGameCatalogGateway {
   const CatalogBackedQuizGameGateway(this._catalog);
 
-  final CatalogReadPorts _catalog;
+  final CatalogQueryPorts _catalog;
 
   @override
   Future<Result<QuizCatalogPrimaryWord?>> readPrimaryWord(

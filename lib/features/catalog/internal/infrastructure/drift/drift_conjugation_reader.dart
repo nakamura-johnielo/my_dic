@@ -5,7 +5,7 @@ import 'package:my_dic/features/catalog/internal/infrastructure/drift/mapper/cat
 import 'package:my_dic/features/catalog/port/catalog_id.dart';
 import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_conjugation.dart';
-import 'package:my_dic/features/catalog/port/reader/catalog_conjugation_reader_port.dart';
+import 'package:my_dic/features/catalog/port/queryport/catalog_conjugation_reader_port.dart';
 
 ///  Driftリポジトリグラフを基盤とする、Catalogの公開活用形リーダー。
 final class DriftCatalogConjugationQueryService

@@ -10,7 +10,7 @@ final class CatalogBackedQuizCandidateGateway
     implements QuizCandidateCatalogGateway {
   const CatalogBackedQuizCandidateGateway(this._catalog);
 
-  final CatalogReadPorts _catalog;
+  final CatalogQueryPorts _catalog;
 
   @override
   Future<Result<QuizCatalogCandidatePage>> searchConjugationCandidates(

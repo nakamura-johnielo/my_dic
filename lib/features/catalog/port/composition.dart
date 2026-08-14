@@ -10,7 +10,7 @@ final class CatalogDependencies {
 }
 
 /// Assembles Catalog's public read capabilities without framework state.
-CatalogReadPorts createCatalogComposition({
+CatalogQueryPorts createCatalogComposition({
   required CatalogDependencies dependencies,
 }) =>
     createInternalCatalogComposition(database: dependencies.database);

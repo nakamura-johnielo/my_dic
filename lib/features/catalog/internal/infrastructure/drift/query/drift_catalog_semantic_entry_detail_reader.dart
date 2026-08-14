@@ -3,8 +3,8 @@ import 'package:my_dic/features/catalog/internal/infrastructure/drift/mapper/cat
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/mapper/catalog_semantic_content_mapper.dart';
 import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_semantic_entry_detail.dart';
-import 'package:my_dic/features/catalog/port/reader/catalog_entry_detail_reader_port.dart';
-import 'package:my_dic/features/catalog/port/reader/catalog_semantic_entry_detail_reader_port.dart';
+import 'package:my_dic/features/catalog/port/queryport/catalog_entry_detail_reader_port.dart';
+import 'package:my_dic/features/catalog/port/queryport/catalog_semantic_entry_detail_reader_port.dart';
 
 final class DriftCatalogSemanticEntryDetailQueryService
     implements CatalogSemanticEntryDetailQueryPort {

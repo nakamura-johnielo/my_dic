@@ -5,7 +5,7 @@ import 'package:my_dic/features/catalog/internal/infrastructure/drift/mapper/cat
 import 'package:my_dic/features/catalog/port/catalog_id.dart';
 import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_entry_detail.dart';
-import 'package:my_dic/features/catalog/port/reader/catalog_entry_detail_reader_port.dart';
+import 'package:my_dic/features/catalog/port/queryport/catalog_entry_detail_reader_port.dart';
 
 /// Catalog's public detail reader backed by the Catalog-owned repository graph.
 final class DriftCatalogEntryDetailQueryService
