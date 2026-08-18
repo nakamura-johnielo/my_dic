@@ -149,21 +149,38 @@ class AutoFocusTextField extends StatefulWidget {
 
 class _AutoFocusTextFieldState extends State<AutoFocusTextField> {
   late FocusNode _focusNode;
+  late bool _ownsFocusNode;
 
   @override
   void initState() {
     super.initState();
+    _ownsFocusNode = widget.focusNode == null;
     _focusNode = widget.focusNode ?? FocusNode();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      FocusScope.of(context).requestFocus(_focusNode);
-      await KeyboardHelper.showKeyboard(); //android native　呼び出し。
+      if (!mounted ||
+          widget.readOnly ||
+          widget.enabled == false ||
+          !widget.canRequestFocus) {
+        return;
+      }
+
+      _focusNode.requestFocus();
+      await WidgetsBinding.instance.endOfFrame;
+
+      if (!mounted || !_focusNode.hasFocus) {
+        return;
+      }
+
+      await KeyboardHelper.showKeyboard();
     });
   }
 
   @override
   void dispose() {
-    _focusNode.dispose();
+    if (_ownsFocusNode) {
+      _focusNode.dispose();
+    }
     super.dispose();
   }
 
@@ -171,7 +188,7 @@ class _AutoFocusTextFieldState extends State<AutoFocusTextField> {
   Widget build(BuildContext context) {
     return TextField(
         focusNode: _focusNode,
-        autofocus: true,
+        autofocus: false,
         groupId: widget.groupId,
         controller: widget.controller,
         undoController: widget.undoController,
