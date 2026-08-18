@@ -7,7 +7,7 @@ import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/core/shared/enums/entry_point.dart';
 import 'package:my_dic/core/shared/utils/screen_size.dart';
 
-const double ICON_SIZE = 24; //default icon size
+const double iconSize = 24; //default icon size
 
 class SwitchableFloatBottomBar extends ConsumerWidget {
   const SwitchableFloatBottomBar(

@@ -1,8 +1,9 @@
 /// Test for Result utility class
 /// Priority: ★★★★★ (Foundation for all other tests)
-/// 
+///
 /// Tests the Result monad pattern implementation which is critical
 /// for the Clean Architecture error handling approach.
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';

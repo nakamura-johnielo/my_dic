@@ -20,12 +20,13 @@ class HorizontalFader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return // action button (width: 0->hug, opacity: 0->1)
-        SizedBox(height: height,
-          child: AnimatedSwitcher(
-                duration: _kActionAnimDuration,
-                switchInCurve: _kActionAnimCurve,
-                switchOutCurve: _kActionAnimCurve,
-                transitionBuilder: (child, animation) {
+        SizedBox(
+      height: height,
+      child: AnimatedSwitcher(
+        duration: _kActionAnimDuration,
+        switchInCurve: _kActionAnimCurve,
+        switchOutCurve: _kActionAnimCurve,
+        transitionBuilder: (child, animation) {
           final curved =
               CurvedAnimation(parent: animation, curve: _kActionAnimCurve);
           return FadeTransition(
@@ -37,13 +38,13 @@ class HorizontalFader extends StatelessWidget {
               child: child,
             ),
           );
-                },
-                child: isVisible
+        },
+        child: isVisible
             ? child
             : const SizedBox.shrink(
                 key: ValueKey('no_action'),
               ),
-              ),
-        );
+      ),
+    );
   }
 }

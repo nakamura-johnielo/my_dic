@@ -28,7 +28,7 @@ class MyIconButton extends StatefulWidget {
       this.runnningIconColor});
 
   @override
-  _MyIconButtonState createState() => _MyIconButtonState();
+  State<MyIconButton> createState() => _MyIconButtonState();
 }
 
 class _MyIconButtonState extends State<MyIconButton> {

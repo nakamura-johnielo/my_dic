@@ -20,7 +20,7 @@ class AutoFocusTextField extends StatefulWidget {
   final TextAlignVertical? textAlignVertical;
   final TextDirection? textDirection;
   final bool readOnly;
-  final ToolbarOptions? toolbarOptions;
+  final EditableTextContextMenuBuilder? contextMenuBuilder;
   final bool? showCursor;
   //final bool autoFocus;
   final WidgetStatesController? statesController;
@@ -69,7 +69,7 @@ class AutoFocusTextField extends StatefulWidget {
   final ContentInsertionConfiguration? contentInsertionConfiguration;
   final Clip clipBehavior;
   final String? restorationId;
-  final bool scribbleEnabled;
+  final bool stylusHandwritingEnabled;
   final bool enableIMEPersonalizedLearning;
   final bool canRequestFocus;
   final SpellCheckConfiguration? spellCheckConfiguration;
@@ -91,7 +91,7 @@ class AutoFocusTextField extends StatefulWidget {
     this.textAlignVertical,
     this.textDirection,
     this.readOnly = false,
-    this.toolbarOptions,
+    this.contextMenuBuilder,
     this.showCursor,
     this.statesController,
     this.obscuringCharacter = '•',
@@ -136,7 +136,7 @@ class AutoFocusTextField extends StatefulWidget {
     this.contentInsertionConfiguration,
     this.clipBehavior = Clip.hardEdge,
     this.restorationId,
-    this.scribbleEnabled = true,
+    this.stylusHandwritingEnabled = true,
     this.enableIMEPersonalizedLearning = true,
     this.canRequestFocus = true,
     this.spellCheckConfiguration,
@@ -144,26 +144,43 @@ class AutoFocusTextField extends StatefulWidget {
   });
 
   @override
-  _AutoFocusTextFieldState createState() => _AutoFocusTextFieldState();
+  State<AutoFocusTextField> createState() => _AutoFocusTextFieldState();
 }
 
 class _AutoFocusTextFieldState extends State<AutoFocusTextField> {
   late FocusNode _focusNode;
+  late bool _ownsFocusNode;
 
   @override
   void initState() {
     super.initState();
+    _ownsFocusNode = widget.focusNode == null;
     _focusNode = widget.focusNode ?? FocusNode();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      FocusScope.of(context).requestFocus(_focusNode);
-      await KeyboardHelper.showKeyboard(); //android native　呼び出し。
+      if (!mounted ||
+          widget.readOnly ||
+          widget.enabled == false ||
+          !widget.canRequestFocus) {
+        return;
+      }
+
+      _focusNode.requestFocus();
+      await WidgetsBinding.instance.endOfFrame;
+
+      if (!mounted || !_focusNode.hasFocus) {
+        return;
+      }
+
+      await KeyboardHelper.showKeyboard();
     });
   }
 
   @override
   void dispose() {
-    _focusNode.dispose();
+    if (_ownsFocusNode) {
+      _focusNode.dispose();
+    }
     super.dispose();
   }
 
@@ -171,7 +188,7 @@ class _AutoFocusTextFieldState extends State<AutoFocusTextField> {
   Widget build(BuildContext context) {
     return TextField(
         focusNode: _focusNode,
-        autofocus: true,
+        autofocus: false,
         groupId: widget.groupId,
         controller: widget.controller,
         undoController: widget.undoController,
@@ -185,7 +202,7 @@ class _AutoFocusTextFieldState extends State<AutoFocusTextField> {
         textAlignVertical: widget.textAlignVertical,
         textDirection: widget.textDirection,
         readOnly: widget.readOnly,
-        toolbarOptions: widget.toolbarOptions,
+        contextMenuBuilder: widget.contextMenuBuilder,
         showCursor: widget.showCursor,
         statesController: widget.statesController,
         obscuringCharacter: widget.obscuringCharacter,
@@ -230,15 +247,13 @@ class _AutoFocusTextFieldState extends State<AutoFocusTextField> {
         contentInsertionConfiguration: widget.contentInsertionConfiguration,
         clipBehavior: widget.clipBehavior,
         restorationId: widget.restorationId,
-        scribbleEnabled: widget.scribbleEnabled,
+        stylusHandwritingEnabled: widget.stylusHandwritingEnabled,
         enableIMEPersonalizedLearning: widget.enableIMEPersonalizedLearning,
         canRequestFocus: widget.canRequestFocus,
         spellCheckConfiguration: widget.spellCheckConfiguration,
         magnifierConfiguration: widget.magnifierConfiguration);
   }
 }
-
-
 
 /* 
 groupId: widget.groupId,

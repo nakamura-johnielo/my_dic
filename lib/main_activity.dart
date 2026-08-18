@@ -1,17 +1,17 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_dic/core/di/router/router.dart';
+import 'package:my_dic/app/routing/navigation_state.dart';
+import 'package:my_dic/app/presentation/sync/manual_sync_action.dart';
 import 'package:my_dic/core/presentation/components/nav_bar/item.dart';
 import 'package:my_dic/core/presentation/components/nav_bar/studay_bottom_bar.dart';
 import 'package:my_dic/core/shared/enums/entry_point.dart';
 import 'package:my_dic/core/shared/consts/ui/tab.dart';
-import 'package:my_dic/router/navigator_service.dart';
+import 'package:my_dic/app/routing/route_names.dart';
 
 import 'package:my_dic/core/shared/utils/logger.dart';
 
-class MainActivity extends ConsumerWidget {
+class MainActivity extends ConsumerStatefulWidget {
   const MainActivity({
     super.key,
     required this.navigationShell,
@@ -19,34 +19,45 @@ class MainActivity extends ConsumerWidget {
 
   final StatefulNavigationShell navigationShell;
 
+  @override
+  ConsumerState<MainActivity> createState() => _MainActivityState();
+}
+
+class _MainActivityState extends ConsumerState<MainActivity> {
+  static final int _studyBranchOffset = MainScreenTab.values
+      .where((tab) => tab.entryPoint.category == EntryPointCategory.main)
+      .length;
+  static final int _studyTabIndexOnMainBar =
+      MainScreenTab.values.indexOf(MainScreenTab.study);
+
   DestinatioinItem _buildDestinatioinItem(ScreenTabBehaivor tab) {
     return DestinatioinItem(icon: tab.icon, label: tab.label);
   }
 
+  int _studyTabToShellIndex(int tabIndex) => tabIndex + _studyBranchOffset;
+
+  int _mainTabToShellIndex(int tabIndex, int lastStudyTabIndex) {
+    return tabIndex == _studyTabIndexOnMainBar
+        ? _studyTabToShellIndex(lastStudyTabIndex)
+        : tabIndex;
+  }
+
+  int _shellToVisibleTabIndex(
+    int shellIndex,
+    EntryPointCategory category,
+  ) {
+    return category == EntryPointCategory.study
+        ? shellIndex - _studyBranchOffset
+        : shellIndex.clamp(0, _studyTabIndexOnMainBar);
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    int getDestinationShellIndex(index, changeBranch) {
-      final entryPoint = ref.read(entryPointProvider);
-      if (changeBranch) {
-        AppLogger.print("move index: ${ref.read(lastStudyBranchTabIndexProvider)}");
-        index = ref.read(lastStudyBranchTabIndexProvider);
-      }
-
-      if (entryPoint.category == EntryPointCategory.study) {
-        return index + 2;
-      }
-      return index == 2 ? ref.read(lastStudyBranchTabIndexProvider) : index;
-    }
-
-    int navBarPhantomIndex(shellIndex) {
-      final entryPoint = ref.read(entryPointProvider);
-      if (entryPoint.category == EntryPointCategory.study) {
-        return shellIndex - 2;
-      }
-      return shellIndex; // == 2 ? ref.read(lastStudyBranchIndexProvider) : shellIndex;
-    }
-
- final entryPoint = ref.read(entryPointProvider);
+  Widget build(BuildContext context) {
+    final entryPoint = ref.watch(entryPointProvider);
+    final selectedIndex = _shellToVisibleTabIndex(
+      widget.navigationShell.currentIndex,
+      entryPoint.category,
+    );
     return Scaffold(
       extendBody: true,
       appBar: AppBar(
@@ -54,19 +65,18 @@ class MainActivity extends ConsumerWidget {
           "My Dic",
         ),
         actions: [
+          const ManualSyncAction(),
           IconButton(
               onPressed: () {
-             ref.read(appNavigatorServiceProvider).pushToProfile();
+                context.pushNamed(RouteNames.profile);
               },
               icon: Icon(Icons.person))
         ],
       ),
-
-      body: navigationShell,
-
+      body: widget.navigationShell,
       bottomNavigationBar: SwitchableFloatBottomBar(
         entryPoint: entryPoint,
-        selectedIndex: navBarPhantomIndex(navigationShell.currentIndex),
+        selectedIndex: selectedIndex,
         destinationMap: {
           EntryPointCategory.main:
               MainScreenTab.values.map(_buildDestinatioinItem).toList(),
@@ -74,15 +84,17 @@ class MainActivity extends ConsumerWidget {
               StudyScreenTab.values.map(_buildDestinatioinItem).toList(),
         },
         onDestinationSelected: (tabIndex) {
-          if (tabIndex == navBarPhantomIndex(navigationShell.currentIndex)) {
+          if (tabIndex == selectedIndex) {
             AppLogger.print("00000000000000000000000000000");
-            ref
-                .read(appNavigatorServiceProvider)
-                .clearCurrentBranchHistoryAndGoRoot();
+            widget.navigationShell.goBranch(
+              widget.navigationShell.currentIndex,
+              initialLocation: true,
+            );
             return;
           }
           final entryPoint = ref.read(entryPointProvider);
-          AppLogger.print("||||||||||||||||||||entrypoint current: $entryPoint");
+          AppLogger.print(
+              "||||||||||||||||||||entrypoint current: $entryPoint");
 
           if (entryPoint.category == EntryPointCategory.study) {
             // Study内のタブ切り替え
@@ -96,10 +108,10 @@ class MainActivity extends ConsumerWidget {
             // Study内のStatefulNavigationShellを取得して切り替え
             // final nestedShell = navigationShell;
             // ネストしたShell内のタブを切り替え
-            navigationShell.goBranch(
-              getDestinationShellIndex(tabIndex, false),
+            widget.navigationShell.goBranch(
+              _studyTabToShellIndex(tabIndex),
               initialLocation:
-                  false, //tabIndex == navigationShell.currentIndex,
+                  false, //tabIndex == widget.navigationShell.currentIndex,
             );
           } else {
             // Main階層のタブ切り替え
@@ -115,16 +127,18 @@ class MainActivity extends ConsumerWidget {
             AppLogger.print(
                 "main ||||||||||||||||||||entrypoint move: $nextEntryPoint");
 
-            navigationShell.goBranch(
-              getDestinationShellIndex(
-                  tabIndex, nextEntryPoint.category != EntryPointCategory.main),
-              initialLocation: tabIndex == navigationShell.currentIndex,
+            widget.navigationShell.goBranch(
+              _mainTabToShellIndex(
+                tabIndex,
+                ref.read(lastStudyBranchTabIndexProvider),
+              ),
+              initialLocation: tabIndex == widget.navigationShell.currentIndex,
             );
           }
         },
-   
         onActionButtonSelected: () {
-          AppLogger.print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CLOSE BUTTON TAPPED");
+          AppLogger.print(
+              "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CLOSE BUTTON TAPPED");
           final lastIndex = ref.read(lastMainBranchIndexProvider);
           EntryPoint lastEntryPoint;
           if (lastIndex == 0) {
@@ -136,13 +150,11 @@ class MainActivity extends ConsumerWidget {
           }
 
           ref.read(entryPointProvider.notifier).state = lastEntryPoint;
-          navigationShell.goBranch(
+          widget.navigationShell.goBranch(
             ref.read(lastMainBranchIndexProvider),
           );
         },
       ),
-
-    
     );
   }
 }

@@ -49,6 +49,12 @@ app.*.map.json
 **/firebase.json
 **/firebase_options.dart
 
+# The Emulator Rules harness has a checked-in config, but its installed Node
+# dependencies are always local build artifacts.
+!firebase-tests/
+!firebase-tests/firebase.json
+firebase-tests/node_modules/
+
 # automation
 **/auto_generate_body.json
 **/auto_generate_config.json
@@ -69,3 +75,12 @@ assets\data\kotobank.json
 assets\data\kotobank.json.gz
 
 assets/db_for_web/
+
+.codex/
+.firebase/
+.github/
+.vscode/
+.VSCodeCounter/
+
+
+

@@ -1,229 +1,118 @@
-/// Widget Test for Auth State Display
-/// Priority: ★★☆☆☆ (Minimal - only state-based display testing)
-/// 
-/// Tests demonstrate:
-/// - State-based UI rendering (loading, success, error)
-/// - Minimal widget testing approach per test_query.md
-/// - NO layout/style/color testing
-/// - Focus on conditional display logic only
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:my_dic/core/domain/entity/auth.dart';
-import 'package:my_dic/core/shared/enums/auth/subscription_status.dart';
+import 'package:my_dic/integration/session_lifecycle_workflow/auth_lifecycle_controller.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/utils/result.dart';
-import 'package:my_dic/features/auth/di/view_model_di.dart';
-import 'package:my_dic/features/auth/domain/I_repository/i_auth_repository.dart';
-import 'package:my_dic/features/auth/domain/usecase/signin.dart';
-import 'package:my_dic/features/auth/domain/usecase/signout.dart';
-import 'package:my_dic/features/auth/domain/usecase/signup.dart';
-import 'package:my_dic/features/auth/domain/usecase/verify_email.dart';
-import 'package:my_dic/features/auth/presentation/view_model/auth_view_model.dart';
-import 'package:my_dic/features/user/presentation/model/user_profile_ui_model.dart';
+import 'package:my_dic/features/auth/port/presentation_entry.dart';
+
+import '../../helpers/fake_auth_usecases.dart';
+import '../../helpers/fake_user_profile_ports.dart';
+import '../../helpers/test_helpers.dart';
 
 void main() {
-  group('Auth State Display Widget Test', () {
-    testWidgets('displays_noUserInfo_whenStateIsNull', (tester) async {
-      // Arrange
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            // Override with null state directly
-            authViewModelProvider.overrideWith(
-              (ref) => _TestAuthViewModel(null),
-            ),
-          ],
-          child: MaterialApp(
-            home: Scaffold(
-              body: Consumer(
-                builder: (context, ref, child) {
-                  final state = ref.watch(authViewModelProvider);
+  testWidgets('signed-out state displays authentication actions',
+      (tester) async {
+    final controller = _controller();
+    await controller.handleAuthStateChange(null);
 
-                  if (state == null) {
-                    return const Text('ログインしてください');
-                  }
+    await tester.pumpWidget(_app(controller));
 
-                  if (!state.isAuthorized) {
-                    return const Text('メールを確認してください');
-                  }
+    expect(find.text('Sign Up'), findsOneWidget);
+    expect(find.text('Sign In'), findsOneWidget);
+    expect(find.text('確認済み'), findsNothing);
+  });
 
-                  return Text('ようこそ ${state.email}');
-                },
-              ),
-            ),
-          ),
+  testWidgets('unverified state displays verification and retry actions',
+      (tester) async {
+    final controller = _controller();
+    await controller.handleAuthStateChange(
+      createTestAuth(isVerified: false),
+    );
+
+    await tester.pumpWidget(_app(controller));
+
+    expect(find.text('確認済み'), findsOneWidget);
+    expect(find.text('確認メールを再送'), findsOneWidget);
+    expect(find.text('Sign Up'), findsNothing);
+  });
+
+  testWidgets('verification delivery failure never displays a sent message',
+      (tester) async {
+    final controller = _controller(
+      verify: FakeVerifyEmailInteractor(
+        executeResult: Result.failure(
+          BusinessRuleError(message: '送信制限中です'),
         ),
-      );
+      ),
+    );
+    await controller.signUp('new@example.com', 'password123');
 
-      // Act
-      await tester.pump();
+    await tester.pumpWidget(_app(controller));
 
-      // Assert
-      expect(find.text('ログインしてください'), findsOneWidget);
-      expect(find.textContaining('ようこそ'), findsNothing);
-    });
-
-    testWidgets('displays_verificationMessage_whenUserIsNotAuthorized',
-        (tester) async {
-      // Arrange
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            authViewModelProvider.overrideWith(
-              (ref) => _TestAuthViewModel(
-                UserState(
-                  id: 'test-123',
-                  email: 'test@example.com',
-                  username: 'Test User',
-                  subscriptionStatus: SubscriptionStatus.free,
-                  isLoggedIn: true,
-                  isAuthorized: false, // Not verified
-                ),
-              ),
-            ),
-          ],
-          child: MaterialApp(
-            home: Scaffold(
-              body: Consumer(
-                builder: (context, ref, child) {
-                  final state = ref.watch(authViewModelProvider);
-
-                  if (state == null) {
-                    return const Text('ログインしてください');
-                  }
-
-                  if (!state.isAuthorized) {
-                    return const Text('メールを確認してください');
-                  }
-
-                  return Text('ようこそ ${state.email}');
-                },
-              ),
-            ),
-          ),
-        ),
-      );
-
-      // Act
-      await tester.pump();
-
-      // Assert
-      expect(find.text('メールを確認してください'), findsOneWidget);
-      expect(find.text('ログインしてください'), findsNothing);
-      expect(find.textContaining('ようこそ'), findsNothing);
-    });
-
-    testWidgets('displays_welcomeMessage_whenUserIsAuthorized', (tester) async {
-      // Arrange
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            authViewModelProvider.overrideWith(
-              (ref) => _TestAuthViewModel(
-                UserState(
-                  id: 'test-123',
-                  email: 'verified@example.com',
-                  username: 'Verified User',
-                  subscriptionStatus: SubscriptionStatus.free,
-                  isLoggedIn: true,
-                  isAuthorized: true, // Verified!
-                ),
-              ),
-            ),
-          ],
-          child: MaterialApp(
-            home: Scaffold(
-              body: Consumer(
-                builder: (context, ref, child) {
-                  final state = ref.watch(authViewModelProvider);
-
-                  if (state == null) {
-                    return const Text('ログインしてください');
-                  }
-
-                  if (!state.isAuthorized) {
-                    return const Text('メールを確認してください');
-                  }
-
-                  return Text('ようこそ ${state.email}');
-                },
-              ),
-            ),
-          ),
-        ),
-      );
-
-      // Act
-      await tester.pump();
-
-      // Assert
-      expect(find.text('ようこそ verified@example.com'), findsOneWidget);
-      expect(find.text('ログインしてください'), findsNothing);
-      expect(find.text('メールを確認してください'), findsNothing);
-    });
+    expect(
+      find.text('アカウントは作成されましたが、確認メールを送信できませんでした。'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('確認メールを送信しました'), findsNothing);
+    expect(find.text('確認メールを再送'), findsOneWidget);
   });
 }
 
-/// Test-only AuthViewModel for widget testing
-/// This allows us to control state without calling actual UseCases
-/// Extends AuthViewModel to ensure type compatibility
-class _TestAuthViewModel extends AuthViewModel {
-  _TestAuthViewModel(UserState? initialState)
-      : super(
-          _FakeSignInInteractor(),
-          _FakeSignUpInteractor(),
-          _FakeVerifyEmailInteractor(),
-          _FakeSignOutInteractor(),
-        ) {
-    state = initialState;
-  }
+Widget _app(AuthLifecycleController controller) {
+  return ProviderScope(
+    child: MaterialApp(
+      home: AuthPresentationPage(
+        state: AuthPresentationState(
+          phase: AuthPresentationPhase.values[controller.state.phase.index],
+          auth: controller.state.auth,
+          error: controller.state.error,
+          notice: controller.state.notice,
+        ),
+        actions: _Actions(controller),
+        commands: FakeAuthCommandService(
+          signInFake: FakeSignInInteractor(),
+          signUpFake: FakeSignUpInteractor(),
+          signOutFake: FakeSignOutInteractor(),
+          verifyFake: FakeVerifyEmailInteractor(),
+        ),
+      ),
+    ),
+  );
 }
 
-// Minimal fake implementations for dependencies
-class _FakeSignInInteractor extends SignInInteractor {
-  _FakeSignInInteractor() : super(_FakeAuthRepository());
+final class _Actions implements AuthPresentationActions {
+  const _Actions(this._controller);
+  final AuthLifecycleController _controller;
+
+  @override
+  Future<void> checkEmailVerification() => _controller.checkEmailVerification();
+  @override
+  Future<void> resendVerificationEmail() =>
+      _controller.resendVerificationEmail();
+  @override
+  Future<void> retryProfileProvisioning() =>
+      _controller.retryProfileProvisioning();
+  @override
+  Future<void> signIn(String email, String password) =>
+      _controller.signIn(email, password);
+  @override
+  Future<void> signOut() => _controller.signOut();
+  @override
+  Future<void> signUp(String email, String password) =>
+      _controller.signUp(email, password);
 }
 
-class _FakeSignUpInteractor extends SignUpInteractor {
-  _FakeSignUpInteractor() : super(_FakeAuthRepository());
-}
-
-class _FakeVerifyEmailInteractor extends VerifyEmailInteractor {
-  _FakeVerifyEmailInteractor() : super(_FakeAuthRepository());
-}
-
-class _FakeSignOutInteractor extends SignOutInteractor {
-  _FakeSignOutInteractor() : super(_FakeAuthRepository());
-}
-
-class _FakeAuthRepository implements IAuthRepository {
-  @override
-  Future<Result<AppAuth>> signInWithEmailAndPassword({
-    required String email,
-    required String password,
-  }) async =>
-      Result.failure(UnauthorizedError(message: 'Not implemented'));
-
-  @override
-  Future<Result<AppAuth>> createUserWithEmailAndPassword({
-    required String email,
-    required String password,
-  }) async =>
-      Result.failure(UnauthorizedError(message: 'Not implemented'));
-
-  @override
-  Future<Result<void>> signOut() async => const Result.success(null);
-
-  @override
-  Future<Result<void>> sendEmailVerification() async =>
-      const Result.success(null);
-
-  @override
-  Future<Result<void>> sendPasswordResetEmail({required String email}) async =>
-      const Result.success(null);
-
-  @override
-  Stream<AppAuth?> observeAuthState() => Stream.value(null);
+AuthLifecycleController _controller({FakeVerifyEmailInteractor? verify}) {
+  final verification = verify ?? FakeVerifyEmailInteractor();
+  return AuthLifecycleController(
+    query: FakeAuthQueryService(FakeReloadCurrentAuthInteractor()),
+    commands: FakeAuthCommandService(
+      signInFake: FakeSignInInteractor(),
+      signUpFake: FakeSignUpInteractor(),
+      signOutFake: FakeSignOutInteractor(),
+      verifyFake: verification,
+    ),
+    userProfileCommands: FakeEnsureUserProfileCommands(),
+  );
 }

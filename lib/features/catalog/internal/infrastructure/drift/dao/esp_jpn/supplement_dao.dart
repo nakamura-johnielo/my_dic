@@ -1,0 +1,24 @@
+import 'package:drift/drift.dart';
+import 'package:my_dic/core/infrastructure/database/drift/tables/esp_jpn/supplements.dart';
+import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
+
+part '../../../../../../../__generated/features/catalog/internal/infrastructure/drift/dao/esp_jpn/supplement_dao.g.dart';
+
+@DriftAccessor(tables: [EspJpnSupplements])
+class EspJpnSupplementDao extends DatabaseAccessor<DatabaseProvider>
+    with _$EspJpnSupplementDaoMixin {
+  EspJpnSupplementDao(super.database);
+
+  Future<EspJpnSupplementTableData?> getSupplementById(int id) {
+    return (select(espJpnSupplements)
+          ..where((tbl) => tbl.supplementId.equals(id)))
+        .getSingleOrNull();
+  }
+
+  Future<List<EspJpnSupplementTableData>> getExampleByDictionaryId(int id) {
+    return (select(espJpnSupplements)
+          ..where((tbl) => tbl.dictionaryId.equals(id))
+          ..orderBy([(tbl) => OrderingTerm(expression: tbl.supplementId)]))
+        .get();
+  }
+}

@@ -1,0 +1,31 @@
+/// The sole public import surface for Catalog read contracts.
+library;
+
+export 'catalog_id.dart';
+export 'catalog_read_ports.dart';
+export 'catalog_word_ref.dart';
+export 'error/catalog_read_error.dart';
+export 'model/catalog_conjugation.dart';
+export 'model/catalog_entry_detail.dart';
+export 'model/catalog_frequency_level.dart';
+export 'model/catalog_part_of_speech.dart';
+export 'model/catalog_ranked_entry.dart';
+export 'model/catalog_ranking_entry_ref.dart';
+export 'model/catalog_search_models.dart';
+export 'model/catalog_semantic_content.dart';
+export 'model/catalog_semantic_entry_detail.dart';
+export 'model/esp_jpn_entry.dart';
+export 'model/jpn_esp_entry.dart';
+export 'inputdata/catalog_conjugation_search_query.dart';
+export 'inputdata/catalog_ranked_entry_feed_query.dart';
+export 'inputdata/catalog_word_search_query.dart';
+export 'queryport/catalog_conjugation_reader_port.dart';
+export 'queryport/catalog_conjugation_search_reader_port.dart';
+export 'queryport/catalog_entry_detail_reader_port.dart';
+export 'queryport/catalog_entry_summary_reader_port.dart';
+export 'queryport/catalog_ranking_reader_port.dart';
+export 'queryport/catalog_ranked_entry_feed_reader_port.dart';
+export 'queryport/catalog_semantic_entry_detail_reader_port.dart';
+export 'queryport/catalog_word_search_reader_port.dart';
+export 'result/catalog_ranked_entry_feed.dart';
+export 'result/catalog_search_page.dart';

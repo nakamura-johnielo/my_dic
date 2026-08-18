@@ -1,0 +1,49 @@
+{
+  "packageName": "my_dic",
+  "generatedPathPatterns": [
+    "**/*.g.dart",
+    "**/*.freezed.dart",
+    "lib/__generated/**"
+  ],
+  "rules": [
+    {"id": "feature_external_only_port", "sourcePath": "lib/**"},
+    {"id": "feature_external_no_internal", "sourcePath": "lib/**"},
+    {"id": "feature_external_only_facade", "sourcePath": "lib/**"},
+    {"id": "feature_technical_seam_only", "sourcePath": "lib/**"},
+    {"id": "integration_feature_only_facade", "sourcePath": "lib/integration/**"},
+    {"id": "integration_feature_no_framework", "sourcePath": "lib/integration/**"},
+    {"id": "feature_top_level_only_port_internal", "sourcePath": "lib/features/**"},
+    {"id": "feature_no_app", "sourcePath": "lib/features/**"},
+    {"id": "core_no_feature", "sourcePath": "lib/core/**"},
+    {"id": "no_feature_cycle", "sourcePath": "lib/features/**"},
+    {"id": "business_port_no_framework", "sourcePath": "lib/features/*/port/**"},
+    {"id": "presentation_entry_exact_facade", "sourcePath": "lib/features/*/port/presentation_entry.dart"},
+    {"id": "composition_exact_facade", "sourcePath": "lib/features/*/port/composition.dart"},
+    {"id": "composition_no_framework", "sourcePath": "lib/features/*/port/composition.dart"},
+    {"id": "composition_no_provider_types", "sourcePath": "lib/features/*/port/composition.dart"},
+    {"id": "firebase_canonical_infrastructure_only", "sourcePath": "lib/**"},
+    {"id": "database_schema_registration_exact_exception", "sourcePath": "lib/app/**"},
+    {"id": "feature_presentation_navigation_callback_only", "sourcePath": "lib/features/*/**"},
+    {"id": "catalog_external_no_internal", "sourcePath": "lib/**"},
+    {"id": "catalog_external_only_facade", "sourcePath": "lib/**"},
+    {"id": "integration_catalog_only_facade", "sourcePath": "lib/integration/**"},
+    {"id": "catalog_internal_no_search_quiz", "sourcePath": "lib/features/catalog/internal/**"},
+    {"id": "catalog_port_framework_only_bridges", "sourcePath": "lib/features/catalog/port/**"},
+    {"id": "my_word_external_no_internal", "sourcePath": "lib/**"},
+    {"id": "my_word_external_only_facade", "sourcePath": "lib/**"},
+    {"id": "quiz_external_no_internal", "sourcePath": "lib/**"},
+    {"id": "quiz_external_only_facade", "sourcePath": "lib/**"},
+    {"id": "integration_quiz_only_facade", "sourcePath": "lib/integration/**"},
+    {"id": "integration_quiz_no_framework_or_drift", "sourcePath": "lib/integration/catalog_quiz/**"},
+    {
+      "id": "domain_no_framework",
+      "sourcePath": "lib/**/domain/**",
+      "forbiddenPackages": ["flutter", "flutter_riverpod", "firebase_core", "firebase_auth", "cloud_firestore", "drift", "go_router"]
+    },
+    {
+      "id": "legacy_sync_imports_forbidden",
+      "sourcePath": "lib/**",
+      "forbiddenTargetPath": "lib/{features/sync/{sync_service.dart,di.dart},core/domain/{entity/sync_checkpoint.dart,i_repository/{i_sync_repository.dart,i_sync_status_repository.dart},usecase/i_sync_usecase.dart},core/infrastructure/{repositories/sync_status_repository.dart,datasource/sync/**,database/shared_preferences/shared_preferences_syncstatus_dao.dart},features/my_word/domain/usecase/{my_word/sync_my_word/**,my_word_status/sync_myword_status/**}}"
+    }
+  ]
+}

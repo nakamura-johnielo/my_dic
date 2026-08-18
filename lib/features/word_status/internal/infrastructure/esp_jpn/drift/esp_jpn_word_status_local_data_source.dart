@@ -1,0 +1,58 @@
+import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
+import 'package:my_dic/features/word_status/internal/domain/model/word_status_record.dart';
+
+abstract class EspJpnWordStatusLocalDataSource {
+  Future<WordStatusRecord?> getWordStatusRecordById(int id, String accountId);
+  Future<List<WordStatusRecord>> getWordStatusRecordsByIds(
+      Iterable<int> ids, String accountId);
+  Stream<WordStatusRecord?> watchWordStatusRecordById(
+      int id, String accountId);
+
+  Future<EspJpnWordStatusTableData?> getWordStatusById(
+      int id, String accountId);
+  Future<List<EspJpnWordStatusTableData>> getWordStatusAfter(
+      DateTime datetime, String accountId);
+  Future<EspJpnWordStatusTableData> updateWordStatus(
+    int wordId,
+    bool? isLearned,
+    bool? isBookmarked,
+    bool? hasNote,
+    String editAt,
+    String accountId,
+  );
+  Stream<EspJpnWordStatusTableData?> watchWordStatusById(
+      int id, String accountId);
+  Stream<List<int>> watchChangedIds(DateTime datetime, String accountId);
+
+  /// Applies a pulled remote snapshot without bumping local_revision or
+  /// enqueueing an outbox mutation. `null` per field means "leave untouched".
+  Future<void> applyRemoteFields(
+    int wordId, {
+    bool? isLearned,
+    bool? isBookmarked,
+    bool? hasNote,
+    required String editAt,
+    required String accountId,
+    String? remoteRevision,
+    String? lastMutationId,
+  });
+
+  /// Runs [action] within a single Drift transaction so that callers can
+  /// combine a status row write with an outbox mutation atomically.
+  Future<T> runInTransaction<T>(Future<T> Function() action);
+
+  /// Stores the server-confirmed revision only while the pushed local edit is
+  /// still the revision that was leased. This prevents an older push from
+  /// acknowledging metadata for a newer local edit.
+  Future<bool> acknowledgeRemoteMutation({
+    required int wordId,
+    required String accountId,
+    required int localRevision,
+    required String remoteRevision,
+    required String? lastMutationId,
+  });
+
+  /// Deletes a single row for [id] scoped to [accountId]. Used by the
+  /// guest-to-account migration to remove a guest row once merged.
+  Future<void> deleteRow(int id, String accountId);
+}

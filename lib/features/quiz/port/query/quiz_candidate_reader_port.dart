@@ -1,0 +1,7 @@
+import 'package:my_dic/core/shared/utils/result.dart';
+import 'quiz_candidate_query.dart';
+import '../result/quiz_candidate_page.dart';
+
+abstract interface class QuizCandidateQueryPort {
+  Future<Result<QuizCandidatePage>> search(QuizCandidateQuery query);
+}

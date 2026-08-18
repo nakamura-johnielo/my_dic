@@ -1,293 +1,185 @@
-# **Index**
-<details>
-<summary>目次</summary>
+# My Dic
 
-1. [**Summary**](#overview)<br>
-    1-1. [web版デモアプリ](#demo) <br>
-    1-2. [技術スタック](#tech-stack) <br>
-    1-3. [アーキテクチャ](#architecture) <br>
-    1-4. [対応プラットフォーム](#supported-platform)
-4. [**主要機能**  ](#key-features) <br>
-    4-1. 検索 <br>
-    4-2. 同期 <br>
-    4-3. 学習機能 <br>
-    4-4. 辞書
-5. [**技術ハイライト** ](#engineering-highlights) <br>
-    5-1. Clean Architecture  <br>
-    5-2. Riverpod StreamProvider  <br>
-    5-3. Provider スコープ最適化<br>
-    5-4. Drift Migration  <br>
-    5-5. Python 効率化CLI  
-6. [**フォルダ構成図**](#architecture)
-7. [**使用技術**](#tech-stack)
-8. [**開発支援 (CLI / Python）**](#tooling)
-9. [**Data Preparation（辞書データ生成 / Python）**](#)
-10. [ **Technology Transition（技術選定の変遷）**](#)
-11. [ **In Development（開発中機能）**](#)
-12. [ **Motivation（開発動機）**](#)
-13. [ **Challenges & Learnings（課題と学び）**](#)
-14. [ **Setup（セットアップ方法）**](#)
-15. [ **License（ライセンス）**](#)
-16. [ **Contact（連絡先）**](#)
+スペイン語の活用形から原形と意味を探し、そのまま学習・復習できるFlutter製の辞書アプリ
 
-</details>
+スペイン語は動詞の活用が多く、文章中で見つけた語形から原形へたどり着くこと自体が学習の障壁になります。日本語・スペイン語・活用形のいずれからでも検索できる辞書に、フラッシュカード、学習状態管理、複数端末同期を組み合わせ、学習障壁を下げることを目的としています。
 
+## Screenshots
 
----
+辞書データの公開範囲を制限しているため、現在はスクリーンショットのみの公開です。
 
-
-# 1. **Overview** <a id="overview"></a>
-
-**多様な検索方法と学習方法・リアルタイム同期** を提供する、<br>
-**スペイン語学習特化Flutterアプリ**です。
-
-**対応プラットフォーム**： Android / Windows / Web
-
-[➥Web版デモアプリ (https://my-dic-flutter-portfolio.web.app/)](https://my-dic-flutter-portfolio.web.app/) <br>
-web用に最適化していないため少々重いです。
-
-<div style="display:flex; gap:12px;">
-  <img src="https://github.com/user-attachments/assets/4008e30b-9689-4567-afef-ecaab5491fc8" width="200" />
-  <img src="https://github.com/user-attachments/assets/f9ee5e44-1032-46e5-9ff9-eddacb37a026" width="200" />
-  <img src="https://github.com/user-attachments/assets/5031443d-af1d-466b-bfa6-e7bcf52599ac" width="200" />
+<div>
+  <img src="https://github.com/user-attachments/assets/4008e30b-9689-4567-afef-ecaab5491fc8" width="200" alt="検索画面" />
+  <img src="https://github.com/user-attachments/assets/f9ee5e44-1032-46e5-9ff9-eddacb37a026" width="200" alt="検索結果画面" />
+  <img src="https://github.com/user-attachments/assets/5031443d-af1d-466b-bfa6-e7bcf52599ac" width="200" alt="単語詳細画面" />
 </div>
 
-<div style="display:flex; gap:12px; margin-top:12px; ">
-  <img src="https://github.com/user-attachments/assets/0a59e743-5450-4a25-bc20-5ff5c8e69900" width="200" />
-  <img src="https://github.com/user-attachments/assets/a98baa2c-0c49-4de2-a9e7-67ca57440ee6" width="200" />
-  <img src="https://github.com/user-attachments/assets/5f2f539a-16c5-4c4d-aa07-ab0ce3396b55" width="200" />
+<div>
+  <img src="https://github.com/user-attachments/assets/0a59e743-5450-4a25-bc20-5ff5c8e69900" width="200" alt="クイズ画面" />
+  <img src="https://github.com/user-attachments/assets/a98baa2c-0c49-4de2-a9e7-67ca57440ee6" width="200" alt="ランキング画面" />
+  <img src="https://github.com/user-attachments/assets/5f2f539a-16c5-4c4d-aa07-ab0ce3396b55" width="200" alt="プロフィール画面" />
 </div>
 
-## デモアプリ <a id="demo"></a>
-[➥Web版デモアプリ (https://my-dic-flutter-portfolio.web.app/)](https://my-dic-flutter-portfolio.web.app/)
-
-web用に最適化していないため少々重いです。
-
-## 技術スタック  <a id="tech-stack"></a>
-- Flutter / Dart
-- Riverpod（状態管理・DI）
-- GoRouter（ルーティング）
-- Drift（SQLite / IndexDb）
-- Firebase（Auth / Firestore）
-- Python（データ整備 / CLI）
-
-## アーキテクチャ  <a id="architecture"></a>
-- Clean Architecture
-- Feature Module
-- MVVM
-- CQRS
-
----
-
-# 2. **主要機能**  <a id="key-features"></a>
-
-### 🔍 **検索**
-
-- フィルタ
-    - 一致 / 除外
-    - 品詞・ステータス・重複の ON/OFF
-- 1つの検索窓からマルチに検索可能
-    - 日本語 -> スペイン語
-    - スペイン語 -> 日本語
-    - 変化形 -> 原形
-- ページネーション + 無限スクロール
-    
-
-### 🔄 **同期**
-
-- Firebase Authenticationでユーザー管理
-- Firestore によるデバイス間同期
+## デモ
+デモ用にWeb版を公開しています。<br>
+~~[➥Web版デモアプリ ]()~~ <br>
+ローカルファーストで動作するため初期DBデータインストールに数秒かかります。<br>
+※辞書データの公開が制限されているため、デモの共有を停止しています。
 
 
-### 🧩 **学習機能**
+## 技術ハイライト
+- nativeAPIを用いて、Androidのオートフォーカス＆キーボード表示を実現
+- Riverpodを用いた状態管理と、Composition Rootでの型安全な依存性注入
+- Feature単位のモジュール分割と、公開API（`port`）による依存方向の制御
+- DriftとFirebaseを組み合わせたLocal-first / Offline-firstなデータ同期
+- Unit・Widget・Integration・Securityテストによる継続的な品質確認
 
-- ブックマーク / 学習済み管理
-- myWord の登録
-- フラッシュカードでのクイズ機能
-- 単語頻出順ランキング
+## 主な機能
 
+- 日本語・スペイン語の双方向検索
+- 活用後の語形から原形を検索
+- 単語の意味・用例・動詞活用の表示
+- フラッシュカード形式の活用クイズ
+- ブックマークと学習済みステータスの管理
+- スラングやフレーズを含むユーザー辞書への単語追加
+- Firebase Authenticationによるアカウント管理
+- 学習データのオフライン編集とFirestore経由の複数端末同期
+- 学習状況のランキング表示
 
-### 📚 **辞書**
+## 技術スタック
 
-- 語義・品詞・例文・イディオム表示
-- 動詞の語形変化一覧
-    
+| 領域 | 技術 | 採用理由 |
+| --- | --- | --- |
+| UI / マルチプラットフォーム | Flutter / Dart | 単一コードベースでAndroid・Windowsへ展開するため |
+| 状態管理 / DI | Riverpod | UI状態と依存関係を型安全に管理し、テスト時に差し替えやすくするため |
+| ルーティング | GoRouter | 画面遷移を宣言的に管理するため |
+| ローカルDB | Drift / SQLite / IndexedDB | 型安全なクエリと、Native・Web双方でのオフライン利用を実現するため |
+| 認証 / クラウド | Firebase Authentication / Cloud Firestore | アカウント単位のデータ保存と複数端末同期を実現するため |
+| モデル / Serialization | Freezed / json_serializable | Immutableなモデルと変換処理を安全に実装するため |
+| 品質管理 | flutter_test / mocktail / dart_code_linter | レイヤーごとのテストと静的解析を自動化するため |
 
----
+## アーキテクチャ
 
-# 3. **技術ハイライト** <a id="engineering-highlights"></a>
+機能追加による変更範囲を限定するため、`search`、`quiz`、`my_word`、`sync`などのFeature単位でモジュールを分割しています。
 
-### **1. Feature Module x Clean Architecture による高い拡張性**
+各Featureは、外部へ公開する契約を置く`port`と、具象実装を置く`internal`に分離しています。他Featureは相手の`internal`やDBの行型を直接参照せず、`port`の純粋なDartインターフェースを介して連携します。Feature間のデータ変換は`integration`配下のAdapterが担当します。
 
-- 変更、機能追加に強い構造
-- 保守性、拡張性、責務を意識して分離
-    
-
-### **２. Stream × CQRS でリアルタイム更新＆パフォーマンス最適化**
-
-- localをidごとにwatchし、UiStateとしてUIへ反映
-- remoteを変更追加のみ通知を得る用にwatchし、同期用に使用
-- 状態(stream -> UiState <- UI)と操作(command)を完全分離し、責務を明確化
-
-
-### **3. Result型でエラーハンドリング**
-
-- エラー型とResult型を定義してエラーハンドリング
-- UsecaseとrepositoryがResult型を返す
-
-
-### **4. Drift Migration による無停止スキーマ更新 & web対応IndexDB化**
-
-- ユーザーデータを保持したまま DB 更新が可能
-- バージョンごとにデータ、テーブルの操作
-- web対応のためDBのIndexDB化とimport処理へも対応
-
-### **5.Python によるデータ整備 & 自動生成 CLI**
-
-- スクレイピングと正規表現解析で辞書用データ抽出
-- clean architecture用のフォルダファイル自動生成CLIの制作で、デメリットである開発時の手間を軽減
-
-    
----
-
-
-# 4. **フォルダ構成(簡略)** <a id="architecture"></a>
-
+```mermaid
+flowchart LR
+    App[app<br/>起動・ルーティング・DI] --> Port[Feature port<br/>公開インターフェース]
+    Port --> Internal[Feature internal<br/>Presentation / Application / Domain]
+    Internal --> Local[(Drift<br/>SQLite / IndexedDB)]
+    Internal --> Remote[(Firebase<br/>Auth / Firestore)]
+    Integration[integration<br/>Feature間Adapter] --> Port
+    Core[core<br/>共通基盤] --> Internal
 ```
+
+### ディレクトリ構成
+
+```text
 lib/
- ├── core/
- │    ├── di/
- │    ├── application/
- │    ├── infra/
- │    ├── domain/
- │    ├── presentation/
- │    └── shared/
- ├── features/
- │    ├── ranking/
- │    │     ├── di/
- │    │     ├── data/
- │    │     ├── domain/
- │    │     └── presentation/
- │    ├── quiz/
- │    ├── word_page/
- │    └── search/
- └── shared/
+├── app/          # 起動、ルーティング、セッション、Composition Root
+├── features/     # 機能単位の公開契約・業務ロジック・UI・データアクセス
+├── integration/  # Feature間を接続するAdapterとProvider
+└── core/         # DB、ログ、共通エラーなどの横断的な基盤
 ```
 
-Feature-Modular × Clean Architecture による拡張可能な構成。
+Feature内部は主に次の責務へ分けています。
 
----
+- `Presentation`: Widget、画面状態、ユーザー操作
+- `Application`: ユースケースの実行と処理の調整
+- `Domain`: 業務ルールと値オブジェクト
+- `Infrastructure`: Drift、Firebaseなど外部技術との接続
 
-# 5. **Tech Stack** <a id="tech-stack"></a>
+処理の基本方向は`Presentation → Application → Domain / Infrastructure`です。DB行やFirebase SDKの型を上位レイヤーへ漏らさず、公開DTOや`Result`型へ変換します。RiverpodはPresentationとCompositionで使用し、業務ロジックはProviderへ直接依存させていません。
 
-### **App / Frontend**
+依存ルールは文書化するだけでなく、専用のImport Boundary CheckerとFeature Dependency Checkerで検査できます。設計判断の経緯はADRとして記録しています。
 
-- Flutter / Dart
-- Riverpod（DI・状態管理）
-- GoRouter
-- ThemeData（カラースキーム管理）
-    
-### **Database**
+- [Feature設計ルール](docs/architecture/feature-design-rules.md)
+- [Import Boundary](docs/architecture/import-boundaries.md)
+- [Architecture Decision Records](docs/architecture/decisions/README.md)
 
-- Drift（ORM / Query Builder）
-- SQLite（ローカル DB）
-- IndexDB（Web用ローカル DB）
-- Firebase Firestore（リモートDB）
-    
-### **Backend / Infrastructure**
+## Offline-first同期
 
-- Firebase Authentication
-- Firebase Firestore
-    
-### **Others**
+通信状況にかかわらず操作を完了できるよう、編集内容は先にローカルDBへ保存し、同じトランザクションで送信待ちのOutboxへ追加します。同期時に変更をFirestoreへ送信し、その後に他端末の変更を取得します。
 
-- Python（スクレイピング / データ整形）
-- Clean Architecture（責務分離）
-- CQRS（コマンドとクエリの分離）
-    
+```mermaid
+flowchart LR
+    Edit[ユーザー操作] --> Local[(Driftへ保存)]
+    Local --> Outbox[Outboxへ追加]
+    Outbox --> Push[Firestoreへ送信]
+    Push --> Complete[成功項目を完了]
+    Complete --> Pull[サーバーの差分を取得]
+    Pull --> Apply[端末へ反映]
+    Apply --> Cursor[取得位置を保存]
+```
 
----
+同期処理では、実運用で起こり得る中断や競合も考慮しています。
 
-# 6. **開発支援ツール (CLI / Python）** <a id="tooling"></a>
+- 送信中の項目へLeaseを付与し、アプリ終了後も期限切れで再送可能にする
+- 版番号を確認し、古い送信結果で新しい編集を完了扱いにしない
+- 未送信のローカル編集をサーバー取得結果で上書きしない
+- Exponential Backoffで再試行し、継続的に失敗する項目はDead Letterへ隔離する
+- 同期要求を直列化し、処理中の追加要求は完了後に一度だけ再実行する
+- ログアウトやアカウント切替時に処理を中止し、異なる利用者のデータ混在を防ぐ
 
-- フィル名とタイプからフォルダとファイルを自動生成する  **Clean Architecture 用テンプレ生成 CLI（Windows）** を作成  
-- 設定ファイルに、責務タイプ、ファイル名を記入（他にも細かい設定あり）
+各Featureは同期対象の変換と保存に集中し、再試行、順序制御、Outbox管理などの共通処理は`sync` Featureへ集約しています。
 
+## テストと品質管理
 
----
+`test/`配下には、現在138本のテストファイルがあります。
 
-# 📦 **Data Preparation（辞書データ生成プロセス / Python）**
+| カテゴリ | ファイル数 | 主な対象 |
+| --- | ---: | --- |
+| Unit | 110 | Domain、UseCase、Repository、同期制御 |
+| Widget | 13 | 画面表示、入力、Riverpodによる状態遷移 |
+| Integration | 12 | Feature間連携、DB互換性、主要ユーザーフロー |
+| Security | 1 | 認証情報などのセンシティブなログ出力防止 |
+| Tool | 2 | アーキテクチャ境界チェッカー |
 
-アプリ実装とは独立した**データ準備工程**です。
-- Webスクレイピング（Python + selenium）
-- 正規表現で語義・品詞・例文を解析し構造化
-- SQLite スキーマへ整形
+現在、`flutter analyze`はエラーなしで通過します。`flutter test`はFeature公開APIのリファクタリングに対して一部のテストコードが未追従のため、テスト側の旧import・旧型名を更新中です。
 
----
+GitHub Actionsでは、次の処理をPush / Pull Requestごとに実行します。
 
-# **技術選定の遷移**
+1. `flutter analyze`
+2. `flutter test`
+3. Firebase Emulatorを用いたAuthentication / Firestore Security Rulesの検証
 
-- 初期版：Android / Java で辞書アプリを構築
-- → パフォーマンスの観点から Room + Kotlin を検討
-- → desktopでもアプリを使いたかった & 複数デバイスで使いたかった
-- → マルチプラットフォーム対応 **Flutterに移行**
-    
-ベストプラクティスを求めた結果、いちから学びなおすなら「desktopとmobile両方対応で、前から興味があったflutterに乗り換えよう！」と決意
+ローカルでは追加で依存境界を検査できます。
 
----
+```bash
+dart run tool/check_import_boundaries.dart --baseline tool/import_boundaries/baseline.json --check
+dart run tool/check_feature_dependencies.dart
+```
 
+## セットアップ
 
-# **開発中** <a id="in-development"></a>
+辞書データを公開していないため、この以下の手順のみでは動作しません。
 
-- 動詞「時制 × 主語」指定の例文検索
-- 例文中の単語タップ → 辞書へジャンプ
-- 忘却曲線アルゴリズムによるリマインド通知
-- 例文検索 / イディオム検索
-- AI を用いたスラング辞書生成
-- ~~myWord 同期~~
-- オフライン同期プロセス強化
-- 検索アルゴリズム改善
-- 検索履歴
-    
+### 動作確認環境
 
----
+- Flutter 3.38.9（stable）
+- Dart 3.10.8
+- 対象: Web / Android / Windows
 
-# 🎯 **動機** <a id="motivation"></a>
+### 実行
 
-スペイン語動詞は **主語 × 時制** の組み合わせにより  
-1動詞あたり **約50形態** を覚える必要があります。
-しかし、
-
-- 変化形から原形の検索
-- 辞書
-- 語形変化一覧
-
-が統合されたサービスは存在しなかったため、ネットで変化形から原形を特定し、その原形の意味と語形変化表を検索するのが手間でした
-
-そこで、 **「学習と無関係な部分での挫折をなくす」** 体験を構築する ことを目的に開発を開始しました。
-    
-
----
-
-# 🧩 **Challenges & Learnings**
-
-### **Clean Architecture の運用**
-
-ファイル責務の明確化に苦労したが、「変更追加に強い」構造を実感し開発が安定。
-
-### **CQRS と StreamProvider の組み合わせ**
-状態と操作の完全分離で、リアルタイム更新とパフォーマンス最適化を両立できた。
-
-### **StreamProvider のリアクティブ設計**
-
-手動 DB 問い合わせから脱却し、リアルタイムアプリの設計に自信がついた。
+```bash
+flutter pub get
+flutter run 
+```
 
 
----
+## 今後の改善
 
-# ✉️ **Contact**
-
-📩 [nakamura.johnielo@gmail.com](mailto:nakamura.johnielo@gmail.com)  
-
+- UI/UX作り直し
+- navigation作り直し
+- 命名規則と共通基盤（`core`）の責務整理
+- Feature公開APIの変更に対する既存テストの追従
+- 動詞の「時制 × 主語」を指定した例文検索
+- 例文中の単語から辞書詳細へ移動できる導線
+- 忘却曲線を考慮した復習リマインド
+- 例文・イディオム検索と検索履歴
+- 検索アルゴリズムの精度・速度改善
 
 

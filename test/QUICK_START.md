@@ -10,7 +10,7 @@ flutter pub get
 flutter test
 
 # 3. 特定のテストのみ実行
-flutter test test/unit/features/auth/domain/usecase/signin_interactor_test.dart
+flutter test test/unit/features/auth/application/usecase/signin_interactor_test.dart
 ```
 
 ## テストカテゴリ別実行

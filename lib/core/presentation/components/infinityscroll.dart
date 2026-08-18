@@ -1,4 +1,3 @@
-
 import 'dart:math';
 import 'package:my_dic/core/shared/utils/logger.dart';
 
@@ -7,9 +6,16 @@ import 'package:flutter/material.dart';
 /// 親から reset を呼べるようにするための controller
 class InfinityScrollController {
   VoidCallback? _reset;
+  VoidCallback? _retry;
 
   /// ページ状態をリセット（次回スクロール/呼び出しで先頭ページからロード）
   void reset() => _reset?.call();
+
+  /// Retries the current page without resetting pagination.
+  void retryCurrentPage() => _retry?.call();
+
+  /// Backwards-compatible alias for [retryCurrentPage].
+  void retry() => retryCurrentPage();
 }
 
 class InfinityScrollListView extends StatefulWidget {
@@ -20,6 +26,7 @@ class InfinityScrollListView extends StatefulWidget {
     required this.onLoadMore,
     this.controller,
     this.initialPage = 0,
+    this.initialHasMore = true,
     this.autoLoadFirstPage = false,
     this.loadMoreThreshold = 0.8,
     this.scrollController,
@@ -47,6 +54,9 @@ class InfinityScrollListView extends StatefulWidget {
   /// 最初にロードするページ番号（0 など）
   final int initialPage;
 
+  /// Whether more pages are available before this list requests its first page.
+  final bool initialHasMore;
+
   /// initState 後に 1ページ目を自動ロードするか
   final bool autoLoadFirstPage;
 
@@ -68,23 +78,30 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
   /// 次に要求するページ
   late int _nextPage;
 
+  int _generation = 0;
+  int _requestSequence = 0;
+  _LoadToken? _activeLoadToken;
+
   @override
   void initState() {
     super.initState();
     AppLogger.print("InfinityScrollListView initState");
 
     _nextPage = widget.initialPage;
+    _hasMore = widget.initialHasMore;
 
     _scrollController = widget.scrollController ?? ScrollController();
     _scrollController.addListener(_onScroll);
 
     // controller を接続
     widget.controller?._reset = _resetInternal;
+    widget.controller?._retry = _retryCurrentPage;
 
     if (widget.autoLoadFirstPage) {
       //default false
       // 初回はフレーム後に呼ぶ（position 未attach対策）
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
         _loadMore(); //TODO ifneeded?
       });
     }
@@ -94,15 +111,26 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
   void didUpdateWidget(covariant InfinityScrollListView oldWidget) {
     super.didUpdateWidget(oldWidget);
 
+    if (oldWidget.initialHasMore != widget.initialHasMore) {
+      _hasMore = widget.initialHasMore;
+    }
+
+    if (oldWidget.initialPage != widget.initialPage && !_isLoading) {
+      _nextPage = widget.initialPage;
+    }
+
     if (oldWidget.controller != widget.controller) {
       oldWidget.controller?._reset = null;
+      oldWidget.controller?._retry = null;
       widget.controller?._reset = _resetInternal;
+      widget.controller?._retry = _retryCurrentPage;
     }
   }
 
   @override
   void dispose() {
     widget.controller?._reset = null;
+    widget.controller?._retry = null;
     _scrollController.removeListener(_onScroll);
     if (widget.scrollController == null) {
       _scrollController.dispose();
@@ -124,24 +152,34 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
   }
 
   void _resetInternal() {
+    if (!mounted) return;
     AppLogger.print("InfinityScrollListView reset");
     _resetScrollPosition();
 
     setState(() {
+      _generation++;
+      _activeLoadToken = null;
       _isLoading = false;
-      _hasMore = true;
+      _hasMore = widget.initialHasMore;
       _nextPage = widget.initialPage;
     });
 
     if (widget.autoLoadFirstPage) {
       //default false
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
         _loadMore(); //TODO ifneeded?
       });
     }
   }
 
   void _onScroll() => _loadMoreIfNeeded();
+
+  void _retryCurrentPage() {
+    if (!mounted || _isLoading) return;
+    setState(() => _hasMore = true);
+    _loadMore();
+  }
 
   void _loadMoreIfNeeded() {
     if (!mounted) return;
@@ -159,29 +197,45 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
   }
 
   Future<void> _loadMore() async {
-    if (_isLoading || !_hasMore) return;
+    if (!mounted || _isLoading || !_hasMore) return;
 
-    setState(() => _isLoading = true);
+    final token = _LoadToken(_generation, ++_requestSequence);
+    setState(() {
+      _activeLoadToken = token;
+      _isLoading = true;
+    });
 
     try {
       final page = _nextPage;
       final hasMore = await widget.onLoadMore(page);
 
       AppLogger.print("in infi _nextPage BEFORE : $_nextPage");
-      if (!mounted) return;
+      if (!mounted ||
+          token != _activeLoadToken ||
+          token.generation != _generation) {
+        return;
+      }
 
       setState(() {
         _hasMore = hasMore;
         _isLoading = false;
+        _activeLoadToken = null;
         if (hasMore) {
           _nextPage = page + 1;
         }
         AppLogger.print("in infi _nextPage: $_nextPage");
       });
-    } catch (e, st) {
+    } catch (e) {
       AppLogger.print("InfinityScrollListView loadMore error: $e");
-      if (!mounted) return;
-      setState(() => _isLoading = false);
+      if (!mounted ||
+          token != _activeLoadToken ||
+          token.generation != _generation) {
+        return;
+      }
+      setState(() {
+        _activeLoadToken = null;
+        _isLoading = false;
+      });
     }
   }
 
@@ -195,4 +249,11 @@ class _InfinityScrollListViewState extends State<InfinityScrollListView> {
       itemBuilder: (context, index) => widget.itemBuilder(context, index),
     );
   }
+}
+
+class _LoadToken {
+  const _LoadToken(this.generation, this.sequence);
+
+  final int generation;
+  final int sequence;
 }

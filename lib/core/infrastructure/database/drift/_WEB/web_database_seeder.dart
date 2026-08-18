@@ -3,13 +3,14 @@
 ///
 /// 注意: このファイルはWeb環境専用です
 /// データベーススキーマと完全に同期している必要があります
+library;
 
 import 'dart:convert';
 import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:archive/archive.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:drift/drift.dart';
-import 'package:my_dic/core/di/global.dart';
+import 'package:my_dic/core/composition/global.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 import 'package:my_dic/core/shared/consts/enviroment.dart';
 import 'package:my_dic/core/shared/enums/web/db.dart';
@@ -273,7 +274,9 @@ class WebDatabaseSeeder {
         for (final row in batch) {
           if (row['dictionary_id'] == null ||
               row['word_id'] == null ||
-              row['word'] == null) continue;
+              row['word'] == null) {
+            continue;
+          }
           b.insert(
               db.espJpnDictionaries,
               EspJpnDictionariesCompanion.insert(
@@ -370,8 +373,9 @@ class WebDatabaseSeeder {
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
-          if (row['supplement_id'] == null || row['supplement_no'] == null)
+          if (row['supplement_id'] == null || row['supplement_no'] == null) {
             continue;
+          }
           b.insert(
               db.espJpnSupplements,
               EspJpnSupplementsCompanion.insert(
@@ -521,7 +525,9 @@ class WebDatabaseSeeder {
         for (final row in batch) {
           if (row['part_of_speech_id'] == null ||
               row['word_id'] == null ||
-              row['part_of_speech'] == null) continue;
+              row['part_of_speech'] == null) {
+            continue;
+          }
           b.insert(
               db.partOfSpeechLists,
               PartOfSpeechListsCompanion.insert(
@@ -720,7 +726,7 @@ class WebDatabaseSeeder {
           b.insert(
               db.espJpnWordStatus,
               EspJpnWordStatusCompanion.insert(
-                wordId: Value(_toIntRequired(row['word_id'])),
+                wordId: _toIntRequired(row['word_id']),
                 isLearned: Value(_toIntRequired(row['is_learned'])),
                 isBookmarked: Value(_toIntRequired(row['is_bookmarked'])),
                 hasNote: Value(_toIntRequired(row['has_note'])),
@@ -748,7 +754,9 @@ class WebDatabaseSeeder {
         for (final row in batch) {
           if (row['my_word_id'] == null ||
               row['word'] == null ||
-              row['edit_at'] == null) continue;
+              row['edit_at'] == null) {
+            continue;
+          }
           b.insert(
               db.myWords,
               MyWordsCompanion.insert(
@@ -779,7 +787,9 @@ class WebDatabaseSeeder {
         for (final row in batch) {
           if (row['my_word_id'] == null ||
               row['word'] == null ||
-              row['edit_at'] == null) continue;
+              row['edit_at'] == null) {
+            continue;
+          }
           b.insert(
               db.myWordStatus,
               MyWordStatusCompanion.insert(
@@ -809,12 +819,13 @@ class WebDatabaseSeeder {
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
-          if (row['jpn_esp_word_id'] == null || row['edit_at'] == null)
+          if (row['jpn_esp_word_id'] == null || row['edit_at'] == null) {
             continue;
+          }
           b.insert(
               db.jpnEspWordStatus,
               JpnEspWordStatusCompanion.insert(
-                wordId: Value(_toIntRequired(row['jpn_esp_word_id'])),
+                wordId: _toIntRequired(row['jpn_esp_word_id']),
                 isLearned: Value(_toIntRequired(row['is_learned'])),
                 isBookmarked: Value(_toIntRequired(row['is_bookmarked'])),
                 hasNote: Value(_toIntRequired(row['has_note'])),

@@ -9,6 +9,6 @@ Future<QueryExecutor> createNativeExecutor(File file) async {
   if (Platform.isAndroid) {
     await applyWorkaroundToOpenSqlite3OnOldAndroidVersions();
   }
-  
+
   return NativeDatabase(file);
 }

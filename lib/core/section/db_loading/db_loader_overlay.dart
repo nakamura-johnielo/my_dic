@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_dic/core/di/view_model/view_model.dart';
+import 'package:my_dic/core/composition/view_model.dart';
 import 'package:my_dic/core/shared/enums/web/db.dart';
 
 class DatabaseLoadingOverlay extends ConsumerWidget {
@@ -85,7 +85,8 @@ class DatabaseLoadingOverlay extends ConsumerWidget {
                       ? null // インデターミネートモード
                       : loadingState.progress,
                   minHeight: 8,
-                  backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  backgroundColor:
+                      Theme.of(context).colorScheme.surfaceContainerHighest,
                   valueColor: AlwaysStoppedAnimation<Color>(
                     Theme.of(context).colorScheme.primary,
                   ),
