@@ -13,7 +13,7 @@ void main() {
     final ports = createSearchComposition(dependencies: dependencies);
 
     expect(dependencies.catalogGateway, same(gateway));
-    expect(ports.reader, isA<SearchReaderPort>());
+    expect(ports.reader, isA<SearchQueryPort>());
   });
 
   test('composition is a pure exact seam to the same-feature factory', () {

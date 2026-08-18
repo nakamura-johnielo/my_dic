@@ -101,7 +101,8 @@ class _ConjMiniSection extends StatelessWidget {
         keyValue.moodTense == SearchMoodTense.participlePresent)
       title = '${keyValue.moodTense.shortLabel}:';
     return Row(spacing: 3, children: [
-      Text(title, style: const TextStyle(fontSize: 13)),
+      Text(title,
+          style: const TextStyle(fontSize: 13, color: const Color(0xFFB5B6B2))),
       _highlight(context)
     ]);
   }
@@ -113,17 +114,28 @@ class _ConjMiniSection extends StatelessWidget {
     final end = start + query.length;
     final exact = conjugation.length == query.length;
     return RichText(
-        text: TextSpan(style: const TextStyle(fontSize: 15), children: [
-      TextSpan(text: conjugation.substring(0, start)),
-      TextSpan(
-          text: conjugation.substring(start, end),
-          style: TextStyle(
-              fontWeight: FontWeight.bold,
-              backgroundColor: exact
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.primary.withValues(alpha: .5),
-              color: exact ? Theme.of(context).colorScheme.onPrimary : null)),
-      TextSpan(text: conjugation.substring(end)),
-    ]));
+        text: TextSpan(
+            style:
+                const TextStyle(fontSize: 15, color: const Color(0xFFB5B6B2)),
+            children: [
+          TextSpan(text: conjugation.substring(0, start)),
+          TextSpan(
+              text: conjugation.substring(start, end),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                backgroundColor: exact
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withValues(alpha: .5),
+                color: exact
+                    ? Theme.of(context).colorScheme.onPrimary
+                    : Colors.white,
+              )),
+          TextSpan(
+            text: conjugation.substring(end),
+          ),
+        ]));
   }
 }

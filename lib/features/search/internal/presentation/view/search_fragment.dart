@@ -18,11 +18,13 @@ class SearchFragment extends ConsumerStatefulWidget {
     required this.reader,
     required this.onOpenWordDetail,
     required this.onOpenQuiz,
+    required this.wordStatusRenderer,
   });
 
   final SearchQueryPort reader;
   final ValueChanged<CatalogWordRef> onOpenWordDetail;
   final void Function(CatalogWordRef word, String? displayHint) onOpenQuiz;
+  final Widget Function(CatalogWordRef word) wordStatusRenderer;
   @override
   ConsumerState<SearchFragment> createState() => _SearchFragmentState();
 }
@@ -58,8 +60,12 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
           Padding(
               padding: const EdgeInsets.all(8),
               child: AutoFocusTextField(
-                  decoration: const InputDecoration(
-                      labelText: 'Search', border: OutlineInputBorder()),
+                  decoration: InputDecoration(
+                      hintText: 'Search',
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(100),
+                          borderSide:
+                              BorderSide(color: Colors.white.withAlpha(180)))),
                   onChanged: (text) {
                     notifier.updateQuery(text);
                     _scroll.reset();
@@ -152,7 +158,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
                     showRanking: false,
                     word: word.headword,
                     meaning: word.meaningText ?? '',
-                    status: const SizedBox.shrink(),
+                    status: widget.wordStatusRenderer(word.word),
                     onTap: () => _toWordDetail(word.word)));
           },
           onLoadMore: _load);
@@ -178,7 +184,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
   Widget _espCard(String query, SearchResultItem item) => Padding(
       padding: const EdgeInsets.only(bottom: 11),
       child: SearchResultCard(
-          status: const SizedBox.shrink(),
+          status: widget.wordStatusRenderer(item.word),
           onQuizTap: item.hasConjugation
               ? () => _toQuiz(item.word, item.headword)
               : null,
@@ -197,7 +203,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
       Padding(
         padding: const EdgeInsets.only(bottom: 11),
         child: SearchResultCard(
-          status: const SizedBox.shrink(),
+          status: widget.wordStatusRenderer(item.word),
           onQuizTap: () => _toQuiz(item.word, item.headword),
           query: query,
           wordId: item.word.wordId,

@@ -21,11 +21,16 @@ final class SearchRouteEntry extends ConsumerWidget {
   final void Function(CatalogWordRef word, String? displayHint) onOpenQuiz;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => SearchFragment(
-        reader: ref.watch(searchReaderPortProvider),
-        onOpenWordDetail: onOpenWordDetail,
-        onOpenQuiz: onOpenQuiz,
-      );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final statusPorts = ref.watch(wordStatusPortsProvider);
+    return SearchFragment(
+      reader: ref.watch(searchReaderPortProvider),
+      onOpenWordDetail: onOpenWordDetail,
+      onOpenQuiz: onOpenQuiz,
+      wordStatusRenderer: (word) =>
+          DictionaryStatusButtonsEntry(word: word, ports: statusPorts),
+    );
+  }
 }
 
 /// App-owned adapter for WordDetail and its embedded WordStatus entry.

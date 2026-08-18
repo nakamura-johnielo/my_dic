@@ -86,13 +86,13 @@ class _SearchResultCardShellState extends State<SearchResultCardShell> {
                           fontSize: 18, fontWeight: FontWeight.bold)),
                   const Expanded(child: SizedBox()),
                   SizedBox(
-                      width: 40,
-                      height: 10,
-                      child: OverflowBox(
-                          alignment: Alignment.centerRight,
-                          maxWidth: double.infinity,
-                          maxHeight: double.infinity,
-                          child: widget.status)),
+                    width: 72,
+                    height: 28,
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: widget.status,
+                    ),
+                  ),
                 ]),
               ),
             )),
@@ -136,7 +136,7 @@ class _SearchResultCardShellState extends State<SearchResultCardShell> {
                           horizontal: 14,
                           vertical: (18 - widget.quizButtonMargin) / 2),
                       child: Row(children: [
-                        const Text('a',
+                        const Text(' ',
                             style: TextStyle(
                                 fontSize: 18, color: Colors.transparent)),
                         Text('Quiz',
@@ -147,7 +147,7 @@ class _SearchResultCardShellState extends State<SearchResultCardShell> {
                         const SizedBox(width: 6),
                         Icon(Icons.launch_rounded,
                             size: 17, color: hasQuiz ? rankingColor : disabled),
-                        const Text('a',
+                        const Text(' ',
                             style: TextStyle(
                                 fontSize: 18, color: Colors.transparent)),
                       ]),
@@ -182,8 +182,9 @@ class _SearchResultCardShellState extends State<SearchResultCardShell> {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
+                                      color: const Color(0xFFB5B6B2),
                                       fontSize: 15,
-                                      fontWeight: FontWeight.bold))),
+                                      fontWeight: FontWeight.w700))),
                           if (widget.showRanking)
                             Row(children: [
                               Icon(Icons.emoji_events_outlined,

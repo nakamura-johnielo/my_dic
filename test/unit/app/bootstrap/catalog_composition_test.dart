@@ -71,7 +71,7 @@ void main() {
 
     expect(
       container.read(searchReaderPortProvider),
-      isA<SearchReaderPort>(),
+      isA<SearchQueryPort>(),
     );
   });
 
@@ -110,7 +110,7 @@ final class _QuizGameReader implements QuizGameQueryPort {
       throw UnimplementedError();
 }
 
-final class _SearchReaderPort implements SearchReaderPort {
+final class _SearchReaderPort implements SearchQueryPort {
   @override
   Future<Result<SearchResultPage>> search(SearchQuery query) async =>
       throw UnimplementedError();

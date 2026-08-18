@@ -19,6 +19,7 @@ void main() {
           reader: bridge,
           onOpenWordDetail: (_) {},
           onOpenQuiz: (_, __) {},
+          wordStatusRenderer: (_) => const SizedBox.shrink(),
         ),
       ),
     ));
@@ -59,7 +60,7 @@ SearchResultPage _page(String word) => SearchResultPage(
       issues: const [],
     );
 
-final class _CatalogBridgeFake implements SearchReaderPort {
+final class _CatalogBridgeFake implements SearchQueryPort {
   final queries = <SearchQuery>[];
   final _pending = <Completer<Result<SearchResultPage>>>[];
 

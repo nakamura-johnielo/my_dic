@@ -85,6 +85,37 @@ void main() {
     expect(quizHint, 'verb10');
   });
 
+  testWidgets('renders the supplied status control for each search result',
+      (tester) async {
+    final reader = _QueryPort();
+    CatalogWordRef? renderedWord;
+    var taps = 0;
+    await tester.pumpWidget(_app(
+      reader,
+      wordStatusRenderer: (word) {
+        renderedWord = word;
+        return GestureDetector(
+          key: const ValueKey('status-control'),
+          behavior: HitTestBehavior.opaque,
+          onTap: () => taps++,
+          child: const SizedBox(width: 20, height: 20),
+        );
+      },
+    ));
+
+    await tester.enterText(find.byType(TextField), 'hablar');
+    await tester.pump();
+    reader.completeNext(_page('hablar'));
+    await tester.pumpAndSettle();
+
+    expect(
+      renderedWord,
+      const CatalogWordRef(catalogId: CatalogId.espJpnMain, wordId: 1),
+    );
+    await tester.tap(find.byKey(const ValueKey('status-control')));
+    expect(taps, 1);
+  });
+
   test('presentation entry exports only the controlled Search widget', () {
     final source = File(
       'lib/features/search/port/presentation_entry.dart',
@@ -101,6 +132,7 @@ Widget _app(
   _QueryPort reader, {
   ValueChanged<CatalogWordRef>? onOpenWordDetail,
   void Function(CatalogWordRef word, String? displayHint)? onOpenQuiz,
+  Widget Function(CatalogWordRef word)? wordStatusRenderer,
 }) =>
     ProviderScope(
       child: MaterialApp(
@@ -108,6 +140,8 @@ Widget _app(
           reader: reader,
           onOpenWordDetail: onOpenWordDetail ?? (_) {},
           onOpenQuiz: onOpenQuiz ?? (_, __) {},
+          wordStatusRenderer:
+              wordStatusRenderer ?? (_) => const SizedBox.shrink(),
         ),
       ),
     );
@@ -152,7 +186,7 @@ SearchResultPage _pageWithSuggestions() => SearchResultPage(
       issues: const [],
     );
 
-final class _QueryPort implements SearchReaderPort {
+final class _QueryPort implements SearchQueryPort {
   final queries = <SearchQuery>[];
   final pending = <Completer<Result<SearchResultPage>>>[];
 

@@ -117,7 +117,8 @@ void main() {
       expect(page.hasNext, isTrue);
     });
 
-    test('represent an empty collection as success with explicit direction', () {
+    test('represent an empty collection as success with explicit direction',
+        () {
       final result = Result<SearchResultPage>.success(
         SearchResultPage(
           direction: SearchDirection.jpnEsp,
@@ -217,7 +218,6 @@ void main() {
       expect(error.operation, SearchCatalogOperation.rankings);
       expect(error.code, 'SEARCH_CATALOG_GATEWAY_FAILURE');
     });
-
   });
 
   test('gateway pages defensively copy items and retain hasMore', () {
@@ -239,7 +239,7 @@ void main() {
   test('business facade contract files remain pure Dart', () {
     const files = [
       'lib/features/search/port/search.dart',
-      'lib/features/search/port/reader/search_reader_port.dart',
+      'lib/features/search/port/query/search_reader_port.dart',
       'lib/features/search/port/query/search_query.dart',
       'lib/features/search/port/query/search_catalog_query.dart',
       'lib/features/search/port/model/search_direction.dart',
@@ -266,7 +266,7 @@ void main() {
   });
 }
 
-final class _UnavailableReader implements SearchReaderPort {
+final class _UnavailableReader implements SearchQueryPort {
   @override
   Future<Result<SearchResultPage>> search(SearchQuery query) async =>
       const Result<SearchResultPage>.failure(SearchDataUnavailableError());
