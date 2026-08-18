@@ -8,7 +8,7 @@ import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/quiz/port/presentation_entry.dart';
 import 'package:my_dic/features/quiz/port/query/quiz_candidate_query.dart';
-import 'package:my_dic/features/quiz/port/reader/quiz_candidate_reader_port.dart';
+import 'package:my_dic/features/quiz/port/query/quiz_candidate_reader_port.dart';
 import 'package:my_dic/features/quiz/port/result/quiz_candidate_page.dart';
 
 void main() {
@@ -17,7 +17,11 @@ void main() {
     final bridge = _Bridge();
     await tester.pumpWidget(ProviderScope(
       child: MaterialApp(
-        home: QuizSearchFragment(reader: bridge, onOpenQuiz: (_, __) {}),
+        home: QuizSearchFragment(
+          reader: bridge,
+          onOpenQuiz: (_, __) {},
+          wordStatusRenderer: (_) => const SizedBox.shrink(),
+        ),
       ),
     ));
 

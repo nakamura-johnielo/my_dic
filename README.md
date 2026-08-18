@@ -6,13 +6,14 @@
 
 
 ## デモ
-デモ用にWeb版を公開しています。
-[➥Web版デモアプリ (https://my-dic-flutter-portfolio.web.app/)](https://my-dic-flutter-portfolio.web.app/)
-ローカルファーストで動作するため初期DBデータインストールに数秒かかります。
+デモ用にWeb版を公開しています。<br>
+~~[➥Web版デモアプリ ]()~~ <br>
+ローカルファーストで動作するため初期DBデータインストールに数秒かかります。<br>
+※辞書データの公開が制限されているため、デモの共有を停止しています。
+
 
 ## このプロジェクトで示したいこと
 
-- FlutterによるWeb / Android / Windows向けアプリの実装
 - Riverpodを用いた状態管理と、Composition Rootでの型安全な依存性注入
 - Feature単位のモジュール分割と、公開API（`port`）による依存方向の制御
 - DriftとFirebaseを組み合わせたLocal-first / Offline-firstなデータ同期

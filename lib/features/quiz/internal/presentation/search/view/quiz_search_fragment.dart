@@ -17,9 +17,11 @@ class QuizSearchFragment extends ConsumerStatefulWidget {
     super.key,
     required this.reader,
     required this.onOpenQuiz,
+    required this.wordStatusRenderer,
   });
   final QuizCandidateQueryPort reader;
   final void Function(CatalogWordRef word, String? displayHint) onOpenQuiz;
+  final Widget Function(CatalogWordRef word) wordStatusRenderer;
   @override
   ConsumerState<QuizSearchFragment> createState() => _QuizSearchFragmentState();
 }
@@ -129,7 +131,7 @@ class _QuizSearchFragmentState extends ConsumerState<QuizSearchFragment> {
           return Padding(
               padding: const EdgeInsets.only(bottom: 11),
               child: QuizSearchResultCard(
-                  status: const SizedBox.shrink(),
+                  status: widget.wordStatusRenderer(candidate.word),
                   onQuizTap: () => _tap(candidate),
                   ranking: candidate.rankingNo,
                   word: candidate.headword,

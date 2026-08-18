@@ -12,15 +12,18 @@ class QuizSearchFragment extends StatelessWidget {
     super.key,
     required this.reader,
     required this.onOpenQuiz,
+    required this.wordStatusRenderer,
   });
 
   final QuizCandidateQueryPort reader;
   final void Function(CatalogWordRef word, String? displayHint) onOpenQuiz;
+  final Widget Function(CatalogWordRef word) wordStatusRenderer;
 
   @override
   Widget build(BuildContext context) => internal.QuizSearchFragment(
         reader: reader,
         onOpenQuiz: onOpenQuiz,
+        wordStatusRenderer: wordStatusRenderer,
       );
 }
 

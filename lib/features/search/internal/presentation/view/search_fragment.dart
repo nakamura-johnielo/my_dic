@@ -61,11 +61,20 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
               padding: const EdgeInsets.all(8),
               child: AutoFocusTextField(
                   decoration: InputDecoration(
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.only(left: 12.0),
+                        child: const Icon(Icons.search, size: 16),
+                      ),
                       hintText: 'Search',
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(100),
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(160),
                           borderSide:
-                              BorderSide(color: Colors.white.withAlpha(180)))),
+                              BorderSide(color: Colors.white.withAlpha(125))),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        // borderSide:
+                        //     BorderSide(color: Colors.red.withAlpha(180))
+                      )),
                   onChanged: (text) {
                     notifier.updateQuery(text);
                     _scroll.reset();

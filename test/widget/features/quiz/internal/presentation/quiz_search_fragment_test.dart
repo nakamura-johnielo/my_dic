@@ -9,7 +9,7 @@ import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/quiz/internal/presentation/search/view/quiz_search_fragment.dart';
 import 'package:my_dic/features/quiz/port/error/quiz_candidate_issue.dart';
 import 'package:my_dic/features/quiz/port/query/quiz_candidate_query.dart';
-import 'package:my_dic/features/quiz/port/reader/quiz_candidate_reader_port.dart';
+import 'package:my_dic/features/quiz/port/query/quiz_candidate_reader_port.dart';
 import 'package:my_dic/features/quiz/port/result/quiz_candidate_page.dart';
 
 void main() {
@@ -66,11 +66,51 @@ void main() {
 
     expect(find.byKey(const Key('quiz-search-warnings')), findsOneWidget);
   });
+
+  testWidgets('renders a tappable status control for each candidate',
+      (tester) async {
+    final source = _Source();
+    CatalogWordRef? renderedWord;
+    var taps = 0;
+    await tester.pumpWidget(_app(
+      source,
+      wordStatusRenderer: (word) {
+        renderedWord = word;
+        return GestureDetector(
+          key: const ValueKey('quiz-status-control'),
+          behavior: HitTestBehavior.opaque,
+          onTap: () => taps++,
+          child: const SizedBox(width: 20, height: 20),
+        );
+      },
+    ));
+
+    await tester.enterText(find.byType(TextField), 'hablar');
+    await tester.pump();
+    source.completeNext(_page('hablar'));
+    await tester.pumpAndSettle();
+
+    expect(
+      renderedWord,
+      const CatalogWordRef(catalogId: CatalogId.espJpnMain, wordId: 1),
+    );
+    await tester.tap(find.byKey(const ValueKey('quiz-status-control')));
+    expect(taps, 1);
+  });
 }
 
-Widget _app(_Source source) => ProviderScope(
+Widget _app(
+  _Source source, {
+  Widget Function(CatalogWordRef word)? wordStatusRenderer,
+}) =>
+    ProviderScope(
       child: MaterialApp(
-        home: QuizSearchFragment(reader: source, onOpenQuiz: (_, __) {}),
+        home: QuizSearchFragment(
+          reader: source,
+          onOpenQuiz: (_, __) {},
+          wordStatusRenderer:
+              wordStatusRenderer ?? (_) => const SizedBox.shrink(),
+        ),
       ),
     );
 

@@ -19,9 +19,12 @@ class QuizSearchPresentationEntry extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ports = ref.watch(quizPortsProvider);
+    final wordStatusPorts = ref.watch(wordStatusPortsProvider);
     return QuizSearchFragment(
       reader: ports.candidateReader,
       onOpenQuiz: onOpenQuiz,
+      wordStatusRenderer: (word) =>
+          DictionaryStatusButtonsEntry(word: word, ports: wordStatusPorts),
     );
   }
 }
