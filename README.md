@@ -64,15 +64,8 @@
 
 各Featureは、外部へ公開する契約を置く`port`と、具象実装を置く`internal`に分離しています。他Featureは相手の`internal`やDBの行型を直接参照せず、`port`の純粋なDartインターフェースを介して連携します。Feature間のデータ変換は`integration`配下のAdapterが担当します。
 
-```mermaid
-flowchart LR
-    App[app<br/>起動・ルーティング・DI] --> Port[Feature port<br/>公開インターフェース]
-    Port --> Internal[Feature internal<br/>Presentation / Application / Domain]
-    Internal --> Local[(Drift<br/>SQLite / IndexedDB)]
-    Internal --> Remote[(Firebase<br/>Auth / Firestore)]
-    Integration[integration<br/>Feature間Adapter] --> Port
-    Core[core<br/>共通基盤] --> Internal
-```
+
+<img  alt="project layer dependencies" src="https://github.com/user-attachments/assets/1f70cf58-0ce7-4009-86fa-9c2281fb09df" />
 
 ### ディレクトリ構成
 
