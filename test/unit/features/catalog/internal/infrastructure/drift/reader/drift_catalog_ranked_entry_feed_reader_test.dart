@@ -2,7 +2,7 @@ import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
-import 'package:my_dic/features/catalog/internal/infrastructure/drift/reader/drift_catalog_ranked_entry_feed_reader.dart';
+import 'package:my_dic/features/catalog/internal/infrastructure/drift/query/drift_catalog_ranked_entry_feed_reader.dart';
 import 'package:my_dic/features/catalog/port/catalog.dart';
 
 void main() {

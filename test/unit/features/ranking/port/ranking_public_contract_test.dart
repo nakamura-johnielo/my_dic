@@ -94,8 +94,8 @@ void main() {
             (file) => !file.path.endsWith('presentation_dependencies.dart'),
           );
       final source = files.map((file) => file.readAsStringSync()).join('\n');
-      final facade = File('lib/features/ranking/port/ranking.dart')
-          .readAsStringSync();
+      final facade =
+          File('lib/features/ranking/port/ranking.dart').readAsStringSync();
 
       expect(source, isNot(contains("package:flutter/")));
       expect(source, isNot(contains('package:flutter_riverpod/')));
@@ -121,7 +121,7 @@ RankingItem _item(int id) => RankingItem(
       hasConjugation: false,
     );
 
-final class _EmptyReader implements RankingPageReaderPort {
+final class _EmptyReader implements RankingPageQueryPort {
   @override
   Future<Result<RankingPage>> readPage(RankingPageQuery query) async =>
       Result.success(RankingPage(items: const [], hasMore: false));

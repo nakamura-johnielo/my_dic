@@ -93,7 +93,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
             child: _content(
               viewModel,
               margin,
-              scope,
+              presentationKey,
               widget.wordStatusRenderer,
             ),
           ),
@@ -115,7 +115,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
   Widget _content(
     RankingState screen,
     EdgeInsetsGeometry margin,
-    Object scopeKey,
+    RankingPresentationKey presentationKey,
     Widget Function(CatalogWordRef word) wordStatusRenderer,
   ) {
     final data = screen.rankings.dataOrNull;
@@ -135,7 +135,7 @@ class _RankingFragmentState extends ConsumerState<RankingFragment> {
             ),
           Expanded(
             child: InfinityScrollListView(
-              key: ValueKey(scopeKey),
+              key: ValueKey(presentationKey),
               autoLoadFirstPage: true,
               initialPage: screen.pagenationFilter,
               initialHasMore: screen.hasNext,

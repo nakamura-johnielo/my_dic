@@ -119,7 +119,9 @@ final class DriftCatalogRankedEntryFeedQueryService
     for (final row in rows) {
       final wordId = row.read<int>('word_id');
       (result[wordId] ??= <CatalogPartOfSpeech>{}).add(
-        CatalogPartOfSpeech.fromWireValue(row.read<String>('part_of_speech')),
+        CatalogPartOfSpeech.fromWireValue(
+          row.readNullable<String>('part_of_speech'),
+        ),
       );
     }
     return result;

@@ -70,7 +70,7 @@ RankingPage _page(String label) => RankingPage(items: [
       ),
     ], hasMore: false);
 
-final class _DeferredReader implements RankingPageReaderPort {
+final class _DeferredReader implements RankingPageQueryPort {
   final queries = <RankingPageQuery>[];
   final _pending = <Completer<Result<RankingPage>>>[];
 

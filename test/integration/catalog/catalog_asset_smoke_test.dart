@@ -58,8 +58,17 @@ void main() {
     );
 
     final ranked = await ports.rankedEntries.readRankedEntries(
-      CatalogRankedEntryFeedQuery(offset: 0, size: 1),
+      CatalogRankedEntryFeedQuery(offset: 0, size: 100),
     );
-    expect(ranked.dataOrNull?.items, isNotEmpty);
+    final rankedItems = ranked.dataOrNull!.items;
+    expect(rankedItems, hasLength(100));
+    expect(
+      rankedItems.singleWhere((item) => item.rankingNo == 33).partsOfSpeech,
+      contains(CatalogPartOfSpeech.none),
+    );
+    expect(
+      rankedItems.singleWhere((item) => item.rankingNo == 34).partsOfSpeech,
+      contains(CatalogPartOfSpeech.none),
+    );
   });
 }

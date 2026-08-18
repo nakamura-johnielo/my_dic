@@ -11,7 +11,7 @@ void main() {
       ),
     );
 
-    expect(ports.reader, isA<RankingPageReaderPort>());
+    expect(ports.reader, isA<RankingPageQueryPort>());
   });
 }
 

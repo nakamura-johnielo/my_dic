@@ -103,7 +103,7 @@ RankingItem _item(int id) => RankingItem(
       hasConjugation: false,
     );
 
-final class _ImmediateReader implements RankingPageReaderPort {
+final class _ImmediateReader implements RankingPageQueryPort {
   _ImmediateReader(this.page);
   final RankingPage page;
   @override
@@ -111,7 +111,7 @@ final class _ImmediateReader implements RankingPageReaderPort {
       Result.success(page);
 }
 
-final class _QueueReader implements RankingPageReaderPort {
+final class _QueueReader implements RankingPageQueryPort {
   _QueueReader(List<Object> results) : _results = [...results];
   final List<Object> _results;
   final List<RankingPageQuery> queries = [];
@@ -125,7 +125,7 @@ final class _QueueReader implements RankingPageReaderPort {
   }
 }
 
-final class _PendingReader implements RankingPageReaderPort {
+final class _PendingReader implements RankingPageQueryPort {
   final queries = <RankingPageQuery>[];
   final _completion = Completer<Result<RankingPage>>();
   @override

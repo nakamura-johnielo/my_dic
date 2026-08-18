@@ -50,14 +50,13 @@
 
 | 領域 | 技術 | 採用理由 |
 | --- | --- | --- |
-| UI / マルチプラットフォーム | Flutter / Dart | 単一コードベースでWeb・Android・Windowsへ展開するため |
+| UI / マルチプラットフォーム | Flutter / Dart | 単一コードベースでAndroid・Windowsへ展開するため |
 | 状態管理 / DI | Riverpod | UI状態と依存関係を型安全に管理し、テスト時に差し替えやすくするため |
-| ルーティング | GoRouter | ネストした画面遷移とWeb URLを宣言的に管理するため |
+| ルーティング | GoRouter | 画面遷移を宣言的に管理するため |
 | ローカルDB | Drift / SQLite / IndexedDB | 型安全なクエリと、Native・Web双方でのオフライン利用を実現するため |
 | 認証 / クラウド | Firebase Authentication / Cloud Firestore | アカウント単位のデータ保存と複数端末同期を実現するため |
 | モデル / Serialization | Freezed / json_serializable | Immutableなモデルと変換処理を安全に実装するため |
 | 品質管理 | flutter_test / mocktail / dart_code_linter | レイヤーごとのテストと静的解析を自動化するため |
-| CI | GitHub Actions | Push / Pull Requestごとに解析・テスト・Firestore Rules検証を行うため |
 
 ## アーキテクチャ
 
@@ -160,8 +159,6 @@ dart run tool/check_feature_dependencies.dart
 - Flutter 3.38.9（stable）
 - Dart 3.10.8
 - 対象: Web / Android / Windows
-
-`pubspec.yaml`が要求するDart SDKは`^3.6.0`です。上記はREADME更新時に確認した環境であり、Flutter stableの互換バージョンでも実行できます。
 
 ### 実行
 
