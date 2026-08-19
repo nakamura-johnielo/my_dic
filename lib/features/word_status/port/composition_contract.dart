@@ -1,11 +1,11 @@
 import 'package:my_dic/features/word_status/port/word_status.dart';
 
-/// Clock used to assign one timestamp to a WordStatus mutation.
+/// WordStatus 変更に 1 つのタイムスタンプを割り当てる時計です。
 abstract interface class WordStatusClock {
   DateTime now();
 }
 
-/// The complete WordStatus capabilities consumed by application workflows.
+/// アプリケーションワークフローが使用する完全な WordStatus 機能です。
 final class WordStatusPorts {
   const WordStatusPorts({
     required this.reader,

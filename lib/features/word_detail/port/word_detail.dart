@@ -1,4 +1,4 @@
-/// The sole business-facing import for WordDetail contracts.
+/// WordDetail コントラクトの唯一のビジネス向けインポートです。
 library;
 
 export 'package:my_dic/core/shared/utils/result.dart'

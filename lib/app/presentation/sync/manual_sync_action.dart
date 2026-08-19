@@ -6,7 +6,7 @@ import 'package:my_dic/app/session/app_session.dart';
 import 'package:my_dic/app/session/session_providers.dart';
 import 'package:my_dic/core/presentation/state/ui_effect.dart';
 
-/// The ready-session app-bar entry point for a user-requested sync.
+/// ユーザーが要求した同期のための、準備完了セッションにおけるアプリバー入口。
 class ManualSyncAction extends ConsumerStatefulWidget {
   const ManualSyncAction({super.key});
 

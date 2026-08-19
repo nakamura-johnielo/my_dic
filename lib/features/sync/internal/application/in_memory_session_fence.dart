@@ -1,14 +1,14 @@
 import 'package:my_dic/features/sync/port/session_fence.dart';
 
-/// Composition roots advance the epoch whenever Auth changes account.
+/// 構成ルートは Auth によるアカウント変更のたびにエポックを進めます。
 class InMemorySessionFence implements SessionFence {
   final Map<String, int> _epochs = {};
 
   void setCurrent(String accountId, int epoch) => _epochs[accountId] = epoch;
   void remove(String accountId) => _epochs.remove(accountId);
 
-  /// The current epoch for [accountId], or `null` if it is not the current
-  /// account. Used by foreground sync triggers to build a `SyncContext`.
+  /// [accountId] の現在のエポックです。現在のアカウントでない場合は `null` です。
+  /// フォアグラウンド同期トリガーが `SyncContext` を構築するために使用します。
   int? epochFor(String accountId) => _epochs[accountId];
 
   @override

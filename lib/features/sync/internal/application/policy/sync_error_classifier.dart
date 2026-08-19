@@ -9,8 +9,8 @@ class SyncErrorClassification {
   bool get retryable => kind == SyncFailureKind.retry;
 }
 
-/// Feature adapters should expose one of these stable error codes instead of
-/// leaking Firebase/HTTP implementation errors into the queue state machine.
+/// 機能アダプターは Firebase／HTTP 実装エラーをキュー状態機械へ漏らさず、これらの安定した
+/// エラーコードのいずれかを公開する必要があります。
 class SyncErrorClassifier {
   const SyncErrorClassifier();
 

@@ -4,7 +4,7 @@ import 'package:my_dic/features/auth/internal/presentation/view/sign_up.dart';
 import 'command.dart';
 import 'model/auth_identity.dart';
 
-/// Feature-facing projection of the app-owned authentication workflow.
+/// アプリ所有の認証ワークフローを機能側へ投影したもの。
 enum AuthPresentationPhase {
   initializing,
   signedOut,
@@ -43,10 +43,10 @@ abstract interface class AuthPresentationActions {
   Future<void> signOut();
 }
 
-/// Controlled Flutter entry for Auth's email/password screen.
+/// Authのメールアドレス/パスワード画面用に制御されたFlutter入口。
 ///
-/// The app owns state observation and supplies the current projection plus
-/// actions. No provider or override is part of this public surface.
+/// アプリが状態観測を所有し、現在の投影とアクションを提供します。プロバイダーやオーバーライドは
+/// この公開インターフェースの一部ではありません。
 class AuthPresentationPage extends StatelessWidget {
   const AuthPresentationPage({
     super.key,

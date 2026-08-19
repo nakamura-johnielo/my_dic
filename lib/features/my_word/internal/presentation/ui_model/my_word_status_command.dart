@@ -6,8 +6,8 @@ import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/core/shared/value_objects/field_update.dart';
 import 'package:my_dic/features/my_word/port/command.dart';
 
-/// Immutable command state. Effects are retained LIFO until their owner
-/// consumes each exact envelope id, so rebuilds cannot replay or lose one.
+/// 不変のコマンド状態。エフェクトは所有者が各エンベロープ ID を正確に消費するまで LIFO で保持されるため、
+/// 再ビルドによって再実行または消失することはない。
 final class MyWordStatusCommandState {
   const MyWordStatusCommandState({
     this.command = const CommandState.idle(),
@@ -71,7 +71,7 @@ final class MyWordStatusCommand extends StateNotifier<MyWordStatusCommandState>
       );
 
   Future<void> _set(String operation, UpdateMyWordStatusCommand input) async {
-    // The aggregate lane is the card (scope, word), not an individual field.
+    // 集約レーンは個別フィールドではなくカード（スコープ、単語）である。
     if (state.isSubmitting) return;
     final expectedScope = _scope;
     state = state.copyWith(command: CommandState.submitting(operation));

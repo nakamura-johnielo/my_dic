@@ -9,8 +9,8 @@ import 'package:my_dic/features/sync/port/sync_reason_codes.dart';
 import 'report/sync_report_summary.dart';
 import 'sync_engine.dart';
 
-/// Lifecycle adapters invoke this class only. It deliberately contains no
-/// Firebase, Drift, listener, or feature-specific behaviour.
+/// ライフサイクルアダプターだけがこのクラスを呼び出します。意図的に Firebase、Drift、
+/// リスナー、機能固有の動作を含みません。
 class SyncScheduler {
   SyncScheduler(this._engine,
       {SyncTelemetry telemetry = const NoopSyncTelemetry(),
@@ -40,7 +40,7 @@ class SyncScheduler {
         report: report,
       );
     } catch (_) {
-      // Observability is strictly best-effort and must not change sync output.
+      // 可観測性は厳密にベストエフォートであり、同期出力を変更してはなりません。
     }
     await _armRetryIfNeeded(context, report);
     return report;
@@ -64,7 +64,7 @@ class SyncScheduler {
         onDue: () => _onRetryDue(context, dueAt.toUtc()),
       );
     } catch (_) {
-      // Retry wake-up is best-effort. The durable queue remains unchanged.
+      // 再試行の起床はベストエフォートです。永続キューは変更されません。
     }
   }
 
@@ -93,7 +93,7 @@ class SyncScheduler {
     ));
   }
 
-  /// Cancels a prior account's wake-up when its session changes.
+  /// セッション変更時に、以前のアカウントの起床をキャンセルします。
   void cancelRetryForAccount(String accountId) =>
       _retryWakeup?.cancel(accountId);
 

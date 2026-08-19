@@ -1,7 +1,7 @@
 import 'package:my_dic/core/shared/errors/app_error.dart';
 import 'package:my_dic/features/catalog/port/catalog.dart' show CatalogWordRef;
 
-/// Failures that prevent WordDetail's primary projection from being trusted.
+/// WordDetail の主要投影を信頼できなくする失敗です。
 sealed class WordDetailReadError extends AppError {
   const WordDetailReadError({
     required super.message,
@@ -43,7 +43,7 @@ final class WordDetailDataCorruptedError extends WordDetailReadError {
 
 enum WordDetailContractMismatchKind { identity, direction }
 
-/// A provider returned a value that does not satisfy the requested contract.
+/// プロバイダーが要求されたコントラクトを満たさない値を返しました。
 final class WordDetailContractMismatchError extends WordDetailReadError {
   WordDetailContractMismatchError({
     required this.kind,

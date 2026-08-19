@@ -14,7 +14,7 @@ import 'package:my_dic/features/sync/internal/infrastructure/telemetry/app_logge
 import 'package:my_dic/features/sync/port/composition_contract.dart';
 import 'package:my_dic/features/sync/port/dataset_contract.dart';
 
-/// Same-feature implementation behind the pure port composition bridge.
+/// 純粋なポート構成ブリッジの背後にある同一機能の実装です。
 final class SyncCompositionFactory {
   const SyncCompositionFactory._();
 

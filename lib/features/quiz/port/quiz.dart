@@ -1,4 +1,4 @@
-/// The sole business import surface for Quiz.
+/// Quiz の唯一の業務用インポート面。
 library;
 
 export 'package:my_dic/core/shared/errors/app_error.dart' show AppError;

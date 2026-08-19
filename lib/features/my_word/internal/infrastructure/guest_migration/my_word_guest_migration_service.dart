@@ -4,11 +4,11 @@ import 'package:my_dic/features/my_word/internal/infrastructure/data/dataSource/
 import 'package:my_dic/features/my_word/port/guest_migration.dart';
 import 'package:my_dic/features/sync/port/dataset_contract.dart';
 
-/// Drift-backed migration service for the MyWord aggregate.
+/// MyWord 集約用の Drift ベース移行サービス。
 ///
-/// A same-ID MyWord collision preserves the account row and leaves its guest
-/// word/status pair untouched. Status collisions for a successfully moved word
-/// are merged with true winning for every flag.
+/// 同一 ID の MyWord が衝突した場合はアカウント行を保持し、そのゲストの単語・ステータスの組を
+/// 変更しない。正常に移動した単語でステータスが衝突した場合、すべてのフラグで true を優先して
+/// マージする。
 final class MyWordGuestMigrationService implements MyWordGuestMigrationPort {
   const MyWordGuestMigrationService(
     this._myWord,

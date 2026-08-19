@@ -1,4 +1,4 @@
-/// The sole pure-Dart business import surface for Auth.
+/// Authのための唯一の純粋なDartビジネスインポートインターフェース。
 library;
 
 export 'command.dart';

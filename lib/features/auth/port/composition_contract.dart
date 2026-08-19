@@ -1,7 +1,7 @@
 import 'command.dart';
 import 'query.dart';
 
-/// SDK-free identity facts returned by the application-owned Auth runtime.
+/// アプリケーション所有のAuthランタイムが返す、SDKに依存しないID情報。
 final class AuthRuntimeIdentity {
   const AuthRuntimeIdentity({
     required this.accountId,
@@ -16,7 +16,7 @@ final class AuthRuntimeIdentity {
   final String? credentialProviderId;
 }
 
-/// SDK-free failure raised by the application-owned Auth runtime adapter.
+/// アプリケーション所有のAuthランタイムアダプターが発生させる、SDKに依存しない失敗。
 final class AuthRuntimeFailure implements Exception {
   const AuthRuntimeFailure({
     required this.code,
@@ -31,10 +31,10 @@ final class AuthRuntimeFailure implements Exception {
   final StackTrace stackTrace;
 }
 
-/// Technical handle implemented by the application Firebase boundary.
+/// アプリケーションのFirebase境界が実装する技術的ハンドル。
 ///
-/// Auth owns the interpretation of provider IDs and failure codes. The app
-/// adapter owns only SDK calls and conversion into this SDK-free contract.
+/// プロバイダーIDと失敗コードの解釈はAuthが所有します。アプリアダプターはSDK呼び出しと、
+/// このSDK非依存契約への変換だけを担当します。
 abstract interface class AuthRuntimeGateway {
   Stream<AuthRuntimeIdentity?> observeAuthState();
 
@@ -55,7 +55,7 @@ abstract interface class AuthRuntimeGateway {
   Future<AuthRuntimeIdentity?> reloadCurrentAuth();
 }
 
-/// Completed Auth capabilities for one application scope.
+/// 1つのアプリケーションスコープ用に完成したAuth機能群。
 final class AuthPorts {
   const AuthPorts({required this.query, required this.commands});
 

@@ -5,10 +5,10 @@ import 'package:my_dic/features/quiz/port/quiz.dart';
 
 export 'composition_contract.dart';
 
-/// Loads the unparsed text of a bundled Quiz asset.
+/// バンドル済み Quiz アセットの未解析テキストを読み込む。
 typedef QuizAssetTextLoader = Future<String> Function(String assetPath);
 
-/// Application-owned services required to assemble Quiz capabilities.
+/// Quiz 機能を組み立てるために必要な、アプリ所有のサービス。
 final class QuizDependencies {
   const QuizDependencies({
     required this.candidateCatalogGateway,
@@ -23,7 +23,7 @@ final class QuizDependencies {
   final QuizAssetTextLoader loadAssetText;
 }
 
-/// Assembles Quiz's internal policy graph from application-owned inputs.
+/// アプリ所有の入力から Quiz の内部ポリシーグラフを組み立てる。
 QuizPorts createQuizPorts({required QuizDependencies dependencies}) =>
     createInternalQuizPorts(
       candidateCatalogGateway: dependencies.candidateCatalogGateway,

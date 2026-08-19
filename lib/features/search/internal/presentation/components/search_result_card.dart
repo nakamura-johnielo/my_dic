@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:my_dic/features/search/internal/presentation/components/card/card_view.dart';
 import 'package:my_dic/features/search/port/search.dart';
 
-/// Search presentation adapter for the shared result-card shell.
+/// 共通の結果カードシェル用の Search 表示アダプターです。
 class SearchResultCard extends StatelessWidget {
   const SearchResultCard({
     super.key,

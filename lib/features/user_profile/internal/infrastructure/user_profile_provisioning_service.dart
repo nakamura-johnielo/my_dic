@@ -7,8 +7,8 @@ import 'package:my_dic/features/user_profile/internal/infrastructure/local/local
 import 'package:my_dic/features/user_profile/port/user_profile.dart';
 import 'package:my_dic/features/user_profile/internal/domain/service/user_profile_provisioning_port.dart';
 
-/// Remote provisioning adapter. It is the only user lifecycle path that uses
-/// the remote user data source; routine profile reads and writes stay local.
+/// リモートプロビジョニングアダプターです。リモートユーザーデータソースを使用する唯一の
+/// ユーザーライフサイクル経路であり、通常のプロフィール読み書きはローカルに留まります。
 final class UserProfileProvisioningService
     implements UserProfileProvisioningPort {
   UserProfileProvisioningService(

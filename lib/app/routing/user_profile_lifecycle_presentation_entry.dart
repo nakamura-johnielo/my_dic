@@ -26,7 +26,7 @@ UserProfilePresentationSession _userProfilePresentationSession(WidgetRef ref) {
   };
 }
 
-/// App-owned adapter that supplies UserProfile's controlled Flutter entry.
+/// UserProfileの制御されたFlutter入口を提供する、アプリ所有アダプター。
 class UserProfileLifecyclePresentationPage extends ConsumerWidget {
   const UserProfileLifecyclePresentationPage({
     super.key,

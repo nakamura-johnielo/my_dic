@@ -1,6 +1,6 @@
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 
-/// Drift rows that make up one Spanish-to-Japanese dictionary entry.
+/// 1 つのスペイン語から日本語への辞書エントリを構成する Drift 行。
 class EspJpnDictionaryDataSet {
   EspJpnDictionaryDataSet({
     required this.dictionary,

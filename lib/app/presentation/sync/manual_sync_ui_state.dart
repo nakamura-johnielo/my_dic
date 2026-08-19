@@ -1,9 +1,9 @@
 import 'package:my_dic/core/presentation/state/ui_effect.dart';
 
-/// Ephemeral, UI-safe state for the app-bar sync action.
+/// アプリバー同期操作のための、一時的でUIに安全な状態。
 ///
-/// Deliberately does not retain a [SyncReport], account identifier, cursor, or
-/// any mutation data. The controller converts reports to a one-shot notice.
+/// [SyncReport]、アカウント識別子、カーソル、変更データを意図的に保持しません。
+/// コントローラーがレポートをワンショット通知に変換します。
 class ManualSyncUiState {
   const ManualSyncUiState({
     this.isSyncing = false,

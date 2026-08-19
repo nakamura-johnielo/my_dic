@@ -64,18 +64,17 @@ class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
     return data;
   }
 
-  /// Returns every row for [accountId]. Used by the guest-data
-  /// detector/migration, which needs the full set rather than a single row.
+  /// [accountId] の全行を返す。単一行ではなく完全な集合を必要とするゲストデータの
+  /// 検出・移行で使用する。
   Future<List<MyWordStatusTableData>> getAllByAccountId(String accountId) {
     return (select(myWordStatus)..where((t) => t.accountId.equals(accountId)))
         .get();
   }
 
-  /// Reassigns a status row's account scope in place (e.g. guest -> a
-  /// signed-in account), bumping `local_revision` so a matching outbox
-  /// mutation can be enqueued. Returns `null` if no row matched at
-  /// [fromAccountId] or a row already exists at [toAccountId] (the caller
-  /// should merge/skip instead).
+  /// ステータス行のアカウントスコープをその場で再割り当てする（例: ゲストからログイン済み
+  /// アカウント）。対応するアウトボックス変更をキューに入れられるよう `local_revision` を増やす。
+  /// [fromAccountId] に一致する行がないか [toAccountId] に行がすでにある場合は `null` を返す
+  /// （呼び出し元でマージまたはスキップする）。
   Future<MyWordStatusTableData?> reassignAccountId(
       String myWordId, String fromAccountId, String toAccountId) {
     return transaction(() async {
@@ -102,8 +101,8 @@ class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
         .go();
   }
 
-  /// Persists the remote transaction acknowledgement only when no later
-  /// local write has superseded the leased revision.
+  /// 後続のローカル書き込みがリース済みリビジョンを置き換えていない場合にのみ、
+  /// リモートトランザクションの確認応答を保存する。
   Future<bool> acknowledgeRemoteMutation({
     required String myWordId,
     required String accountId,
@@ -123,9 +122,9 @@ class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
     return changed == 1;
   }
 
-  /// Upserts the status row and bumps `local_revision` by 1 (new rows start
-  /// at 1), so callers can enqueue a matching outbox mutation in the same
-  /// transaction. `null` per field means "leave unchanged" on an update.
+  /// ステータス行を upsert して `local_revision` を 1 増やす（新規行は 1 から開始）。呼び出し元は
+  /// 同じトランザクションで対応するアウトボックス変更をキューに入れられる。フィールドごとの `null` は
+  /// 更新時に「変更しない」を意味する。
   Future<MyWordStatusTableData> applyStatusPatch(
     String myWordId,
     int? isLearned,
@@ -174,9 +173,9 @@ class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
     });
   }
 
-  /// Applies a pulled remote snapshot without bumping `local_revision` or
-  /// touching the outbox. `null` per field means "leave untouched" (used by
-  /// the sync handler to skip fields with an in-flight local push).
+  /// `local_revision` を増やしたりアウトボックスに触れたりせず、取得したリモートスナップショットを適用する。
+  /// フィールドごとの `null` は「変更しない」を意味する（同期ハンドラーが送信中のローカル変更を持つ
+  /// フィールドをスキップするために使用する）。
   Future<void> applyRemoteFields(
     String myWordId, {
     int? isLearned,
@@ -227,8 +226,8 @@ class MyWordStatusDao extends DatabaseAccessor<DatabaseProvider>
     });
   }
 
-  /// Runs [action] within a single Drift transaction so callers can combine
-  /// a status row write with an outbox mutation atomically.
+  /// [action] を単一の Drift トランザクションで実行し、呼び出し元がステータス行の書き込みと
+  /// アウトボックス変更をアトミックに組み合わせられるようにする。
   Future<T> runInTransaction<T>(Future<T> Function() action) =>
       transaction(action);
 }

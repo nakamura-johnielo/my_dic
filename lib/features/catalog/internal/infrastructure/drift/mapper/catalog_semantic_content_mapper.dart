@@ -4,7 +4,7 @@ import 'package:my_dic/features/catalog/port/model/catalog_semantic_entry_detail
 import 'package:my_dic/features/catalog/port/model/esp_jpn_entry.dart';
 import 'package:my_dic/features/catalog/port/model/jpn_esp_entry.dart';
 
-/// Converts Catalog-owned source markup into structured semantic content.
+/// Catalog 所有のソースマークアップを構造化された意味内容に変換する。
 final class CatalogSemanticContentMapper {
   const CatalogSemanticContentMapper();
 

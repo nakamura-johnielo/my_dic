@@ -1,4 +1,4 @@
-/// Structured dictionary content whose meaning does not depend on raw HTML.
+/// 生の HTML に意味が依存しない、構造化された辞書内容。
 final class CatalogSemanticContent {
   CatalogSemanticContent(Iterable<CatalogContentNode> nodes)
       : nodes = List.unmodifiable(nodes);

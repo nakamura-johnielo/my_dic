@@ -2,7 +2,7 @@ import 'package:my_dic/features/ranking/port/model/ranking_part_of_speech.dart';
 
 enum RankingStatusFilter { learned, bookmarked, hasNote }
 
-/// An immutable snapshot of Ranking-owned filter and grouping policy.
+/// Ranking 所有のフィルターおよびグループ化ポリシーの不変スナップショット。
 final class RankingFilter {
   RankingFilter({
     Iterable<RankingPartOfSpeech> includedPartsOfSpeech = const [],

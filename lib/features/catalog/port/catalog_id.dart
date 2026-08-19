@@ -1,17 +1,17 @@
-/// Identifies a shipped Catalog dataset independently from its Dart enum name.
+/// Dart の列挙型名に依存せず、提供済みの Catalog データセットを識別する。
 ///
-/// The wire value is stable across enum renames. Serialization owners must use
-/// [wireValue], rather than [name].
+/// ワイヤ値は列挙型のリネーム後も安定している。シリアライズの担当は [name] ではなく
+/// [wireValue] を使用する必要がある。
 enum CatalogId {
   espJpnMain('esp-jpn-main'),
   jpnEspMain('jpn-esp-main');
 
   const CatalogId(this.wireValue);
 
-  /// Stable external representation of this Catalog dataset.
+  /// この Catalog データセットの安定した外部表現。
   final String wireValue;
 
-  /// Returns the Catalog dataset identified by [value], if it is supported.
+  /// サポートされている場合、[value] が識別する Catalog データセットを返す。
   static CatalogId? tryParse(String value) {
     for (final catalogId in CatalogId.values) {
       if (catalogId.wireValue == value) return catalogId;

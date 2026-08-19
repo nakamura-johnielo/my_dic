@@ -2,12 +2,12 @@ import 'command.dart';
 import 'guest_migration.dart';
 import 'query.dart';
 
-/// Clock used to assign the existing client timestamp to profile mutations.
+/// プロフィール変更に既存のクライアント時刻を割り当てるための時計です。
 abstract interface class UserProfileClock {
   DateTime now();
 }
 
-/// Completed UserProfile capabilities for one application scope.
+/// 1 つのアプリケーションスコープに対する完成済みの UserProfile 機能です。
 final class UserProfilePorts {
   const UserProfilePorts({
     required this.query,

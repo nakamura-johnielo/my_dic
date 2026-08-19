@@ -1,7 +1,7 @@
-/// A non-negative frequency level assigned by a Catalog dataset.
+/// Catalog データセットが割り当てる、負ではない頻度レベル。
 ///
-/// Shipped Catalog data normally uses levels 0 through 3. Larger values are
-/// retained so the public contract remains forward-compatible with new data.
+/// 提供済みの Catalog データは通常レベル 0 から 3 を使用する。公開契約を新しいデータと
+/// 前方互換に保つため、より大きい値も保持される。
 final class CatalogFrequencyLevel {
   factory CatalogFrequencyLevel(int value) {
     if (value < 0) {

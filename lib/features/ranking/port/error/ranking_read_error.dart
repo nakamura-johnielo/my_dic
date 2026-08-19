@@ -7,7 +7,7 @@ enum RankingReadFailureKind {
   unexpected,
 }
 
-/// A Ranking-owned failure returned by its sole page reader.
+/// 唯一のページリーダーが返す、Ranking 所有の失敗。
 final class RankingReadError extends AppError {
   const RankingReadError._({
     required this.kind,

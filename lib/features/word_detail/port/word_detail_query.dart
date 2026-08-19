@@ -1,6 +1,6 @@
 import 'package:my_dic/features/catalog/port/catalog.dart';
 
-/// Identifies the dictionary content needed for a word-detail page.
+/// 単語詳細ページに必要な辞書コンテンツを識別します。
 final class WordDetailQuery {
   WordDetailQuery({required this.word}) {
     if (word.wordId <= 0) {

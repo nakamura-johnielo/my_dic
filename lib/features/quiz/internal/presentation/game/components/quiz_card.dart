@@ -28,7 +28,7 @@ class QuizCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return GestureDetector(
       onTap: () {
-        // Handle card tap if needed
+        // 必要に応じてカードのタップを処理する。
         onToggle();
       },
       onHorizontalDragEnd: (details) {

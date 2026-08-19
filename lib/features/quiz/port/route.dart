@@ -1,18 +1,18 @@
 import 'package:my_dic/core/result/route_parse_result.dart';
 import 'package:my_dic/features/catalog/port/catalog.dart';
 
-/// URL-serializable route contract for a Quiz game.
+/// Quiz ゲーム用の URL シリアライズ可能なルート契約。
 ///
-/// [word] is the sole identity. [displayHint] is optional presentation data and
-/// never participates in identity or route parsing.
+/// [word] が唯一の識別子である。[displayHint] は任意の表示データであり、識別や
+/// ルート解析には決して関与しない。
 final class QuizGameRoute {
   const QuizGameRoute({required this.word, this.displayHint});
 
-  /// Canonical, refresh-safe Quiz URL.
+  /// 正規化済みで、リフレッシュしても安全な Quiz URL。
   static const path = 'quiz-game/:catalog/:wordId';
 
-  /// Previous URL accepted during the compatibility window.  Its dataset is
-  /// unambiguously the original Esp-Jpn catalog.
+  /// 互換性維持期間中に受け入れる以前の URL。データセットは明確に元の Esp-Jpn
+  /// カタログである。
   static const legacyPath = 'quiz-game/:wordId';
 
   static const _catalogParameter = 'catalog';

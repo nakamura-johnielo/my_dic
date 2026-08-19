@@ -16,7 +16,7 @@ import 'package:my_dic/features/my_word/internal/infrastructure/sync/my_word_sta
 import 'package:my_dic/features/my_word/port/composition_contract.dart';
 import 'package:my_dic/features/sync/port/dataset_contract.dart';
 
-/// Canonical owner-only assembly for all completed MyWord capabilities.
+/// 完成済み MyWord 機能すべての、正規の所有者限定アセンブリ。
 MyWordPorts createInternalMyWordPorts({
   required DatabaseProvider database,
   required OutboxWriter outboxWriter,

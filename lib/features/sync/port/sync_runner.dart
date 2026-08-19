@@ -1,7 +1,7 @@
 import 'model/sync_context.dart';
 import 'sync_run_outcome.dart';
 
-/// Public workflow entry point for foreground Sync.
+/// フォアグラウンド Sync 用の公開ワークフローエントリポイントです。
 abstract interface class SyncRunner {
   Future<SyncRunOutcome> foreground(SyncContext context);
 

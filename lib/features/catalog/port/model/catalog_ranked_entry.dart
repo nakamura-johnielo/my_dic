@@ -2,7 +2,7 @@ import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_ranking_entry_ref.dart';
 
-/// One source entry in Catalog's deterministic ranking feed.
+/// Catalog の決定的なランキングフィードに含まれる 1 つのソースエントリ。
 final class CatalogRankedEntry {
   CatalogRankedEntry({
     required this.entryRef,

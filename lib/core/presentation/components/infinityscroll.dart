@@ -11,10 +11,10 @@ class InfinityScrollController {
   /// ページ状態をリセット（次回スクロール/呼び出しで先頭ページからロード）
   void reset() => _reset?.call();
 
-  /// Retries the current page without resetting pagination.
+  /// ページネーションをリセットせずに現在のページを再試行します。
   void retryCurrentPage() => _retry?.call();
 
-  /// Backwards-compatible alias for [retryCurrentPage].
+  /// [retryCurrentPage] との後方互換性を保つ別名。
   void retry() => retryCurrentPage();
 }
 
@@ -54,7 +54,7 @@ class InfinityScrollListView extends StatefulWidget {
   /// 最初にロードするページ番号（0 など）
   final int initialPage;
 
-  /// Whether more pages are available before this list requests its first page.
+  /// このリストが最初のページを要求する前に、さらにページがあるかどうか。
   final bool initialHasMore;
 
   /// initState 後に 1ページ目を自動ロードするか

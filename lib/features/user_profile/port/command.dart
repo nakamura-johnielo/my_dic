@@ -2,10 +2,10 @@ import 'package:my_dic/core/shared/utils/result.dart';
 
 import 'model/profile.dart';
 
-/// UserProfile-owned state-changing capabilities.
+/// UserProfile 所有の状態変更機能です。
 ///
-/// Empty account IDs deliberately remain execution-time failures so the
-/// existing session/profile behavior is unchanged by the contract migration.
+/// 空のアカウント ID は、コントラクト移行後も既存のセッション／プロフィール動作を
+/// 変えないよう、意図的に実行時エラーのままとします。
 abstract interface class UserProfileCommandPort {
   Future<Result<AppUser>> ensureUserProfile(
     String accountId, {

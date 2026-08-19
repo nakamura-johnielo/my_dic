@@ -7,7 +7,7 @@ import 'package:my_dic/core/shared/consts/ui/ui.dart';
 import 'package:my_dic/core/shared/enums/entry_point.dart';
 import 'package:my_dic/core/shared/utils/screen_size.dart';
 
-const double iconSize = 24; //default icon size
+const double iconSize = 24; // デフォルトのアイコンサイズ
 
 class SwitchableFloatBottomBar extends ConsumerWidget {
   const SwitchableFloatBottomBar(
@@ -59,7 +59,7 @@ class SwitchableFloatBottomBar extends ConsumerWidget {
           margin, 0, margin, marginBottom), //only(bottom: 20), //  all(10.0),
       color: Colors.transparent,
 
-      // navbar & bottun
+      // ナビゲーションバーとボタン
       child: Row(
         children: [
           HorizontalFader(
@@ -95,7 +95,7 @@ class SwitchableFloatBottomBar extends ConsumerWidget {
                 width: getRowSpacing(context),
               )),
 
-          // navbar
+          // ナビゲーションバー
           Expanded(child: _buildBar(destinationMap[entryPoint.category] ?? [])),
         ],
       ),

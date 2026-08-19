@@ -23,8 +23,8 @@ final class _WordDetailLayout {
   final Widget? statusButton;
 }
 
-//main fragment
-//wordId,dictionarytype
+// メインフラグメント
+// wordId、dictionaryType
 class WordDetailFragment extends ConsumerWidget {
   const WordDetailFragment({
     super.key,
@@ -52,9 +52,8 @@ class WordDetailFragment extends ConsumerWidget {
     ));
 
     final detail = pageState.detail;
-    // Status mutations are only meaningful for a confirmed, non-empty
-    // primary result.  Do not mount their provider for loading, failure,
-    // empty, or stale-data renderer states.
+    // ステータス変更が意味を持つのは、確認済みで空でない主要結果に対してのみです。
+    // 読み込み中、失敗、空、または古いデータの表示状態ではプロバイダーをマウントしません。
     final viewData =
         detail is QueryData<WordDetailData> ? detail.dataOrNull : null;
     switch (viewData) {

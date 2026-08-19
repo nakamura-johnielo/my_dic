@@ -1,9 +1,9 @@
 import 'package:my_dic/core/shared/errors/app_error.dart';
 
-/// The independently recoverable operation that produced a Search warning.
+/// Search の警告を生じさせた、個別に回復可能な操作です。
 enum SearchIssueSource { meaning, frequency, ranking, conjugation }
 
-/// Search-owned base type for non-fatal enrichment failures.
+/// 致命的ではない拡張処理の失敗を表す、Search 所有の基底型です。
 sealed class SearchIssueError extends AppError {
   const SearchIssueError({
     required super.message,

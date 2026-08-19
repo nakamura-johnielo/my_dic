@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-/// Feature-neutral visual shell for a dictionary search result.
+/// 辞書検索結果のための、機能に依存しない視覚的なシェル。
 ///
-/// Feature-specific state, status controls, and supplementary result content
-/// are supplied through slots so the core UI has no feature dependency.
+/// 機能固有の状態、ステータス操作、補足結果コンテンツはスロット経由で提供し、
+/// コアUIが機能に依存しないようにします。
 class SearchResultCardShell extends StatefulWidget {
   const SearchResultCardShell({
     super.key,

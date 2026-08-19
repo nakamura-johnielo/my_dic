@@ -15,8 +15,7 @@ import 'package:my_dic/features/my_word/port/command.dart';
 import 'package:my_dic/features/my_word/port/query.dart';
 import 'package:my_dic/features/my_word/port/result.dart';
 
-/// Coordinates the MyWord application contract over owner-internal
-/// persistence seams.
+/// 所有者内部の永続化境界を通じて MyWord アプリケーション契約を調整する。
 final class MyWordApplicationService
     implements MyWordCommandPort, MyWordStatusCommandPort, MyWordQueryPort {
   const MyWordApplicationService({

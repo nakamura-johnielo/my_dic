@@ -9,7 +9,7 @@ abstract interface class DatasetSyncHandler {
   Future<DatasetSyncResult> run(SyncContext context);
 }
 
-/// Standard handler used by app composition for a dataset-owned adapter.
+/// データセット所有アダプターに対してアプリ構成が使用する標準ハンドラーです。
 final class DatasetSyncService implements DatasetSyncHandler {
   const DatasetSyncService({
     required DatasetSyncGateway adapter,

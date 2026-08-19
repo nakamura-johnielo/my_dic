@@ -11,7 +11,7 @@ final authStreamProvider = StreamProvider<AuthIdentity?>((ref) {
       previous?.emailVerified == next?.emailVerified);
 });
 
-/// Connects the Auth producer to the app-owned lifecycle controller once.
+/// Authプロデューサーをアプリ所有のライフサイクルコントローラーへ一度だけ接続します。
 final authLifecycleEffectProvider = Provider<void>((ref) {
   ref.listen<AsyncValue<AuthIdentity?>>(authStreamProvider,
       (previous, next) async {

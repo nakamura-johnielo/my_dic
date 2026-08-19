@@ -1,7 +1,7 @@
-/// Schedules the next persisted outbox retry for an account.
+/// アカウントの次回永続化アウトボックス再試行をスケジュールします。
 ///
-/// The queue remains the source of truth for retry times. Implementations keep
-/// at most one wake-up per account and never persist scheduling state.
+/// 再試行時刻の信頼できる情報源はキューのままです。実装はアカウントごとに最大 1 つの
+/// 起床を保持し、スケジューリング状態を永続化しません。
 abstract interface class SyncRetryWakeup {
   void arm({
     required String accountId,

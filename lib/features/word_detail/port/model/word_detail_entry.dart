@@ -1,6 +1,6 @@
 import 'package:my_dic/features/word_detail/port/model/word_detail_content_block.dart';
 
-/// One dictionary-owned entry projected into WordDetail vocabulary.
+/// WordDetail の語彙に投影された、辞書所有の 1 エントリです。
 sealed class WordDetailDictionaryEntry {
   const WordDetailDictionaryEntry({
     required this.dictionaryId,

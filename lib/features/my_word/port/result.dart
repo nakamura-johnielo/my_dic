@@ -1,4 +1,4 @@
-/// An immutable MyWord snapshot exposed outside the feature.
+/// 機能の外部に公開する不変の MyWord スナップショット。
 final class MyWord {
   const MyWord({
     required this.wordId,
@@ -37,7 +37,7 @@ final class MyWord {
   int get hashCode => Object.hash(wordId, headword, description, updatedAt);
 }
 
-/// An immutable status snapshot associated with a MyWord.
+/// MyWord に関連付けられた不変のステータススナップショット。
 final class MyWordStatus {
   const MyWordStatus({
     required this.wordId,
@@ -82,7 +82,7 @@ final class MyWordStatus {
       Object.hash(wordId, isLearned, isBookmarked, hasNote, updatedAt);
 }
 
-/// The read-only word and status projection used for a MyWord card.
+/// MyWord カードで使用する読み取り専用の単語およびステータスプロジェクション。
 final class MyWordItem {
   const MyWordItem({required this.word, required this.status});
 

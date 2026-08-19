@@ -1,11 +1,11 @@
-/// Shared technical ownership of the top-level Firebase account-document path.
+/// 最上位のFirebaseアカウントドキュメントパスに関する共有技術的責務。
 ///
-/// Feature-owned nested collections and payload fields do not belong here.
+/// 機能が所有するネストされたコレクションやペイロードフィールドはここには含めません。
 abstract final class FirebaseAccountDocumentNamespace {
   static const usersCollection = 'Users';
 }
 
-/// SDK-free snapshot of one document in the shared account namespace.
+/// 共有アカウント名前空間にある1件のドキュメントのSDK非依存スナップショット。
 final class FirebaseAccountDocument {
   const FirebaseAccountDocument({required this.id, required this.fields});
 
@@ -13,15 +13,15 @@ final class FirebaseAccountDocument {
   final Map<String, Object?> fields;
 }
 
-/// SDK-free technical reader for the shared account-document namespace.
+/// 共有アカウントドキュメント名前空間のSDK非依存な技術的リーダー。
 abstract interface class FirebaseAccountDocumentGateway {
   Future<FirebaseAccountDocument?> read(String accountId);
 
-  /// Atomically creates the account document when it does not exist.
+  /// アカウントドキュメントが存在しない場合にアトミックに作成します。
   ///
-  /// Returns the existing document when one is already present, otherwise
-  /// returns `null` after creating it. Field meaning remains owned by the
-  /// calling feature; this gateway only owns the external-system operation.
+  /// すでにドキュメントがある場合はそれを返し、ない場合は作成後に `null` を返します。
+  /// フィールドの意味は呼び出し元の機能が所有し、このゲートウェイは外部システム操作のみを
+  /// 担当します。
   Future<FirebaseAccountDocument?> createIfAbsent({
     required String accountId,
     required Map<String, Object?> fields,

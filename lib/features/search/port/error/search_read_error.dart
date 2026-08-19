@@ -1,6 +1,6 @@
 import 'package:my_dic/core/shared/errors/app_error.dart';
 
-/// Base type for failures that prevent a primary Search page from loading.
+/// 主要な Search ページの読み込みを妨げる失敗の基底型です。
 sealed class SearchReadError extends AppError {
   const SearchReadError({
     required super.message,

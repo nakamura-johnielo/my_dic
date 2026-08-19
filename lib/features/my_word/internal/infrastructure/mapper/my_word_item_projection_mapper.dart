@@ -3,8 +3,8 @@ import 'package:my_dic/features/my_word/internal/domain/entity/my_word.dart';
 import 'package:my_dic/features/my_word/internal/domain/entity/my_word_status.dart';
 import 'package:my_dic/features/my_word/internal/infrastructure/data/dao/local/drift_my_word_dao.dart';
 
-/// The canonical conversion from an account-scoped Drift join row to the
-/// read-side model consumed by the public MyWord result mapper.
+/// アカウントスコープの Drift 結合行から、公開 MyWord 結果マッパーが使用する読み取り側モデルへの
+/// 正規の変換。
 final class MyWordItemProjectionMapper {
   const MyWordItemProjectionMapper._();
 

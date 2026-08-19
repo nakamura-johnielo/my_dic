@@ -27,10 +27,10 @@ class AppLogger {
     core.print(output);
   }
 
-  /// Emits a named event with structured context.
+  /// 構造化コンテキストを伴う名前付きイベントを出力します。
   ///
-  /// Sensitive fields are redacted recursively based on their keys. Prefer not
-  /// to pass sensitive values at all; this boundary is defense in depth.
+  /// 機密フィールドはキーに基づき再帰的にマスクされます。機密値自体を渡さないことを優先し、
+  /// この境界は多層防御です。
   static void event(
     String name, {
     Map<String, Object?> context = const {},
@@ -89,7 +89,7 @@ class AppLogger {
     }
 
     try {
-      // If it can be JSON-encoded, print it nicely
+      // JSONエンコードできる場合は見やすく出力する
       final encoded = jsonEncode(value);
       return _prettyEncoder.convert(jsonDecode(encoded));
     } catch (_) {

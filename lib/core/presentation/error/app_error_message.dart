@@ -2,10 +2,10 @@ import 'package:my_dic/core/shared/errors/app_error.dart';
 import 'package:my_dic/core/shared/errors/domain_errors.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 
-/// User-facing copy derived from a typed [AppError].
+/// 型付けされた [AppError] から生成するユーザー向け文言。
 ///
-/// The original diagnostic error remains in state; this value must only be
-/// created at the presentation boundary.
+/// 元の診断用エラーは状態に保持します。この値はプレゼンテーション境界でのみ
+/// 作成する必要があります。
 class AppErrorMessage {
   const AppErrorMessage(this.text);
 

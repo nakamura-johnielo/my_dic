@@ -6,8 +6,8 @@ import 'package:my_dic/features/quiz/port/presentation_entry.dart';
 import 'package:my_dic/features/quiz/port/quiz.dart';
 import 'package:my_dic/features/word_status/port/presentation_entry.dart';
 
-/// App-owned adapter that resolves Quiz's completed capability only when the
-/// search route is built, then passes the focused port through the entry API.
+/// 検索ルートの構築時だけQuizの完成した機能を解決し、用途を絞ったポートを入口APIへ渡す
+/// アプリ所有アダプター。
 class QuizSearchPresentationEntry extends ConsumerWidget {
   const QuizSearchPresentationEntry({
     super.key,
@@ -29,7 +29,7 @@ class QuizSearchPresentationEntry extends ConsumerWidget {
   }
 }
 
-/// App-owned adapter for a Quiz game route.
+/// Quizゲームルート用のアプリ所有アダプター。
 class QuizGamePresentationEntry extends ConsumerWidget {
   const QuizGamePresentationEntry({
     super.key,

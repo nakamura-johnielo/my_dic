@@ -1,4 +1,4 @@
-/// UserProfile's contribution to the app-owned, cross-feature guest migration.
+/// アプリ所有の機能横断ゲスト移行に対する UserProfile の担当部分です。
 abstract interface class UserProfileGuestMigrationPort {
   Future<bool> hasGuestProfile();
 

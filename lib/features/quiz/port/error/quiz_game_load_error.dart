@@ -1,6 +1,6 @@
 import 'package:my_dic/core/shared/errors/app_error.dart';
 
-/// The dependency whose typed Quiz load error was returned.
+/// 型付き Quiz 読み込みエラーを返した依存関係。
 enum QuizGameLoadSource {
   primaryCatalog,
   catalogConjugation,
@@ -9,7 +9,7 @@ enum QuizGameLoadSource {
   beConjugation
 }
 
-/// Quiz vocabulary for failures while assembling a game.
+/// ゲームの組み立て中に発生する失敗を表す Quiz の語彙。
 final class QuizGameLoadError extends AppError {
   const QuizGameLoadError(
       {required this.source, required super.message, super.code})

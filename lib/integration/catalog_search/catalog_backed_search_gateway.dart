@@ -1,7 +1,7 @@
 import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/search/port/search.dart';
 
-/// Pure value adapter from Catalog's public readers to Search's required port.
+/// Catalogの公開リーダーからSearchが必要とするポートへの純粋な値アダプター。
 final class CatalogBackedSearchGateway implements SearchCatalogGateway {
   const CatalogBackedSearchGateway(this._catalog);
 

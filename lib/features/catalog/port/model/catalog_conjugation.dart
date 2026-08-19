@@ -1,6 +1,6 @@
 import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 
-/// Immutable conjugation data for a Spanish Catalog word.
+/// Catalog 内のスペイン語単語に対する不変の活用形データ。
 final class CatalogConjugation {
   CatalogConjugation({
     required this.word,

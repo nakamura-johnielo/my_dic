@@ -24,8 +24,8 @@ abstract class JpnEspWordStatusLocalDataSource {
       int id, String accountId);
   Stream<List<int>> watchChangedIds(DateTime datetime, String accountId);
 
-  /// Applies a pulled remote snapshot without bumping local_revision or
-  /// enqueueing an outbox mutation. `null` per field means "leave untouched".
+  /// local_revision を増やしたりアウトボックス変更を追加したりせず、取得したリモート
+  /// スナップショットを適用します。フィールドごとの `null` は「変更しない」を意味します。
   Future<void> applyRemoteFields(
     int wordId, {
     bool? isLearned,
@@ -37,12 +37,11 @@ abstract class JpnEspWordStatusLocalDataSource {
     String? lastMutationId,
   });
 
-  /// Runs [action] within a single Drift transaction so that callers can
-  /// combine a status row write with an outbox mutation atomically.
+  /// 呼び出し元がステータス行の書き込みとアウトボックス変更を原子的に組み合わせられるよう、
+  /// 単一の Drift トランザクション内で [action] を実行します。
   Future<T> runInTransaction<T>(Future<T> Function() action);
 
-  /// Stores server metadata only if [localRevision] still identifies the
-  /// leased edit.
+  /// [localRevision] がリースされた編集を引き続き識別する場合のみ、サーバーメタデータを保存します。
   Future<bool> acknowledgeRemoteMutation({
     required int wordId,
     required String accountId,
@@ -51,7 +50,7 @@ abstract class JpnEspWordStatusLocalDataSource {
     required String? lastMutationId,
   });
 
-  /// Deletes a single row for [id] scoped to [accountId]. Used by the
-  /// guest-to-account migration to remove a guest row once merged.
+  /// [accountId] にスコープされた [id] の行を 1 件削除します。マージ後のゲスト行を削除する
+  /// ゲストからアカウントへの移行で使用します。
   Future<void> deleteRow(int id, String accountId);
 }

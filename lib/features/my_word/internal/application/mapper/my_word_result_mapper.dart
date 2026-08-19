@@ -5,7 +5,7 @@ import 'package:my_dic/features/my_word/internal/domain/entity/my_word_status.da
     as domain;
 import 'package:my_dic/features/my_word/port/result.dart' as port;
 
-/// Converts owner-internal read models into framework-free public results.
+/// 所有者内部の読み取りモデルをフレームワーク非依存の公開結果に変換する。
 final class MyWordResultMapper {
   const MyWordResultMapper._();
 

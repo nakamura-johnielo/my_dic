@@ -3,7 +3,7 @@ import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/features/user_profile/internal/presentation/view/profile.dart';
 import 'package:my_dic/features/user_profile/port/user_profile.dart';
 
-/// App-owned session projection rendered by UserProfile's Flutter entry.
+/// UserProfile の Flutter エントリが描画する、アプリ所有のセッション投影です。
 final class UserProfilePresentationSession {
   const UserProfilePresentationSession({
     required this.scope,
@@ -22,8 +22,8 @@ final class UserProfilePresentationSession {
   final bool isLoading;
 }
 
-/// Controlled Flutter entry. The app supplies session state and callbacks;
-/// Provider and Override types deliberately remain outside this public API.
+/// 制御された Flutter エントリです。アプリがセッション状態とコールバックを提供します。
+/// Provider と Override 型は意図的にこの公開 API の外に置かれます。
 class UserProfilePresentationPage extends StatelessWidget {
   const UserProfilePresentationPage({
     super.key,

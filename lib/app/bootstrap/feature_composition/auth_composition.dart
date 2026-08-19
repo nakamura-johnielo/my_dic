@@ -3,7 +3,7 @@ import 'package:my_dic/app/bootstrap/firebase_providers.dart';
 import 'package:my_dic/features/auth/port/auth.dart';
 import 'package:my_dic/features/auth/port/composition.dart';
 
-/// App-owned lifetime for Auth's completed capabilities.
+/// 完成したAuth機能群の、アプリ所有のライフタイム。
 final authPortsProvider = Provider<AuthPorts>(
   (ref) => createAuthPorts(
     dependencies: AuthDependencies(

@@ -1,5 +1,5 @@
-/// Snapshot of how many rows sit under the guest scope across the datasets
-/// that support real per-account scoping.
+/// 実際のアカウント別スコープをサポートするデータセット全体で、ゲストスコープにある行数の
+/// スナップショット。
 class GuestDataSummary {
   const GuestDataSummary({
     required this.espJpnWordStatusCount,

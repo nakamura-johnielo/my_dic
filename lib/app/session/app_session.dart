@@ -1,14 +1,14 @@
 import 'package:my_dic/features/auth/port/auth.dart';
 import 'package:my_dic/features/user_profile/port/user_profile.dart';
 
-/// Router/UI-facing session state derived from `AuthLifecycleState`.
+/// `AuthLifecycleState` から導出される、ルーター/UI向けのセッション状態。
 ///
-/// This is a read-only projection, not a new mutable store: nothing writes
-/// to it directly, it is recomputed from `authLifecycleProvider`.
+/// これは新しい可変ストアではなく読み取り専用の投影です。直接書き込まれることはなく、
+/// `authLifecycleProvider` から再計算されます。
 sealed class AppSession {
   const AppSession();
 
-  /// The signed-in account ID, or `null` unless the session is [AppSessionReady].
+  /// サインイン済みのアカウントID。セッションが [AppSessionReady] 以外の場合は `null`。
   String? get accountIdOrNull => null;
 }
 

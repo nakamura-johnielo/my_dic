@@ -2,7 +2,7 @@ import 'package:my_dic/features/sync/port/dataset_contract.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/jpn_esp/firebase/firebase_jpn_esp_word_status_dao.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/jpn_esp/firebase/jpn_esp_word_status_dto.dart';
 
-/// Remote-store facade used by the Jpn-Esp synchronization adapter.
+/// Jpn-Esp 同期アダプターが使用するリモートストアのファサードです。
 final class FirebaseJpnEspWordStatusRemoteStore {
   FirebaseJpnEspWordStatusRemoteStore(this._dao);
 

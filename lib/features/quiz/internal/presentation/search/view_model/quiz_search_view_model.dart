@@ -24,8 +24,8 @@ class QuizSearchViewModel extends StateNotifier<QuizSearchState> {
     _attempts.clear();
     state = QuizSearchState(
       query: value,
-      // A query is a new result set: do not retain old-query candidates while
-      // the explicitly triggered page zero request is in flight.
+      // クエリは新しい結果セットである。明示的に開始したページ 0 のリクエスト中に、
+      // 以前のクエリの候補を保持しない。
       results: value.isEmpty
           ? const QueryState.initial()
           : const QueryState.loading(),
@@ -72,8 +72,8 @@ class QuizSearchViewModel extends StateNotifier<QuizSearchState> {
     });
   }
 
-  /// Retries exactly the failed logical page.  The shared scroll controller
-  /// never owns this identity or its attempt number.
+  /// 失敗した論理ページだけを再試行する。共有スクロールコントローラーはこの識別子および
+  /// 試行回数を所有しない。
   Future<bool> retryFailed() {
     final failed = _failedPage;
     if (failed == null || failed.query != state.query)
@@ -88,7 +88,7 @@ class QuizSearchViewModel extends StateNotifier<QuizSearchState> {
       token.pageIdentity.query == state.query;
 }
 
-/// The VM-owned business identity of one requestable candidate page.
+/// 要求可能な 1 つの候補ページに対する、VM 所有の業務識別子。
 final class PageIdentity {
   const PageIdentity(
       {required this.query, required this.page, required this.size});
@@ -108,7 +108,7 @@ final class PageIdentity {
   int get hashCode => Object.hash(query, page, size);
 }
 
-/// Guards publication of an asynchronous response for a logical page attempt.
+/// 論理ページ試行に対する非同期レスポンスの公開を保護する。
 final class RequestToken {
   const RequestToken({
     required this.generation,

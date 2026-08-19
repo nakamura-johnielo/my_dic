@@ -4,8 +4,8 @@ import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart
     as db;
 import 'package:my_dic/features/user_profile/port/user_profile.dart';
 
-/// Combines the non-editable profile baseline loaded by the auth lifecycle
-/// with the editable fields whose source of truth is the local Drift row.
+/// 認証ライフサイクルで読み込んだ編集不可のプロフィール基準値と、ローカル Drift 行を
+/// 信頼できる情報源とする編集可能フィールドを組み合わせます。
 AppUser projectLiveUserProfile({
   required AppUser baseline,
   required db.UserProfile row,

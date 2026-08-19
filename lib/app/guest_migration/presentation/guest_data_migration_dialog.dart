@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:my_dic/app/guest_migration/guest_data_summary.dart';
 
-/// Confirms whether to move locally-stored guest data into the signed-in
-/// account. Returns `true` on approval, `false`/`null` on cancel.
+/// ローカルに保存されたゲストデータをサインイン済みアカウントへ移動するか確認します。
+/// 承認時は `true`、キャンセル時は `false`/`null` を返します。
 class GuestDataMigrationDialog extends StatelessWidget {
   const GuestDataMigrationDialog({super.key, required this.summary});
 

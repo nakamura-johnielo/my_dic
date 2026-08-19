@@ -4,7 +4,7 @@ import 'package:my_dic/features/word_status/internal/infrastructure/esp_jpn/fire
 import 'package:my_dic/core/port/firebase_account_nested_document_gateway.dart';
 import 'package:my_dic/core/infrastructure/firebase/firebase_account_document_namespace.dart';
 
-/// Firestore persistence for the Esp-Jpn word-status dataset.
+/// Esp-Jpn 単語ステータスデータセット用の Firestore 永続化です。
 final class FirebaseEspJpnWordStatusDao {
   FirebaseEspJpnWordStatusDao(this._remoteDocuments, this._remoteMutations);
 
@@ -45,8 +45,8 @@ final class FirebaseEspJpnWordStatusDao {
     );
   }
 
-  /// Fetches from an inclusive `(updatedAt, documentId)` cursor. Document ID
-  /// is the stable tie-breaker for documents with the same update timestamp.
+  /// 包含的な `(updatedAt, documentId)` カーソルから取得します。ドキュメント ID は、更新時刻が
+  /// 同じドキュメントに対する安定したタイブレーカーです。
   Future<List<EspJpnWordStatusDto>> fetchPage(
     String accountId,
     SyncCursor? cursor,

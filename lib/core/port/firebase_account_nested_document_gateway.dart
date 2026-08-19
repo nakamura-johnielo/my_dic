@@ -1,4 +1,4 @@
-/// SDK-free document value below the shared account-document namespace.
+/// 共有アカウントドキュメント名前空間配下の、SDKに依存しないドキュメント値。
 final class FirebaseAccountNestedDocument {
   const FirebaseAccountNestedDocument({
     required this.id,
@@ -9,10 +9,10 @@ final class FirebaseAccountNestedDocument {
   final Map<String, Object?> fields;
 }
 
-/// Technical contract for an account-owned nested document collection.
+/// アカウント所有のネストされたドキュメントコレクションの技術的契約。
 ///
-/// This contract deliberately contains no Firebase SDK types. Concrete
-/// Firebase mechanics remain in infrastructure implementations.
+/// この契約には意図的にFirebase SDKの型を含めません。具体的なFirebaseの仕組みは
+/// インフラストラクチャ実装に留めます。
 abstract interface class FirebaseAccountNestedDocumentGateway {
   Future<FirebaseAccountNestedDocument?> read({
     required String accountId,
@@ -30,7 +30,7 @@ abstract interface class FirebaseAccountNestedDocumentGateway {
   });
 }
 
-/// Technical contract for legacy inclusive `updatedAt >= since` dataset pulls.
+/// 旧来の包含条件 `updatedAt >= since` によるデータセット取得の技術的契約。
 abstract interface class FirebaseAccountNestedUpdatedDocumentGateway {
   Future<FirebaseAccountNestedDocument?> read({
     required String accountId,

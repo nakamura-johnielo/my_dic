@@ -1,7 +1,7 @@
 import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/core/shared/value_objects/field_update.dart';
 
-/// A request to create a word owned by [accountScope].
+/// [accountScope] が所有する単語を作成するリクエスト。
 final class RegisterMyWordCommand {
   const RegisterMyWordCommand({
     required this.headword,
@@ -14,7 +14,7 @@ final class RegisterMyWordCommand {
   final String accountScope;
 }
 
-/// A request to replace the editable contents of one owned word.
+/// 所有する 1 つの単語の編集可能な内容を置き換えるリクエスト。
 final class UpdateMyWordCommand {
   const UpdateMyWordCommand({
     required this.myWordId,
@@ -29,7 +29,7 @@ final class UpdateMyWordCommand {
   final String accountScope;
 }
 
-/// A request to delete one word from [accountScope].
+/// [accountScope] から 1 つの単語を削除するリクエスト。
 final class DeleteMyWordCommand {
   const DeleteMyWordCommand({
     required this.myWordId,
@@ -40,7 +40,7 @@ final class DeleteMyWordCommand {
   final String accountScope;
 }
 
-/// A partial status update for one word owned by [accountScope].
+/// [accountScope] が所有する 1 つの単語の部分的なステータス更新。
 final class UpdateMyWordStatusCommand {
   const UpdateMyWordStatusCommand({
     required this.myWordId,
@@ -60,7 +60,7 @@ final class UpdateMyWordStatusCommand {
       isLearned.isChanged || isBookmarked.isChanged || hasNote.isChanged;
 }
 
-/// Write operations owned by the MyWord aggregate.
+/// MyWord 集約が所有する書き込み操作。
 abstract interface class MyWordCommandPort {
   Future<Result<String>> register(RegisterMyWordCommand command);
 
@@ -69,7 +69,7 @@ abstract interface class MyWordCommandPort {
   Future<Result<void>> delete(DeleteMyWordCommand command);
 }
 
-/// Status writes owned by the MyWord aggregate.
+/// MyWord 集約が所有するステータス書き込み。
 abstract interface class MyWordStatusCommandPort {
   Future<Result<void>> updateStatus(UpdateMyWordStatusCommand command);
 }

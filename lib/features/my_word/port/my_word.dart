@@ -1,4 +1,4 @@
-/// The sole business-facing import for the MyWord feature.
+/// MyWord 機能の唯一の業務向けインポート。
 library;
 
 export 'command.dart';

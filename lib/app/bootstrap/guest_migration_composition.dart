@@ -10,10 +10,8 @@ import 'package:my_dic/core/composition/data_di.dart' show databaseProvider;
 import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/features/sync/port/sync.dart';
 
-/// Guest-data detection and migration are inherently cross-feature (they
-/// touch esp_jpn/jpn_esp word status and the MyWord aggregate), so they are
-/// composed here rather than inside any one feature, mirroring
-/// `sync_composition.dart`.
+/// ゲストデータの検出と移行は本質的に機能横断的（esp_jpn/jpn_espの単語ステータスとMyWord集約に
+/// 関わる）であるため、`sync_composition.dart` と同様に個別機能の内部ではなくここで構成します。
 final detectGuestDataUseCaseProvider = Provider<DetectGuestDataUseCase>((ref) {
   return DetectGuestDataUseCase(
     wordStatus: ref.watch(wordStatusGuestMigrationProvider),
@@ -33,9 +31,8 @@ final migrateGuestDataUseCaseProvider =
   );
 });
 
-/// App-workflow seam for the prompt. It is deliberately app-owned: feature
-/// ports stay unchanged while widget/cross-layer tests can control deferred
-/// detection, migration, sync outcomes, and the session fence.
+/// 確認処理のためのアプリワークフロー境界。機能ポートを変更せずに、ウィジェット/層横断テストで
+/// 遅延した検出、移行、同期結果、セッションフェンスを制御できるよう、意図的にアプリが所有します。
 final guestMigrationWorkflowDependenciesProvider =
     Provider<GuestMigrationWorkflowDependencies>((ref) {
   final fence = ref.watch(syncSessionFenceProvider);

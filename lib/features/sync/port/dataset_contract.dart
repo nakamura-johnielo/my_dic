@@ -1,7 +1,6 @@
-/// Technical SPI implemented by dataset owners and consumed by their
-/// composition/infrastructure code.
+/// データセット所有者が実装し、その構成／インフラコードが使用する技術 SPI です。
 ///
-/// This is intentionally separate from the workflow-facing `sync.dart`.
+/// これは意図的にワークフロー向けの `sync.dart` から分離されています。
 export 'cancellation_token.dart';
 export 'dataset_sync_gateway.dart';
 export 'dataset_sync_handler.dart';

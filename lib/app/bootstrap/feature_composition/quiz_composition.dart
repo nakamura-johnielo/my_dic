@@ -18,7 +18,7 @@ final quizGameCatalogGatewayProvider = Provider(
   ),
 );
 
-/// App-owned Riverpod lifetime for the Quiz graph and its runtime adapters.
+/// Quizグラフとそのランタイムアダプターの、アプリ所有のRiverpodライフタイム。
 final quizPortsProvider = Provider<QuizPorts>(
   (ref) => createQuizPorts(
     dependencies: QuizDependencies(

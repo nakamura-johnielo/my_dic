@@ -1,10 +1,9 @@
 import 'package:my_dic/features/quiz/port/quiz.dart';
 
-/// Quiz-owned candidate discovery and enrichment Query Service.
+/// Quiz 所有の候補検出・拡充クエリサービス。
 ///
-/// The Catalog gateway deliberately exposes only mechanical reads. This
-/// service owns query normalization, failure severity, fallback values, and
-/// the projection into the Quiz-facing candidate page.
+/// Catalog ゲートウェイは意図的に機械的な読み取りのみを公開する。このサービスはクエリの
+/// 正規化、失敗の重大度、フォールバック値、および Quiz 向け候補ページへのプロジェクションを所有する。
 final class QuizCandidateQueryService implements QuizCandidateQueryPort {
   const QuizCandidateQueryService(this._catalog);
 
@@ -35,8 +34,8 @@ final class QuizCandidateQueryService implements QuizCandidateQueryPort {
         );
     final issues = <QuizCandidateIssue>[];
 
-    // Start all enrichment reads before awaiting any of them so the existing
-    // parallel-read behavior remains unchanged without heterogeneous casts.
+    // いずれかを await する前にすべての拡充読み取りを開始し、異種キャストを使わずに既存の
+    // 並列読み取り動作を維持する。
     final meaningsFuture = _capture(
       QuizCandidateIssueSource.meaning,
       () => _catalog.readMeanings(words),

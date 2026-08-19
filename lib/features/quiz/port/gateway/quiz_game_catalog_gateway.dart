@@ -13,10 +13,10 @@ final class QuizCatalogPrimaryWord {
   final String headword;
 }
 
-/// The typed conjugation prerequisite supplied by Quiz's Catalog boundary.
+/// Quiz の Catalog 境界から提供される、型付き活用形の前提データ。
 ///
-/// This intentionally carries no Catalog DTOs or wire-format keys. The Quiz
-/// application maps it to its public game model after the dependency read.
+/// ここには意図的に Catalog DTO やワイヤ形式のキーを含めない。Quiz アプリケーションは
+/// 依存データの読み取り後、これを公開ゲームモデルにマッピングする。
 final class QuizCatalogConjugation {
   QuizCatalogConjugation({
     required this.word,

@@ -13,7 +13,7 @@ import 'package:my_dic/features/word_status/port/model/word_status_scope.dart';
 import 'package:my_dic/features/word_status/port/query.dart';
 import 'package:my_dic/features/word_status/port/result.dart';
 
-/// The complete application-facing WordStatus capability.
+/// アプリケーション向けの完全な WordStatus 機能です。
 final class WordStatusApplicationService
     implements
         WordStatusReaderPort,
@@ -44,8 +44,8 @@ final class WordStatusApplicationService
 
   @override
   Future<Result<void>> update(UpdateWordStatusCommand command) async {
-    // Existing callers rely on an unchanged command being a successful no-op,
-    // including before repository dispatch and clock evaluation.
+    // 既存の呼び出し元は、リポジトリへの振り分けや時計の評価前を含め、未変更のコマンドが
+    // 成功する何もしない操作であることに依存しています。
     if (!command.hasChanges) return const Result.success(null);
     if (!_repository.supportedCatalogs.contains(command.word.catalogId)) {
       return Result.failure(

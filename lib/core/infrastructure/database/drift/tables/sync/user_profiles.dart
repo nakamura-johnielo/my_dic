@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 
-/// Local-first user profile. Existing SharedPreferences data is intentionally
-/// not assigned to a signed-in account during migration.
+/// ローカルファーストのユーザープロフィール。既存のSharedPreferencesデータは、移行時に
+/// 意図的にサインイン済みアカウントへ割り当てません。
 class UserProfiles extends Table {
   TextColumn get accountId => text()();
   TextColumn get payload => text().withDefault(const Constant('{}'))();

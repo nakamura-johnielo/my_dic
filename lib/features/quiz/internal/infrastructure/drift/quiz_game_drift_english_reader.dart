@@ -5,7 +5,7 @@ import 'package:my_dic/features/quiz/internal/infrastructure/drift/dao/es_en_con
 import 'package:my_dic/features/quiz/port/error/quiz_game_infrastructure_error.dart';
 import 'package:my_dic/features/quiz/port/model/quiz_conjugation.dart';
 
-/// Drift-backed implementation of the Quiz English-conjugation seam.
+/// Quiz 英語活用形境界の Drift ベース実装。
 final class QuizGameDriftEnglishReader implements QuizGameEnglishReader {
   QuizGameDriftEnglishReader(EsEnConjugacionDao dao)
       : _readRow = dao.getEnglishConjById;

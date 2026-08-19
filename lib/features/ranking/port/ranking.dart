@@ -1,4 +1,4 @@
-/// The sole business-facing import for Ranking.
+/// Ranking の唯一の業務向けインポート。
 library;
 
 export 'package:my_dic/core/shared/utils/result.dart'

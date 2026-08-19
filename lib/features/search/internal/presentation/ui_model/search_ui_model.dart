@@ -1,7 +1,7 @@
 import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/features/search/port/search.dart';
 
-/// User input is deliberately separate from the result lifecycle.
+/// ユーザー入力は意図的に結果ライフサイクルから分離されています。
 class SearchState {
   const SearchState(
       {this.query = '', this.results = const QueryState.initial()});

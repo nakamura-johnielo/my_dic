@@ -4,8 +4,7 @@ import 'package:my_dic/features/my_word/internal/infrastructure/my_word_status/f
 import 'package:my_dic/features/my_word/internal/infrastructure/my_word_status/firebase/my_word_status_remote_gateway.dart';
 import 'package:my_dic/features/sync/port/dataset_contract.dart';
 
-/// Builds the Firebase-backed MyWordStatus remote adapter inside its canonical
-/// Firebase infrastructure boundary.
+/// 正規の Firebase インフラストラクチャ境界内で、Firebase ベースの MyWordStatus リモートアダプターを組み立てる。
 MyWordStatusRemoteGateway createFirebaseMyWordStatusRemoteGateway({
   required FirebaseAccountNestedUpdatedDocumentGateway remoteDocuments,
   required RemoteMutationExecutor remoteMutationExecutor,

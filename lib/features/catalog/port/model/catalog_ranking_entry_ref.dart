@@ -1,8 +1,7 @@
-/// Stable identity of one Catalog ranking source entry.
+/// 1 つの Catalog ランキングソースエントリの安定した識別子。
 ///
-/// The serialized value is the positive `rankings.ranking_id` owned by the
-/// Catalog dataset. Consumers may preserve and compare it, but must not infer
-/// storage semantics from the number.
+/// シリアライズ値は Catalog データセットが所有する正の `rankings.ranking_id` である。
+/// 利用側はこれを保持・比較できるが、数値からストレージの意味を推測してはならない。
 final class CatalogRankingEntryRef {
   const CatalogRankingEntryRef._(this.value);
 

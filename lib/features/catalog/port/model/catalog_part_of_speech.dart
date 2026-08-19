@@ -1,4 +1,4 @@
-/// Catalog-owned part-of-speech taxonomy with stable persisted values.
+/// 安定した永続化値を持つ、Catalog 所有の品詞分類。
 enum CatalogPartOfSpeech {
   noun('名詞'),
   abbreviation('略語'),
@@ -19,7 +19,7 @@ enum CatalogPartOfSpeech {
 
   final String wireValue;
 
-  /// Keeps legacy fallback semantics for null, empty, and unknown DB values.
+  /// null、空、および未知の DB 値に対するレガシーのフォールバック動作を維持する。
   static CatalogPartOfSpeech fromWireValue(String? value) {
     if (value == null || value.isEmpty) return CatalogPartOfSpeech.none;
     for (final partOfSpeech in values) {

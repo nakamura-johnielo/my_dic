@@ -1,8 +1,8 @@
 import 'package:my_dic/core/shared/errors/app_error.dart';
 import 'package:my_dic/core/shared/errors/infrastructure_errors.dart';
 
-/// Converts technology-specific failures at the MyWord infrastructure boundary
-/// into the typed errors understood by the application and public ports.
+/// MyWord インフラストラクチャ境界における技術固有の失敗を、アプリケーションおよび公開ポートが
+/// 理解する型付きエラーへ変換する。
 final class MyWordInfrastructureErrorMapper {
   const MyWordInfrastructureErrorMapper._();
 

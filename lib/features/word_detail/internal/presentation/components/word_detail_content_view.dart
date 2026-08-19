@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_dic/features/word_detail/port/word_detail.dart';
 
-/// Renders WordDetail-owned semantic content without accepting source markup.
+/// ソースマークアップを受け取らずに、WordDetail 所有の意味コンテンツを描画します。
 final class WordDetailContentView extends StatelessWidget {
   const WordDetailContentView({
     super.key,

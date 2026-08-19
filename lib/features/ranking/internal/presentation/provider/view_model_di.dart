@@ -4,8 +4,8 @@ import 'package:my_dic/features/ranking/internal/presentation/ui_model/ranking_u
 import 'package:my_dic/features/ranking/internal/presentation/view_model/new_ranking_view_model.dart';
 import 'package:my_dic/features/ranking/port/composition_contract.dart';
 
-/// Internal presentation identity. Ports are compared by identity so a fake
-/// capability can never share state with the runtime capability.
+/// 内部プレゼンテーション識別子。ポートは同一性で比較するため、フェイク機能が
+/// ランタイム機能と状態を共有することはない。
 final class RankingPresentationKey {
   const RankingPresentationKey({required this.scope, required this.ports});
 

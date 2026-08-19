@@ -1,10 +1,9 @@
 import 'package:path/path.dart' as path;
 
-/// Resolves the native database directory without depending on Flutter globals.
+/// Flutterのグローバル値に依存せず、ネイティブデータベースのディレクトリを解決します。
 ///
-/// Keeping this policy pure makes the release/debug storage contract testable;
-/// the production wrapper supplies the application-support directory and build
-/// mode.
+/// このポリシーを純粋に保つことで、リリース/デバッグのストレージ契約をテスト可能にします。
+/// 本番用ラッパーがアプリケーションサポートディレクトリとビルドモードを提供します。
 String resolveDatabaseDirectory({
   required String applicationSupportRoot,
   required bool isRelease,

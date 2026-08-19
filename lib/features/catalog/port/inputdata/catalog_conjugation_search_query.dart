@@ -1,9 +1,8 @@
 import 'package:my_dic/features/catalog/port/catalog_id.dart';
 
-/// A validated conjugation search request.
+/// 検証済みの活用形検索リクエスト。
 ///
-/// Conjugations are currently available only in the Spanish-to-Japanese
-/// Catalog.
+/// 活用形は現在、スペイン語から日本語への Catalog でのみ利用できる。
 final class CatalogConjugationSearchQuery {
   factory CatalogConjugationSearchQuery({
     required CatalogId catalogId,

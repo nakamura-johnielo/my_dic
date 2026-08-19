@@ -1,4 +1,4 @@
-/// The account boundary within which WordStatus reads and writes are made.
+/// WordStatus の読み書きを行うアカウント境界です。
 sealed class WordStatusScope {
   const WordStatusScope();
 
@@ -7,7 +7,7 @@ sealed class WordStatusScope {
   factory WordStatusScope.account(String accountId) = AccountWordStatusScope;
 }
 
-/// The local unauthenticated WordStatus scope.
+/// ローカルの未認証 WordStatus スコープです。
 final class GuestWordStatusScope extends WordStatusScope {
   const GuestWordStatusScope();
 
@@ -21,7 +21,7 @@ final class GuestWordStatusScope extends WordStatusScope {
   String toString() => 'WordStatusScope.guest()';
 }
 
-/// A WordStatus scope owned by one authenticated account identity.
+/// 1 つの認証済みアカウント識別子が所有する WordStatus スコープです。
 final class AccountWordStatusScope extends WordStatusScope {
   factory AccountWordStatusScope(String accountId) {
     if (accountId.trim().isEmpty) {

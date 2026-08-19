@@ -4,13 +4,13 @@ import 'composition_contract.dart';
 
 export 'composition_contract.dart';
 
-/// Application-owned runtime dependencies required by Auth.
+/// Authが必要とするアプリケーション所有のランタイム依存関係。
 final class AuthDependencies {
   const AuthDependencies({required this.runtimeGateway});
 
   final AuthRuntimeGateway runtimeGateway;
 }
 
-/// Builds Auth's completed capabilities from explicit typed dependencies.
+/// 明示的に型付けされた依存関係から、完成したAuth機能群を構築します。
 AuthPorts createAuthPorts({required AuthDependencies dependencies}) =>
     createInternalAuthPorts(runtimeGateway: dependencies.runtimeGateway);

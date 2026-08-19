@@ -1,4 +1,4 @@
-/// Reads a provider-owned slice of Catalog ranking source entries.
+/// プロバイダー所有の Catalog ランキングソースエントリの断片を読み取る。
 final class CatalogRankedEntryFeedQuery {
   CatalogRankedEntryFeedQuery({required this.offset, required this.size}) {
     if (offset < 0) {

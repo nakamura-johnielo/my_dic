@@ -1,7 +1,7 @@
 import 'package:my_dic/features/ranking/port/ranking.dart';
 import 'package:my_dic/features/word_status/port/word_status.dart';
 
-/// Pure contract adapter from WordStatus batch reads to Ranking.
+/// WordStatusの一括読み取りをRankingへ変換する純粋な契約アダプター。
 final class WordStatusBackedRankingGateway
     implements RankingWordStatusGateway {
   const WordStatusBackedRankingGateway(this._wordStatus);

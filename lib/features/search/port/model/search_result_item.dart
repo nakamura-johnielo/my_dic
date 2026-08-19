@@ -1,7 +1,7 @@
 import 'package:my_dic/features/catalog/port/catalog.dart' show CatalogWordRef;
 import 'package:my_dic/features/search/port/model/search_conjugation_match.dart';
 
-/// One primary Search result. [word] is its sole identity.
+/// 主要な Search 結果の 1 件です。[word] が唯一の識別子です。
 final class SearchResultItem {
   const SearchResultItem({
     required this.word,
@@ -20,7 +20,7 @@ final class SearchResultItem {
   final int? starCount;
 }
 
-/// A conjugation suggestion returned alongside the primary page.
+/// 主要ページとともに返される活用候補です。
 final class SearchConjugationSuggestion {
   SearchConjugationSuggestion({
     required this.word,

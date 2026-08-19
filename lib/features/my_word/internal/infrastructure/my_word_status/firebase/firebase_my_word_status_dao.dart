@@ -10,7 +10,7 @@ class FirebaseMyWordStatusDao {
 
   FirebaseMyWordStatusDao(this._remoteDocuments, this._remoteMutations);
 
-  /// Get a single MyWordStatus by word ID
+  /// 単語 ID で 1 つの MyWordStatus を取得する。
   Future<MyWordStatusDTO?> getStatus(String userId, String myWordId) async {
     final document = await _remoteDocuments.read(
       accountId: userId,
@@ -21,7 +21,7 @@ class FirebaseMyWordStatusDao {
     return FirebaseMyWordStatusMapper.fromDocument(document);
   }
 
-  /// Get MyWordStatus updated after a specific timestamp (one-time query)
+  /// 指定したタイムスタンプ以降に更新された MyWordStatus を取得する（単発クエリ）。
   Future<List<MyWordStatusDTO>> getStatusAfter(
       String userId, DateTime lastSync) async {
     final documents = await _remoteDocuments.fetchUpdatedSince(
@@ -33,9 +33,8 @@ class FirebaseMyWordStatusDao {
     return documents.map(FirebaseMyWordStatusMapper.fromDocument).toList();
   }
 
-  /// Merge-writes only [fieldMask] keys plus bookkeeping timestamps, so that
-  /// fields not covered by the sync outbox mutation are left untouched. Bool
-  /// payload values are converted to the DTO's 0/1 int convention.
+  /// [fieldMask] のキーと管理用タイムスタンプのみをマージ書き込みし、同期アウトボックス変更で
+  /// 対象としないフィールドを変更しない。bool のペイロード値は DTO の 0/1 整数規約へ変換する。
   Future<RemoteMutationAck> patch(RemoteMutationRequest request) {
     return _remoteMutations.execute(
       document: RemoteMutationDocument(

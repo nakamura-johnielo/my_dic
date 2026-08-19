@@ -1,4 +1,4 @@
-/// Immutable Spanish-to-Japanese dictionary entry exposed by Catalog.
+/// Catalog が公開する不変のスペイン語から日本語への辞書エントリ。
 final class EspJpnEntry {
   EspJpnEntry({
     required this.dictionaryId,

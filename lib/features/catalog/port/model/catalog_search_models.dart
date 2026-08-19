@@ -46,7 +46,7 @@ final class CatalogConjugationSearchHit {
   int get hashCode => Object.hash(word, headword, _mapHash(matches));
 }
 
-/// A typed location within a Catalog conjugation table.
+/// Catalog の活用形テーブル内における型付けされた位置。
 final class CatalogConjugationMatch {
   const CatalogConjugationMatch({required this.moodTense, this.subject});
 

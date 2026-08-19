@@ -3,8 +3,7 @@ import 'package:my_dic/core/ui/search_result_card_shell.dart';
 import 'package:my_dic/features/search/internal/presentation/ui_model/search_conjugation_labels.dart';
 import 'package:my_dic/features/search/port/search.dart';
 
-/// Search-owned adapter that supplies search-specific conjugation content to
-/// the neutral result-card shell.
+/// 検索固有の活用内容を中立的な結果カードシェルへ提供する、Search 所有のアダプターです。
 class CardView extends StatelessWidget {
   const CardView({
     super.key,

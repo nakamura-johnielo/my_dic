@@ -2,10 +2,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:my_dic/app/bootstrap/legacy_sync_preferences_cleanup.dart';
 
-/// Dependencies that must be created before a ProviderScope exists.
+/// ProviderScopeが存在する前に作成する必要がある依存関係。
 ///
-/// Long-lived, disposable resources (such as Drift and GoRouter) intentionally
-/// do not belong here; their Riverpod providers own their lifecycle instead.
+/// DriftやGoRouterのような長寿命で破棄可能なリソースは、意図的にここに置きません。
+/// 代わりに、それらのRiverpodプロバイダーがライフサイクルを所有します。
 class AppDependencies {
   const AppDependencies({required this.sharedPreferences});
 
@@ -15,7 +15,7 @@ class AppDependencies {
 typedef FirebaseInitializer = Future<void> Function();
 typedef SharedPreferencesLoader = Future<SharedPreferences> Function();
 
-/// Runs process-level environment initialization exactly once per app start.
+/// プロセスレベルの環境初期化をアプリ起動ごとに一度だけ実行します。
 class AppBootstrapper {
   const AppBootstrapper({
     required FirebaseInitializer initializeFirebase,

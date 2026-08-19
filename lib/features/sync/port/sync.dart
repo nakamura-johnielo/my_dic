@@ -1,7 +1,7 @@
-/// Sole business-facing surface for Sync workflows.
+/// Sync ワークフローの唯一のビジネス向け公開面です。
 ///
-/// Dataset implementations use `dataset_contract.dart`; app composition uses
-/// `composition.dart`. Neither technical seam is re-exported here.
+/// データセット実装は `dataset_contract.dart` を、アプリ構成は `composition.dart` を使用します。
+/// どちらの技術的な境界もここでは再エクスポートしません。
 export 'cancellation_token.dart';
 export 'model/sync_context.dart';
 export 'model/sync_mutation.dart';

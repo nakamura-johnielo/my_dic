@@ -3,8 +3,8 @@ import 'package:my_dic/features/word_status/internal/infrastructure/esp_jpn/fire
 import 'package:my_dic/features/word_status/internal/infrastructure/esp_jpn/firebase/firebase_esp_jpn_word_status_remote_store.dart';
 import 'package:my_dic/core/port/firebase_account_nested_document_gateway.dart';
 
-/// Builds the Firebase-backed EspJpn status remote store in canonical Firebase
-/// infrastructure, keeping feature composition SDK-free.
+/// 標準的な Firebase インフラで Firebase ベースの EspJpn ステータスリモートストアを構築し、
+/// 機能構成を SDK 非依存に保ちます。
 FirebaseEspJpnWordStatusRemoteStore
     createInternalFirebaseEspJpnWordStatusRemoteStore({
       required FirebaseAccountNestedDocumentGateway remoteDocuments,

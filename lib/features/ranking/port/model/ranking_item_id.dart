@@ -1,7 +1,6 @@
-/// Stable identity of one Ranking list item.
+/// 1 つの Ranking リスト項目の安定した識別子。
 ///
-/// Its serialized value is derived without interpretation from the opaque
-/// Catalog ranking-entry identity.
+/// シリアライズ値は、不透明な Catalog ランキングエントリ識別子から解釈を加えずに導出される。
 final class RankingItemId {
   const RankingItemId._(this.value);
 

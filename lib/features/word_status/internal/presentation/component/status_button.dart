@@ -14,8 +14,8 @@ abstract interface class WordStatusViewModel {
   Future<void> toggleHasNote();
 }
 
-/// Optional capability: legacy callers only need the status values, while
-/// Gate B command owners can expose their aggregate single-flight state.
+/// 任意機能です。レガシー呼び出し元はステータス値のみを必要とする一方、Gate B のコマンド
+/// 所有者は集約された単一実行状態を公開できます。
 abstract interface class WordStatusCommandProgress {
   bool get isSubmitting;
 }

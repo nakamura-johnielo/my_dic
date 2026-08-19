@@ -8,8 +8,7 @@ import 'package:my_dic/features/word_detail/port/word_detail.dart';
 import 'package:my_dic/features/word_status/port/presentation_entry.dart';
 import 'package:my_dic/integration/catalog_search/catalog_search_providers.dart';
 
-/// App-owned adapter that obtains the completed Search capability only while
-/// the search route is mounted.
+/// 検索ルートがマウントされている間だけ完成したSearch機能を取得する、アプリ所有アダプター。
 final class SearchRouteEntry extends ConsumerWidget {
   const SearchRouteEntry({
     super.key,
@@ -33,7 +32,7 @@ final class SearchRouteEntry extends ConsumerWidget {
   }
 }
 
-/// App-owned adapter for WordDetail and its embedded WordStatus entry.
+/// WordDetailおよび埋め込みのWordStatus入口用、アプリ所有アダプター。
 final class WordDetailRouteEntry extends ConsumerWidget {
   const WordDetailRouteEntry({
     super.key,

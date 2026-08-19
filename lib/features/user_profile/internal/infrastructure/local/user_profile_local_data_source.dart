@@ -4,31 +4,31 @@ import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart
 abstract interface class UserProfileLocalDataSource {
   Future<db.UserProfile?> getProfile(String accountId);
 
-  /// Emits the account-scoped local profile whenever Drift persists a change.
+  /// Drift が変更を永続化するたびに、アカウントスコープのローカルプロフィールを発行します。
   Stream<db.UserProfile?> watchProfile(String accountId);
 
   Future<void> deleteProfile(String accountId);
 
-  /// Reads the editable `username` field out of the profile JSON payload,
-  /// or `null` if the account has no local profile row yet.
+  /// プロフィール JSON ペイロードから編集可能な `username` フィールドを読み取ります。
+  /// アカウントにローカルプロフィール行がまだない場合は `null` を返します。
   Future<String?> getUsername(String accountId);
 
-  /// Merges [fields] into the existing editable profile JSON payload and
-  /// bumps `local_revision` by 1, creating the row if it does not exist yet.
+  /// [fields] を既存の編集可能なプロフィール JSON ペイロードにマージし、`local_revision`
+  /// を 1 増やします。行がまだない場合は作成します。
   Future<db.UserProfile> upsertProfileFields(
       String accountId, Map<String, Object?> fields);
 
-  /// Applies a pulled remote snapshot without bumping `local_revision` or
-  /// enqueueing an outbox mutation. `null` per field means "leave untouched".
+  /// `local_revision` を増やしたりアウトボックス変更を追加したりせず、取得したリモート
+  /// スナップショットを適用します。フィールドごとの `null` は「変更しない」を意味します。
   Future<void> applyRemoteFields(String accountId,
       {String? username, String? remoteRevision, String? lastMutationId});
 
-  /// Runs [action] within a single Drift transaction so callers can combine
-  /// a profile row write with an outbox mutation atomically.
+  /// 呼び出し元がプロフィール行への書き込みとアウトボックス変更を原子的に組み合わせられるよう、
+  /// 単一の Drift トランザクション内で [action] を実行します。
   Future<T> runInTransaction<T>(Future<T> Function() action);
 
-  /// Stores server metadata only if the local profile still has the revision
-  /// leased for the remote mutation.
+  /// ローカルプロフィールにリモート変更用にリースされたリビジョンがまだある場合のみ、
+  /// サーバーメタデータを保存します。
   Future<bool> acknowledgeRemoteMutation({
     required String accountId,
     required int localRevision,

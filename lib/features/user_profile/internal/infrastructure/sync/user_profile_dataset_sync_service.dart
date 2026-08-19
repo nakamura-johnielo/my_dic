@@ -3,7 +3,7 @@ import 'package:my_dic/features/user_profile/internal/infrastructure/local/user_
 import 'package:my_dic/features/user_profile/internal/infrastructure/firebase/user_profile_remote_dto.dart';
 import 'package:my_dic/features/user_profile/internal/infrastructure/firebase/user_profile_remote_data_source.dart';
 
-/// UserProfile's singleton-document mapping; durable sync policy lives in Sync runtime.
+/// UserProfile の単一ドキュメントマッピングです。永続的な同期ポリシーは Sync ランタイムにあります。
 final class UserProfileDatasetSyncService implements DatasetSyncGateway {
   UserProfileDatasetSyncService(
       {required UserProfileLocalDataSource local,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_dic/core/ui/search_result_card_shell.dart';
 
-/// Quiz-owned adapter for the shared search-result card shell.
+/// 共有検索結果カードの外枠に対する Quiz 所有のアダプター。
 class QuizSearchResultCard extends StatelessWidget {
   const QuizSearchResultCard({
     super.key,

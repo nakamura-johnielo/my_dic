@@ -76,9 +76,9 @@ class SyncEngine {
           }
           try {
             final result = await handler.run(context);
-            // A handler receives the same cancellation token and must check it
-            // before every local checkpoint/ack. This second fence protects the
-            // report and prevents subsequent datasets after an account switch.
+            // ハンドラーは同じキャンセルトークンを受け取り、ローカルの各チェックポイント／確認前に
+            // 検査する必要があります。この第 2 の境界はレポートを保護し、アカウント切替後の
+            // 後続データセットを防止します。
             if (!sessionFence.isCurrent(
                 accountId: context.accountId,
                 sessionEpoch: context.sessionEpoch)) {

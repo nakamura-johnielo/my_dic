@@ -1,4 +1,4 @@
-/// Validated input for a zero-based Quiz candidate search.
+/// 0 始まりの Quiz 候補検索に対する検証済み入力。
 final class QuizCandidateQuery {
   QuizCandidateQuery(
       {required String text, required this.page, required this.size})

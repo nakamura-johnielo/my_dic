@@ -69,11 +69,10 @@ Widget _quizSearch(BuildContext context) => QuizSearchPresentationEntry(
           displayHint: hint),
     );
 
-/// Registers both the canonical Quiz URL and its legacy Esp-Jpn alias.
+/// 正式なQuiz URLと旧Esp-Jpn別名の両方を登録します。
 ///
-/// The canonical route is named because in-app navigation must always emit the
-/// canonical path.  The legacy route is deliberately unnamed and exists only
-/// for deep-link/refresh compatibility.
+/// アプリ内ナビゲーションでは常に正式パスを出力する必要があるため、正式ルートには名前を付けます。
+/// 旧ルートは意図的に無名とし、ディープリンク/更新との互換性のためだけに存在します。
 List<GoRoute> flashCardRoutes(String name,
         {String? parentPath, required String wordDetailRouteName}) =>
     [

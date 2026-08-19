@@ -29,15 +29,13 @@ class MyWordFragmentViewModel extends StateNotifier<MyWordFragmentState> {
     state = const MyWordFragmentState();
   }
 
-  /// Requests a zero-based page. Identity and retries are owned here, not by
-  /// the shared scroll controller.
+  /// 0 始まりのページを要求する。識別子と再試行は共有スクロールコントローラーではなく、ここが所有する。
   Future<bool> loadPage({required int size, required int page}) {
     final identity = MyWordPageIdentity(scope: _scope, page: page, size: size);
     return _inFlight.putIfAbsent(identity, () => _load(identity));
   }
 
-  // Compatibility for existing presentation callers while migrating to the
-  // explicit zero-based page API.
+  // 明示的な 0 始まりページ API への移行中、既存のプレゼンテーション呼び出し元との互換性を維持する。
   Future<void> loadNext(int size, int currentPage) async {
     await loadPage(size: size, page: currentPage + 1);
   }
@@ -67,8 +65,8 @@ class MyWordFragmentViewModel extends StateNotifier<MyWordFragmentState> {
           accountScope: _scope.accountScope));
       if (!_isCurrent(token)) return false;
       return result.when(success: (words) {
-        // Capture current state after await so a response cannot overwrite a
-        // page published while this request was suspended.
+        // await 後に現在の状態を取得し、このリクエストの中断中に公開されたページを
+        // レスポンスが上書きしないようにする。
         final current = state.words.dataOrNull;
         final value = identity.page == 0
             ? MyWordListResults(words).append(const [])

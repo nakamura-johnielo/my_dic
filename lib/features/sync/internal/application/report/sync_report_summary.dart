@@ -1,10 +1,10 @@
 import 'package:my_dic/features/sync/port/model/dataset_sync_result.dart';
 import 'package:my_dic/features/sync/port/model/sync_report.dart';
 
-/// A privacy-safe aggregation of a completed sync cycle.
+/// 完了した同期サイクルをプライバシーに配慮して集約したものです。
 ///
-/// It deliberately retains counts and outcome categories only. Account IDs,
-/// cursors, payloads, and individual entity details stay in [SyncReport].
+/// 意図的に件数と結果カテゴリのみを保持します。アカウント ID、カーソル、ペイロード、
+/// 個々のエンティティ詳細は [SyncReport] に留めます。
 class SyncReportSummary {
   const SyncReportSummary._({
     required this.duration,

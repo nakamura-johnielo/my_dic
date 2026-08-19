@@ -1,6 +1,6 @@
 import 'package:my_dic/features/word_detail/port/word_detail.dart';
 
-/// WordDetail-owned orchestration of primary dictionary and optional detail.
+/// 主要辞書データと任意詳細を調整する WordDetail 所有の処理です。
 final class WordDetailApplicationService implements WordDetailQueryPort {
   const WordDetailApplicationService(this._catalog);
 

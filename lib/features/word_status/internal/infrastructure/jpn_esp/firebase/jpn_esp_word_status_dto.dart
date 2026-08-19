@@ -1,7 +1,6 @@
-/// Firestore wire representation of a Jpn-Esp word-status document.
+/// Jpn-Esp 単語ステータスドキュメントの Firestore 通信表現です。
 ///
-/// This remains an infrastructure transport type so the Firestore schema stays
-/// separate from the feature domain model.
+/// Firestore スキーマを機能ドメインモデルから分離するため、これはインフラの通信型に保ちます。
 final class JpnEspWordStatusDto {
   const JpnEspWordStatusDto({
     required this.wordId,

@@ -1,6 +1,6 @@
 import 'package:my_dic/features/ranking/port/model/ranking_item.dart';
 
-/// A filtered Ranking page with exact source look-ahead information.
+/// 正確なソース先読み情報を持つ、フィルタリング済み Ranking ページ。
 final class RankingPage {
   RankingPage({
     required Iterable<RankingItem> items,

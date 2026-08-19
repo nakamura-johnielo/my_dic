@@ -1,9 +1,9 @@
 import 'package:my_dic/core/shared/errors/app_error.dart';
 
-/// A non-fatal failure for supplemental data displayed with a query result.
+/// クエリ結果とともに表示する補足データにおける、致命的ではない失敗。
 ///
-/// [source] is a presentation/application contract such as `ranking` or
-/// `conjugation`; it deliberately is not user-facing copy.
+/// [source] は `ranking` や `conjugation` などのプレゼンテーション/アプリケーション契約であり、
+/// 意図的にユーザー向け文言にはしていません。
 class QueryWarning {
   const QueryWarning({required this.source, required this.error});
 
@@ -11,7 +11,7 @@ class QueryWarning {
   final AppError error;
 }
 
-/// The lifecycle of a screen-level read operation.
+/// 画面レベルの読み取り操作のライフサイクル。
 sealed class QueryState<T> {
   const QueryState();
 
@@ -23,14 +23,14 @@ sealed class QueryState<T> {
   const factory QueryState.failure(AppError error, {T? previousData}) =
       QueryFailure<T>;
 
-  /// Data safe to keep on screen while a refresh or pagination request runs.
+  /// 更新またはページネーション要求の実行中も、画面に保持して安全なデータ。
   T? get previousDataOrNull => switch (this) {
         QueryLoading<T>(previousData: final data) => data,
         QueryFailure<T>(previousData: final data) => data,
         _ => null,
       };
 
-  /// Data currently suitable for display, including stale data during reloads.
+  /// 再読み込み中の古いデータを含め、現在表示に適したデータ。
   T? get dataOrNull => switch (this) {
         QueryData<T>(value: final value) => value,
         _ => previousDataOrNull,

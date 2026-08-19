@@ -2,10 +2,10 @@ import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/quiz/port/quiz.dart';
 
-/// Mechanical Catalog-to-Quiz conversion for game prerequisites.
+/// ゲームの前提条件に対する、CatalogからQuizへの機械的な変換。
 ///
-/// This adapter deliberately does not interpret absence or decide game UI
-/// outcomes; those are Quiz application policy.
+/// このアダプターは意図的に欠損を解釈したりゲームUIの結果を決定したりしません。
+/// それらはQuizアプリケーションのポリシーです。
 final class CatalogBackedQuizGameGateway implements QuizGameCatalogGateway {
   const CatalogBackedQuizGameGateway(this._catalog);
 

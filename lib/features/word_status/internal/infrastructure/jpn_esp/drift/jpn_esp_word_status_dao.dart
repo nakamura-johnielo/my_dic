@@ -120,9 +120,8 @@ class JpnEspWordStatusDao extends DatabaseAccessor<DatabaseProvider>
     return existingColum != null;
   }
 
-  /// Deletes a single row for [wordId] scoped to [accountId]. Used by the
-  /// guest-to-account migration to remove a guest row once its values have
-  /// been merged into the target account's row.
+  /// [accountId] にスコープされた [wordId] の行を 1 件削除します。ゲストからアカウントへの
+  /// 移行で、値を対象アカウント行にマージした後のゲスト行を削除するために使用します。
   Future<void> deleteRow(int wordId, String accountId) async {
     await (delete(jpnEspWordStatus)
           ..where(
@@ -130,8 +129,8 @@ class JpnEspWordStatusDao extends DatabaseAccessor<DatabaseProvider>
         .go();
   }
 
-  /// Persists the remote transaction acknowledgement only when no later
-  /// local write has superseded the leased revision.
+  /// 後続のローカル書き込みがリースされたリビジョンを置き換えていない場合にのみ、
+  /// リモートトランザクションの確認応答を永続化します。
   Future<bool> acknowledgeRemoteMutation({
     required int wordId,
     required String accountId,
@@ -151,10 +150,9 @@ class JpnEspWordStatusDao extends DatabaseAccessor<DatabaseProvider>
     return changed == 1;
   }
 
-  /// Applies a pulled remote snapshot to the local row without bumping
-  /// `local_revision` or touching the outbox, so remote apply never looks
-  /// like a fresh local edit. `null` per field means "leave untouched"
-  /// (used by the sync handler to skip fields with an in-flight local push).
+  /// `local_revision` を増やしたりアウトボックスに触れたりせず、取得したリモートスナップショットを
+  /// ローカル行へ適用します。これによりリモート適用が新規ローカル編集には見えません。フィールドごとの
+  /// `null` は「変更しない」を意味します（同期ハンドラーが送信中のローカル変更を持つフィールドを省略するために使用）。
   Future<void> applyRemoteFields(
     int wordId, {
     bool? isLearned,

@@ -2,7 +2,7 @@ import 'package:my_dic/features/catalog/port/catalog.dart' show CatalogWordRef;
 import 'package:my_dic/features/word_detail/port/model/word_detail_conjugation.dart';
 import 'package:my_dic/features/word_detail/port/model/word_detail_entry.dart';
 
-/// Required primary detail returned by [WordDetailCatalogGateway].
+/// [WordDetailCatalogGateway] が返す必須の主要詳細です。
 sealed class WordDetailDictionary {
   const WordDetailDictionary(this.word);
 
@@ -29,7 +29,7 @@ final class JpnEspWordDetailDictionary extends WordDetailDictionary {
   final List<WordDetailJpnEspEntry> entries;
 }
 
-/// Complete direction-specific projection produced by WordDetail application.
+/// WordDetail アプリケーションが生成する、方向固有の完全な投影です。
 sealed class WordDetailData {
   const WordDetailData(this.word);
 

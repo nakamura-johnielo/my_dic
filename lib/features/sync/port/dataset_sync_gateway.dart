@@ -3,7 +3,7 @@ import 'model/sync_cursor.dart';
 import 'model/sync_mutation.dart';
 import 'sync_dataset.dart';
 
-/// Generic remote-item metadata with feature-owned typed apply behavior.
+/// 機能所有の型付き適用動作を持つ、汎用リモート項目メタデータです。
 final class DatasetSyncRecord {
   const DatasetSyncRecord({
     required this.entityId,
@@ -32,8 +32,8 @@ final class DatasetSyncRecord {
       _applyRemote(accountId: accountId, skippedFields: skippedFields);
 }
 
-/// Raw dataset operations. Sync owns queueing, retries, checkpointing, and
-/// session cancellation; a feature owns only its wire/local mapping here.
+/// 生のデータセット操作です。Sync はキューイング、再試行、チェックポイント、セッション
+/// キャンセルを所有し、機能はここで通信／ローカルマッピングのみを所有します。
 abstract interface class DatasetSyncGateway {
   SyncDataset get dataset;
 

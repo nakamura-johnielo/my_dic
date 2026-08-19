@@ -1,4 +1,4 @@
-/// Transport-neutral representation of a synchronized word-status row.
+/// 同期済み単語ステータス行の通信非依存表現です。
 final class WordStatusSyncRecord {
   WordStatusSyncRecord({
     required this.wordId,

@@ -1,4 +1,4 @@
-/// The sole pure-Dart business import surface for UserProfile.
+/// UserProfile 用の唯一の pure-Dart ビジネスインポート面です。
 library;
 
 export 'command.dart';

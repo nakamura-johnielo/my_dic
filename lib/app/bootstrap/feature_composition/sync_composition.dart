@@ -9,8 +9,8 @@ import 'package:my_dic/features/sync/port/dataset_contract.dart';
 
 export '../sync_infrastructure_providers.dart';
 
-/// Registry assembly registers completed MyWord capabilities while features
-/// awaiting migration continue to use their public composition factories.
+/// レジストリ構成は完成したMyWord機能群を登録し、移行待ちの機能は公開コンポジション
+/// ファクトリーを引き続き使用します。
 final syncDatasetHandlersProvider = Provider<List<DatasetSyncHandler>>((ref) {
   return [
     ref.watch(espJpnWordStatusDatasetSyncHandlerProvider),
@@ -21,7 +21,7 @@ final syncDatasetHandlersProvider = Provider<List<DatasetSyncHandler>>((ref) {
   ];
 });
 
-/// The only Sync entry point consumed by app workflows.
+/// アプリワークフローが利用する唯一のSync入口。
 final syncRunnerProvider = Provider<SyncRunner>((ref) {
   final runner = createSyncRunner(
     dependencies: SyncDependencies(

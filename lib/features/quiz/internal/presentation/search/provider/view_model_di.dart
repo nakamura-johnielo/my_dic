@@ -8,10 +8,10 @@ final _quizSearchViewModelProvider = StateNotifierProvider.family<
   (_, key) => QuizSearchViewModel(key.reader),
 );
 
-/// Creates state for one injected candidate reader.
+/// 注入された 1 つの候補リーダーの状態を作成する。
 ///
-/// The key intentionally uses reader identity so a fake used by one entry can
-/// never share state with the runtime reader (or another fake).
+/// キーには意図的にリーダー識別子を使う。これにより、あるエントリで使うフェイクがランタイムリーダー
+/// （または別のフェイク）と状態を共有することはない。
 StateNotifierProvider<QuizSearchViewModel, QuizSearchState>
     quizSearchViewModelProvider(QuizCandidateQueryPort reader) =>
         _quizSearchViewModelProvider(_QuizSearchViewModelKey(reader));

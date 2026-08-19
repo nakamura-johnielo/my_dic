@@ -25,7 +25,7 @@ enum QuizEnglishMoodTense {
 
 enum QuizEnglishSubject { i, you, he, we, they }
 
-/// Quiz-owned, wire-format-free Spanish conjugation data.
+/// Quiz 所有でワイヤ形式に依存しないスペイン語の活用形データ。
 final class QuizConjugation {
   QuizConjugation(
       {required this.word,
@@ -40,7 +40,7 @@ final class QuizConjugation {
       forms[tense]?[subject];
 }
 
-/// Typed English verb forms used by Quiz prompts.
+/// Quiz の問題文で使う型付きの英語動詞形。
 final class QuizEnglishConjugation {
   QuizEnglishConjugation(Map<QuizEnglishMoodTense, String> forms)
       : _forms = Map.unmodifiable(forms);
@@ -48,7 +48,7 @@ final class QuizEnglishConjugation {
   String? form(QuizEnglishMoodTense tense) => _forms[tense];
 }
 
-/// Typed prompt templates indexed by the Quiz tense, never JSON keys.
+/// JSON キーではなく Quiz の時制で索引付けされた型付き問題文テンプレート。
 final class QuizEnglishPromptGuide {
   QuizEnglishPromptGuide(Map<QuizMoodTense, String> templates)
       : _templates = Map.unmodifiable(templates);
@@ -56,7 +56,7 @@ final class QuizEnglishPromptGuide {
   String? templateFor(QuizMoodTense tense) => _templates[tense];
 }
 
-/// Typed forms of `be` used where the English prompt requires an auxiliary.
+/// 英語の問題文で助動詞が必要な箇所に使用する、型付きの `be` の形。
 final class QuizBeConjugation {
   QuizBeConjugation(
       Map<QuizEnglishMoodTense, Map<QuizEnglishSubject, String>> forms)

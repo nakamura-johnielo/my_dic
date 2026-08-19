@@ -4,7 +4,7 @@ import 'package:my_dic/features/search/port/composition.dart';
 import 'package:my_dic/features/search/port/search.dart';
 import 'package:my_dic/integration/catalog_search/catalog_backed_search_gateway.dart';
 
-/// Completed Search capabilities for the application scope.
+/// アプリケーションスコープ用に完成したSearch機能群。
 final searchPortsProvider = Provider<SearchPorts>(
   (ref) => createSearchComposition(
     dependencies: SearchDependencies(
@@ -15,7 +15,7 @@ final searchPortsProvider = Provider<SearchPorts>(
   ),
 );
 
-/// Focused Search reader supplied to presentation and other consumers.
+/// プレゼンテーションやその他の利用側に提供する、用途を絞ったSearchリーダー。
 final searchReaderPortProvider = Provider<SearchQueryPort>(
   (ref) => ref.watch(searchPortsProvider).reader,
 );

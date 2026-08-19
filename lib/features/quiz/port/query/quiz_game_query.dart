@@ -1,6 +1,6 @@
 import 'package:my_dic/features/catalog/port/catalog.dart' show CatalogWordRef;
 
-/// Identifies the Catalog word for which a Quiz game is requested.
+/// Quiz ゲームが要求される Catalog 単語を識別する。
 final class QuizGameQuery {
   const QuizGameQuery(this.word);
   final CatalogWordRef word;

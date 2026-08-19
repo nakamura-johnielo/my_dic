@@ -1,18 +1,17 @@
-/// Read-only accountId resolution port.
+/// 読み取り専用のaccountId解決ポート。
 ///
-/// Features depend on this instead of Auth Repository or Firebase directly
-/// so that "who is signed in" has one answer across the app and can be faked
-/// in tests without any Firebase dependency.
+/// アプリ全体で「誰がサインインしているか」に一つの答えを持たせ、Firebaseに依存せず
+/// テストで代替できるよう、機能はAuth RepositoryやFirebaseへ直接ではなくこれに依存します。
 abstract interface class CurrentSession {
-  /// The signed-in account ID, or `null` when there is no ready session
-  /// (signed out, email unverified, or profile still loading).
+  /// サインイン済みのアカウントID。準備完了セッションがない場合（サインアウト、メール未確認、
+  /// プロフィール読み込み中）は `null`。
   String? get accountIdOrNull;
 
-  /// The signed-in account ID.
+  /// サインイン済みのアカウントID。
   ///
-  /// Throws [SessionRequiresAccountError] when there is none. Only use this
-  /// where an unauthenticated caller is a programming error; most usecases
-  /// should read [accountIdOrNull] and treat `null` as "act as guest".
+  /// 存在しない場合は [SessionRequiresAccountError] をスローします。未認証の呼び出し元が
+  /// プログラムエラーとなる場所でのみ使用してください。多くのユースケースは
+  /// [accountIdOrNull] を読み、`null` を「ゲストとして扱う」と解釈します。
   String requireAccountId();
 }
 

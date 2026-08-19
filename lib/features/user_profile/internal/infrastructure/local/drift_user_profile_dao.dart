@@ -28,8 +28,8 @@ class UserProfileDao extends DatabaseAccessor<DatabaseProvider>
         .go();
   }
 
-  /// Reads the editable `username` field out of the profile JSON payload,
-  /// or `null` if the account has no local profile row yet.
+  /// プロフィール JSON ペイロードから編集可能な `username` フィールドを読み取ります。
+  /// アカウントにローカルプロフィール行がまだない場合は `null` を返します。
   Future<String?> getUsername(String accountId) async {
     final row = await getProfile(accountId);
     if (row == null) return null;
@@ -38,9 +38,8 @@ class UserProfileDao extends DatabaseAccessor<DatabaseProvider>
     return username is String ? username : null;
   }
 
-  /// Merges [fields] into the existing JSON `payload` for [accountId] and
-  /// bumps `local_revision` by 1, creating the row if it does not exist yet.
-  /// Returns the row as persisted after the merge.
+  /// [fields] を [accountId] の既存 JSON `payload` にマージし、`local_revision` を
+  /// 1 増やします。行がまだない場合は作成します。マージ後に永続化された行を返します。
   Future<UserProfile> upsertProfileFields(
       String accountId, Map<String, Object?> fields) async {
     final existing = await getProfile(accountId);
@@ -68,14 +67,14 @@ class UserProfileDao extends DatabaseAccessor<DatabaseProvider>
     );
   }
 
-  /// Runs [action] within a single Drift transaction so callers can combine
-  /// a profile row write with an outbox mutation atomically.
+  /// 呼び出し元がプロフィール行への書き込みとアウトボックス変更を原子的に組み合わせられるよう、
+  /// 単一の Drift トランザクション内で [action] を実行します。
   Future<T> runInTransaction<T>(Future<T> Function() action) {
     return transaction(action);
   }
 
-  /// Persists the remote transaction acknowledgement only when no later
-  /// local write has superseded the leased revision.
+  /// 後続のローカル書き込みがリースしたリビジョンを置き換えていない場合のみ、
+  /// リモートトランザクションの確認応答を永続化します。
   Future<bool> acknowledgeRemoteMutation({
     required String accountId,
     required int localRevision,
@@ -93,8 +92,8 @@ class UserProfileDao extends DatabaseAccessor<DatabaseProvider>
     return changed == 1;
   }
 
-  /// Applies a pulled remote snapshot without bumping `local_revision` or
-  /// enqueueing an outbox mutation. `null` per field means "leave untouched".
+  /// `local_revision` を増やしたりアウトボックス変更を追加したりせず、取得したリモート
+  /// スナップショットを適用します。フィールドごとの `null` は「変更しない」を意味します。
   Future<void> applyRemoteFields(
     String accountId, {
     String? username,

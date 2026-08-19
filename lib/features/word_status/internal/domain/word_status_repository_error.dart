@@ -1,6 +1,6 @@
 import 'package:my_dic/core/shared/errors/app_error.dart';
 
-/// Internal marker used to distinguish an invalid persisted row from I/O.
+/// 無効な永続化行と I/O を区別するための内部マーカーです。
 final class WordStatusRecordCorruptionError extends AppError {
   const WordStatusRecordCorruptionError()
       : super(

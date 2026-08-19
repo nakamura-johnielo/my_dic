@@ -4,7 +4,7 @@ import 'package:my_dic/features/ranking/port/ranking.dart';
 
 export 'composition_contract.dart';
 
-/// Required gateways for one completed Ranking application scope.
+/// 1 つの完成済み Ranking アプリケーションスコープに必要なゲートウェイ。
 final class RankingDependencies {
   const RankingDependencies({
     required this.catalogGateway,

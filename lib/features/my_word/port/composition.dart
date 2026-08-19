@@ -6,7 +6,7 @@ import 'package:my_dic/features/sync/port/dataset_contract.dart';
 
 export 'composition_contract.dart';
 
-/// Application-owned services required to assemble MyWord capabilities.
+/// MyWord 機能を組み立てるために必要な、アプリ所有のサービス。
 final class MyWordDependencies {
   const MyWordDependencies({
     required this.database,
@@ -17,7 +17,7 @@ final class MyWordDependencies {
   final OutboxWriter outboxWriter;
 }
 
-/// Application-owned services required by MyWord dataset synchronization.
+/// MyWord データセットの同期に必要な、アプリ所有のサービス。
 final class MyWordSyncDependencies {
   const MyWordSyncDependencies({
     required this.database,
@@ -30,7 +30,7 @@ final class MyWordSyncDependencies {
   final RemoteMutationExecutor remoteMutationExecutor;
 }
 
-/// Assembles MyWord from application-owned services without framework state.
+/// フレームワークの状態なしで、アプリ所有のサービスから MyWord を組み立てる。
 MyWordPorts createMyWordPorts({
   required MyWordDependencies dependencies,
 }) =>

@@ -8,7 +8,7 @@ final syncSessionFenceProvider = Provider<SessionFenceService>(
   (ref) => SessionFenceService(),
 );
 
-/// Shared, completed persistence and execution capabilities for Sync.
+/// Sync用の共有された完成済み永続化・実行機能群。
 final syncInfrastructureProvider = Provider<SyncComposition>((ref) {
   return createSyncComposition(
     dependencies: SyncDependencies(

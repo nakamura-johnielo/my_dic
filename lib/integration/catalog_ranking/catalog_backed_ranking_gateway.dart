@@ -1,7 +1,7 @@
 import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/ranking/port/ranking.dart';
 
-/// Pure contract adapter from Catalog's ranked-entry feed to Ranking.
+/// Catalogのランク付きエントリフィードをRankingへ変換する純粋な契約アダプター。
 final class CatalogBackedRankingGateway implements RankingCatalogGateway {
   const CatalogBackedRankingGateway(this._catalog);
 

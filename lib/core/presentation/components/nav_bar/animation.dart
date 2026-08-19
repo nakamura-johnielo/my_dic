@@ -19,7 +19,7 @@ class HorizontalFader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return // action button (width: 0->hug, opacity: 0->1)
+    return // アクションボタン（幅: 0→hug、不透明度: 0→1）
         SizedBox(
       height: height,
       child: AnimatedSwitcher(

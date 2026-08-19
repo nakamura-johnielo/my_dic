@@ -1,6 +1,6 @@
 import 'package:my_dic/features/catalog/port/catalog_id.dart';
 
-/// Immutable public identity for a word in a Catalog dataset.
+/// Catalog データセット内の単語に対する不変の公開識別子。
 final class CatalogWordRef {
   const CatalogWordRef({required this.catalogId, required this.wordId})
       : assert(wordId > 0);

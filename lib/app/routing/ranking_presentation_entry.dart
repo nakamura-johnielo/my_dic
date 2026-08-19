@@ -6,7 +6,7 @@ import 'package:my_dic/features/ranking/port/presentation_entry.dart';
 import 'package:my_dic/features/ranking/port/ranking.dart';
 import 'package:my_dic/features/word_status/port/presentation_entry.dart';
 
-/// App-owned, lazy bridge from completed capabilities to Ranking's entry.
+/// 完成した機能群からRankingの入口への、アプリ所有の遅延ブリッジ。
 class RankingPresentationEntry extends ConsumerWidget {
   const RankingPresentationEntry({
     super.key,

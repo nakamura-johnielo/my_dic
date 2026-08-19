@@ -1,6 +1,6 @@
 import 'package:my_dic/features/catalog/port/catalog.dart' show CatalogWordRef;
 
-/// Immutable conjugation data owned by the WordDetail contract.
+/// WordDetail コントラクトが所有する不変の活用データです。
 final class WordDetailConjugation {
   WordDetailConjugation({
     required this.word,
