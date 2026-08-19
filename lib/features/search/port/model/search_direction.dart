@@ -1,2 +1,2 @@
-/// The dictionary direction searched by the Search feature.
+/// Search 機能で検索する辞書の方向です。
 enum SearchDirection { espJpn, jpnEsp }

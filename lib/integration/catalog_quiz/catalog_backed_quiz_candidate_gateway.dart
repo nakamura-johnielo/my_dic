@@ -2,10 +2,9 @@ import 'package:my_dic/core/shared/utils/result.dart';
 import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/quiz/port/quiz.dart';
 
-/// Mechanical Catalog-to-Quiz conversion for candidate reads.
+/// 候補読み取りに対する、CatalogからQuizへの機械的な変換。
 ///
-/// Query validation, candidate selection and enrichment policy remain owned by
-/// the Quiz application layer.
+/// クエリ検証、候補選択、拡充のポリシーはQuizアプリケーション層が引き続き所有します。
 final class CatalogBackedQuizCandidateGateway
     implements QuizCandidateCatalogGateway {
   const CatalogBackedQuizCandidateGateway(this._catalog);

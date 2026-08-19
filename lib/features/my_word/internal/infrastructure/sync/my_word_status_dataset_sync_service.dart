@@ -5,7 +5,7 @@ import 'package:my_dic/features/my_word/internal/infrastructure/my_word_status/f
 import 'package:my_dic/features/sync/port/dataset_contract.dart';
 
 // TODO refactor repository的立ち位置
-/// MyWordStatus's wire and Drift mapping; durable sync policy lives in Sync runtime.
+/// MyWordStatus のワイヤ形式および Drift マッピング。永続的な同期ポリシーは Sync ランタイムにある。
 final class MyWordStatusDatasetSyncService implements DatasetSyncGateway {
   MyWordStatusDatasetSyncService(
       {required IMyWordStatusLocalDataSource local,

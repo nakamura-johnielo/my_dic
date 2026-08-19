@@ -77,8 +77,8 @@ class ConjugationDao extends DatabaseAccessor<DatabaseProvider>
   }
 }
 
-// This allowlist is the only source of SQL identifiers used by the legacy
-// custom query. User-controlled values are always supplied as bind variables.
+// この許可リストは、レガシーカスタムクエリで使用する SQL 識別子の唯一のソースである。
+// ユーザー制御の値は常にバインド変数として渡される。
 const _formColumns = <String>[
   'present_participle',
   'past_participle',

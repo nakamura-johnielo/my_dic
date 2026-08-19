@@ -1,7 +1,7 @@
-/// One immutable page of Catalog search results.
+/// Catalog 検索結果の不変な 1 ページ。
 ///
-/// [hasMore] is true only when the reader observed at least one row beyond
-/// [items], normally by reading `query.size + 1` rows.
+/// [hasMore] は、通常 `query.size + 1` 行を読み取ることで、リーダーが [items] の先に
+/// 少なくとも 1 行を確認した場合にのみ true となる。
 final class CatalogSearchPage<T> {
   CatalogSearchPage({required List<T> items, required this.hasMore})
       : items = List.unmodifiable(items);

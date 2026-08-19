@@ -6,7 +6,7 @@ import 'update_my_word_record.dart';
 import 'package:my_dic/features/my_word/internal/domain/entity/my_word.dart';
 
 abstract interface class IMyWordRepository {
-  // normal methods
+  // 通常のメソッド
   Future<Result<MyWord>> getById(String id, {required String accountId});
   Future<Result<List<MyWord>>> getFilteredByPage(MyWordPageQuery input,
       {required String accountId}); //TODO: 使用状況を確認する

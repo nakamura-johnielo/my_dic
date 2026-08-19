@@ -1,4 +1,4 @@
-// Firebase SDK composition belongs to application bootstrap.
+// Firebase SDK の構成はアプリケーションブートストラップに属します。
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -80,7 +80,7 @@ final class FirestoreAccountDocumentGateway
   }
 }
 
-/// Application-owned SDK adapter for generic nested account documents.
+/// 汎用的なネストされたアカウントドキュメント用の、アプリケーション所有SDKアダプター。
 final class FirestoreAccountNestedDocumentGateway
     implements
         FirebaseAccountNestedDocumentGateway,
@@ -171,7 +171,7 @@ final class FirestoreAccountNestedDocumentGateway
   }
 }
 
-/// Application-owned Firebase adapter for Auth's SDK-free runtime contract.
+/// AuthのSDK非依存ランタイム契約用の、アプリケーション所有Firebaseアダプター。
 final class FirebaseAuthDataSource implements AuthRuntimeGateway {
   FirebaseAuthDataSource(this._auth);
 

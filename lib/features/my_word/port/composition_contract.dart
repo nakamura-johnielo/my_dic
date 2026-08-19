@@ -2,7 +2,7 @@ import 'command.dart';
 import 'guest_migration.dart';
 import 'query.dart';
 
-/// The complete set of MyWord capabilities used by application workflows.
+/// アプリケーションワークフローで使用する MyWord 機能一式。
 final class MyWordPorts {
   const MyWordPorts({
     required this.reader,

@@ -14,6 +14,6 @@ class MutationLease {
   final int leasedLocalRevision;
   final DateTime leaseUntil;
 
-  /// Number of retryable failures recorded before this lease was acquired.
+  /// このリースを取得する前に記録された再試行可能な失敗の回数です。
   final int attemptCount;
 }

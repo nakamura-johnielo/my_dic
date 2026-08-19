@@ -1,6 +1,6 @@
 import 'package:my_dic/core/shared/errors/app_error.dart';
 
-/// The lifecycle of one user-initiated operation.
+/// ユーザー起点の1つの操作におけるライフサイクル。
 sealed class CommandState {
   const CommandState();
 

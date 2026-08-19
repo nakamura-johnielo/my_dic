@@ -1,4 +1,4 @@
-/// Ranking's provider-neutral vocabulary for part-of-speech filtering.
+/// 品詞フィルタリング用の、Ranking におけるプロバイダー非依存の語彙。
 enum RankingPartOfSpeech {
   noun,
   abbreviation,

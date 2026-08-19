@@ -4,7 +4,7 @@ import 'package:my_dic/features/sync/port/sync_runner.dart';
 import 'report/sync_report_interpreter.dart';
 import 'sync_scheduler.dart';
 
-/// Collapses internal report detail into the public workflow outcome.
+/// 内部レポートの詳細を公開ワークフロー結果へ集約します。
 final class SyncWorkflowRunner implements SyncRunner {
   SyncWorkflowRunner(this._scheduler, {SyncReportInterpreter? interpreter})
       : _interpreter = interpreter ?? const SyncReportInterpreter();

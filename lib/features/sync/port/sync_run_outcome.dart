@@ -1,7 +1,7 @@
-/// UI/workflow-safe result of a requested Sync run.
+/// 要求された Sync 実行の UI／ワークフローで安全な結果です。
 ///
-/// A durable retry has already been persisted before [retryScheduled] is
-/// returned. It is therefore distinct from a [nonRetryableFailure].
+/// [retryScheduled] が返る前に、永続的な再試行はすでに保存されています。したがって、
+/// [nonRetryableFailure] とは異なります。
 enum SyncRunOutcome {
   success,
   retryScheduled,

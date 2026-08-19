@@ -14,7 +14,7 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
     _updatePublicState();
   }
 
-  // ==================== Public Methods ====================
+  // ==================== 公開メソッド ====================
 
   void inicializeQuizCardStatus() {
     _updateQuizCardStatus(QuizCardState.question);
@@ -88,7 +88,7 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
     return sub;
   }
 
-  // ~~~~~~~~quiz logic~~~~~~~~~~~~~~~~~~~~~~
+  // ~~~~~~~~Quiz ロジック~~~~~~~~~~~~~~~~~~~~~~
   /// クイズを初期化
   void initialize() {
     _internalState = QuizInternalState.initial();
@@ -127,7 +127,7 @@ class QuizGameViewModel extends StateNotifier<QuizGameState> {
     return false;
   }
 
-  // ==================== Private Methods ====================
+  // ==================== 非公開メソッド ====================
 
   void _updateQuizCardStatus(QuizCardState status) {
     state = state.copyWith(quizCardState: status);

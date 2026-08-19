@@ -2,7 +2,7 @@ import 'package:my_dic/core/shared/utils/result.dart';
 
 import 'model/auth_identity.dart';
 
-/// Credentials submitted to the existing sign-in validation workflow.
+/// 既存のサインイン検証ワークフローへ送信する認証情報。
 final class SignInCommand {
   const SignInCommand({required this.email, required this.password});
 
@@ -10,7 +10,7 @@ final class SignInCommand {
   final String password;
 }
 
-/// Credentials submitted to the existing account-creation workflow.
+/// 既存のアカウント作成ワークフローへ送信する認証情報。
 final class SignUpCommand {
   const SignUpCommand({required this.email, required this.password});
 
@@ -24,7 +24,7 @@ final class ResetPasswordCommand {
   final String email;
 }
 
-/// Auth-owned state-changing capabilities.
+/// Authが所有する状態変更機能。
 abstract interface class AuthCommandPort {
   Future<Result<AuthIdentity>> signIn(SignInCommand command);
   Future<Result<AuthIdentity>> signUp(SignUpCommand command);

@@ -22,8 +22,8 @@ class QuizSearchResults {
   QuizSearchResults merge(QuizSearchResults next, {required bool append}) {
     if (!append) return next;
 
-    // A Catalog word is the stable identity of a Quiz candidate.  Keep the
-    // first result when pages overlap so replays/retries cannot duplicate it.
+    // Catalog 単語は Quiz 候補の安定した識別子である。ページが重なった場合は最初の結果を保持し、
+    // 再実行や再試行による重複を防ぐ。
     final seen = <Object>{};
     final merged = <QuizCandidate>[];
     for (final candidate in [...items, ...next.items]) {

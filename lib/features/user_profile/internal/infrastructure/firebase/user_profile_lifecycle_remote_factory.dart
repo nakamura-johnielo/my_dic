@@ -3,7 +3,7 @@ import 'package:my_dic/features/sync/port/dataset_contract.dart';
 import 'package:my_dic/features/user_profile/internal/infrastructure/firebase/firebase_user_remote_data_source.dart';
 import 'package:my_dic/features/user_profile/internal/infrastructure/firebase/firebase_user_profile_dao.dart';
 
-/// Canonical Firebase construction for lifecycle profile provisioning.
+/// ライフサイクルのプロフィールプロビジョニング用の標準的な Firebase 構築です。
 FirebaseUserRemoteDataSource
     createInternalLifecycleFirebaseUserRemoteDataSource({
   required FirebaseAccountDocumentGateway accountDocuments,

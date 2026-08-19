@@ -1,6 +1,6 @@
 import 'package:my_dic/features/search/port/model/search_direction.dart';
 
-/// A validated, zero-based page request for Search results.
+/// 検証済みの、0 始まりの Search 結果ページ要求です。
 final class SearchQuery {
   SearchQuery({
     required String text,

@@ -47,9 +47,8 @@ class _QuizGameFragmentState extends ConsumerState<QuizGameFragment> {
     final query = QuizGameQuery(input.word);
     final gameAsync = ref.watch(quizGameLoadProvider(widget.reader, query));
 
-    // Keep the retry lane occupied until its invalidated provider settles.
-    // This is also the mounted fence for a route that disappears while its
-    // request is in flight.
+    // 無効化したプロバイダーが確定するまで、再試行レーンを使用中のままにする。
+    // これはリクエスト中に消滅するルートに対する、mounted のフェンスも兼ねる。
     if (_retrying && !gameAsync.isLoading) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted && _retrying) setState(() => _retrying = false);
@@ -57,8 +56,8 @@ class _QuizGameFragmentState extends ConsumerState<QuizGameFragment> {
     }
 
     void retry() {
-      // The query is the route identity.  Keeping a single local retry lane
-      // prevents two taps from invalidating the same provider twice.
+      // クエリはルート識別子である。ローカルの再試行レーンを 1 つに保ち、2 回のタップで同じ
+      // プロバイダーが二重に無効化されるのを防ぐ。
       if (_retrying) return;
       _retrying = true;
       ref.invalidate(quizGameLoadProvider(widget.reader, query));

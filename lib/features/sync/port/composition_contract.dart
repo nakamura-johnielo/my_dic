@@ -3,10 +3,10 @@ import 'sync_checkpoint_store.dart';
 import 'sync_handler_runtime.dart';
 import 'sync_queue.dart';
 
-/// Completed Sync infrastructure for one application scope.
+/// 1 つのアプリケーションスコープ用の完成済み Sync インフラストラクチャです。
 ///
-/// App composition owns this bundle's lifetime. Dataset registries consume
-/// only completed handlers and never construct these capabilities themselves.
+/// アプリ構成がこのバンドルのライフタイムを所有します。データセットレジストリは完成済みの
+/// ハンドラーのみを使用し、これらの機能を自ら構築しません。
 final class SyncComposition {
   const SyncComposition({
     required this.queue,

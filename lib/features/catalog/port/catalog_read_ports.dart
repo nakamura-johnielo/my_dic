@@ -7,7 +7,7 @@ import 'package:my_dic/features/catalog/port/queryport/catalog_ranked_entry_feed
 import 'package:my_dic/features/catalog/port/queryport/catalog_semantic_entry_detail_reader_port.dart';
 import 'package:my_dic/features/catalog/port/queryport/catalog_word_search_reader_port.dart';
 
-/// The complete set of public Catalog read capabilities for one app scope.
+/// 1 つのアプリスコープにおける Catalog の公開読み取り機能一式。
 final class CatalogQueryPorts {
   const CatalogQueryPorts({
     required this.entryDetail,

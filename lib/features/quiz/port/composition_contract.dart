@@ -1,7 +1,7 @@
 import 'query/quiz_candidate_reader_port.dart';
 import 'query/quiz_game_reader_port.dart';
 
-/// The complete Quiz capabilities supplied to an application scope.
+/// アプリケーションスコープに提供される Quiz 機能一式。
 final class QuizPorts {
   const QuizPorts({
     required this.candidateReader,

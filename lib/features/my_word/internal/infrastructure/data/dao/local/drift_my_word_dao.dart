@@ -4,7 +4,7 @@ import 'package:my_dic/core/infrastructure/database/drift/tables/my_words.dart';
 import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart';
 part '../../../../../../../__generated/features/my_word/internal/infrastructure/data/data_source/local/drift_my_word_dao.g.dart';
 
-/// Raw, read-only result of the account-scoped MyWord/status projection.
+/// アカウントスコープの MyWord・ステータスプロジェクションに対する、生の読み取り専用結果。
 class MyWordItemRow {
   const MyWordItemRow({required this.word, required this.status});
 
@@ -50,18 +50,17 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
     return rows.map((row) => row.read(myWords.myWordId)!).toList();
   }
 
-  /// Returns every non-deleted row for [accountId]. Used by the guest-data
-  /// detector/migration, which needs the full set rather than a page.
+  /// [accountId] の未削除行をすべて返す。ページではなく完全な集合を必要とするゲストデータの
+  /// 検出・移行で使用する。
   Future<List<MyWordTableData>> getAllByAccountId(String accountId) {
     return (select(myWords)
           ..where((t) => t.accountId.equals(accountId) & t.deletedAt.isNull()))
         .get();
   }
 
-  /// Reassigns a row's account scope in place (e.g. guest -> a signed-in
-  /// account), bumping `local_revision` so a matching outbox mutation can be
-  /// enqueued. Returns `null` if no row matched at [fromAccountId] or a row
-  /// already exists at [toAccountId] (the caller should merge/skip instead).
+  /// 行のアカウントスコープをその場で再割り当てする（例: ゲストからログイン済みアカウント）。
+  /// 対応するアウトボックス変更をキューに入れられるよう `local_revision` を増やす。[fromAccountId] に
+  /// 一致する行がないか [toAccountId] に行がすでにある場合は `null` を返す（呼び出し元でマージまたはスキップする）。
   Future<MyWordTableData?> reassignAccountId(
       String wordId, String fromAccountId, String toAccountId) {
     return transaction(() async {
@@ -80,8 +79,8 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
     });
   }
 
-  /// Inserts a brand-new MyWord row with `local_revision` starting at 1, so
-  /// callers can enqueue a matching outbox mutation in the same transaction.
+  /// `local_revision` を 1 から開始して新しい MyWord 行を挿入する。呼び出し元は同じトランザクションで
+  /// 対応するアウトボックス変更をキューに入れられる。
   Future<MyWordTableData> insertMyWordWithRevision({
     required String id,
     required String word,
@@ -101,9 +100,8 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
     return data;
   }
 
-  /// Updates an existing MyWord row and bumps `local_revision` by 1, so
-  /// callers can enqueue a matching outbox mutation in the same transaction.
-  /// Returns `null` if no row matched.
+  /// 既存の MyWord 行を更新して `local_revision` を 1 増やす。呼び出し元は同じトランザクションで
+  /// 対応するアウトボックス変更をキューに入れられる。一致する行がない場合は `null` を返す。
   Future<MyWordTableData?> updateMyWordWithRevision({
     required String id,
     required String word,
@@ -158,11 +156,9 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
   }
 
   */
-  /// Soft-deletes a MyWord row (`deleted_at` set, `local_revision` bumped)
-  /// instead of a hard delete, so the tombstone can be synced and an old
-  /// remote update can never resurrect it. The child status row is still
-  /// hard-deleted since MyWordStatus is not yet part of the outbox contract.
-  /// Returns `null` if no non-deleted row matched.
+  /// MyWord 行を物理削除せず論理削除する（`deleted_at` を設定し `local_revision` を増やす）。これにより
+  /// トゥームストーンを同期でき、古いリモート更新で復活することはない。MyWordStatus はまだアウトボックス
+  /// 契約の対象外のため、子ステータス行は物理削除する。未削除の一致行がない場合は `null` を返す。
   Future<MyWordTableData?> tombstoneMyWord(
       String wordId, String deletedAt, String accountId) {
     return transaction(() async {
@@ -206,9 +202,9 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
         .distinct();
   }
 
-  /// Watches one non-deleted MyWord together with only the status belonging
-  /// to the same account. A missing (or tombstoned) status is deliberately
-  /// returned as null for the read adapter to normalize without a write.
+  /// 1 つの未削除 MyWord と、同じアカウントに属するステータスだけを監視する。ステータスがない
+  /// （またはトゥームストーン化されている）場合は、読み取りアダプターが書き込みなしで正規化できるよう
+  /// 意図的に null を返す。
   Stream<MyWordItemRow?> watchMyWordItemRow(String id, String accountId) {
     final query = select(myWords).join([
       leftOuterJoin(
@@ -233,8 +229,8 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
     });
   }
 
-  /// Persists the remote transaction acknowledgement only when no later
-  /// local write has superseded the leased revision.
+  /// 後続のローカル書き込みがリース済みリビジョンを置き換えていない場合にのみ、
+  /// リモートトランザクションの確認応答を保存する。
   Future<bool> acknowledgeRemoteMutation({
     required String wordId,
     required String accountId,
@@ -254,13 +250,11 @@ class MyWordDao extends DatabaseAccessor<DatabaseProvider>
     return changed == 1;
   }
 
-  /// Applies a pulled remote snapshot to the local row without bumping
-  /// `local_revision` or touching the outbox, so remote apply never looks
-  /// like a fresh local edit. `null` per field means "leave untouched" (used
-  /// by the sync handler to skip fields with an in-flight local push).
-  /// A non-null [deletedAt] tombstones the row (and hard-deletes the child
-  /// status row); an already locally-tombstoned row is left untouched by a
-  /// non-deletion remote update so a stale remote write can never resurrect it.
+  /// `local_revision` を増やしたりアウトボックスに触れたりせず、取得したリモートスナップショットをローカル行へ
+  /// 適用する。これにより、リモート適用が新しいローカル編集として見えることはない。フィールドごとの `null` は
+  /// 「変更しない」を意味する（同期ハンドラーが送信中のローカル変更を持つフィールドをスキップするために使用する）。
+  /// null でない [deletedAt] は行をトゥームストーン化し（子ステータス行は物理削除）、すでにローカルで
+  /// トゥームストーン化された行は、削除ではないリモート更新では変更しない。これにより古いリモート書き込みで復活しない。
   Future<void> applyRemoteFields(
     String wordId, {
     String? word,

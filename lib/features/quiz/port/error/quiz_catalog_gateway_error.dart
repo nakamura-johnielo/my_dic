@@ -1,6 +1,6 @@
 import 'package:my_dic/core/shared/errors/app_error.dart';
 
-/// A Catalog failure translated into Quiz's boundary vocabulary.
+/// Quiz の境界語彙に変換された Catalog の失敗。
 final class QuizCatalogGatewayError extends AppError {
   const QuizCatalogGatewayError({
     required this.operation,

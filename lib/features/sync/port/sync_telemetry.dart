@@ -1,6 +1,6 @@
 import 'model/sync_report.dart';
 
-/// Observes completed sync cycles without participating in sync correctness.
+/// 同期の正しさには関与せず、完了した同期サイクルを観測します。
 abstract interface class SyncTelemetry {
   Future<void> recordCycleCompleted({
     required String trigger,
@@ -8,7 +8,7 @@ abstract interface class SyncTelemetry {
   });
 }
 
-/// Production-safe default for compositions that do not install telemetry.
+/// テレメトリーを導入しない構成向けの、本番環境で安全な既定値です。
 class NoopSyncTelemetry implements SyncTelemetry {
   const NoopSyncTelemetry();
 
@@ -19,7 +19,7 @@ class NoopSyncTelemetry implements SyncTelemetry {
   }) async {}
 }
 
-/// In-memory test double for asserting completed-cycle notifications.
+/// 完了サイクル通知を検証するためのインメモリテストダブルです。
 class FakeSyncTelemetry implements SyncTelemetry {
   final List<SyncTelemetryCall> calls = [];
 

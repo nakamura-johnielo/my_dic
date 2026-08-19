@@ -2,7 +2,7 @@ import 'package:my_dic/features/search/port/search.dart';
 
 import 'search_suggestion_policy.dart';
 
-/// Search's application-level reader over its consumer-owned Catalog gateway.
+/// コンシューマー所有の Catalog ゲートウェイを介する Search のアプリケーション層リーダーです。
 final class SearchApplicationService implements SearchQueryPort {
   SearchApplicationService(this._gateway);
 
@@ -90,8 +90,8 @@ final class SearchApplicationService implements SearchQueryPort {
           .toList(growable: false);
     }
 
-    // Launch independent reads together, then record failures in the existing
-    // meaning -> ranking -> frequency order regardless of completion timing.
+    // 独立した読み込みを同時に開始し、完了タイミングにかかわらず既存の
+    // 意味 → ランキング → 頻度の順に失敗を記録します。
     final rankingsFuture = _attempt(() => _gateway.readRankings(words));
     final frequenciesFuture = _attempt(() => _gateway.readFrequencies(words));
     final meaningsAttempt = await meaningsFuture;

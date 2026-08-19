@@ -1,4 +1,4 @@
-/// The controlled public presentation entries for Quiz.
+/// Quiz 用に制御された公開プレゼンテーションエントリ。
 library;
 
 import 'package:flutter/widgets.dart';
@@ -6,7 +6,7 @@ import 'package:my_dic/features/quiz/internal/presentation/view/quiz_presentatio
     as internal;
 import 'package:my_dic/features/quiz/port/quiz.dart';
 
-/// Controlled Flutter entry for candidate search.
+/// 候補検索用の制御された Flutter エントリ。
 class QuizSearchFragment extends StatelessWidget {
   const QuizSearchFragment({
     super.key,
@@ -27,7 +27,7 @@ class QuizSearchFragment extends StatelessWidget {
       );
 }
 
-/// Controlled Flutter entry for one loaded Quiz game.
+/// 読み込み済みの 1 つの Quiz ゲーム用の制御された Flutter エントリ。
 class QuizGameFragment extends StatelessWidget {
   const QuizGameFragment({
     super.key,

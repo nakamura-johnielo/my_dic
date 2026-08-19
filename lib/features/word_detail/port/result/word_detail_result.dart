@@ -1,7 +1,7 @@
 import 'package:my_dic/features/word_detail/port/model/word_detail_data.dart';
 import 'package:my_dic/features/word_detail/port/model/word_detail_issue.dart';
 
-/// A successful detail read, including independently recoverable issues.
+/// 個別に回復可能な問題を含む、成功した詳細読み込みです。
 final class WordDetailResult {
   WordDetailResult({
     required this.data,

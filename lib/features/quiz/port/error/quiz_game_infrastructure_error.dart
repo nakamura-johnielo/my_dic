@@ -1,6 +1,6 @@
 import 'package:my_dic/core/shared/errors/app_error.dart';
 
-/// A failure while reading Quiz-owned persisted data.
+/// Quiz 所有の永続化データ読み取り中に発生する失敗。
 final class QuizGameDatabaseError extends AppError {
   const QuizGameDatabaseError({
     required this.operation,
@@ -14,7 +14,7 @@ final class QuizGameDatabaseError extends AppError {
   final String operation;
 }
 
-/// A failure while opening a bundled Quiz asset.
+/// バンドル済み Quiz アセットを開く際に発生する失敗。
 final class QuizGameAssetError extends AppError {
   const QuizGameAssetError({
     required this.assetPath,
@@ -28,7 +28,7 @@ final class QuizGameAssetError extends AppError {
   final String assetPath;
 }
 
-/// A bundled Quiz asset whose JSON value does not match its wire contract.
+/// JSON 値がワイヤ契約に適合しない、バンドル済み Quiz アセット。
 final class QuizGameDataCorruptionError extends AppError {
   const QuizGameDataCorruptionError({
     required this.assetPath,

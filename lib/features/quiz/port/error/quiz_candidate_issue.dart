@@ -1,6 +1,6 @@
 import 'package:my_dic/core/shared/errors/app_error.dart';
 
-/// A non-fatal candidate-enrichment concern, kept separate from search failure.
+/// 検索失敗とは分離して保持する、致命的ではない候補拡充上の問題。
 enum QuizCandidateIssueSource { meaning, headword, ranking }
 
 final class QuizCandidateIssue {

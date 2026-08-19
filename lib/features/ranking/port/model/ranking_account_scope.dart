@@ -1,4 +1,4 @@
-/// The account boundary used when Ranking reads status facts.
+/// Ranking がステータス情報を読み取る際に使用するアカウント境界。
 sealed class RankingAccountScope {
   const RankingAccountScope();
 

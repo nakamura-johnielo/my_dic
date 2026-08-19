@@ -152,7 +152,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
     if (data.direction == SearchDirection.jpnEsp) {
       return InfinityScrollListView(
           padding: const EdgeInsets.symmetric(horizontal: 10),
-          // The first page is loaded explicitly when the query changes.
+          // クエリ変更時に最初のページを明示的に読み込みます。
           initialPage: 1,
           initialHasMore: data.hasNext,
           controller: _scroll,
@@ -176,7 +176,7 @@ class _SearchFragmentState extends ConsumerState<SearchFragment> {
         data.conjugationSuggestions.take(_conjCount).toList(growable: false);
     return InfinityScrollListView(
         padding: const EdgeInsets.symmetric(horizontal: 10),
-        // The first page is loaded explicitly when the query changes.
+        // クエリ変更時に最初のページを明示的に読み込みます。
         initialPage: 1,
         initialHasMore: data.hasNext,
         controller: _scroll,

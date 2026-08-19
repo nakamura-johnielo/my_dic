@@ -1,6 +1,6 @@
 import 'package:my_dic/core/shared/errors/app_error.dart';
 
-/// Failure units supported by Search's required Catalog contract.
+/// Search が必要とする Catalog コントラクトでサポートされる失敗単位です。
 enum SearchCatalogOperation {
   primarySearch,
   conjugationSearch,
@@ -9,7 +9,7 @@ enum SearchCatalogOperation {
   rankings,
 }
 
-/// A provider failure translated into Search-owned gateway vocabulary.
+/// Search 所有のゲートウェイ用語に変換されたプロバイダーの失敗です。
 final class SearchCatalogGatewayError extends AppError {
   const SearchCatalogGatewayError({
     required this.operation,

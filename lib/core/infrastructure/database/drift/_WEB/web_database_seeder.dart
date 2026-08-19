@@ -52,7 +52,7 @@ class WebDatabaseSeeder {
     if (value is String) return value;
     if (value is num) {
       if (value is int) return value.toString();
-      // if it's a double but represents an integer, keep integer form
+      // double型でも整数を表す場合は、整数形式を維持する
       if (value == value.toInt()) return value.toInt().toString();
       return value.toString();
     }
@@ -158,7 +158,7 @@ class WebDatabaseSeeder {
     await _setTotalTableRows(tables);
     AppLogger.print('🔍 Tables keys: ${tables.keys.toList()}');
 
-    // Import in order respecting foreign key dependencies
+    // 外部キー依存関係を考慮した順序でインポートする
     AppLogger.print('🔍 Checking for "words" table...');
     if (tables.containsKey('words')) {
       AppLogger.print('🔍 Found "words" table, importing...');
@@ -224,7 +224,7 @@ class WebDatabaseSeeder {
     }
   }
 
-  // Simplified imports - Web環境では詳細なログは不要
+  // インポートを簡略化する。Web環境では詳細なログは不要
   Future<void> _importWords(Map<String, dynamic> tableData) async {
     AppLogger.print('🔍 _importWords() CALLED');
     final rows = tableData['rows'] as List;
@@ -242,7 +242,7 @@ class WebDatabaseSeeder {
       final batch = rows.skip(i).take(batchSize).toList();
       await db.batch((b) {
         for (final row in batch) {
-          // Skip rows that don't have required fields
+          // 必須フィールドがない行はスキップする
           if (row['word_id'] == null || row['word'] == null) continue;
           b.insert(
               db.espJpnWords,

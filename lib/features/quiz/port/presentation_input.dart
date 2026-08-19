@@ -1,9 +1,9 @@
 import 'package:my_dic/features/catalog/port/catalog.dart';
 
-/// Ephemeral input to the Quiz game presentation entry.
+/// Quiz ゲームのプレゼンテーションエントリに渡す一時的な入力。
 ///
-/// Route parsing remains app-owned; this input is intentionally not a route
-/// contract and has no URL serialization concerns.
+/// ルート解析はアプリ所有のままである。この入力は意図的にルート契約ではなく、URL
+/// シリアライズを考慮する必要もない。
 final class QuizGamePresentationInput {
   const QuizGamePresentationInput({required this.word, this.displayHint});
 

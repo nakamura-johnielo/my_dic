@@ -1,6 +1,6 @@
 import 'package:my_dic/features/catalog/port/catalog_id.dart';
 
-/// A validated, page-based word search request for one Catalog dataset.
+/// 1 つの Catalog データセットに対する、検証済みのページベース単語検索リクエスト。
 final class CatalogWordSearchQuery {
   factory CatalogWordSearchQuery({
     required CatalogId catalogId,

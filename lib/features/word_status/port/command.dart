@@ -3,9 +3,9 @@ import 'package:my_dic/core/shared/value_objects/field_update.dart';
 import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/word_status/port/model/word_status_scope.dart';
 
-/// A partial status mutation within an explicit account scope.
+/// 明示的なアカウントスコープ内での部分的なステータス変更です。
 ///
-/// The application service, rather than the caller, assigns its timestamp.
+/// タイムスタンプは呼び出し元ではなくアプリケーションサービスが割り当てます。
 final class UpdateWordStatusCommand {
   const UpdateWordStatusCommand({
     required this.scope,
@@ -29,7 +29,7 @@ abstract interface class WordStatusCommandPort {
   Future<Result<void>> update(UpdateWordStatusCommand command);
 }
 
-/// Guest-scoped row counts for the two physical dictionary directions.
+/// 2 つの物理辞書方向に対するゲストスコープ行数です。
 final class WordStatusGuestRowCounts {
   const WordStatusGuestRowCounts({required this.espJpn, required this.jpnEsp});
 
@@ -37,7 +37,7 @@ final class WordStatusGuestRowCounts {
   final int jpnEsp;
 }
 
-/// App workflow capability for migrating guest dictionary-status rows.
+/// ゲストの辞書ステータス行を移行するアプリワークフロー機能です。
 abstract interface class WordStatusGuestMigrationPort {
   Future<WordStatusGuestRowCounts> countGuestRows();
 

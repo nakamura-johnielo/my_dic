@@ -6,7 +6,7 @@ import '../internal/composition/sync_composition_factory.dart';
 
 export 'composition_contract.dart';
 
-/// Application-owned runtime dependencies required to assemble Sync.
+/// Sync の組み立てに必要な、アプリケーション所有の実行時依存関係です。
 final class SyncDependencies {
   const SyncDependencies({
     required this.database,
@@ -17,7 +17,7 @@ final class SyncDependencies {
   final SessionFence sessionFence;
 }
 
-/// Creates the completed Sync infrastructure without framework state.
+/// フレームワーク状態なしで完成済みの Sync インフラストラクチャを作成します。
 SyncComposition createSyncComposition({
   required SyncDependencies dependencies,
 }) =>
@@ -26,7 +26,7 @@ SyncComposition createSyncComposition({
       sessionFence: dependencies.sessionFence,
     );
 
-/// Creates the public workflow runner for the registered dataset handlers.
+/// 登録済みデータセットハンドラー用の公開ワークフローランナーを作成します。
 SyncRunner createSyncRunner({
   required SyncDependencies dependencies,
   required Iterable<DatasetSyncHandler> handlers,

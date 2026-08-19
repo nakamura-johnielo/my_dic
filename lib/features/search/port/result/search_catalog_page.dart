@@ -1,7 +1,7 @@
 import 'package:my_dic/features/catalog/port/catalog.dart' show CatalogWordRef;
 import 'package:my_dic/features/search/port/model/search_conjugation_match.dart';
 
-/// A provider-neutral page returned by Search's required Catalog gateway.
+/// Search が必要とする Catalog ゲートウェイが返す、プロバイダー非依存のページです。
 final class SearchCatalogPage<T> {
   SearchCatalogPage({required List<T> items, required this.hasMore})
       : items = List.unmodifiable(items);

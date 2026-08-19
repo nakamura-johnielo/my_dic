@@ -1,6 +1,6 @@
 import 'package:my_dic/core/shared/enums/auth/subscription_status.dart';
 
-/// UserProfile-owned Firestore wire representation.
+/// UserProfile 所有の Firestore 通信表現です。
 final class UserProfileRemoteDto {
   static const fieldEmail = 'email';
   static const fieldUserName = 'userName';

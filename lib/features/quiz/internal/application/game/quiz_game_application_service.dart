@@ -3,10 +3,10 @@ import 'package:my_dic/features/quiz/internal/application/game/quiz_game_asset_r
 import 'package:my_dic/features/quiz/internal/application/game/quiz_game_english_reader.dart';
 import 'package:my_dic/features/quiz/port/quiz.dart';
 
-/// Assembles the typed data needed by a Quiz game.
+/// Quiz ゲームに必要な型付きデータを組み立てる。
 ///
-/// This deliberately depends only on Quiz-owned seams.  Implementations that
-/// read Drift or Flutter assets are supplied later by composition.
+/// これは意図的に Quiz 所有の境界にのみ依存する。Drift または Flutter アセットを読み取る
+/// 実装は、後からコンポジションで提供される。
 final class QuizGameApplicationService implements QuizGameQueryPort {
   QuizGameApplicationService({
     required QuizGameCatalogGateway catalogGateway,
@@ -44,8 +44,8 @@ final class QuizGameApplicationService implements QuizGameQueryPort {
     }
     final conjugation = _mapCatalogConjugation(requiredConjugation);
 
-    // Keep the legacy loading order: both bundled assets precede the English
-    // database lookup. It keeps source-specific failures stable for the UI.
+    // レガシーの読み込み順を維持する。両方のバンドル済みアセットを英語データベースの検索より
+    // 先に読み込むことで、ソース固有の失敗を UI に対して安定させる。
     final guide = await _readGuide();
     if (guide is Failure<QuizEnglishPromptGuide>) {
       return _failure(QuizGameLoadSource.englishGuide, guide.error);

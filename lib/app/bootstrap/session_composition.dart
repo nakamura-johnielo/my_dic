@@ -8,7 +8,7 @@ import 'package:my_dic/integration/session_lifecycle_workflow/auth_lifecycle_pro
 export 'package:my_dic/core/session/session_scope_provider.dart'
     show sessionScopeKeyProvider;
 
-/// One container owns exactly one coordinator and thus one epoch counter.
+/// 1つのコンテナーが1つのコーディネーター、ひいては1つのエポックカウンターだけを所有します。
 final sessionEpochCoordinatorProvider =
     Provider<SessionEpochCoordinator>((ref) {
   final coordinator = SessionEpochCoordinator(
@@ -19,8 +19,8 @@ final sessionEpochCoordinatorProvider =
   return coordinator;
 });
 
-/// The active presentation/query identity. `null` means an intermediate
-/// lifecycle phase, and callers must detach rather than treat it as guest.
+/// アクティブなプレゼンテーション/クエリの識別子。`null` は中間ライフサイクルフェーズを
+/// 意味し、呼び出し元はゲストとして扱うのではなく切り離す必要があります。
 SessionScopeKey? resolveSessionScopeKey(Ref ref) {
   final lifecycle = ref.watch(authLifecycleProvider);
   return ref
@@ -28,9 +28,8 @@ SessionScopeKey? resolveSessionScopeKey(Ref ref) {
       .onLifecycleChanged(lifecycle);
 }
 
-/// Installs the single session coordinator listener. The coordinator itself is
-/// owned by [sessionEpochCoordinatorProvider], so all consumers observe the
-/// same epoch sequence.
+/// 単一のセッションコーディネーターリスナーを設定します。コーディネーター自体は
+/// [sessionEpochCoordinatorProvider] が所有するため、すべての利用側が同じエポック列を観測します。
 final sessionFenceEffectProvider = Provider<void>((ref) {
   ref.watch(sessionScopeKeyProvider);
 });

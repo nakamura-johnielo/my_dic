@@ -34,7 +34,7 @@ final class CatalogEntrySummaryMapper {
   CatalogRankingMetadata ranking(int rankingNo) =>
       CatalogRankingMetadata(rankingNo: rankingNo);
 
-  /// Extracts every complete dictionary meaning element as normalized text.
+  /// 完全な辞書の意味要素をすべて正規化済みテキストとして抽出する。
   String extractMeaningText(String html) {
     final meanings = <String>[];
     final elements = <_HtmlElement>[];

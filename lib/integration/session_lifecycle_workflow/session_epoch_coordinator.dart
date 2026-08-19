@@ -4,11 +4,10 @@ import 'package:my_dic/features/sync/port/sync.dart';
 import 'session_fence_service.dart';
 import 'auth_lifecycle_state.dart';
 
-/// The sole issuer of session epochs.
+/// セッションエポックを発行する唯一のコンポーネント。
 ///
-/// It accepts raw lifecycle states rather than the UI [AppSession] projection:
-/// that distinction is what prevents transient signed-out-looking UI states
-/// from activating guest-owned data.
+/// UIの [AppSession] 投影ではなく、生のライフサイクル状態を受け取ります。この区別により、
+/// 一時的にサインアウトのように見えるUI状態がゲスト所有データを有効化することを防ぎます。
 final class SessionEpochCoordinator {
   SessionEpochCoordinator(this._fence, this._scheduler);
 
@@ -20,9 +19,8 @@ final class SessionEpochCoordinator {
 
   SessionScopeKey? get activeScope => _active;
 
-  /// Applies a lifecycle event and returns the active scope, if it is stable.
-  /// Intermediate states synchronously detach the previous scope and never
-  /// start a replacement query.
+  /// ライフサイクルイベントを適用し、安定している場合はアクティブなスコープを返します。
+  /// 中間状態では直前のスコープを同期的に切り離し、置き換えクエリは開始しません。
   SessionScopeKey? onLifecycleChanged(AuthLifecycleState lifecycle) {
     if (_disposed) return null;
     final accountScope = switch (lifecycle.phase) {
@@ -60,10 +58,10 @@ final class SessionEpochCoordinator {
     _active = null;
   }
 
-  /// Releases the scope owned by this composition root.
+  /// このコンポジションルートが所有するスコープを解放します。
   ///
-  /// A fence must never outlive its provider container: an already scheduled
-  /// sync from a disposed application tree is consequently rejected.
+  /// フェンスはプロバイダーコンテナーより長く存在してはいけません。そのため、破棄された
+  /// アプリケーションツリーからすでに予定されていた同期は拒否されます。
   void dispose() {
     if (_disposed) return;
     _disposed = true;

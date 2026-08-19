@@ -7,7 +7,7 @@ import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_entry_detail.dart';
 import 'package:my_dic/features/catalog/port/queryport/catalog_entry_detail_reader_port.dart';
 
-/// Catalog's public detail reader backed by the Catalog-owned repository graph.
+/// Catalog 所有のリポジトリグラフを基盤とする、Catalog の公開詳細リーダー。
 final class DriftCatalogEntryDetailQueryService
     implements CatalogEntryDetailQueryPort {
   const DriftCatalogEntryDetailQueryService({

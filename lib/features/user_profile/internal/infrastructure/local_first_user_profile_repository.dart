@@ -7,10 +7,10 @@ import 'package:my_dic/features/user_profile/internal/infrastructure/local/local
 import 'package:my_dic/features/user_profile/port/user_profile.dart';
 import 'package:my_dic/features/user_profile/internal/domain/repository/user_profile_repository.dart';
 
-/// App-facing local-first profile repository.
+/// アプリ向けのローカル優先プロフィールリポジトリです。
 ///
-/// Editable fields are read from Drift and written atomically with an outbox
-/// mutation. Remote provisioning and sync delivery are separate adapters.
+/// 編集可能なフィールドは Drift から読み取り、アウトボックス変更と原子的に書き込みます。
+/// リモートのプロビジョニングと同期配信は別のアダプターです。
 final class LocalFirstUserProfileRepository implements IUserProfileRepository {
   LocalFirstUserProfileRepository(
       this._local, this._profileLocal, this._outboxWriter,

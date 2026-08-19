@@ -9,10 +9,10 @@ import 'package:my_dic/core/shared/utils/logger.dart';
 import 'package:my_dic/features/sync/port/sync.dart';
 import 'package:my_dic/integration/session_lifecycle_workflow/auth_lifecycle_effects.dart';
 
-/// Owns application-wide effects independently from widget rebuilds.
+/// ウィジェットの再ビルドとは独立して、アプリケーション全体のエフェクトを管理します。
 ///
-/// Drives Sync via the public `syncRunnerProvider` workflow entry point
-/// whenever the session becomes ready and whenever the app is resumed.
+/// セッションの準備完了時およびアプリ再開時に、公開ワークフローの入口である
+/// `syncRunnerProvider` を通じてSyncを実行します。
 final applicationLifecycleEffectsProvider = Provider<void>((ref) {
   SessionScopeKey? lastSessionReadyScope;
   final observer = _ApplicationLifecycleObserver(
@@ -33,9 +33,9 @@ final applicationLifecycleEffectsProvider = Provider<void>((ref) {
   ref.listen<AppSession>(appSessionProvider, (previous, next) {
     if (next is! AppSessionReady) return;
     final scope = ref.read(sessionScopeKeyProvider);
-    // A ready profile may publish repeatedly. One stable scope activation
-    // (login, logout-to-guest, guest-to-login, or account switch) gets exactly
-    // one foreground trigger; app-resume remains a separate event.
+    // 準備完了のプロフィールは繰り返し通知される場合があります。安定したスコープの有効化
+    // （ログイン、ゲストへのログアウト、ゲストからのログイン、アカウント切替）ごとに、
+    // フォアグラウンドトリガーは1回だけ実行します。アプリ再開は別イベントです。
     if (scope == null || scope == lastSessionReadyScope) return;
     lastSessionReadyScope = scope;
     _triggerForegroundSync(ref, reason: 'session_ready');
@@ -55,8 +55,8 @@ Future<void> _triggerForegroundSync(Ref ref, {required String reason}) async {
           ),
         );
   } catch (_) {
-    // Sync outcomes are reported by the scheduler; never expose an unexpected
-    // exception's free-form text in an application log.
+    // Syncの結果はスケジューラーが報告します。予期しない例外の自由形式テキストを
+    // アプリケーションログへ公開してはいけません。
     AppLogger.print('Foreground sync did not complete.');
   }
 }

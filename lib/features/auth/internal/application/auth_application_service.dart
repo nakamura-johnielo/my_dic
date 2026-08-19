@@ -1,7 +1,7 @@
 import 'package:my_dic/features/auth/internal/domain/repository/auth_repository.dart';
 import 'package:my_dic/features/auth/port/auth.dart';
 
-/// Public Auth application facade over the characterized use cases.
+/// 特性化されたユースケースに対する公開Authアプリケーションファサード。
 final class AuthApplicationService implements AuthQueryPort, AuthCommandPort {
   const AuthApplicationService(this._repository);
 

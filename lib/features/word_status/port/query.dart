@@ -13,10 +13,10 @@ final class ReadWordStatusQuery {
   final CatalogWordRef word;
 }
 
-/// A batch of WordStatus facts.
+/// WordStatus 情報のバッチです。
 ///
-/// Duplicate words are collapsed while preserving their first input order.
-/// An empty batch is valid and returns an empty success result.
+/// 重複単語は最初の入力順序を保ったまま集約します。
+/// 空のバッチも有効であり、空の成功結果を返します。
 final class ReadWordStatusBatchQuery {
   ReadWordStatusBatchQuery({
     required this.scope,

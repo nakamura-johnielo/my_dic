@@ -7,7 +7,7 @@ import 'package:my_dic/features/quiz/internal/infrastructure/drift/quiz_game_dri
 import 'package:my_dic/features/quiz/port/composition_contract.dart';
 import 'package:my_dic/features/quiz/port/quiz.dart';
 
-/// Quiz-owned assembly of application policy and owner-side infrastructure.
+/// アプリケーションポリシーと所有側インフラストラクチャを組み立てる Quiz 所有の処理。
 QuizPorts createInternalQuizPorts({
   required QuizCandidateCatalogGateway candidateCatalogGateway,
   required QuizGameCatalogGateway gameCatalogGateway,

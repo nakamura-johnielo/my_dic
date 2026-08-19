@@ -4,8 +4,8 @@ import 'package:my_dic/features/word_status/port/word_status.dart';
 
 import 'guest_data_summary.dart';
 
-/// Reports whether any local row still sits under the guest scope, across
-/// every dataset that supports real per-account scoping.
+/// 実際のアカウント別スコープをサポートする全データセットを対象に、いずれかのローカル行が
+/// まだゲストスコープに残っているかを報告します。
 class DetectGuestDataUseCase {
   DetectGuestDataUseCase({
     required WordStatusGuestMigrationPort wordStatus,

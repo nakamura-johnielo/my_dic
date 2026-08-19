@@ -1,13 +1,13 @@
 import 'package:my_dic/features/word_detail/port/error/word_detail_read_error.dart';
 
-/// A non-fatal failure retained alongside usable primary detail data.
+/// 使用可能な主要詳細データとともに保持される、致命的ではない失敗です。
 sealed class WordDetailIssue {
   const WordDetailIssue({required this.error});
 
   final WordDetailReadError error;
 }
 
-/// Optional conjugation could not be loaded, but dictionary data is usable.
+/// 任意の活用データは読み込めませんでしたが、辞書データは使用できます。
 final class WordDetailConjugationIssue extends WordDetailIssue {
   const WordDetailConjugationIssue({required super.error});
 }

@@ -22,7 +22,7 @@ import 'package:my_dic/features/catalog/internal/infrastructure/drift/repository
 import 'package:my_dic/features/catalog/internal/infrastructure/drift/repository/drift_jpn_esp_dictionary_repository.dart';
 import 'package:my_dic/features/catalog/port/catalog_read_ports.dart';
 
-/// Catalog-owned assembly of the Drift implementation graph.
+/// Catalog 所有の Drift 実装グラフを組み立てる。
 CatalogQueryPorts createInternalCatalogComposition({
   required DatabaseProvider database,
 }) {

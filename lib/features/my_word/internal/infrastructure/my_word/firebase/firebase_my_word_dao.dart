@@ -10,7 +10,7 @@ class FirebaseMyWordDao {
 
   FirebaseMyWordDao(this._remoteDocuments, this._remoteMutations);
 
-  /// Get a single MyWord by ID
+  /// ID で 1 つの MyWord を取得する。
   Future<MyWordDTO?> getMyWord(String userId, String myWordId) async {
     final document = await _remoteDocuments.read(
       accountId: userId,
@@ -21,7 +21,7 @@ class FirebaseMyWordDao {
     return FirebaseMyWordMapper.fromDocument(document);
   }
 
-  /// Get MyWords updated after a specific timestamp (one-time query)
+  /// 指定したタイムスタンプ以降に更新された MyWord を取得する（単発クエリ）。
   Future<List<MyWordDTO>> getMyWordsAfter(
       String userId, DateTime lastSync) async {
     final documents = await _remoteDocuments.fetchUpdatedSince(
@@ -33,10 +33,9 @@ class FirebaseMyWordDao {
     return documents.map(FirebaseMyWordMapper.fromDocument).toList();
   }
 
-  /// Merge-writes only [fieldMask] keys plus bookkeeping timestamps, so that
-  /// fields not covered by the sync outbox mutation are left untouched.
-  /// `deletedAt` values arrive as ISO-8601 strings and are converted to a
-  /// Firestore `Timestamp` tombstone marker.
+  /// [fieldMask] のキーと管理用タイムスタンプのみをマージ書き込みし、同期アウトボックス変更で
+  /// 対象としないフィールドを変更しない。`deletedAt` 値は ISO-8601 文字列で届き、Firestore の
+  /// `Timestamp` トゥームストーンマーカーへ変換する。
   Future<RemoteMutationAck> patch(RemoteMutationRequest request) {
     return _remoteMutations.execute(
       document: RemoteMutationDocument(

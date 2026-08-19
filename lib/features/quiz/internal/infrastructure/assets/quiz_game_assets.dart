@@ -6,7 +6,7 @@ import 'package:my_dic/features/quiz/internal/application/game/quiz_game_asset_r
 import 'package:my_dic/features/quiz/port/error/quiz_game_infrastructure_error.dart';
 import 'package:my_dic/features/quiz/port/model/quiz_conjugation.dart';
 
-/// Reads and maps the two bundled English prompt assets used by the game.
+/// ゲームで使う 2 つのバンドル済み英語問題文アセットを読み取り、マッピングする。
 final class QuizGameAssets implements QuizGameAssetReader {
   QuizGameAssets({Future<Map<String, dynamic>> Function(String)? readJson})
       : _readJson = readJson ?? readJsonFile;

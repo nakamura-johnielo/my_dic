@@ -1,9 +1,9 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Minimal preferences surface used by the one-time legacy sync cleanup.
+/// 一度限りの旧同期クリーンアップで使用する最小限の設定インターフェース。
 ///
-/// It intentionally exposes no value-reading APIs: legacy cursors must never
-/// be copied into the Drift-backed sync engine.
+/// 意図的に値読み取りAPIは公開しません。旧カーソルをDriftベースの同期エンジンへコピーしては
+/// いけません。
 abstract interface class LegacySyncPreferencesStore {
   bool containsKey(String key);
   Iterable<String> getKeys();
@@ -31,8 +31,8 @@ class SharedPreferencesLegacySyncPreferencesStore
       _preferences.setBool(key, value);
 }
 
-/// Removes obsolete SharedPreferences sync cursors during the Release A
-/// upgrade. A completed marker makes the operation one-shot per installation.
+/// リリースAへの更新時に、古いSharedPreferences同期カーソルを削除します。完了マーカーにより
+/// この操作はインストールごとに一度だけ実行されます。
 class LegacySyncPreferencesCleanup {
   const LegacySyncPreferencesCleanup();
 
@@ -40,10 +40,10 @@ class LegacySyncPreferencesCleanup {
   static const _legacyGlobalKey = 'lastSync_wordStatus';
   static const _legacyCheckpointPrefix = 'sync_checkpoint.v1.';
 
-  /// Returns whether the cleanup is known to have completed.
+  /// クリーンアップが完了済みと判明しているかを返します。
   ///
-  /// Cleanup errors are deliberately non-fatal. Without the marker a later
-  /// launch retries, while the new engine starts and performs a full pull.
+  /// クリーンアップエラーは意図的に致命的扱いしません。マーカーがなければ次回起動時に再試行し、
+  /// 新しいエンジンは開始して全件取得を実行します。
   Future<bool> run(LegacySyncPreferencesStore preferences) async {
     try {
       if (preferences.containsKey(completionMarker)) {

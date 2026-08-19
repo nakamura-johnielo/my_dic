@@ -2,10 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:my_dic/features/my_word/internal/domain/entity/my_word.dart';
 import 'package:my_dic/features/my_word/internal/domain/entity/my_word_status.dart';
 
-/// Read-side composition of a MyWord and its account-scoped status.
+/// MyWord とそのアカウントスコープのステータスを読み取り側で合成したもの。
 ///
-/// This intentionally has no command operations: the word and status remain
-/// independently owned write aggregates.
+/// これには意図的にコマンド操作を含めない。単語とステータスは、それぞれ独立して所有される
+/// 書き込み集約のままである。
 @immutable
 class MyWordItemProjection {
   const MyWordItemProjection({

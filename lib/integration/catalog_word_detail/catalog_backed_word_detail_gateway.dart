@@ -1,7 +1,7 @@
 import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/word_detail/port/word_detail.dart';
 
-/// Pure value/error adapter from Catalog's public semantic readers.
+/// Catalogの公開セマンティックリーダーからの純粋な値・エラーアダプター。
 final class CatalogBackedWordDetailGateway implements WordDetailCatalogGateway {
   const CatalogBackedWordDetailGateway(this._catalog);
 

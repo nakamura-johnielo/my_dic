@@ -12,7 +12,7 @@ abstract interface class MyWordLocalDataSource {
 
   Stream<db.MyWordTableData?> streamMyWordById(String id, String accountId);
 
-  /// Inserts a brand-new MyWord row with `local_revision` starting at 1.
+  /// `local_revision` を 1 から開始して、新しい MyWord 行を挿入する。
   Future<db.MyWordTableData> insertMyWordWithRevision({
     required String id,
     required String word,
@@ -21,8 +21,8 @@ abstract interface class MyWordLocalDataSource {
     required String accountId,
   });
 
-  /// Updates an existing MyWord row and bumps `local_revision` by 1.
-  /// Returns `null` if no row matched.
+  /// 既存の MyWord 行を更新し、`local_revision` を 1 増やす。
+  /// 一致する行がない場合は `null` を返す。
   Future<db.MyWordTableData?> updateMyWordWithRevision({
     required String id,
     required String word,
@@ -31,13 +31,13 @@ abstract interface class MyWordLocalDataSource {
     required String accountId,
   });
 
-  /// Soft-deletes (tombstones) a MyWord row instead of a hard delete.
-  /// Returns `null` if no non-deleted row matched.
+  /// MyWord 行を物理削除せず、論理削除（トゥームストーン化）する。
+  /// 未削除の一致行がない場合は `null` を返す。
   Future<db.MyWordTableData?> tombstoneMyWord(
       String wordId, String deletedAt, String accountId);
 
-  /// Applies a pulled remote snapshot without bumping `local_revision` or
-  /// enqueueing an outbox mutation. `null` per field means "leave untouched".
+  /// `local_revision` を増やしたりアウトボックス変更をキューに入れたりせず、取得したリモート
+  /// スナップショットを適用する。フィールドごとの `null` は「変更しない」を意味する。
   Future<void> applyRemoteFields(
     String wordId, {
     String? word,
@@ -49,12 +49,12 @@ abstract interface class MyWordLocalDataSource {
     String? lastMutationId,
   });
 
-  /// Runs [action] within a single Drift transaction so callers can combine
-  /// a MyWord row write with an outbox mutation atomically.
+  /// [action] を単一の Drift トランザクション内で実行し、呼び出し元が MyWord 行の書き込みと
+  /// アウトボックス変更をアトミックに組み合わせられるようにする。
   Future<T> runInTransaction<T>(Future<T> Function() action);
 
-  /// Stores server metadata only if the local row still has the revision
-  /// leased for the remote mutation.
+  /// ローカル行がリモート変更用にリースされたリビジョンをまだ保持している場合にのみ、
+  /// サーバーメタデータを保存する。
   Future<bool> acknowledgeRemoteMutation({
     required String wordId,
     required String accountId,
@@ -63,12 +63,12 @@ abstract interface class MyWordLocalDataSource {
     required String? lastMutationId,
   });
 
-  /// Returns every non-deleted row for [accountId]. Used by the guest-data
-  /// detector/migration, which needs the full set rather than a page.
+  /// [accountId] の未削除行をすべて返す。ページではなく完全な集合を必要とする、ゲストデータの
+  /// 検出・移行で使用する。
   Future<List<db.MyWordTableData>> getAllByAccountId(String accountId);
 
-  /// Reassigns a row's account scope in place. Returns `null` if no row
-  /// matched at [fromAccountId] or a row already exists at [toAccountId].
+  /// 行のアカウントスコープをその場で再割り当てする。[fromAccountId] に一致する行がないか、
+  /// [toAccountId] に行がすでに存在する場合は `null` を返す。
   Future<db.MyWordTableData?> reassignAccountId(
       String wordId, String fromAccountId, String toAccountId);
 }

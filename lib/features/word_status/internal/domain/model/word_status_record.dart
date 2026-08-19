@@ -1,4 +1,4 @@
-/// Persistence-neutral representation of one stored WordStatus row.
+/// 保存済み WordStatus 行 1 件の永続化非依存表現です。
 final class WordStatusRecord {
   const WordStatusRecord({
     required this.wordId,

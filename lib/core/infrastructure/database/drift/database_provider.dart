@@ -70,15 +70,15 @@ part '../../../../__generated/core/infrastructure/database/drift/database_provid
   UserProfiles,
 ])
 class DatabaseProvider extends _$DatabaseProvider {
-  /// A database instance is owned by the Riverpod provider that creates it.
+  /// データベースインスタンスは、それを作成したRiverpodプロバイダーが所有します。
   ///
-  /// Keeping this constructor non-singleton lets each ProviderContainer (and
-  /// each test) manage its own connection and disposal lifecycle.
+  /// このコンストラクターをシングルトンにしないことで、各ProviderContainer（および各テスト）が
+  /// 自身の接続と破棄ライフサイクルを管理できます。
   DatabaseProvider()
       : _seedEsEnConjugacionsOnUpgrade = true,
         super(_openConnection());
 
-  /// Opens a caller-provided database for migration tests.
+  /// 移行テスト用に、呼び出し元が提供したデータベースを開きます。
   DatabaseProvider.forTesting(
     super.executor, {
     bool seedEsEnConjugacionsOnUpgrade = false,
@@ -92,7 +92,7 @@ class DatabaseProvider extends _$DatabaseProvider {
   //2025/11/12
   // EsEnConjugacionsテーブル追加
   // 2026/01/xx
-  // MyWord ID migration: INTEGER -> UUID(TEXT)
+  // MyWord IDの移行: INTEGER → UUID(TEXT)
   //============================================================
 
   @override
@@ -157,7 +157,7 @@ class DatabaseProvider extends _$DatabaseProvider {
         AppLogger.print("==== DB Migration upgrade ===");
         AppLogger.print("DatabaseProvider - onUpgrade from $from to $to");
         if (from < 1) {
-          //no existing version, so create all tables
+          //既存バージョンがないため、すべてのテーブルを作成します。
         }
         if (from < 4) {
           await m.createTable(esEnConjugacions);
@@ -198,8 +198,8 @@ class DatabaseProvider extends _$DatabaseProvider {
         }
 
         if (from < 5) {
-          // If the DB was created after the UUID change but before version bump,
-          // tables are already TEXT and we must NOT remap IDs.
+          // UUID変更後かつバージョン更新前にDBが作成された場合、テーブルはすでにTEXT型のため、
+          // IDを再マッピングしてはいけません。
           final myWordsInfo =
               await customSelect("PRAGMA table_info('my_words');").get();
           String? myWordIdType;
@@ -225,7 +225,7 @@ class DatabaseProvider extends _$DatabaseProvider {
               ).get())
                   .isNotEmpty;
 
-              // Rename legacy tables
+              //旧テーブルをリネーム
               await customStatement(
                   'ALTER TABLE my_words RENAME TO my_words_old;');
               if (legacyStatusExists) {
@@ -233,11 +233,11 @@ class DatabaseProvider extends _$DatabaseProvider {
                     'ALTER TABLE my_word_status RENAME TO my_word_status_old;');
               }
 
-              // Create new tables using current schema
+              //現在のスキーマで新しいテーブルを作成
               await m.createTable(myWords);
               await m.createTable(myWordStatus);
 
-              // Build mapping oldId -> newUuid
+              //oldId から newUuid へのマッピングを構築
               final idMap = <String, String>{};
               final oldWords = await customSelect(
                 'SELECT my_word_id, word, contents, edit_at FROM my_words_old;',
@@ -265,8 +265,8 @@ class DatabaseProvider extends _$DatabaseProvider {
                 throw StateError('Not all MyWords were migrated.');
               }
 
-              // An unmapped status is a corrupt legacy relation. Failing the
-              // transaction keeps both legacy tables intact for recovery.
+              //マッピングされていないステータスは壊れた旧リレーションです。トランザクションを失敗させる
+              //ことで、復旧に備えて両方の旧テーブルをそのまま保持します。
               if (legacyStatusExists) {
                 final oldStatuses = await customSelect(
                   'SELECT my_word_id, is_learned, is_bookmarked, has_note, edit_at FROM my_word_status_old;',
@@ -300,7 +300,7 @@ class DatabaseProvider extends _$DatabaseProvider {
                 }
               }
 
-              // Drop old tables
+              //旧テーブルを削除
               await customStatement('DROP TABLE my_words_old;');
               if (legacyStatusExists) {
                 await customStatement('DROP TABLE my_word_status_old;');
@@ -320,14 +320,14 @@ class DatabaseProvider extends _$DatabaseProvider {
         }
 
         if (from >= 6 && from < 7) {
-          // SQLite cannot add a non-constant default. Add a temporary
-          // sentinel, then replace it with the existing enqueue timestamp.
+          // SQLiteは非定数のデフォルト値を追加できません。一時的な番兵値を追加し、
+          // その後既存のキュー登録タイムスタンプで置き換えます。
           await customStatement('''
             ALTER TABLE sync_outbox
             ADD COLUMN client_updated_at INTEGER NOT NULL DEFAULT 0
           ''');
-          // Existing queued mutations predate the explicit client edit time.
-          // Their enqueue time is the best available stable approximation.
+          //既存のキュー済み変更は明示的なクライアント編集時刻より前のものです。
+          //そのキュー登録時刻が、利用可能な中で最も安定した近似値です。
           await customStatement('''
             UPDATE sync_outbox
             SET client_updated_at = created_at
@@ -528,11 +528,11 @@ Future<String> copyAssetDbOnce(String assetDbFileName,
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
     if (kIsWeb) {
-      // Web: Use WasmDatabase (IndexedDB)
+      // Web: WasmDatabase（IndexedDB）を使用
       AppLogger.print("DatabaseProvider - Using WasmDatabase for web platform");
       return await createWebExecutor('my_dic_db');
     } else {
-      // Mobile/Desktop: Use file-based SQLite
+      // モバイル/デスクトップ: ファイルベースのSQLiteを使用
       final dbPath = await getDatabasePath(DB_NAME);
       AppLogger.print("DatabaseProvider - Database path: $dbPath");
       final file = File(dbPath);
@@ -543,7 +543,7 @@ LazyDatabase _openConnection() {
 
 Future<String> getDatabasePath(String dbName) async {
   if (kIsWeb) {
-    // Web doesn't need file paths - IndexedDB is used instead
+    // Webではファイルパスは不要です。代わりにIndexedDBを使用します。
     AppLogger.print(
         "getDatabasePath called on web platform - returning placeholder");
     return 'web_indexeddb';

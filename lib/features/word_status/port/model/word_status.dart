@@ -1,6 +1,6 @@
 import 'package:my_dic/features/catalog/port/catalog.dart';
 
-/// The account-scoped status facts owned by WordStatus for one Catalog word.
+/// 1 つの Catalog 単語に対して WordStatus が所有する、アカウントスコープのステータス情報です。
 final class WordStatus {
   const WordStatus({
     required this.word,
@@ -10,7 +10,7 @@ final class WordStatus {
     required this.updatedAt,
   });
 
-  /// The status used when no physical row exists for [word].
+  /// [word] に対応する物理行が存在しない場合に使用するステータスです。
   const WordStatus.initial(this.word)
       : isLearned = false,
         isBookmarked = false,
@@ -22,7 +22,7 @@ final class WordStatus {
   final bool isBookmarked;
   final bool hasNote;
 
-  /// The last persisted update, or `null` when this is an initial status.
+  /// 最後に永続化された更新です。初期ステータスの場合は `null` です。
   final DateTime? updatedAt;
 
   WordStatus copyWith({

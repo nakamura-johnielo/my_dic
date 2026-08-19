@@ -63,9 +63,8 @@ class MigrateGuestDataUseCase {
         clock: _clock,
       );
       await _migrateUserProfile(accountId, migrationId);
-      // Throwing here is intentional: Drift rolls back every migrated row and
-      // outbox mutation if the user changed account while the work was in
-      // progress.
+      // ここでのスローは意図的です。処理中にユーザーがアカウントを切り替えた場合、Driftは
+      // 移行済みのすべての行とアウトボックス変更をロールバックします。
       _ensureCurrent(accountId, sessionEpoch);
     });
   }
@@ -79,10 +78,9 @@ class MigrateGuestDataUseCase {
     }
   }
 
-  /// Imports the only editable profile field. An account profile takes
-  /// precedence when it already has a username; otherwise the guest value is
-  /// retained. The guest row is removed in the same transaction as its
-  /// outbox mutation, making retries safe after a successful import.
+  /// 唯一編集可能なプロフィールフィールドを取り込みます。アカウントプロフィールにすでに
+  /// ユーザー名がある場合はそれを優先し、ない場合はゲスト値を保持します。ゲスト行は
+  /// 対応するアウトボックス変更と同じトランザクションで削除するため、成功後の再試行も安全です。
   Future<void> _migrateUserProfile(String accountId, String migrationId) async {
     await _userProfile.migrateGuestProfile(
       accountId: accountId,

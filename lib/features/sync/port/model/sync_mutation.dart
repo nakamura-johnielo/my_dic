@@ -36,7 +36,7 @@ class SyncMutation {
   final int payloadVersion;
   final int localRevision;
 
-  /// UTC timestamp of the local edit represented by this mutation.
+  /// この変更が表すローカル編集の UTC タイムスタンプです。
   final DateTime clientUpdatedAt;
   final String? baseRemoteRevision;
 }

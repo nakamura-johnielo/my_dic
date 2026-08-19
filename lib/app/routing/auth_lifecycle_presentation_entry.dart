@@ -18,7 +18,7 @@ AuthPresentationState _authLifecyclePresentationState(WidgetRef ref) {
 AuthPresentationActions _authLifecyclePresentationActions(WidgetRef ref) =>
     _AuthLifecyclePresentationActions(ref.read(authLifecycleProvider.notifier));
 
-/// App-owned adapter from lifecycle state to Auth's controlled Flutter entry.
+/// ライフサイクル状態からAuthの制御されたFlutter入口への、アプリ所有アダプター。
 class AuthLifecyclePresentationPage extends ConsumerWidget {
   const AuthLifecyclePresentationPage({super.key});
 

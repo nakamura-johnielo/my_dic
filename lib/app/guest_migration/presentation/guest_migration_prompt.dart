@@ -11,9 +11,8 @@ import 'package:my_dic/core/session/session_scope_key.dart';
 import 'package:my_dic/core/session/session_scope_provider.dart';
 import 'package:my_dic/features/sync/port/sync.dart';
 
-/// Account/epoch-owned guest-data prompt. Work is deliberately serial, but a
-/// newer session is remembered while detection or migration is in flight and
-/// runs next (latest-wins).
+/// アカウント/エポックが所有するゲストデータ確認。処理は意図的に直列化しますが、検出または
+/// 移行の実行中に新しいセッションを記憶し、次に実行します（最新優先）。
 class GuestMigrationPrompt extends ConsumerStatefulWidget {
   const GuestMigrationPrompt({super.key});
 
@@ -72,8 +71,8 @@ class _GuestMigrationPromptState extends ConsumerState<GuestMigrationPrompt> {
       }
     } finally {
       _checking = false;
-      // A Ready event may have landed between the final loop condition and
-      // cleanup. Never leave it stranded behind the global serial gate.
+      // 最後のループ条件とクリーンアップの間にReadyイベントが到着している場合があります。
+      // グローバルな直列ゲートの後ろに取り残してはいけません。
       if (mounted && _pendingScope != null) _drain();
     }
   }
@@ -113,8 +112,8 @@ class _GuestMigrationPromptState extends ConsumerState<GuestMigrationPrompt> {
           .read(guestMigrationWorkflowDependenciesProvider)
           .migrate(scope.accountScope, scope.epoch);
     } on GuestMigrationSessionChanged {
-      // The latest session has either already been queued or will be queued
-      // by its session listener; never notify the former account.
+      // 最新セッションはすでにキュー済みか、そのセッションリスナーがキューに追加します。
+      // 以前のアカウントへ通知してはいけません。
       return;
     } catch (_) {
       if (_isCurrent(scope, generation)) {
@@ -155,8 +154,8 @@ class _GuestMigrationPromptState extends ConsumerState<GuestMigrationPrompt> {
         _notice('Migration completed, but sync needs attention.',
             onRetry: () => _postMigrationSync(scope, generation));
       case SyncRunOutcome.cancelled:
-        // Session cancellation is silent; a new Ready scope, if any, is
-        // already pending through the latest-wins queue.
+        // セッションのキャンセルは通知しません。新しいReadyスコープがあれば、すでに
+        // 最新優先キューを通じて保留されています。
         return;
     }
   }

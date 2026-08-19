@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_dic/core/presentation/state/query_state.dart';
 import 'package:my_dic/features/my_word/port/result.dart';
 
-/// Read-only presentation data for a card or modal.
+/// カードまたはモーダル用の読み取り専用プレゼンテーションデータ。
 class MyWordItemUiModel {
   const MyWordItemUiModel({
     required this.wordId,
@@ -81,7 +81,7 @@ class MyWordListResults {
   }
 }
 
-/// Pagination metadata is independent from the list query lifecycle.
+/// ページネーションメタデータはリストクエリのライフサイクルから独立している。
 class MyWordFragmentState {
   const MyWordFragmentState({
     this.words = const QueryState.initial(),

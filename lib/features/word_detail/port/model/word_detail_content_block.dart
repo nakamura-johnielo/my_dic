@@ -1,4 +1,4 @@
-/// Provider-neutral semantic dictionary content.
+/// プロバイダー非依存の意味的な辞書コンテンツです。
 final class WordDetailContent {
   WordDetailContent(Iterable<WordDetailContentBlock> blocks)
       : blocks = List.unmodifiable(blocks);

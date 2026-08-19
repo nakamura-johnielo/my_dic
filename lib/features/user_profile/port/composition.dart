@@ -8,7 +8,7 @@ import 'composition_contract.dart';
 
 export 'composition_contract.dart';
 
-/// Application-owned runtime dependencies for normal UserProfile behavior.
+/// 通常の UserProfile 動作に必要な、アプリケーション所有の実行時依存関係です。
 final class UserProfileDependencies {
   const UserProfileDependencies({
     required this.database,
@@ -27,7 +27,7 @@ final class UserProfileDependencies {
   final UserProfileClock clock;
 }
 
-/// Application-owned runtime dependencies for UserProfile synchronization.
+/// UserProfile 同期に必要な、アプリケーション所有の実行時依存関係です。
 final class UserProfileSyncDependencies {
   const UserProfileSyncDependencies({
     required this.database,

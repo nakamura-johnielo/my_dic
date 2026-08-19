@@ -1,6 +1,6 @@
 import 'package:my_dic/features/catalog/port/model/catalog_ranked_entry.dart';
 
-/// A deterministic Catalog ranking source slice with one-row look-ahead.
+/// 1 行先読みを含む、決定的な Catalog ランキングソースの断片。
 final class CatalogRankedEntryFeed {
   CatalogRankedEntryFeed({
     required Iterable<CatalogRankedEntry> items,

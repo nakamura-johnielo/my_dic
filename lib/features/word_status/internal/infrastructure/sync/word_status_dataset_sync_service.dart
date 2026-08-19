@@ -1,10 +1,10 @@
 import 'package:my_dic/features/sync/port/dataset_contract.dart';
 import 'word_status_sync_record.dart';
 
-/// Direction-specific WordStatus mapping for the shared Sync runtime.
+/// 共通 Sync ランタイム用の方向固有 WordStatus マッピングです。
 ///
-/// The Sync feature owns queue, retry, checkpoint, and cancellation policy.
-/// This adapter only translates WordStatus remote and local representations.
+/// Sync 機能がキュー、再試行、チェックポイント、キャンセルポリシーを所有します。
+/// このアダプターは WordStatus のリモート表現とローカル表現を変換するだけです。
 abstract class WordStatusDatasetSyncService implements DatasetSyncGateway {
   @override
   SyncDataset get dataset;

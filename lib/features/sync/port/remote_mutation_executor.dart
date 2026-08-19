@@ -2,10 +2,10 @@ import 'dart:collection';
 
 import 'model/remote_mutation.dart';
 
-/// Feature-owned, already encoded remote document plan.
+/// 機能が所有し、すでにエンコード済みのリモートドキュメント計画です。
 ///
-/// Sync's external-system executor consumes this generic plan without knowing
-/// dataset names, collection names, identity fields, or value encodings.
+/// Sync の外部システム実行者は、データセット名、コレクション名、識別フィールド、値の
+/// エンコーディングを知らずに、この汎用計画を処理します。
 final class RemoteMutationDocument {
   RemoteMutationDocument({
     required Iterable<String> pathSegments,
@@ -21,8 +21,8 @@ final class RemoteMutationDocument {
   final Map<String, Object?> encodedFields;
 }
 
-/// Executes a pure remote mutation request against the application's remote
-/// backend. SDK transaction and value mapping are owned by the implementation.
+/// アプリケーションのリモートバックエンドに対して純粋なリモート変更要求を実行します。
+/// SDK トランザクションと値のマッピングは実装が所有します。
 abstract interface class RemoteMutationExecutor {
   Future<RemoteMutationAck> execute({
     required RemoteMutationDocument document,

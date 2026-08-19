@@ -16,7 +16,7 @@ abstract interface class IMyWordStatusLocalDataSource {
   Future<db.MyWordStatusTableData?> getWordStatus(
       String wordId, String accountId);
 
-  /// Upserts the status row and bumps `local_revision` by 1.
+  /// ステータス行を upsert し、`local_revision` を 1 増やす。
   Future<db.MyWordStatusTableData> applyStatusPatch(
     String myWordId,
     int? isLearned,
@@ -26,8 +26,8 @@ abstract interface class IMyWordStatusLocalDataSource {
     String accountId,
   );
 
-  /// Applies a pulled remote snapshot without bumping `local_revision` or
-  /// enqueueing an outbox mutation. `null` per field means "leave untouched".
+  /// `local_revision` を増やしたりアウトボックス変更をキューに入れたりせず、取得したリモート
+  /// スナップショットを適用する。フィールドごとの `null` は「変更しない」を意味する。
   Future<void> applyRemoteFields(
     String myWordId, {
     int? isLearned,
@@ -39,12 +39,12 @@ abstract interface class IMyWordStatusLocalDataSource {
     String? lastMutationId,
   });
 
-  /// Runs [action] within a single Drift transaction so callers can combine
-  /// a status row write with an outbox mutation atomically.
+  /// [action] を単一の Drift トランザクション内で実行し、呼び出し元がステータス行の書き込みと
+  /// アウトボックス変更をアトミックに組み合わせられるようにする。
   Future<T> runInTransaction<T>(Future<T> Function() action);
 
-  /// Stores server metadata only if the local row still has the revision
-  /// leased for the remote mutation.
+  /// ローカル行がリモート変更用にリースされたリビジョンをまだ保持している場合にのみ、
+  /// サーバーメタデータを保存する。
   Future<bool> acknowledgeRemoteMutation({
     required String myWordId,
     required String accountId,
@@ -53,16 +53,16 @@ abstract interface class IMyWordStatusLocalDataSource {
     required String? lastMutationId,
   });
 
-  /// Returns every row for [accountId]. Used by the guest-data
-  /// detector/migration, which needs the full set rather than a single row.
+  /// [accountId] の行をすべて返す。単一行ではなく完全な集合を必要とする、ゲストデータの
+  /// 検出・移行で使用する。
   Future<List<db.MyWordStatusTableData>> getAllByAccountId(String accountId);
 
-  /// Reassigns a status row's account scope in place. Returns `null` if no
-  /// row matched at [fromAccountId] or a row already exists at [toAccountId].
+  /// ステータス行のアカウントスコープをその場で再割り当てする。[fromAccountId] に一致する行が
+  /// ないか、[toAccountId] に行がすでに存在する場合は `null` を返す。
   Future<db.MyWordStatusTableData?> reassignAccountId(
       String myWordId, String fromAccountId, String toAccountId);
 
-  /// Deletes one status row in the requested account scope after it has been
-  /// merged into another scope during guest-data migration.
+  /// ゲストデータ移行中に別のスコープへマージされた後、要求されたアカウントスコープの
+  /// ステータス行を 1 行削除する。
   Future<void> deleteRow(String myWordId, String accountId);
 }

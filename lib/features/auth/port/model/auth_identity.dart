@@ -1,7 +1,7 @@
-/// Authentication provider attached to an Auth identity.
+/// Auth IDに紐付く認証プロバイダー。
 enum AuthProvider { google, apple, email, anonymous, unknown }
 
-/// Auth-owned identity facts exposed to business consumers.
+/// ビジネス利用側に公開する、Authが所有するID情報。
 final class AuthIdentity {
   AuthIdentity({
     required this.accountId,

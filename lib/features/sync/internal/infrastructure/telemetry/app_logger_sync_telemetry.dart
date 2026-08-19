@@ -12,11 +12,10 @@ typedef SyncTelemetryEventLogger = void Function(
   Map<String, Object?> context,
 );
 
-/// Converts reports to an allowlisted structured log event.
+/// レポートを許可リスト方式の構造化ログイベントへ変換します。
 ///
-/// It never logs the report itself: account identifiers, cursors, payloads,
-/// entity/mutation identifiers, and raw errors are deliberately unavailable to
-/// the emitted map.
+/// レポート自体は決してログに記録しません。アカウント識別子、カーソル、ペイロード、
+/// エンティティ／変更識別子、生のエラーは意図的に出力マップで利用できません。
 class AppLoggerSyncTelemetry implements SyncTelemetry {
   AppLoggerSyncTelemetry({SyncTelemetryEventLogger? eventLogger})
       : _eventLogger = eventLogger ??
@@ -34,7 +33,7 @@ class AppLoggerSyncTelemetry implements SyncTelemetry {
     _eventLogger(eventName, serialize(trigger: trigger, report: report));
   }
 
-  /// Exposed for deterministic security tests and future telemetry adapters.
+  /// 決定的なセキュリティテストと将来のテレメトリーアダプターのために公開します。
   Map<String, Object?> serialize({
     required String trigger,
     required SyncReport report,

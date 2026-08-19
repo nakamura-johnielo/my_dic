@@ -4,10 +4,10 @@ import 'package:my_dic/features/word_status/port/word_status.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/esp_jpn/drift/esp_jpn_word_status_local_data_source.dart';
 import 'package:my_dic/features/word_status/internal/infrastructure/jpn_esp/drift/jpn_esp_word_status_local_data_source.dart';
 
-/// Drift-backed implementation of the WordStatus part of guest migration.
+/// ゲスト移行における WordStatus 部分の Drift ベース実装です。
 ///
-/// This deliberately does not start a transaction: its caller combines this
-/// work with MyWord, MyWordStatus, and UserProfile in one database fence.
+/// これは意図的にトランザクションを開始しません。呼び出し元がこの処理を MyWord、
+/// MyWordStatus、UserProfile と 1 つのデータベース境界内で組み合わせます。
 class DriftWordStatusGuestMigration implements WordStatusGuestMigrationPort {
   DriftWordStatusGuestMigration({
     required EspJpnWordStatusLocalDataSource espJpn,

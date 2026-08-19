@@ -1,4 +1,4 @@
-/// The sole business-facing import for WordStatus.
+/// WordStatus 用の唯一のビジネス向けインポートです。
 library;
 
 export 'package:my_dic/core/shared/utils/result.dart'

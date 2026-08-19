@@ -108,8 +108,8 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
 
   Widget _content(MyWordFragmentState screen, SessionScopeKey scope) =>
       switch (screen.words) {
-        // The list must be mounted even before data exists: its one owner
-        // performs the automatic zero-based first-page request.
+        // データが存在する前でもリストをマウントする必要がある。唯一の所有者が自動的に
+        // 0 始まりの最初のページを要求する。
         QueryInitial() => _list(const MyWordListResults([]), screen, scope),
         QueryLoading(previousData: null) =>
           const Center(child: CircularProgressIndicator()),
@@ -148,9 +148,8 @@ class _MyWordFragmentState extends ConsumerState<MyWordFragment> {
             ),
           Expanded(
               child: InfinityScrollListView(
-            // A session scope/epoch is a distinct result set. Remount the
-            // scroll owner so it cannot retain page/hasMore from the old
-            // account while the re-keyed VM loads page zero.
+            // セッションスコープ・エポックは別の結果セットである。キーを振り直した VM がページ 0 を
+            // 読み込む間に以前のアカウントの page/hasMore を保持しないよう、スクロール所有者を再マウントする。
             key: ValueKey(scope),
             padding: const EdgeInsets.only(
               bottom: UIConsts.bottomBarCompleteHeight * 2, // FAB 用の余白

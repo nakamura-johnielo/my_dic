@@ -6,9 +6,8 @@ import 'package:my_dic/core/shared/errors/unexpected_error.dart';
 import 'package:my_dic/integration/session_lifecycle_workflow/auth_lifecycle_provider.dart';
 import 'package:my_dic/integration/session_lifecycle_workflow/auth_lifecycle_state.dart';
 
-/// The single Router/UI-facing session state, derived from
-/// `authLifecycleProvider`. Nothing else should be treated as the entry
-/// point for "is there a usable session".
+/// `authLifecycleProvider` から導出される、唯一のルーター/UI向けセッション状態。
+/// 「利用可能なセッションがあるか」の入口として、ほかを扱ってはいけません。
 final appSessionProvider = Provider<AppSession>((ref) {
   final lifecycle = ref.watch(authLifecycleProvider);
   final baseSession = _toAppSession(lifecycle);
@@ -36,11 +35,10 @@ final appSessionProvider = Provider<AppSession>((ref) {
   );
 });
 
-/// The accountId resolution port features depend on instead of Auth
-/// Repository. Only a fully [AppSessionReady] session yields an accountId;
-/// email-unverified or profile-loading sessions are treated as guest for
-/// accountId purposes, matching the intent that unverified users must not
-/// reach sync or remote writes.
+/// 機能がAuth Repositoryの代わりに依存するaccountId解決ポート。完全に
+/// [AppSessionReady] のセッションだけがaccountIdを提供します。メール未確認または
+/// プロフィール読み込み中のセッションは、未確認ユーザーが同期やリモート書き込みを行えない
+/// という意図に合わせ、accountIdの用途ではゲストとして扱います。
 final currentSessionProvider = Provider<CurrentSession>((ref) {
   final session = ref.watch(appSessionProvider);
   return _AppSessionCurrentSession(session);

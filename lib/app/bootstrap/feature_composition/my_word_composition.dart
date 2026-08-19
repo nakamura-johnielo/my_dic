@@ -5,7 +5,7 @@ import 'package:my_dic/core/composition/data_di.dart';
 import 'package:my_dic/features/my_word/port/composition.dart';
 import 'package:my_dic/features/sync/port/dataset_contract.dart';
 
-/// App-owned Riverpod lifetime around MyWord's framework-free factory.
+/// MyWordのフレームワーク非依存ファクトリーを囲む、アプリ所有のRiverpodライフタイム。
 final myWordPortsProvider = Provider<MyWordPorts>(
   (ref) => createMyWordPorts(
     dependencies: MyWordDependencies(

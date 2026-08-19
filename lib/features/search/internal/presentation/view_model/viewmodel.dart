@@ -5,10 +5,10 @@ import 'package:my_dic/features/search/internal/application/search_direction_pol
 import 'package:my_dic/features/search/internal/presentation/ui_model/search_ui_model.dart';
 import 'package:my_dic/features/search/port/search.dart';
 
-/// Owns result-set identity, request attempts, and the page to retry.
+/// 結果セットの識別子、リクエスト試行、および再試行するページを保持します。
 ///
-/// [InfinityScrollController] deliberately only drives pagination.  It never
-/// owns a query, an error, or a failed page identity.
+/// [InfinityScrollController] は意図的にページネーションのみを制御します。
+/// クエリ、エラー、失敗したページの識別子は保持しません。
 class SearchViewModel extends StateNotifier<SearchState> {
   SearchViewModel(this._search) : super(const SearchState());
 
@@ -25,7 +25,7 @@ class SearchViewModel extends StateNotifier<SearchState> {
     _failedPage = null;
     state = SearchState(
       query: value,
-      // A new result set must not render the previous query while loading.
+      // 新しい結果セットでは、読み込み中に前のクエリを表示してはなりません。
       results: value.isEmpty
           ? const QueryState.initial()
           : const QueryState.loading(),
@@ -58,8 +58,8 @@ class SearchViewModel extends StateNotifier<SearchState> {
           );
     final pending = _inFlight[identity];
     if (pending != null) return pending;
-    // One active request per result-set generation. A query change intentionally
-    // starts a new generation, so its page 0 is not blocked by a stale request.
+    // 結果セット世代ごとに有効なリクエストは 1 件です。クエリ変更では意図的に
+    // 新しい世代を開始するため、その 0 ページ目は古いリクエストに妨げられません。
     if (_activeTokens.values.any((token) => token.generation == _generation)) {
       return Future.value(false);
     }
@@ -69,8 +69,8 @@ class SearchViewModel extends StateNotifier<SearchState> {
     return request;
   }
 
-  /// Retries exactly the most recently failed page, if it still belongs to
-  /// the current result set. This is intentionally VM-owned business state.
+  /// 現在の結果セットに属している場合のみ、直近で失敗したページを再試行します。
+  /// これは意図的に VM が所有するビジネス状態です。
   Future<bool> retryFailed() {
     final failed = _failedPage;
     if (failed == null ||
@@ -108,8 +108,8 @@ class SearchViewModel extends StateNotifier<SearchState> {
           conjugationSuggestions: output.conjugationSuggestions,
           hasNext: output.hasNext,
         );
-        // Capture the current value after await. This retains a completed
-        // page when another valid page completed while this request waited.
+        // await 後に現在値を取得します。これにより、このリクエストの待機中に
+        // 別の有効なページが完了した場合も、完了済みページを保持できます。
         final current = state.results.dataOrNull;
         _publish(
           next,
@@ -131,7 +131,7 @@ class SearchViewModel extends StateNotifier<SearchState> {
       return false;
     } finally {
       if (_activeTokens[identity] == token) _activeTokens.remove(identity);
-      // The map entry is still this request unless a later attempt replaced it.
+      // 後続の試行で置き換えられていない限り、マップの項目はこのリクエストのままです。
       _inFlight.remove(identity);
     }
   }

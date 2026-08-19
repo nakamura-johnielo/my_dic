@@ -1,4 +1,4 @@
-/// A one-shot UI instruction. Effects are separate from durable screen state.
+/// 一度だけ実行するUI指示。エフェクトは永続的な画面状態とは分離されます。
 sealed class UiEffect {
   const UiEffect();
 }
@@ -23,7 +23,7 @@ final class UiReloadEffect extends UiEffect {
   const UiReloadEffect();
 }
 
-/// A one-shot effect with a stable ID for exactly-once consumption.
+/// 一度だけ消費するための安定したIDを持つワンショットエフェクト。
 class UiEffectEnvelope<E extends UiEffect> {
   const UiEffectEnvelope({required this.id, required this.effect});
 
@@ -31,21 +31,20 @@ class UiEffectEnvelope<E extends UiEffect> {
   final E effect;
 }
 
-/// Contract a ViewModel exposes when it has a pending one-shot effect.
+/// 保留中のワンショットエフェクトがある際にViewModelが公開する契約。
 ///
-/// A listener handles [pendingEffect] and then calls [consumeEffect] with the
-/// same ID. Implementations must leave a newer effect in place when an older
-/// ID is consumed.
+/// リスナーは [pendingEffect] を処理し、その後同じIDで [consumeEffect] を呼び出します。
+/// 古いIDを消費した際も、実装は新しいエフェクトをそのまま残す必要があります。
 abstract interface class UiEffectConsumer {
   UiEffectEnvelope<UiEffect>? get pendingEffect;
 
   void consumeEffect(String id);
 }
 
-/// Returns whether [effect] is the one currently pending for [id].
+/// [effect] が [id] に対して現在保留中のものかを返します。
 ///
-/// This small helper makes stale-listener guards explicit in ViewModels that
-/// keep their effect state immutable.
+/// この小さなヘルパーにより、エフェクト状態を不変に保つViewModelで古いリスナーを防ぐ
+/// ガードを明示できます。
 bool shouldConsumeEffect({
   required UiEffectEnvelope<UiEffect>? pendingEffect,
   required String id,

@@ -14,7 +14,7 @@ final class WordDetailViewModel extends StateNotifier<WordDetailState> {
   Future<void>? _initialization;
   var _generation = 0;
 
-  /// Starts the single request owned by this provider instance.
+  /// このプロバイダーインスタンスが所有する単一リクエストを開始します。
   Future<void> initialize(WordDetailLoadKey key) =>
       _initialization ??= _load(key, ++_generation);
 

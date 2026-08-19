@@ -4,7 +4,7 @@ import 'package:my_dic/features/my_word/internal/infrastructure/data/dao/local/d
 import 'package:my_dic/features/my_word/internal/infrastructure/mapper/my_word_infrastructure_error_mapper.dart';
 import 'package:my_dic/features/my_word/internal/infrastructure/mapper/my_word_item_projection_mapper.dart';
 
-/// Drift-backed read adapter. It never writes a missing status row.
+/// Drift ベースの読み取りアダプター。不足しているステータス行を書き込むことはない。
 final class DriftMyWordItemQueryRepository implements MyWordItemQuery {
   DriftMyWordItemQueryRepository(this._dao);
 

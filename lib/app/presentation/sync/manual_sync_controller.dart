@@ -22,8 +22,8 @@ final manualSyncControllerProvider =
   return controller;
 });
 
-/// Coordinates a user-requested foreground sync without making sync internals
-/// part of presentation state.
+/// 同期内部をプレゼンテーション状態の一部にせず、ユーザー要求のフォアグラウンド同期を
+/// 調整します。
 class ManualSyncController extends StateNotifier<ManualSyncUiState>
     implements UiEffectConsumer {
   ManualSyncController({
@@ -55,8 +55,8 @@ class ManualSyncController extends StateNotifier<ManualSyncUiState>
     }
   }
 
-  /// Cancels an in-flight request and discards its notice when the usable
-  /// account changes (or ceases to be ready).
+  /// 利用可能なアカウントが変更された（または準備完了でなくなった）場合、実行中の要求を
+  /// キャンセルし、その通知を破棄します。
   void onSessionChanged(AppSession session) {
     final nextAccountId = session.accountIdOrNull;
     if (nextAccountId == _readyAccountId) return;

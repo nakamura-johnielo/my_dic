@@ -1,10 +1,10 @@
 import 'package:my_dic/core/shared/consts/user/default.dart';
 import 'package:my_dic/core/shared/enums/auth/subscription_status.dart';
 
-/// UserProfile-owned values exposed to application workflows and UI.
+/// アプリケーションワークフローと UI に公開する UserProfile 所有の値です。
 ///
-/// Account identity remains owned by Auth and is therefore supplied to every
-/// account-scoped operation instead of being embedded in this model.
+/// アカウント識別子は引き続き Auth が所有します。そのためこのモデルに埋め込まず、
+/// すべてのアカウントスコープ操作へ渡します。
 class AppUser {
   final String? deviceId;
   final String? email;

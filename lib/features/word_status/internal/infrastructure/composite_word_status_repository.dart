@@ -2,10 +2,10 @@ import 'package:my_dic/features/word_status/port/word_status.dart';
 import 'package:my_dic/features/word_status/internal/domain/word_status_repository.dart'
     as domain;
 
-/// The persistence boundary for one physical dictionary status dataset.
+/// 1 つの物理辞書ステータスデータセット用の永続化境界です。
 ///
-/// The shared application layer only knows [CatalogWordRef].  Dataset and
-/// table-specific details deliberately remain behind this interface.
+/// 共通アプリケーション層が認識するのは [CatalogWordRef] だけです。データセットおよび
+/// テーブル固有の詳細は意図的にこのインターフェースの背後に留めます。
 abstract interface class DictionaryWordStatusStore {
   CatalogId get catalogId;
 
@@ -34,8 +34,7 @@ abstract interface class DictionaryWordStatusStore {
   });
 }
 
-/// Dispatches shared status operations to the store registered for the
-/// [CatalogWordRef.catalogId].
+/// 共通ステータス操作を [CatalogWordRef.catalogId] に登録されたストアへ振り分けます。
 final class CompositeWordStatusRepository
     implements domain.WordStatusRepository {
   CompositeWordStatusRepository(Iterable<DictionaryWordStatusStore> stores)

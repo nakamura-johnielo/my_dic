@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:my_dic/features/word_detail/port/word_detail.dart';
 
-/// Identifies the complete read request represented by a word-detail page.
+/// 単語詳細ページが表す完全な読み込み要求を識別します。
 @immutable
 class WordDetailLoadKey {
   const WordDetailLoadKey(this.word);

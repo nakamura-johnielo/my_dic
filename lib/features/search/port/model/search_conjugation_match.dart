@@ -1,4 +1,4 @@
-/// A typed position in a conjugation table.
+/// 活用表内の型付けされた位置です。
 enum SearchConjugationMatchKey {
   presentParticiple(SearchMoodTense.participlePresent, SearchSubject.yo),
   pastParticiple(SearchMoodTense.participlePast, SearchSubject.yo),

@@ -12,7 +12,7 @@ import 'package:my_dic/features/sync/port/sync_handler_runtime.dart';
 import 'package:my_dic/features/sync/port/sync_queue.dart';
 import 'sync_execution_guard.dart';
 
-/// The common durable Sync algorithm for every dataset adapter.
+/// すべてのデータセットアダプターに共通する、永続的な Sync アルゴリズムです。
 final class SyncHandlerRuntimeService implements SyncHandlerRuntime {
   SyncHandlerRuntimeService({
     required SyncQueue queue,

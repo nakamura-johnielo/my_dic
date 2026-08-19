@@ -2,7 +2,7 @@ import 'package:my_dic/core/infrastructure/database/drift/database_provider.dart
 import 'package:my_dic/features/catalog/port/model/catalog_conjugation.dart';
 import 'package:my_dic/features/catalog/port/model/catalog_search_models.dart';
 
-/// The single persistence-to-typed-match mapping for conjugation rows.
+/// 活用形行に対する、永続化データから型付き一致への唯一のマッピング。
 abstract final class CatalogConjugationMatchMapper {
   static Map<CatalogConjugationMatch, String> fromRow(
     EspConjugationTableData row, {

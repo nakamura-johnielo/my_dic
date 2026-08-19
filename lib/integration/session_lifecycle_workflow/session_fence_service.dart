@@ -1,9 +1,9 @@
 import 'package:my_dic/features/sync/port/sync.dart';
 
-/// App-owned projection of epochs emitted by [SessionEpochCoordinator].
+/// [SessionEpochCoordinator] が発行するエポックの、アプリ所有の投影。
 ///
-/// It never creates epochs; it only records the coordinator's current scope
-/// so Sync can reject stale work.
+/// エポックを作成することはなく、コーディネーターの現在のスコープを記録するだけです。
+/// これによりSyncは古い処理を拒否できます。
 final class SessionFenceService implements SessionFence {
   final Map<String, int> _epochs = {};
 

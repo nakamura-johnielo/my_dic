@@ -2,10 +2,10 @@ import 'dataset_sync_gateway.dart';
 import 'model/dataset_sync_result.dart';
 import 'model/sync_context.dart';
 
-/// Sync-owned execution capability supplied to the standard dataset handler.
+/// 標準データセットハンドラーに提供する、Sync 所有の実行機能です。
 ///
-/// The implementation owns retry/backoff/classification/guard and all durable
-/// queue and checkpoint flow. Feature adapters receive no policy objects.
+/// 実装は再試行／バックオフ／分類／ガード、およびすべての永続キュー・チェックポイントフローを
+/// 所有します。機能アダプターはポリシーオブジェクトを受け取りません。
 abstract interface class SyncHandlerRuntime {
   Future<DatasetSyncResult> run(
     SyncContext context,

@@ -1,8 +1,7 @@
 import 'dart:collection';
 
-/// The complete, idempotent remote-write contract shared by every sync
-/// dataset. Entity identifiers stay strings at this boundary because remote
-/// document identifiers are strings as well.
+/// すべての同期データセットで共有する、完全で冪等なリモート書き込みコントラクトです。
+/// リモートドキュメント識別子も文字列であるため、この境界ではエンティティ識別子も文字列に保ちます。
 class RemoteMutationRequest {
   RemoteMutationRequest({
     required this.accountId,
@@ -31,7 +30,7 @@ class RemoteMutationRequest {
 
 enum RemoteMutationAckStatus { applied, duplicate, superseded }
 
-/// Result read from the authoritative remote transaction.
+/// 信頼できるリモートトランザクションから読み取った結果です。
 class RemoteMutationAck {
   const RemoteMutationAck({
     required this.status,

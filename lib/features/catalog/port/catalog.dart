@@ -1,4 +1,4 @@
-/// The sole public import surface for Catalog read contracts.
+/// Catalog 読み取り契約の唯一の公開インポート面。
 library;
 
 export 'catalog_id.dart';

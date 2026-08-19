@@ -1,6 +1,6 @@
-/// This is the db table name.
-/// Stable identifiers used in persistence and remote protocol. Never rely on
-/// enum indexes: adding a dataset must not reinterpret existing rows.
+/// これは DB テーブル名です。
+/// 永続化とリモートプロトコルで使用する安定した識別子です。データセット追加によって既存行を
+/// 異なる意味に解釈してはならないため、列挙値のインデックスには決して依存しません。
 enum SyncDataset {
   espJpnWordStatus('esp_jpn_word_status'),
   jpnEspWordStatus('jpn_esp_word_status'),

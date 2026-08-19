@@ -2,7 +2,7 @@ import 'package:my_dic/features/ranking/port/ranking.dart';
 
 const int _defaultSourceChunkSize = 100;
 
-/// Ranking-owned orchestration for filtering and offset page formation.
+/// フィルタリングとオフセットページ生成を行う Ranking 所有のオーケストレーション。
 final class RankingApplicationService implements RankingPageQueryPort {
   RankingApplicationService({
     required RankingCatalogGateway catalog,

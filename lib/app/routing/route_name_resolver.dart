@@ -1,10 +1,10 @@
 import 'package:my_dic/core/shared/enums/entry_point.dart';
 import 'package:my_dic/app/routing/route_names.dart';
 
-/// Resolves the route names nested below each application entry point.
+/// 各アプリケーション入口の配下にネストされたルート名を解決します。
 ///
-/// This is deliberately a pure mapping: callers own the GoRouter invocation
-/// and can therefore use the BuildContext that initiated the user action.
+/// これは意図的に純粋なマッピングです。呼び出し元がGoRouterの呼び出しを所有するため、
+/// ユーザー操作を開始したBuildContextを使用できます。
 String routeParentNameFor(EntryPoint entryPoint) => switch (entryPoint) {
       EntryPoint.search => RouteNames.search,
       EntryPoint.studyDashboard => RouteNames.dashboard,

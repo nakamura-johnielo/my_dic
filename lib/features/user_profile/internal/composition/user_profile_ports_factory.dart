@@ -14,7 +14,7 @@ import 'package:my_dic/features/user_profile/internal/infrastructure/local_first
 import 'package:my_dic/features/user_profile/port/composition_contract.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Owner-only assembly. Framework and persistence implementations stay here.
+/// 所有者専用の組み立てです。フレームワークと永続化の実装はここに留めます。
 UserProfilePorts createInternalUserProfilePorts({
   required DatabaseProvider database,
   required SharedPreferences sharedPreferences,

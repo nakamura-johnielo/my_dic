@@ -3,7 +3,7 @@ import 'package:my_dic/features/my_word/internal/domain/entity/my_word_status.da
 import 'update_my_word_status_record.dart';
 
 abstract interface class IMyWordStatusRepository {
-  // Local methods
+  // ローカルメソッド
   Future<Result<void>> updateStatus(UpdateMyWordStatusInputData input);
   Stream<MyWordStatus> watchStatus(String wordId, {required String accountId});
 }

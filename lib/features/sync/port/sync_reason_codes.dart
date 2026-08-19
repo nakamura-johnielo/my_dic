@@ -1,7 +1,7 @@
-/// Stable reason codes carried by sync contexts, cancellations, and reports.
+/// 同期コンテキスト、キャンセル、レポートで保持する安定した理由コードです。
 ///
-/// Application workflows may select these protocol values without importing
-/// sync engine internals.
+/// アプリケーションワークフローは同期エンジン内部をインポートせずに、これらの
+/// プロトコル値を選択できます。
 abstract final class SyncReasonCodes {
   static const syncAlreadyRunning = 'sync_already_running';
   static const dependencyFailed = 'dependency_failed';

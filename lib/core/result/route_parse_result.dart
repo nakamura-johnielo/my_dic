@@ -1,7 +1,7 @@
-/// The result of parsing a feature-owned route contract.
+/// 機能が所有するルート契約を解析した結果。
 ///
-/// This is deliberately framework-free so feature route ports can be used by
-/// the app router without depending on GoRouter.
+/// 機能のルートポートをGoRouterに依存せずアプリルーターから利用できるよう、
+/// 意図的にフレームワークに依存しない設計にしています。
 sealed class RouteParseResult<T> {
   const RouteParseResult();
 }

@@ -4,14 +4,14 @@ import 'package:my_dic/features/word_detail/port/word_detail.dart';
 
 export 'composition_contract.dart' show WordDetailPorts;
 
-/// Immutable typed dependencies required to assemble WordDetail.
+/// WordDetail の組み立てに必要な不変の型付き依存関係です。
 final class WordDetailDependencies {
   const WordDetailDependencies({required this.catalogGateway});
 
   final WordDetailCatalogGateway catalogGateway;
 }
 
-/// Assembles WordDetail without framework state or service location.
+/// フレームワーク状態やサービスロケーションなしで WordDetail を組み立てます。
 WordDetailPorts createWordDetailComposition({
   required WordDetailDependencies dependencies,
 }) =>

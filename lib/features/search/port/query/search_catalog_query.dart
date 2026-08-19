@@ -1,6 +1,6 @@
 import 'package:my_dic/features/search/port/model/search_direction.dart';
 
-/// Validated provider-neutral input for Search's Catalog gateway.
+/// Search の Catalog ゲートウェイ用に検証された、プロバイダー非依存の入力です。
 final class SearchCatalogQuery {
   SearchCatalogQuery({
     required String text,

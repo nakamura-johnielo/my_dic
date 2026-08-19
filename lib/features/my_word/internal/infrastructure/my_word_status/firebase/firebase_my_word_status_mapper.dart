@@ -1,7 +1,7 @@
 import 'package:my_dic/core/port/firebase_account_nested_document_gateway.dart';
 import 'package:my_dic/features/my_word/internal/infrastructure/my_word_status/firebase/firebase_my_word_status_dto.dart';
 
-/// The only Firestore-to-wire mapping for the MyWordStatus dataset.
+/// MyWordStatus データセットにおける、唯一の Firestore からワイヤ形式へのマッピング。
 final class FirebaseMyWordStatusMapper {
   const FirebaseMyWordStatusMapper._();
 

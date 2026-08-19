@@ -1,6 +1,6 @@
 import 'package:my_dic/features/search/port/search.dart';
 
-/// Pure characterization of the direction rule previously held by presentation.
+/// 以前は表示層が保持していた方向ルールを純粋に表現したものです。
 abstract final class SearchDirectionPolicy {
   static final RegExp _espJpnCharacters = RegExp(r'[a-zA-Záéíóúñü]');
 

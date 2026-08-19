@@ -1,7 +1,7 @@
 import 'package:my_dic/features/ranking/port/model/ranking_account_scope.dart';
 import 'package:my_dic/features/ranking/port/model/ranking_filter.dart';
 
-/// Validated input for one zero-based Ranking page.
+/// 0 始まりの 1 つの Ranking ページに対する検証済み入力。
 final class RankingPageQuery {
   RankingPageQuery({
     required this.page,

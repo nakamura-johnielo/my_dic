@@ -22,8 +22,8 @@ final class FirebaseUserProfileDao {
     await ensure(profile);
   }
 
-  /// Idempotently provisions the account document identified by the UID.
-  /// Existing editable and authorization fields are never overwritten.
+  /// UID で識別されるアカウントドキュメントを冪等にプロビジョニングします。
+  /// 既存の編集可能フィールドおよび認可フィールドは決して上書きしません。
   Future<UserProfileRemoteDto> ensure(UserProfileRemoteDto defaults) async {
     final existing = await _documents.createIfAbsent(
       accountId: defaults.userId,

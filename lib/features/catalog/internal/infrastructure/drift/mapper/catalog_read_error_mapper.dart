@@ -15,9 +15,9 @@ final class CatalogReadErrorMapper {
         stackTrace: stackTrace,
       );
 
-  /// Classifies failures raised while converting persisted values. Expected
-  /// value/format failures indicate bad Catalog data; other exceptions are
-  /// reader defects and must not be reported as data corruption.
+  /// 永続化値の変換中に発生した失敗を分類する。想定される値・形式の失敗は Catalog
+  /// データの不備を示す。その他の例外はリーダーの不具合であり、データ破損として
+  /// 報告してはならない。
   CatalogReadError conversion(Object cause, StackTrace stackTrace) =>
       switch (cause) {
         FormatException() ||

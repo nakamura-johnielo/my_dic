@@ -2,9 +2,9 @@ import 'package:my_dic/core/result/route_parse_result.dart';
 import 'package:my_dic/features/catalog/port/catalog.dart'
     show CatalogId, CatalogWordRef;
 
-/// URL-serializable contract for the word detail screen.
+/// 単語詳細画面用の URL シリアライズ可能なコントラクトです。
 ///
-/// This deliberately contains only plain data and has no Flutter dependency.
+/// これは意図的に単純なデータのみを含み、Flutter には依存しません。
 final class WordDetailRoute {
   const WordDetailRoute({required this.word});
 

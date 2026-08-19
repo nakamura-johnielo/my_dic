@@ -3,7 +3,7 @@ import 'package:my_dic/core/shared/value_objects/field_update.dart';
 import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/word_status/port/model/word_status.dart';
 
-/// Internal persistence boundary. It is not a consumer-facing port.
+/// 内部の永続化境界です。コンシューマー向けのポートではありません。
 abstract interface class WordStatusRepository {
   Set<CatalogId> get supportedCatalogs;
 
@@ -17,7 +17,7 @@ abstract interface class WordStatusRepository {
     required String accountId,
   });
 
-  /// Reads all present rows. Missing physical rows are omitted.
+  /// 存在するすべての行を読み取ります。存在しない物理行は省略します。
   Future<Result<Map<CatalogWordRef, WordStatus>>> getBatch(
     Iterable<CatalogWordRef> words, {
     required String accountId,

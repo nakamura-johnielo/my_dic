@@ -5,7 +5,7 @@ import 'package:my_dic/features/my_word/internal/infrastructure/my_word/firebase
 import 'package:my_dic/features/sync/port/dataset_contract.dart';
 
 // TODO refactor repository的立ち位置
-/// MyWord's wire and Drift mapping; durable sync policy lives in Sync runtime.
+/// MyWord のワイヤ形式および Drift マッピング。永続的な同期ポリシーは Sync ランタイムにある。
 final class MyWordDatasetSyncService implements DatasetSyncGateway {
   MyWordDatasetSyncService(
       {required MyWordLocalDataSource local,

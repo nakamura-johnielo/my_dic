@@ -15,7 +15,7 @@ final class QuizCandidate {
   final int? starCount;
 }
 
-/// Candidate result. [hasNext] is the Catalog look-ahead signal, not a count.
+/// 候補結果。[hasNext] は件数ではなく Catalog の先読みシグナルである。
 final class QuizCandidatePage {
   QuizCandidatePage(
       {required List<QuizCandidate> candidates,

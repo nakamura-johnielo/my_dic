@@ -1,7 +1,7 @@
 import 'package:my_dic/features/catalog/port/catalog.dart';
 import 'package:my_dic/features/ranking/port/model/ranking_item_id.dart';
 
-/// Ranking's display projection for one Catalog ranking source entry.
+/// 1 つの Catalog ランキングソースエントリに対する Ranking の表示プロジェクション。
 final class RankingItem {
   const RankingItem({
     required this.id,

@@ -3,7 +3,7 @@ import 'package:my_dic/features/sync/port/model/sync_report.dart';
 import 'package:my_dic/features/sync/port/sync_reason_codes.dart';
 import 'sync_report_summary.dart';
 
-/// UI-safe outcomes derived from a [SyncReport].
+/// [SyncReport] から導出した UI で安全な結果です。
 enum SyncReportOutcome {
   cancelled,
   alreadyRunning,
@@ -15,7 +15,7 @@ enum SyncReportOutcome {
   succeeded,
 }
 
-/// Applies the documented outcome precedence without exposing report details.
+/// レポートの詳細を公開せず、文書化された結果の優先順位を適用します。
 class SyncReportInterpreter {
   const SyncReportInterpreter();
 
@@ -47,7 +47,7 @@ class SyncReportInterpreter {
       return SyncReportOutcome.succeeded;
     }
 
-    // A skipped handler without a successful dataset is an actionable warning.
+    // 成功したデータセットのないスキップ済みハンドラーは、対応可能な警告です。
     return SyncReportOutcome.needsAttention;
   }
 

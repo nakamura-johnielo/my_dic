@@ -8,7 +8,7 @@ import 'package:my_dic/features/catalog/port/model/catalog_entry_detail.dart';
 import 'package:my_dic/features/catalog/port/model/esp_jpn_entry.dart';
 import 'package:my_dic/features/catalog/port/model/jpn_esp_entry.dart';
 
-/// Converts Catalog internal entities into the immutable public DTO contract.
+/// Catalog 内部エンティティを不変の公開 DTO 契約に変換する。
 final class CatalogEntityMapper {
   const CatalogEntityMapper._();
 

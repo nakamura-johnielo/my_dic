@@ -2,11 +2,11 @@ import 'package:my_dic/features/sync/port/model/sync_context.dart';
 import 'package:my_dic/features/sync/port/session_fence.dart';
 import 'package:my_dic/features/sync/port/sync_reason_codes.dart';
 
-/// Guards handler-side effects against a session that changed mid-cycle.
+/// サイクル途中で変更されたセッションに対して、ハンドラー側の副作用を防ぎます。
 ///
-/// The engine performs the same check between datasets. Handlers use this
-/// guard around individual remote and local side effects so an old account
-/// cannot acknowledge, apply, or checkpoint after an account switch.
+/// エンジンはデータセット間でも同じ検査を実行します。ハンドラーは個々のリモートおよびローカル
+/// 副作用をこのガードで囲み、アカウント切替後に古いアカウントが確認、適用、チェックポイントを
+/// 実行できないようにします。
 class SyncExecutionGuard {
   const SyncExecutionGuard([this._sessionFence]);
 
@@ -20,9 +20,8 @@ class SyncExecutionGuard {
           ) ??
           true);
 
-  /// Throws inside transactional callbacks so an invalidated session causes
-  /// the transaction to roll back instead of silently committing a prefix of
-  /// the remote changes.
+  /// トランザクションコールバック内で例外を送出し、無効化されたセッションがリモート変更の一部を
+  /// 黙ってコミットするのではなく、トランザクションをロールバックさせます。
   void ensureCanContinue(SyncContext context) {
     if (!canContinue(context)) {
       throw SyncExecutionCancelled(cancellationReason(context));

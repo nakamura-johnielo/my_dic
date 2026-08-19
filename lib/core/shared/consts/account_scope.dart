@@ -1,9 +1,8 @@
-/// Stable local row-scope identifier used for unauthenticated (guest) access
-/// and for rows created before per-account scoping existed on a dataset.
+/// 未認証（ゲスト）アクセスと、データセットにアカウントごとのスコープが存在する前に
+/// 作成された行で使用する、安定したローカル行スコープ識別子。
 ///
-/// Never sent to Firebase; it only selects which local rows a datasource
-/// read/write touches. Signed-in users are scoped by their real accountId
-/// instead. Automatic migration from this guest scope to a signed-in
-/// account's scope is intentionally not performed here (see Local-first 7
-/// guest integration design).
+/// Firebaseには送信しません。データソースの読み書き対象となるローカル行を選ぶだけです。
+/// サインイン済みユーザーは実際のaccountIdでスコープされます。このゲストスコープから
+/// サインイン済みアカウントのスコープへの自動移行は、ここでは意図的に実行しません
+/// （Local-first 7 のゲスト統合設計を参照）。
 const String guestAccountScope = 'legacy_unowned';

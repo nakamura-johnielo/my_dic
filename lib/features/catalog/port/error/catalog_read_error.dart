@@ -1,7 +1,7 @@
 import 'package:my_dic/core/shared/errors/app_error.dart';
 import 'package:my_dic/features/catalog/port/catalog_word_ref.dart';
 
-/// Base class for failures produced at the Catalog reader boundary.
+/// Catalog リーダー境界で発生する失敗の基底クラス。
 sealed class CatalogReadError extends AppError {
   const CatalogReadError({
     required super.message,

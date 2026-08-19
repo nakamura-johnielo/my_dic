@@ -1,6 +1,6 @@
 import 'package:my_dic/core/shared/consts/ui/tab.dart';
 
-/// Names and paths of the application-owned GoRouter graph.
+/// アプリケーション所有のGoRouterグラフにおける名前とパス。
 abstract final class RouteNames {
   static final myWord = MainScreenTab.myword.routeName;
   static final search = MainScreenTab.search.routeName;

@@ -9,8 +9,8 @@ import 'package:my_dic/features/word_status/internal/presentation/component/stat
 import 'package:my_dic/features/word_status/internal/presentation/provider/word_status_providers.dart';
 import 'package:my_dic/features/word_status/port/composition_contract.dart';
 
-/// Final WordStatus presentation entry. The caller supplies its current
-/// session identity; all WordStatus reads and commands stay feature-owned.
+/// 最終的な WordStatus 表示エントリです。呼び出し元が現在のセッション識別子を提供し、
+/// すべての WordStatus 読み取りとコマンドは機能側が所有します。
 class DictionaryStatusButtonsEntry extends ConsumerWidget {
   const DictionaryStatusButtonsEntry({
     super.key,

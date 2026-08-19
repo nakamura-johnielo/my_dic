@@ -17,7 +17,7 @@ import 'package:my_dic/features/catalog/port/model/catalog_part_of_speech.dart';
 
 const _missingConjugation = '--';
 
-/// Converts persistence rows into Catalog internal domain entities.
+/// 永続化行を Catalog 内部ドメインエンティティに変換する。
 final class CatalogDriftMapper {
   const CatalogDriftMapper._();
 

@@ -23,10 +23,10 @@ final _quizGameLoadProvider =
       ),
 );
 
-/// Loads one game with an explicitly injected reader.
+/// 明示的に注入されたリーダーで 1 つのゲームを読み込む。
 ///
-/// Reader identity is part of the family key, preventing state sharing across
-/// runtime and fake capability instances.
+/// リーダー識別子はファミリーキーの一部であり、ランタイム機能とフェイク機能のインスタンス間で
+/// 状態が共有されることを防ぐ。
 AutoDisposeFutureProvider<QuizGameLoadOutcome> quizGameLoadProvider(
   QuizGameQueryPort reader,
   QuizGameQuery query,

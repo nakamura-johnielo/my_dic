@@ -29,8 +29,8 @@ final class DictionaryWordStatusCommandState {
       );
 }
 
-/// One aggregate single-flight lane per entry: bookmark, learned and note
-/// cannot race one another into the same status document.
+/// エントリごとに 1 つの集約単一実行レーンを設けます。ブックマーク、学習済み、メモが
+/// 同じステータスドキュメントへ競合して書き込むことはありません。
 final class DictionaryWordStatusCommand
     extends StateNotifier<DictionaryWordStatusCommandState>
     implements UiEffectConsumer {
